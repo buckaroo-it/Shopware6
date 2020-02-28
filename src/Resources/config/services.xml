@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <service id="Buckaroo\Shopware6\Helper\Config">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\API\HmacHeader">
+            <argument type="service" id="Buckaroo\Shopware6\Helper\Config"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Helper\PluginInfo"/>
+
+        <service id="Buckaroo\Shopware6\Service\SettingsService">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+    
+    </services>
+</container>
