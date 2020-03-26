@@ -3,6 +3,7 @@
 namespace Buckaroo\Shopware6\API;
 
 use Buckaroo\Shopware6\Helper\PluginInfo;
+use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware;
 
 class SoftwareHeader

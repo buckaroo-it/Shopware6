@@ -8,7 +8,7 @@ class CultureHeader
     /**
      * @return string
      */
-    public function getHeader(?string $locale)
+    public function getHeader($locale = false)
     {
         return "Culture: " . CheckoutHelper::getTranslatedLocale($locale);
     }

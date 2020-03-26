@@ -28,6 +28,8 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundExcepti
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+
 class CheckoutHelper
 {
     /** @var UrlGeneratorInterface $router */
@@ -242,7 +244,7 @@ class CheckoutHelper
      * @param $locale
      * @return string
      */
-    public static function getTranslatedLocale($locale): string
+    public static function getTranslatedLocale($locale = false): string
     {
         switch ($locale) {
             case 'nl':
@@ -498,4 +500,44 @@ class CheckoutHelper
         return '';
     }
 
+    public function getReturnUrl($route):string
+    {
+        return $this->router->generate(
+            $route,
+            [],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+    }
+
+    public function saveTransactionData(string $orderTransactionId, Context $context, array $data): void
+    {
+        $orderTransaction = $this->getOrderTransactionById(
+            $context,
+            $orderTransactionId
+        );
+
+        $customFields = $orderTransaction->getCustomFields() ?? [];
+        $customFields = array_merge($customFields, $data);
+
+        $this->updateTransactionCustomFields($orderTransactionId, $customFields);
+    }
+
+    public function updateTransactionCustomFields(string $orderTransactionId, array $customFields): void
+    {
+        $data = [
+            'id'           => $orderTransactionId,
+            'customFields' => $customFields,
+        ];
+
+        $this->transactionRepository->update([$data], Context::createDefaultContext());
+    }
+
+    public function getOrderTransactionById(Context $context, string $orderId): ?OrderTransactionEntity
+    {
+        $criteria = new Criteria();
+        $filter = new EqualsFilter('order_transaction.id', $orderId);
+        $criteria->addFilter($filter);
+
+        return $this->transactionRepository->search($criteria, $context)->first();
+    }
 }
