@@ -57,17 +57,17 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      *
      * @return string Base-url
      */
-    protected function getBaseUrl():string
+    protected function getBaseUrl($method = ''):string
     {
-        return $this->apiHelper->getEnvironment() == 'live' ? UrlHelper::LIVE : UrlHelper::TEST;
+        return $this->apiHelper->getEnvironment($method) == 'live' ? UrlHelper::LIVE : UrlHelper::TEST;
     }
 
     /**
      * @return string Full transaction url
      */
-    protected function getTransactionUrl():string
+    protected function getTransactionUrl($method = ''):string
     {
-        return rtrim($this->getBaseUrl(), '/') . '/' . ltrim('json/Transaction', '/');
+        return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/Transaction', '/');
     }
 
     /**
@@ -100,10 +100,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         $request->setDescription('Payment for order #' . $order->getOrderNumber());
         
-        $request->setReturnURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.push'));
+        $request->setReturnURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize'));
 
         $request->setReturnURLCancel(sprintf('%s&cancel=1', $transaction->getReturnUrl()));
-        $request->setPushURL($transaction->getReturnUrl());
+        $request->setPushURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.push'));
+        // $request->setPushURL($transaction->getReturnUrl());
         
         $request->setAdditionalParameter('orderTransactionId', $transaction->getOrderTransaction()->getId());
         $request->setAdditionalParameter('orderId', $order->getId());
@@ -117,8 +118,12 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setServiceVersion($gatewayInfo['version']);
         $request->setServiceAction('Pay');
 
+        if($issuer_id = $gatewayInfo['issuer_id']){
+            $request->setServiceParameter('issuer', $issuer_id);
+        }
+
         try {
-            $url = $this->getTransactionUrl();
+            $url = $this->getTransactionUrl($gatewayInfo['key']);
             $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\API\Payload\TransactionResponse');
         } catch (Exception $exception) {
             throw new AsyncPaymentProcessException(

@@ -2,16 +2,16 @@
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\VisaPaymentHandler;
+use Buckaroo\Shopware6\Handlers\IdealProcessingPaymentHandler;
 
-class Visa implements PaymentMethodInterface
+class IdealProcessing implements PaymentMethodInterface
 {
     /*
     * @return string
     */
     public function getBuckarooKey(): string
     {
-        return 'visa';
+        return 'idealprocessing';
     }
 
     /**
@@ -19,7 +19,7 @@ class Visa implements PaymentMethodInterface
      */
     public function getVersion(): string
     {
-        return '1';
+        return '2';
     }
 
     /**
@@ -29,7 +29,7 @@ class Visa implements PaymentMethodInterface
      */
     public function getName(): string
     {
-        return 'Visa';
+        return 'Buckaroo iDEAL Processing';
     }
 
     /**
@@ -39,17 +39,7 @@ class Visa implements PaymentMethodInterface
      */
     public function getDescription(): string
     {
-        return 'Pay with Visa';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string
-     */
-    public function getMedia(): string
-    {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/visa.png';
+        return 'Pay with iDEAL Processing';
     }
 
     /**
@@ -59,7 +49,7 @@ class Visa implements PaymentMethodInterface
      */
     public function getPaymentHandler(): string
     {
-        return VisaPaymentHandler::class;
+        return IdealProcessingPaymentHandler::class;
     }
 
     /**
@@ -69,7 +59,7 @@ class Visa implements PaymentMethodInterface
      */
     public function getGatewayCode(): string
     {
-        return 'VISA';
+        return 'IDEALPROCESSING';
     }
 
     /**
@@ -79,7 +69,17 @@ class Visa implements PaymentMethodInterface
      */
     public function getTemplate(): ?string
     {
-        return null;
+        return '@BuckarooPayment/storefront/buckaroo/ideal/issuers.html.twig';
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return string
+     */
+    public function getMedia(): string
+    {
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/ideal.png';
     }
 
     /**
@@ -92,7 +92,7 @@ class Visa implements PaymentMethodInterface
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit Visa',
+                'description' => 'Bezahlen mit iDEAL Processing',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),
@@ -108,11 +108,11 @@ class Visa implements PaymentMethodInterface
      */
     public function getType(): string
     {
-        return 'redirect';
+        return 'direct';
     }
 
     public function canRefund(): bool
     {
-        return true;
+        return false;
     }
 }

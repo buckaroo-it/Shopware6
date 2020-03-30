@@ -22,6 +22,11 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 use Buckaroo\Shopware6\Helper\BkrHelper;
 
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
+use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+
 /**
  */
 class PushController extends StorefrontController
@@ -51,6 +56,18 @@ class PushController extends StorefrontController
     {
         $orderTransactionId = $request->request->get('ADD_orderTransactionId');
         $context = $salesChannelContext->getContext();
+        $brq_amount_credit = $request->request->get('brq_amount_credit');
+        $status = $request->request->get('brq_statuscode');
+        $brq_transaction_type = $request->request->get('brq_transaction_type');
+
+        //Check if the push is a refund request or cancel authorize
+        if (isset($brq_amount_credit)) {
+            if($status != '190' && $brq_transaction_type == 'I014'){
+                return $this->json(['status' => true, 'message' => "Payment cancelled"]);
+            }
+            return $this->json(['status' => true, 'message' => "Refund successful"]);
+        }
+
         try {
             $this->checkoutHelper->transitionPaymentState('completed', $orderTransactionId, $context);
             $data = [
@@ -61,7 +78,34 @@ class PushController extends StorefrontController
         | StateMachineStateNotFoundException $exception) {
             throw new AsyncPaymentFinalizeException($orderTransactionId, $exception->getMessage());
         }
+        return $this->json(['status' => true, 'message' => "Payment state was updated"]);
+    }
+    /**
+     * @RouteScope(scopes={"storefront"})
+     * @Route("/buckaroo/finalize", name="buckaroo.payment.finalize", defaults={"csrf_protected"=false}, methods={"POST"})
+     *
+     * @param Request $request
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return RedirectResponse
+     */
+    public function finalizeBuckaroo(Request $request, SalesChannelContext $salesChannelContext)
+    {
+        $transactionId = $request->request->get('ADD_orderTransactionId');
+        $status = $request->request->get('brq_statuscode');
+        if($status == '190'){
+            return new RedirectResponse('/checkout/finish?orderId=' . $request->request->get('ADD_orderId'));
+        }
 
-        return new RedirectResponse('/checkout/finish?orderId=' . $request->request->get('ADD_orderId'));
+        $message = 'Payment failed';
+        if ($request->query->getBoolean('cancel')) {
+            $message = 'Customer canceled the payment on the Buckaroo page';
+        }
+
+        throw new CustomerCanceledAsyncPaymentException(
+            $transactionId,
+            $message
+        );
+
     }
 }

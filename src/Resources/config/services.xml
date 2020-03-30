@@ -64,6 +64,20 @@
             <tag name="shopware.payment.method.async" />
         </service>
 
+        <service id="Buckaroo\Shopware6\Handlers\IdealPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Helper\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helper\CheckoutHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helper\BkrHelper"/>
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\IdealProcessingPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Helper\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helper\CheckoutHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helper\BkrHelper"/>
+            <tag name="shopware.payment.method.async" />
+        </service>
+
         <!-- /Payment methods -->
 
         <!-- Controllers -->
@@ -71,6 +85,13 @@
             <argument type="service" id="Buckaroo\Shopware6\Helper\BkrHelper"/>
             <argument type="service" id="order_transaction.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helper\CheckoutHelper"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber" >
+            <argument type="service" id="Buckaroo\Shopware6\Helper\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helper\BkrHelper"/>
+            <argument type="service" id="customer.repository"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Resources\snippet\de_DE\GermanTranslations" public="true">

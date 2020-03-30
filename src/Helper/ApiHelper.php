@@ -32,8 +32,8 @@ class ApiHelper
         return $this->bkrClient;
     }
 
-    public function getEnvironment(): string
+    public function getEnvironment($method = ''): string
     {
-        return $this->settingsService->getSetting('environment');
+        return $this->settingsService->getSetting('environment'.$method);
     }
 }

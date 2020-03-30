@@ -6,28 +6,83 @@
         <title>Configuration</title>
         <title lang="de-DE">Konfiguration</title>
 
-        <input-field>
+        <input-field  type="password">
             <name>websiteKey</name>
-            <label>Website key</label>
+            <label>(Merchant) key</label>
             <label lang="de-DE">Website key</label>
             <label lang="nl-NL">Website key</label>
             <description>Website key</description>
-            <description lang="de-DE">Website key</description>
-            <description lang="nl-NL">Website key</description>
+            <description>Enter your Buckaroo merchant/website key.</description>
+            <helpText>The (Merchant) Key can be retrieved in Payment Plaza under My Buckaroo > Websites. For support contact Buckaroo.</helpText>
         </input-field>
 
-        <input-field>
+        <input-field  type="password">
             <name>secretKey</name>
             <label>Secret key</label>
             <label lang="de-DE">Secret key</label>
             <label lang="nl-NL">Secret key</label>
             <description>Secret key</description>
             <description lang="de-DE">Secret key</description>
-            <description lang="nl-NL">Secret key</description>
+            <description lang="nl-NL">Enter your Buckaroo merchant/website key.</description>
+            <helpText>The Secret Key can be retrieved in Payment Plaza under Configuration > Security > Secret Key. For support contact Buckaroo.</helpText>
         </input-field>
 
         <input-field type="single-select">
             <name>environment</name>
+            <label>Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+    </card>
+    <card>
+        <title>Visa</title>
+        <input-field type="single-select">
+            <name>environmentvisa</name>
+            <label>Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+    </card>
+    <card>
+        <title>iDEAL</title>
+        <input-field type="single-select">
+            <name>environmentideal</name>
+            <label>Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+    </card>
+    <card>
+        <title>iDEAL Processing</title>
+        <input-field type="single-select">
+            <name>environmentidealprocessing</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <options>

@@ -2,7 +2,7 @@
     "name": "buckaroo/shopware6",
     "description": "Buckaroo payment provider plugin for Shopware 6",
     "type": "shopware-platform-plugin",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "license": "CC-BY-NC-ND-3.0",
     "minimum-stability": "dev",
     "require": {
@@ -33,8 +33,8 @@
     "extra": {
         "shopware-plugin-class": "Buckaroo\\Shopware6\\BuckarooPayment",
         "label": {
-            "en-GB": "Buckaroo payment provider plugin for Shopware 6",
-            "de-DE": "Buckaroo Payment Provider Plugin für Shopware 6"
+            "en-GB": "Buckaroo payment for Shopware 6",
+            "de-DE": "Buckaroo Payment für Shopware 6"
         }
     },
     "require-dev": {

@@ -95,4 +95,9 @@ class Buckaroo implements PaymentMethodInterface
     {
         return 'redirect';
     }
+
+    public function canRefund(): bool
+    {
+        return true;
+    }
 }

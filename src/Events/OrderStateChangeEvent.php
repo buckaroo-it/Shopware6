@@ -20,6 +20,8 @@ use Buckaroo\Shopware6\Helper\UrlHelper;
 
 use Buckaroo\Shopware6\Helper\CheckoutHelper;
 
+use Psr\Log\LoggerInterface;
+
 class OrderStateChangeEvent implements EventSubscriberInterface
 {
     /** @var EntityRepositoryInterface */
@@ -28,6 +30,9 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     private $orderDeliveryRepository;
     /** @var ApiHelper */
     private $apiHelper;
+
+    /** @var LoggerInterface */
+    protected $logger;
 
     /**
      * OrderDeliveryStateChangeEventTest constructor.
@@ -39,12 +44,14 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         EntityRepositoryInterface $orderRepository,
         EntityRepositoryInterface $orderDeliveryRepository,
         ApiHelper $apiHelper,
-        CheckoutHelper $checkoutHelper
+        CheckoutHelper $checkoutHelper,
+        LoggerInterface $logger
     ) {
         $this->orderRepository = $orderRepository;
         $this->orderDeliveryRepository = $orderDeliveryRepository;
         $this->apiHelper = $apiHelper;
         $this->checkoutHelper = $checkoutHelper;
+        $this->logger = $logger;
     }
 
     /**
@@ -67,8 +74,13 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             return;
         }
 
+        if($customFields['refund']==0){
+            return false;
+        }
+
         $request = new TransactionRequest;
         $request->setServiceAction('Refund');
+        $request->setDescription('Refund for order #' . $order->getOrderNumber());
         $request->setServiceName($customFields['serviceName']);
         $request->setAmountCredit($order->getAmountTotal());
         $request->setInvoice($order->getOrderNumber());
@@ -76,7 +88,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $request->setCurrency('EUR');
         $request->setOriginalTransactionKey($customFields['originalTransactionKey']);
 
-        $url = $this->getTransactionUrl();
+        $url = $this->getTransactionUrl($customFields['serviceName']);
         $bkrClient = $this->apiHelper->initializeBuckarooClient();
         return $bkrClient->post($url, $request, 'Buckaroo\Shopware6\API\Payload\TransactionResponse');
     }
@@ -137,7 +149,15 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             $transaction->getId()
         );
         $customField = $orderTransaction->getCustomFields() ?? [];
-        $customField['serviceName'] = $transaction->getPaymentMethod()->getName();
+
+        // $this->logger->error(serialize($transaction));
+
+        // $customField['serviceName'] = $transaction->getPaymentMethod()->getName();
+        $customField['serviceName'] =  strtolower(str_replace('PaymentHandler', '', end(explode('\\', $transaction->getPaymentMethod()->getHandlerIdentifier()))));
+        $method_path = str_replace('Handlers', 'PaymentMethods', str_replace('PaymentHandler', '', $transaction->getPaymentMethod()->getHandlerIdentifier()));
+        $paymentMethod = new $method_path;
+        $customField['refund'] = $paymentMethod->canRefund() ? 1 : 0;
+
         return $customField;
     }
 
@@ -147,17 +167,17 @@ class OrderStateChangeEvent implements EventSubscriberInterface
      *
      * @return string Base-url
      */
-    protected function getBaseUrl():string
+    protected function getBaseUrl($method = ''):string
     {
-        return $this->apiHelper->getEnvironment() == 'live' ? UrlHelper::LIVE : UrlHelper::TEST;
+        return $this->apiHelper->getEnvironment($method) == 'live' ? UrlHelper::LIVE : UrlHelper::TEST;
     }
 
     /**
      * @return string Full transaction url
      */
-    protected function getTransactionUrl():string
+    protected function getTransactionUrl($method = ''):string
     {
-        return rtrim($this->getBaseUrl(), '/') . '/' . ltrim('json/Transaction', '/');
+        return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/Transaction', '/');
     }
 
 }
