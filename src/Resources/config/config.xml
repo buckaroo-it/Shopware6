@@ -6,7 +6,7 @@
         <title>Configuration</title>
         <title lang="de-DE">Konfiguration</title>
 
-        <input-field  type="password">
+        <input-field >
             <name>websiteKey</name>
             <label>(Merchant) key</label>
             <label lang="de-DE">Website key</label>
@@ -16,7 +16,7 @@
             <helpText>The (Merchant) Key can be retrieved in Payment Plaza under My Buckaroo > Websites. For support contact Buckaroo.</helpText>
         </input-field>
 
-        <input-field  type="password">
+        <input-field >
             <name>secretKey</name>
             <label>Secret key</label>
             <label lang="de-DE">Secret key</label>
