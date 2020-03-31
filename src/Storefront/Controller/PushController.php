@@ -65,6 +65,10 @@ class PushController extends StorefrontController
             if($status != '190' && $brq_transaction_type == 'I014'){
                 return $this->json(['status' => true, 'message' => "Payment cancelled"]);
             }
+            $data = [
+                'refunded' => 1
+            ];
+            $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
             $this->checkoutHelper->transitionPaymentState('refunded', $orderTransactionId, $context);
             return $this->json(['status' => true, 'message' => "Refund successful"]);
         }

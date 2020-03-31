@@ -78,6 +78,10 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             return false;
         }
 
+        if($customFields['refunded']==1){
+            return false;
+        }
+
         $request = new TransactionRequest;
         $request->setServiceAction('Refund');
         $request->setDescription('Refund for order #' . $order->getOrderNumber());
