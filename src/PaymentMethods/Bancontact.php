@@ -2,16 +2,16 @@
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\IdealProcessingPaymentHandler;
+use Buckaroo\Shopware6\Handlers\BancontactPaymentHandler;
 
-class IdealProcessing implements PaymentMethodInterface
+class Bancontact implements PaymentMethodInterface
 {
     /*
     * @return string
     */
     public function getBuckarooKey(): string
     {
-        return 'idealprocessing';
+        return 'bancontactmrcash';
     }
 
     /**
@@ -19,7 +19,7 @@ class IdealProcessing implements PaymentMethodInterface
      */
     public function getVersion(): string
     {
-        return '2';
+        return '1';
     }
 
     /**
@@ -29,7 +29,7 @@ class IdealProcessing implements PaymentMethodInterface
      */
     public function getName(): string
     {
-        return 'Buckaroo iDEAL Processing';
+        return 'Bancontact';
     }
 
     /**
@@ -39,37 +39,7 @@ class IdealProcessing implements PaymentMethodInterface
      */
     public function getDescription(): string
     {
-        return 'Pay with iDEAL Processing';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string
-     */
-    public function getPaymentHandler(): string
-    {
-        return IdealProcessingPaymentHandler::class;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string|null
-     */
-    public function getGatewayCode(): string
-    {
-        return 'IDEALPROCESSING';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string|null
-     */
-    public function getTemplate(): ?string
-    {
-        return '@BuckarooPayment/storefront/buckaroo/ideal/issuers2.html.twig';
+        return 'Pay with Bancontact';
     }
 
     /**
@@ -79,7 +49,37 @@ class IdealProcessing implements PaymentMethodInterface
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/ideal.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/bancontact.png';
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return string
+     */
+    public function getPaymentHandler(): string
+    {
+        return BancontactPaymentHandler::class;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return string|null
+     */
+    public function getGatewayCode(): string
+    {
+        return 'BANCONTACT';
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return string|null
+     */
+    public function getTemplate(): ?string
+    {
+        return null;
     }
 
     /**
@@ -92,7 +92,7 @@ class IdealProcessing implements PaymentMethodInterface
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit iDEAL Processing',
+                'description' => 'Bezahlen mit Bancontact',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),
@@ -108,11 +108,11 @@ class IdealProcessing implements PaymentMethodInterface
      */
     public function getType(): string
     {
-        return 'direct';
+        return 'redirect';
     }
 
     public function canRefund(): bool
     {
-        return false;
+        return true;
     }
 }

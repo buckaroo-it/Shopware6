@@ -152,11 +152,10 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
         // $this->logger->error(serialize($transaction));
 
-        // $customField['serviceName'] = $transaction->getPaymentMethod()->getName();
-        $customField['serviceName'] =  strtolower(str_replace('PaymentHandler', '', end(explode('\\', $transaction->getPaymentMethod()->getHandlerIdentifier()))));
         $method_path = str_replace('Handlers', 'PaymentMethods', str_replace('PaymentHandler', '', $transaction->getPaymentMethod()->getHandlerIdentifier()));
         $paymentMethod = new $method_path;
         $customField['refund'] = $paymentMethod->canRefund() ? 1 : 0;
+        $customField['serviceName'] = $paymentMethod->getBuckarooKey();
 
         return $customField;
     }

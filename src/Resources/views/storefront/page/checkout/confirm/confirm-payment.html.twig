@@ -5,6 +5,9 @@
     {% if context.paymentMethod.translated.name == 'Buckaroo iDEAL' %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
         {{ page.extensions.buckaroo.payment_method_name }}
+    {% elseif context.paymentMethod.translated.name == 'Buckaroo iDEAL Processing' %}
+        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
+        {{ page.extensions.buckaroo.payment_method_name2 }}
     {% else %}
         {{ parent() }}
     {% endif %}

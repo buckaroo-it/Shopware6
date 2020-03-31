@@ -97,4 +97,22 @@
             </options>
         </input-field>
     </card>
+    <card>
+        <title>Bancontact</title>
+        <input-field type="single-select">
+            <name>environmentbancontactmrcash</name>
+            <label>Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+    </card>
 </config>

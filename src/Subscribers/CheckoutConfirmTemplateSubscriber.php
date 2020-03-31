@@ -111,28 +111,29 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $customer = $event->getSalesChannelContext()->getCustomer();
 
         $issuer = $request->get('issuer');
+        $issuer2 = $request->get('issuer2');
         if ($issuer) {
             $this->customerRepository->upsert(
                 [[
                     'id' => $customer->getId(),
-                    'customFields' => ['last_used_issuer' => $issuer]
+                    'customFields' => ['last_used_issuer' => $issuer, 'last_used_issuer2' => $issuer2]
                 ]],
                 $event->getContext()
             );
             $customer = $this->getCustomer($customer->getId(), $event->getContext());
         }
 
-        // $client = $this->apiHelper->initializeBuckarooClient();
         $struct = new BuckarooStruct();
-
-        // $issuers = $client->issuers->get();
         $issuers = $this->issuers;
         $lastUsedIssuer = $customer->getCustomFields()['last_used_issuer'];
+        $lastUsedIssuer2 = $customer->getCustomFields()['last_used_issuer2'];
 
         $struct->assign([
             'issuers' => $issuers,
             'last_used_issuer' => $lastUsedIssuer,
-            'payment_method_name' => $this->getPaymentMethodName($issuers, $lastUsedIssuer)
+            'last_used_issuer2' => $lastUsedIssuer2,
+            'payment_method_name' => $this->getPaymentMethodName($issuers, $lastUsedIssuer),
+            'payment_method_name2' => $this->getPaymentMethodName($issuers, $lastUsedIssuer2, 'Processing')
         ]);
 
         $event->getPage()->addExtension(
@@ -158,12 +159,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      * @param string|null $lastUsedIssuer
      * @return string
      */
-    private function getPaymentMethodName(array $issuers, ?string $lastUsedIssuer): string
+    private function getPaymentMethodName(array $issuers, ?string $lastUsedIssuer, $name = ''): string
     {
         foreach ($issuers as $issuer) {
             if ($issuer['code'] === $lastUsedIssuer) {
                 $issuerName = $issuer['name'];
-                return 'Buckaroo iDEAL ('.$issuerName.')';
+                return 'Buckaroo iDEAL '.$name.' ('.$issuerName.')';
             }
         }
 

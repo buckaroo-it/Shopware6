@@ -101,8 +101,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setDescription('Payment for order #' . $order->getOrderNumber());
         
         $request->setReturnURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize'));
-
-        $request->setReturnURLCancel(sprintf('%s&cancel=1', $transaction->getReturnUrl()));
+        $request->setReturnURL(sprintf('%s&cancel=1', $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize')));
         $request->setPushURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.push'));
         // $request->setPushURL($transaction->getReturnUrl());
         
