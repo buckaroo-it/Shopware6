@@ -36,4 +36,9 @@ class ApiHelper
     {
         return $this->settingsService->getSetting('environment'.$method);
     }
+
+    public function getSettingsValue($name)
+    {
+        return $this->settingsService->getSetting($name);
+    }
 }

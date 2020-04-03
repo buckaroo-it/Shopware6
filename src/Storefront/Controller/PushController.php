@@ -31,6 +31,10 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
  */
 class PushController extends StorefrontController
 {
+    const BUCK_PUSH_CANCEL_AUTHORIZE_TYPE  = 'I014';
+    const BUCK_PUSH_ACCEPT_AUTHORIZE_TYPE  = 'I013';
+    const BUCK_PUSH_STATUS_SUCCESS  = '190';
+
     /** @var LoggerInterface */
     private $logger;
 
@@ -62,13 +66,10 @@ class PushController extends StorefrontController
 
         //Check if the push is a refund request or cancel authorize
         if (isset($brq_amount_credit)) {
-            if($status != '190' && $brq_transaction_type == 'I014'){
+            if($status != self::BUCK_PUSH_STATUS_SUCCESS && $brq_transaction_type == self::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE){
                 return $this->json(['status' => true, 'message' => "Payment cancelled"]);
             }
-            $data = [
-                'refunded' => 1
-            ];
-            $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
+            $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, ['refunded' => 1 ]);
             $this->checkoutHelper->transitionPaymentState('refunded', $orderTransactionId, $context);
             return $this->json(['status' => true, 'message' => "Refund successful"]);
         }
@@ -76,7 +77,8 @@ class PushController extends StorefrontController
         try {
             $this->checkoutHelper->transitionPaymentState('completed', $orderTransactionId, $context);
             $data = [
-                'originalTransactionKey' => $request->request->get('brq_transactions')
+                'originalTransactionKey' => $request->request->get('brq_transactions'),
+                'brqPaymentMethod' => $request->request->get('brq_transaction_method')
             ];
             $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
         } catch (InconsistentCriteriaIdsException | IllegalTransitionException | StateMachineNotFoundException
@@ -98,7 +100,7 @@ class PushController extends StorefrontController
     {
         $transactionId = $request->request->get('ADD_orderTransactionId');
         $status = $request->request->get('brq_statuscode');
-        if($status == '190'){
+        if($status == self::BUCK_PUSH_STATUS_SUCCESS){
             return new RedirectResponse('/checkout/finish?orderId=' . $request->request->get('ADD_orderId'));
         }
 

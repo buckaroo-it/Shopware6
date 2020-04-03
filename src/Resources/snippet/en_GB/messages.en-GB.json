@@ -1,5 +1,8 @@
 {
   "bkr-ideal": {
     "selectBankIssuer": "Select your bank"
+  },
+  "bkr-creditcards": {
+    "selectCreditCard": "Select your credit card"
   }
 }

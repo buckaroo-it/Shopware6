@@ -85,7 +85,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $request = new TransactionRequest;
         $request->setServiceAction('Refund');
         $request->setDescription('Refund for order #' . $order->getOrderNumber());
-        $request->setServiceName($customFields['serviceName']);
+        $request->setServiceName($customFields['brqPaymentMethod']);
         $request->setAmountCredit($order->getAmountTotal());
         $request->setInvoice($order->getOrderNumber());
         $request->setOrder($order->getOrderNumber());

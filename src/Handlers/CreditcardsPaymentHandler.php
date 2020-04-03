@@ -2,13 +2,14 @@
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Buckaroo\Shopware6\PaymentMethods\IdealProcessing;
+use Buckaroo\Shopware6\PaymentMethods\Creditcards;
+
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class IdealProcessingPaymentHandler extends AsyncPaymentHandler
+class CreditcardsPaymentHandler extends AsyncPaymentHandler
 {
     /**
      * @param AsyncPaymentTransactionStruct $transaction
@@ -28,14 +29,14 @@ class IdealProcessingPaymentHandler extends AsyncPaymentHandler
         string $type = null,
         array $gatewayInfo = []
     ): RedirectResponse {
-        $paymentMethod = new IdealProcessing();
+        $paymentMethod = new Creditcards();
         $gatewayInfo = [
             'key' =>  $paymentMethod->getBuckarooKey(),
             'version' =>  $paymentMethod->getVersion(),
             'refund' =>  $paymentMethod->canRefund(),
         ];
-        if ($dataBag->get('issuer')) {
-            $gatewayInfo['issuer_id'] = $dataBag->get('issuer2');
+        if ($dataBag->get('creditcard')) {
+            $gatewayInfo['creditcard'] = $dataBag->get('creditcard');
         }
         return parent::pay(
             $transaction,

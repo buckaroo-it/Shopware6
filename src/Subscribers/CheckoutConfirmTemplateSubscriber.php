@@ -74,6 +74,20 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         ],
     ];
 
+    protected $issuers2 = [
+        'mastercard' => 'MasterCard',
+        'visa' => 'Visa',
+        'amex' => 'American Express',
+        'vpay' => 'VPay',
+        'maestro' => 'Maestro',
+        'visaelectron' => 'Visa Electron',
+        'cartebleuevisa' => 'Carte Bleue',
+        'cartebancaire' => 'Carte Bancaire',
+        'dankort' => 'Dankort',
+        'nexi' => 'Nexi'
+    ];
+
+
     /**
      * CheckoutConfirmTemplateSubscriber constructor.
      * @param ApiHelper $apiHelper
@@ -112,11 +126,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $issuer = $request->get('issuer');
         $issuer2 = $request->get('issuer2');
+        $creditcard = $request->get('creditcard');
+        
         if ($issuer) {
             $this->customerRepository->upsert(
                 [[
                     'id' => $customer->getId(),
-                    'customFields' => ['last_used_issuer' => $issuer, 'last_used_issuer2' => $issuer2]
+                    'customFields' => ['last_used_issuer' => $issuer, 'last_used_issuer2' => $issuer2, 'last_used_creditcard' => $creditcard]
                 ]],
                 $event->getContext()
             );
@@ -127,13 +143,25 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $issuers = $this->issuers;
         $lastUsedIssuer = $customer->getCustomFields()['last_used_issuer'];
         $lastUsedIssuer2 = $customer->getCustomFields()['last_used_issuer2'];
+        $lastUsedCreditcard = $customer->getCustomFields()['last_used_creditcard'];
+
+        $allowedcreditcards = $this->apiHelper->getSettingsValue('allowedcreditcards');
+        foreach ($allowedcreditcards as $key => $value) {
+            $creditcards[] = [
+                'name' => $this->issuers2[$value],
+                'code' => $value
+            ];
+        }
 
         $struct->assign([
             'issuers' => $issuers,
             'last_used_issuer' => $lastUsedIssuer,
             'last_used_issuer2' => $lastUsedIssuer2,
-            'payment_method_name' => $this->getPaymentMethodName($issuers, $lastUsedIssuer),
-            'payment_method_name2' => $this->getPaymentMethodName($issuers, $lastUsedIssuer2, 'Processing')
+            'payment_method_name_' => $this->getPaymentMethodName($issuers, $lastUsedIssuer),
+            'payment_method_name_processing' => $this->getPaymentMethodName($issuers, $lastUsedIssuer2, 'Buckaroo iDEAL Processing'),
+            'payment_method_name_card' => $this->getPaymentMethodName($creditcards, $lastUsedCreditcard, 'Buckaroo Creditcards'),
+            'creditcards' => $creditcards,
+            'last_used_creditcard' => $lastUsedCreditcard,
         ]);
 
         $event->getPage()->addExtension(
@@ -159,12 +187,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      * @param string|null $lastUsedIssuer
      * @return string
      */
-    private function getPaymentMethodName(array $issuers, ?string $lastUsedIssuer, $name = ''): string
+    private function getPaymentMethodName(array $issuers, ?string $lastUsedIssuer, $name = 'Buckaroo iDEAL'): string
     {
         foreach ($issuers as $issuer) {
             if ($issuer['code'] === $lastUsedIssuer) {
                 $issuerName = $issuer['name'];
-                return 'Buckaroo iDEAL '.$name.' ('.$issuerName.')';
+                return $name.' ('.$issuerName.')';
             }
         }
 

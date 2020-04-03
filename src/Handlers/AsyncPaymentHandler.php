@@ -121,6 +121,10 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $request->setServiceParameter('issuer', $issuer_id);
         }
 
+        if($card = $gatewayInfo['creditcard']){
+            $request->setServiceName($card);
+        }
+
         try {
             $url = $this->getTransactionUrl($gatewayInfo['key']);
             $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\API\Payload\TransactionResponse');

@@ -7,7 +7,10 @@
         {{ page.extensions.buckaroo.payment_method_name }}
     {% elseif context.paymentMethod.translated.name == 'Buckaroo iDEAL Processing' %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
-        {{ page.extensions.buckaroo.payment_method_name2 }}
+        {{ page.extensions.buckaroo.payment_method_name_processing }}
+    {% elseif context.paymentMethod.translated.name == 'Buckaroo Creditcards' %}
+        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
+        {{ page.extensions.buckaroo.payment_method_name_card }}
     {% else %}
         {{ parent() }}
     {% endif %}

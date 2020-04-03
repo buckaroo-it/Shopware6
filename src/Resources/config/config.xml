@@ -27,8 +27,11 @@
             <helpText>The Secret Key can be retrieved in Payment Plaza under Configuration > Security > Secret Key. For support contact Buckaroo.</helpText>
         </input-field>
 
+    </card>
+    <card>
+        <title>Credit cards</title>
         <input-field type="single-select">
-            <name>environment</name>
+            <name>environmentcreditcards</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <options>
@@ -42,21 +45,51 @@
                 </option>
             </options>
         </input-field>
-    </card>
-    <card>
-        <title>Visa</title>
-        <input-field type="single-select">
-            <name>environmentvisa</name>
-            <label>Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
+
+        <input-field type="multi-select">
+            <name>allowedcreditcards</name>
+            <label>Allowed Creditcards:</label>
+            <label lang="de-DE">Allowed Creditcards</label>
             <options>
                 <option>
-                    <id>test</id>
-                    <name>Test</name>
+                    <id>mastercard</id>
+                    <name>MasterCard</name>
                 </option>
                 <option>
-                    <id>live</id>
-                    <name>Live</name>
+                    <id>visa</id>
+                    <name>Visa</name>
+                </option>
+                <option>
+                    <id>amex</id>
+                    <name>American Express</name>
+                </option>
+                <option>
+                    <id>vpay</id>
+                    <name>VPay</name>
+                </option>
+                <option>
+                    <id>maestro</id>
+                    <name>Maestro</name>
+                </option>
+                <option>
+                    <id>visaelectron</id>
+                    <name>Visa Electron</name>
+                </option>
+                <option>
+                    <id>cartebleuevisa</id>
+                    <name>Carte Bleue</name>
+                </option>
+                <option>
+                    <id>cartebancaire</id>
+                    <name>Carte Bancaire</name>
+                </option>
+                <option>
+                    <id>dankort</id>
+                    <name>Dankort</name>
+                </option>
+                <option>
+                    <id>nexi</id>
+                    <name>Nexi</name>
                 </option>
             </options>
         </input-field>
