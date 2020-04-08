@@ -125,6 +125,14 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $request->setServiceName($card);
         }
 
+        if($additional = $gatewayInfo['additional']){
+            foreach ($additional as $key2 => $item) {
+                foreach ($item as $key => $value) {
+                    $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
+                }
+            }
+        }
+
         try {
             $url = $this->getTransactionUrl($gatewayInfo['key']);
             $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\API\Payload\TransactionResponse');
@@ -134,11 +142,13 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 $exception->getMessage()
             );
         }
+        
         if($response->hasRedirect())
         {
             return new RedirectResponse($response->getRedirectUrl());
         }
-        return false;
+
+       return new RedirectResponse('/checkout/finish?orderId=' . $order->getId());
     }
 
     /**

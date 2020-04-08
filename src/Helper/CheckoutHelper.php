@@ -30,6 +30,11 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+
+
 class CheckoutHelper
 {
     /** @var UrlGeneratorInterface $router */
@@ -540,4 +545,463 @@ class CheckoutHelper
 
         return $this->transactionRepository->search($criteria, $context)->first();
     }
+
+    /**
+     * Return the order repository.
+     *
+     * @return EntityRepository
+     */
+    public function getRepository()
+    {
+        return $this->transactionRepository;
+    }
+
+    /**
+     * Return an order entity, enriched with associations.
+     *
+     * @param string $orderId
+     * @param Context $context
+     * @return OrderEntity|null
+     */
+    public function getOrder(string $orderId, Context $context) : ?OrderEntity
+    {
+        $order = null;
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('id', $orderId));
+            $criteria->addAssociation('currency');
+            $criteria->addAssociation('addresses');
+            $criteria->addAssociation('language');
+            $criteria->addAssociation('language.locale');
+            $criteria->addAssociation('lineItems');
+            $criteria->addAssociation('deliveries');
+            $criteria->addAssociation('deliveries.shippingOrderAddress');
+
+            /** @var OrderEntity $order */
+            $order = $this->transactionRepository->search($criteria, $context)->first();
+        } catch (\Exception $e) {
+            // $this->logger->error($e->getMessage(), [$e]);
+        }
+
+        return $order;
+    }
+
+    /**
+     * Return an array of order lines.
+     *
+     * @param OrderEntity $order
+     * @return array
+     */
+    public function getOrderLinesArray(OrderEntity $order)
+    {
+        // Variables
+        $lines = [];
+        $lineItems = $order->getLineItems();
+
+        if ($lineItems === null || $lineItems->count() === 0) {
+            return $lines;
+        }
+
+        // Get currency code
+        $currency = $order->getCurrency();
+        $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
+
+        foreach ($lineItems as $item) {
+            // Get tax
+            $itemTax = null;
+
+            if ($item->getPrice() !== null &&
+                $item->getPrice()->getCalculatedTaxes() !== null) {
+                $itemTax = $this->getLineItemTax($item->getPrice()->getCalculatedTaxes());
+            }
+
+            // Get VAT rate and amount
+            $vatRate = $itemTax !== null ? $itemTax->getTaxRate() : 0.0;
+            $vatAmount = $itemTax !== null ? $itemTax->getTax() : null;
+
+            if ($vatAmount === null && $vatRate > 0) {
+                $vatAmount = $item->getTotalPrice() * ($vatRate / ($vatRate + 100));
+            }
+
+            // Build the order lines array
+            $lines[] = [
+                // 'type' =>  $this->getLineItemType($item),
+                'type' =>  'Article',
+                'name' => $item->getLabel(),
+                'quantity' => $item->getQuantity(),
+                'unitPrice' => $this->getPriceArray($currencyCode, $item->getUnitPrice()),
+                'totalAmount' => $this->getPriceArray($currencyCode, $item->getTotalPrice()),
+                'vatRate' => number_format($vatRate, 2, '.', ''),
+                'vatAmount' => $this->getPriceArray($currencyCode, $vatAmount),
+                'sku' => $item->getId(),
+                'imageUrl' => null,
+                'productUrl' => null,
+            ];
+        }
+
+        $lines[] = $this->getShippingItemArray($order);
+
+        return $lines;
+    }
+
+    /**
+     * Return an array of shipping data.
+     *
+     * @param OrderEntity $order
+     * @return array
+     */
+    public function getShippingItemArray(OrderEntity $order) : array
+    {
+        // Variables
+        $line = [];
+        $shipping = $order->getShippingCosts();
+
+        if ($shipping === null) {
+            return $line;
+        }
+
+        // Get currency code
+        $currency = $order->getCurrency();
+        $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
+
+        // Get shipping tax
+        $shippingTax = null;
+
+        if ($shipping->getCalculatedTaxes() !== null) {
+            $shippingTax = $this->getLineItemTax($shipping->getCalculatedTaxes());
+        }
+
+        // Get VAT rate and amount
+        $vatRate = $shippingTax !== null ? $shippingTax->getTaxRate() : 0.0;
+        $vatAmount = $vatAmount = $shippingTax !== null ? $shippingTax->getTax() : null;
+
+        if ($vatAmount === null && $vatRate > 0) {
+            $vatAmount = $shipping->getTotalPrice() * ($vatRate / ($vatRate + 100));
+        }
+
+        // Build the order line array
+        $line = [
+            // 'type' =>  OrderLineType::TYPE_SHIPPING_FEE,
+            'type' =>  'Shipping',
+            'name' => 'Shipping',
+            'quantity' => $shipping->getQuantity(),
+            'unitPrice' => $this->getPriceArray($currencyCode, $shipping->getUnitPrice()),
+            'totalAmount' => $this->getPriceArray($currencyCode, $shipping->getTotalPrice()),
+            'vatRate' => number_format($vatRate, 2, '.', ''),
+            'vatAmount' => $this->getPriceArray($currencyCode, $vatAmount),
+            'sku' => 'Shipping',
+            'imageUrl' => null,
+            'productUrl' => null,
+        ];
+
+        return $line;
+    }
+
+    /**
+     * Return an array of price data; currency and value.
+     * @param string $currency
+     * @param float $price
+     * @param int $decimals
+     * @return array
+     */
+    public function getPriceArray(string $currency, float $price, int $decimals = 2) : array
+    {
+        return [
+            'currency' => $currency,
+            'value' => number_format($price, $decimals, '.', '')
+        ];
+    }
+
+    /**
+     * Return the type of the line item.
+     *
+     * @param OrderLineItemEntity $item
+     * @return string|null
+     */
+/*    public function getLineItemType(OrderLineItemEntity $item) : ?string
+    {
+        if ($item->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return OrderLineType::TYPE_PHYSICAL;
+        }
+
+        if ($item->getType() === LineItem::CREDIT_LINE_ITEM_TYPE) {
+            return OrderLineType::TYPE_STORE_CREDIT;
+        }
+
+        if ($item->getType() === PromotionProcessor::LINE_ITEM_TYPE ||
+            $item->getTotalPrice() < 0) {
+            return OrderLineType::TYPE_DISCOUNT;
+        }
+
+        return OrderLineType::TYPE_DIGITAL;
+    }
+*/
+    /**
+     * Return a calculated tax struct for a line item.
+     *
+     * @param CalculatedTaxCollection $taxCollection
+     * @return CalculatedTax|null
+     */
+    public function getLineItemTax(CalculatedTaxCollection $taxCollection)
+    {
+        $tax = null;
+
+        if ($taxCollection->count() > 0) {
+            /** @var CalculatedTax $tax */
+            $tax = $taxCollection->first();
+        }
+
+        return $tax;
+    }
+
+    /**
+     * Return a customer entity with address associations.
+     *
+     * @param string $customerId
+     * @param Context $context
+     * @return CustomerEntity|null
+     */
+    public function getCustomer(string $customerId, Context $context) : ?CustomerEntity
+    {
+        $customer = null;
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('id', $customerId));
+            $criteria->addAssociation('activeShippingAddress');
+            $criteria->addAssociation('activeBillingAddress');
+            $criteria->addAssociation('defaultShippingAddress');
+            $criteria->addAssociation('defaultBillingAddress');
+
+            /** @var CustomerEntity $customer */
+            $customer = $this->transactionRepository->search($criteria, $context)->first();
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage(), [$e]);
+        }
+
+        return $customer;
+    }
+
+    public function getAddressArray($order, $additional, &$latestKey, $salesChannelContext, $dataBag)
+    {
+        if ($order->getOrderCustomer() !== null) {
+            $customer = $this->getCustomer(
+                $order->getOrderCustomer()->getCustomerId(),
+                $salesChannelContext->getContext()
+            );
+        }
+
+        if ($customer === null) {
+            $customer = $salesChannelContext->getCustomer();
+        }
+
+        $address = $customer->getDefaultBillingAddress();
+
+        if ($address === null) {
+            return $additional;
+        }
+
+        $streetFormat   = $this->formatStreet($address->getStreet());
+
+/*      $billingAddress = $order->getBillingAddress();
+        $birthDayStamp = str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'));
+        $identificationNumber = $payment->getAdditionalInformation('customer_identificationNumber');
+        $telephone = $payment->getAdditionalInformation('customer_telephone');
+        $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
+
+        if ($payment->getAdditionalInformation('customer_gender') === '1') {
+            $gender = 'Mr';
+        }*/
+
+        // $birthDayStamp = '01-01-1990';
+        // $address->setPhoneNumber('0201234567');
+        // $gender = 'Mrs';
+        $birthDayStamp = $dataBag->get('buckaroo_afterpay_DoB');
+        $address->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
+        $gender = $dataBag->get('buckaroo_afterpay_genderSelect') ==2 ? 'Mrs' : 'Mr';
+
+        $category = 'Person';
+        $billingData = [
+            [
+                '_'    => $category,
+                'Name' => 'Category',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'    => $address->getFirstName(),
+                'Name' => 'FirstName',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'    => $address->getLastName(),
+                'Name' => 'LastName',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'    => $address->getStreet(),
+                'Name' => 'Street',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'    => $address->getZipCode(),
+                'Name' => 'PostalCode',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'    => $address->getCity(),
+                'Name' => 'City',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'    => $address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL',
+                'Name' => 'Country',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'    => $address->getPhoneNumber(),
+                'Name' => 'MobilePhone',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'    => $address->getPhoneNumber(),
+                'Name' => 'Phone',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'    => $customer->getEmail(),
+                'Name' => 'Email',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+        ];
+
+        if (!empty($streetFormat['house_number'])) {
+            $billingData[] = [
+                '_'    => $streetFormat['house_number'],
+                'Name' => 'StreetNumber',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ];
+        }
+
+        if (!empty($streetFormat['number_addition'])) {
+            $billingData[] = [
+                '_'    => $streetFormat['number_addition'],
+                'Name' => 'StreetNumberAdditional',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ];
+        }
+
+        if ($address->getCountry()->getIso() == 'FI') {
+            $billingData[] = [
+                '_'    => $identificationNumber,
+                'Name' => 'IdentificationNumber',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ];
+        }
+
+        if ($address->getCountry()->getIso() == 'NL' || $address->getCountry()->getIso() == 'BE') {
+            $billingData[] = [
+                '_'    => $gender,
+                'Name' => 'Salutation',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ];
+
+            $billingData[] = [
+                '_'    => $birthDayStamp,
+                'Name' => 'BirthDate',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ];
+        }
+
+        $latestKey++;
+
+        return array_merge($additional,[$billingData]);
+
+    }
+
+    /**
+     * @param $street
+     *
+     * @return array
+     */
+    public function formatStreet($street)
+    {
+        // $street = implode(' ', $street);
+        $format = [
+            'house_number'    => '',
+            'number_addition' => '',
+            'street'          => $street
+        ];
+
+        if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
+            // Check if the number is at the beginning of streetname
+            if ('' == $matches[1]) {
+                $format['house_number'] = trim($matches[2]);
+                $format['street']       = trim($matches[3]);
+            } else {
+                $format['street']          = trim($matches[1]);
+                $format['house_number']    = trim($matches[2]);
+                $format['number_addition'] = trim($matches[3]);
+            }
+        }
+        return $format;
+    }
+
+    public function getArticleData($order, $additional, &$latestKey){
+        $lines = $this->getOrderLinesArray($order);
+
+        foreach ($lines as $key => $item) {
+            $additional[] = [
+                [
+                    '_'       => $item['name'],
+                    'Name'    => 'Description',
+                    'GroupID' => $latestKey,
+                    'Group' => 'Article',
+                ],
+                [
+                    '_'       => $item['sku'],
+                    'Name'    => 'Identifier',
+                    'Group' => 'Article',
+                    'GroupID' => $latestKey,
+                ],
+                [
+                    '_'       => $item['quantity'],
+                    'Name'    => 'Quantity',
+                    'GroupID' => $latestKey,
+                    'Group' => 'Article',
+                ],
+                [
+                    '_'       => $item['unitPrice']['value'],
+                    'Name'    => 'GrossUnitPrice',
+                    'GroupID' => $latestKey,
+                    'Group' => 'Article',
+                ],
+                [
+                    '_'       => $item['vatAmount']['value'],
+                    'Name'    => 'VatPercentage',
+                    'GroupID' => $latestKey,
+                    'Group' => 'Article',
+                ]
+            ];
+            $latestKey++;
+        }
+
+        return $additional;
+    }
+
 }

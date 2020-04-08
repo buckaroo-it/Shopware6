@@ -74,6 +74,11 @@ interface PaymentMethodInterface
      * @return string
      */
     public function getType(): string;
-
+    
+    /**
+     * Get the canRefund status
+     *
+     * @return bool
+     */
     public function canRefund(): bool;
 }

@@ -7,6 +7,7 @@ use Buckaroo\Shopware6\PaymentMethods\Ideal;
 use Buckaroo\Shopware6\PaymentMethods\IdealProcessing;
 use Buckaroo\Shopware6\PaymentMethods\Bancontact;
 use Buckaroo\Shopware6\PaymentMethods\Creditcards;
+use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 
 class GatewayHelper
 {
@@ -15,6 +16,7 @@ class GatewayHelper
         Ideal::class,
         IdealProcessing::class,
         Bancontact::class,
-        Creditcards::class
+        Creditcards::class,
+        AfterPay::class
     ];
 }

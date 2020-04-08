@@ -4,5 +4,16 @@
   },
   "bkr-creditcards": {
     "selectCreditCard": "Select your credit card"
+  },
+  "bkr-checkout": {
+    "buckarooAfterpayPhone": "Mobile",
+    "buckarooAfterpayPhonePlaceholder": "Enter your mobile here...",
+    "salutation": "Salutation",
+    "mr": "Mr.",
+    "mrs": "Mrs.",
+    "buckarooAfterpayDoBTitle": "Date of Birth",
+    "buckarooAfterpayDoBTitleSup": "(DD/MM/YYYY)",
+    "buckarooAfterpayTermsConditionTitle": "Terms and Conditions",
+    "buckarooAfterpayTermsCondition": "Yes, I accept the terms and condition for the use of Afterpay."
   }
 }
