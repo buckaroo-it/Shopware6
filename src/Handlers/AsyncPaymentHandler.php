@@ -143,12 +143,19 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         }
         
-        if($response->hasRedirect())
-        {
-            return new RedirectResponse($response->getRedirectUrl());
+        if($response->isSuccess()){
+            if($response->hasRedirect())
+            {
+                return new RedirectResponse($response->getRedirectUrl());
+            }
+            return new RedirectResponse('/checkout/finish?orderId=' . $order->getId());
         }
 
-       return new RedirectResponse('/checkout/finish?orderId=' . $order->getId());
+        throw new AsyncPaymentProcessException(
+            $transaction->getOrderTransaction()->getId(),
+            $response->getSubCodeMessage()
+        );
+
     }
 
     /**

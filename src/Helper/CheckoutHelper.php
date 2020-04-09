@@ -624,16 +624,24 @@ class CheckoutHelper
                 $vatAmount = $item->getTotalPrice() * ($vatRate / ($vatRate + 100));
             }
 
+            $type = 'Article';
+            $unitPrice = $this->getPriceArray($currencyCode, $item->getUnitPrice());
+            $vatAmount = $this->getPriceArray($currencyCode, $vatAmount);
+            if($unitPrice['value']<0){
+                $type = 'Discount';
+                $vatAmount['value'] = 0;
+                $vatRate = 0.0;
+            }
+
             // Build the order lines array
             $lines[] = [
-                // 'type' =>  $this->getLineItemType($item),
-                'type' =>  'Article',
+                'type' =>  $type,
                 'name' => $item->getLabel(),
                 'quantity' => $item->getQuantity(),
-                'unitPrice' => $this->getPriceArray($currencyCode, $item->getUnitPrice()),
+                'unitPrice' => $unitPrice,
                 'totalAmount' => $this->getPriceArray($currencyCode, $item->getTotalPrice()),
                 'vatRate' => number_format($vatRate, 2, '.', ''),
-                'vatAmount' => $this->getPriceArray($currencyCode, $vatAmount),
+                'vatAmount' => $vatAmount,
                 'sku' => $item->getId(),
                 'imageUrl' => null,
                 'productUrl' => null,
@@ -682,7 +690,6 @@ class CheckoutHelper
 
         // Build the order line array
         $line = [
-            // 'type' =>  OrderLineType::TYPE_SHIPPING_FEE,
             'type' =>  'Shipping',
             'name' => 'Shipping',
             'quantity' => $shipping->getQuantity(),
@@ -713,30 +720,6 @@ class CheckoutHelper
         ];
     }
 
-    /**
-     * Return the type of the line item.
-     *
-     * @param OrderLineItemEntity $item
-     * @return string|null
-     */
-/*    public function getLineItemType(OrderLineItemEntity $item) : ?string
-    {
-        if ($item->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            return OrderLineType::TYPE_PHYSICAL;
-        }
-
-        if ($item->getType() === LineItem::CREDIT_LINE_ITEM_TYPE) {
-            return OrderLineType::TYPE_STORE_CREDIT;
-        }
-
-        if ($item->getType() === PromotionProcessor::LINE_ITEM_TYPE ||
-            $item->getTotalPrice() < 0) {
-            return OrderLineType::TYPE_DISCOUNT;
-        }
-
-        return OrderLineType::TYPE_DIGITAL;
-    }
-*/
     /**
      * Return a calculated tax struct for a line item.
      *
@@ -803,20 +786,6 @@ class CheckoutHelper
         }
 
         $streetFormat   = $this->formatStreet($address->getStreet());
-
-/*      $billingAddress = $order->getBillingAddress();
-        $birthDayStamp = str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'));
-        $identificationNumber = $payment->getAdditionalInformation('customer_identificationNumber');
-        $telephone = $payment->getAdditionalInformation('customer_telephone');
-        $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
-
-        if ($payment->getAdditionalInformation('customer_gender') === '1') {
-            $gender = 'Mr';
-        }*/
-
-        // $birthDayStamp = '01-01-1990';
-        // $address->setPhoneNumber('0201234567');
-        // $gender = 'Mrs';
         $birthDayStamp = $dataBag->get('buckaroo_afterpay_DoB');
         $address->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
         $gender = $dataBag->get('buckaroo_afterpay_genderSelect') ==2 ? 'Mrs' : 'Mr';
