@@ -19,6 +19,14 @@ class TransactionResponse extends Response
     /**
      * @return boolean
      */
+    public function isCanceled()
+    {
+        return $this->getStatusCode() == ResponseStatus::CANCELLED_BY_USER || $this->getStatusCode() == ResponseStatus::CANCELLED_BY_MERCHANT;
+    }
+
+    /**
+     * @return boolean
+     */
     public function isPendingProcessing()
     {
         return $this->getStatusCode() == ResponseStatus::PENDING_PROCESSING;

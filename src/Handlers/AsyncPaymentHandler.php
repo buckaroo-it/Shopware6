@@ -101,7 +101,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setDescription('Payment for order #' . $order->getOrderNumber());
         
         $request->setReturnURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize'));
-        $request->setReturnURLCancel(sprintf('%s&cancel=1', $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize')));
+        $request->setReturnURLCancel(sprintf('%s?cancel=1', $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize')));
         $request->setPushURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.push'));
         // $request->setPushURL($transaction->getReturnUrl());
         
@@ -144,14 +144,17 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         }
         
         if($response->isSuccess()){
-            if($response->hasRedirect())
-            {
-                return new RedirectResponse($response->getRedirectUrl());
-            }
             return new RedirectResponse('/checkout/finish?orderId=' . $order->getId());
+        }elseif($response->hasRedirect()) {
+            return new RedirectResponse($response->getRedirectUrl());
+        }elseif($response->isCanceled()){
+            throw new CustomerCanceledAsyncPaymentException(
+            $transaction->getOrderTransaction()->getId(),
+            ''
+            );
         }
 
-        throw new AsyncPaymentProcessException(
+        throw new AsyncPaymentFinalizeException(
             $transaction->getOrderTransaction()->getId(),
             $response->getSubCodeMessage()
         );
