@@ -961,7 +961,7 @@ class CheckoutHelper
                     'Group' => 'Article',
                 ],
                 [
-                    '_'       => $item['vatAmount']['value'],
+                    '_'       => $item['vatRate'],
                     'Name'    => 'VatPercentage',
                     'GroupID' => $latestKey,
                     'Group' => 'Article',
