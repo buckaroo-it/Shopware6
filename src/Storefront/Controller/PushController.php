@@ -74,18 +74,22 @@ class PushController extends StorefrontController
             return $this->json(['status' => true, 'message' => "Refund successful"]);
         }
 
-        try {
-            $this->checkoutHelper->transitionPaymentState('completed', $orderTransactionId, $context);
-            $data = [
-                'originalTransactionKey' => $request->request->get('brq_transactions'),
-                'brqPaymentMethod' => $request->request->get('brq_transaction_method')
-            ];
-            $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
-        } catch (InconsistentCriteriaIdsException | IllegalTransitionException | StateMachineNotFoundException
-        | StateMachineStateNotFoundException $exception) {
-            throw new AsyncPaymentFinalizeException($orderTransactionId, $exception->getMessage());
+        if($status == self::BUCK_PUSH_STATUS_SUCCESS){
+            try {
+                $this->checkoutHelper->transitionPaymentState('completed', $orderTransactionId, $context);
+                $data = [
+                    'originalTransactionKey' => $request->request->get('brq_transactions'),
+                    'brqPaymentMethod' => $request->request->get('brq_transaction_method')
+                ];
+                $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
+            } catch (InconsistentCriteriaIdsException | IllegalTransitionException | StateMachineNotFoundException
+            | StateMachineStateNotFoundException $exception) {
+                throw new AsyncPaymentFinalizeException($orderTransactionId, $exception->getMessage());
+            }
+            return $this->json(['status' => true, 'message' => "Payment state was updated"]);
         }
-        return $this->json(['status' => true, 'message' => "Payment state was updated"]);
+
+        return $this->json(['status' => false, 'message' => "Payment error"]);
     }
     /**
      * @RouteScope(scopes={"storefront"})

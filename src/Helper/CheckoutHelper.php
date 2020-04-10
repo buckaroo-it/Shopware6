@@ -925,7 +925,7 @@ class CheckoutHelper
             } else {
                 $format['street']          = trim($matches[1]);
                 $format['house_number']    = trim($matches[2]);
-                $format['number_addition'] = trim($matches[3]);
+                $format['number_addition'] = trim(str_replace(',','',$matches[3]));
             }
         }
         return $format;
