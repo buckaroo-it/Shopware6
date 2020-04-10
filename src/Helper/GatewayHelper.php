@@ -9,6 +9,7 @@ use Buckaroo\Shopware6\PaymentMethods\Bancontact;
 use Buckaroo\Shopware6\PaymentMethods\Creditcards;
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 use Buckaroo\Shopware6\PaymentMethods\Sofort;
+use Buckaroo\Shopware6\PaymentMethods\Paypal;
 
 class GatewayHelper
 {
@@ -19,6 +20,7 @@ class GatewayHelper
         Bancontact::class,
         Creditcards::class,
         AfterPay::class,
-        Sofort::class
+        Sofort::class,
+        Paypal::class
     ];
 }
