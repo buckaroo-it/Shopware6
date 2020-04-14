@@ -39,7 +39,7 @@ class Paypal implements PaymentMethodInterface
      */
     public function getDescription(): string
     {
-        return 'Pay with Paypal';
+        return 'Pay with PayPal';
     }
 
     /**
