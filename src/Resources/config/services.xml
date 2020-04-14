@@ -36,6 +36,7 @@
             <argument type="service" id="state_machine_state.repository" />
             <argument>%kernel.shopware_version%</argument>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
         </service>
         <service id="Buckaroo\Shopware6\Helper\BkrHelper" />
 
@@ -107,6 +108,13 @@
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\PaypalPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Helper\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helper\CheckoutHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helper\BkrHelper"/>
+            <tag name="shopware.payment.method.async" />
+        </service>
+        
+        <service id="Buckaroo\Shopware6\Handlers\TransferPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Helper\ApiHelper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helper\CheckoutHelper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helper\BkrHelper"/>

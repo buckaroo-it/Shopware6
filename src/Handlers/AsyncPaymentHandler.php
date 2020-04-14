@@ -143,7 +143,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         }
         
-        if($response->isSuccess()){
+        if($response->isSuccess() || $response->isAwaitingConsumer()){
             return new RedirectResponse('/checkout/finish?orderId=' . $order->getId());
         }elseif($response->hasRedirect()) {
             return new RedirectResponse($response->getRedirectUrl());

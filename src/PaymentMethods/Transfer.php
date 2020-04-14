@@ -2,16 +2,16 @@
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\PaypalPaymentHandler;
+use Buckaroo\Shopware6\Handlers\TransferPaymentHandler;
 
-class Paypal implements PaymentMethodInterface
+class Transfer implements PaymentMethodInterface
 {
     /*
     * @return string
     */
     public function getBuckarooKey(): string
     {
-        return 'paypal';
+        return 'transfer';
     }
 
     /**
@@ -19,7 +19,7 @@ class Paypal implements PaymentMethodInterface
      */
     public function getVersion(): string
     {
-        return '1';
+        return '2';
     }
 
     /**
@@ -29,7 +29,7 @@ class Paypal implements PaymentMethodInterface
      */
     public function getName(): string
     {
-        return 'Buckaroo PayPal';
+        return 'Bank Transfer';
     }
 
     /**
@@ -39,7 +39,7 @@ class Paypal implements PaymentMethodInterface
      */
     public function getDescription(): string
     {
-        return 'Pay with Paypal';
+        return 'Pay with Bank Transfer';
     }
 
     /**
@@ -49,7 +49,7 @@ class Paypal implements PaymentMethodInterface
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/paypal.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/transfer.png';
     }
 
     /**
@@ -59,7 +59,7 @@ class Paypal implements PaymentMethodInterface
      */
     public function getPaymentHandler(): string
     {
-        return PaypalPaymentHandler::class;
+        return TransferPaymentHandler::class;
     }
 
     /**
@@ -69,7 +69,7 @@ class Paypal implements PaymentMethodInterface
      */
     public function getGatewayCode(): string
     {
-        return 'PAYPAL';
+        return 'TRANSFER';
     }
 
     /**
@@ -92,7 +92,7 @@ class Paypal implements PaymentMethodInterface
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit Paypal',
+                'description' => 'Bezahlen mit Bank Transfer',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),

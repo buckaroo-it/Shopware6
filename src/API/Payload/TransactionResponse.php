@@ -27,6 +27,14 @@ class TransactionResponse extends Response
     /**
      * @return boolean
      */
+    public function isAwaitingConsumer()
+    {
+        return $this->getStatusCode() == ResponseStatus::AWAITING_CONSUMER;
+    }
+
+    /**
+     * @return boolean
+     */
     public function isPendingProcessing()
     {
         return $this->getStatusCode() == ResponseStatus::PENDING_PROCESSING;

@@ -18,32 +18,6 @@
     <div class="payment-method-second-col billing-address-form">
         <fieldset class="fieldset payment">
 
-            <div class="field required">
-                <label>{{ "bkr-checkout.salutation"|trans }}*:</label>
-                <div class="form-group">
-                    <div class="custom-control custom-radio">
-                        <input type="radio"
-                        class="custom-control-input"
-                        form="confirmOrderForm"
-                        name="buckaroo_afterpay_genderSelect"
-                        id="buckaroo_afterpay_genderSelectMr"
-                        value="1"
-                        required="required">
-                        <label class="custom-control-label" for="buckaroo_afterpay_genderSelectMr">{{ "bkr-checkout.mr"|trans }}</label>
-                    </div>
-                    <div class="custom-control custom-radio">
-                        <input type="radio"
-                        class="custom-control-input"
-                        form="confirmOrderForm"
-                        name="buckaroo_afterpay_genderSelect"
-                        id="buckaroo_afterpay_genderSelectMrs"
-                        value="2"
-                        required="required">
-                        <label class="custom-control-label" for="buckaroo_afterpay_genderSelectMrs">{{ "bkr-checkout.mrs"|trans }}</label>
-                    </div>
-                </div>
-            </div>
-
             <div class="form-group">
                 <label class="form-label" for="buckarooAfterpayPhone">
                     {{ "bkr-checkout.buckarooAfterpayPhone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}

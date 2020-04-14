@@ -33,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Buckaroo\Shopware6\Service\SettingsService;
 
 
 class CheckoutHelper
@@ -56,6 +57,9 @@ class CheckoutHelper
      */
     private $pluginService;
 
+    /** @var SettingsService $settingsService */
+    private $settingsService;
+
     /**
      * CheckoutHelper constructor.
      * @param UrlGeneratorInterface $router
@@ -71,7 +75,8 @@ class CheckoutHelper
         EntityRepository $transactionRepository,
         EntityRepository $stateMachineRepository,
         string $shopwareVersion,
-        PluginService $pluginService
+        PluginService $pluginService,
+        SettingsService $settingsService
     ) {
         $this->router = $router;
         $this->transactionRepository = $transactionRepository;
@@ -79,6 +84,12 @@ class CheckoutHelper
         $this->stateMachineRepository = $stateMachineRepository;
         $this->shopwareVersion = $shopwareVersion;
         $this->pluginService = $pluginService;
+        $this->settingsService = $settingsService;
+    }
+
+    public function getSetting($name)
+    {
+        return $this->settingsService->getSetting($name);
     }
 
     /**
@@ -788,7 +799,8 @@ class CheckoutHelper
         $streetFormat   = $this->formatStreet($address->getStreet());
         $birthDayStamp = $dataBag->get('buckaroo_afterpay_DoB');
         $address->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
-        $gender = $dataBag->get('buckaroo_afterpay_genderSelect') ==2 ? 'Mrs' : 'Mr';
+        // $gender = $dataBag->get('buckaroo_afterpay_genderSelect') ==2 ? 'Mrs' : 'Mr';
+        $salutation = $customer->getSalutation()->getSalutationKey();
 
         $category = 'Person';
         $billingData = [
@@ -883,7 +895,7 @@ class CheckoutHelper
 
         if ($address->getCountry()->getIso() == 'NL' || $address->getCountry()->getIso() == 'BE') {
             $billingData[] = [
-                '_'    => $gender,
+                '_'    => $salutation,
                 'Name' => 'Salutation',
                 'Group' => 'BillingCustomer',
                 'GroupID' => '',
@@ -910,7 +922,6 @@ class CheckoutHelper
      */
     public function formatStreet($street)
     {
-        // $street = implode(' ', $street);
         $format = [
             'house_number'    => '',
             'number_addition' => '',
@@ -971,6 +982,59 @@ class CheckoutHelper
         }
 
         return $additional;
+    }
+
+    public function getTransferData($order, $additional, $salesChannelContext, $dataBag)
+    {
+        if ($order->getOrderCustomer() !== null) {
+            $customer = $this->getCustomer(
+                $order->getOrderCustomer()->getCustomerId(),
+                $salesChannelContext->getContext()
+            );
+        }
+
+        if ($customer === null) {
+            $customer = $salesChannelContext->getCustomer();
+        }
+
+        $address = $customer->getDefaultBillingAddress();
+
+        if ($address === null) {
+            return $additional;
+        }
+
+        $now = new \DateTime();
+        $now->modify('+' . ($this->getSetting('transferDueDate') > 0 ? $this->getSetting('transferDueDate') : 7 ) . ' day');
+        $sendEmail = $this->getSetting('transferSendEmail') ? 'true' : 'false';
+
+        $services = [
+                [
+                    '_'    => $address->getFirstName(),
+                    'Name' => 'CustomerFirstName',
+                ],
+                [
+                    '_'    => $address->getLastName(),
+                    'Name' => 'CustomerLastName',
+                ],
+                [
+                    '_'    => $address->getCountry()->getIso(),
+                    'Name' => 'CustomerCountry',
+                ],
+                [
+                    '_'    => $customer->getEmail(),
+                    'Name' => 'CustomerEmail',
+                ],
+                [
+                    '_'    => $now->format('Y-m-d'),
+                    'Name' => 'DateDue'
+                ],
+                [
+                    '_'    => $sendEmail,
+                    'Name' => 'SendMail'
+                ]
+        ];
+
+        return array_merge($additional,[$services]);
     }
 
 }

@@ -10,6 +10,7 @@ use Buckaroo\Shopware6\PaymentMethods\Creditcards;
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 use Buckaroo\Shopware6\PaymentMethods\Sofort;
 use Buckaroo\Shopware6\PaymentMethods\Paypal;
+use Buckaroo\Shopware6\PaymentMethods\Transfer;
 
 class GatewayHelper
 {
@@ -21,6 +22,7 @@ class GatewayHelper
         Creditcards::class,
         AfterPay::class,
         Sofort::class,
-        Paypal::class
+        Paypal::class,
+        Transfer::class
     ];
 }

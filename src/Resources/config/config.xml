@@ -26,14 +26,15 @@
             <description lang="nl-NL">Enter your Buckaroo merchant/website key.</description>
             <helpText>The Secret Key can be retrieved in Payment Plaza under Configuration > Security > Secret Key. For support contact Buckaroo.</helpText>
         </input-field>
-
     </card>
+    
     <card>
         <title>Credit cards</title>
         <input-field type="single-select">
             <name>environmentcreditcards</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <defaultValue>test</defaultValue>
             <options>
                 <option>
                     <id>test</id>
@@ -100,6 +101,7 @@
             <name>environmentideal</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <defaultValue>test</defaultValue>
             <options>
                 <option>
                     <id>test</id>
@@ -118,6 +120,7 @@
             <name>environmentidealprocessing</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <defaultValue>test</defaultValue>
             <options>
                 <option>
                     <id>test</id>
@@ -136,6 +139,7 @@
             <name>environmentbancontactmrcash</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <defaultValue>test</defaultValue>
             <options>
                 <option>
                     <id>test</id>
@@ -154,6 +158,7 @@
             <name>environmentafterpay</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <defaultValue>test</defaultValue>
             <options>
                 <option>
                     <id>test</id>
@@ -172,6 +177,7 @@
             <name>environmentsofortueberweisung</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <defaultValue>test</defaultValue>
             <options>
                 <option>
                     <id>test</id>
@@ -190,6 +196,7 @@
             <name>environmentpaypal</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <defaultValue>test</defaultValue>
             <options>
                 <option>
                     <id>test</id>
@@ -200,6 +207,38 @@
                     <name>Live</name>
                 </option>
             </options>
+        </input-field>
+    </card>
+    <card>
+    <title>Bank Transfer</title>
+        <input-field type="single-select">
+            <name>environmenttransfer</name>
+            <label>Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>transferDueDate</name>
+            <label>Due date (in days)</label>
+            <helpText>The amount of days after the order date in which the customer has to complete the payment. This is only for display purposes; you can add this due date in the template of the Transfer email.</helpText>
+            <defaultValue>7</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>transferSendEmail</name>
+            <label>Send order confirmation email</label>
+            <helpText>Enable to send an order confirmation email to the customer when the creating of the order is successful. Specific for this payment method.</helpText>
         </input-field>
     </card>
 </config>
