@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -52,6 +53,8 @@ class PaymentMethodsInstaller implements InstallerInterface
         foreach (GatewayHelper::GATEWAYS as $gateway) {
             $this->addPaymentMethod(new $gateway(), $context->getContext());
         }
+
+        $this->copyAppleDomainAssociationFile();
     }
 
     /**
@@ -214,8 +217,6 @@ class PaymentMethodsInstaller implements InstallerInterface
         ];
 
         $this->paymentMethodRepository->upsert([$paymentData], $context);
-
-        //$this->copyAppleDomainAssociationFile();
     }
 
     /**
@@ -236,15 +237,19 @@ class PaymentMethodsInstaller implements InstallerInterface
      */
     protected function copyAppleDomainAssociationFile(): void
     {
-        $root = Shopware()->DocPath();
-        $plugin_path = __DIR__ . '/';
+        $root = $_SERVER['DOCUMENT_ROOT'] . '/';
 
         if (!file_exists($root . '.well-known/apple-developer-merchantid-domain-association')) {
             if (!file_exists($root . '.well-known')) {
                 mkdir($root . '.well-known', 0775, true);
             }
 
-            copy($plugin_path . '/Resources/views/storefront/_resources/apple-developer-merchantid-domain-association', $root . '/.well-known/apple-developer-merchantid-domain-association');
+            copy(__DIR__ . '/../Resources/views/storefront/_resources/apple-developer-merchantid-domain-association', $root . '/.well-known/apple-developer-merchantid-domain-association');
         }
+    }
+
+    public function update(UpdateContext $updateContext): void
+    {
+        $this->copyAppleDomainAssociationFile();
     }
 }

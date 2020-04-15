@@ -69,6 +69,12 @@ class BuckarooPayment extends Plugin
         parent::uninstall($uninstallContext);
     }
 
+    public function update(UpdateContext $updateContext): void
+    {
+        (new PaymentMethodsInstaller($this->container))->update($updateContext);
+        parent::update($updateContext);
+    }
+
     /**
      * @return array
      */

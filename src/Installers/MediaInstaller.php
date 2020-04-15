@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -155,5 +156,9 @@ class MediaInstaller implements InstallerInterface
         }*/
 
         return 'bkr_' . $paymentMethod->getName();
+    }
+
+    public function update(UpdateContext $updateContext): void
+    {
     }
 }
