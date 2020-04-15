@@ -11,6 +11,7 @@ use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 use Buckaroo\Shopware6\PaymentMethods\Sofort;
 use Buckaroo\Shopware6\PaymentMethods\Paypal;
 use Buckaroo\Shopware6\PaymentMethods\Transfer;
+use Buckaroo\Shopware6\PaymentMethods\ApplePay;
 
 class GatewayHelper
 {
@@ -23,6 +24,7 @@ class GatewayHelper
         AfterPay::class,
         Sofort::class,
         Paypal::class,
-        Transfer::class
+        Transfer::class,
+        ApplePay::class
     ];
 }
