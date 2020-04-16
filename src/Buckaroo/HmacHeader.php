@@ -1,9 +1,9 @@
 <?php
 
-namespace Buckaroo\Shopware6\API;
+namespace Buckaroo\Shopware6\Buckaroo;
 
-use Buckaroo\Shopware6\Helper\Helpers;
-use Buckaroo\Shopware6\Helper\Config;
+use Buckaroo\Shopware6\Helpers\Helpers;
+use Buckaroo\Shopware6\Helpers\Config;
 
 /**
  * Class to create the security header for Buckaroo

@@ -1,8 +1,8 @@
 <?php
 
-namespace Buckaroo\Shopware6\API;
+namespace Buckaroo\Shopware6\Buckaroo;
 
-use Buckaroo\Shopware6\Helper\PluginInfo;
+use Buckaroo\Shopware6\Helpers\PluginInfo;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware;
 

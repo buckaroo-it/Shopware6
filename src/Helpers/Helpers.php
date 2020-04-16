@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Shopware6\Helper;
+namespace Buckaroo\Shopware6\Helpers;
 
 use Closure;
 use InvalidArgumentException;

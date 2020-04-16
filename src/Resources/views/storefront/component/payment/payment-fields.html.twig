@@ -1,5 +1,14 @@
 {% sw_extends '@Storefront/storefront/component/payment/payment-fields.html.twig' %}
 
+{% block component_payment_method_description %}
+    <div class="payment-method-description">
+        <strong>{{ payment_labels[payment.name]?:payment.translated.name }}</strong>
+        {% if payment.translated.description %}
+            <p>{{ payment.translated.description|raw }}</p>
+        {% endif %}
+    </div>
+{% endblock %}
+
 {% block component_payment_fieldset_template %}
     {% if payment.translated.customFields.is_buckaroo and payment.translated.customFields.template %}
         {% include payment.translated.customFields.template %}

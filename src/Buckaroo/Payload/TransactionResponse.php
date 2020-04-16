@@ -1,10 +1,10 @@
 <?php
 
-namespace Buckaroo\Shopware6\API\Payload;
+namespace Buckaroo\Shopware6\Buckaroo\Payload;
 
-use Buckaroo\Shopware6\API\Payload\Response;
-use Buckaroo\Shopware6\Helper\Constants\ResponseStatus;
-use Buckaroo\Shopware6\Helper\Helpers;
+use Buckaroo\Shopware6\Buckaroo\Payload\Response;
+use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
+use Buckaroo\Shopware6\Helpers\Helpers;
 
 class TransactionResponse extends Response
 {

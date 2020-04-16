@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
+namespace Buckaroo\Shopware6\Helpers;
 
-namespace Buckaroo\Shopware6\Helper;
-
-use Buckaroo\Shopware6\API\BkrClient;
+use Buckaroo\Shopware6\Buckaroo\BkrClient;
 use Buckaroo\Shopware6\Service\SettingsService;
 
 class ApiHelper
 {
     /** @var SettingsService $settingsService */
     private $settingsService;
+
     /** @var BkrClient $bkrClient */
     private $bkrClient;
 
@@ -34,7 +34,7 @@ class ApiHelper
 
     public function getEnvironment($method = ''): string
     {
-        return $this->settingsService->getSetting('environment'.$method);
+        return $this->settingsService->getSetting($method . 'Environment');
     }
 
     public function getSettingsValue($name)

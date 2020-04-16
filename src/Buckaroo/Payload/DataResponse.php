@@ -1,8 +1,8 @@
 <?php
 
-namespace Buckaroo\Shopware6\API\Payload;
+namespace Buckaroo\Shopware6\Buckaroo\Payload;
 
-use Buckaroo\Shopware6\API\Payload\TransactionResponse;
+use Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse;
 
 /**
  * DataResponse inherits from TransactionResponse

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 
-namespace Buckaroo\Shopware6\Helper;
+namespace Buckaroo\Shopware6\Helpers;
 
 use Symfony\Component\HttpFoundation\Request;
 

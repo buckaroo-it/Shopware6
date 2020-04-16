@@ -16,11 +16,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Buckaroo\Shopware6\Helper\CheckoutHelper;
+use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-use Buckaroo\Shopware6\Helper\BkrHelper;
+use Buckaroo\Shopware6\Helpers\BkrHelper;
 
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;

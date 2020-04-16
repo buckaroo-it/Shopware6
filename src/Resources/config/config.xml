@@ -31,7 +31,7 @@
     <card>
         <title>Credit cards</title>
         <input-field type="single-select">
-            <name>environmentcreditcards</name>
+            <name>creditcardsEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <defaultValue>test</defaultValue>
@@ -45,6 +45,13 @@
                     <name>Live</name>
                 </option>
             </options>
+        </input-field>
+
+        <input-field>
+            <name>creditcardsLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Buckaroo Creditcards</defaultValue>
         </input-field>
 
         <input-field type="multi-select">
@@ -95,10 +102,11 @@
             </options>
         </input-field>
     </card>
+
     <card>
         <title>iDEAL</title>
         <input-field type="single-select">
-            <name>environmentideal</name>
+            <name>idealEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <defaultValue>test</defaultValue>
@@ -113,11 +121,19 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field>
+            <name>idealLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>iDEAL</defaultValue>
+        </input-field>
     </card>
+
     <card>
         <title>iDEAL Processing</title>
         <input-field type="single-select">
-            <name>environmentidealprocessing</name>
+            <name>idealprocessingEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <defaultValue>test</defaultValue>
@@ -132,11 +148,19 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field>
+            <name>idealprocessingLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>iDEAL Processing</defaultValue>
+        </input-field>
     </card>
+
     <card>
         <title>Bancontact</title>
         <input-field type="single-select">
-            <name>environmentbancontactmrcash</name>
+            <name>bancontactmrcashEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <defaultValue>test</defaultValue>
@@ -151,11 +175,19 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field>
+            <name>bancontactmrcashLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Bancontact</defaultValue>
+        </input-field>
     </card>
+
     <card>
         <title>AfterPay</title>
         <input-field type="single-select">
-            <name>environmentafterpay</name>
+            <name>afterpayEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <defaultValue>test</defaultValue>
@@ -170,11 +202,19 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field>
+            <name>afterpayLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>AfterPay</defaultValue>
+        </input-field>
     </card>
+
     <card>
         <title>Sofort</title>
         <input-field type="single-select">
-            <name>environmentsofortueberweisung</name>
+            <name>sofortueberweisungEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <defaultValue>test</defaultValue>
@@ -189,11 +229,19 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field>
+            <name>sofortueberweisungLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Sofort</defaultValue>
+        </input-field>
     </card>
+
     <card>
-    <title>Paypal</title>
+    <title>PayPal</title>
         <input-field type="single-select">
-            <name>environmentpaypal</name>
+            <name>paypalEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <defaultValue>test</defaultValue>
@@ -208,11 +256,19 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field>
+            <name>paypalLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>PayPal</defaultValue>
+        </input-field>
     </card>
+
     <card>
     <title>Bank Transfer</title>
         <input-field type="single-select">
-            <name>environmenttransfer</name>
+            <name>transferEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <defaultValue>test</defaultValue>
@@ -226,6 +282,13 @@
                     <name>Live</name>
                 </option>
             </options>
+        </input-field>
+
+        <input-field>
+            <name>transferLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Bank Transfer</defaultValue>
         </input-field>
 
         <input-field>
@@ -245,7 +308,7 @@
     <card>
         <title>Apple Pay</title>
         <input-field type="single-select">
-            <name>environmentapplepay</name>
+            <name>applepayEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <defaultValue>test</defaultValue>
@@ -259,6 +322,13 @@
                     <name>Live</name>
                 </option>
             </options>
+        </input-field>
+
+        <input-field>
+            <name>applepayLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Apple Pay</defaultValue>
         </input-field>
 
         <input-field type="multi-select">

@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Shopware6\Helper\Constants;
+namespace Buckaroo\Shopware6\Helpers\Constants;
 
 class Gender
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Buckaroo\Shopware6\API\Payload;
+namespace Buckaroo\Shopware6\Buckaroo\Payload;
 
 use JsonSerializable;
 use ArrayAccess;
-use Buckaroo\Shopware6\Helper\Arrayable;
-use Buckaroo\Shopware6\Helper\Helpers;
+use Buckaroo\Shopware6\Helpers\Arrayable;
+use Buckaroo\Shopware6\Helpers\Helpers;
 
 class Request implements JsonSerializable, ArrayAccess, Arrayable
 {

@@ -1,12 +1,12 @@
 <?php
 
-namespace Buckaroo\Shopware6\API;
+namespace Buckaroo\Shopware6\Buckaroo;
 
 use Exception;
-use Buckaroo\Shopware6\API\HmacHeader;
-use Buckaroo\Shopware6\API\Payload\Request;
-use Buckaroo\Shopware6\API\Payload\Response;
-use Buckaroo\Shopware6\Helper\Helpers;
+use Buckaroo\Shopware6\Buckaroo\HmacHeader;
+use Buckaroo\Shopware6\Buckaroo\Payload\Request;
+use Buckaroo\Shopware6\Buckaroo\Payload\Response;
+use Buckaroo\Shopware6\Helpers\Helpers;
 
 class BkrClient
 {
@@ -19,17 +19,17 @@ class BkrClient
     ];
 
     /**
-     * @var Buckaroo\Shopware6\API\HmacHeader
+     * @var Buckaroo\Shopware6\Buckaroo\HmacHeader
      */
     protected $hmac;
 
     /**
-     * @var Buckaroo\Shopware6\API\SoftwareHeader
+     * @var Buckaroo\Shopware6\Buckaroo\SoftwareHeader
      */
     protected $software;
 
     /**
-     * @var Buckaroo\Shopware6\API\CultureHeader
+     * @var Buckaroo\Shopware6\Buckaroo\CultureHeader
      */
     protected $culture;
 
@@ -63,7 +63,7 @@ class BkrClient
         ];
     }
 
-    protected function call($url, $method = self::METHOD_GET, Request $data = null, $responseClass = 'Buckaroo\Shopware6\API\Payload\Response')
+    protected function call($url, $method = self::METHOD_GET, Request $data = null, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response')
     {
         if( !in_array($method, $this->validMethods) )
         {
@@ -84,11 +84,6 @@ class BkrClient
         $headers = $this->getHeaders($curl, $url, $json, $method);
         $headers = array_merge($headers, $data->getHeaders());
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-        // get extra info about the request
-        // curl_setopt($curl, CURLINFO_HEADER_OUT, true);
-        // curl_setopt($curl, CURLINFO_PRIVATE, true);
-        // curl_setopt($curl, CURLOPT_HEADER, true);
 
         // get response headers
         $responseHeaders = [];
@@ -127,12 +122,12 @@ class BkrClient
         return $response;
     }
 
-    public function get($url, $responseClass = 'Buckaroo\Shopware6\API\Payload\Response')
+    public function get($url, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response')
     {
         return $this->call($url, self::METHOD_GET, $responseClass);
     }
 
-    public function post($url, Request $data = null, $responseClass = 'Buckaroo\Shopware6\API\Payload\Response')
+    public function post($url, Request $data = null, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response')
     {
         return $this->call($url, self::METHOD_POST, $data, $responseClass);
     }

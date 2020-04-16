@@ -3,7 +3,7 @@
 
 namespace Buckaroo\Shopware6\Installers;
 
-use Buckaroo\Shopware6\Helper\GatewayHelper;
+use Buckaroo\Shopware6\Helpers\GatewayHelper;
 use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;

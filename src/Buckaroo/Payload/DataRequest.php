@@ -1,9 +1,9 @@
 <?php
 
-namespace Buckaroo\Shopware6\API\Payload;
+namespace Buckaroo\Shopware6\Buckaroo\Payload;
 
-use Buckaroo\Shopware6\API\Payload\TransactionRequest;
-use Buckaroo\Shopware6\Helper\Helpers;
+use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
+use Buckaroo\Shopware6\Helpers\Helpers;
 
 /**
  * DataRequest inherits from TransactionRequest
