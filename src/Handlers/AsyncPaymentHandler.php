@@ -79,12 +79,12 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         $request = new TransactionRequest;
 
+        $finalize_page = $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize');
+
         $request->setDescription('Payment for order #' . $order->getOrderNumber());
-        
-        $request->setReturnURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize'));
-        $request->setReturnURLCancel(sprintf('%s?cancel=1', $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize')));
+        $request->setReturnURL($finalize_page);
+        $request->setReturnURLCancel(sprintf('%s?cancel=1', $finalize_page));
         $request->setPushURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.push'));
-        // $request->setPushURL($transaction->getReturnUrl());
         
         $request->setAdditionalParameter('orderTransactionId', $transaction->getOrderTransaction()->getId());
         $request->setAdditionalParameter('orderId', $order->getId());
@@ -134,6 +134,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             ''
             );
         }
+
+        return new RedirectResponse($finalize_page . '?error=' . base64_encode($response->getSubCodeMessage()));
 
         throw new AsyncPaymentFinalizeException(
             $transaction->getOrderTransaction()->getId(),

@@ -160,10 +160,9 @@ class CheckoutHelper
         }
 
         /**
-         * Check if the state if from the current transaction is equal
-         * to the transaction we want to transition to.
+         * Check if the current transaction state is equal
          */
-        if ($this->isSameStateId($transitionAction, $orderTransactionId, $context)) {
+        if ($this->isSameState($transitionAction, $orderTransactionId, $context)) {
             return;
         }
 
@@ -212,7 +211,7 @@ class CheckoutHelper
      * @return OrderTransactionEntity
      * @throws InconsistentCriteriaIdsException
      */
-    public function getTransaction(string $transactionId, Context $context): OrderTransactionEntity
+    public function getOrderTransaction(string $transactionId, Context $context): OrderTransactionEntity
     {
         $criteria = new Criteria([$transactionId]);
         /** @var OrderTransactionEntity $transaction */
@@ -227,9 +226,9 @@ class CheckoutHelper
      * @return bool
      * @throws InconsistentCriteriaIdsException
      */
-    public function isSameStateId(string $actionName, string $orderTransactionId, Context $context): bool
+    public function isSameState(string $actionName, string $orderTransactionId, Context $context): bool
     {
-        $transaction = $this->getTransaction($orderTransactionId, $context);
+        $transaction = $this->getOrderTransaction($orderTransactionId, $context);
         $currentStateId = $transaction->getStateId();
 
         $actionStatusTransition = $this->getTransitionFromActionName($actionName, $context);
@@ -309,21 +308,6 @@ class CheckoutHelper
             'plugin_version' => $this->pluginService->getPluginByName('BuckarooPayment', $context)->getVersion(),
             'partner' => 'Buckaroo',
         ];
-    }
-
-    /**
-     * @param  $amount
-     * @return string
-     */
-    public function generateToken($amount):string
-    {
-        $amount = number_format($amount, 2);
-        return md5(implode('|', [ $amount, microtime() ]));
-    }
-
-    public function generateSignature():string
-    {
-        return '';
     }
 
     public function getReturnUrl($route):string

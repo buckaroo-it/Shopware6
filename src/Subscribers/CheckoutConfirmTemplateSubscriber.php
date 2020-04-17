@@ -134,7 +134,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $customer = $event->getSalesChannelContext()->getCustomer();
 
         $issuer = $request->get('issuer');
-        $issuer_processing = $request->get('issuer2');
+        $issuer_processing = $request->get('issuerp');
         $creditcard = $request->get('creditcard');
         
         if ($issuer) {

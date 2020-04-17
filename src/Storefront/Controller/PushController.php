@@ -70,7 +70,14 @@ class PushController extends StorefrontController
                 return $this->json(['status' => true, 'message' => "Payment cancelled"]);
             }
             $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, ['refunded' => 1 ]);
-            $this->checkoutHelper->transitionPaymentState('refunded', $orderTransactionId, $context);
+
+            $transaction = $this->checkoutHelper->getOrderTransaction($orderTransactionId, $context);
+            $totalPrice = $transaction->getAmount()->getTotalPrice();
+
+            $status = ($brq_amount_credit < $totalPrice) ? 'partial_refunded' : 'refunded';
+
+            $this->checkoutHelper->transitionPaymentState($status, $orderTransactionId, $context);
+
             return $this->json(['status' => true, 'message' => "Refund successful"]);
         }
 
@@ -91,9 +98,10 @@ class PushController extends StorefrontController
 
         return $this->json(['status' => false, 'message' => "Payment error"]);
     }
+
     /**
      * @RouteScope(scopes={"storefront"})
-     * @Route("/buckaroo/finalize", name="buckaroo.payment.finalize", defaults={"csrf_protected"=false}, methods={"POST"})
+     * @Route("/buckaroo/finalize", name="buckaroo.payment.finalize", defaults={"csrf_protected"=false}, methods={"POST","GET"})
      *
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
@@ -108,15 +116,26 @@ class PushController extends StorefrontController
             return new RedirectResponse('/checkout/finish?orderId=' . $request->request->get('ADD_orderId'));
         }
 
-        $message = 'Payment failed';
         if ($request->query->getBoolean('cancel')) {
-            $message = 'Customer canceled the payment on the Buckaroo page';
+            $messages[] = ['type' => 'warning', 'text' => [$this->trans('Customer canceled the payment on the Buckaroo page')]];
         }
 
-        throw new CustomerCanceledAsyncPaymentException(
+        if ($error = $request->query->filter('error')) {
+            $messages[] = ['type' => 'danger', 'text' => [base64_decode($error)]];
+        }
+
+        if(empty($messages)){
+            $messages[] = ['type' => 'danger', 'text' => [$this->trans('Payment failed')]];
+        }
+
+        return $this->renderStorefront('@Storefront/storefront/buckaroo/page/finalize/_page.html.twig', [
+            'messages' => $messages
+        ]);
+
+/*        throw new CustomerCanceledAsyncPaymentException(
             $transactionId,
             $message
         );
-
+*/
     }
 }
