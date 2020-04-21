@@ -26,6 +26,7 @@
             <description lang="nl-NL">Enter your Buckaroo merchant/website key.</description>
             <helpText>The Secret Key can be retrieved in Payment Plaza under Configuration > Security > Secret Key. For support contact Buckaroo.</helpText>
         </input-field>
+
     </card>
     
     <card>
@@ -242,39 +243,4 @@
         </input-field>
     </card>
 
-    <card>
-        <title>Apple Pay</title>
-        <input-field type="single-select">
-            <name>environmentapplepay</name>
-            <label>Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <defaultValue>test</defaultValue>
-            <options>
-                <option>
-                    <id>test</id>
-                    <name>Test</name>
-                </option>
-                <option>
-                    <id>live</id>
-                    <name>Live</name>
-                </option>
-            </options>
-        </input-field>
-
-        <input-field type="multi-select">
-            <name>applepayavailablebuttons</name>
-            <label>Enable or disable Apple Pay buttons:</label>
-            <label lang="de-DE">Aktivieren oder deaktivieren sie die Apple Pay schaltflächen</label>
-            <options>
-                <option>
-                    <id>Product</id>
-                    <name>Product Page</name>
-                </option>
-                <option>
-                    <id>Cart</id>
-                    <name>Cart</name>
-                </option>
-            </options>
-        </input-field>
-    </card>
 </config>
