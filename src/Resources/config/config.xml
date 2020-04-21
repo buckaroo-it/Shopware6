@@ -304,7 +304,7 @@
             <helpText>Enable to send an order confirmation email to the customer when the creating of the order is successful. Specific for this payment method.</helpText>
         </input-field>
     </card>
-
+<!--
     <card>
         <title>Apple Pay</title>
         <input-field type="single-select">
@@ -347,4 +347,5 @@
             </options>
         </input-field>
     </card>
+    -->
 </config>
