@@ -3,7 +3,7 @@
 
 namespace Buckaroo\Shopware6\Events;
 
-use Buckaroo\Shopware6\Helper\ApiHelper;
+use Buckaroo\Shopware6\Helpers\Helper;
 use Buckaroo\Shopware6\BuckarooPayment;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
@@ -15,10 +15,10 @@ use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 
-use Buckaroo\Shopware6\API\Payload\TransactionRequest;
-use Buckaroo\Shopware6\Helper\UrlHelper;
+use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
+use Buckaroo\Shopware6\Helpers\UrlHelper;
 
-use Buckaroo\Shopware6\Helper\CheckoutHelper;
+use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 
 use Psr\Log\LoggerInterface;
 
@@ -28,8 +28,8 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     private $orderRepository;
     /** @var EntityRepositoryInterface */
     private $orderDeliveryRepository;
-    /** @var ApiHelper */
-    private $apiHelper;
+    /** @var helper */
+    private $helper;
 
     /** @var LoggerInterface */
     protected $logger;
@@ -38,18 +38,18 @@ class OrderStateChangeEvent implements EventSubscriberInterface
      * OrderDeliveryStateChangeEventTest constructor.
      * @param EntityRepositoryInterface $orderRepository
      * @param EntityRepositoryInterface $orderDeliveryRepository
-     * @param ApiHelper $apiHelper
+     * @param helper $helper
      */
     public function __construct(
         EntityRepositoryInterface $orderRepository,
         EntityRepositoryInterface $orderDeliveryRepository,
-        ApiHelper $apiHelper,
+        Helper $helper,
         CheckoutHelper $checkoutHelper,
         LoggerInterface $logger
     ) {
         $this->orderRepository = $orderRepository;
         $this->orderDeliveryRepository = $orderDeliveryRepository;
-        $this->apiHelper = $apiHelper;
+        $this->helper = $helper;
         $this->checkoutHelper = $checkoutHelper;
         $this->logger = $logger;
     }
@@ -92,9 +92,9 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $request->setCurrency('EUR');
         $request->setOriginalTransactionKey($customFields['originalTransactionKey']);
 
-        $url = $this->getTransactionUrl($customFields['serviceName']);
-        $bkrClient = $this->apiHelper->initializeBuckarooClient();
-        return $bkrClient->post($url, $request, 'Buckaroo\Shopware6\API\Payload\TransactionResponse');
+        $url = $this->checkoutHelper->getTransactionUrl($customFields['serviceName']);
+        $bkrClient = $this->helper->initializeBkr();
+        return $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
     }
 
     public function onOrderTransactionRefunded(OrderStateMachineStateChangeEvent $event)
@@ -162,25 +162,6 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $customField['serviceName'] = $paymentMethod->getBuckarooKey();
 
         return $customField;
-    }
-
-    /**
-     * Get the base url
-     * When the environment is set live, but the payment is set as test, the test url will be used
-     *
-     * @return string Base-url
-     */
-    protected function getBaseUrl($method = ''):string
-    {
-        return $this->apiHelper->getEnvironment($method) == 'live' ? UrlHelper::LIVE : UrlHelper::TEST;
-    }
-
-    /**
-     * @return string Full transaction url
-     */
-    protected function getTransactionUrl($method = ''):string
-    {
-        return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/Transaction', '/');
     }
 
 }

@@ -2,10 +2,6 @@
 
 namespace Buckaroo\Shopware6\Installers;
 
-use Buckaroo\Shopware6\Helper\GatewayHelper;
-use Buckaroo\Shopware6\BuckarooPayment;
-//use Buckaroo\Shopware6\PaymentMethods\Buckaroo;
-use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -20,8 +16,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Context;
 
+use Buckaroo\Shopware6\Helpers\GatewayHelper;
+use Buckaroo\Shopware6\BuckarooPayment;
+use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
+
 class PaymentMethodsInstaller implements InstallerInterface
 {
+    public const BUCKAROO_KEY = 'buckaroo_key';
     public const IS_BUCKAROO = 'is_buckaroo';
     public const TEMPLATE = 'template';
 
@@ -108,6 +109,7 @@ class PaymentMethodsInstaller implements InstallerInterface
             'mediaId' => $mediaId,
             'translations' => $paymentMethod->getTranslations(),
             'customFields' => [
+                self::BUCKAROO_KEY => $paymentMethod->getBuckarooKey(),
                 self::IS_BUCKAROO => true,
                 self::TEMPLATE => $paymentMethod->getTemplate()
             ]

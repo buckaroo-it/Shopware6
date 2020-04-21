@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\Handlers;
 
 use Exception;
-use Buckaroo\Shopware6\Helper\ApiHelper;
-use Buckaroo\Shopware6\Helper\CheckoutHelper;
+use Buckaroo\Shopware6\Helpers\Helper;
+use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
@@ -19,55 +18,30 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Buckaroo\Shopware6\Helper\BkrHelper;
-use Buckaroo\Shopware6\Helper\UrlHelper;
-use Buckaroo\Shopware6\API\Payload\TransactionRequest;
+
+use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
 
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 
 class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
-    /** @var ApiHelper $apiHelper */
-    public $apiHelper;
+    /** @var Helper $helper */
+    public $helper;
     /** @var CheckoutHelper $checkoutHelper */
     public $checkoutHelper;
-    /** @var BkrHelper $bkrHelper */
-    public $bkrHelper;
 
     /**
      * Buckaroo constructor.
-     * @param ApiHelper $apiHelper
+     * @param Helper $helper
      * @param CheckoutHelper $checkoutHelper
-     * @param BkrHelper $bkrHelper
      */
     public function __construct(
-        ApiHelper $apiHelper,
-        CheckoutHelper $checkoutHelper,
-        BkrHelper $bkrHelper
+        Helper $helper,
+        CheckoutHelper $checkoutHelper
     ) {
-        $this->apiHelper = $apiHelper;
+        $this->helper = $helper;
         $this->checkoutHelper = $checkoutHelper;
-        $this->bkrHelper = $bkrHelper;
-    }
-
-    /**
-     * Get the base url
-     * When the environment is set live, but the payment is set as test, the test url will be used
-     *
-     * @return string Base-url
-     */
-    protected function getBaseUrl($method = ''):string
-    {
-        return $this->apiHelper->getEnvironment($method) == 'live' ? UrlHelper::LIVE : UrlHelper::TEST;
-    }
-
-    /**
-     * @return string Full transaction url
-     */
-    protected function getTransactionUrl($method = ''):string
-    {
-        return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/Transaction', '/');
     }
 
     /**
@@ -90,20 +64,20 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         array $gatewayInfo = []
     ): RedirectResponse {
 
-        $bkrClient = $this->apiHelper->initializeBuckarooClient();
+        $bkrClient = $this->helper->initializeBkr();
 
         $order = $transaction->getOrder();
         $customer = $salesChannelContext->getCustomer();
-        $request = $this->bkrHelper->getGlobals();
+        $request = $this->helper->getGlobals();
 
         $request = new TransactionRequest;
 
+        $finalize_page = $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize');
+
         $request->setDescription('Payment for order #' . $order->getOrderNumber());
-        
-        $request->setReturnURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize'));
-        $request->setReturnURLCancel(sprintf('%s?cancel=1', $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize')));
+        $request->setReturnURL($finalize_page);
+        $request->setReturnURLCancel(sprintf('%s?cancel=1', $finalize_page));
         $request->setPushURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.push'));
-        // $request->setPushURL($transaction->getReturnUrl());
         
         $request->setAdditionalParameter('orderTransactionId', $transaction->getOrderTransaction()->getId());
         $request->setAdditionalParameter('orderId', $order->getId());
@@ -134,8 +108,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         }
 
         try {
-            $url = $this->getTransactionUrl($gatewayInfo['key']);
-            $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\API\Payload\TransactionResponse');
+            $url = $this->checkoutHelper->getTransactionUrl($gatewayInfo['key']);
+            $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
         } catch (Exception $exception) {
             throw new AsyncPaymentProcessException(
                 $transaction->getOrderTransaction()->getId(),
@@ -153,6 +127,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             ''
             );
         }
+
+        return new RedirectResponse($finalize_page . '?error=' . base64_encode($response->getSubCodeMessage()));
 
         throw new AsyncPaymentFinalizeException(
             $transaction->getOrderTransaction()->getId(),

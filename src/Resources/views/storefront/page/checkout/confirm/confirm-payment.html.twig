@@ -5,15 +5,19 @@
     {% if context.paymentMethod.translated.name == 'Buckaroo iDEAL' %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
         {{ page.extensions.buckaroo.payment_method_name }}
+
     {% elseif context.paymentMethod.translated.name == 'Buckaroo iDEAL Processing' %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
         {{ page.extensions.buckaroo.payment_method_name_processing }}
+
     {% elseif context.paymentMethod.translated.name == 'Buckaroo Creditcards' %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
         {{ page.extensions.buckaroo.payment_method_name_card }}
+
     {% elseif context.paymentMethod.translated.name == 'AfterPay' %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
-        {{ page.extensions.buckaroo.payment_method_name_card }}
+        
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.name]?:context.paymentMethod.translated.name }}
 
     <div class="payment-method-second-col billing-address-form">
         <fieldset class="fieldset payment">
@@ -61,6 +65,15 @@
     </div>
 
     {% else %}
-        {{ parent() }}
+        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.name]?:context.paymentMethod.translated.name }}
     {% endif %}
+    
+{% endblock %}
+
+{% block page_checkout_confirm_payment_form_fields %}
+    {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {
+        'defaultPaymentMethodId': context.paymentMethod.id,
+        'payment_labels': page.extensions.buckaroo.payment_labels,
+    } %}
 {% endblock %}

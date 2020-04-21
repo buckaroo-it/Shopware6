@@ -2,7 +2,7 @@
     "name": "buckaroo/shopware6",
     "description": "Buckaroo payment provider plugin for Shopware 6",
     "type": "shopware-platform-plugin",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "license": "CC-BY-NC-ND-3.0",
     "minimum-stability": "RC",
     "require": {
@@ -30,25 +30,13 @@
             "Buckaroo\\Shopware6\\Tests\\": "tests/"
         }
     },
-      "config": {
-        "sort-packages": true,
-        "platform": {
-          "php": "7.2.9"
-        }
-      },
     "extra": {
         "shopware-plugin-class": "Buckaroo\\Shopware6\\BuckarooPayment",
         "plugin-icon": "src/Resources/config/plugin.png",
         "copyright": "(c) by Buckaroo",
         "label": {
-            "en-GB": "Buckaroo payment for Shopware 6",
-            "de-DE": "Buckaroo Payment für Shopware 6"
+            "en-GB": "Buckaroo Payment",
+            "de-DE": "Buckaroo Payment"
         }
-    },
-    "require-dev": {
-        "squizlabs/php_codesniffer": "^3.4",
-        "phpmd/phpmd": "^2.7",
-        "phpunit/phpunit": "8.3.4",
-        "phpro/grumphp": "^0.15.2"
     }
 }

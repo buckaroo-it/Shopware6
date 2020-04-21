@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6;
 
 use Buckaroo\Shopware6\Installers\MediaInstaller;
@@ -68,7 +67,10 @@ class BuckarooPayment extends Plugin
         (new PaymentMethodsInstaller($this->container))->uninstall($uninstallContext);
         parent::uninstall($uninstallContext);
     }
-
+    
+    /**
+     * @param UpdateContext $updateContext
+     */
     public function update(UpdateContext $updateContext): void
     {
         (new PaymentMethodsInstaller($this->container))->update($updateContext);

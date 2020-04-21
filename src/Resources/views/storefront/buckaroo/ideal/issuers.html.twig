@@ -1,7 +1,6 @@
-<label>Select a bank:</label>
+<label>Select a bank*:</label>
 {% if page.extensions.buckaroo.issuers|length > 0 %}
-    <select form="confirmPaymentForm" name="redirectParameters[issuer]" class="custom-select" style="margin-top: -2rem; max-width: 300px;margin-left: 0.5rem;">
-        <option value="">{{ "bkr-ideal.selectBankIssuer"|trans }}</option>
+    <select required="required" form="confirmPaymentForm" name="redirectParameters[issuer]" class="custom-select" style="max-width: 300px;margin-left: 0.5rem;margin-bottom: 0.5rem;">
         {% for issuer in page.extensions.buckaroo.issuers %}
             <option {% if page.extensions.buckaroo.last_used_issuer == issuer.code %} selected="selected" {% endif %} value="{{ issuer.code }}">{{ issuer.name }}</option>
         {% endfor %}
