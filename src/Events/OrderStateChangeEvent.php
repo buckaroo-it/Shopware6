@@ -3,7 +3,7 @@
 
 namespace Buckaroo\Shopware6\Events;
 
-use Buckaroo\Shopware6\Helpers\ApiHelper;
+use Buckaroo\Shopware6\Helpers\Helper;
 use Buckaroo\Shopware6\BuckarooPayment;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
@@ -28,8 +28,8 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     private $orderRepository;
     /** @var EntityRepositoryInterface */
     private $orderDeliveryRepository;
-    /** @var ApiHelper */
-    private $apiHelper;
+    /** @var helper */
+    private $helper;
 
     /** @var LoggerInterface */
     protected $logger;
@@ -38,18 +38,18 @@ class OrderStateChangeEvent implements EventSubscriberInterface
      * OrderDeliveryStateChangeEventTest constructor.
      * @param EntityRepositoryInterface $orderRepository
      * @param EntityRepositoryInterface $orderDeliveryRepository
-     * @param ApiHelper $apiHelper
+     * @param helper $helper
      */
     public function __construct(
         EntityRepositoryInterface $orderRepository,
         EntityRepositoryInterface $orderDeliveryRepository,
-        ApiHelper $apiHelper,
+        Helper $helper,
         CheckoutHelper $checkoutHelper,
         LoggerInterface $logger
     ) {
         $this->orderRepository = $orderRepository;
         $this->orderDeliveryRepository = $orderDeliveryRepository;
-        $this->apiHelper = $apiHelper;
+        $this->helper = $helper;
         $this->checkoutHelper = $checkoutHelper;
         $this->logger = $logger;
     }
@@ -93,7 +93,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $request->setOriginalTransactionKey($customFields['originalTransactionKey']);
 
         $url = $this->checkoutHelper->getTransactionUrl($customFields['serviceName']);
-        $bkrClient = $this->apiHelper->initializeBuckarooClient();
+        $bkrClient = $this->helper->initializeBkr();
         return $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
     }
 

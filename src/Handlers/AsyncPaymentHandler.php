@@ -1,10 +1,9 @@
 <?php declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\Handlers;
 
 use Exception;
-use Buckaroo\Shopware6\Helpers\ApiHelper;
+use Buckaroo\Shopware6\Helpers\Helper;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
@@ -19,7 +18,6 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Buckaroo\Shopware6\Helpers\BkrHelper;
 
 use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
 
@@ -28,27 +26,22 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
-    /** @var ApiHelper $apiHelper */
-    public $apiHelper;
+    /** @var Helper $helper */
+    public $helper;
     /** @var CheckoutHelper $checkoutHelper */
     public $checkoutHelper;
-    /** @var BkrHelper $bkrHelper */
-    public $bkrHelper;
 
     /**
      * Buckaroo constructor.
-     * @param ApiHelper $apiHelper
+     * @param Helper $helper
      * @param CheckoutHelper $checkoutHelper
-     * @param BkrHelper $bkrHelper
      */
     public function __construct(
-        ApiHelper $apiHelper,
-        CheckoutHelper $checkoutHelper,
-        BkrHelper $bkrHelper
+        Helper $helper,
+        CheckoutHelper $checkoutHelper
     ) {
-        $this->apiHelper = $apiHelper;
+        $this->helper = $helper;
         $this->checkoutHelper = $checkoutHelper;
-        $this->bkrHelper = $bkrHelper;
     }
 
     /**
@@ -71,11 +64,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         array $gatewayInfo = []
     ): RedirectResponse {
 
-        $bkrClient = $this->apiHelper->initializeBuckarooClient();
+        $bkrClient = $this->helper->initializeBkr();
 
         $order = $transaction->getOrder();
         $customer = $salesChannelContext->getCustomer();
-        $request = $this->bkrHelper->getGlobals();
+        $request = $this->helper->getGlobals();
 
         $request = new TransactionRequest;
 

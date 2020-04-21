@@ -10,7 +10,7 @@ class Config
     private $settingsService;
 
     /**
-     * ApiHelper constructor.
+     * Helper constructor.
      * @param SettingsService $settingsService
      */
     public function __construct(SettingsService $settingsService)

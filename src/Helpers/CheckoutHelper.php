@@ -35,7 +35,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Buckaroo\Shopware6\Service\SettingsService;
 
-use Buckaroo\Shopware6\Helpers\ApiHelper;
+use Buckaroo\Shopware6\Helpers\Helper;
 
 use Buckaroo\Shopware6\Helpers\UrlHelper;
 
@@ -49,8 +49,8 @@ class CheckoutHelper
     private $transactionRepository;
     /** @var EntityRepository $stateMachineRepository */
     private $stateMachineRepository;
-    /** @var ApiHelper */
-    private $apiHelper;
+    /** @var Helper */
+    private $helper;
 
     /**
      * @var string
@@ -82,7 +82,7 @@ class CheckoutHelper
         string $shopwareVersion,
         PluginService $pluginService,
         SettingsService $settingsService,
-        ApiHelper $apiHelper
+        Helper $helper
     ) {
         $this->router = $router;
         $this->transactionRepository = $transactionRepository;
@@ -91,7 +91,7 @@ class CheckoutHelper
         $this->shopwareVersion = $shopwareVersion;
         $this->pluginService = $pluginService;
         $this->settingsService = $settingsService;
-        $this->apiHelper = $apiHelper;
+        $this->helper = $helper;
     }
 
     public function getSetting($name)
@@ -859,7 +859,7 @@ class CheckoutHelper
      */
     public function getBaseUrl($method = ''):string
     {
-        return $this->apiHelper->getEnvironment($method) == 'live' ? UrlHelper::LIVE : UrlHelper::TEST;
+        return $this->helper->getEnvironment($method) == 'live' ? UrlHelper::LIVE : UrlHelper::TEST;
     }
 
     /**

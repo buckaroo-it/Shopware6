@@ -20,8 +20,6 @@ use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-use Buckaroo\Shopware6\Helpers\BkrHelper;
-
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
@@ -39,12 +37,13 @@ class PushController extends StorefrontController
     private $logger;
 
     public function __construct(
-        BkrHelper $bkrHelper,
         EntityRepositoryInterface $transactionRepository,
-        CheckoutHelper $checkoutHelper
+        CheckoutHelper $checkoutHelper,
+        EntityRepositoryInterface $orderRepository
     ) {
         $this->transactionRepository = $transactionRepository;
         $this->checkoutHelper = $checkoutHelper;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -112,6 +111,8 @@ class PushController extends StorefrontController
     {
         $transactionId = $request->request->get('ADD_orderTransactionId');
         $status = $request->request->get('brq_statuscode');
+        $status_message = $request->request->get('brq_statusmessage');
+
         if($status == self::BUCK_PUSH_STATUS_SUCCESS){
             return new RedirectResponse('/checkout/finish?orderId=' . $request->request->get('ADD_orderId'));
         }
@@ -125,17 +126,24 @@ class PushController extends StorefrontController
         }
 
         if(empty($messages)){
-            $messages[] = ['type' => 'danger', 'text' => [$this->trans('Payment failed')]];
+            $messages[] = ['type' => 'danger', 'text' => [$status_message ? $status_message : $this->trans('Payment failed')]];
+        }
+
+        if($transactionId){
+            $orderId = $request->request->get('ADD_orderId');
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('id', $orderId))
+                ->addAssociation('lineItems')
+                ->addAssociation('lineItems.cover');
+            /** @var OrderEntity|null $order */
+            $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
+            $lineItems = $order->getNestedLineItems();
         }
 
         return $this->renderStorefront('@Storefront/storefront/buckaroo/page/finalize/_page.html.twig', [
-            'messages' => $messages
+            'messages' => $messages,
+            'orderDetails' => $lineItems
         ]);
 
-/*        throw new CustomerCanceledAsyncPaymentException(
-            $transactionId,
-            $message
-        );
-*/
     }
 }

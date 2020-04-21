@@ -29,9 +29,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Buckaroo\CultureHeader"/>
         </service>
         
-        <service id="Buckaroo\Shopware6\Helpers\BkrHelper" />
-
-        <service id="Buckaroo\Shopware6\Helpers\ApiHelper">
+        <service id="Buckaroo\Shopware6\Helpers\Helper">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Buckaroo\BkrClient"/>
         </service>
@@ -44,7 +42,7 @@
             <argument>%kernel.shopware_version%</argument>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService" />
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\SettingsService">
@@ -52,96 +50,82 @@
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\AsyncPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\BkrHelper"/>
             <tag name="shopware.payment.method.async" />
         </service>
 
         <!-- Payment methods -->
-
         <service id="Buckaroo\Shopware6\Handlers\VisaPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\BkrHelper"/>
             <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\IdealPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\BkrHelper"/>
             <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\IdealProcessingPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\BkrHelper"/>
             <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\BancontactPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\BkrHelper"/>
             <tag name="shopware.payment.method.async" />
         </service>
         
         <service id="Buckaroo\Shopware6\Handlers\CreditcardsPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\BkrHelper"/>
             <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\BkrHelper"/>
             <tag name="shopware.payment.method.async" />
         </service>
         
         <service id="Buckaroo\Shopware6\Handlers\SofortPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\BkrHelper"/>
             <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\PaypalPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\BkrHelper"/>
             <tag name="shopware.payment.method.async" />
         </service>
         
         <service id="Buckaroo\Shopware6\Handlers\TransferPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\BkrHelper"/>
             <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\ApplePayPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\BkrHelper"/>
             <tag name="shopware.payment.method.async" />
         </service>
-
         <!-- /Payment methods -->
 
         <!-- Controllers -->
         <service id="Buckaroo\Shopware6\Storefront\Controller\PushController" public="true">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\BkrHelper"/>
             <argument type="service" id="order_transaction.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="order.repository" />
         </service>
 
         <service id="Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber" >
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\BkrHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="sales_channel.payment_method.repository"/>
             <tag name="kernel.event_subscriber"/>

@@ -7,7 +7,7 @@
         <service id="Buckaroo\Shopware6\Events\OrderStateChangeEvent">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="order_delivery.repository"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\ApiHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="monolog.logger"/>
             <tag name="kernel.event_subscriber"/>
