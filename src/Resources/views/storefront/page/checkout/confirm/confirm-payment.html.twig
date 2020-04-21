@@ -1,20 +1,58 @@
 {% sw_extends '@Storefront/storefront/page/checkout/confirm/confirm-payment.html.twig' %}
 
+{% block page_checkout_confirm_payment_current_image %}
+
+    {% if context.paymentMethod.customFields.buckaroo_key == 'creditcards' %}
+        <img src="{{ page.extensions.buckaroo.media_path }}{{ page.extensions.buckaroo.payment_media }}" class="payment-method-image">
+    {% elseif context.paymentMethod.media %}
+        {% sw_thumbnails 'confirm-payment-current-image-thumbnails' with {
+            media: context.paymentMethod.media,
+            sizes: {
+                'default': '100px'
+            },
+            attributes: {
+                'class': 'payment-method-image',
+                'alt': (context.paymentMethod.media.translated.alt ?: context.paymentMethod.translated.name),
+                'title': (context.paymentMethod.media.translated.title ?: context.paymentMethod.translated.name)
+            }
+        } %}
+    {% endif %}
+
+{% endblock %}
+
 {% block page_checkout_confirm_payment_current_text %}
 
-    {% if context.paymentMethod.translated.name == 'Buckaroo iDEAL' %}
+    {% if context.paymentMethod.customFields.buckaroo_key == 'ideal' or context.paymentMethod.customFields.buckaroo_key == 'idealprocessing' %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
-        {{ page.extensions.buckaroo.payment_method_name }}
+        
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.name]?:context.paymentMethod.translated.name }}
 
-    {% elseif context.paymentMethod.translated.name == 'Buckaroo iDEAL Processing' %}
-        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
-        {{ page.extensions.buckaroo.payment_method_name_processing }}
+        {% if page.extensions.buckaroo.issuers|length > 0 %}
+            <div>
+                <label>{{ "bkr-ideal.selectBankIssuer"|trans|sw_sanitize }}*:</label>
+                {% for issuer in page.extensions.buckaroo.issuers %}
+                    <div class="custom-control custom-radio bank-control">
+                        <input type="radio"
+                        form="confirmOrderForm"
+                        required="required"
+                        id="bankMethod{{ issuer.code }}"
+                        name="bankMethodId"
+                        value="{{ issuer.code }}"
+                        class="custom-control-input bank-method-input">
+                        <label class="custom-control-label bank-method-label" for="bankMethod{{ issuer.code }}">
+                            <img src="{{ page.extensions.buckaroo.media_path }}{{ issuer.code }}.png" class="bank-method-image" width=20  alt="{{ issuer.name }}" title="{{ issuer.name }}">
+                            <strong>{{ issuer.name }}</strong>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-    {% elseif context.paymentMethod.translated.name == 'Buckaroo Creditcards' %}
+    {% elseif context.paymentMethod.customFields.buckaroo_key == 'creditcards' %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
         {{ page.extensions.buckaroo.payment_method_name_card }}
 
-    {% elseif context.paymentMethod.translated.name == 'AfterPay' %}
+    {% elseif context.paymentMethod.customFields.buckaroo_key == 'afterpay' %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
         
         {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.name]?:context.paymentMethod.translated.name }}
@@ -45,11 +83,13 @@
                     <input id="buckaroo_afterpay_DoB" 
                     class="form-control field _has-datepicker" 
                     type="date"
-                    min='{{ "now"|date_modify("-18 years")|date("m/d/Y") }}'
+                    min='{{ "now"|date_modify("-18 years")|date("Y-m-d") }}'
+                    max='{{ "now"|date("Y-m-d") }}'
+                    step="1"
                     name="buckaroo_afterpay_DoB"
                     form="confirmOrderForm"
                     required="required"
-                    autocomplete="on" >
+                    autocomplete="off" >
                 </div>
             </div>
 

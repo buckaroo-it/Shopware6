@@ -91,8 +91,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setServiceVersion($gatewayInfo['version']);
         $request->setServiceAction('Pay');
 
-        if($issuer_id = $gatewayInfo['issuer_id']){
-            $request->setServiceParameter('issuer', $issuer_id);
+        if($issuer = $dataBag->get('bankMethodId')){
+            $request->setServiceParameter('issuer', $issuer);
         }
 
         if($card = $gatewayInfo['creditcard']){

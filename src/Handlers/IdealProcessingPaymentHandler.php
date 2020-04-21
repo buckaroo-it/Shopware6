@@ -34,9 +34,6 @@ class IdealProcessingPaymentHandler extends AsyncPaymentHandler
             'version' =>  $paymentMethod->getVersion(),
             'refund' =>  $paymentMethod->canRefund(),
         ];
-        if ($dataBag->get('issuer')) {
-            $gatewayInfo['issuer_id'] = $dataBag->get('issuerp');
-        }
         return parent::pay(
             $transaction,
             $dataBag,

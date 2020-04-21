@@ -4,7 +4,7 @@
 
     <card>
         <title>Configuration</title>
-        <label lang="nl-NL">Configuratie</label>
+        <title lang="nl-NL">Configuratie</title>
         <title lang="de-DE">Konfiguration</title>
 
         <input-field >

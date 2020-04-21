@@ -128,18 +128,15 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $request = $this->helper->getGlobals();
         $customer = $event->getSalesChannelContext()->getCustomer();
 
-        $issuer = $request->get('issuer');
-        $issuer_processing = $request->get('issuerp');
         $creditcard = $request->get('creditcard');
         
-        if ($issuer) {
+        if ($creditcard) {
             $this->customerRepository->upsert(
                 [[
                     'id' => $customer->getId(),
                     'customFields' => [
-                        'last_used_issuer' => $issuer,
-                        'last_used_issuer_processing' => $issuer_processing,
-                        'last_used_creditcard' => $creditcard]
+                        'last_used_creditcard' => $creditcard
+                    ]
                 ]],
                 $event->getContext()
             );
@@ -148,10 +145,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct = new BuckarooStruct();
         $issuers = $this->issuers;
-        $lastUsedIssuer = $customer->getCustomFields()['last_used_issuer'];
-        $lastUsedIssuerProcessing = $customer->getCustomFields()['last_used_issuer_processing'];
         $lastUsedCreditcard = $customer->getCustomFields()['last_used_creditcard'];
-
         $allowedcreditcards = $this->helper->getSettingsValue('allowedcreditcards');
         foreach ($allowedcreditcards as $key => $value) {
             $creditcards[] = [
@@ -172,14 +166,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct->assign([
             'issuers' => $issuers,
-            'last_used_issuer' => $lastUsedIssuer,
-            'last_used_issuer_processing' => $lastUsedIssuerProcessing,
-            'payment_method_name' => $this->getPaymentMethodName($issuers, $lastUsedIssuer, $this->helper->getSettingsValue('idealLabel')),
-            'payment_method_name_processing' => $this->getPaymentMethodName($issuers, $lastUsedIssuerProcessing, $this->helper->getSettingsValue('idealprocessingLabel')),
             'payment_method_name_card' => $this->getPaymentMethodName($creditcards, $lastUsedCreditcard,''),
             'creditcards' => $creditcards,
             'last_used_creditcard' => $lastUsedCreditcard,
             'payment_labels' => $payment_labels,
+            'media_path' => '/bundles/buckaroopayment/storefront/buckaroo/logo/',
+            'payment_media' => $lastUsedCreditcard.'.png',
         ]);
 
         $event->getPage()->addExtension(

@@ -69,7 +69,7 @@ class Ideal implements PaymentMethodInterface
      */
     public function getTemplate(): ?string
     {
-        return '@BuckarooPayment/storefront/buckaroo/ideal/issuers.html.twig';
+        return null;
     }
 
     /**
