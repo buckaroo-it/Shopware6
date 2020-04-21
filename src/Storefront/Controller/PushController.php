@@ -25,14 +25,12 @@ use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 
+use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
+
 /**
  */
 class PushController extends StorefrontController
 {
-    const BUCK_PUSH_CANCEL_AUTHORIZE_TYPE  = 'I014';
-    const BUCK_PUSH_ACCEPT_AUTHORIZE_TYPE  = 'I013';
-    const BUCK_PUSH_STATUS_SUCCESS  = '190';
-
     /** @var LoggerInterface */
     private $logger;
 
@@ -65,7 +63,7 @@ class PushController extends StorefrontController
 
         //Check if the push is a refund request or cancel authorize
         if (isset($brq_amount_credit)) {
-            if($status != self::BUCK_PUSH_STATUS_SUCCESS && $brq_transaction_type == self::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE){
+            if($status != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS && $brq_transaction_type == ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_CANCEL){
                 return $this->json(['status' => true, 'message' => "Payment cancelled"]);
             }
             $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, ['refunded' => 1 ]);
@@ -80,7 +78,7 @@ class PushController extends StorefrontController
             return $this->json(['status' => true, 'message' => "Refund successful"]);
         }
 
-        if($status == self::BUCK_PUSH_STATUS_SUCCESS){
+        if($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS){
             try {
                 $this->checkoutHelper->transitionPaymentState('completed', $orderTransactionId, $context);
                 $data = [
@@ -113,7 +111,7 @@ class PushController extends StorefrontController
         $status = $request->request->get('brq_statuscode');
         $status_message = $request->request->get('brq_statusmessage');
 
-        if($status == self::BUCK_PUSH_STATUS_SUCCESS){
+        if(in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS,ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS,ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING])){
             return new RedirectResponse('/checkout/finish?orderId=' . $request->request->get('ADD_orderId'));
         }
 

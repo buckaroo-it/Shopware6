@@ -4,14 +4,14 @@
 
     <card>
         <title>Configuration</title>
+        <label lang="nl-NL">Configuratie</label>
         <title lang="de-DE">Konfiguration</title>
 
         <input-field >
             <name>websiteKey</name>
             <label>(Merchant) key</label>
+            <label lang="nl-NL">Website sleutel</label>
             <label lang="de-DE">Website key</label>
-            <label lang="nl-NL">Website key</label>
-            <description>Website key</description>
             <description>Enter your Buckaroo merchant/website key.</description>
             <helpText>The (Merchant) Key can be retrieved in Payment Plaza under My Buckaroo > Websites. For support contact Buckaroo.</helpText>
         </input-field>
@@ -19,11 +19,9 @@
         <input-field >
             <name>secretKey</name>
             <label>Secret key</label>
+            <label lang="nl-NL">Geheime sleutel</label>
             <label lang="de-DE">Secret key</label>
-            <label lang="nl-NL">Secret key</label>
-            <description>Secret key</description>
-            <description lang="de-DE">Secret key</description>
-            <description lang="nl-NL">Enter your Buckaroo merchant/website key.</description>
+            <description>Enter your Buckaroo merchant/website key.</description>
             <helpText>The Secret Key can be retrieved in Payment Plaza under Configuration > Security > Secret Key. For support contact Buckaroo.</helpText>
         </input-field>
     </card>

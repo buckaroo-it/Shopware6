@@ -13,7 +13,7 @@ class TransactionResponse extends Response
      */
     public function isSuccess()
     {
-        return $this->getStatusCode() == ResponseStatus::SUCCESS;
+        return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS;
     }
 
     /**
@@ -21,7 +21,7 @@ class TransactionResponse extends Response
      */
     public function isCanceled()
     {
-        return $this->getStatusCode() == ResponseStatus::CANCELLED_BY_USER || $this->getStatusCode() == ResponseStatus::CANCELLED_BY_MERCHANT;
+        return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER || $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT;
     }
 
     /**
@@ -29,7 +29,7 @@ class TransactionResponse extends Response
      */
     public function isAwaitingConsumer()
     {
-        return $this->getStatusCode() == ResponseStatus::AWAITING_CONSUMER;
+        return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_WAITING_ON_CONSUMER;
     }
 
     /**
@@ -37,7 +37,7 @@ class TransactionResponse extends Response
      */
     public function isPendingProcessing()
     {
-        return $this->getStatusCode() == ResponseStatus::PENDING_PROCESSING;
+        return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING;
     }
 
     /**
