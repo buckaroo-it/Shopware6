@@ -29,7 +29,7 @@
 
         {% if page.extensions.buckaroo.issuers|length > 0 %}
             <div>
-                <label>{{ "bkr-ideal.selectBankIssuer"|trans|sw_sanitize }}*:</label>
+                <label><strong>{{ "bkr-ideal.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
                 {% for issuer in page.extensions.buckaroo.issuers %}
                     <div class="custom-control custom-radio bank-control">
                         <input type="radio"
@@ -81,15 +81,13 @@
                 <span><sup>{{ "bkr-checkout.buckarooAfterpayDoBTitleSup"|trans }}</sup></span>
                 <div class="control">
                     <input id="buckaroo_afterpay_DoB" 
-                    class="form-control field _has-datepicker" 
+                    class="form-control field" 
                     type="date"
-                    min='{{ "now"|date_modify("-18 years")|date("Y-m-d") }}'
-                    max='{{ "now"|date("Y-m-d") }}'
-                    step="1"
+                    max='{{ "now"|date_modify("-18 years")|date("Y-m-d") }}'
                     name="buckaroo_afterpay_DoB"
                     form="confirmOrderForm"
                     required="required"
-                    autocomplete="off" >
+                    >
                 </div>
             </div>
 

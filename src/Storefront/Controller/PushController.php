@@ -110,13 +110,14 @@ class PushController extends StorefrontController
         $transactionId = $request->request->get('ADD_orderTransactionId');
         $status = $request->request->get('brq_statuscode');
         $status_message = $request->request->get('brq_statusmessage');
+        $orderId = $request->request->get('ADD_orderId');
 
         if(in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS,ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS,ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING])){
             return new RedirectResponse('/checkout/finish?orderId=' . $request->request->get('ADD_orderId'));
         }
 
         if ($request->query->getBoolean('cancel')) {
-            $messages[] = ['type' => 'warning', 'text' => [$this->trans('Customer canceled the payment on the Buckaroo page')]];
+            $messages[] = ['type' => 'warning', 'text' => [$this->trans('According to our system, you have canceled the payment. If this is not the case, please contact us.')]];
         }
 
         if ($error = $request->query->filter('error')) {
@@ -124,11 +125,12 @@ class PushController extends StorefrontController
         }
 
         if(empty($messages)){
-            $messages[] = ['type' => 'danger', 'text' => [$status_message ? $status_message : $this->trans('Payment failed')]];
+            $messages[] = ['type' => 'danger', 'text' => [$status_message ? $status_message : $this->trans('Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.')]];
         }
 
-        if($transactionId){
-            $orderId = $request->request->get('ADD_orderId');
+        if (!$orderId && $orderId = $request->query->filter('orderId')) {}
+
+        if($orderId){
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('id', $orderId))
                 ->addAssociation('lineItems')
@@ -136,6 +138,23 @@ class PushController extends StorefrontController
             /** @var OrderEntity|null $order */
             $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
             $lineItems = $order->getNestedLineItems();
+
+            foreach ($messages as $mkey => $message) {
+                foreach ($message['text'] as $tkey => $text) {
+                    $this->addFlash($message['type'], $text);
+                }
+            }
+
+/*            foreach ($lineItems as $item) {
+                $lineItemsNew[] = [
+                    $item->get('referencedId') => [
+                        'id' => $item->get('identifier'),
+                        'quantity' => $item->get('quantity'),
+                        'type' => $item->get('type')
+                    ]
+               ];
+            }
+            $this->checkoutHelper->addLineItems($lineItemsNew, $salesChannelContext);*/
         }
 
         return $this->renderStorefront('@Storefront/storefront/buckaroo/page/finalize/_page.html.twig', [

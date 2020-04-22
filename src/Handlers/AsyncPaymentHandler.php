@@ -128,12 +128,12 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         }
 
-        return new RedirectResponse($finalize_page . '?error=' . base64_encode($response->getSubCodeMessage()));
+        return new RedirectResponse($finalize_page . '?orderId='.$order->getId().'&error=' . base64_encode($response->getSubCodeMessage()));
 
-        throw new AsyncPaymentFinalizeException(
+/*        throw new AsyncPaymentFinalizeException(
             $transaction->getOrderTransaction()->getId(),
             $response->getSubCodeMessage()
-        );
+        );*/
 
     }
 

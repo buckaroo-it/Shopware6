@@ -17,12 +17,12 @@
                 <p class="text-center w-60-l"></p>
 
                 {% block not_found_error_return %}
-                    <div class="text-center">
+<!--                     <div class="text-center">
                         <a href="{{ path('frontend.home.page') }}"
                            class="btn btn-primary justify-center">
                             {{ "checkout.finishButtonBackToShop"|trans|sw_sanitize }}
                         </a>
-                    </div>
+                    </div> -->
                 {% endblock %}
 
                 {% block page_account_order_item_detail_action %}
@@ -36,6 +36,7 @@
                                     {% endset %}
 
                                     <form action="{{ action }}"
+                                          id="orderRepeatForm"
                                           method="post"
                                           class="buy-widget order-item-reorder-value"
                                           data-add-to-cart="true">
@@ -45,7 +46,7 @@
                                         {% endblock %}
 
                                         {% block page_account_order_item_detail_reorder_redirect_input %}
-                                            <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas"/>
+                                            <input type="hidden" name="redirectTo" value="frontend.checkout.confirm.page"/>
                                         {% endblock %}
 
                                         {% block page_account_order_item_detail_reorder_lineitems_input %}
@@ -76,10 +77,13 @@
                                         {% endblock %}
 
                                         {% block page_account_order_item_detail_reorder_button %}
-                                            <button class="btn btn-buy order-item-detail-reorder-btn"
+<!--                                             <button id="orderRepeaButton" class="btn btn-buy order-item-detail-reorder-btn"
                                                     title="{{ "account.orderLinkRepeat"|trans|striptags }}">
                                                 {{ "account.orderLinkRepeat"|trans|sw_sanitize }}
-                                            </button>
+                                            </button> -->
+                                            {% if orderDetails|length > 0 %}
+                                              <script>document.getElementById('orderRepeatForm').submit();</script>
+                                            {% endif %}
                                         {% endblock %}
                                     </form>
                                 {% endblock %}

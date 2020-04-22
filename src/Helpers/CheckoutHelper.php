@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\Helpers;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -30,14 +29,23 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Buckaroo\Shopware6\Service\SettingsService;
 
 use Buckaroo\Shopware6\Helpers\Helper;
-
 use Buckaroo\Shopware6\Helpers\UrlHelper;
+
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class CheckoutHelper
 {
@@ -51,6 +59,8 @@ class CheckoutHelper
     private $stateMachineRepository;
     /** @var Helper */
     private $helper;
+    /** @var CartService */
+    private $cartService;
 
     /**
      * @var string
@@ -82,7 +92,8 @@ class CheckoutHelper
         string $shopwareVersion,
         PluginService $pluginService,
         SettingsService $settingsService,
-        Helper $helper
+        Helper $helper,
+        CartService $cartService
     ) {
         $this->router = $router;
         $this->transactionRepository = $transactionRepository;
@@ -92,6 +103,7 @@ class CheckoutHelper
         $this->pluginService = $pluginService;
         $this->settingsService = $settingsService;
         $this->helper = $helper;
+        $this->cartService = $cartService;
     }
 
     public function getSetting($name)
@@ -868,6 +880,34 @@ class CheckoutHelper
     public function getTransactionUrl($method = ''):string
     {
         return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/Transaction', '/');
+    }
+
+
+    public function addLineItems($lineItems, SalesChannelContext $salesChannelContext)
+    {
+        $count = 0;
+        try {
+            $cart = new Cart('recalculation', Uuid::randomHex());
+            foreach ($lineItems as $lineItemDatas) {
+                foreach ($lineItemDatas as $referencedId=>$lineItemData) {
+
+                    $lineItem = new LineItem(
+                        $lineItemData['id'],
+                        $lineItemData['type'],
+                        $referencedId,
+                        $lineItemData['quantity']
+                    );
+
+                    $lineItem->setStackable(true);
+                    $lineItem->setRemovable(true);
+
+                    $count += $lineItem->getQuantity();
+
+                    $cart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
+                }
+            }
+        } catch (ProductNotFoundException $exception) {
+        }
     }
 
 }
