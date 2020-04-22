@@ -24,22 +24,19 @@ class ApplePayPaymentHandler extends AsyncPaymentHandler
         AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $gateway = null,
+        string $buckarooKey = null,
         string $type = null,
+        string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
         $paymentMethod = new ApplePay();
-        $gatewayInfo = [
-            'key' =>  $paymentMethod->getBuckarooKey(),
-            'version' =>  $paymentMethod->getVersion(),
-            'refund' =>  $paymentMethod->canRefund(),
-        ];
         return parent::pay(
             $transaction,
             $dataBag,
             $salesChannelContext,
-            $paymentMethod->getGatewayCode(),
+            $paymentMethod->getBuckarooKey(),
             $paymentMethod->getType(),
+            $paymentMethod->getVersion(),
             $gatewayInfo
         );
     }

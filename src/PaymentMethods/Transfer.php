@@ -67,16 +67,6 @@ class Transfer implements PaymentMethodInterface
      *
      * @return string|null
      */
-    public function getGatewayCode(): string
-    {
-        return 'TRANSFER';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string|null
-     */
     public function getTemplate(): ?string
     {
         return null;

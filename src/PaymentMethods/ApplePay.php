@@ -67,16 +67,6 @@ class ApplePay implements PaymentMethodInterface
      *
      * @return string|null
      */
-    public function getGatewayCode(): string
-    {
-        return 'applepay';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string|null
-     */
     public function getTemplate(): ?string
     {
         return null;

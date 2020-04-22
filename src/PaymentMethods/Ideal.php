@@ -57,16 +57,6 @@ class Ideal implements PaymentMethodInterface
      *
      * @return string|null
      */
-    public function getGatewayCode(): string
-    {
-        return 'IDEAL';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string|null
-     */
     public function getTemplate(): ?string
     {
         return null;

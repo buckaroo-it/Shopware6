@@ -102,6 +102,31 @@
         </fieldset>
     </div>
 
+    {% elseif context.paymentMethod.customFields.buckaroo_key == 'giropay' %}
+        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
+        
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.name]?:context.paymentMethod.translated.name }}
+
+    <div class="payment-method-second-col billing-address-form">
+        <fieldset class="fieldset payment">
+
+            <div class="form-group">
+                <label class="form-label" for="buckarooGiropayBic">
+                    {{ "bkr-checkout.buckarooGiropayBic"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                </label>
+
+                <input type="text"
+                       class="form-control"
+                       form="confirmOrderForm"
+                       id="buckarooGiropayBic"
+                       name="buckarooGiropayBic"
+                       pattern="([a-zA-Z]{4})([a-zA-Z]{2})(([2-9a-zA-Z]{1})([0-9a-np-zA-NP-Z]{1}))((([0-9a-wy-zA-WY-Z]{1})([0-9a-zA-Z]{2}))|([xX]{3})|)"
+                       placeholder="{{ "bkr-checkout.buckarooGiropayBicPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                       required="required">
+            </div>
+        </fieldset>
+    </div>
+
     {% else %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
         {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.name]?:context.paymentMethod.translated.name }}

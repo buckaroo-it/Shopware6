@@ -67,16 +67,6 @@ class Paypal implements PaymentMethodInterface
      *
      * @return string|null
      */
-    public function getGatewayCode(): string
-    {
-        return 'PAYPAL';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string|null
-     */
     public function getTemplate(): ?string
     {
         return null;

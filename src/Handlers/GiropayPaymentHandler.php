@@ -2,13 +2,13 @@
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Buckaroo\Shopware6\PaymentMethods\Transfer;
+use Buckaroo\Shopware6\PaymentMethods\Giropay;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class TransferPaymentHandler extends AsyncPaymentHandler
+class GiropayPaymentHandler extends AsyncPaymentHandler
 {
     /**
      * @param AsyncPaymentTransactionStruct $transaction
@@ -29,16 +29,7 @@ class TransferPaymentHandler extends AsyncPaymentHandler
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
-        $additional = [];
-        $order = $transaction->getOrder();
-
-        $additional = $this->checkoutHelper->getTransferData($order, $additional, $salesChannelContext, $dataBag);
-
-        $paymentMethod = new Transfer();
-        $gatewayInfo = [
-            'additional' =>  $additional,
-        ];
-
+        $paymentMethod = new Giropay();
         return parent::pay(
             $transaction,
             $dataBag,

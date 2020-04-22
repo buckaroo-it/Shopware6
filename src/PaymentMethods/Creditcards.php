@@ -57,16 +57,6 @@ class Creditcards implements PaymentMethodInterface
      *
      * @return string|null
      */
-    public function getGatewayCode(): string
-    {
-        return 'CREDITCARDS';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string|null
-     */
     public function getTemplate(): ?string
     {
         return '@BuckarooPayment/storefront/buckaroo/creditcards/creditcards.html.twig';

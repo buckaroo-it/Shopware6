@@ -92,6 +92,8 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $request->setCurrency('EUR');
         $request->setOriginalTransactionKey($customFields['originalTransactionKey']);
 
+        $request->setServiceVersion($customFields['version']);
+
         $url = $this->checkoutHelper->getTransactionUrl($customFields['serviceName']);
         $bkrClient = $this->helper->initializeBkr();
         return $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
@@ -160,6 +162,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $paymentMethod = new $method_path;
         $customField['refund'] = $paymentMethod->canRefund() ? 1 : 0;
         $customField['serviceName'] = $paymentMethod->getBuckarooKey();
+        $customField['version'] = $paymentMethod->getVersion();
 
         return $customField;
     }

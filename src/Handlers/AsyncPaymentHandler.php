@@ -23,7 +23,6 @@ use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
 
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-
 class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
     /** @var Helper $helper */
@@ -48,7 +47,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $gateway
+     * @param string|null $buckarooKey
      * @param string $type
      * @param array $gatewayInfo
      * @return RedirectResponse
@@ -59,8 +58,9 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $gateway = null,
+        string $buckarooKey = null,
         string $type = 'redirect',
+        string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
 
@@ -87,16 +87,20 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setCurrency($salesChannelContext->getCurrency()->getIsoCode());
         $request->setAmountDebit($order->getAmountTotal());
 
-        $request->setServiceName($gatewayInfo['key']);
-        $request->setServiceVersion($gatewayInfo['version']);
+        $request->setServiceName($buckarooKey);
+        $request->setServiceVersion($version);
         $request->setServiceAction('Pay');
 
         if($issuer = $dataBag->get('bankMethodId')){
             $request->setServiceParameter('issuer', $issuer);
         }
 
-        if($card = $gatewayInfo['creditcard']){
-            $request->setServiceName($card);
+        if($buckarooKey=='creditcards' && $creditcard = $dataBag->get('creditcard')){
+            $request->setServiceName($creditcard);
+        }
+
+        if($bic = $dataBag->get('buckarooGiropayBic')){
+            $request->setServiceParameter('bic', $bic);
         }
 
         if($additional = $gatewayInfo['additional']){
@@ -108,7 +112,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         }
 
         try {
-            $url = $this->checkoutHelper->getTransactionUrl($gatewayInfo['key']);
+            $url = $this->checkoutHelper->getTransactionUrl($buckarooKey);
             $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
         } catch (Exception $exception) {
             throw new AsyncPaymentProcessException(

@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\PaymentMethods;
 
 interface PaymentMethodInterface
@@ -39,13 +38,6 @@ interface PaymentMethodInterface
      * @return string
      */
     public function getPaymentHandler(): string;
-
-    /**
-     * Return the gateway code used for the API.
-     *
-     * @return string
-     */
-    public function getGatewayCode(): string;
 
     /**
      * Give the location of a twig file to load with the payment method.

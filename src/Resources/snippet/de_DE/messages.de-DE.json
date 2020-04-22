@@ -6,6 +6,8 @@
     "selectCreditCard": "Select your credit card"
   },
   "bkr-checkout": {
+    "buckarooGiropayBic": "BIC Number",
+    "buckarooGiropayBicPlaceholder": "Enter your BIC number here...",
     "buckarooAfterpayPhone": "Mobile",
     "buckarooAfterpayPhonePlaceholder": "Enter your mobile here...",
     "salutation": "Salutation",

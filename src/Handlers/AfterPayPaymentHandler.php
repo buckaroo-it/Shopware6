@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
@@ -15,7 +14,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $gateway
+     * @param string|null $buckarooKey
      * @param string $type
      * @param array $gatewayInfo
      * @return RedirectResponse
@@ -25,8 +24,9 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $gateway = null,
+        string $buckarooKey = null,
         string $type = null,
+        string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
 
@@ -38,8 +38,6 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
 
         $paymentMethod = new AfterPay();
         $gatewayInfo = [
-            'key' =>  $paymentMethod->getBuckarooKey(),
-            'version' =>  $paymentMethod->getVersion(),
             'additional' =>  $additional,
         ];
 
@@ -47,8 +45,9 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
             $transaction,
             $dataBag,
             $salesChannelContext,
-            $paymentMethod->getGatewayCode(),
+            $paymentMethod->getBuckarooKey(),
             $paymentMethod->getType(),
+            $paymentMethod->getVersion(),
             $gatewayInfo
         );
     }

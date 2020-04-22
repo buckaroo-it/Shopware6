@@ -1,12 +1,27 @@
 <?php declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\BuckarooPaymentHandler;
+use Buckaroo\Shopware6\Handlers\GiropayPaymentHandler;
 
-class Buckaroo implements PaymentMethodInterface
+class Giropay implements PaymentMethodInterface
 {
+    /*
+    * @return string
+    */
+    public function getBuckarooKey(): string
+    {
+        return 'giropay';
+    }
+
+    /**
+     * @return string
+     */
+    public function getVersion(): string
+    {
+        return '2';
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -14,7 +29,7 @@ class Buckaroo implements PaymentMethodInterface
      */
     public function getName(): string
     {
-        return 'Buckaroo';
+        return 'Giropay';
     }
 
     /**
@@ -24,7 +39,7 @@ class Buckaroo implements PaymentMethodInterface
      */
     public function getDescription(): string
     {
-        return 'Pay with Buckaroo';
+        return 'Pay with Giropay';
     }
 
     /**
@@ -34,7 +49,7 @@ class Buckaroo implements PaymentMethodInterface
      */
     public function getMedia(): string
     {
-        return '';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/giropay.png';
     }
 
     /**
@@ -44,17 +59,7 @@ class Buckaroo implements PaymentMethodInterface
      */
     public function getPaymentHandler(): string
     {
-        return BuckarooPaymentHandler::class;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string|null
-     */
-    public function getGatewayCode(): string
-    {
-        return '';
+        return GiropayPaymentHandler::class;
     }
 
     /**
@@ -77,7 +82,7 @@ class Buckaroo implements PaymentMethodInterface
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit Buckaroo',
+                'description' => 'Bezahlen mit Bank Giropay',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),

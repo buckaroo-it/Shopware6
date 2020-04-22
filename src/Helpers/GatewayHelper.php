@@ -2,7 +2,6 @@
 
 namespace Buckaroo\Shopware6\Helpers;
 
-use Buckaroo\Shopware6\PaymentMethods\Visa;
 use Buckaroo\Shopware6\PaymentMethods\Ideal;
 use Buckaroo\Shopware6\PaymentMethods\IdealProcessing;
 use Buckaroo\Shopware6\PaymentMethods\Bancontact;
@@ -12,11 +11,11 @@ use Buckaroo\Shopware6\PaymentMethods\Sofort;
 use Buckaroo\Shopware6\PaymentMethods\Paypal;
 use Buckaroo\Shopware6\PaymentMethods\Transfer;
 use Buckaroo\Shopware6\PaymentMethods\ApplePay;
+use Buckaroo\Shopware6\PaymentMethods\Giropay;
 
 class GatewayHelper
 {
     public const GATEWAYS = [
-        Visa::class,
         Ideal::class,
         IdealProcessing::class,
         Bancontact::class,
@@ -25,6 +24,7 @@ class GatewayHelper
         Sofort::class,
         Paypal::class,
         Transfer::class,
-        ApplePay::class
+        ApplePay::class,
+        Giropay::class
     ];
 }

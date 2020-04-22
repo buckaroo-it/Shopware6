@@ -302,6 +302,34 @@
             <helpText>Enable to send an order confirmation email to the customer when the creating of the order is successful. Specific for this payment method.</helpText>
         </input-field>
     </card>
+
+    <card>
+    <title>Giropay</title>
+        <input-field type="single-select">
+            <name>giropayEnvironment</name>
+            <label>Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>giropayLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Giropay</defaultValue>
+        </input-field>
+
+    </card>
 <!--
     <card>
         <title>Apple Pay</title>
