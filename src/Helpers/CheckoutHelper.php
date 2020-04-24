@@ -790,6 +790,55 @@ class CheckoutHelper
         return $additional;
     }
 
+
+    public function getRefundArticleData($amount){
+
+        $additional[] = [
+                        [
+                '_'       => 'Return',
+                'Name'    => 'RefundType',
+                'GroupID' => 1,
+                'Group' => 'Article',
+            ],[
+                '_'       => 'Refund',
+                'Name'    => 'Description',
+                'GroupID' => 1,
+                'Group' => 'Article',
+            ], [
+                '_'       => 'Refund',
+                'Name'    => 'Description',
+                'GroupID' => 1,
+                'Group' => 'Article',
+            ],
+            [
+                '_'       => '1',
+                'Name'    => 'Identifier',
+                'Group' => 'Article',
+                'GroupID' => 1,
+            ],
+            [
+                '_'       => '1',
+                'Name'    => 'Quantity',
+                'GroupID' => 1,
+                'Group' => 'Article',
+            ],
+            [
+                '_'       => $amount,
+                'Name'    => 'GrossUnitPrice',
+                'GroupID' => 1,
+                'Group' => 'Article',
+            ],
+            [
+                '_'       => 0,
+                'Name'    => 'VatPercentage',
+                'GroupID' => 1,
+                'Group' => 'Article',
+            ]
+        ];
+
+        return $additional;
+    }
+
     public function getTransferData($order, $additional, $salesChannelContext, $dataBag)
     {
         if ($order->getOrderCustomer() !== null) {
@@ -989,6 +1038,15 @@ class CheckoutHelper
         $request->setCurrency('EUR');
         $request->setOriginalTransactionKey($customFields['originalTransactionKey']);
         $request->setServiceVersion($customFields['version']);
+
+        if($customFields['serviceName']=='afterpay'){
+            $additional = $this->getRefundArticleData($amount);
+            foreach ($additional as $key2 => $item) {
+                foreach ($item as $key => $value) {
+                    $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
+                }
+            }
+        }
 
         $url = $this->getTransactionUrl($customFields['serviceName']);
         $bkrClient = $this->helper->initializeBkr();
