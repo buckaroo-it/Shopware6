@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\Events;
 
 use Buckaroo\Shopware6\Helpers\Helper;
@@ -30,7 +29,6 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     private $orderDeliveryRepository;
     /** @var helper */
     private $helper;
-
     /** @var LoggerInterface */
     protected $logger;
 
@@ -65,106 +63,14 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         ];
     }
 
-    public function sendTransactionRefund(OrderStateMachineStateChangeEvent $event, $state)
-    {
-        $order = $this->getOrder($event);
-        $customFields = $this->getCustomFields($order, $event);
-
-        if (!$this->isBuckarooPaymentMethod($order)) {
-            return;
-        }
-
-        if($customFields['refund']==0){
-            return false;
-        }
-
-        if($customFields['refunded']==1){
-            return false;
-        }
-
-        $request = new TransactionRequest;
-        $request->setServiceAction('Refund');
-        $request->setDescription('Refund for order #' . $order->getOrderNumber());
-        $request->setServiceName($customFields['brqPaymentMethod']);
-        $request->setAmountCredit($order->getAmountTotal());
-        $request->setInvoice($order->getOrderNumber());
-        $request->setOrder($order->getOrderNumber());
-        $request->setCurrency('EUR');
-        $request->setOriginalTransactionKey($customFields['originalTransactionKey']);
-
-        $request->setServiceVersion($customFields['version']);
-
-        $url = $this->checkoutHelper->getTransactionUrl($customFields['serviceName']);
-        $bkrClient = $this->helper->initializeBkr();
-        return $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
-    }
-
     public function onOrderTransactionRefunded(OrderStateMachineStateChangeEvent $event)
     {
-        return $this->sendTransactionRefund($event, 'refund');
+        return true;
     }
 
     public function onOrderTransactionRefundedPartially(OrderStateMachineStateChangeEvent $event)
     {
-        return $this->sendTransactionRefund($event, 'refund_partially');
-    }
-
-    /**
-     * Check if this event is triggered using a Buckaroo Payment Method
-     *
-     * @param OrderEntity $order
-     * @return bool
-     */
-    private function isBuckarooPaymentMethod(OrderEntity $order): bool
-    {
-        $transaction = $order->getTransactions()->first();
-        if (!$transaction || !$transaction->getPaymentMethod() || !$transaction->getPaymentMethod()->getPlugin()) {
-            return false;
-        }
-
-        $plugin = $transaction->getPaymentMethod()->getPlugin();
-
-        return $plugin->getBaseClass() === BuckarooPayment::class;
-    }
-
-    /**
-     * @param OrderStateMachineStateChangeEvent $event
-     * @return OrderEntity
-     * @throws InconsistentCriteriaIdsException
-     */
-    private function getOrder(OrderStateMachineStateChangeEvent $event): OrderEntity
-    {
-        $order = $event->getOrder();
-        $orderId = $order->getId();
-        $orderCriteria = new Criteria([$orderId]);
-        $orderCriteria->addAssociation('orderCustomer.salutation');
-        $orderCriteria->addAssociation('stateMachineState');
-        $orderCriteria->addAssociation('transactions');
-        $orderCriteria->addAssociation('transactions.paymentMethod');
-        $orderCriteria->addAssociation('transactions.paymentMethod.plugin');
-        $orderCriteria->addAssociation('salesChannel');
-        return $this->orderRepository->search($orderCriteria, $event->getContext())->first();
-    }
-
-    private function getCustomFields($order, OrderStateMachineStateChangeEvent $event)
-    {
-        $transaction = $order->getTransactions()->first();
-
-        $orderTransaction = $this->checkoutHelper->getOrderTransactionById(
-            $event->getContext(),
-            $transaction->getId()
-        );
-        $customField = $orderTransaction->getCustomFields() ?? [];
-
-        // $this->logger->error(serialize($transaction));
-
-        $method_path = str_replace('Handlers', 'PaymentMethods', str_replace('PaymentHandler', '', $transaction->getPaymentMethod()->getHandlerIdentifier()));
-        $paymentMethod = new $method_path;
-        $customField['refund'] = $paymentMethod->canRefund() ? 1 : 0;
-        $customField['serviceName'] = $paymentMethod->getBuckarooKey();
-        $customField['version'] = $paymentMethod->getVersion();
-
-        return $customField;
+        return true;
     }
 
 }

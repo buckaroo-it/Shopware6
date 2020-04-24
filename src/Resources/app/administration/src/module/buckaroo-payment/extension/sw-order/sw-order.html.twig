@@ -1,0 +1,14 @@
+{% block sw_order_detail_content_tabs_general %}
+    {% parent %}
+
+    <sw-tabs-item v-if="setIsBuckarooPayment" :route="{ name: 'buckaroo.payment.detail', params: { id: $route.params.id } }" :title="$tc('buckaroo-payment.tabs.title')">
+        {{ $tc('buckaroo-payment.tabs.title') }}
+    </sw-tabs-item>
+    
+{% endblock %}
+
+{% block sw_order_detail_actions %}
+    <template v-if="isEditable">
+        {% parent %}
+    </template>
+{% endblock %}

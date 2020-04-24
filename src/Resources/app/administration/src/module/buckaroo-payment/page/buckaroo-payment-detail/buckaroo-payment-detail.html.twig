@@ -1,0 +1,12 @@
+{% block buckaroo_payment_detail %}
+    <div class="buckaroo-payment-detail">
+         <sw-card :title="$tc('Refund')">
+            <sw-number-field :label="$tc('buckaroo-payment.refund.amountTitle')" v-model="buckaroo_refund_amount"></sw-number-field>
+            <sw-button @click="refundOrder(orderId, buckaroo_refund_amount)">
+                {{ $tc('buckaroo-payment.refund.buttonTitle') }}
+            </sw-button>
+         </sw-card>
+        <sw-loader v-if="isLoading">
+        </sw-loader>
+    </div>
+{% endblock %}

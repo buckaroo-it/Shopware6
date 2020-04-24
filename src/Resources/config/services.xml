@@ -44,6 +44,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="order.repository" />
         </service>
 
         <service id="Buckaroo\Shopware6\Service\SettingsService">
@@ -127,6 +128,12 @@
 
         <!-- Controllers -->
         <service id="Buckaroo\Shopware6\Storefront\Controller\PushController" public="true">
+            <argument type="service" id="order_transaction.repository" />
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="order.repository" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Storefront\Controller\RefundController" public="true">
             <argument type="service" id="order_transaction.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="order.repository" />

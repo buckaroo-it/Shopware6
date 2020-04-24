@@ -389,6 +389,11 @@ class TransactionResponse extends Response
         return '';
     }
 
+    public function getSubCodeMessageFull()
+    {
+        return $this->data['Status']['SubCode']['Description'];
+    }
+
     /**
      * @return  string
      */
