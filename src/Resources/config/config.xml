@@ -330,6 +330,34 @@
         </input-field>
 
     </card>
+
+    <card>
+    <title>KBC</title>
+        <input-field type="single-select">
+            <name>KBCPaymentButtonEnvironment</name>
+            <label>Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>KBCPaymentButtonLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>KBC</defaultValue>
+        </input-field>
+
+    </card>
 <!--
     <card>
         <title>Apple Pay</title>

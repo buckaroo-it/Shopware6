@@ -12,3 +12,9 @@ Added payment methods
 * Sofort
 * PayPal
 * Bank Transfer
+
+# 1.0.6
+Added payment methods
+
+* Giropay
+* Kbc
