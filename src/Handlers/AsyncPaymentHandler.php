@@ -95,7 +95,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $request->setServiceName($creditcard);
         }
 
-        if($additional = $gatewayInfo['additional']){
+        if(!empty($gatewayInfo['additional']) && ($additional = $gatewayInfo['additional'])) {
             foreach ($additional as $key2 => $item) {
                 foreach ($item as $key => $value) {
                     $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
@@ -113,7 +113,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         }
         
-        if($response->isSuccess() || $response->isPendingProcessing() || $response->isAwaitingConsumer()){
+        if($response->isSuccess() || $response->isAwaitingConsumer()){
             return new RedirectResponse('/checkout/finish?orderId=' . $order->getId());
         }elseif($response->hasRedirect()) {
             return new RedirectResponse($response->getRedirectUrl());

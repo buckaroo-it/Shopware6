@@ -35,6 +35,14 @@ class Config
     }
 
     /**
+     * @return string
+     */
+    public function guid()
+    {
+        return $this->settingsService->getSetting('guid');
+    }
+
+    /**
      * Get the environment (test / live) for a payment method
      * true = live
      * false = test
