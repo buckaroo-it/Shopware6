@@ -30,6 +30,14 @@ class IdealProcessingPaymentHandler extends AsyncPaymentHandler
         array $gatewayInfo = []
     ): RedirectResponse {
         $paymentMethod = new IdealProcessing();
+
+        if($issuer = $dataBag->get('bankMethodId')){
+            $gatewayInfo['additional'][] = [[
+                'Name' => 'issuer',
+                '_' => $issuer,
+            ]];
+        }
+
         return parent::pay(
             $transaction,
             $dataBag,

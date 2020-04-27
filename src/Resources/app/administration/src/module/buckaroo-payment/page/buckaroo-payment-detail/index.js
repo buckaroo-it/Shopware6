@@ -20,6 +20,7 @@ Component.register('buckaroo-payment-detail', {
         return {
             buckaroo_refund_amount: '0',
             currency: 'EUR',
+            isRefundPossible: true,
             isLoading: false
         };
     },
@@ -50,13 +51,14 @@ Component.register('buckaroo-payment-detail', {
 
         refundOrder(transaction, amount) {
             let that = this;
+            that.isRefundPossible = false;
             this.BuckarooPaymentService.refundPayment(transaction, amount)
                 .then(() => {
                     this.createNotificationSuccess({
                         title: this.$tc('buckaroo-payment.refund.successTitle'),
                         message: this.$tc('buckaroo-payment.refund.successMessage') + this.buckaroo_refund_amount + ' ' + this.currency
                     });
-
+                    that.isRefundPossible = true;
                     that.reloadEntityData();
                 })
                 .catch((errorResponse) => {
@@ -64,6 +66,7 @@ Component.register('buckaroo-payment-detail', {
                         title: this.$tc('buckaroo-payment.refund.errorTitle'),
                         message: errorResponse.response.data.message
                     });
+                    that.isRefundPossible = true;
                 });
         }
     }

@@ -2,13 +2,13 @@
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Buckaroo\Shopware6\PaymentMethods\Giropay;
+use Buckaroo\Shopware6\PaymentMethods\SepaDirectDebit;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class GiropayPaymentHandler extends AsyncPaymentHandler
+class SepaDirectDebitPaymentHandler extends AsyncPaymentHandler
 {
     /**
      * @param AsyncPaymentTransactionStruct $transaction
@@ -29,12 +29,19 @@ class GiropayPaymentHandler extends AsyncPaymentHandler
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
-        $paymentMethod = new Giropay();
+        $paymentMethod = new SepaDirectDebit();
 
-        if($bic = $dataBag->get('buckarooGiropayBic')){
+        if($customeraccountname = $dataBag->get('buckarooSepaDirectDebitCustomer')){
             $gatewayInfo['additional'][] = [[
-                'Name' => 'bic',
-                '_' => $bic,
+                'Name' => 'customeraccountname',
+                '_' => $customeraccountname,
+            ]];
+        }
+
+        if($customeriban = $dataBag->get('buckarooSepaDirectDebitIBAN')){
+            $gatewayInfo['additional'][] = [[
+                'Name' => 'customeriban',
+                '_' => $customeriban,
             ]];
         }
 

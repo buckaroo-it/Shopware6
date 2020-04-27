@@ -91,16 +91,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setServiceVersion($version);
         $request->setServiceAction('Pay');
 
-        if($issuer = $dataBag->get('bankMethodId')){
-            $request->setServiceParameter('issuer', $issuer);
-        }
-
         if($buckarooKey=='creditcards' && $creditcard = $dataBag->get('creditcard')){
             $request->setServiceName($creditcard);
-        }
-
-        if($bic = $dataBag->get('buckarooGiropayBic')){
-            $request->setServiceParameter('bic', $bic);
         }
 
         if($additional = $gatewayInfo['additional']){
@@ -121,7 +113,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         }
         
-        if($response->isSuccess() || $response->isAwaitingConsumer()){
+        if($response->isSuccess() || $response->isPendingProcessing() || $response->isAwaitingConsumer()){
             return new RedirectResponse('/checkout/finish?orderId=' . $order->getId());
         }elseif($response->hasRedirect()) {
             return new RedirectResponse($response->getRedirectUrl());

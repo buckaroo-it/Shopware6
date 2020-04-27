@@ -17,4 +17,5 @@ Added payment methods
 Added payment methods
 
 * Giropay
-* Kbc
+* KBC
+* Sepa Direct Debit

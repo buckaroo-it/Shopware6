@@ -13,6 +13,7 @@ use Buckaroo\Shopware6\PaymentMethods\Transfer;
 use Buckaroo\Shopware6\PaymentMethods\ApplePay;
 use Buckaroo\Shopware6\PaymentMethods\Giropay;
 use Buckaroo\Shopware6\PaymentMethods\Kbc;
+use Buckaroo\Shopware6\PaymentMethods\SepaDirectDebit;
 
 class GatewayHelper
 {
@@ -27,6 +28,7 @@ class GatewayHelper
         Transfer::class,
         ApplePay::class,
         Giropay::class,
-        Kbc::class
+        Kbc::class,
+        SepaDirectDebit::class
     ];
 }
