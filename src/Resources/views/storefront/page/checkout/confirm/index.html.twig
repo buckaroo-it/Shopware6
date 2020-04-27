@@ -3,21 +3,48 @@
 {% block page_checkout_confirm_form_submit %}
     {{ parent() }}
     {% if context.paymentMethod.formattedHandlerIdentifier == 'handler_buckaroo_applepaypaymenthandler' %}
-    <div class="applepay-button-container">
+    <div id="applepay-button-container" class="applepay-button-container" style="display:none;">
         <div></div>
     </div>
+    <input type="hidden"
+           form="confirmOrderForm"
+           id="applePayInfo"
+           name="applePayInfo"
+           value="">
     <script>
+        if (!window.buckaroo) {
+            window.buckaroo = {
+                submit: false,
+                csrf: {
+                    '/Buckaroo/applepayInit': '{{ sw_csrf("frontend.buckaroo.applepayInit", {"mode": "token"}) }}',
+                    '/Buckaroo/applepaySaveOrder': '{{ sw_csrf("frontend.buckaroo.applepaySaveOrder", {"mode": "token"}) }}'
+                }
+            };
+        }
         if (document.getElementById('confirmFormSubmit')) {
             document.getElementById('confirmFormSubmit').disabled = true;
-        }
-        if (!window.buckaroo) {
-            window.buckaroo = {};
-            if (!window.buckaroo.csrf) {
-                window.buckaroo.csrf = {
-                    '/Buckaroo/applepayInit': '{{ sw_csrf("frontend.buckaroo.applepayInit", {"mode": "token"}) }}',
-                    '/Buckaroo/applepaySaveOrder': '{{ sw_csrf("frontend.buckaroo.applepaySaveOrder", {"mode": "token"}) }}',
+
+            document.getElementById('confirmFormSubmit').addEventListener('click', function(e){
+                console.log("====applepay====order button click");
+                e.stopPropagation();
+            });
+            document.getElementById('confirmOrderForm').addEventListener('submit', function(e){
+                console.log("====applepay====order submit");
+
+                if (window.buckaroo.submit) {
+                    //allow to submit
+                    return true;
+                } else {
+                    //don't allow to submit
+                    e.preventDefault();
+                    var child = document.querySelector('.apple-pay-button');
+                    console.log("====applepay====order submit2", child);
+                    if (child) {
+                        console.log("====applepay====order submit3");
+                        child.click();
+                    }
                 }
-            }
+            });
         }
     </script>
     <script type="module" src="/bundles/buckaroopayment/storefront/buckaroo/js/applepay/index.js"></script>

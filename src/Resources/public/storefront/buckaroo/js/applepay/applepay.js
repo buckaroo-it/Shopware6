@@ -146,6 +146,8 @@ export default class ApplePay {
 
   processApplepayCallback(payment) {
     console.log("====applepay====15");
+    console.log(payment);
+
 
     const authorization_result = {
       status: ApplePaySession.STATUS_SUCCESS,
@@ -154,7 +156,19 @@ export default class ApplePay {
 
     if (authorization_result.status === ApplePaySession.STATUS_SUCCESS) {
       console.log("====applepay====20");
-      this.createTransaction(payment, this.total_price, this.selected_shipping_method, this.selected_shipping_amount);
+
+      if (payment) {
+        console.log("====applepay====31");
+        if (document.getElementById('applePayInfo')) {
+          console.log("====applepay====32");
+          document.getElementById('applePayInfo').value = JSON.stringify(payment);
+          if (document.getElementById('confirmFormSubmit')) {
+            console.log("====applepay====33");
+            window.buckaroo.submit = true;
+            document.getElementById('confirmFormSubmit').click();
+          }
+        }
+      }
     }
     else {
       console.log("====applepay====21");
@@ -170,23 +184,6 @@ export default class ApplePay {
     return Promise.resolve(authorization_result);
   }
 
-
-  createTransaction(payment_data, total_price, selected_shipping_method, selected_shipping_amount) {
-    console.log("====applepay====22");
-    var response = this.shopware.makeRequest('/Buckaroo/applepaySaveOrder', 'POST', {
-      paymentData: payment_data
-    });
-
-    console.log("====applepay====23");
-    if (response && response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
-      console.log("====applepay====24");
-      this.timeoutRedirect(response.RequiredAction.RedirectURL);
-    } else {
-      console.log("====applepay====25");
-      //this.timeoutRedirect();
-    }
-  }
-
   timeoutRedirect(url = false) {
     console.log("====applepay====timeoutRedirect", url);
     /** Set Timeout to prevent Safari from crashing and reload window to show error in Magento. */
@@ -199,14 +196,6 @@ export default class ApplePay {
           }
         }, 1500
     )
-  }
-
-  sumTotalAmount(items) {
-    const total = items.reduce((a, b) => { 
-      return a + b.amount;
-    }, 0);
-
-    return convert.toDecimal(total);
   }
 
   getFirstShippingItem(shipping_methods) {

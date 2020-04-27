@@ -98,7 +98,7 @@ class ApplePay implements PaymentMethodInterface
      */
     public function getType(): string
     {
-        return 'redirect';
+        return 'direct';
     }
 
     public function canRefund(): bool

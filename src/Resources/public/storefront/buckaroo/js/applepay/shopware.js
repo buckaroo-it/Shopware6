@@ -30,14 +30,6 @@ export default class Shopware {
       });                
       return all_items;
     }
-
-    else {
-      console.log("====applepay====13");
-
-      var cart_items = this.makeRequest('/Buckaroo/applepayInit', 'POST', { country_code: country_code });
-      return cart_items;
-
-    }
   }
 
   getShippingMethods(country_code) {

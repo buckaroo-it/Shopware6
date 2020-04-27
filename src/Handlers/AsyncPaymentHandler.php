@@ -91,6 +91,10 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setServiceVersion($version);
         $request->setServiceAction('Pay');
 
+        if ($buckarooKey == 'applepay') {
+            $this->payApplePay($dataBag, $request);
+        }
+
         if($issuer = $dataBag->get('bankMethodId')){
             $request->setServiceParameter('issuer', $issuer);
         }
@@ -158,5 +162,26 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         SalesChannelContext $salesChannelContext
     ): void {
 
+    }
+
+    private function payApplePay(RequestDataBag $dataBag, $request)
+    {
+        if($applePayInfo = $dataBag->get('applePayInfo')) {
+            if (
+                ($applePayInfo = json_decode($applePayInfo))
+                &&
+                !empty($applePayInfo->billingContact)
+                &&
+                !empty($applePayInfo->token)
+            ) {
+                if (!empty($applePayInfo->billingContact->givenName) && !empty($applePayInfo->billingContact->familyName)) {
+                    $request->setServiceParameter('CustomerCardName',
+                        $applePayInfo->billingContact->givenName . ' ' . $applePayInfo->billingContact->familyName
+                    );
+                }
+
+                $request->setServiceParameter('PaymentData', base64_encode(json_encode($applePayInfo->token)));
+            }
+        }
     }
 }
