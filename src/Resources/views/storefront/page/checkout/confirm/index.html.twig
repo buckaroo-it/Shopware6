@@ -1,0 +1,26 @@
+{% sw_extends '@Storefront/storefront/page/checkout/confirm/index.html.twig' %}
+
+{% block page_checkout_confirm_form_submit %}
+    {{ parent() }}
+    {% if context.paymentMethod.formattedHandlerIdentifier == 'handler_buckaroo_applepaypaymenthandler' %}
+    <div class="applepay-button-container">
+        <div></div>
+    </div>
+    <script>
+        if (document.getElementById('confirmFormSubmit')) {
+            document.getElementById('confirmFormSubmit').disabled = true;
+        }
+        if (!window.buckaroo) {
+            window.buckaroo = {};
+            if (!window.buckaroo.csrf) {
+                window.buckaroo.csrf = {
+                    '/Buckaroo/applepayInit': '{{ sw_csrf("frontend.buckaroo.applepayInit", {"mode": "token"}) }}',
+                    '/Buckaroo/applepaySaveOrder': '{{ sw_csrf("frontend.buckaroo.applepaySaveOrder", {"mode": "token"}) }}',
+                }
+            }
+        }
+    </script>
+    <script type="module" src="/bundles/buckaroopayment/storefront/buckaroo/js/applepay/index.js"></script>
+    {% endif %}
+{% endblock %}
+

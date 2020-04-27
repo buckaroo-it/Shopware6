@@ -24,6 +24,15 @@
             <description>Enter your Buckaroo merchant/website key.</description>
             <helpText>The Secret Key can be retrieved in Payment Plaza under Configuration > Security > Secret Key. For support contact Buckaroo.</helpText>
         </input-field>
+
+        <input-field >
+            <name>guid</name>
+            <label>Guid</label>
+            <label lang="nl-NL">Guid</label>
+            <label lang="de-DE">Guid</label>
+            <description>Enter your Buckaroo guid key.</description>
+            <helpText>The guid key can be retrieved in Payment Plaza under the profile tab. For support contact Buckaroo.</helpText>
+        </input-field>
     </card>
     
     <card>
@@ -330,7 +339,7 @@
         </input-field>
 
     </card>
-<!--
+
     <card>
         <title>Apple Pay</title>
         <input-field type="single-select">
@@ -373,5 +382,5 @@
             </options>
         </input-field>
     </card>
-    -->
+
 </config>

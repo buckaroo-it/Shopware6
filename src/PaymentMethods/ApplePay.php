@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\SofortPaymentHandler;
+use Buckaroo\Shopware6\Handlers\ApplePayPaymentHandler;
 
 class ApplePay implements PaymentMethodInterface
 {

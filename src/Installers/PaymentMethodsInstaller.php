@@ -239,7 +239,7 @@ class PaymentMethodsInstaller implements InstallerInterface
      */
     protected function copyAppleDomainAssociationFile(): void
     {
-        $root = $_SERVER['DOCUMENT_ROOT'] . '/';
+        $root = $_SERVER['DOCUMENT_ROOT'] ? $_SERVER['DOCUMENT_ROOT'] . '/' : getcwd() . '/public' . '/';
 
         if (!file_exists($root . '.well-known/apple-developer-merchantid-domain-association')) {
             if (!file_exists($root . '.well-known')) {

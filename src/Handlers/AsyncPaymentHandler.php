@@ -103,7 +103,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $request->setServiceParameter('bic', $bic);
         }
 
-        if($additional = $gatewayInfo['additional']){
+        if(!empty($gatewayInfo['additional']) && ($additional = $gatewayInfo['additional'])) {
             foreach ($additional as $key2 => $item) {
                 foreach ($item as $key => $value) {
                     $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
