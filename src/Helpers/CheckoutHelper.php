@@ -1063,7 +1063,7 @@ class CheckoutHelper
          return new JsonResponse(
                 [
                     'status'  => false,
-                    'message' => $response->getSubCodeMessageFull(),
+                    'message' => $response->getSubCodeMessageFull() ?? $response->getSomeError(),
                     'code'    => $response->getStatusCode(),
                 ],
                 Response::HTTP_BAD_REQUEST

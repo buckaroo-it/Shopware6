@@ -337,7 +337,6 @@
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Giropay</defaultValue>
         </input-field>
-
     </card>
 
     <card>
@@ -365,7 +364,33 @@
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>KBC</defaultValue>
         </input-field>
+    </card>
 
+    <card>
+    <title>Sepa Direct Debit</title>
+        <input-field type="single-select">
+            <name>sepadirectdebitEnvironment</name>
+            <label>Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>sepadirectdebitButtonLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Sepa Direct Debit</defaultValue>
+        </input-field>
     </card>
 
     <card>

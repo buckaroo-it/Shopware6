@@ -103,10 +103,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $request->setServiceName($creditcard);
         }
 
-        if($bic = $dataBag->get('buckarooGiropayBic')){
-            $request->setServiceParameter('bic', $bic);
-        }
-
         if(!empty($gatewayInfo['additional']) && ($additional = $gatewayInfo['additional'])) {
             foreach ($additional as $key2 => $item) {
                 foreach ($item as $key => $value) {
