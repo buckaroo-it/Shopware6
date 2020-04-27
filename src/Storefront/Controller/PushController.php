@@ -66,12 +66,11 @@ class PushController extends StorefrontController
             if($status != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS && $brq_transaction_type == ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_CANCEL){
                 return $this->json(['status' => true, 'message' => "Payment cancelled"]);
             }
-            $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, ['refunded' => 1 ]);
 
             $transaction = $this->checkoutHelper->getOrderTransaction($orderTransactionId, $context);
             $totalPrice = $transaction->getAmount()->getTotalPrice();
-
             $status = ($brq_amount_credit < $totalPrice) ? 'partial_refunded' : 'refunded';
+            $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, [$status => 1 ]);
 
             $this->checkoutHelper->transitionPaymentState($status, $orderTransactionId, $context);
 
@@ -163,4 +162,5 @@ class PushController extends StorefrontController
         ]);
 
     }
+
 }

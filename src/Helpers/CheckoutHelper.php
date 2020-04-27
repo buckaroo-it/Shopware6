@@ -45,6 +45,9 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 
+use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class CheckoutHelper
@@ -61,19 +64,14 @@ class CheckoutHelper
     private $helper;
     /** @var CartService */
     private $cartService;
-
-    /**
-     * @var string
-     */
+    /** * @var string */
     private $shopwareVersion;
-
-    /**
-     * @var PluginService
-     */
+    /** * @var PluginService */
     private $pluginService;
-
     /** @var SettingsService $settingsService */
     private $settingsService;
+    /** @var EntityRepositoryInterface $orderRepository */
+    private $orderRepository;
 
     /**
      * CheckoutHelper constructor.
@@ -93,7 +91,8 @@ class CheckoutHelper
         PluginService $pluginService,
         SettingsService $settingsService,
         Helper $helper,
-        CartService $cartService
+        CartService $cartService,
+        EntityRepositoryInterface $orderRepository
     ) {
         $this->router = $router;
         $this->transactionRepository = $transactionRepository;
@@ -104,6 +103,7 @@ class CheckoutHelper
         $this->settingsService = $settingsService;
         $this->helper = $helper;
         $this->cartService = $cartService;
+        $this->orderRepository = $orderRepository;
     }
 
     public function getSetting($name)
@@ -790,6 +790,55 @@ class CheckoutHelper
         return $additional;
     }
 
+
+    public function getRefundArticleData($amount){
+
+        $additional[] = [
+                        [
+                '_'       => 'Return',
+                'Name'    => 'RefundType',
+                'GroupID' => 1,
+                'Group' => 'Article',
+            ],[
+                '_'       => 'Refund',
+                'Name'    => 'Description',
+                'GroupID' => 1,
+                'Group' => 'Article',
+            ], [
+                '_'       => 'Refund',
+                'Name'    => 'Description',
+                'GroupID' => 1,
+                'Group' => 'Article',
+            ],
+            [
+                '_'       => '1',
+                'Name'    => 'Identifier',
+                'Group' => 'Article',
+                'GroupID' => 1,
+            ],
+            [
+                '_'       => '1',
+                'Name'    => 'Quantity',
+                'GroupID' => 1,
+                'Group' => 'Article',
+            ],
+            [
+                '_'       => $amount,
+                'Name'    => 'GrossUnitPrice',
+                'GroupID' => 1,
+                'Group' => 'Article',
+            ],
+            [
+                '_'       => 0,
+                'Name'    => 'VatPercentage',
+                'GroupID' => 1,
+                'Group' => 'Article',
+            ]
+        ];
+
+        return $additional;
+    }
+
     public function getTransferData($order, $additional, $salesChannelContext, $dataBag)
     {
         if ($order->getOrderCustomer() !== null) {
@@ -908,6 +957,117 @@ class CheckoutHelper
             }
         } catch (ProductNotFoundException $exception) {
         }
+    }
+
+    public function getCustomFields($order, $context)
+    {
+        $transaction = $order->getTransactions()->first();
+
+        $orderTransaction = $this->getOrderTransactionById(
+            $context,
+            $transaction->getId()
+        );
+        $customField = $orderTransaction->getCustomFields() ?? [];
+
+        $method_path = str_replace('Handlers', 'PaymentMethods', str_replace('PaymentHandler', '', $transaction->getPaymentMethod()->getHandlerIdentifier()));
+        $paymentMethod = new $method_path;
+        $customField['refund'] = $paymentMethod->canRefund() ? 1 : 0;
+        $customField['serviceName'] = $paymentMethod->getBuckarooKey();
+        $customField['version'] = $paymentMethod->getVersion();
+
+        return $customField;
+    }
+
+    /**
+     * Check if this event is triggered using a Buckaroo Payment Method
+     *
+     * @param OrderEntity $order
+     * @return bool
+     */
+    private function isBuckarooPaymentMethod(OrderEntity $order): bool
+    {
+        $transaction = $order->getTransactions()->first();
+
+        if (!$transaction || !$transaction->getPaymentMethod() || !$transaction->getPaymentMethod()->getPlugin()) {
+            return false;
+        }
+
+        $plugin = $transaction->getPaymentMethod()->getPlugin();
+
+        return end(explode('\\', $plugin->getBaseClass())) === end(explode('\\', BuckarooPayment::class));
+
+        return $plugin->getBaseClass() === BuckarooPayment::class;
+    }
+
+    public function getOrderById($orderId, $context): ?OrderEntity
+    {
+        $orderCriteria = new Criteria([$orderId]);
+        $orderCriteria->addAssociation('orderCustomer.salutation');
+        $orderCriteria->addAssociation('stateMachineState');
+        $orderCriteria->addAssociation('transactions');
+        $orderCriteria->addAssociation('transactions.paymentMethod');
+        $orderCriteria->addAssociation('transactions.paymentMethod.plugin');
+        $orderCriteria->addAssociation('salesChannel');
+        
+        return $this->orderRepository->search($orderCriteria, $context)->first();
+    }
+
+    public function refundTransaction($order, $context, $state, $amount = false)
+    {
+        if (!$this->isBuckarooPaymentMethod($order)) {
+            return;
+        }
+
+        $customFields = $this->getCustomFields($order, $context);
+
+        if($customFields['refund']==0){
+            return false;
+        }
+
+        if($customFields['refunded']==1){
+            return false;
+        }
+
+        $request = new TransactionRequest;
+        $request->setServiceAction('Refund');
+        $request->setDescription('Refund for order #' . $order->getOrderNumber());
+        $request->setServiceName($customFields['brqPaymentMethod']);
+        $request->setAmountCredit($amount ? $amount : $order->getAmountTotal());
+        $request->setInvoice($order->getOrderNumber());
+        $request->setOrder($order->getOrderNumber());
+        $request->setCurrency('EUR');
+        $request->setOriginalTransactionKey($customFields['originalTransactionKey']);
+        $request->setServiceVersion($customFields['version']);
+
+        if($customFields['serviceName']=='afterpay'){
+            $additional = $this->getRefundArticleData($amount);
+            foreach ($additional as $key2 => $item) {
+                foreach ($item as $key => $value) {
+                    $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
+                }
+            }
+        }
+
+        $url = $this->getTransactionUrl($customFields['serviceName']);
+        $bkrClient = $this->helper->initializeBkr();
+        $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
+
+        if($response->isSuccess()){
+            $transaction = $order->getTransactions()->first();
+            $status = ($amount < $order->getAmountTotal()) ? 'partial_refunded' : 'refunded';
+            $this->transitionPaymentState($status, $transaction->getId(), $context);
+            $this->saveTransactionData($transaction->getId(), $context, [$status => 1]);
+            return new JsonResponse(['status' => true]);
+        }
+
+         return new JsonResponse(
+                [
+                    'status'  => false,
+                    'message' => $response->getSubCodeMessageFull(),
+                    'code'    => $response->getStatusCode(),
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
     }
 
 }

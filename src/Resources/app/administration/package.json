@@ -1,0 +1,8 @@
+{
+    "name": "buckaroo",
+    "version": "1.0.0",
+    "description": "Buckaroo Payment",
+    "main": "index.js",
+    "author": "Buckaroo",
+    "license": "MIT"
+}
