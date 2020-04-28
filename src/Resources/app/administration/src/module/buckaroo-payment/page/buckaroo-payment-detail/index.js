@@ -45,7 +45,7 @@ Component.register('buckaroo-payment-detail', {
             this.orderId = orderId;
             orderCriteria.addAssociation('transactions');
             orderRepository.get(orderId, Context.api, orderCriteria).then((order) => {
-                that.buckaroo_refund_amount = order.amountTotal;
+                that.buckaroo_refund_amount = order.amountTotal.toFixed(2);
             });
         },
 

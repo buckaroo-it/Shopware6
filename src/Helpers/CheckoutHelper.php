@@ -971,7 +971,7 @@ class CheckoutHelper
 
         $method_path = str_replace('Handlers', 'PaymentMethods', str_replace('PaymentHandler', '', $transaction->getPaymentMethod()->getHandlerIdentifier()));
         $paymentMethod = new $method_path;
-        $customField['refund'] = $paymentMethod->canRefund() ? 1 : 0;
+        $customField['canRefund'] = $paymentMethod->canRefund() ? 1 : 0;
         $customField['serviceName'] = $paymentMethod->getBuckarooKey();
         $customField['version'] = $paymentMethod->getVersion();
 
@@ -998,8 +998,6 @@ class CheckoutHelper
         $buckarooPaymentClass = explode('\\', BuckarooPayment::class);
 
         return end($baseClassArr) === end($buckarooPaymentClass);
-
-        return $plugin->getBaseClass() === BuckarooPayment::class;
     }
 
     public function getOrderById($orderId, $context): ?OrderEntity
@@ -1023,18 +1021,24 @@ class CheckoutHelper
 
         $customFields = $this->getCustomFields($order, $context);
 
-        if($customFields['refund']==0){
+        if(empty($customFields['serviceName']) || empty($customFields['originalTransactionKey'])){
             return false;
         }
 
-        if(!empty($customFields['refunded']) && ($customFields['refunded']==1)) {
-            return false;
+        if($customFields['canRefund'] == 0){
+            return new JsonResponse(['status' => false, 'message' => 'Refund not supported'], Response::HTTP_BAD_REQUEST);
         }
+
+        if(!empty($customFields['refunded']) && ($customFields['refunded']==1)) {
+            return new JsonResponse(['status' => false, 'message' => 'This order is already refunded'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $serviceName = ($customFields['serviceName'] == 'creditcards') ? $customFields['brqPaymentMethod'] : $customFields['serviceName'];
 
         $request = new TransactionRequest;
         $request->setServiceAction('Refund');
         $request->setDescription('Refund for order #' . $order->getOrderNumber());
-        $request->setServiceName($customFields['serviceName']);
+        $request->setServiceName($serviceName);
         $request->setAmountCredit($amount ? $amount : $order->getAmountTotal());
         $request->setInvoice($order->getOrderNumber());
         $request->setOrder($order->getOrderNumber());
