@@ -95,10 +95,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $this->payApplePay($dataBag, $request);
         }
 
-        if($issuer = $dataBag->get('bankMethodId')){
-            $request->setServiceParameter('issuer', $issuer);
-        }
-
         if($buckarooKey=='creditcards' && $creditcard = $dataBag->get('creditcard')){
             $request->setServiceName($creditcard);
         }
@@ -121,7 +117,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         }
         
-        if($response->isSuccess() || $response->isAwaitingConsumer()){
+        if($response->isSuccess() || $response->isAwaitingConsumer() || $response->isPendingProcessing()){
             return new RedirectResponse('/checkout/finish?orderId=' . $order->getId());
         }elseif($response->hasRedirect()) {
             return new RedirectResponse($response->getRedirectUrl());
@@ -133,11 +129,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         }
 
         return new RedirectResponse($finalize_page . '?orderId='.$order->getId().'&error=' . base64_encode($response->getSubCodeMessage()));
-
-/*        throw new AsyncPaymentFinalizeException(
-            $transaction->getOrderTransaction()->getId(),
-            $response->getSubCodeMessage()
-        );*/
 
     }
 
