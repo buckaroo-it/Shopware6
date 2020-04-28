@@ -61,6 +61,11 @@ class PushController extends StorefrontController
         $status = $request->request->get('brq_statuscode');
         $brq_transaction_type = $request->request->get('brq_transaction_type');
 
+        $validSignature = $this->checkoutHelper->validateSignature();
+        if(!$validSignature){
+            return $this->json(['status' => false, 'message' => 'Signature from push is incorrect']);
+        }
+
         //Check if the push is a refund request or cancel authorize
         if (isset($brq_amount_credit)) {
             if($status != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS && $brq_transaction_type == ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_CANCEL){

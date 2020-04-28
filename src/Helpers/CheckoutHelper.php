@@ -1031,7 +1031,7 @@ class CheckoutHelper
         $request = new TransactionRequest;
         $request->setServiceAction('Refund');
         $request->setDescription('Refund for order #' . $order->getOrderNumber());
-        $request->setServiceName($customFields['brqPaymentMethod']);
+        $request->setServiceName($customFields['serviceName']);
         $request->setAmountCredit($amount ? $amount : $order->getAmountTotal());
         $request->setInvoice($order->getOrderNumber());
         $request->setOrder($order->getOrderNumber());
@@ -1046,6 +1046,10 @@ class CheckoutHelper
                     $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
                 }
             }
+        }
+
+        if($customFields['serviceName']=='sepadirectdebit'){
+            $request->setChannelHeader('Backoffice');
         }
 
         $url = $this->getTransactionUrl($customFields['serviceName']);
@@ -1068,6 +1072,116 @@ class CheckoutHelper
                 ],
                 Response::HTTP_BAD_REQUEST
             );
+    }
+
+    /**
+     * Generate/calculate the signature with the buckaroo config value and check if thats equal to the signature
+     * received from the push
+     *
+     * @return bool
+     */
+    public function validateSignature()
+    {
+        $request = $this->helper->getGlobals();
+        $postData = $_POST;
+
+        if (!isset($postData['brq_signature'])) {
+            return false;
+        }
+
+        $signature = $this->calculateSignature($postData);
+
+        if ($signature !== $postData['brq_signature']) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Determines the signature using array sorting and the SHA1 hash algorithm
+     *
+     * @param $postData
+     *
+     * @return string
+     */
+    protected function calculateSignature($postData)
+    {
+        $copyData = $postData;
+        unset($copyData['brq_signature']);
+
+        $sortableArray = $this->buckarooArraySort($copyData);
+
+        $signatureString = '';
+
+        foreach ($sortableArray as $brq_key => $value) {
+            $value = $this->decodePushValue($brq_key, $value);
+
+            $signatureString .= $brq_key. '=' . $value;
+        }
+
+        $signatureString .= $this->helper->getSettingsValue('secretKey');
+
+        $signature = SHA1($signatureString);
+
+        return $signature;
+    }
+
+    /**
+     * @param string $brq_key
+     * @param string $brq_value
+     *
+     * @return string
+     */
+    private function decodePushValue($brq_key, $brq_value)
+    {
+        switch ($brq_key) {
+            case 'brq_SERVICE_payconiq_PayconiqAndroidUrl':
+            case 'brq_SERVICE_payconiq_PayconiqIosUrl':
+            case 'brq_SERVICE_payconiq_PayconiqUrl':
+            case 'brq_SERVICE_payconiq_QrUrl':
+            case 'brq_SERVICE_masterpass_CustomerPhoneNumber':
+            case 'brq_SERVICE_masterpass_ShippingRecipientPhoneNumber':
+            case 'brq_InvoiceDate':
+            case 'brq_DueDate':
+            case 'brq_PreviousStepDateTime':
+            case 'brq_EventDateTime':
+                $decodedValue = $brq_value;
+                break;
+            default:
+                $decodedValue = urldecode($brq_value);
+        }
+
+        return $decodedValue;
+    }
+
+    /**
+     * Sort the array so that the signature can be calculated identical to the way buckaroo does.
+     *
+     * @param $arrayToUse
+     *
+     * @return array $sortableArray
+     */
+    protected function buckarooArraySort($arrayToUse)
+    {
+        $arrayToSort   = [];
+        $originalArray = [];
+
+        foreach ($arrayToUse as $key => $value) {
+            $arrayToSort[strtolower($key)]   = $value;
+            $originalArray[strtolower($key)] = $key;
+        }
+
+        ksort($arrayToSort);
+
+        $sortableArray = [];
+
+        foreach ($arrayToSort as $key => $value) {
+            $key = $originalArray[$key];
+            $sortableArray[$key] = $value;
+        }
+
+        return $sortableArray;
     }
 
 }
