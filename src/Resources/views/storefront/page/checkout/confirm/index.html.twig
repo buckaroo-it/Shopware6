@@ -23,14 +23,10 @@
         }
         if (document.getElementById('confirmFormSubmit')) {
             document.getElementById('confirmFormSubmit').disabled = true;
-
             document.getElementById('confirmFormSubmit').addEventListener('click', function(e){
-                console.log("====applepay====order button click");
                 e.stopPropagation();
             });
             document.getElementById('confirmOrderForm').addEventListener('submit', function(e){
-                console.log("====applepay====order submit");
-
                 if (window.buckaroo.submit) {
                     //allow to submit
                     return true;
@@ -38,7 +34,7 @@
                     //don't allow to submit
                     e.preventDefault();
                     var child = document.querySelector('.apple-pay-button');
-                    console.log("====applepay====order submit2", child);
+                    console.log("====applepay====order submit2");
                     if (child) {
                         console.log("====applepay====order submit3");
                         child.click();
@@ -50,4 +46,3 @@
     <script type="module" src="/bundles/buckaroopayment/storefront/buckaroo/js/applepay/index.js"></script>
     {% endif %}
 {% endblock %}
-

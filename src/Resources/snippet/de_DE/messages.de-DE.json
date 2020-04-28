@@ -21,5 +21,10 @@
     "buckarooAfterpayDoBTitleSup": "(DD/MM/YYYY)",
     "buckarooAfterpayTermsConditionTitle": "Terms and Conditions",
     "buckarooAfterpayTermsCondition": "Yes, I accept the terms and condition for the use of Afterpay."
+  },
+  "bkr-applepay": {
+    "Subtotal": "Subtotal",
+    "Deliverycosts" : "Delivery costs",
+    "Discount" : "Discount"
   }
 }
