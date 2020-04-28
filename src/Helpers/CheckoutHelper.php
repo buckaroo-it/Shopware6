@@ -994,7 +994,10 @@ class CheckoutHelper
 
         $plugin = $transaction->getPaymentMethod()->getPlugin();
 
-        return end(explode('\\', $plugin->getBaseClass())) === end(explode('\\', BuckarooPayment::class));
+        $baseClassArr = explode('\\', $plugin->getBaseClass());
+        $buckarooPaymentClass = explode('\\', BuckarooPayment::class);
+
+        return end($baseClassArr) === end($buckarooPaymentClass);
 
         return $plugin->getBaseClass() === BuckarooPayment::class;
     }
@@ -1024,7 +1027,7 @@ class CheckoutHelper
             return false;
         }
 
-        if($customFields['refunded']==1){
+        if(!empty($customFields['refunded']) && ($customFields['refunded']==1)) {
             return false;
         }
 
