@@ -418,7 +418,7 @@
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Apple Pay</defaultValue>
         </input-field>
-
+<!--
         <input-field type="multi-select">
             <name>applepayavailablebuttons</name>
             <label>Enable or disable Apple Pay buttons:</label>
@@ -434,6 +434,7 @@
                 </option>
             </options>
         </input-field>
+        -->
     </card>
 
 </config>
