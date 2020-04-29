@@ -65,6 +65,8 @@ class PushController extends StorefrontController
         if(!$validSignature){
             return $this->json(['status' => false, 'message' => 'Signature from push is incorrect']);
         }
+        
+        $transaction = $this->checkoutHelper->getOrderTransaction($orderTransactionId, $context);
 
         //Check if the push is a refund request or cancel authorize
         if (isset($brq_amount_credit)) {
@@ -72,7 +74,6 @@ class PushController extends StorefrontController
                 return $this->json(['status' => true, 'message' => "Payment cancelled"]);
             }
 
-            $transaction = $this->checkoutHelper->getOrderTransaction($orderTransactionId, $context);
             $totalPrice = $transaction->getAmount()->getTotalPrice();
             $status = ($brq_amount_credit < $totalPrice) ? 'partial_refunded' : 'refunded';
             $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, [$status => 1 ]);
@@ -95,6 +96,12 @@ class PushController extends StorefrontController
                 throw new AsyncPaymentFinalizeException($orderTransactionId, $exception->getMessage());
             }
             return $this->json(['status' => true, 'message' => "Payment state was updated"]);
+        }
+
+        if(in_array($status,[ResponseStatus::BUCKAROO_STATUSCODE_TECHNICAL_ERROR, ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER, ResponseStatus::BUCKAROO_STATUSCODE_FAILED, ResponseStatus::BUCKAROO_STATUSCODE_REJECTED])){
+            $this->checkoutHelper->transitionPaymentState('cancelled', $orderTransactionId, $context);
+
+            return $this->json(['status' => true, 'message' => "Order cancelled"]);
         }
 
         return $this->json(['status' => false, 'message' => "Payment error"]);

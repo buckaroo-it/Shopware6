@@ -56,7 +56,7 @@ Component.register('buckaroo-payment-detail', {
                 .then(() => {
                     this.createNotificationSuccess({
                         title: this.$tc('buckaroo-payment.refund.successTitle'),
-                        message: this.$tc('buckaroo-payment.refund.successMessage') + this.buckaroo_refund_amount + ' ' + this.currency
+                        message: this.$tc('buckaroo-payment.refund.successMessage') + this.buckaroo_refund_amount.toFixed(2) + ' ' + this.currency
                     });
                     that.isRefundPossible = true;
                     that.reloadEntityData();
