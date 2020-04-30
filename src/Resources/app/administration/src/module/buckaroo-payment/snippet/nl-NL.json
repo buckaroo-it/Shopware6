@@ -1,0 +1,19 @@
+{
+  "buckaroo-payment": {
+    "general": {
+      "title": "Orders",
+      "description": "Orders"
+    },
+    "tabs": {
+      "title": "Buckaroo Payment",
+      "overview": "Overview"
+    },
+    "refund": {
+      "amountTitle": "Amount",
+      "buttonTitle": "Refund",
+      "successTitle": "Success",
+      "successMessage": "Buckaroo success refunded ",
+      "errorTitle": "Error"
+    }
+  }
+}

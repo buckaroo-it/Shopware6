@@ -160,8 +160,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         /** @var PaymentMethodCollection $paymentMethods */
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $event->getSalesChannelContext())->getEntities();
         foreach ($paymentMethods as $key => $paymentMethod) {
-            $customFields = $paymentMethod->getCustomFields();
-            $payment_labels[$paymentMethod->getName()] = $this->helper->getSettingsValue($customFields['buckaroo_key'] . 'Label');
+            $method = $paymentMethod->getTranslated();
+            $buckaroo_key = $method['customFields']['buckaroo_key'];
+            $payment_labels[$buckaroo_key] = $this->helper->getSettingsValue($buckaroo_key . 'Label');
         }
 
         $struct->assign([

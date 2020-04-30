@@ -2,7 +2,7 @@
 
 {% block page_checkout_confirm_payment_current_image %}
 
-    {% if context.paymentMethod.customFields.buckaroo_key == 'creditcards' %}
+    {% if context.paymentMethod.translated.customFields.buckaroo_key == 'creditcards' %}
         <img src="{{ page.extensions.buckaroo.media_path }}{{ page.extensions.buckaroo.payment_media }}" class="payment-method-image">
     {% elseif context.paymentMethod.media %}
         {% sw_thumbnails 'confirm-payment-current-image-thumbnails' with {
@@ -22,10 +22,10 @@
 
 {% block page_checkout_confirm_payment_current_text %}
 
-    {% if context.paymentMethod.customFields.buckaroo_key == 'ideal' or context.paymentMethod.customFields.buckaroo_key == 'idealprocessing' %}
+    {% if context.paymentMethod.translated.customFields.buckaroo_key == 'ideal' or context.paymentMethod.translated.customFields.buckaroo_key == 'idealprocessing' %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
         
-        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.name]?:context.paymentMethod.translated.name }}
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
 
         {% if page.extensions.buckaroo.issuers|length > 0 %}
             <div>
@@ -48,14 +48,14 @@
             </div>
         {% endif %}
 
-    {% elseif context.paymentMethod.customFields.buckaroo_key == 'creditcards' %}
+    {% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'creditcards' %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
         {{ page.extensions.buckaroo.payment_method_name_card }}
 
-    {% elseif context.paymentMethod.customFields.buckaroo_key == 'afterpay' %}
+    {% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'afterpay' %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
         
-        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.name]?:context.paymentMethod.translated.name }}
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
 
     <div class="payment-method-second-col billing-address-form">
         <fieldset class="fieldset payment">
@@ -102,10 +102,10 @@
         </fieldset>
     </div>
 
-    {% elseif context.paymentMethod.customFields.buckaroo_key == 'giropay' %}
+    {% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'giropay' %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
         
-        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.name]?:context.paymentMethod.translated.name }}
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
 
     <div class="payment-method-second-col billing-address-form">
         <fieldset class="fieldset payment">
@@ -127,10 +127,10 @@
         </fieldset>
     </div>
 
-    {% elseif context.paymentMethod.customFields.buckaroo_key == 'sepadirectdebit' %}
+    {% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'sepadirectdebit' %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
         
-        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.name]?:context.paymentMethod.translated.name }}
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
 
             <div class="payment-method-second-col billing-address-form">
                 <fieldset class="fieldset payment">
@@ -169,7 +169,7 @@
 
     {% else %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
-        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.name]?:context.paymentMethod.translated.name }}
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
     {% endif %}
     
 {% endblock %}
