@@ -123,12 +123,12 @@ class BuckarooController extends StorefrontController
         $lineItems = [
             [
                 'label' => $this->trans('bkr-applepay.Subtotal'),
-                'amount' => $lineItemsTotal,
+                'amount' => round($lineItemsTotal, 2),
                 'type' => 'final'
             ],
             [
                 'label' => $this->trans('bkr-applepay.Deliverycosts'),
-                'amount' => $cart->getShippingCosts()->getTotalPrice(),
+                'amount' => round($cart->getShippingCosts()->getTotalPrice(), 2),
                 'type' => 'final'
             ]
         ];
@@ -136,7 +136,7 @@ class BuckarooController extends StorefrontController
         if ($lineItemsDiscount > 0) {
             $lineItems[] = [
                 'label' => $this->trans('bkr-applepay.Discount'),
-                'amount' => $lineItemsDiscount,
+                'amount' => round($lineItemsDiscount, 2),
                 'type' => 'final'
             ];
         }
@@ -151,7 +151,7 @@ class BuckarooController extends StorefrontController
             'lineItems' => $lineItems,
             'totalLineItems' => [
                 'label' => $context->getSalesChannel()->getName(),
-                'amount' => $cart->getPrice()->getTotalPrice(),
+                'amount' => round($cart->getPrice()->getTotalPrice(), 2),
                 'type' => 'final'
             ],
         ]);

@@ -138,9 +138,7 @@ export default class ApplePay {
   }
 
   log(id, variable) {
-
-
-
+    //ZAK
     console.log("====applepay====" + id);
     if (variable !== undefined) {
       console.log(variable);
