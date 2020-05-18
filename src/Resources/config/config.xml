@@ -464,4 +464,379 @@
         -->
     </card>
 
+    <card>
+        <title>Giftcards cards</title>
+        <input-field type="single-select">
+            <name>giftcardsEnvironment</name>
+            <label>Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>giftcardsLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Buckaroo Giftcards</defaultValue>
+        </input-field>
+
+        <input-field type="multi-select">
+            <name>allowedgiftcards</name>
+            <label>Allowed Giftcards:</label>
+            <label lang="de-DE">Allowed Giftcards</label>
+            <options>
+                <option>
+                    <id>boekenbon</id>
+                    <name>Boekenbon</name>
+                </option>
+                <option>
+                    <id>boekencadeau</id>
+                    <name>Boekencadeau</name>
+                </option>
+                <option>
+                    <id>cadeaukaartgiftcard</id>
+                    <name>Cadeaukaart / Giftcard</name>
+                </option>
+                <option>
+                    <id>nationalekadobon</id>
+                    <name>De nationale kadobon</name>
+                </option>
+                <option>
+                    <id>fashionucadeaukaart</id>
+                    <name>Fashion Giftcard</name>
+                </option>
+                <option>
+                    <id>fietsbon</id>
+                    <name>Fietsbon</name>
+                </option>
+                <option>
+                    <id>fijncadeau</id>
+                    <name>Fijn Cadeau</name>
+                </option>
+                <option>
+                    <id>gezondheidsbon</id>
+                    <name>Gezondheidsbon</name>
+                </option>
+                <option>
+                    <id>golfbon</id>
+                    <name>Golfbon</name>
+                </option>
+                <option>
+                    <id>nationaletuinbon</id>
+                    <name>Nationale Tuinbon</name>
+                </option>
+                <option>
+                    <id>vvvgiftcard</id>
+                    <name>VVV Giftcard</name>
+                </option>
+                <option>
+                    <id>webshopgiftcard</id>
+                    <name>Webshop Giftcard</name>
+                </option>
+                <option>
+                    <id>ajaxgiftcard</id>
+                    <name>Ajax Giftcard</name>
+                </option>
+                <option>
+                    <id>babygiftcard</id>
+                    <name>Baby Giftcard</name>
+                </option>
+                <option>
+                    <id>babyparkgiftcard</id>
+                    <name>Babypark Giftcard</name>
+                </option>
+                <option>
+                    <id>babyparkkesterengiftcard</id>
+                    <name>Babypark Kesteren Giftcard</name>
+                </option>
+                <option>
+                    <id>beautywellness</id>
+                    <name>Beauty Wellness</name>
+                </option>
+                <option>
+                    <id>boekencadeauretail</id>
+                    <name>Boekencadeau Retail</name>
+                </option>
+                <option>
+                    <id>boekenvoordeel</id>
+                    <name>Boeken Voordeel</name>
+                </option>
+                <option>
+                    <id>campinglifekaart</id>
+                    <name>CampingLife Giftcard</name>
+                </option>
+                <option>
+                    <id>cjpbetalen</id>
+                    <name>CJP betalen</name>
+                </option>
+                <option>
+                    <id>coccinellegiftcard</id>
+                    <name>Coccinelle Giftcard</name>
+                </option>
+                <option>
+                    <id>dancard</id>
+                    <name>Dan card</name>
+                </option>
+                <option>
+                    <id>deberencadeaukaart</id>
+                    <name>De Beren Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>deencadeau</id>
+                    <name>DEEN Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>designshopsgiftcard</id>
+                    <name>Designshops Giftcard</name>
+                </option>
+                <option>
+                    <id>digitalebioscoopbon</id>
+                    <name>Nationale Bioscoopbon</name>
+                </option>
+                <option>
+                    <id>dinnerjaarkaart</id>
+                    <name>Dinner Jaarkaart</name>
+                </option>
+                <option>
+                    <id>diocadeaucard</id>
+                    <name>D.I.O. Cadeaucard</name>
+                </option>
+                <option>
+                    <id>doecadeaukaart</id>
+                    <name>Doe Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>doenenco</id>
+                    <name>Doen en Co</name>
+                </option>
+                <option>
+                    <id>ebon</id>
+                    <name>E-Bon</name>
+                </option>
+                <option>
+                    <id>fashioncheque</id>
+                    <name>Fashion cheque</name>
+                </option>
+                <option>
+                    <id>giravgiftcard</id>
+                    <name>Girav Giftcard</name>
+                </option>
+                <option>
+                    <id>golfbon</id>
+                    <name>Golfbon</name>
+                </option>
+                <option>
+                    <id>goodcard</id>
+                    <name>Good card</name>
+                </option>
+                <option>
+                    <id>gswspeelgoedwinkel</id>
+                    <name>GWS</name>
+                </option>
+                <option>
+                    <id>JewelleryGiftcard</id>
+                    <name>Jewellery Giftcard</name>
+                </option>
+                <option>
+                    <id>kijkshopkado</id>
+                    <name>Kijkshop Kado</name>
+                </option>
+                <option>
+                    <id>kijkshoptegoed</id>
+                    <name>Kijkshop Tegoed</name>
+                </option>
+                <option>
+                    <id>koffiecadeau</id>
+                    <name>Koffie Cadeau</name>
+                </option>
+                <option>
+                    <id>kokenzo</id>
+                    <name>Koken en Zo</name>
+                </option>
+                <option>
+                    <id>kookcadeau</id>
+                    <name>Kook Cadeau</name>
+                </option>
+                <option>
+                    <id>kunstcultuurkaart</id>
+                    <name>Nationale Kunst &amp; Cultuur cadeaukaart</name>
+                </option>
+                <option>
+                    <id>lottocadeaukaart</id>
+                    <name>Lotto Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>nationaleentertainmentcard</id>
+                    <name>Nationale Entertainment Card</name>
+                </option>
+                <option>
+                    <id>nationaleerotiekbon</id>
+                    <name>Nationale Erotiekbon</name>
+                </option>
+                <option>
+                    <id>nationalejuweliers</id>
+                    <name>Nationale Juweliers Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>naturesgift</id>
+                    <name>Natures Gift</name>
+                </option>
+                <option>
+                    <id>naturesgiftvoucher</id>
+                    <name>Natures Gift Voucher</name>
+                </option>
+                <option>
+                    <id>natverwencadeaubon</id>
+                    <name>Nationale Verwen Cadeaubon</name>
+                </option>
+                <option>
+                    <id>nlziet</id>
+                    <name>Nlziet</name>
+                </option>
+                <option>
+                    <id>opladencadeau</id>
+                    <name>Opladen Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>parfumcadeaukaart</id>
+                    <name>Parfumcadeaukaart</name>
+                </option>
+                <option>
+                    <id>pathegiftcard</id>
+                    <name>Pathé Giftcard</name>
+                </option>
+                <option>
+                    <id>peppercadeau</id>
+                    <name>Pepper Cadeau</name>
+                </option>
+                <option>
+                    <id>planetcrowd</id>
+                    <name>Planet Crowd</name>
+                </option>
+                <option>
+                    <id>podiumcadeaukaart</id>
+                    <name>Podium Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>Polare</id>
+                    <name>Polare</name>
+                </option>
+                <option>
+                    <id>riemercadeaukaart</id>
+                    <name>Riem Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>ScheltemaCadeauKaart</id>
+                    <name>Scheltema Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>shoeclub</id>
+                    <name>Shoeclub Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>shoesaccessories</id>
+                    <name>Shoes Accessories</name>
+                </option>
+                <option>
+                    <id>siebelcadeaukaart</id>
+                    <name>Siebel Juweliers Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>siebelvoucher</id>
+                    <name>Siebel Juweliers Voucher</name>
+                </option>
+                <option>
+                    <id>sieradenhorlogescadeaukaart</id>
+                    <name>Sieraden Horloges</name>
+                </option>
+                <option>
+                    <id>simonlevelt</id>
+                    <name>Simon Lévelt Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>sportfitcadeau</id>
+                    <name>Sport &amp; Fit Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>thuisbioscoop</id>
+                    <name>Thuisbioscoop Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>tijdschriftencadeau</id>
+                    <name>Tijdschriften Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>totocadeaukaart</id>
+                    <name>Toto Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>vandenassem</id>
+                    <name>Van den Assem Cadeaubon</name>
+                </option>
+                <option>
+                    <id>vdcgiftcard</id>
+                    <name>VDC Giftcard</name>
+                </option>
+                <option>
+                    <id>videolandcard</id>
+                    <name>Videoland Card</name>
+                </option>
+                <option>
+                    <id>videolandkaart</id>
+                    <name>Videoland cadeaukaart</name>
+                </option>
+                <option>
+                    <id>vitaminboost</id>
+                    <name>Vitaminboost cadeaukaart</name>
+                </option>
+                <option>
+                    <id>vitaminstoregiftcard</id>
+                    <name>Vitaminstore Giftcard</name>
+                </option>
+                <option>
+                    <id>voetbalshopcadeau</id>
+                    <name>Voetbalshop.nl CadeauCard</name>
+                </option>
+                <option>
+                    <id>wijncadeau</id>
+                    <name>Wijn Cadeau</name>
+                </option>
+                <option>
+                    <id>winkelcheque</id>
+                    <name>WinkelCheque</name>
+                </option>
+                <option>
+                    <id>wonenzo</id>
+                    <name>Wonen en Zo</name>
+                </option>
+                <option>
+                    <id>yinx</id>
+                    <name>YinX Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>yourgift</id>
+                    <name>Yourgift Card</name>
+                </option>
+                <option>
+                    <id>yourphotomag</id>
+                    <name>YourPhotoMag</name>
+                </option>
+                <option>
+                    <id>zwerfkeicadeaukaart</id>
+                    <name>Zwerfkei Cadeaukaart</name>
+                </option>
+            </options>
+        </input-field>
+    </card>
+
 </config>

@@ -21,3 +21,8 @@ Added payment methods
 * KBC
 * Sepa Direct Debit
 * Payconiq
+
+# 1.0.7
+Added payment methods
+
+* Giftcards
