@@ -1033,7 +1033,7 @@ class CheckoutHelper
             return new JsonResponse(['status' => false, 'message' => 'This order is already refunded'], Response::HTTP_BAD_REQUEST);
         }
 
-        $serviceName = ($customFields['serviceName'] == 'creditcards') ? $customFields['brqPaymentMethod'] : $customFields['serviceName'];
+        $serviceName = (in_array($customFields['serviceName'],['creditcards','giftcards'])) ? $customFields['brqPaymentMethod'] : $customFields['serviceName'];
 
         $request = new TransactionRequest;
         $request->setServiceAction('Refund');
