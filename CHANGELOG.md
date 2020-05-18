@@ -16,6 +16,8 @@ Added payment methods
 # 1.0.6
 Added payment methods
 
+* ApplePay
 * Giropay
 * KBC
 * Sepa Direct Debit
+* Payconiq

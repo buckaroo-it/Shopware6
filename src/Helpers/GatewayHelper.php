@@ -14,6 +14,7 @@ use Buckaroo\Shopware6\PaymentMethods\ApplePay;
 use Buckaroo\Shopware6\PaymentMethods\Giropay;
 use Buckaroo\Shopware6\PaymentMethods\Kbc;
 use Buckaroo\Shopware6\PaymentMethods\SepaDirectDebit;
+use Buckaroo\Shopware6\PaymentMethods\Payconiq;
 
 class GatewayHelper
 {
@@ -29,6 +30,7 @@ class GatewayHelper
         ApplePay::class,
         Giropay::class,
         Kbc::class,
-        SepaDirectDebit::class
+        SepaDirectDebit::class,
+        Payconiq::class
     ];
 }
