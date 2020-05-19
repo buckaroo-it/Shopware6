@@ -583,8 +583,7 @@ class CheckoutHelper
         return $customer;
     }
 
-    public function getAddressArray($order, $additional, &$latestKey, $salesChannelContext, $dataBag)
-    {
+    public function getBillingAddress($order, $salesChannelContext){
         if ($order->getOrderCustomer() !== null) {
             $customer = $this->getCustomer(
                 $order->getOrderCustomer()->getCustomerId(),
@@ -596,7 +595,12 @@ class CheckoutHelper
             $customer = $salesChannelContext->getCustomer();
         }
 
-        $address = $customer->getDefaultBillingAddress();
+        return $customer->getDefaultBillingAddress();
+    }
+
+    public function getAddressArray($order, $additional, &$latestKey, $salesChannelContext, $dataBag)
+    {
+        $address = $this->getBillingAddress($order, $salesChannelContext);
 
         if ($address === null) {
             return $additional;
@@ -841,18 +845,7 @@ class CheckoutHelper
 
     public function getTransferData($order, $additional, $salesChannelContext, $dataBag)
     {
-        if ($order->getOrderCustomer() !== null) {
-            $customer = $this->getCustomer(
-                $order->getOrderCustomer()->getCustomerId(),
-                $salesChannelContext->getContext()
-            );
-        }
-
-        if ($customer === null) {
-            $customer = $salesChannelContext->getCustomer();
-        }
-
-        $address = $customer->getDefaultBillingAddress();
+        $address = $this->getBillingAddress($order, $salesChannelContext);
 
         if ($address === null) {
             return $additional;

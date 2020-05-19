@@ -26,3 +26,4 @@ Added payment methods
 Added payment methods
 
 * Giftcards
+* Request To Pay

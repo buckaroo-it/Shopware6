@@ -839,4 +839,31 @@
         </input-field>
     </card>
 
+    <card>
+    <title>Request To Pay</title>
+        <input-field type="single-select">
+            <name>RequestToPayEnvironment</name>
+            <label>Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>RequestToPayButtonLabel</name>
+            <label>Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Request To Pay</defaultValue>
+        </input-field>
+    </card>
+
 </config>

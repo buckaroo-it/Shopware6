@@ -16,6 +16,7 @@ use Buckaroo\Shopware6\PaymentMethods\Kbc;
 use Buckaroo\Shopware6\PaymentMethods\SepaDirectDebit;
 use Buckaroo\Shopware6\PaymentMethods\Payconiq;
 use Buckaroo\Shopware6\PaymentMethods\Giftcards;
+use Buckaroo\Shopware6\PaymentMethods\Rtp;
 
 class GatewayHelper
 {
@@ -33,6 +34,7 @@ class GatewayHelper
         Kbc::class,
         SepaDirectDebit::class,
         Payconiq::class,
-        Giftcards::class
+        Giftcards::class,
+        Rtp::class
     ];
 }
