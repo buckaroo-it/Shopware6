@@ -7,8 +7,8 @@
     "minimum-stability": "RC",
     "require": {
         "php": "^7.1",
-        "shopware/core": "6.1.*",
-        "shopware/storefront": "6.1.*",
+        "shopware/core": ">=6.1.0",
+        "shopware/storefront": ">=6.1.0",
         "ext-curl": "*",
         "ext-json": "*",
         "ext-pcre": "*",
