@@ -174,13 +174,6 @@
     
 {% endblock %}
 
-{% block page_checkout_confirm_payment_form_fields %}
-    {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {
-        'defaultPaymentMethodId': context.paymentMethod.id,
-        'payment_labels': page.extensions.buckaroo.payment_labels,
-    } %}
-{% endblock %}
-
 {% block page_checkout_confirm_payment_inner %}
     {{ parent() }}
     {% if context.paymentMethod.formattedHandlerIdentifier == 'handler_buckaroo_applepaypaymenthandler' %}
