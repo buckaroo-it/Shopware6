@@ -1,4 +1,13 @@
 {
+  "buckaroo": {
+    "order": {
+      "paymentDescription": "Payment for order #orderNumber",
+      "refundDescription": "Refund for order #orderNumber"
+    }
+  },
+  "bkr-ideal": {
+    "selectBankIssuer": "Select your bank"
+  }, 
   "bkr-ideal": {
     "selectBankIssuer": "Select your bank"
   },

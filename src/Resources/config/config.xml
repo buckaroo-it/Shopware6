@@ -10,19 +10,27 @@
         <input-field >
             <name>websiteKey</name>
             <label>(Merchant) key</label>
-            <label lang="nl-NL">Website sleutel</label>
-            <label lang="de-DE">Website key</label>
+            <label lang="nl-NL">Verkoperssleutel</label>
+            <label lang="de-DE">Händlerschlüssel</label>
             <description>Enter your Buckaroo merchant/website key.</description>
+            <description lang="nl-NL">Voer uw Buckaroo-verkoper / websitesleutel in.</description>
+            <description lang="de-DE">Geben Sie Ihren Buckaroo-Händler- / Website-Schlüssel ein.</description>
             <helpText>The (Merchant) Key can be retrieved in Payment Plaza under My Buckaroo > Websites. For support contact Buckaroo.</helpText>
+            <helpText lang="nl-NL">De (Merchant) Key kan worden opgehaald in Payment Plaza onder My Buckaroo> Websites. Neem voor ondersteuning contact op met Buckaroo.</helpText>
+            <helpText lang="de-DE">Der (Händler-) Schlüssel kann auf der Payment Plaza unter My Buckaroo> Websites abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
         </input-field>
 
         <input-field >
             <name>secretKey</name>
             <label>Secret key</label>
             <label lang="nl-NL">Geheime sleutel</label>
-            <label lang="de-DE">Secret key</label>
-            <description>Enter your Buckaroo merchant/website key.</description>
+            <label lang="de-DE">Geheimer Schlüssel</label>
+            <description>Enter your Buckaroo secret key.</description>
+            <description lang="nl-NL">Voer uw geheime sleutel van Buckaroo in.</description>
+            <description lang="de-DE">Geben Sie Ihren geheimen Buckaroo-Schlüssel ein.</description>
             <helpText>The Secret Key can be retrieved in Payment Plaza under Configuration > Security > Secret Key. For support contact Buckaroo.</helpText>
+            <helpText lang="nl-NL">De geheime sleutel kan worden opgehaald in Payment Plaza onder Configuratie> Beveiliging> Geheime sleutel. Neem voor ondersteuning contact op met Buckaroo.</helpText>
+            <helpText lang="de-DE">Der geheime Schlüssel kann in Payment Plaza unter Konfiguration> Sicherheit> Geheimer Schlüssel abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
         </input-field>
 
         <input-field >
@@ -31,16 +39,24 @@
             <label lang="nl-NL">Guid</label>
             <label lang="de-DE">Guid</label>
             <description>Enter your Buckaroo guid key.</description>
+            <description lang="nl-NL">Voer uw Buckaroo-gidssleutel in.</description>
+            <description lang="de-DE">Geben Sie Ihren Buckaroo-Leitschlüssel ein.</description>
             <helpText>The guid key can be retrieved in Payment Plaza under the profile tab. For support contact Buckaroo.</helpText>
+            <helpText lang="nl-NL">De gidssleutel kan worden opgehaald in Payment Plaza onder het tabblad Profiel. Neem voor ondersteuning contact op met Buckaroo.</helpText>
+            <helpText lang="de-DE">Der Guid-Schlüssel kann in Payment Plaza unter der Registerkarte Profil abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
         </input-field>
     </card>
     
     <card>
         <title>Credit cards</title>
+        <title lang="nl-NL">Kredietkaarten</title>
+        <title lang="de-DE">Kreditkarten</title>
+        
         <input-field type="single-select">
             <name>creditcardsEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -64,7 +80,8 @@
         <input-field type="multi-select">
             <name>allowedcreditcards</name>
             <label>Allowed Creditcards:</label>
-            <label lang="de-DE">Allowed Creditcards</label>
+            <label lang="nl-NL">Toegestane creditcards</label>
+            <label lang="de-DE">Zulässige Kreditkarten</label>
             <options>
                 <option>
                     <id>mastercard</id>
@@ -116,6 +133,7 @@
             <name>idealEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -143,6 +161,7 @@
             <name>idealprocessingEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -170,6 +189,7 @@
             <name>bancontactmrcashEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -197,6 +217,7 @@
             <name>afterpayEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -224,6 +245,7 @@
             <name>sofortueberweisungEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -251,6 +273,7 @@
             <name>paypalEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -278,6 +301,7 @@
             <name>transferEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -318,6 +342,7 @@
             <name>giropayEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -345,6 +370,7 @@
             <name>KBCPaymentButtonEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -372,6 +398,7 @@
             <name>sepadirectdebitEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -399,6 +426,7 @@
             <name>payconiqEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -426,6 +454,7 @@
             <name>applepayEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -445,31 +474,17 @@
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Apple Pay</defaultValue>
         </input-field>
-<!--
-        <input-field type="multi-select">
-            <name>applepayavailablebuttons</name>
-            <label>Enable or disable Apple Pay buttons:</label>
-            <label lang="de-DE">Aktivieren oder deaktivieren sie die Apple Pay schaltflächen</label>
-            <options>
-                <option>
-                    <id>Product</id>
-                    <name>Product Page</name>
-                </option>
-                <option>
-                    <id>Cart</id>
-                    <name>Cart</name>
-                </option>
-            </options>
-        </input-field>
-        -->
     </card>
 
     <card>
         <title>Giftcards cards</title>
+        <title lang="nl-NL">Cadeaubonnen kaarten</title>
+        <title lang="de-DE">Geschenkkarten Karten</title>
         <input-field type="single-select">
             <name>giftcardsEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -493,7 +508,8 @@
         <input-field type="multi-select">
             <name>allowedgiftcards</name>
             <label>Allowed Giftcards:</label>
-            <label lang="de-DE">Allowed Giftcards</label>
+            <label lang="nl-NL">Toegestane cadeaubonnen</label>
+            <label lang="de-DE">Zulässige Geschenkkarten</label>
             <options>
                 <option>
                     <id>boekenbon</id>
@@ -845,6 +861,7 @@
             <name>RequestToPayEnvironment</name>
             <label>Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>

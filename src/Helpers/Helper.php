@@ -33,7 +33,7 @@ class Helper
         return $this->bkrClient;
     }
 
-    public function getEnvironment($method = ''): string
+    public function getEnvironment($method = '')
     {
         return $this->settingsService->getSetting($method . 'Environment');
     }

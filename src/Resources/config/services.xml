@@ -45,6 +45,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="order.repository" />
+            <argument type="service" id="translator" />
         </service>
 
         <service id="Buckaroo\Shopware6\Service\SettingsService">

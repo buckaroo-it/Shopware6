@@ -186,33 +186,6 @@ class Helpers
     }
 
     /**
-     * Split a street into a name and a street part
-     *
-     * @param  string $street
-     * @return array [ 'name' => '', 'number' => '', 'suffix' => '' ]
-     */
-    public static function stringSplitStreet($street)
-    {
-        $notFound = [ 'prefix' => '', 'name' => trim($street), 'number' => '', 'suffix' => '' ];
-
-        if( !static::stringContainsDigits($street) ) return $notFound;
-
-        $find = !!preg_match('/([^\d]*)\s?([\d]*)\s?([a-zA-Z]*)/i', $street, $result);
-
-        if( $find )
-        {
-            return [
-                'prefix' => '',
-                'name' => trim($result[1]),
-                'number' => trim($result[2]),
-                'suffix' => trim($result[3])
-            ];
-        }
-
-        return $notFound;
-    }
-
-    /**
      * Format the phone number for Klarna
      *
      * @param  string $phone

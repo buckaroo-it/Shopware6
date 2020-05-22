@@ -67,14 +67,13 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $bkrClient = $this->helper->initializeBkr();
 
         $order = $transaction->getOrder();
-        $customer = $salesChannelContext->getCustomer();
-        $request = $this->helper->getGlobals();
 
         $request = new TransactionRequest;
 
         $finalize_page = $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize');
 
-        $request->setDescription('Payment for order #' . $order->getOrderNumber());
+        $request->setDescription($this->checkoutHelper->getTranslate('buckaroo.order.paymentDescription', ['orderNumber' => $order->getOrderNumber()]));
+
         $request->setReturnURL($finalize_page);
         $request->setReturnURLCancel(sprintf('%s?cancel=1', $finalize_page));
         $request->setPushURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.push'));

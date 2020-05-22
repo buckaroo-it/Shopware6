@@ -1,4 +1,10 @@
 {
+  "buckaroo": {
+    "order": {
+      "paymentDescription": "Betaling voor bestelling #orderNumber",
+      "refundDescription": "Restitutie voor bestelling #orderNumber"
+    }
+  },
   "bkr-ideal": {
     "selectBankIssuer": "Selecteer uw bank"
   },

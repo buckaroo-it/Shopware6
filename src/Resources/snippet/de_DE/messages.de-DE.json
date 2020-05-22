@@ -1,4 +1,10 @@
 {
+  "buckaroo": {
+    "order": {
+      "paymentDescription": "Zahlung für Bestellung #orderNumber",
+      "refundDescription": "Rückerstattung für Bestellung #orderNumber"
+    }
+  },
   "bkr-ideal": {
     "selectBankIssuer": "Bank auswählen"
   },

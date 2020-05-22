@@ -33,9 +33,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Buckaroo\Shopware6\Service\SettingsService;
 
-use Buckaroo\Shopware6\Helpers\Helper;
-use Buckaroo\Shopware6\Helpers\UrlHelper;
-
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
@@ -49,6 +46,8 @@ use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Core\Framework\Uuid\Uuid;
+
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CheckoutHelper
 {
@@ -72,6 +71,8 @@ class CheckoutHelper
     private $settingsService;
     /** @var EntityRepositoryInterface $orderRepository */
     private $orderRepository;
+    /** @var TranslatorInterface */
+    private $translator;
 
     /**
      * CheckoutHelper constructor.
@@ -92,7 +93,8 @@ class CheckoutHelper
         SettingsService $settingsService,
         Helper $helper,
         CartService $cartService,
-        EntityRepositoryInterface $orderRepository
+        EntityRepositoryInterface $orderRepository,
+        TranslatorInterface $translator
     ) {
         $this->router = $router;
         $this->transactionRepository = $transactionRepository;
@@ -104,6 +106,7 @@ class CheckoutHelper
         $this->helper = $helper;
         $this->cartService = $cartService;
         $this->orderRepository = $orderRepository;
+        $this->translator = $translator;
     }
 
     public function getSetting($name)
@@ -609,7 +612,6 @@ class CheckoutHelper
         $streetFormat   = $this->formatStreet($address->getStreet());
         $birthDayStamp = $dataBag->get('buckaroo_afterpay_DoB');
         $address->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
-        // $gender = $dataBag->get('buckaroo_afterpay_genderSelect') ==2 ? 'Mrs' : 'Mr';
         $salutation = $customer->getSalutation()->getSalutationKey();
 
         $category = 'Person';
@@ -689,15 +691,6 @@ class CheckoutHelper
             $billingData[] = [
                 '_'    => $streetFormat['number_addition'],
                 'Name' => 'StreetNumberAdditional',
-                'Group' => 'BillingCustomer',
-                'GroupID' => '',
-            ];
-        }
-
-        if ($address->getCountry()->getIso() == 'FI') {
-            $billingData[] = [
-                '_'    => $identificationNumber,
-                'Name' => 'IdentificationNumber',
                 'Group' => 'BillingCustomer',
                 'GroupID' => '',
             ];
@@ -1030,7 +1023,7 @@ class CheckoutHelper
 
         $request = new TransactionRequest;
         $request->setServiceAction('Refund');
-        $request->setDescription('Refund for order #' . $order->getOrderNumber());
+        $request->setDescription($this->getTranslate('buckaroo.order.refundDescription', ['orderNumber' => $order->getOrderNumber()]));
         $request->setServiceName($serviceName);
         $request->setAmountCredit($amount ? $amount : $order->getAmountTotal());
         $request->setInvoice($order->getOrderNumber());
@@ -1184,4 +1177,8 @@ class CheckoutHelper
         return $sortableArray;
     }
 
+    public function getTranslate($id, array $parameters = [])
+    {
+        return $this->translator->trans($id,$parameters);
+    }
 }

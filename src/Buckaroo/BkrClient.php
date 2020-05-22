@@ -80,6 +80,8 @@ class BkrClient
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
 
+        curl_setopt($curl, CURLOPT_TIMEOUT, 60);
+
         // all headers have to be set at once
         $headers = $this->getHeaders($curl, $url, $json, $method);
         $headers = array_merge($headers, $data->getHeaders());
@@ -124,7 +126,7 @@ class BkrClient
 
     public function get($url, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response')
     {
-        return $this->call($url, self::METHOD_GET, $responseClass);
+        return $this->call($url, self::METHOD_GET, null, $responseClass);
     }
 
     public function post($url, Request $data = null, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response')

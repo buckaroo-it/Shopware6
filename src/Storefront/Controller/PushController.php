@@ -128,15 +128,15 @@ class PushController extends StorefrontController
         }
 
         if ($request->query->getBoolean('cancel')) {
-            $messages[] = ['type' => 'warning', 'text' => [$this->trans('According to our system, you have canceled the payment. If this is not the case, please contact us.')]];
+            $messages[] = ['type' => 'warning', 'text' => $this->trans('According to our system, you have canceled the payment. If this is not the case, please contact us.')];
         }
 
         if ($error = $request->query->filter('error')) {
-            $messages[] = ['type' => 'danger', 'text' => [base64_decode($error)]];
+            $messages[] = ['type' => 'danger', 'text' => base64_decode($error)];
         }
 
         if(empty($messages)){
-            $messages[] = ['type' => 'danger', 'text' => [$status_message ? $status_message : $this->trans('Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.')]];
+            $messages[] = ['type' => 'danger', 'text' => $status_message ? $status_message : $this->trans('Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.')];
         }
 
         if (!$orderId && $orderId = $request->query->filter('orderId')) {}
@@ -151,21 +151,9 @@ class PushController extends StorefrontController
             $lineItems = $order->getNestedLineItems();
 
             foreach ($messages as $mkey => $message) {
-                foreach ($message['text'] as $tkey => $text) {
-                    $this->addFlash($message['type'], $text);
-                }
+                $this->addFlash($message['type'], $message['text']);
             }
 
-/*            foreach ($lineItems as $item) {
-                $lineItemsNew[] = [
-                    $item->get('referencedId') => [
-                        'id' => $item->get('identifier'),
-                        'quantity' => $item->get('quantity'),
-                        'type' => $item->get('type')
-                    ]
-               ];
-            }
-            $this->checkoutHelper->addLineItems($lineItemsNew, $salesChannelContext);*/
         }
 
         return $this->renderStorefront('@Storefront/storefront/buckaroo/page/finalize/_page.html.twig', [
