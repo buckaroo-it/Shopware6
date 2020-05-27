@@ -1,19 +1,42 @@
 {
   "buckaroo-payment": {
+    "order": {
+      "refundDescription": "Erstattung für Bestellung #orderNumber"
+    },
     "general": {
-      "title": "Bestellungen",
-      "description": "Bestellungen"
+      "title": "Buckaroo",
+      "description": "Buckaroo Payment"
+    },
+    "settingsForm": {
+      "save": "Speichern",
+      "titleSuccess": "Erfolg",
+      "titleError": "Fehler"
+    },
+    "supportModal": {
+      "menuButton": "Version & Support",
+      "title": "Version & Support",
+      "support": {
+        "description": "Bevor Sie den technischen Support von Buckaroo kontaktieren, rufen Sie bitte Ihren (Merchant) Schlüssel, Geheimschlüssel, Zertifikat und Zertifikat-Daumenabdruck auf.",
+        "label1": "Buckaroo Payment Plaza:",
+        "label2": "Telefon:",
+        "label3": "E-mail:",
+        "label4": "Webseite:",
+        "your_version": "Ihre PHP Version:",
+        "version": "Kompatibilität der Version",
+        "information": "Information"
+      }
     },
     "tabs": {
       "title": "Buckaroo Payment",
-      "overview": "Übersicht"
+      "overview": "Overview"
     },
     "refund": {
-      "amountTitle": "Amount",
-      "buttonTitle": "Refund",
-      "successTitle": "Success",
-      "successMessage": "Buckaroo success refunded ",
-      "errorTitle": "Error"
-    }
+      "amountTitle": "Betrag",
+      "buttonTitle": "Erstattung",
+      "successTitle": "Erfolg",
+      "successMessage": "Buckaroo erfolg zurückerstattet",
+      "errorTitle": "Fehler"
+    },
+    "messageNotBlank": "Dieses Feld darf nicht leer sein."
   }
 }

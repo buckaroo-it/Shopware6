@@ -1,10 +1,15 @@
+const { Module } = Shopware;
+
+import './page/buckaroo-settings';
+
 import './extension/sw-order';
+import './extension/sw-plugin';
+import './extension/sw-settings-index';
 import './page/buckaroo-payment-detail';
 
+import nlNL from './snippet/nl-NL.json';
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
-
-const { Module } = Shopware;
 
 Module.register('buckaroo-payment', {
     type: 'plugin',
@@ -14,8 +19,10 @@ Module.register('buckaroo-payment', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#000000',
+    icon: 'default-action-settings',
 
     snippets: {
+        'nl-NL': nlNL,
         'de-DE': deDE,
         'en-GB': enGB
     },
@@ -30,5 +37,15 @@ Module.register('buckaroo-payment', {
             });
         }
         next(currentRoute);
+    },
+
+    routes: {
+        index: {
+            component: 'buckaroo-settings',
+            path: 'index',
+            meta: {
+                parentPath: 'sw.settings.index'
+            }
+        }
     }
 });

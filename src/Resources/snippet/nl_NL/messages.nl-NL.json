@@ -1,32 +1,29 @@
 {
   "buckaroo": {
+    "title": "Buckaroo",
     "order": {
       "paymentDescription": "Betaling voor bestelling #orderNumber",
       "refundDescription": "Restitutie voor bestelling #orderNumber"
+    },
+    "checkout": {
+      "selectBankIssuer": "Selecteer uw bank",
+      "selectCreditCard": "Selecteer uw credit card",
+      "buckarooSepaDirectDebitCustomer": "Bankrekeninghouder",
+      "buckarooSepaDirectDebitCustomerholder": "Voer hier uw rekeninghouder in ...",
+      "buckarooIBAN": "Bankrekeningnummer",
+      "buckarooIBANPlaceholder": "Voer hier uw bankrekeningnummer in ...",
+      "buckarooGiropayBic": "BIC-nummer",
+      "buckarooGiropayBicPlaceholder": "Voer hier uw BIC-nummer in ...",
+      "buckarooAfterpayPhone": "Mobiel",
+      "buckarooAfterpayPhonePlaceholder": "Voer hier uw mobiel in ...",
+      "salutation": "Salutation",
+      "mr": "Mr.",
+      "mrs": "Mrs.",
+      "buckarooAfterpayDoBTitle": "Geboortedatum",
+      "buckarooAfterpayDoBTitleSup": "(DD/MM/YYYY)",
+      "buckarooAfterpayTermsConditionTitle": "Algemene voorwaarden",
+      "buckarooAfterpayTermsCondition": "Ja, ik accepteer de voorwaarden voor het gebruik van Afterpay."
     }
-  },
-  "bkr-ideal": {
-    "selectBankIssuer": "Selecteer uw bank"
-  },
-  "bkr-creditcards": {
-    "selectCreditCard": "Selecteer uw creditcard"
-  },
-  "bkr-checkout": {
-    "buckarooSepaDirectDebitCustomer": "Bankrekeninghouder",
-    "buckarooSepaDirectDebitCustomerholder": "Voer hier uw rekeninghouder in ...",
-    "buckarooIBAN": "Bankrekeningnummer",
-    "buckarooIBANPlaceholder": "Voer hier uw bankrekeningnummer in ...",
-    "buckarooGiropayBic": "BIC-nummer",
-    "buckarooGiropayBicPlaceholder": "Voer hier uw BIC-nummer in ...",
-    "buckarooAfterpayPhone": "Mobiel",
-    "buckarooAfterpayPhonePlaceholder": "Voer hier uw mobiel in ...",
-    "salutation": "Salutation",
-    "mr": "Mr.",
-    "mrs": "Mrs.",
-    "buckarooAfterpayDoBTitle": "Geboortedatum",
-    "buckarooAfterpayDoBTitleSup": "(DD/MM/YYYY)",
-    "buckarooAfterpayTermsConditionTitle": "Algemene voorwaarden",
-    "buckarooAfterpayTermsCondition": "Ja, ik accepteer de voorwaarden voor het gebruik van Afterpay."
   },
   "bkr-applepay": {
     "Subtotal": "Subtotal",

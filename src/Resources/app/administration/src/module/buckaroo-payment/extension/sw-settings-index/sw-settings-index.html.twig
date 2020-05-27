@@ -1,0 +1,11 @@
+{% block sw_settings_content_card_slot_plugins %}
+    {% parent %}
+
+    <sw-settings-item :label="$tc('buckaroo-payment.general.title')"
+                      :to="{ name: 'buckaroo.payment.index' }"
+                      :backgroundEnabled="false">
+        <template #icon>
+            <img class="sw-settings-index__buckaroo-icon" :src="'buckaroopayment/plugin.png' | asset">
+        </template>
+    </sw-settings-item>
+{% endblock %}

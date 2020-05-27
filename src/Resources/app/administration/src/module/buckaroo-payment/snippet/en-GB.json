@@ -1,8 +1,30 @@
 {
   "buckaroo-payment": {
+    "order": {
+      "refundDescription": "Refund for order #orderNumber"
+    },
     "general": {
-      "title": "Orders",
-      "description": "Orders"
+      "title": "Buckaroo",
+      "description": "Buckaroo Payment"
+    },
+    "settingsForm": {
+      "save": "Save",
+      "titleSuccess": "Success",
+      "titleError": "Error"
+    },
+    "supportModal": {
+      "menuButton": "Version & Support",
+      "title": "Version & Support",
+      "support": {
+        "description": "Before contacting Buckaroo technical support, please retrieve your (Merchant) key, Secret key, certificate and certificate thumbprint.",
+        "label1": "Buckaroo Payment Plaza:",
+        "label2": "Phone:",
+        "label3": "E-mail:",
+        "label4": "Website:",
+        "your_version": "Your PHP version:",
+        "version": "Version compatibility",
+        "information": "Information"
+      }
     },
     "tabs": {
       "title": "Buckaroo Payment",
@@ -14,6 +36,7 @@
       "successTitle": "Success",
       "successMessage": "Buckaroo success refunded ",
       "errorTitle": "Error"
-    }
+    },
+    "messageNotBlank": "This field must not be empty."
   }
 }

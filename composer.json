@@ -27,7 +27,7 @@
     },
     "extra": {
         "shopware-plugin-class": "Buckaroo\\Shopware6\\BuckarooPayment",
-        "plugin-icon": "src/Resources/config/plugin.png",
+        "plugin-icon": "src/Resources/public/plugin.png",
         "copyright": "(c) by Buckaroo",
         "label": {
             "en-GB": "Buckaroo Payment",

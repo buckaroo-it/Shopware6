@@ -20,6 +20,8 @@ use Buckaroo\Shopware6\Helpers\GatewayHelper;
 use Buckaroo\Shopware6\BuckarooPayment;
 use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
 
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+
 class PaymentMethodsInstaller implements InstallerInterface
 {
     public const BUCKAROO_KEY = 'buckaroo_key';
@@ -33,6 +35,9 @@ class PaymentMethodsInstaller implements InstallerInterface
     /** @var EntityRepositoryInterface */
     public $mediaRepository;
 
+    /** @var SystemConfigService */
+    private $systemConfigService;
+
     /**
      * PaymentMethodsInstaller constructor.
      * @param ContainerInterface $container
@@ -42,6 +47,7 @@ class PaymentMethodsInstaller implements InstallerInterface
         $this->pluginIdProvider = $container->get(PluginIdProvider::class);
         $this->paymentMethodRepository = $container->get('payment_method.repository');
         $this->mediaRepository = $container->get('media.repository');
+        $this->systemConfigService = $container->get(SystemConfigService::class);
     }
 
     /**
@@ -76,6 +82,7 @@ class PaymentMethodsInstaller implements InstallerInterface
         foreach (GatewayHelper::GATEWAYS as $gateway) {
             $this->setPaymentMethodActive(true, new $gateway(), $context->getContext());
         }
+        $this->setDefaultValues();
     }
 
     /**
@@ -227,10 +234,6 @@ class PaymentMethodsInstaller implements InstallerInterface
      */
     private function getMediaName(PaymentMethodInterface $paymentMethod): string
     {
-/*        if ($paymentMethod->getName() === (new IngHomePay())->getName()) {
-            return 'bkr_ING-HomePay';
-        }*/
-
         return 'bkr_' . $paymentMethod->getName();
     }
 
@@ -253,5 +256,29 @@ class PaymentMethodsInstaller implements InstallerInterface
     public function update(UpdateContext $updateContext): void
     {
         $this->copyAppleDomainAssociationFile();
+    }
+
+    private function setBuckarooPaymentSettingsValue($key, $value, $label)
+    {
+        $domain = 'BuckarooPayment.config.';
+        $configKey = $domain . $key . $label;
+        $currentValue = $this->systemConfigService->get($configKey);
+
+        if ($currentValue !== null) {
+            return false;
+        }
+        $this->systemConfigService->set($configKey, $value);
+    }
+
+    private function setDefaultValues()
+    {
+
+        foreach (GatewayHelper::GATEWAYS as $gateway) {
+            $paymentMethod = new $gateway();
+
+            $this->setBuckarooPaymentSettingsValue($paymentMethod->getBuckarooKey(), 'test', 'Environment');
+            $this->setBuckarooPaymentSettingsValue($paymentMethod->getBuckarooKey(), $paymentMethod->getName(), 'Label');
+
+        }
     }
 }

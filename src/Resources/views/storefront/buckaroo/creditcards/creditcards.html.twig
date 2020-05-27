@@ -1,4 +1,4 @@
-<label>{{ "bkr-creditcards.selectCreditCard"|trans }}*:</label>
+<label>{{ "buckaroo.checkout.selectCreditCard"|trans }}*:</label>
 {% if page.extensions.buckaroo.creditcards|length > 0 %}
     <select required="required" form="confirmPaymentForm" name="redirectParameters[creditcard]" class="custom-select" style="max-width: 300px;margin-left: 0.5rem;margin-bottom: 0.5rem;">
         {% for creditcard in page.extensions.buckaroo.creditcards %}

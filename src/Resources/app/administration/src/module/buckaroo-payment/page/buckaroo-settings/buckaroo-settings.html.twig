@@ -1,0 +1,120 @@
+{% block buckaroo_payment %}
+<sw-page class="buckaroo-payment">
+    {% block buckaroo_payment_header %}
+    <template #smart-bar-header>
+        <h2>
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon name="small-arrow-medium-right" small></sw-icon>
+            {{ $tc('buckaroo-payment.general.title') }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block buckaroo_payment_actions %}
+    <template #smart-bar-actions>
+        {% block buckaroo_payment_settings_actions_feedback %}
+        <sw-button
+                @click="isSupportModalOpen = true"
+                :disabled="false"
+                variant="ghost"
+                :square="false"
+                :block="false"
+                :isLoading="false">
+            {{ $tc('buckaroo-payment.supportModal.menuButton') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block buckaroo_payment_settings_actions_save %}
+        <sw-button-process
+                class="sw-settings-login-registration__save-action"
+                :isLoading="isLoading"
+                :processSuccess="isSaveSuccessful"
+                :disabled="isLoading"
+                variant="primary"
+                @process-finish="saveFinish"
+                @click="onSave">
+            {{ $tc('buckaroo-payment.settingsForm.save') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block buckaroo_payment_settings_content %}
+    <template #content>
+        <sw-modal
+                v-if="isSupportModalOpen"
+                @modal-close="isSupportModalOpen = false"
+                :title="$tc('buckaroo-payment.supportModal.title')"
+                class="buckaroo-feedback sw-modal--large">
+            <sw-container columns="1fr">
+                <div class="buckaroo-feedback__col">
+                    <p class="buckaroo-feedback__desc">
+                        <a href="https://buckaroo.nl/" target="_blank">
+                            <img src="/bundles/buckaroopayment/storefront/buckaroo/logo/buckaroo_config_logo_black.png" >
+                        </a>
+                    </p>
+                </div>
+            </sw-container>
+
+            <sw-container columns="1fr 1fr">
+                <div class="buckaroo-feedback__col">
+                    <p class="buckaroo-feedback__desc">
+                        <h3>{{ $tc('buckaroo-payment.supportModal.support.version') }}</h3>
+                        
+                        <div class="row">
+                            <div class="column">{{ $tc('buckaroo-payment.supportModal.support.your_version') }}</div>
+                            <div class="column">{{ phpversion }}
+                                <sw-icon v-if="isPhpVersionSupport" name="default-basic-checkmark-line" color="#37d046"></sw-icon>
+                                <sw-icon v-else name="default-basic-x-line" color="#de294c"></sw-icon>
+                            </div>
+                        </div>
+                    </p>
+                </div>
+
+                <div class="buckaroo-feedback__col">
+                    <p class="buckaroo-feedback__desc">
+                        <h3>{{ $tc('buckaroo-payment.supportModal.support.information') }}</h3>
+                        <p>{{ $tc('buckaroo-payment.supportModal.support.description') }} <br><br></p>
+  
+                        <div class="row">
+                            <div class="column">{{ $tc('buckaroo-payment.supportModal.support.label1') }}</div>
+                            <div class="column"><a target="_blank" href="https://plaza.buckaroo.nl/">plaza.buckaroo.nl</a></div>
+                        </div>
+
+                        <div class="row">
+                            <div class="column">{{ $tc('buckaroo-payment.supportModal.support.label2') }}</div>
+                            <div class="column">+31(0)30-711 50 50</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="column">{{ $tc('buckaroo-payment.supportModal.support.label3') }}</div>
+                            <div class="column"><a href="mailto:support@buckaroo.nl">support@buckaroo.nl</a></div>
+                        </div>
+
+                        <div class="row">
+                            <div class="column">{{ $tc('buckaroo-payment.supportModal.support.label4') }}</div>
+                            <div class="column"><a href="https://buckaroo.nl/" target="_blank">buckaroo.nl</a></div>
+                        </div>
+                    </p>
+                </div>
+            </sw-container>
+        </sw-modal>
+
+        <sw-card-view>
+            <sw-system-config
+                    ref="systemConfig"
+                    salesChannelSwitchable
+                    inherit
+                    @config-changed="onConfigChange"
+                    domain="BuckarooPayment.config">
+                <template #card-element="{ element, config }">
+                    <sw-form-field-renderer
+                            v-bind="getBind(element, config)"
+                            v-model="config[element.name]"/>
+                </template>
+            </sw-system-config>
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

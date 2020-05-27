@@ -49,6 +49,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Transition;
+
 class CheckoutHelper
 {
     /** @var UrlGeneratorInterface $router */
@@ -73,6 +76,8 @@ class CheckoutHelper
     private $orderRepository;
     /** @var TranslatorInterface */
     private $translator;
+    /** @var StateMachineRegistry */
+    private $stateMachineRegistry;
 
     /**
      * CheckoutHelper constructor.
@@ -94,7 +99,8 @@ class CheckoutHelper
         Helper $helper,
         CartService $cartService,
         EntityRepositoryInterface $orderRepository,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        StateMachineRegistry $stateMachineRegistry
     ) {
         $this->router = $router;
         $this->transactionRepository = $transactionRepository;
@@ -107,6 +113,7 @@ class CheckoutHelper
         $this->cartService = $cartService;
         $this->orderRepository = $orderRepository;
         $this->translator = $translator;
+        $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     public function getSetting($name)
@@ -1181,4 +1188,5 @@ class CheckoutHelper
     {
         return $this->translator->trans($id,$parameters);
     }
+
 }

@@ -1,19 +1,42 @@
 {
   "buckaroo-payment": {
+    "order": {
+      "refundDescription": "Terugbetaling voor bestelling #orderNumber"
+    },
     "general": {
-      "title": "Orders",
-      "description": "Orders"
+      "title": "Buckaroo",
+      "description": "Buckaroo Payment"
+    },
+    "settingsForm": {
+      "save": "Opslaan",
+      "titleSuccess": "Succes",
+      "titleError": "Fout"
+    },
+    "supportModal": {
+      "menuButton": "Ondersteuning van de versie",
+      "title": "Ondersteuning van de versie",
+      "support": {
+        "description": "Voordat u contact opneemt met Buckaroo technische ondersteuning, kunt u uw (Merchant) sleutel, geheime sleutel, certificaat en certificaat duimafdruk ophalen.",
+        "label1": "Buckaroo Payment Plaza:",
+        "label2": "Telefoon:",
+        "label3": "E-mail:",
+        "label4": "Website:",
+        "your_version": "Uw PHP versie:",
+        "version": "Verenigbaarheid van versie",
+        "information": "Informatie"
+      }
     },
     "tabs": {
       "title": "Buckaroo Payment",
-      "overview": "Overview"
+      "overview": "Overzicht"
     },
     "refund": {
-      "amountTitle": "Amount",
-      "buttonTitle": "Refund",
-      "successTitle": "Success",
-      "successMessage": "Buckaroo success refunded ",
-      "errorTitle": "Error"
-    }
+      "amountTitle": "Bedrag",
+      "buttonTitle": "Terugbetaling",
+      "successTitle": "Succes",
+      "successMessage": "Buckaroo succes terugbetaald ",
+      "errorTitle": "Fout"
+    },
+    "messageNotBlank": "Dit veld mag niet leeg zijn."
   }
 }

@@ -46,6 +46,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="order.repository" />
             <argument type="service" id="translator" />
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\SettingsService">
@@ -158,6 +159,10 @@
         <!-- /Payment methods -->
 
         <!-- Controllers -->
+        <service id="Buckaroo\Shopware6\Storefront\Controller\SupportController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+        </service>
+
         <service id="Buckaroo\Shopware6\Storefront\Controller\PushController" public="true">
             <argument type="service" id="order_transaction.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
