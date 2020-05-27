@@ -1189,4 +1189,16 @@ class CheckoutHelper
         return $this->translator->trans($id,$parameters);
     }
 
+    public function cancelOrder(string $orderId, Context $context): void
+    {
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                'order',
+                $orderId,
+                StateMachineTransitionActions::ACTION_CANCEL,
+                'stateId'
+            ),
+            $context
+        );
+    }
 }

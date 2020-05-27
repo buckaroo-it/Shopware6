@@ -60,6 +60,7 @@ class PushController extends StorefrontController
         $brq_amount_credit = $request->request->get('brq_amount_credit');
         $status = $request->request->get('brq_statuscode');
         $brq_transaction_type = $request->request->get('brq_transaction_type');
+        $brq_orderId =$request->request->get('ADD_orderId');
 
         $validSignature = $this->checkoutHelper->validateSignature();
         if(!$validSignature){
@@ -100,6 +101,7 @@ class PushController extends StorefrontController
 
         if(in_array($status,[ResponseStatus::BUCKAROO_STATUSCODE_TECHNICAL_ERROR, ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER, ResponseStatus::BUCKAROO_STATUSCODE_FAILED, ResponseStatus::BUCKAROO_STATUSCODE_REJECTED])){
             $this->checkoutHelper->transitionPaymentState('cancelled', $orderTransactionId, $context);
+            $this->checkoutHelper->cancelOrder($brq_orderId, $context);
 
             return $this->json(['status' => true, 'message' => "Order cancelled"]);
         }
