@@ -587,6 +587,20 @@ class CheckoutHelper
         return $customer;
     }
 
+    private function getOrderCustomer($order, $salesChannelContext){
+        if ($order->getOrderCustomer() !== null) {
+            $customer = $this->getCustomer(
+                $order->getOrderCustomer()->getCustomerId(),
+                $salesChannelContext->getContext()
+            );
+        }
+
+        if ($customer === null) {
+            $customer = $salesChannelContext->getCustomer();
+        }
+        return $customer;
+    }
+
     public function getBillingAddress($order, $salesChannelContext){
         if ($order->getOrderCustomer() !== null) {
             $customer = $this->getCustomer(
@@ -605,6 +619,7 @@ class CheckoutHelper
     public function getAddressArray($order, $additional, &$latestKey, $salesChannelContext, $dataBag)
     {
         $address = $this->getBillingAddress($order, $salesChannelContext);
+        $customer = $this->getOrderCustomer($order, $salesChannelContext);
 
         if ($address === null) {
             return $additional;
