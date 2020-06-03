@@ -1,10 +1,79 @@
 {% block buckaroo_payment_detail %}
     <div class="buckaroo-payment-detail">
-         <sw-card :title="$tc('Refund')">
-            <sw-number-field :label="$tc('buckaroo-payment.refund.amountTitle')" v-model="buckaroo_refund_amount"></sw-number-field>
-            <sw-button @click="refundOrder(orderId, buckaroo_refund_amount)" :disabled="!isRefundPossible">
-                {{ $tc('buckaroo-payment.refund.buttonTitle') }}
-            </sw-button>
+        
+         <sw-card :title="$tc('buckaroo-payment.paymentDetail.refundTitle')">
+            
+            {{ $tc('buckaroo-payment.orderItems.title') }}
+            <sw-data-grid :dataSource="orderItems"
+                :columns="orderItemsColumns"
+                :showActions="false"
+                :showSelection="false">
+
+                    <template #column-quantity="{ item }">
+                        <input type="number" min="0" :max="item.quantityMax" v-model="item.quantity" >
+                    </template>
+
+            </sw-data-grid>
+
+            <sw-card-section divider="top" secondary slim>
+                <sw-container columns="1fr 440px"
+                              class="sw-order-detail__summary">
+                    <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
+                            <dt>{{ $tc('buckaroo-payment.transactionsToRefund.title') }}</dt>
+                            <dd></dd>
+
+                    </sw-description-list>
+                </sw-container>
+
+                <sw-data-grid :dataSource="transactionsToRefund"
+                    :columns="transactionsToRefundColumns"
+                    :showHeader="false"
+                    :showActions="false"
+                    :showSelection="false">
+
+                        <template #column-transaction_method="{ item }">
+                            <img v-if="item.logo" :src="item.logo" class="transaction-method-logo" width=20  :title="item.transaction_method">
+                                {{ item.transaction_method }}
+                        </template>
+
+                        <template #column-amount="{ item }">
+                            <input type="number" min="0" :max="item.amountMax" v-model="item.amount" >
+                        </template>
+
+                </sw-data-grid>
+
+                <sw-container columns="1fr 440px" class="sw-order-detail__summary">
+                    <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
+                            <dt>{{ $tc('buckaroo-payment.paymentDetail.amountTotalTitle') }}</dt>
+                            <dd>{{ buckaroo_refund_amount }}</dd>
+
+                    </sw-description-list>
+                </sw-container>
+                 
+            </sw-card-section>
+
+            <sw-container columns="1fr 440px" class="sw-order-detail__summary">
+                <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data"><dt></dt><dd>
+                    <sw-button @click="refundOrder(orderId, buckaroo_refund_amount)" :disabled="!isRefundPossible">
+                    {{ $tc('buckaroo-payment.paymentDetail.buttonTitle') }}
+                    </sw-button></dd>
+                </sw-description-list>
+            </sw-container>
+
+         </sw-card>
+
+         <sw-card :title="$tc('buckaroo-payment.paymentDetail.transactionsTitle')">
+            <sw-data-grid :dataSource="relatedResources"
+                :columns="relatedResourceColumns"
+                :showActions="false"
+                :showSelection="false">
+
+                    <template #column-transaction_method="{ item }">
+                        <img v-if="item.logo" :src="item.logo" class="transaction-method-logo" width=20  :title="item.transaction_method">
+                            {{ item.transaction_method }}
+                    </template>
+
+            </sw-data-grid>
          </sw-card>
         <sw-loader v-if="isLoading">
         </sw-loader>

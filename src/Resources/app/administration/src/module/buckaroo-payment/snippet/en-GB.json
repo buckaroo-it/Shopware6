@@ -30,12 +30,40 @@
       "title": "Buckaroo Payment",
       "overview": "Overview"
     },
-    "refund": {
+    "paymentDetail": {
+      "refundTitle": "Refund",
+      "transactionsTitle": "Transactions",
       "amountTitle": "Amount",
+      "amountTotalTitle": "Grand total",
       "buttonTitle": "Refund",
       "successTitle": "Success",
       "successMessage": "Buckaroo success refunded ",
       "errorTitle": "Error"
+    },
+    "orderItems": {
+        "title": "Items to Refund",
+        "types": {
+          "id": "id",
+          "name": "Title",
+          "quantity": "Qty to Refund",
+          "totalAmount": "Subtotal"
+      }
+    },
+    "transactionsToRefund": {
+        "title": "Refund Totals"
+    },
+    "transactionHistory": {
+        "types": {
+          "id": "id",
+          "created_at": "Date/time",
+          "total": "Total",
+          "shipping_costs": "Shipping costs",
+          "total_excluding_vat": "Total excluding VAT",
+          "total_including_vat": "Total including VAT",
+          "vat": "VAT",
+          "transaction_key": "Transaction key",
+          "transaction_method": "Payment method"
+      }
     },
     "messageNotBlank": "This field must not be empty."
   }

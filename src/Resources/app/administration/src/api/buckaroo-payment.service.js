@@ -6,14 +6,31 @@ class BuckarooPaymentService extends ApiService {
         super(httpClient, loginService, apiEndpoint);
     }
 
-    refundPayment(transaction, amount) {
+    getBuckarooTransaction(transaction) {
+        const apiRoute = `_action/${this.getApiBasePath()}/getBuckarooTransaction`;
+
+        return this.httpClient.post(
+            apiRoute,
+            {
+                transaction: transaction
+            },
+            {
+                headers: this.getBasicHeaders()
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
+
+    refundPayment(transaction, transactionsToRefund, orderItems) {
         const apiRoute = `_action/${this.getApiBasePath()}/refund`;
 
         return this.httpClient.post(
             apiRoute,
             {
                 transaction: transaction,
-                amount: amount
+                transactionsToRefund: transactionsToRefund,
+                orderItems: orderItems
             },
             {
                 headers: this.getBasicHeaders()

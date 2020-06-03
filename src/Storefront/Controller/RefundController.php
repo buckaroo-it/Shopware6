@@ -55,7 +55,9 @@ class RefundController extends StorefrontController
     public function refundBuckaroo(Request $request, Context $context): JsonResponse
     {
         $orderId = $request->get('transaction');
-        $amount = $request->get('amount');
+        // $amount = $request->get('amount');
+        $transactionsToRefund = $request->get('transactionsToRefund');
+        $orderItems = $request->get('orderItems');
 
         if (empty($orderId)) {
             return new JsonResponse(['status' => false, 'message' => 'Missing order orderId'], Response::HTTP_NOT_FOUND);
@@ -63,12 +65,26 @@ class RefundController extends StorefrontController
 
         $order = $this->checkoutHelper->getOrderById($orderId, $context);
 
+/*        $lineItems = $order->getLineItems();
+        if ($lineItems != null || $lineItems->count() > 0) {
+            foreach ($lineItems as $item) {
+                foreach ($orderItems as $orderItemskey => $orderItem) {
+                    if($orderItem['id'] == $item->getId()){
+                        $item->setQuantity($item->getQuantity() - $orderItem['quantity']);
+                    }
+                }
+            }
+            $order->setLineItems($lineItems);
+        }
+*/
         if (null === $order) {
             return new JsonResponse(['status' => false, 'message' => 'Order transaction not found'], Response::HTTP_NOT_FOUND);
         }
-
         try {
-            $response = $this->checkoutHelper->refundTransaction($order, $context, 'refund', $amount);
+            foreach ($transactionsToRefund as $key => $item) {
+                $responses[] = $this->checkoutHelper->refundTransaction($order, $context, $item, 'refund', $orderItems);
+                $orderItems = '';
+            }
         } catch (Exception $exception) {
             return new JsonResponse(
                 [
@@ -80,8 +96,8 @@ class RefundController extends StorefrontController
             );
         }
 
-        if($response){
-            return $response;
+        if($responses){
+            return new JsonResponse($responses);
         }
 
         return new JsonResponse(

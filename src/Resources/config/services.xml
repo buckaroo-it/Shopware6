@@ -47,6 +47,7 @@
             <argument type="service" id="order.repository" />
             <argument type="service" id="translator" />
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\SettingsService">
@@ -58,6 +59,17 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <tag name="shopware.payment.method.async" />
         </service>
+
+        <!-- Entity -->
+        <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityDefinition">
+            <tag name="shopware.entity.definition" entity="buckaroo_transactions" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository">
+            <argument type="service" id="buckaroo_transactions.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+        <!-- /Entity -->
 
         <!-- Payment methods -->
         <service id="Buckaroo\Shopware6\Handlers\VisaPaymentHandler">

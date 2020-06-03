@@ -9,7 +9,7 @@
 
         <input-field >
             <name>websiteKey</name>
-            <label>(Merchant) key</label>
+            <label lang="en-GB">(Merchant) key</label>
             <label lang="nl-NL">Verkoperssleutel</label>
             <label lang="de-DE">Händlerschlüssel</label>
             <description>Enter your Buckaroo merchant/website key.</description>
@@ -22,7 +22,7 @@
 
         <input-field >
             <name>secretKey</name>
-            <label>Secret key</label>
+            <label lang="en-GB">Secret key</label>
             <label lang="nl-NL">Geheime sleutel</label>
             <label lang="de-DE">Geheimer Schlüssel</label>
             <description>Enter your Buckaroo secret key.</description>
@@ -35,7 +35,7 @@
 
         <input-field >
             <name>guid</name>
-            <label>Guid</label>
+            <label lang="en-GB">Guid</label>
             <label lang="nl-NL">Guid</label>
             <label lang="de-DE">Guid</label>
             <description>Enter your Buckaroo guid key.</description>
@@ -54,7 +54,7 @@
         
         <input-field type="single-select">
             <name>creditcardsEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -72,14 +72,14 @@
 
         <input-field>
             <name>creditcardsLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Buckaroo Creditcards</defaultValue>
         </input-field>
 
         <input-field type="multi-select">
             <name>allowedcreditcards</name>
-            <label>Allowed Creditcards:</label>
+            <label lang="en-GB">Allowed Creditcards:</label>
             <label lang="nl-NL">Toegestane creditcards</label>
             <label lang="de-DE">Zulässige Kreditkarten</label>
             <options>
@@ -131,7 +131,7 @@
         <title>iDEAL</title>
         <input-field type="single-select">
             <name>idealEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -149,7 +149,7 @@
 
         <input-field>
             <name>idealLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>iDEAL</defaultValue>
         </input-field>
@@ -159,7 +159,7 @@
         <title>iDEAL Processing</title>
         <input-field type="single-select">
             <name>idealprocessingEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -177,7 +177,7 @@
 
         <input-field>
             <name>idealprocessingLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>iDEAL Processing</defaultValue>
         </input-field>
@@ -187,7 +187,7 @@
         <title>Bancontact</title>
         <input-field type="single-select">
             <name>bancontactmrcashEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -205,7 +205,7 @@
 
         <input-field>
             <name>bancontactmrcashLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Bancontact</defaultValue>
         </input-field>
@@ -215,7 +215,7 @@
         <title>AfterPay</title>
         <input-field type="single-select">
             <name>afterpayEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -233,7 +233,7 @@
 
         <input-field>
             <name>afterpayLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>AfterPay</defaultValue>
         </input-field>
@@ -243,7 +243,7 @@
         <title>Sofort</title>
         <input-field type="single-select">
             <name>sofortueberweisungEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -261,7 +261,7 @@
 
         <input-field>
             <name>sofortueberweisungLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Sofort</defaultValue>
         </input-field>
@@ -271,7 +271,7 @@
     <title>PayPal</title>
         <input-field type="single-select">
             <name>paypalEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -289,7 +289,7 @@
 
         <input-field>
             <name>paypalLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>PayPal</defaultValue>
         </input-field>
@@ -299,7 +299,7 @@
     <title>Bank Transfer</title>
         <input-field type="single-select">
             <name>transferEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -317,21 +317,21 @@
 
         <input-field>
             <name>transferLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Bank Transfer</defaultValue>
         </input-field>
 
         <input-field>
             <name>transferDueDate</name>
-            <label>Due date (in days)</label>
+            <label lang="en-GB">Due date (in days)</label>
             <helpText>The amount of days after the order date in which the customer has to complete the payment. This is only for display purposes; you can add this due date in the template of the Transfer email.</helpText>
             <defaultValue>7</defaultValue>
         </input-field>
 
         <input-field type="bool">
             <name>transferSendEmail</name>
-            <label>Send order confirmation email</label>
+            <label lang="en-GB">Send order confirmation email</label>
             <helpText>Enable to send an order confirmation email to the customer when the creating of the order is successful. Specific for this payment method.</helpText>
         </input-field>
     </card>
@@ -340,7 +340,7 @@
     <title>Giropay</title>
         <input-field type="single-select">
             <name>giropayEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -358,7 +358,7 @@
 
         <input-field>
             <name>giropayLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Giropay</defaultValue>
         </input-field>
@@ -368,7 +368,7 @@
     <title>KBC</title>
         <input-field type="single-select">
             <name>KBCPaymentButtonEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -386,7 +386,7 @@
 
         <input-field>
             <name>KBCPaymentButtonLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>KBC</defaultValue>
         </input-field>
@@ -396,7 +396,7 @@
     <title>Sepa Direct Debit</title>
         <input-field type="single-select">
             <name>sepadirectdebitEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -414,7 +414,7 @@
 
         <input-field>
             <name>sepadirectdebitButtonLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Sepa Direct Debit</defaultValue>
         </input-field>
@@ -424,7 +424,7 @@
     <title>Payconiq</title>
         <input-field type="single-select">
             <name>payconiqEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -442,7 +442,7 @@
 
         <input-field>
             <name>payconiqButtonLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Payconiq</defaultValue>
         </input-field>
@@ -452,7 +452,7 @@
         <title>Apple Pay</title>
         <input-field type="single-select">
             <name>applepayEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -470,7 +470,7 @@
 
         <input-field>
             <name>applepayLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Apple Pay</defaultValue>
         </input-field>
@@ -482,7 +482,7 @@
         <title lang="de-DE">Geschenkkarten Karten</title>
         <input-field type="single-select">
             <name>giftcardsEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -500,17 +500,29 @@
 
         <input-field>
             <name>giftcardsLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Buckaroo Giftcards</defaultValue>
         </input-field>
 
         <input-field type="multi-select">
             <name>allowedgiftcards</name>
-            <label>Allowed Giftcards:</label>
+            <label lang="en-GB">Allowed Giftcards:</label>
             <label lang="nl-NL">Toegestane cadeaubonnen</label>
             <label lang="de-DE">Zulässige Geschenkkarten</label>
             <options>
+                <option>
+                    <id>customgiftcard</id>
+                    <name>Custom giftcard</name>
+                </option>
+                <option>
+                    <id>customgiftcard2</id>
+                    <name>Custom giftcard 2</name>
+                </option>
+                <option>
+                    <id>customgiftcard3</id>
+                    <name>Custom giftcard 3</name>
+                </option>
                 <option>
                     <id>boekenbon</id>
                     <name>Boekenbon</name>
@@ -859,7 +871,7 @@
     <title>Request To Pay</title>
         <input-field type="single-select">
             <name>RequestToPayEnvironment</name>
-            <label>Test or Live:</label>
+            <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
             <defaultValue>test</defaultValue>
@@ -877,7 +889,7 @@
 
         <input-field>
             <name>RequestToPayButtonLabel</name>
-            <label>Frontend label</label>
+            <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Request To Pay</defaultValue>
         </input-field>

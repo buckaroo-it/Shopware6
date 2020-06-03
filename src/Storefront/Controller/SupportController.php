@@ -39,6 +39,21 @@ class SupportController extends StorefrontController
         ]);
     }
 
+    /**
+     * @RouteScope(scopes={"api"})
+     * @Route("/api/v{version}/_action/buckaroo/getBuckarooTransaction", name="api.action.buckaroo.support.version", methods={"POST"})
+     * @param Request $request
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return RedirectResponse
+     */
+    public function getBuckarooTransaction(Request $request)
+    {
+        $orderId = $request->get('transaction');
+        $items = $this->checkoutHelper->getBuckarooTransactionsByOrderId($orderId);
+        return new JsonResponse($items);
+    }
+
     private function getPhpVersionArray()
     {
         $version = false;

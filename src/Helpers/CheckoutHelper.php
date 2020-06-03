@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Buckaroo\Shopware6\Service\SettingsService;
 
 use Shopware\Core\Checkout\Cart\Cart;
@@ -51,6 +52,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
+
+use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntity;
+use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
 
 class CheckoutHelper
 {
@@ -78,6 +82,8 @@ class CheckoutHelper
     private $translator;
     /** @var StateMachineRegistry */
     private $stateMachineRegistry;
+    /** * @var BuckarooTransactionEntityRepository */
+    private $buckarooTransactionEntityRepository;
 
     /**
      * CheckoutHelper constructor.
@@ -100,7 +106,8 @@ class CheckoutHelper
         CartService $cartService,
         EntityRepositoryInterface $orderRepository,
         TranslatorInterface $translator,
-        StateMachineRegistry $stateMachineRegistry
+        StateMachineRegistry $stateMachineRegistry,
+        BuckarooTransactionEntityRepository $buckarooTransactionEntityRepository
     ) {
         $this->router = $router;
         $this->transactionRepository = $transactionRepository;
@@ -114,6 +121,7 @@ class CheckoutHelper
         $this->orderRepository = $orderRepository;
         $this->translator = $translator;
         $this->stateMachineRegistry = $stateMachineRegistry;
+        $this->buckarooTransactionEntityRepository = $buckarooTransactionEntityRepository;
     }
 
     public function getSetting($name)
@@ -303,21 +311,6 @@ class CheckoutHelper
     }
 
     /**
-     * @param CustomerEntity $customer
-     * @return string|null
-     */
-    public function getGenderFromSalutation(CustomerEntity $customer): ?string
-    {
-        switch ($customer->getSalutation()->getSalutationKey()) {
-            case 'mr':
-                return 'male';
-            case 'mrs':
-                return 'female';
-        }
-        return null;
-    }
-
-    /**
      * @param Context $context
      * @return array
      * @throws \Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException
@@ -364,10 +357,10 @@ class CheckoutHelper
         $this->transactionRepository->update([$data], Context::createDefaultContext());
     }
 
-    public function getOrderTransactionById(Context $context, string $orderId): ?OrderTransactionEntity
+    public function getOrderTransactionById(Context $context, string $orderTransactionId): ?OrderTransactionEntity
     {
         $criteria = new Criteria();
-        $filter = new EqualsFilter('order_transaction.id', $orderId);
+        $filter = new EqualsFilter('order_transaction.id', $orderTransactionId);
         $criteria->addFilter($filter);
 
         return $this->transactionRepository->search($criteria, $context)->first();
@@ -462,6 +455,7 @@ class CheckoutHelper
 
             // Build the order lines array
             $lines[] = [
+                'id' => $item->getId(),
                 'type' =>  $type,
                 'name' => $item->getLabel(),
                 'quantity' => $item->getQuantity(),
@@ -995,9 +989,11 @@ class CheckoutHelper
 
     public function getOrderById($orderId, $context): ?OrderEntity
     {
+        $context = $context ? $context : Context::createDefaultContext();
         $orderCriteria = new Criteria([$orderId]);
         $orderCriteria->addAssociation('orderCustomer.salutation');
         $orderCriteria->addAssociation('stateMachineState');
+        $orderCriteria->addAssociation('lineItems');
         $orderCriteria->addAssociation('transactions');
         $orderCriteria->addAssociation('transactions.paymentMethod');
         $orderCriteria->addAssociation('transactions.paymentMethod.plugin');
@@ -1006,7 +1002,7 @@ class CheckoutHelper
         return $this->orderRepository->search($orderCriteria, $context)->first();
     }
 
-    public function refundTransaction($order, $context, $state, $amount = false)
+    public function refundTransaction($order, $context, $item, $state, $orderItems = '')
     {
         if (!$this->isBuckarooPaymentMethod($order)) {
             return;
@@ -1014,16 +1010,20 @@ class CheckoutHelper
 
         $customFields = $this->getCustomFields($order, $context);
 
-        if(empty($customFields['serviceName']) || empty($customFields['originalTransactionKey'])){
+        $customFields['serviceName'] = $item['transaction_method'];
+        $customFields['originalTransactionKey'] = $item['transactions'];
+        $amount = $item['amount'];
+
+        if($amount <= 0){
             return false;
         }
 
         if($customFields['canRefund'] == 0){
-            return new JsonResponse(['status' => false, 'message' => 'Refund not supported'], Response::HTTP_BAD_REQUEST);
+            return ['status' => false, 'message' => 'Refund not supported'];
         }
 
         if(!empty($customFields['refunded']) && ($customFields['refunded']==1)) {
-            return new JsonResponse(['status' => false, 'message' => 'This order is already refunded'], Response::HTTP_BAD_REQUEST);
+            return ['status' => false, 'message' => 'This order is already refunded'];
         }
 
         $serviceName = (in_array($customFields['serviceName'],['creditcards','giftcards'])) ? $customFields['brqPaymentMethod'] : $customFields['serviceName'];
@@ -1061,17 +1061,22 @@ class CheckoutHelper
             $status = ($amount < $order->getAmountTotal()) ? 'partial_refunded' : 'refunded';
             $this->transitionPaymentState($status, $transaction->getId(), $context);
             $this->saveTransactionData($transaction->getId(), $context, [$status => 1]);
-            return new JsonResponse(['status' => true]);
+
+            if($orderItems){
+                foreach ($orderItems as $key => $value) {
+                   $orderItems2[$value['id']] = $value['quantity'];
+                }
+                $this->buckarooTransactionEntityRepository->save($item['id'], ['refunded_items' => json_encode($orderItems2)],[]);
+            }
+
+            return ['status' => true];
         }
 
-         return new JsonResponse(
-                [
+         return [
                     'status'  => false,
                     'message' => $response->getSubCodeMessageFull() ?? $response->getSomeError(),
                     'code'    => $response->getStatusCode(),
-                ],
-                Response::HTTP_BAD_REQUEST
-            );
+                ];
     }
 
     /**
@@ -1200,5 +1205,87 @@ class CheckoutHelper
             ),
             $context
         );
+    }
+
+    public function getBuckarooTransactionsByOrderId($orderId)
+    {
+        $order = $this->getOrderById($orderId, false);
+        $vat = $order->get("price")->getTaxRules()->first()->getTaxRate();
+        
+        $items['orderItems'] = $this->getOrderLinesArray($order);
+
+        $shipping = $order->getShippingCosts();
+        $shipping_costs = $shipping->getTotalPrice();
+
+        $collection = $this->buckarooTransactionEntityRepository->findByOrderId($orderId);
+        foreach ($collection as $buckarooTransactionEntity) {
+            $amount = $buckarooTransactionEntity->get("amount_credit") ? '-' . $buckarooTransactionEntity->get("amount_credit") : $buckarooTransactionEntity->get("amount");
+            $items['transactions'][] = (object) [
+                'id' => $buckarooTransactionEntity->get("id"),
+                'transaction' => $buckarooTransactionEntity->get("transactions"),
+                'total' => $amount,
+                'shipping_costs' => $shipping_costs,
+                'vat' => $vat?"plus $vat% VAT":null,
+                'total_excluding_vat' => $vat?($amount - (($amount / 100) * $vat)):$amount,
+                'transaction_method' => $buckarooTransactionEntity->get("transaction_method"),
+                'logo' => '/bundles/buckaroopayment/storefront/buckaroo/logo/' . $buckarooTransactionEntity->get("transaction_method") . '.png',
+                'created_at' => Date("Y-m-d H:i:s", strtotime($buckarooTransactionEntity->get("created_at")->date)),
+            ];
+
+            if($buckarooTransactionEntity->get("amount")){
+                 $items['transactionsToRefund'][] = (object) [
+                    'id' => $buckarooTransactionEntity->get("id"),
+                    'transactions' => $buckarooTransactionEntity->get("transactions"),
+                    'total' => $amount,
+                    'transaction_method' => $buckarooTransactionEntity->get("transaction_method"),
+                    'logo' => '/bundles/buckaroopayment/storefront/buckaroo/logo/' . $buckarooTransactionEntity->get("transaction_method") . '.png',
+                ];
+            }
+
+            if($refunded_items = $buckarooTransactionEntity->get("refunded_items")){
+                $orderRefundedItems[] = json_decode($refunded_items);
+            }
+        }
+
+        foreach ($orderRefundedItems as $key => $value) {
+            foreach ($value as $key3 => $quantity) {
+                foreach ($items['orderItems'] as $key2 => $value2) {
+                    if($key3 == $value2['id']){
+                        $items['orderItems'][$key2]['quantity'] = $value2['quantity'] - $quantity;
+                    }
+                }
+            }
+        }
+        return $items;
+    }
+
+    public function saveBuckarooTransaction(Request $request, Context $context)
+    {
+        return $this->buckarooTransactionEntityRepository->save(null, $this->pusToArray($request),[]);
+    }
+
+    public function pusToArray(Request $request): array
+    {
+        $now = new \DateTime();
+        $type = 'push';
+        if($request->request->get('brq_transaction_type') == 'I150'){
+            $type = 'info';
+        }
+        return [
+            'order_id' =>  $request->request->get('ADD_orderId'),
+            'order_transaction_id' =>  $request->request->get('ADD_orderTransactionId'),
+            'amount' =>  $request->request->get('brq_amount'),
+            'amount_credit' =>  $request->request->get('brq_amount_credit'),
+            'currency' =>  $request->request->get('brq_currency'),
+            'ordernumber' =>  $request->request->get('brq_invoicenumber'),
+            'statuscode' =>  $request->request->get('brq_statuscode'),
+            'transaction_method' =>  $request->request->get('brq_transaction_method'),
+            'transaction_type' =>  $request->request->get('brq_transaction_type'),
+            'transactions' =>  $request->request->get('brq_transactions'),
+            'relatedtransaction' =>  $request->request->get('brq_relatedtransaction_partialpayment'),
+            'type' =>  $type,
+            'created_at' =>  $now,
+            'updated_at' =>  $now,
+        ];
     }
 }
