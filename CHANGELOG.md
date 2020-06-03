@@ -27,3 +27,6 @@ Added payment methods
 
 * Giftcards
 * Request To Pay
+
+# 1.0.8
+Updated refund tab
