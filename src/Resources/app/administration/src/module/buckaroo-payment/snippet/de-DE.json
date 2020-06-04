@@ -30,12 +30,40 @@
       "title": "Buckaroo Payment",
       "overview": "Overview"
     },
-    "refund": {
-      "amountTitle": "Betrag",
-      "buttonTitle": "Erstattung",
+    "paymentDetail": {
+      "refundTitle": "Rückerstattung",
+      "transactionsTitle": "Transaktionen",
+      "amountTitle": "Amount",
+      "amountTotalTitle": "Gesamtsumme",
+      "buttonTitle": "Rückerstattung",
       "successTitle": "Erfolg",
-      "successMessage": "Buckaroo erfolg zurückerstattet",
+      "successMessage": "Buckaroo-Erfolg erstattet ",
       "errorTitle": "Fehler"
+    },
+    "orderItems": {
+        "title": "Zu erstattende Gegenstände",
+        "types": {
+          "id": "id",
+          "name": "Titel",
+          "quantity": "Menge zur Rückerstattung",
+          "totalAmount": "Zwischensumme"
+      }
+    },
+    "transactionsToRefund": {
+        "title": "Rückerstattungssummen"
+    },
+    "transactionHistory": {
+        "types": {
+          "id": "id",
+          "created_at": "Datum / Uhrzeit",
+          "total": "Total",
+          "shipping_costs": "Versandkosten",
+          "total_excluding_vat": "Total ohne Mehrwertsteuer",
+          "total_including_vat": "Total einschließlich Mehrwertsteuer",
+          "vat": "Mehrwertsteuer",
+          "transaction_key": "Transaktionsschlüssel",
+          "transaction_method": "Zahlungsmethode"
+      }
     },
     "messageNotBlank": "Dieses Feld darf nicht leer sein."
   }

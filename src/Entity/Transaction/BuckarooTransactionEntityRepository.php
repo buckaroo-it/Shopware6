@@ -145,10 +145,10 @@ class BuckarooTransactionEntityRepository
         return $criteria;
     }
 
-    public function findByOrderId(string $id): EntityCollection
+    public function findByOrderId(string $id, array $sortBy = []): EntityCollection
     {
         $filter = ['order_id' => $id];
 
-        return $this->baseRepository->search($this->buildCriteria(null, $filter, []), Context::createDefaultContext())->getEntities();
+        return $this->baseRepository->search($this->buildCriteria(null, $filter, $sortBy), Context::createDefaultContext())->getEntities();
     }
 }

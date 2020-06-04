@@ -30,12 +30,40 @@
       "title": "Buckaroo Payment",
       "overview": "Overzicht"
     },
-    "refund": {
+    "paymentDetail": {
+      "refundTitle": "Refund",
+      "transactionsTitle": "Transacties",
       "amountTitle": "Bedrag",
-      "buttonTitle": "Terugbetaling",
+      "amountTotalTitle": "Algemeen totaal",
+      "buttonTitle": "Restitutie",
       "successTitle": "Succes",
-      "successMessage": "Buckaroo succes terugbetaald ",
+      "successMessage": "Buckaroo-succes terugbetaald ",
       "errorTitle": "Fout"
+    },
+    "orderItems": {
+        "title": "Te restitueren items",
+        "types": {
+          "id": "id",
+          "name": "Titel",
+          "quantity": "Aantal terugbetalen",
+          "totalAmount": "Subtotaal"
+      }
+    },
+    "transactionsToRefund": {
+        "title": "Totalen terugbetalen"
+    },
+    "transactionHistory": {
+        "types": {
+          "id": "id",
+          "created_at": "Datum / tijd",
+          "total": "Total",
+          "shipping_costs": "Verzendkosten",
+          "total_excluding_vat": "Totaal exclusief VAT",
+          "total_including_vat": "Totaal inclusief VAT",
+          "vat": "VAT",
+          "transaction_key": "Transactiesleutel",
+          "transaction_method": "Betaalmethode"
+      }
     },
     "messageNotBlank": "Dit veld mag niet leeg zijn."
   }

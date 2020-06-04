@@ -1028,6 +1028,7 @@ class CheckoutHelper
         $customFields['serviceName'] = $item['transaction_method'];
         $customFields['originalTransactionKey'] = $item['transactions'];
         $amount = $item['amount'];
+        $currency = !empty($item['currency']) ? $item['currency'] : 'EUR';
 
         if($amount <= 0){
             return false;
@@ -1050,14 +1051,14 @@ class CheckoutHelper
         $request->setAmountCredit($amount ? $amount : $order->getAmountTotal());
         $request->setInvoice($order->getOrderNumber());
         $request->setOrder($order->getOrderNumber());
-        $request->setCurrency('EUR');
+        $request->setCurrency($currency);
         $request->setOriginalTransactionKey($customFields['originalTransactionKey']);
         $request->setServiceVersion($customFields['version']);
 
         if($customFields['serviceName']=='afterpay'){
             $additional = $this->getRefundArticleData($amount);
-            foreach ($additional as $key2 => $item) {
-                foreach ($item as $key => $value) {
+            foreach ($additional as $key2 => $item3) {
+                foreach ($item3 as $key => $value) {
                     $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
                 }
             }
@@ -1084,7 +1085,7 @@ class CheckoutHelper
                 $this->buckarooTransactionEntityRepository->save($item['id'], ['refunded_items' => json_encode($orderItems2)],[]);
             }
 
-            return ['status' => true];
+            return ['status' => true, 'message' => 'Buckaroo success refunded ' . $amount. ' ' . $currency];
         }
 
          return [
@@ -1232,7 +1233,7 @@ class CheckoutHelper
         $shipping = $order->getShippingCosts();
         $shipping_costs = $shipping->getTotalPrice();
 
-        $collection = $this->buckarooTransactionEntityRepository->findByOrderId($orderId);
+        $collection = $this->buckarooTransactionEntityRepository->findByOrderId($orderId, ['created_at' => 'DESC']);
         foreach ($collection as $buckarooTransactionEntity) {
             $amount = $buckarooTransactionEntity->get("amount_credit") ? '-' . $buckarooTransactionEntity->get("amount_credit") : $buckarooTransactionEntity->get("amount");
             $items['transactions'][] = (object) [
@@ -1241,9 +1242,8 @@ class CheckoutHelper
                 'total' => $amount,
                 'shipping_costs' => $shipping_costs,
                 'vat' => $vat?"plus $vat% VAT":null,
-                'total_excluding_vat' => $vat?($amount - (($amount / 100) * $vat)):$amount,
+                'total_excluding_vat' => $vat?round(($amount - (($amount / 100) * $vat)),2):$amount,
                 'transaction_method' => $buckarooTransactionEntity->get("transaction_method"),
-                'logo' => '/bundles/buckaroopayment/storefront/buckaroo/logo/' . $buckarooTransactionEntity->get("transaction_method") . '.png',
                 'created_at' => Date("Y-m-d H:i:s", strtotime($buckarooTransactionEntity->get("created_at")->date)),
             ];
 
@@ -1252,8 +1252,8 @@ class CheckoutHelper
                     'id' => $buckarooTransactionEntity->get("id"),
                     'transactions' => $buckarooTransactionEntity->get("transactions"),
                     'total' => $amount,
+                    'currency' => $buckarooTransactionEntity->get("currency"),
                     'transaction_method' => $buckarooTransactionEntity->get("transaction_method"),
-                    'logo' => '/bundles/buckaroopayment/storefront/buckaroo/logo/' . $buckarooTransactionEntity->get("transaction_method") . '.png',
                 ];
             }
 
@@ -1267,6 +1267,7 @@ class CheckoutHelper
                 foreach ($items['orderItems'] as $key2 => $value2) {
                     if($key3 == $value2['id']){
                         $items['orderItems'][$key2]['quantity'] = $value2['quantity'] - $quantity;
+                        $items['orderItems'][$key2]['totalAmount']['value'] = ($value2['totalAmount']['value'] -  ($value2['unitPrice']['value'] * $quantity));
                     }
                 }
             }

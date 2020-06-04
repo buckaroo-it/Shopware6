@@ -10,7 +10,7 @@
                 :showSelection="false">
 
                     <template #column-quantity="{ item }">
-                        <input type="number" min="0" :max="item.quantityMax" v-model="item.quantity" >
+                        <input type="number" min="0" :max="item.quantityMax" v-model="item.quantity" @input="recalculateOrderItems">
                     </template>
 
             </sw-data-grid>
@@ -32,7 +32,7 @@
                     :showSelection="false">
 
                         <template #column-transaction_method="{ item }">
-                            <img v-if="item.logo" :src="item.logo" class="transaction-method-logo" width=20  :title="item.transaction_method">
+                            <img :src="'/bundles/buckaroopayment/storefront/buckaroo/logo/'+item.transaction_method + '.png'" class="transaction-method-logo" width=20  :title="item.transaction_method">
                                 {{ item.transaction_method }}
                         </template>
 
@@ -44,8 +44,8 @@
 
                 <sw-container columns="1fr 440px" class="sw-order-detail__summary">
                     <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
-                            <dt>{{ $tc('buckaroo-payment.paymentDetail.amountTotalTitle') }}</dt>
-                            <dd>{{ buckaroo_refund_amount }}</dd>
+                            <dt>{{ $tc('buckaroo-payment.paymentDetail.amountTotalTitle') }}: </dt>
+                            <dd>{{ buckaroo_refund_amount }}  {{ currency }}</dd>
 
                     </sw-description-list>
                 </sw-container>
@@ -69,7 +69,7 @@
                 :showSelection="false">
 
                     <template #column-transaction_method="{ item }">
-                        <img v-if="item.logo" :src="item.logo" class="transaction-method-logo" width=20  :title="item.transaction_method">
+                        <img :src="'/bundles/buckaroopayment/storefront/buckaroo/logo/'+item.transaction_method + '.png'" class="transaction-method-logo" width=20  :title="item.transaction_method">
                             {{ item.transaction_method }}
                     </template>
 

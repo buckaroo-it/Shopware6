@@ -31,10 +31,6 @@ Component.register('buckaroo-payment-detail', {
     },
 
     computed: {
-        dateFilter() {
-            return Filter.getByName('date');
-        },
-
         orderItemsColumns() {
             return [
                 {
@@ -106,6 +102,14 @@ Component.register('buckaroo-payment-detail', {
     },
 
     methods: {
+        recalculateOrderItems() {
+            this.buckaroo_refund_amount = 0;
+            for (const key in this.orderItems) {
+                this.orderItems[key]['totalAmount'] = parseFloat(parseFloat(this.orderItems[key]['unitPrice']) * parseFloat(this.orderItems[key]['quantity'])).toFixed(2);
+                this.buckaroo_refund_amount = parseFloat(parseFloat(this.buckaroo_refund_amount) + parseFloat(this.orderItems[key]['totalAmount'])).toFixed(2);
+            }
+        },
+        
         createdComponent() {
             let that = this;
             const orderId = this.$route.params.id;
@@ -123,15 +127,16 @@ Component.register('buckaroo-payment-detail', {
                 .then((response) => {
 
                     response.orderItems.forEach((element) => {
-                        that.buckaroo_refund_amount = parseFloat(that.buckaroo_refund_amount) + (parseFloat(element.totalAmount.value) * parseFloat(element.quantity));
                         that.orderItems.push({
                             id: element.id,
                             name: element.name,
                             quantity: element.quantity,
                             quantityMax: element.quantity,
+                            unitPrice: element.unitPrice.value,
                             totalAmount: element.totalAmount.value
                         });
                     })
+                    that.recalculateOrderItems();
 
                     response.transactionsToRefund.forEach((element) => {
                         that.transactionsToRefund.push({
@@ -174,7 +179,7 @@ Component.register('buckaroo-payment-detail', {
                         if(response[key].status){
                             this.createNotificationSuccess({
                                 title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                                message: that.$tc('buckaroo-payment.paymentDetail.successMessage') + that.buckaroo_refund_amount.toFixed(2) + ' ' + that.currency
+                                message: response[key].message
                             });
                         }else{
                             this.createNotificationError({
