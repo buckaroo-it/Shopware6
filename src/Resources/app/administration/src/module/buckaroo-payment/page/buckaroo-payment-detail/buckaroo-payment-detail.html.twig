@@ -10,7 +10,7 @@
                 :showSelection="false">
 
                     <template #column-quantity="{ item }">
-                        <input type="number" min="0" :max="item.quantityMax" v-model="item.quantity" @input="recalculateOrderItems">
+                        <input type="number" min="0" :max="item.quantityMax" v-model="item.quantity" @input="recalculateOrderItems" onkeydown="return event.keyCode !== 69">
                     </template>
 
             </sw-data-grid>
@@ -37,7 +37,7 @@
                         </template>
 
                         <template #column-amount="{ item }">
-                            <input type="number" min="0" :max="item.amountMax" v-model="item.amount" >
+                            <input type="number" min="0" :max="item.amountMax" v-model="item.amount" onkeydown="return event.keyCode !== 69">
                         </template>
 
                 </sw-data-grid>

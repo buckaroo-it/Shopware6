@@ -1064,11 +1064,25 @@ class CheckoutHelper
             $this->transitionPaymentState($status, $transaction->getId(), $context);
             $this->saveTransactionData($transaction->getId(), $context, [$status => 1]);
 
+            // updating refunded items in transaction
             if ($orderItems) {
                 foreach ($orderItems as $key => $value) {
-                    $orderItems2[$value['id']] = $value['quantity'];
+                    $orderItemsRefunded[$value['id']] = $value['quantity'];
                 }
-                $this->buckarooTransactionEntityRepository->save($item['id'], ['refunded_items' => json_encode($orderItems2)], []);
+
+                $refunded_items = $this->buckarooTransactionEntityRepository->getById($item['id'])->get("refunded_items");
+                if($refunded_items){
+                    $refunded_items = json_decode($refunded_items);
+                    foreach ($refunded_items as $k => $qnt) {
+                        if($orderItemsRefunded[$k]){
+                            $orderItemsRefunded[$k] = $orderItemsRefunded[$k] + $qnt;
+                        }else{
+                            $orderItemsRefunded[$k] = $qnt;
+                        }
+                    }
+                }
+
+                $this->buckarooTransactionEntityRepository->save($item['id'], ['refunded_items' => json_encode($orderItemsRefunded)], []);
             }
 
             return ['status' => true, 'message' => 'Buckaroo success refunded ' . $amount . ' ' . $currency];
@@ -1254,6 +1268,7 @@ class CheckoutHelper
                     if ($key3 == $value2['id']) {
                         $items['orderItems'][$key2]['quantity']             = $value2['quantity'] - $quantity;
                         $items['orderItems'][$key2]['totalAmount']['value'] = ($value2['totalAmount']['value'] - ($value2['unitPrice']['value'] * $quantity));
+                        if($items['orderItems'][$key2]['quantity']<0){$items['orderItems'][$key2]['quantity']=0;}
                     }
                 }
             }
