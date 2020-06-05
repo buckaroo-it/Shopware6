@@ -1,11 +1,11 @@
-<?php
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Buckaroo\Payload;
 
-use JsonSerializable;
 use ArrayAccess;
 use Buckaroo\Shopware6\Helpers\Arrayable;
 use Buckaroo\Shopware6\Helpers\Helpers;
+use JsonSerializable;
 
 class Request implements JsonSerializable, ArrayAccess, Arrayable
 {
@@ -70,15 +70,12 @@ class Request implements JsonSerializable, ArrayAccess, Arrayable
     public function __call($method, $args)
     {
         $prefix = substr($method, 0, 3);
-        $param = substr($method, 3);
-        $arg = isset($args[0]) ? $args[0] : null;
+        $param  = substr($method, 3);
+        $arg    = isset($args[0]) ? $args[0] : null;
 
-        if( $prefix === 'set' )
-        {
+        if ($prefix === 'set') {
             return $this->offsetSet($param, $arg);
-        }
-        else if( $prefix === 'get' )
-        {
+        } else if ($prefix === 'get') {
             return $this->offsetGet($param);
         }
 
@@ -106,8 +103,7 @@ class Request implements JsonSerializable, ArrayAccess, Arrayable
      */
     public function getHeader($name)
     {
-        if( isset($this->headers[strtolower($name)]) )
-        {
+        if (isset($this->headers[strtolower($name)])) {
             return $this->headers[strtolower($name)];
         }
 
@@ -119,7 +115,7 @@ class Request implements JsonSerializable, ArrayAccess, Arrayable
      */
     public function getHeaders()
     {
-        return Helpers::arrayMap($this->headers, function($value, $key) {
+        return Helpers::arrayMap($this->headers, function ($value, $key) {
             return $key . ': ' . $value;
         });
     }

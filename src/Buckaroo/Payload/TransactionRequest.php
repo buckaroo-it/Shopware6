@@ -1,209 +1,230 @@
-<?php
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Buckaroo\Payload;
 
 use Buckaroo\Shopware6\Buckaroo\Payload\Request;
-use Buckaroo\Shopware6\Helpers\Helpers;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
+use Buckaroo\Shopware6\Helpers\Helpers;
 
 class TransactionRequest extends Request
 {
-	public function __construct($data = [])
-	{
-		parent::__construct($data);
+    public function __construct($data = [])
+    {
+        parent::__construct($data);
         $this->setClientIP();
         $this->setClientUserAgent();
         $this->createDefaultService();
 
-	}
+    }
 
-	/**
-	 * @param string $currency
-	 */
-	public function setCurrency($currency)
-	{
-		$this->data['Currency'] = $currency;
-	}
+    /**
+     * @param string $currency
+     */
+    public function setCurrency($currency)
+    {
+        $this->data['Currency'] = $currency;
+    }
 
-	/**
-	 * Set the remote IP of the customer
-	 */
-	public function setClientIP()
-	{
-		$remoteIp = Helpers::getRemoteIp();
+    /**
+     * Set the remote IP of the customer
+     */
+    public function setClientIP()
+    {
+        $remoteIp = Helpers::getRemoteIp();
 
-		$this->data['ClientIP'] = [
-			'Type' => IPProtocolVersion::getVersion($remoteIp),
-			'Address' => $remoteIp
-		];
-	}
+        $this->data['ClientIP'] = [
+            'Type'    => IPProtocolVersion::getVersion($remoteIp),
+            'Address' => $remoteIp,
+        ];
+    }
 
-	/**
-	 * Set the user agent of the request
-	 */
-	public function setClientUserAgent()
-	{
-		$this->data['ClientUserAgent'] = Helpers::getRemoteUserAgent();
-	}
+    /**
+     * Set the user agent of the request
+     */
+    public function setClientUserAgent()
+    {
+        $this->data['ClientUserAgent'] = Helpers::getRemoteUserAgent();
+    }
 
-	/**
-	 * Create a service skeleton in the data
-	 */
-	protected function createDefaultService()
-	{
-		if( !isset($this->data['Services']) ) $this->data['Services'] = [];
-		if( !isset($this->data['Services']['ServiceList']) ) $this->data['Services']['ServiceList'] = [];
-		if( !isset($this->data['Services']['ServiceList'][0]) ) $this->data['Services']['ServiceList'][0] = [ 'Action' => 'Pay', 'Version' => 1, 'Name' => '', 'Parameters' => [] ];
-		if( !isset($this->data['Services']['ServiceList'][0]['Parameters']) ) $this->data['Services']['ServiceList'][0]['Parameters'] = [];
-	}
+    /**
+     * Create a service skeleton in the data
+     */
+    protected function createDefaultService()
+    {
+        if (!isset($this->data['Services'])) {
+            $this->data['Services'] = [];
+        }
 
-	/**
-	 * @param string $name
-	 */
-	public function setServiceName($name)
-	{
-		$this->data['Services']['ServiceList'][0]['Name'] = $name;
-	}
+        if (!isset($this->data['Services']['ServiceList'])) {
+            $this->data['Services']['ServiceList'] = [];
+        }
 
-	/**
-	 * @return string
-	 */
-	public function getServiceName()
-	{
-		return $this->data['Services']['ServiceList'][0]['Name'];
-	}
+        if (!isset($this->data['Services']['ServiceList'][0])) {
+            $this->data['Services']['ServiceList'][0] = ['Action' => 'Pay', 'Version' => 1, 'Name' => '', 'Parameters' => []];
+        }
 
-	/**
-	 * @param string $action
-	 */
-	public function setServiceAction($action)
-	{
-		$this->data['Services']['ServiceList'][0]['Action'] = $action;
-	}
+        if (!isset($this->data['Services']['ServiceList'][0]['Parameters'])) {
+            $this->data['Services']['ServiceList'][0]['Parameters'] = [];
+        }
 
-	/**
-	 * @return string
-	 */
-	public function getServiceAction()
-	{
-		return $this->data['Services']['ServiceList'][0]['Action'];
-	}
+    }
 
-	/**
-	 * @param string $version
-	 */
-	public function setServiceVersion($version)
-	{
-		$this->data['Services']['ServiceList'][0]['Version'] = $version;
-	}
+    /**
+     * @param string $name
+     */
+    public function setServiceName($name)
+    {
+        $this->data['Services']['ServiceList'][0]['Name'] = $name;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getServiceVersion()
-	{
-		return $this->data['Services']['ServiceList'][0]['Version'];
-	}
+    /**
+     * @return string
+     */
+    public function getServiceName()
+    {
+        return $this->data['Services']['ServiceList'][0]['Name'];
+    }
 
-	/**
-	 * @param string $key
-	 * @param string $value
-	 * @param string|null $groupType
-	 * @param string|null $groupId
-	 * @return string $value
-	 */
-	public function setServiceParameter($name, $value, $groupType = null, $groupId = null)
-	{
-		$newParam = [
-			'Name' => $name,
-			'Value' => $value,
-		];
+    /**
+     * @param string $action
+     */
+    public function setServiceAction($action)
+    {
+        $this->data['Services']['ServiceList'][0]['Action'] = $action;
+    }
 
-		if( $groupType ) $newParam['GroupType'] = $groupType;
-		if( $groupId ) $newParam['GroupID'] = $groupId;
+    /**
+     * @return string
+     */
+    public function getServiceAction()
+    {
+        return $this->data['Services']['ServiceList'][0]['Action'];
+    }
 
-		foreach ($this->data['Services']['ServiceList'][0]['Parameters'] as $i => $param)
-		{
-			if(
-				$param['Name'] === $name &&
-				( is_null($groupType) || (isset($param['GroupType']) && $param['GroupType'] === $groupType) ) &&
-				( is_null($groupId) || (isset($param['GroupID']) && $param['GroupID'] === $groupId) )
-			)
-			{
-				$this->data['Services']['ServiceList'][0]['Parameters'][$i] = $newParam;
-				return $newParam;
-			}
-		}
+    /**
+     * @param string $version
+     */
+    public function setServiceVersion($version)
+    {
+        $this->data['Services']['ServiceList'][0]['Version'] = $version;
+    }
 
-		$this->data['Services']['ServiceList'][0]['Parameters'][] = $newParam;
+    /**
+     * @return string
+     */
+    public function getServiceVersion()
+    {
+        return $this->data['Services']['ServiceList'][0]['Version'];
+    }
 
-		return $newParam;
-	}
+    /**
+     * @param string $key
+     * @param string $value
+     * @param string|null $groupType
+     * @param string|null $groupId
+     * @return string $value
+     */
+    public function setServiceParameter($name, $value, $groupType = null, $groupId = null)
+    {
+        $newParam = [
+            'Name'  => $name,
+            'Value' => $value,
+        ];
 
-	/**
-	 * @param string $key
-	 * @param string $value
-	 * @return string $value
-	 */
-	public function setCustomParameter($key, $value)
-	{
-		if( !isset($this->data['CustomParameters']) ) $this->data['CustomParameters'] = [];
-		if( !isset($this->data['CustomParameters']['List']) ) $this->data['CustomParameters']['List'] = [];
+        if ($groupType) {
+            $newParam['GroupType'] = $groupType;
+        }
 
-		foreach ($this->data['CustomParameters']['List'] as $i => $custom)
-		{
-			$name = $custom['Name'];
+        if ($groupId) {
+            $newParam['GroupID'] = $groupId;
+        }
 
-			if( $name === $key )
-			{
-				$this->data['CustomParameters']['List'][$i]['Value'] = $value;
-				return $value;
-			}
-		}
+        foreach ($this->data['Services']['ServiceList'][0]['Parameters'] as $i => $param) {
+            if (
+                $param['Name'] === $name &&
+                (is_null($groupType) || (isset($param['GroupType']) && $param['GroupType'] === $groupType)) &&
+                (is_null($groupId) || (isset($param['GroupID']) && $param['GroupID'] === $groupId))
+            ) {
+                $this->data['Services']['ServiceList'][0]['Parameters'][$i] = $newParam;
+                return $newParam;
+            }
+        }
 
-		$this->data['CustomParameters']['List'][] = [
-			'Name' => $key,
-			'Value' => $value
-		];
+        $this->data['Services']['ServiceList'][0]['Parameters'][] = $newParam;
 
-		return $value;
-	}
+        return $newParam;
+    }
 
-	/**
-	 * Set an additional parameter
-	 * Structure is AdditionalParameters -> AdditionalParameter
-	 *
-	 * @param string $key
-	 * @param string $value
-	 * @return string $value
-	 */
-	public function setAdditionalParameter($key, $value)
-	{
-		if( !isset($this->data['AdditionalParameters']) ) $this->data['AdditionalParameters'] = [];
-		if( !isset($this->data['AdditionalParameters']['AdditionalParameter']) ) $this->data['AdditionalParameters']['AdditionalParameter'] = [];
+    /**
+     * @param string $key
+     * @param string $value
+     * @return string $value
+     */
+    public function setCustomParameter($key, $value)
+    {
+        if (!isset($this->data['CustomParameters'])) {
+            $this->data['CustomParameters'] = [];
+        }
 
-		foreach ($this->data['AdditionalParameters']['AdditionalParameter'] as $i => $additional)
-		{
-			$name = $additional['Name'];
+        if (!isset($this->data['CustomParameters']['List'])) {
+            $this->data['CustomParameters']['List'] = [];
+        }
 
-			if( $name === $key )
-			{
-				$this->data['AdditionalParameters']['AdditionalParameter'][$i]['Value'] = $value;
-				return $value;
-			}
-		}
+        foreach ($this->data['CustomParameters']['List'] as $i => $custom) {
+            $name = $custom['Name'];
 
-		$this->data['AdditionalParameters']['AdditionalParameter'][] = [
-			'Name' => $key,
-			'Value' => $value
-		];
+            if ($name === $key) {
+                $this->data['CustomParameters']['List'][$i]['Value'] = $value;
+                return $value;
+            }
+        }
 
-		return $value;
-	}
+        $this->data['CustomParameters']['List'][] = [
+            'Name'  => $key,
+            'Value' => $value,
+        ];
 
-	/**
-	 * Pay parameters
-	 */
+        return $value;
+    }
+
+    /**
+     * Set an additional parameter
+     * Structure is AdditionalParameters -> AdditionalParameter
+     *
+     * @param string $key
+     * @param string $value
+     * @return string $value
+     */
+    public function setAdditionalParameter($key, $value)
+    {
+        if (!isset($this->data['AdditionalParameters'])) {
+            $this->data['AdditionalParameters'] = [];
+        }
+
+        if (!isset($this->data['AdditionalParameters']['AdditionalParameter'])) {
+            $this->data['AdditionalParameters']['AdditionalParameter'] = [];
+        }
+
+        foreach ($this->data['AdditionalParameters']['AdditionalParameter'] as $i => $additional) {
+            $name = $additional['Name'];
+
+            if ($name === $key) {
+                $this->data['AdditionalParameters']['AdditionalParameter'][$i]['Value'] = $value;
+                return $value;
+            }
+        }
+
+        $this->data['AdditionalParameters']['AdditionalParameter'][] = [
+            'Name'  => $key,
+            'Value' => $value,
+        ];
+
+        return $value;
+    }
+
+    /**
+     * Pay parameters
+     */
 
     /**
      * @param string $services
@@ -225,91 +246,90 @@ class TransactionRequest extends Request
         $this->data['ContinueOnIncomplete'] = $value;
     }
 
-
     /*
      * Remove data Services.
      *
      * Giftcard specific
      */
-    public function removeServices(){
+    public function removeServices()
+    {
         unset($this->data['Services']);
         unset($this->data['Services']['ServiceList']);
         unset($this->data['Services']['ServiceList'][0]);
         unset($this->data['Services']['ServiceList'][0]['Parameters']);
     }
 
-	/**
-	 * @param string $url
-	 */
-	public function setReturnURL($url)
-	{
-		$this->data['ReturnURL'] = $url;
-	}
+    /**
+     * @param string $url
+     */
+    public function setReturnURL($url)
+    {
+        $this->data['ReturnURL'] = $url;
+    }
 
-	/**
-	 * @param string $url
-	 */
-	public function setReturnURLCancel($url)
-	{
-		$this->data['ReturnURLCancel'] = $url;
-	}
+    /**
+     * @param string $url
+     */
+    public function setReturnURLCancel($url)
+    {
+        $this->data['ReturnURLCancel'] = $url;
+    }
 
-	/**
-	 * @param string $url
-	 */
-	public function setReturnURLError($url)
-	{
-		$this->data['ReturnURLError'] = $url;
-	}
+    /**
+     * @param string $url
+     */
+    public function setReturnURLError($url)
+    {
+        $this->data['ReturnURLError'] = $url;
+    }
 
-	/**
-	 * @param string $url
-	 */
-	public function setReturnURLReject($url)
-	{
-		$this->data['ReturnURLReject'] = $url;
-	}
+    /**
+     * @param string $url
+     */
+    public function setReturnURLReject($url)
+    {
+        $this->data['ReturnURLReject'] = $url;
+    }
 
-	/**
-	 * @param string $url
-	 */
-	public function setPushURL($url)
-	{
-		$this->data['PushURL'] = $url;
-	}
+    /**
+     * @param string $url
+     */
+    public function setPushURL($url)
+    {
+        $this->data['PushURL'] = $url;
+    }
 
-	/**
-	 * @param string $url
-	 */
-	public function setPushURLFailure($url)
-	{
-		$this->data['PushURLFailure'] = $url;
-	}
+    /**
+     * @param string $url
+     */
+    public function setPushURLFailure($url)
+    {
+        $this->data['PushURLFailure'] = $url;
+    }
 
-	/**
-	 * @param string $signature
-	 */
-	public function setSignature($signature)
-	{
-		return $this->setAdditionalParameter('signature', $signature);
-	}
+    /**
+     * @param string $signature
+     */
+    public function setSignature($signature)
+    {
+        return $this->setAdditionalParameter('signature', $signature);
+    }
 
-	/**
-	 * @param string $token
-	 */
-	public function setToken($token)
-	{
-		return $this->setAdditionalParameter('token', $token);
-	}
+    /**
+     * @param string $token
+     */
+    public function setToken($token)
+    {
+        return $this->setAdditionalParameter('token', $token);
+    }
 
+    /**
+     * Refund parameters
+     */
 
-	/**
-	 * Refund parameters
-	 */
-
-	/**
-	 * @param float $amount
-	 */
+    /**
+     * @param float $amount
+     */
     public function setAmountCredit($amount)
     {
         $this->data['AmountCredit'] = $amount;
@@ -339,7 +359,6 @@ class TransactionRequest extends Request
         return $this->data['OriginalTransactionKey'];
     }
 
-
     /**
      * Header fields
      */
@@ -349,56 +368,58 @@ class TransactionRequest extends Request
      */
     public function setChannelHeader($channel)
     {
-    	$channel = ucfirst(strtolower($channel));
+        $channel = ucfirst(strtolower($channel));
 
-    	if( !in_array($channel, [ 'Web', 'Backoffice' ]) )
-    	{
-    		throw new Exception('Channel should be set to "Web" or "Backoffice"');
-    	}
+        if (!in_array($channel, ['Web', 'Backoffice'])) {
+            throw new Exception('Channel should be set to "Web" or "Backoffice"');
+        }
 
-    	return $this->setHeader('Channel', $channel);
+        return $this->setHeader('Channel', $channel);
     }
 
     /** Implement JsonSerializable */
     public function jsonSerialize()
     {
-    	// make sure the keys are in the correct order
+        // make sure the keys are in the correct order
 
-    	$order = array_flip([
-			'Currency',
-			'AmountDebit',
-			'AmountCredit',
-			'Invoice',
-			'Order',
-			'Description',
-			'ClientIP',
-			'ReturnURL',
-			'ReturnURLCancel',
-			'ReturnURLError',
-			'ReturnURLReject',
-			'OriginalTransactionKey',
-			'StartRecurrent',
-			'ContinueOnIncomplete',
-			'ServicesSelectableByClient',
-			'ServicesExcludedForClient',
-			'PushURL',
-			'PushURLFailure',
-			'ClientUserAgent',
-			'OriginalTransactionReference',
-			'Services',
-			'CustomParameters',
-			'AdditionalParameters',
+        $order = array_flip([
+            'Currency',
+            'AmountDebit',
+            'AmountCredit',
+            'Invoice',
+            'Order',
+            'Description',
+            'ClientIP',
+            'ReturnURL',
+            'ReturnURLCancel',
+            'ReturnURLError',
+            'ReturnURLReject',
+            'OriginalTransactionKey',
+            'StartRecurrent',
+            'ContinueOnIncomplete',
+            'ServicesSelectableByClient',
+            'ServicesExcludedForClient',
+            'PushURL',
+            'PushURLFailure',
+            'ClientUserAgent',
+            'OriginalTransactionReference',
+            'Services',
+            'CustomParameters',
+            'AdditionalParameters',
             'CustomerCardName',
-    	]);
+        ]);
 
-    	// sort on key
-    	uksort($this->data, function($a, $b) use ($order) {
-    		$aKey = isset($order[$a]) ? $order[$a] : 9999;
-    		$bKey = isset($order[$b]) ? $order[$b] : 9999;
+        // sort on key
+        uksort($this->data, function ($a, $b) use ($order) {
+            $aKey = isset($order[$a]) ? $order[$a] : 9999;
+            $bKey = isset($order[$b]) ? $order[$b] : 9999;
 
-			if ($aKey == $bKey) return 0;
-    		return ($aKey < $bKey) ? -1 : 1;
-    	});
+            if ($aKey == $bKey) {
+                return 0;
+            }
+
+            return ($aKey < $bKey) ? -1 : 1;
+        });
         return $this->data;
     }
 
@@ -414,6 +435,5 @@ class TransactionRequest extends Request
     {
         return $this->data['CustomerCardName'];
     }
-
 
 }

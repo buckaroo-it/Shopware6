@@ -1,4 +1,4 @@
-<?php
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Buckaroo\Payload;
 
@@ -10,23 +10,21 @@ use Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse;
  */
 class DataResponse extends TransactionResponse
 {
-	/**
-	 * Set an additional parameter
-	 * Structure is AdditionalParameters -> List
-	 * 
+    /**
+     * Set an additional parameter
+     * Structure is AdditionalParameters -> List
+     *
      * @return array [ name => value ]
      */
     public function getAdditionalParameters()
     {
-        if( !empty($this->data['AdditionalParameters']['List']) )
-        {
+        if (!empty($this->data['AdditionalParameters']['List'])) {
             $parameters = $this->data['AdditionalParameters']['List'];
 
             $params = [];
 
-            foreach ($parameters as $key => $parameter)
-            {
-                $params[ $parameter['Name'] ] = $parameter['Value'];
+            foreach ($parameters as $key => $parameter) {
+                $params[$parameter['Name']] = $parameter['Value'];
             }
 
             return $params;

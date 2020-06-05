@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
@@ -28,17 +28,18 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         string $type = null,
         string $version = null,
         array $gatewayInfo = []
-    ): RedirectResponse {
+    ): RedirectResponse{
 
-        $additional = []; $latestKey = 1;
-        $order = $transaction->getOrder();
+        $additional = [];
+        $latestKey  = 1;
+        $order      = $transaction->getOrder();
 
         $additional = $this->checkoutHelper->getArticleData($order, $additional, $latestKey);
         $additional = $this->checkoutHelper->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag);
 
         $paymentMethod = new AfterPay();
-        $gatewayInfo = [
-            'additional' =>  $additional,
+        $gatewayInfo   = [
+            'additional' => $additional,
         ];
 
         return parent::pay(

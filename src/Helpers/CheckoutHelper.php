@@ -1,22 +1,32 @@
-<?php declare(strict_types=1);
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Helpers;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
+use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntity;
+use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
+use Buckaroo\Shopware6\Service\SettingsService;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
@@ -24,37 +34,11 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdExcep
 use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidStateFieldException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Buckaroo\Shopware6\Service\SettingsService;
-
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-
-use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Shopware\Core\Framework\Uuid\Uuid;
-
-use Symfony\Contracts\Translation\TranslatorInterface;
-
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
-
-use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntity;
-use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CheckoutHelper
 {
@@ -109,18 +93,18 @@ class CheckoutHelper
         StateMachineRegistry $stateMachineRegistry,
         BuckarooTransactionEntityRepository $buckarooTransactionEntityRepository
     ) {
-        $this->router = $router;
-        $this->transactionRepository = $transactionRepository;
-        $this->orderTransactionStateHandler = $orderTransactionStateHandler;
-        $this->stateMachineRepository = $stateMachineRepository;
-        $this->shopwareVersion = $shopwareVersion;
-        $this->pluginService = $pluginService;
-        $this->settingsService = $settingsService;
-        $this->helper = $helper;
-        $this->cartService = $cartService;
-        $this->orderRepository = $orderRepository;
-        $this->translator = $translator;
-        $this->stateMachineRegistry = $stateMachineRegistry;
+        $this->router                              = $router;
+        $this->transactionRepository               = $transactionRepository;
+        $this->orderTransactionStateHandler        = $orderTransactionStateHandler;
+        $this->stateMachineRepository              = $stateMachineRepository;
+        $this->shopwareVersion                     = $shopwareVersion;
+        $this->pluginService                       = $pluginService;
+        $this->settingsService                     = $settingsService;
+        $this->helper                              = $helper;
+        $this->cartService                         = $cartService;
+        $this->orderRepository                     = $orderRepository;
+        $this->translator                          = $translator;
+        $this->stateMachineRegistry                = $stateMachineRegistry;
         $this->buckarooTransactionEntityRepository = $buckarooTransactionEntityRepository;
     }
 
@@ -145,7 +129,7 @@ class CheckoutHelper
      * @param CalculatedPrice $calculatedPrice
      * @return float
      */
-    public function getTaxRate(CalculatedPrice $calculatedPrice) : float
+    public function getTaxRate(CalculatedPrice $calculatedPrice): float
     {
         $rates = [];
         foreach ($calculatedPrice->getCalculatedTaxes() as $tax) {
@@ -159,10 +143,10 @@ class CheckoutHelper
      * @param CalculatedPrice $calculatedPrice
      * @return float
      */
-    public function getUnitPriceExclTax(CalculatedPrice $calculatedPrice) : float
+    public function getUnitPriceExclTax(CalculatedPrice $calculatedPrice): float
     {
         $unitPrice = $calculatedPrice->getUnitPrice();
-        $taxRate = $this->getTaxRate($calculatedPrice);
+        $taxRate   = $this->getTaxRate($calculatedPrice);
 
         if ($unitPrice && $taxRate) {
             $unitPrice /= (1 + ($taxRate / 100));
@@ -213,10 +197,10 @@ class CheckoutHelper
      * @param string $status
      * @return string|null
      */
-    public function getCorrectTransitionAction(string $status): ?string
+    public function getCorrectTransitionAction(string $status):  ? string
     {
         switch ($status) {
-            case 'completed':
+            case 'completed' :
                 return StateMachineTransitionActions::ACTION_PAY;
                 break;
             case 'declined':
@@ -258,10 +242,10 @@ class CheckoutHelper
      */
     public function isSameState(string $actionName, string $orderTransactionId, Context $context): bool
     {
-        $transaction = $this->getOrderTransaction($orderTransactionId, $context);
+        $transaction    = $this->getOrderTransaction($orderTransactionId, $context);
         $currentStateId = $transaction->getStateId();
 
-        $actionStatusTransition = $this->getTransitionFromActionName($actionName, $context);
+        $actionStatusTransition   = $this->getTransitionFromActionName($actionName, $context);
         $actionStatusTransitionId = $actionStatusTransition->getId();
 
         return $currentStateId === $actionStatusTransitionId;
@@ -276,7 +260,7 @@ class CheckoutHelper
     public function getTransitionFromActionName(string $actionName, Context $context): StateMachineStateEntity
     {
         $stateName = $this->getOrderTransactionStatesNameFromAction($actionName);
-        $criteria = new Criteria();
+        $criteria  = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $stateName));
         return $this->stateMachineRepository->search($criteria, $context)->first();
     }
@@ -318,14 +302,14 @@ class CheckoutHelper
     public function getPluginMetadata(Context $context): array
     {
         return [
-            'shop' => 'Shopware',
-            'shop_version' => $this->shopwareVersion,
+            'shop'           => 'Shopware',
+            'shop_version'   => $this->shopwareVersion,
             'plugin_version' => $this->pluginService->getPluginByName('BuckarooPayment', $context)->getVersion(),
-            'partner' => 'Buckaroo',
+            'partner'        => 'Buckaroo',
         ];
     }
 
-    public function getReturnUrl($route):string
+    public function getReturnUrl($route): string
     {
         return $this->router->generate(
             $route,
@@ -357,10 +341,10 @@ class CheckoutHelper
         $this->transactionRepository->update([$data], Context::createDefaultContext());
     }
 
-    public function getOrderTransactionById(Context $context, string $orderTransactionId): ?OrderTransactionEntity
+    public function getOrderTransactionById(Context $context, string $orderTransactionId):  ? OrderTransactionEntity
     {
         $criteria = new Criteria();
-        $filter = new EqualsFilter('order_transaction.id', $orderTransactionId);
+        $filter   = new EqualsFilter('order_transaction.id', $orderTransactionId);
         $criteria->addFilter($filter);
 
         return $this->transactionRepository->search($criteria, $context)->first();
@@ -383,7 +367,7 @@ class CheckoutHelper
      * @param Context $context
      * @return OrderEntity|null
      */
-    public function getOrder(string $orderId, Context $context) : ?OrderEntity
+    public function getOrder(string $orderId, Context $context) :  ? OrderEntity
     {
         $order = null;
 
@@ -416,7 +400,7 @@ class CheckoutHelper
     public function getOrderLinesArray(OrderEntity $order)
     {
         // Variables
-        $lines = [];
+        $lines     = [];
         $lineItems = $order->getLineItems();
 
         if ($lineItems === null || $lineItems->count() === 0) {
@@ -424,7 +408,7 @@ class CheckoutHelper
         }
 
         // Get currency code
-        $currency = $order->getCurrency();
+        $currency     = $order->getCurrency();
         $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
 
         foreach ($lineItems as $item) {
@@ -437,35 +421,35 @@ class CheckoutHelper
             }
 
             // Get VAT rate and amount
-            $vatRate = $itemTax !== null ? $itemTax->getTaxRate() : 0.0;
+            $vatRate   = $itemTax !== null ? $itemTax->getTaxRate() : 0.0;
             $vatAmount = $itemTax !== null ? $itemTax->getTax() : null;
 
             if ($vatAmount === null && $vatRate > 0) {
                 $vatAmount = $item->getTotalPrice() * ($vatRate / ($vatRate + 100));
             }
 
-            $type = 'Article';
+            $type      = 'Article';
             $unitPrice = $this->getPriceArray($currencyCode, $item->getUnitPrice());
             $vatAmount = $this->getPriceArray($currencyCode, $vatAmount);
-            if($unitPrice['value']<0){
-                $type = 'Discount';
+            if ($unitPrice['value'] < 0) {
+                $type               = 'Discount';
                 $vatAmount['value'] = 0;
-                $vatRate = 0.0;
+                $vatRate            = 0.0;
             }
 
             // Build the order lines array
             $lines[] = [
-                'id' => $item->getId(),
-                'type' =>  $type,
-                'name' => $item->getLabel(),
-                'quantity' => $item->getQuantity(),
-                'unitPrice' => $unitPrice,
+                'id'          => $item->getId(),
+                'type'        => $type,
+                'name'        => $item->getLabel(),
+                'quantity'    => $item->getQuantity(),
+                'unitPrice'   => $unitPrice,
                 'totalAmount' => $this->getPriceArray($currencyCode, $item->getTotalPrice()),
-                'vatRate' => number_format($vatRate, 2, '.', ''),
-                'vatAmount' => $vatAmount,
-                'sku' => $item->getId(),
-                'imageUrl' => null,
-                'productUrl' => null,
+                'vatRate'     => number_format($vatRate, 2, '.', ''),
+                'vatAmount'   => $vatAmount,
+                'sku'         => $item->getId(),
+                'imageUrl'    => null,
+                'productUrl'  => null,
             ];
         }
 
@@ -483,7 +467,7 @@ class CheckoutHelper
     public function getShippingItemArray(OrderEntity $order) : array
     {
         // Variables
-        $line = [];
+        $line     = [];
         $shipping = $order->getShippingCosts();
 
         if ($shipping === null) {
@@ -491,7 +475,7 @@ class CheckoutHelper
         }
 
         // Get currency code
-        $currency = $order->getCurrency();
+        $currency     = $order->getCurrency();
         $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
 
         // Get shipping tax
@@ -502,7 +486,7 @@ class CheckoutHelper
         }
 
         // Get VAT rate and amount
-        $vatRate = $shippingTax !== null ? $shippingTax->getTaxRate() : 0.0;
+        $vatRate   = $shippingTax !== null ? $shippingTax->getTaxRate() : 0.0;
         $vatAmount = $vatAmount = $shippingTax !== null ? $shippingTax->getTax() : null;
 
         if ($vatAmount === null && $vatRate > 0) {
@@ -511,16 +495,16 @@ class CheckoutHelper
 
         // Build the order line array
         $line = [
-            'type' =>  'Shipping',
-            'name' => 'Shipping',
-            'quantity' => $shipping->getQuantity(),
-            'unitPrice' => $this->getPriceArray($currencyCode, $shipping->getUnitPrice()),
+            'type'        => 'Shipping',
+            'name'        => 'Shipping',
+            'quantity'    => $shipping->getQuantity(),
+            'unitPrice'   => $this->getPriceArray($currencyCode, $shipping->getUnitPrice()),
             'totalAmount' => $this->getPriceArray($currencyCode, $shipping->getTotalPrice()),
-            'vatRate' => number_format($vatRate, 2, '.', ''),
-            'vatAmount' => $this->getPriceArray($currencyCode, $vatAmount),
-            'sku' => 'Shipping',
-            'imageUrl' => null,
-            'productUrl' => null,
+            'vatRate'     => number_format($vatRate, 2, '.', ''),
+            'vatAmount'   => $this->getPriceArray($currencyCode, $vatAmount),
+            'sku'         => 'Shipping',
+            'imageUrl'    => null,
+            'productUrl'  => null,
         ];
 
         return $line;
@@ -533,11 +517,11 @@ class CheckoutHelper
      * @param int $decimals
      * @return array
      */
-    public function getPriceArray(string $currency, float $price, int $decimals = 2) : array
+    public function getPriceArray(string $currency, float $price, int $decimals = 2): array
     {
         return [
             'currency' => $currency,
-            'value' => number_format($price, $decimals, '.', '')
+            'value'    => number_format($price, $decimals, '.', ''),
         ];
     }
 
@@ -566,7 +550,7 @@ class CheckoutHelper
      * @param Context $context
      * @return CustomerEntity|null
      */
-    public function getCustomer(string $customerId, Context $context) : ?CustomerEntity
+    public function getCustomer(string $customerId, Context $context):  ? CustomerEntity
     {
         $customer = null;
 
@@ -587,7 +571,8 @@ class CheckoutHelper
         return $customer;
     }
 
-    private function getOrderCustomer($order, $salesChannelContext){
+    private function getOrderCustomer($order, $salesChannelContext)
+    {
         if ($order->getOrderCustomer() !== null) {
             $customer = $this->getCustomer(
                 $order->getOrderCustomer()->getCustomerId(),
@@ -601,7 +586,8 @@ class CheckoutHelper
         return $customer;
     }
 
-    public function getBillingAddress($order, $salesChannelContext){
+    public function getBillingAddress($order, $salesChannelContext)
+    {
         if ($order->getOrderCustomer() !== null) {
             $customer = $this->getCustomer(
                 $order->getOrderCustomer()->getCustomerId(),
@@ -618,119 +604,119 @@ class CheckoutHelper
 
     public function getAddressArray($order, $additional, &$latestKey, $salesChannelContext, $dataBag)
     {
-        $address = $this->getBillingAddress($order, $salesChannelContext);
+        $address  = $this->getBillingAddress($order, $salesChannelContext);
         $customer = $this->getOrderCustomer($order, $salesChannelContext);
 
         if ($address === null) {
             return $additional;
         }
 
-        $streetFormat   = $this->formatStreet($address->getStreet());
+        $streetFormat  = $this->formatStreet($address->getStreet());
         $birthDayStamp = $dataBag->get('buckaroo_afterpay_DoB');
         $address->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
         $salutation = $customer->getSalutation()->getSalutationKey();
 
-        $category = 'Person';
+        $category    = 'Person';
         $billingData = [
             [
-                '_'    => $category,
-                'Name' => 'Category',
-                'Group' => 'BillingCustomer',
+                '_'       => $category,
+                'Name'    => 'Category',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ],
             [
-                '_'    => $address->getFirstName(),
-                'Name' => 'FirstName',
-                'Group' => 'BillingCustomer',
+                '_'       => $address->getFirstName(),
+                'Name'    => 'FirstName',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ],
             [
-                '_'    => $address->getLastName(),
-                'Name' => 'LastName',
-                'Group' => 'BillingCustomer',
+                '_'       => $address->getLastName(),
+                'Name'    => 'LastName',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ],
             [
-                '_'    => $address->getStreet(),
-                'Name' => 'Street',
-                'Group' => 'BillingCustomer',
+                '_'       => $address->getStreet(),
+                'Name'    => 'Street',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ],
             [
-                '_'    => $address->getZipCode(),
-                'Name' => 'PostalCode',
-                'Group' => 'BillingCustomer',
+                '_'       => $address->getZipCode(),
+                'Name'    => 'PostalCode',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ],
             [
-                '_'    => $address->getCity(),
-                'Name' => 'City',
-                'Group' => 'BillingCustomer',
+                '_'       => $address->getCity(),
+                'Name'    => 'City',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ],
             [
-                '_'    => $address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL',
-                'Name' => 'Country',
-                'Group' => 'BillingCustomer',
+                '_'       => $address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL',
+                'Name'    => 'Country',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ],
             [
-                '_'    => $address->getPhoneNumber(),
-                'Name' => 'MobilePhone',
-                'Group' => 'BillingCustomer',
+                '_'       => $address->getPhoneNumber(),
+                'Name'    => 'MobilePhone',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ],
             [
-                '_'    => $address->getPhoneNumber(),
-                'Name' => 'Phone',
-                'Group' => 'BillingCustomer',
+                '_'       => $address->getPhoneNumber(),
+                'Name'    => 'Phone',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ],
             [
-                '_'    => $customer->getEmail(),
-                'Name' => 'Email',
-                'Group' => 'BillingCustomer',
+                '_'       => $customer->getEmail(),
+                'Name'    => 'Email',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ],
         ];
 
         if (!empty($streetFormat['house_number'])) {
             $billingData[] = [
-                '_'    => $streetFormat['house_number'],
-                'Name' => 'StreetNumber',
-                'Group' => 'BillingCustomer',
+                '_'       => $streetFormat['house_number'],
+                'Name'    => 'StreetNumber',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ];
         }
 
         if (!empty($streetFormat['number_addition'])) {
             $billingData[] = [
-                '_'    => $streetFormat['number_addition'],
-                'Name' => 'StreetNumberAdditional',
-                'Group' => 'BillingCustomer',
+                '_'       => $streetFormat['number_addition'],
+                'Name'    => 'StreetNumberAdditional',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ];
         }
 
         if ($address->getCountry()->getIso() == 'NL' || $address->getCountry()->getIso() == 'BE') {
             $billingData[] = [
-                '_'    => $salutation,
-                'Name' => 'Salutation',
-                'Group' => 'BillingCustomer',
+                '_'       => $salutation,
+                'Name'    => 'Salutation',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ];
 
             $billingData[] = [
-                '_'    => $birthDayStamp,
-                'Name' => 'BirthDate',
-                'Group' => 'BillingCustomer',
+                '_'       => $birthDayStamp,
+                'Name'    => 'BirthDate',
+                'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ];
         }
 
         $latestKey++;
 
-        return array_merge($additional,[$billingData]);
+        return array_merge($additional, [$billingData]);
 
     }
 
@@ -744,7 +730,7 @@ class CheckoutHelper
         $format = [
             'house_number'    => '',
             'number_addition' => '',
-            'street'          => $street
+            'street'          => $street,
         ];
 
         if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
@@ -755,13 +741,14 @@ class CheckoutHelper
             } else {
                 $format['street']          = trim($matches[1]);
                 $format['house_number']    = trim($matches[2]);
-                $format['number_addition'] = trim(str_replace(',','',$matches[3]));
+                $format['number_addition'] = trim(str_replace(',', '', $matches[3]));
             }
         }
         return $format;
     }
 
-    public function getArticleData($order, $additional, &$latestKey){
+    public function getArticleData($order, $additional, &$latestKey)
+    {
         $lines = $this->getOrderLinesArray($order);
 
         foreach ($lines as $key => $item) {
@@ -770,32 +757,32 @@ class CheckoutHelper
                     '_'       => $item['name'],
                     'Name'    => 'Description',
                     'GroupID' => $latestKey,
-                    'Group' => 'Article',
+                    'Group'   => 'Article',
                 ],
                 [
                     '_'       => $item['sku'],
                     'Name'    => 'Identifier',
-                    'Group' => 'Article',
+                    'Group'   => 'Article',
                     'GroupID' => $latestKey,
                 ],
                 [
                     '_'       => $item['quantity'],
                     'Name'    => 'Quantity',
                     'GroupID' => $latestKey,
-                    'Group' => 'Article',
+                    'Group'   => 'Article',
                 ],
                 [
                     '_'       => $item['unitPrice']['value'],
                     'Name'    => 'GrossUnitPrice',
                     'GroupID' => $latestKey,
-                    'Group' => 'Article',
+                    'Group'   => 'Article',
                 ],
                 [
                     '_'       => $item['vatRate'],
                     'Name'    => 'VatPercentage',
                     'GroupID' => $latestKey,
-                    'Group' => 'Article',
-                ]
+                    'Group'   => 'Article',
+                ],
             ];
             $latestKey++;
         }
@@ -803,50 +790,50 @@ class CheckoutHelper
         return $additional;
     }
 
-
-    public function getRefundArticleData($amount){
+    public function getRefundArticleData($amount)
+    {
 
         $additional[] = [
-                        [
+            [
                 '_'       => 'Return',
                 'Name'    => 'RefundType',
                 'GroupID' => 1,
-                'Group' => 'Article',
-            ],[
-                '_'       => 'Refund',
-                'Name'    => 'Description',
-                'GroupID' => 1,
-                'Group' => 'Article',
+                'Group'   => 'Article',
             ], [
                 '_'       => 'Refund',
                 'Name'    => 'Description',
                 'GroupID' => 1,
-                'Group' => 'Article',
+                'Group'   => 'Article',
+            ], [
+                '_'       => 'Refund',
+                'Name'    => 'Description',
+                'GroupID' => 1,
+                'Group'   => 'Article',
             ],
             [
                 '_'       => '1',
                 'Name'    => 'Identifier',
-                'Group' => 'Article',
+                'Group'   => 'Article',
                 'GroupID' => 1,
             ],
             [
                 '_'       => '1',
                 'Name'    => 'Quantity',
                 'GroupID' => 1,
-                'Group' => 'Article',
+                'Group'   => 'Article',
             ],
             [
                 '_'       => $amount,
                 'Name'    => 'GrossUnitPrice',
                 'GroupID' => 1,
-                'Group' => 'Article',
+                'Group'   => 'Article',
             ],
             [
                 '_'       => 0,
                 'Name'    => 'VatPercentage',
                 'GroupID' => 1,
-                'Group' => 'Article',
-            ]
+                'Group'   => 'Article',
+            ],
         ];
 
         return $additional;
@@ -861,44 +848,44 @@ class CheckoutHelper
         }
 
         $now = new \DateTime();
-        $now->modify('+' . ($this->getSetting('transferDueDate') > 0 ? $this->getSetting('transferDueDate') : 7 ) . ' day');
+        $now->modify('+' . ($this->getSetting('transferDueDate') > 0 ? $this->getSetting('transferDueDate') : 7) . ' day');
         $sendEmail = $this->getSetting('transferSendEmail') ? 'true' : 'false';
 
         $services = [
-                [
-                    '_'    => $address->getFirstName(),
-                    'Name' => 'CustomerFirstName',
-                ],
-                [
-                    '_'    => $address->getLastName(),
-                    'Name' => 'CustomerLastName',
-                ],
-                [
-                    '_'    => $address->getCountry()->getIso(),
-                    'Name' => 'CustomerCountry',
-                ],
-                [
-                    '_'    => $customer->getEmail(),
-                    'Name' => 'CustomerEmail',
-                ],
-                [
-                    '_'    => $now->format('Y-m-d'),
-                    'Name' => 'DateDue'
-                ],
-                [
-                    '_'    => $sendEmail,
-                    'Name' => 'SendMail'
-                ]
+            [
+                '_'    => $address->getFirstName(),
+                'Name' => 'CustomerFirstName',
+            ],
+            [
+                '_'    => $address->getLastName(),
+                'Name' => 'CustomerLastName',
+            ],
+            [
+                '_'    => $address->getCountry()->getIso(),
+                'Name' => 'CustomerCountry',
+            ],
+            [
+                '_'    => $customer->getEmail(),
+                'Name' => 'CustomerEmail',
+            ],
+            [
+                '_'    => $now->format('Y-m-d'),
+                'Name' => 'DateDue',
+            ],
+            [
+                '_'    => $sendEmail,
+                'Name' => 'SendMail',
+            ],
         ];
 
-        return array_merge($additional,[$services]);
+        return array_merge($additional, [$services]);
     }
 
     /**
      * @param $locale
      * @return string
      */
-    public static function getTranslatedLocale($locale = false): string
+    public static function getTranslatedLocale($locale = false) : string
     {
         switch ($locale) {
             case 'nl':
@@ -920,7 +907,7 @@ class CheckoutHelper
      *
      * @return string Base-url
      */
-    public function getBaseUrl($method = ''):string
+    public function getBaseUrl($method = ''): string
     {
         return $this->helper->getEnvironment($method) == 'live' ? UrlHelper::LIVE : UrlHelper::TEST;
     }
@@ -928,11 +915,10 @@ class CheckoutHelper
     /**
      * @return string Full transaction url
      */
-    public function getTransactionUrl($method = ''):string
+    public function getTransactionUrl($method = ''): string
     {
         return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/Transaction', '/');
     }
-
 
     public function addLineItems($lineItems, SalesChannelContext $salesChannelContext)
     {
@@ -940,7 +926,7 @@ class CheckoutHelper
         try {
             $cart = new Cart('recalculation', Uuid::randomHex());
             foreach ($lineItems as $lineItemDatas) {
-                foreach ($lineItemDatas as $referencedId=>$lineItemData) {
+                foreach ($lineItemDatas as $referencedId => $lineItemData) {
 
                     $lineItem = new LineItem(
                         $lineItemData['id'],
@@ -971,11 +957,11 @@ class CheckoutHelper
         );
         $customField = $orderTransaction->getCustomFields() ?? [];
 
-        $method_path = str_replace('Handlers', 'PaymentMethods', str_replace('PaymentHandler', '', $transaction->getPaymentMethod()->getHandlerIdentifier()));
-        $paymentMethod = new $method_path;
-        $customField['canRefund'] = $paymentMethod->canRefund() ? 1 : 0;
+        $method_path                = str_replace('Handlers', 'PaymentMethods', str_replace('PaymentHandler', '', $transaction->getPaymentMethod()->getHandlerIdentifier()));
+        $paymentMethod              = new $method_path;
+        $customField['canRefund']   = $paymentMethod->canRefund() ? 1 : 0;
         $customField['serviceName'] = $paymentMethod->getBuckarooKey();
-        $customField['version'] = $paymentMethod->getVersion();
+        $customField['version']     = $paymentMethod->getVersion();
 
         return $customField;
     }
@@ -996,15 +982,15 @@ class CheckoutHelper
 
         $plugin = $transaction->getPaymentMethod()->getPlugin();
 
-        $baseClassArr = explode('\\', $plugin->getBaseClass());
+        $baseClassArr         = explode('\\', $plugin->getBaseClass());
         $buckarooPaymentClass = explode('\\', BuckarooPayment::class);
 
         return end($baseClassArr) === end($buckarooPaymentClass);
     }
 
-    public function getOrderById($orderId, $context): ?OrderEntity
+    public function getOrderById($orderId, $context):  ? OrderEntity
     {
-        $context = $context ? $context : Context::createDefaultContext();
+        $context       = $context ? $context : Context::createDefaultContext();
         $orderCriteria = new Criteria([$orderId]);
         $orderCriteria->addAssociation('orderCustomer.salutation');
         $orderCriteria->addAssociation('stateMachineState');
@@ -1013,7 +999,7 @@ class CheckoutHelper
         $orderCriteria->addAssociation('transactions.paymentMethod');
         $orderCriteria->addAssociation('transactions.paymentMethod.plugin');
         $orderCriteria->addAssociation('salesChannel');
-        
+
         return $this->orderRepository->search($orderCriteria, $context)->first();
     }
 
@@ -1025,24 +1011,24 @@ class CheckoutHelper
 
         $customFields = $this->getCustomFields($order, $context);
 
-        $customFields['serviceName'] = $item['transaction_method'];
+        $customFields['serviceName']            = $item['transaction_method'];
         $customFields['originalTransactionKey'] = $item['transactions'];
-        $amount = $item['amount'];
-        $currency = !empty($item['currency']) ? $item['currency'] : 'EUR';
+        $amount                                 = $item['amount'];
+        $currency                               = !empty($item['currency']) ? $item['currency'] : 'EUR';
 
-        if($amount <= 0){
+        if ($amount <= 0) {
             return false;
         }
 
-        if($customFields['canRefund'] == 0){
+        if ($customFields['canRefund'] == 0) {
             return ['status' => false, 'message' => 'Refund not supported'];
         }
 
-        if(!empty($customFields['refunded']) && ($customFields['refunded']==1)) {
+        if (!empty($customFields['refunded']) && ($customFields['refunded'] == 1)) {
             return ['status' => false, 'message' => 'This order is already refunded'];
         }
 
-        $serviceName = (in_array($customFields['serviceName'],['creditcards','giftcards'])) ? $customFields['brqPaymentMethod'] : $customFields['serviceName'];
+        $serviceName = (in_array($customFields['serviceName'], ['creditcards', 'giftcards'])) ? $customFields['brqPaymentMethod'] : $customFields['serviceName'];
 
         $request = new TransactionRequest;
         $request->setServiceAction('Refund');
@@ -1055,7 +1041,7 @@ class CheckoutHelper
         $request->setOriginalTransactionKey($customFields['originalTransactionKey']);
         $request->setServiceVersion($customFields['version']);
 
-        if($customFields['serviceName']=='afterpay'){
+        if ($customFields['serviceName'] == 'afterpay') {
             $additional = $this->getRefundArticleData($amount);
             foreach ($additional as $key2 => $item3) {
                 foreach ($item3 as $key => $value) {
@@ -1064,35 +1050,35 @@ class CheckoutHelper
             }
         }
 
-        if($customFields['serviceName']=='sepadirectdebit'){
+        if ($customFields['serviceName'] == 'sepadirectdebit') {
             $request->setChannelHeader('Backoffice');
         }
 
-        $url = $this->getTransactionUrl($customFields['serviceName']);
+        $url       = $this->getTransactionUrl($customFields['serviceName']);
         $bkrClient = $this->helper->initializeBkr();
-        $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
+        $response  = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
 
-        if($response->isSuccess()){
+        if ($response->isSuccess()) {
             $transaction = $order->getTransactions()->first();
-            $status = ($amount < $order->getAmountTotal()) ? 'partial_refunded' : 'refunded';
+            $status      = ($amount < $order->getAmountTotal()) ? 'partial_refunded' : 'refunded';
             $this->transitionPaymentState($status, $transaction->getId(), $context);
             $this->saveTransactionData($transaction->getId(), $context, [$status => 1]);
 
-            if($orderItems){
+            if ($orderItems) {
                 foreach ($orderItems as $key => $value) {
-                   $orderItems2[$value['id']] = $value['quantity'];
+                    $orderItems2[$value['id']] = $value['quantity'];
                 }
-                $this->buckarooTransactionEntityRepository->save($item['id'], ['refunded_items' => json_encode($orderItems2)],[]);
+                $this->buckarooTransactionEntityRepository->save($item['id'], ['refunded_items' => json_encode($orderItems2)], []);
             }
 
-            return ['status' => true, 'message' => 'Buckaroo success refunded ' . $amount. ' ' . $currency];
+            return ['status' => true, 'message' => 'Buckaroo success refunded ' . $amount . ' ' . $currency];
         }
 
-         return [
-                    'status'  => false,
-                    'message' => $response->getSubCodeMessageFull() ?? $response->getSomeError(),
-                    'code'    => $response->getStatusCode(),
-                ];
+        return [
+            'status'  => false,
+            'message' => $response->getSubCodeMessageFull() ?? $response->getSomeError(),
+            'code'    => $response->getStatusCode(),
+        ];
     }
 
     /**
@@ -1103,7 +1089,7 @@ class CheckoutHelper
      */
     public function validateSignature()
     {
-        $request = $this->helper->getGlobals();
+        $request  = $this->helper->getGlobals();
         $postData = $_POST;
 
         if (!isset($postData['brq_signature'])) {
@@ -1138,7 +1124,7 @@ class CheckoutHelper
         foreach ($sortableArray as $brq_key => $value) {
             $value = $this->decodePushValue($brq_key, $value);
 
-            $signatureString .= $brq_key. '=' . $value;
+            $signatureString .= $brq_key . '=' . $value;
         }
 
         $signatureString .= $this->helper->getSettingsValue('secretKey');
@@ -1157,7 +1143,7 @@ class CheckoutHelper
     private function decodePushValue($brq_key, $brq_value)
     {
         switch ($brq_key) {
-            case 'brq_SERVICE_payconiq_PayconiqAndroidUrl':
+            case 'brq_SERVICE_payconiq_PayconiqAndroidUrl' :
             case 'brq_SERVICE_payconiq_PayconiqIosUrl':
             case 'brq_SERVICE_payconiq_PayconiqUrl':
             case 'brq_SERVICE_payconiq_QrUrl':
@@ -1198,7 +1184,7 @@ class CheckoutHelper
         $sortableArray = [];
 
         foreach ($arrayToSort as $key => $value) {
-            $key = $originalArray[$key];
+            $key                 = $originalArray[$key];
             $sortableArray[$key] = $value;
         }
 
@@ -1207,7 +1193,7 @@ class CheckoutHelper
 
     public function getTranslate($id, array $parameters = [])
     {
-        return $this->translator->trans($id,$parameters);
+        return $this->translator->trans($id, $parameters);
     }
 
     public function cancelOrder(string $orderId, Context $context): void
@@ -1226,38 +1212,38 @@ class CheckoutHelper
     public function getBuckarooTransactionsByOrderId($orderId)
     {
         $order = $this->getOrderById($orderId, false);
-        $vat = $order->get("price")->getTaxRules()->first()->getTaxRate();
-        
+        $vat   = $order->get("price")->getTaxRules()->first()->getTaxRate();
+
         $items['orderItems'] = $this->getOrderLinesArray($order);
 
-        $shipping = $order->getShippingCosts();
+        $shipping       = $order->getShippingCosts();
         $shipping_costs = $shipping->getTotalPrice();
 
         $collection = $this->buckarooTransactionEntityRepository->findByOrderId($orderId, ['created_at' => 'DESC']);
         foreach ($collection as $buckarooTransactionEntity) {
-            $amount = $buckarooTransactionEntity->get("amount_credit") ? '-' . $buckarooTransactionEntity->get("amount_credit") : $buckarooTransactionEntity->get("amount");
+            $amount                  = $buckarooTransactionEntity->get("amount_credit") ? '-' . $buckarooTransactionEntity->get("amount_credit") : $buckarooTransactionEntity->get("amount");
             $items['transactions'][] = (object) [
-                'id' => $buckarooTransactionEntity->get("id"),
-                'transaction' => $buckarooTransactionEntity->get("transactions"),
-                'total' => $amount,
-                'shipping_costs' => $shipping_costs,
-                'vat' => $vat?"plus $vat% VAT":null,
-                'total_excluding_vat' => $vat?round(($amount - (($amount / 100) * $vat)),2):$amount,
-                'transaction_method' => $buckarooTransactionEntity->get("transaction_method"),
-                'created_at' => Date("Y-m-d H:i:s", strtotime($buckarooTransactionEntity->get("created_at")->date)),
+                'id'                  => $buckarooTransactionEntity->get("id"),
+                'transaction'         => $buckarooTransactionEntity->get("transactions"),
+                'total'               => $amount,
+                'shipping_costs'      => $shipping_costs,
+                'vat'                 => $vat ? "plus $vat% VAT" : null,
+                'total_excluding_vat' => $vat ? round(($amount - (($amount / 100) * $vat)), 2) : $amount,
+                'transaction_method'  => $buckarooTransactionEntity->get("transaction_method"),
+                'created_at'          => Date("Y-m-d H:i:s", strtotime($buckarooTransactionEntity->get("created_at")->date)),
             ];
 
-            if($buckarooTransactionEntity->get("amount")){
-                 $items['transactionsToRefund'][] = (object) [
-                    'id' => $buckarooTransactionEntity->get("id"),
-                    'transactions' => $buckarooTransactionEntity->get("transactions"),
-                    'total' => $amount,
-                    'currency' => $buckarooTransactionEntity->get("currency"),
+            if ($buckarooTransactionEntity->get("amount")) {
+                $items['transactionsToRefund'][] = (object) [
+                    'id'                 => $buckarooTransactionEntity->get("id"),
+                    'transactions'       => $buckarooTransactionEntity->get("transactions"),
+                    'total'              => $amount,
+                    'currency'           => $buckarooTransactionEntity->get("currency"),
                     'transaction_method' => $buckarooTransactionEntity->get("transaction_method"),
                 ];
             }
 
-            if($refunded_items = $buckarooTransactionEntity->get("refunded_items")){
+            if ($refunded_items = $buckarooTransactionEntity->get("refunded_items")) {
                 $orderRefundedItems[] = json_decode($refunded_items);
             }
         }
@@ -1265,9 +1251,9 @@ class CheckoutHelper
         foreach ($orderRefundedItems as $key => $value) {
             foreach ($value as $key3 => $quantity) {
                 foreach ($items['orderItems'] as $key2 => $value2) {
-                    if($key3 == $value2['id']){
-                        $items['orderItems'][$key2]['quantity'] = $value2['quantity'] - $quantity;
-                        $items['orderItems'][$key2]['totalAmount']['value'] = ($value2['totalAmount']['value'] -  ($value2['unitPrice']['value'] * $quantity));
+                    if ($key3 == $value2['id']) {
+                        $items['orderItems'][$key2]['quantity']             = $value2['quantity'] - $quantity;
+                        $items['orderItems'][$key2]['totalAmount']['value'] = ($value2['totalAmount']['value'] - ($value2['unitPrice']['value'] * $quantity));
                     }
                 }
             }
@@ -1277,31 +1263,31 @@ class CheckoutHelper
 
     public function saveBuckarooTransaction(Request $request, Context $context)
     {
-        return $this->buckarooTransactionEntityRepository->save(null, $this->pusToArray($request),[]);
+        return $this->buckarooTransactionEntityRepository->save(null, $this->pusToArray($request), []);
     }
 
     public function pusToArray(Request $request): array
     {
-        $now = new \DateTime();
+        $now  = new \DateTime();
         $type = 'push';
-        if($request->request->get('brq_transaction_type') == 'I150'){
+        if ($request->request->get('brq_transaction_type') == 'I150') {
             $type = 'info';
         }
         return [
-            'order_id' =>  $request->request->get('ADD_orderId'),
-            'order_transaction_id' =>  $request->request->get('ADD_orderTransactionId'),
-            'amount' =>  $request->request->get('brq_amount'),
-            'amount_credit' =>  $request->request->get('brq_amount_credit'),
-            'currency' =>  $request->request->get('brq_currency'),
-            'ordernumber' =>  $request->request->get('brq_invoicenumber'),
-            'statuscode' =>  $request->request->get('brq_statuscode'),
-            'transaction_method' =>  $request->request->get('brq_transaction_method'),
-            'transaction_type' =>  $request->request->get('brq_transaction_type'),
-            'transactions' =>  $request->request->get('brq_transactions'),
-            'relatedtransaction' =>  $request->request->get('brq_relatedtransaction_partialpayment'),
-            'type' =>  $type,
-            'created_at' =>  $now,
-            'updated_at' =>  $now,
+            'order_id'             => $request->request->get('ADD_orderId'),
+            'order_transaction_id' => $request->request->get('ADD_orderTransactionId'),
+            'amount'               => $request->request->get('brq_amount'),
+            'amount_credit'        => $request->request->get('brq_amount_credit'),
+            'currency'             => $request->request->get('brq_currency'),
+            'ordernumber'          => $request->request->get('brq_invoicenumber'),
+            'statuscode'           => $request->request->get('brq_statuscode'),
+            'transaction_method'   => $request->request->get('brq_transaction_method'),
+            'transaction_type'     => $request->request->get('brq_transaction_type'),
+            'transactions'         => $request->request->get('brq_transactions'),
+            'relatedtransaction'   => $request->request->get('brq_relatedtransaction_partialpayment'),
+            'type'                 => $type,
+            'created_at'           => $now,
+            'updated_at'           => $now,
         ];
     }
 }

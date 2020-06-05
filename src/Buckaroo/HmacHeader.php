@@ -1,9 +1,9 @@
-<?php
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Buckaroo;
 
-use Buckaroo\Shopware6\Helpers\Helpers;
 use Buckaroo\Shopware6\Helpers\Config;
+use Buckaroo\Shopware6\Helpers\Helpers;
 
 /**
  * Class to create the security header for Buckaroo
@@ -11,7 +11,7 @@ use Buckaroo\Shopware6\Helpers\Config;
  */
 class HmacHeader
 {
-    static $HTTP_METHODS = [ 'GET', 'POST' ];
+    static $HTTP_METHODS = ['GET', 'POST'];
 
     /**
      * @var Buckaroo\Shopware6\Helper\Config
@@ -26,22 +26,27 @@ class HmacHeader
     /**
      * getHeader
      * Get Hmac header for a request
-     * 
+     *
      * @param  [string] $requestUri Url to call
      * @param  [string] $content    Data to send
      * @param  [string] $httpMethod Should be GET or POST
      * @param  [string] $nonce      [optional] Nonce to be used
      * @param  [string] $timeStamp  [optional] TimeStamp to be used
-     * 
+     *
      * @return [string]             Hmac header
      */
     public function getHeader($requestUri, $content, $httpMethod, $nonce = '', $timeStamp = '')
     {
-        if( empty($nonce) ) $nonce = $this->getNonce();
-        if( empty($timeStamp) ) $timeStamp = $this->getTimeStamp();
+        if (empty($nonce)) {
+            $nonce = $this->getNonce();
+        }
+
+        if (empty($timeStamp)) {
+            $timeStamp = $this->getTimeStamp();
+        }
 
         $encodedContent = $this->getEncodedContent($content);
-        $httpMethod = strtoupper($httpMethod);
+        $httpMethod     = strtoupper($httpMethod);
 
         $requestUri = $this->escapeRequestUri($requestUri);
 
@@ -49,7 +54,7 @@ class HmacHeader
             $this->config->websiteKey(),
             $this->getHash($requestUri, $httpMethod, $encodedContent, $nonce, $timeStamp),
             $nonce,
-            $timeStamp
+            $timeStamp,
         ]);
 
         return $hmac;
@@ -77,13 +82,14 @@ class HmacHeader
         return $base64;
     }
 
-    protected function getEncodedContent($content = '') {
+    protected function getEncodedContent($content = '')
+    {
         if ($content) {
-            $md5 = md5($content, true);
+            $md5    = md5($content, true);
             $base64 = base64_encode($md5);
             return $base64;
         }
- 
+
         return $content;
     }
 
@@ -92,6 +98,6 @@ class HmacHeader
         $requestUri = Helpers::stringRemoveStart($requestUri, 'http://');
         $requestUri = Helpers::stringRemoveStart($requestUri, 'https://');
 
-        return strtolower( rawurlencode($requestUri) );
+        return strtolower(rawurlencode($requestUri));
     }
 }

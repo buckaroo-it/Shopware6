@@ -1,25 +1,13 @@
-<?php declare(strict_types=1);
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Events;
 
-use Buckaroo\Shopware6\Helpers\Helper;
-use Buckaroo\Shopware6\BuckarooPayment;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
-
-use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
-use Buckaroo\Shopware6\Helpers\UrlHelper;
-
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
-
+use Buckaroo\Shopware6\Helpers\Helper;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class OrderStateChangeEvent implements EventSubscriberInterface
 {
@@ -45,11 +33,11 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         CheckoutHelper $checkoutHelper,
         LoggerInterface $logger
     ) {
-        $this->orderRepository = $orderRepository;
+        $this->orderRepository         = $orderRepository;
         $this->orderDeliveryRepository = $orderDeliveryRepository;
-        $this->helper = $helper;
-        $this->checkoutHelper = $checkoutHelper;
-        $this->logger = $logger;
+        $this->helper                  = $helper;
+        $this->checkoutHelper          = $checkoutHelper;
+        $this->logger                  = $logger;
     }
 
     /**
@@ -58,7 +46,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'state_enter.order_transaction.state.refunded' => 'onOrderTransactionRefunded',
+            'state_enter.order_transaction.state.refunded'           => 'onOrderTransactionRefunded',
             'state_enter.order_transaction.state.refunded_partially' => 'onOrderTransactionRefundedPartially',
         ];
     }

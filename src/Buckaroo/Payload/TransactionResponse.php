@@ -1,4 +1,4 @@
-<?php
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Buckaroo\Payload;
 
@@ -53,8 +53,7 @@ class TransactionResponse extends Response
      */
     public function getRedirectUrl()
     {
-        if( $this->hasRedirect() )
-        {
+        if ($this->hasRedirect()) {
             return $this->data['RequiredAction']['RedirectURL'];
         }
 
@@ -84,16 +83,14 @@ class TransactionResponse extends Response
      */
     public function getServiceParameters()
     {
-        if( !empty($this->data['Services'][0]['Parameters']) )
-        {
+        if (!empty($this->data['Services'][0]['Parameters'])) {
             $parameters = $this->data['Services'][0]['Parameters'];
 
             $params = [];
 
-            foreach ($parameters as $key => $parameter)
-            {
+            foreach ($parameters as $key => $parameter) {
                 // key to lowercase to be consistent with PaymentResult version of getServiceParameters
-                $params[ strtolower($parameter['Name']) ] = $parameter['Value'];
+                $params[strtolower($parameter['Name'])] = $parameter['Value'];
             }
 
             return $params;
@@ -107,15 +104,13 @@ class TransactionResponse extends Response
      */
     public function getCustomParameters()
     {
-        if( !empty($this->data['CustomParameters']['List']) )
-        {
+        if (!empty($this->data['CustomParameters']['List'])) {
             $parameters = $this->data['CustomParameters']['List'];
 
             $params = [];
 
-            foreach ($parameters as $key => $parameter)
-            {
-                $params[ $parameter['Name'] ] = $parameter['Value'];
+            foreach ($parameters as $key => $parameter) {
+                $params[$parameter['Name']] = $parameter['Value'];
             }
 
             return $params;
@@ -129,15 +124,13 @@ class TransactionResponse extends Response
      */
     public function getAdditionalParameters()
     {
-        if( !empty($this->data['AdditionalParameters']['AdditionalParameter']) )
-        {
+        if (!empty($this->data['AdditionalParameters']['AdditionalParameter'])) {
             $parameters = $this->data['AdditionalParameters']['AdditionalParameter'];
 
             $params = [];
 
-            foreach ($parameters as $key => $parameter)
-            {
-                $params[ $parameter['Name'] ] = $parameter['Value'];
+            foreach ($parameters as $key => $parameter) {
+                $params[$parameter['Name']] = $parameter['Value'];
             }
 
             return $params;
@@ -211,8 +204,7 @@ class TransactionResponse extends Response
      */
     public function getStatusCode()
     {
-        if( !empty($this->data['Status']['Code']['Code']) )
-        {
+        if (!empty($this->data['Status']['Code']['Code'])) {
             return $this->data['Status']['Code']['Code'];
         }
 
@@ -226,8 +218,7 @@ class TransactionResponse extends Response
      */
     public function getSubStatusCode()
     {
-        if( !empty($this->data['Status']['SubCode']['Code']) )
-        {
+        if (!empty($this->data['Status']['SubCode']['Code'])) {
             return $this->data['Status']['SubCode']['Code'];
         }
 
@@ -252,24 +243,20 @@ class TransactionResponse extends Response
      */
     public function getSomeError()
     {
-        if( $this->hasError() )
-        {
+        if ($this->hasError()) {
             $error = $this->getFirstError();
             return $error['ErrorMessage'];
         }
 
-        if( $this->hasConsumerMessage() )
-        {
+        if ($this->hasConsumerMessage()) {
             return $this->getConsumerMessage();
         }
 
-        if( $this->hasMessage() )
-        {
+        if ($this->hasMessage()) {
             return $this->getMessage();
         }
 
-        if( $this->hasSubCodeMessage() )
-        {
+        if ($this->hasSubCodeMessage()) {
             return $this->getSubCodeMessage();
         }
 
@@ -295,30 +282,24 @@ class TransactionResponse extends Response
      */
     public function getFirstError()
     {
-        if( $this->hasError() )
-        {
-            if( !empty($this->data['RequestErrors']['ChannelErrors']) )
-            {
+        if ($this->hasError()) {
+            if (!empty($this->data['RequestErrors']['ChannelErrors'])) {
                 return $this->data['RequestErrors']['ChannelErrors'][0];
             }
 
-            if( !empty($this->data['RequestErrors']['ServiceErrors']) )
-            {
+            if (!empty($this->data['RequestErrors']['ServiceErrors'])) {
                 return $this->data['RequestErrors']['ServiceErrors'][0];
             }
 
-            if( !empty($this->data['RequestErrors']['ActionErrors']) )
-            {
+            if (!empty($this->data['RequestErrors']['ActionErrors'])) {
                 return $this->data['RequestErrors']['ActionErrors'][0];
             }
 
-            if( !empty($this->data['RequestErrors']['ParameterErrors']) )
-            {
+            if (!empty($this->data['RequestErrors']['ParameterErrors'])) {
                 return $this->data['RequestErrors']['ParameterErrors'][0];
             }
 
-            if( !empty($this->data['RequestErrors']['CustomParameterErrors']) )
-            {
+            if (!empty($this->data['RequestErrors']['CustomParameterErrors'])) {
                 return $this->data['RequestErrors']['CustomParameterErrors'][0];
             }
         }
@@ -357,8 +338,7 @@ class TransactionResponse extends Response
      */
     public function getConsumerMessage()
     {
-        if( $this->hasConsumerMessage() )
-        {
+        if ($this->hasConsumerMessage()) {
             return $this->data['ConsumerMessage']['HtmlText'];
         }
 
@@ -380,8 +360,7 @@ class TransactionResponse extends Response
      */
     public function getSubCodeMessage()
     {
-        if( $this->hasSubCodeMessage() )
-        {
+        if ($this->hasSubCodeMessage()) {
             $parts = explode(':', $this->data['Status']['SubCode']['Description']);
             return trim(array_pop($parts));
         }

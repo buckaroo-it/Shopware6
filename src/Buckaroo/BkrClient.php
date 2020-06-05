@@ -1,12 +1,10 @@
-<?php
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Buckaroo;
 
-use Exception;
 use Buckaroo\Shopware6\Buckaroo\HmacHeader;
 use Buckaroo\Shopware6\Buckaroo\Payload\Request;
-use Buckaroo\Shopware6\Buckaroo\Payload\Response;
-use Buckaroo\Shopware6\Helpers\Helpers;
+use Exception;
 
 class BkrClient
 {
@@ -35,9 +33,9 @@ class BkrClient
 
     public function __construct(HmacHeader $hmac, SoftwareHeader $software, CultureHeader $culture)
     {
-        $this->hmac = $hmac;
+        $this->hmac     = $hmac;
         $this->software = $software;
-        $this->culture = $culture;
+        $this->culture  = $culture;
     }
 
     protected function initCurl()
@@ -59,18 +57,19 @@ class BkrClient
             'Accept: application/json',
             $this->hmac->getHeader($url, $data, $method),
             $this->software->getHeader(),
-            $this->culture->getHeader()
+            $this->culture->getHeader(),
         ];
     }
 
     protected function call($url, $method = self::METHOD_GET, Request $data = null, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response')
     {
-        if( !in_array($method, $this->validMethods) )
-        {
+        if (!in_array($method, $this->validMethods)) {
             throw new Exception('Invalid HTTP-Methode: ' . $method);
         }
 
-        if( !$data ) $data = new Request;
+        if (!$data) {
+            $data = new Request;
+        }
 
         $curl = $this->initCurl();
 
@@ -97,24 +96,22 @@ class BkrClient
         $curlInfo = curl_getinfo($curl);
 
         // check for curl errors
-        if( $result === false )
-        {
+        if ($result === false) {
             throw new Exception('Buckaroo API curl error: ' . curl_error($curl));
         }
 
         $decodedResult = json_decode($result, true);
 
         // check for json_decode errors
-        if ($decodedResult === null )
-        {
+        if ($decodedResult === null) {
             $jsonErrors = [
-                JSON_ERROR_NONE => 'No error occurred',
-                JSON_ERROR_DEPTH => 'The maximum stack depth has been reached',
+                JSON_ERROR_NONE      => 'No error occurred',
+                JSON_ERROR_DEPTH     => 'The maximum stack depth has been reached',
                 JSON_ERROR_CTRL_CHAR => 'Control character issue, maybe wrong encoded',
-                JSON_ERROR_SYNTAX => 'Syntaxerror',
+                JSON_ERROR_SYNTAX    => 'Syntaxerror',
             ];
 
-            throw new Exception('Buckaroo API json error: ' . (!empty($jsonErrors[json_last_error()]) ? $jsonErrors[json_last_error()] : 'JSON decode error') . ": " . print_r($result, true) );
+            throw new Exception('Buckaroo API json error: ' . (!empty($jsonErrors[json_last_error()]) ? $jsonErrors[json_last_error()] : 'JSON decode error') . ": " . print_r($result, true));
         }
 
         curl_close($curl);
@@ -136,7 +133,7 @@ class BkrClient
 
     protected function getCurlHeaders($curl, &$headers)
     {
-        curl_setopt($curl, CURLOPT_HEADERFUNCTION, function($curl, $header) use (&$headers) {
+        curl_setopt($curl, CURLOPT_HEADERFUNCTION, function ($curl, $header) use (&$headers) {
             $length = strlen($header);
             $header = explode(':', $header, 2);
 
@@ -147,12 +144,9 @@ class BkrClient
 
             $name = strtolower(trim($header[0]));
 
-            if( !array_key_exists($name, $headers) )
-            {
-                $headers[$name] = [ trim($header[1]) ];
-            }
-            else
-            {
+            if (!array_key_exists($name, $headers)) {
+                $headers[$name] = [trim($header[1])];
+            } else {
                 $headers[$name][] = trim($header[1]);
             }
 

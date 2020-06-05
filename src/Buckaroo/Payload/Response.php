@@ -1,8 +1,7 @@
-<?php
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Buckaroo\Payload;
 
-use JsonSerializable;
 use ArrayAccess;
 use Buckaroo\Shopware6\Helpers\Arrayable;
 use Exception;
@@ -17,19 +16,19 @@ class Response implements ArrayAccess, Arrayable
     /**
      * @var array
      */
-	protected $curlInfo = [];
+    protected $curlInfo = [];
 
     /**
      * @var array
      */
-	protected $headers = [];
+    protected $headers = [];
 
-	public function __construct($data, $curlInfo = [], $headers = [])
-	{
-		$this->data = $data;
-		$this->curlInfo = $curlInfo;
-		$this->headers = $headers;
-	}
+    public function __construct($data, $curlInfo = [], $headers = [])
+    {
+        $this->data     = $data;
+        $this->curlInfo = $curlInfo;
+        $this->headers  = $headers;
+    }
 
     /** Implement ArrayAccess */
     public function offsetSet($offset, $value)
@@ -66,16 +65,15 @@ class Response implements ArrayAccess, Arrayable
      */
     public function __call($method, $args)
     {
-    	$prefix = substr($method, 0, 3);
-    	$param = substr($method, 3);
-    	$arg = isset($args[0]) ? $args[0] : null;
+        $prefix = substr($method, 0, 3);
+        $param  = substr($method, 3);
+        $arg    = isset($args[0]) ? $args[0] : null;
 
-		if( $prefix === 'get' )
-    	{
-    		return $this->offsetGet($param);
-    	}
+        if ($prefix === 'get') {
+            return $this->offsetGet($param);
+        }
 
-    	throw new Exception("Call to undefined method " . __CLASS__ . '::' . $method);
+        throw new Exception("Call to undefined method " . __CLASS__ . '::' . $method);
     }
 
     /**
