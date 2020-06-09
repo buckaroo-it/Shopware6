@@ -39,6 +39,9 @@ use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Defaults;
+use Doctrine\DBAL\Connection;
 
 class CheckoutHelper
 {
@@ -66,8 +69,10 @@ class CheckoutHelper
     private $translator;
     /** @var StateMachineRegistry */
     private $stateMachineRegistry;
-    /** * @var BuckarooTransactionEntityRepository */
+    /** @var BuckarooTransactionEntityRepository */
     private $buckarooTransactionEntityRepository;
+    /** @var Connection */
+    private $connection;
 
     /**
      * CheckoutHelper constructor.
@@ -91,7 +96,8 @@ class CheckoutHelper
         EntityRepositoryInterface $orderRepository,
         TranslatorInterface $translator,
         StateMachineRegistry $stateMachineRegistry,
-        BuckarooTransactionEntityRepository $buckarooTransactionEntityRepository
+        BuckarooTransactionEntityRepository $buckarooTransactionEntityRepository,
+        Connection $connection
     ) {
         $this->router                              = $router;
         $this->transactionRepository               = $transactionRepository;
@@ -106,6 +112,7 @@ class CheckoutHelper
         $this->translator                          = $translator;
         $this->stateMachineRegistry                = $stateMachineRegistry;
         $this->buckarooTransactionEntityRepository = $buckarooTransactionEntityRepository;
+        $this->connection = $connection;
     }
 
     public function getSetting($name)
@@ -1071,12 +1078,12 @@ class CheckoutHelper
                 }
 
                 $refunded_items = $this->buckarooTransactionEntityRepository->getById($item['id'])->get("refunded_items");
-                if($refunded_items){
+                if ($refunded_items) {
                     $refunded_items = json_decode($refunded_items);
                     foreach ($refunded_items as $k => $qnt) {
-                        if($orderItemsRefunded[$k]){
+                        if ($orderItemsRefunded[$k]) {
                             $orderItemsRefunded[$k] = $orderItemsRefunded[$k] + $qnt;
-                        }else{
+                        } else {
                             $orderItemsRefunded[$k] = $qnt;
                         }
                     }
@@ -1268,7 +1275,7 @@ class CheckoutHelper
                     if ($key3 == $value2['id']) {
                         $items['orderItems'][$key2]['quantity']             = $value2['quantity'] - $quantity;
                         $items['orderItems'][$key2]['totalAmount']['value'] = ($value2['totalAmount']['value'] - ($value2['unitPrice']['value'] * $quantity));
-                        if($items['orderItems'][$key2]['quantity']<0){$items['orderItems'][$key2]['quantity']=0;}
+                        if ($items['orderItems'][$key2]['quantity'] < 0) {$items['orderItems'][$key2]['quantity'] = 0;}
                     }
                 }
             }
@@ -1304,5 +1311,34 @@ class CheckoutHelper
             'created_at'           => $now,
             'updated_at'           => $now,
         ];
+    }
+
+    private function getProductsOfOrder(string $orderId): array
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select(['referenced_id', 'quantity']);
+        $query->from('order_line_item');
+        $query->andWhere('type = :type');
+        $query->andWhere('order_id = :id');
+        $query->setParameter('id', Uuid::fromHexToBytes($orderId));
+        $query->setParameter('type', LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+        return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function stockReserve(OrderEntity $order){
+        $products = $this->getProductsOfOrder($order->getId());
+        
+        $query = new RetryableQuery(
+            $this->connection->prepare('UPDATE product SET stock = stock - :quantity WHERE id = :id AND version_id = :version')
+        );
+
+        foreach ($products as $product) {
+            $query->execute([
+                'quantity' => (int) $product['quantity'],
+                'id' => Uuid::fromHexToBytes($product['referenced_id']),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ]);
+        }
     }
 }

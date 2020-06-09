@@ -1,26 +1,25 @@
-<?php declare(strict_types=1);
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Installers;
 
+use Buckaroo\Shopware6\BuckarooPayment;
+use Buckaroo\Shopware6\Helpers\GatewayHelper;
+use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Context;
-
-use Buckaroo\Shopware6\Helpers\GatewayHelper;
-use Buckaroo\Shopware6\BuckarooPayment;
-use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
-
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 
 class PaymentMethodsInstaller implements InstallerInterface
 {
@@ -272,7 +271,6 @@ class PaymentMethodsInstaller implements InstallerInterface
 
     private function setDefaultValues()
     {
-
         foreach (GatewayHelper::GATEWAYS as $gateway) {
             $paymentMethod = new $gateway();
 

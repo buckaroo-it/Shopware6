@@ -45,6 +45,12 @@
             <helpText lang="nl-NL">De gidssleutel kan worden opgehaald in Payment Plaza onder het tabblad Profiel. Neem voor ondersteuning contact op met Buckaroo.</helpText>
             <helpText lang="de-DE">Der Guid-Schlüssel kann in Payment Plaza unter der Registerkarte Profil abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
         </input-field>
+
+        <input-field type="bool">
+            <name>stockReserve</name>
+            <label lang="en-GB">Stock reserve</label>
+            <helpText>Enable reserve stock after order is booked.</helpText>
+        </input-field>
     </card>
     
     <card>

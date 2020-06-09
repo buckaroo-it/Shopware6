@@ -1,10 +1,10 @@
-<?php
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Helpers;
 
 use Closure;
-use InvalidArgumentException;
 use Countable;
+use InvalidArgumentException;
 
 class Helpers
 {
@@ -16,23 +16,19 @@ class Helpers
      */
     public static function blank($value)
     {
-        if( is_null($value) )
-        {
+        if (is_null($value)) {
             return true;
         }
 
-        if( is_string($value) )
-        {
+        if (is_string($value)) {
             return trim($value) === '';
         }
 
-        if( is_numeric($value) || is_bool($value) )
-        {
+        if (is_numeric($value) || is_bool($value)) {
             return false;
         }
 
-        if( $value instanceof Countable )
-        {
+        if ($value instanceof Countable) {
             return count($value) === 0;
         }
 
@@ -48,7 +44,10 @@ class Helpers
      */
     public static function def($value, $default = null)
     {
-        if( static::blank($value) ) return $default;
+        if (static::blank($value)) {
+            return $default;
+        }
+
         return $value;
     }
 
@@ -61,10 +60,9 @@ class Helpers
     public static function stringRandom($length = 16)
     {
         $chars = str_split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
-        $str = "";
+        $str   = "";
 
-        for ($i=0; $i < $length; $i++)
-        {
+        for ($i = 0; $i < $length; $i++) {
             $key = array_rand($chars);
             $str .= $chars[$key];
         }
@@ -81,8 +79,7 @@ class Helpers
      */
     public static function stringRemoveStart($haystack, $needle)
     {
-        if( static::stringStartsWith($haystack, $needle) )
-        {
+        if (static::stringStartsWith($haystack, $needle)) {
             return mb_substr($haystack, mb_strlen($needle));
         }
 
@@ -189,7 +186,7 @@ class Helpers
      * Format the phone number for Klarna
      *
      * @param  string $phone
-     * @return string 
+     * @return string
      */
     public static function stringFormatPhone($phone)
     {
@@ -223,8 +220,7 @@ class Helpers
      */
     public static function floatToPrice($number, $decimal = ',')
     {
-        if( !in_array($decimal, [ '.', ',' ]) )
-        {
+        if (!in_array($decimal, ['.', ','])) {
             throw new InvalidArgumentException('floatToPrice should have a dot or comma as decimal point');
         }
 
@@ -240,10 +236,14 @@ class Helpers
         $index = stripos($number, $decimal);
 
         // 23
-        if( $index === false ) return $number . $decimal . '00';
+        if ($index === false) {
+            return $number . $decimal . '00';
+        }
 
         // 23.64
-        if( (strlen($number) - $index) === 3) return $number;
+        if ((strlen($number) - $index) === 3) {
+            return $number;
+        }
 
         // 23.6
         return $number . '0';
@@ -276,10 +276,8 @@ class Helpers
      */
     public static function arrayFind($array, Closure $callback)
     {
-        foreach( $array as $key => $value )
-        {
-            if( call_user_func($callback, $value, $key) )
-            {
+        foreach ($array as $key => $value) {
+            if (call_user_func($callback, $value, $key)) {
                 return $value;
             }
         }
@@ -299,8 +297,7 @@ class Helpers
     {
         $newAttributes = [];
 
-        foreach( $array as $key => $value )
-        {
+        foreach ($array as $key => $value) {
             $newAttributes[$key] = call_user_func($callback, $value, $key);
         }
 
@@ -315,9 +312,12 @@ class Helpers
      */
     public static function arrayFlatten(array $arr)
     {
-        return array_reduce($arr, function($a, $item) {
-            if( is_array($item) ) $item = static::arrayFlatten($item);
-            return array_merge($a, (array)$item);
+        return array_reduce($arr, function ($a, $item) {
+            if (is_array($item)) {
+                $item = static::arrayFlatten($item);
+            }
+
+            return array_merge($a, (array) $item);
         }, []);
     }
 
@@ -331,49 +331,38 @@ class Helpers
      */
     public static function arrayDiffDeep(array $array1, array $array2, $traverseObjects = false)
     {
-        $diff = [];
+        $diff    = [];
         $objects = [];
 
-        foreach( $array1 as $key => $value )
-        {
-            if( array_key_exists($key, $array2) )
-            {
+        foreach ($array1 as $key => $value) {
+            if (array_key_exists($key, $array2)) {
                 $className = '';
-                $isObject = is_object($value);
+                $isObject  = is_object($value);
 
-                if( $traverseObjects && $isObject && !isset($objects[ spl_object_hash($value) ]) )
-                {
+                if ($traverseObjects && $isObject && !isset($objects[spl_object_hash($value)])) {
                     // prevent infinite loops, by checking if object has already been traversed
-                    $objects[ spl_object_hash($value) ] = $value;
+                    $objects[spl_object_hash($value)] = $value;
 
                     $className = get_class($value);
-                    $value = (array)$value;
+                    $value     = (array) $value;
                 }
 
-                if( is_array($value) )
-                {
+                if (is_array($value)) {
                     $deepDiff = static::arrayDiffDeep($value, $array2[$key]);
 
-                    if( count($deepDiff) )
-                    {
+                    if (count($deepDiff)) {
                         $diff[$key] = $deepDiff;
                     }
-                }
-                else
-                {
-                    if( $value != $array2[$key] )
-                    {
+                } else {
+                    if ($value != $array2[$key]) {
                         $diff[$key] = $value;
                     }
                 }
 
-                if( $isObject && array_key_exists($key, $diff) )
-                {
+                if ($isObject && array_key_exists($key, $diff)) {
                     $diff[$key]['___object_classname___'] = $className;
                 }
-            }
-            else
-            {
+            } else {
                 $diff[$key] = $value;
             }
         }
@@ -393,12 +382,9 @@ class Helpers
         /**
          * Get the forwarded IP if it exists
          */
-        if( !empty($headers['X-Forwarded-For']) && filter_var($headers['X-Forwarded-For'], FILTER_VALIDATE_IP) )
-        {
+        if (!empty($headers['X-Forwarded-For']) && filter_var($headers['X-Forwarded-For'], FILTER_VALIDATE_IP)) {
             return $headers['X-Forwarded-For'];
-        }
-        elseif( !empty($headers['HTTP_X_FORWARDED_FOR']) && filter_var($headers['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP) )
-        {
+        } elseif (!empty($headers['HTTP_X_FORWARDED_FOR']) && filter_var($headers['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP)) {
             return $headers['HTTP_X_FORWARDED_FOR'];
         }
 

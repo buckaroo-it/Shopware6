@@ -48,6 +48,7 @@
             <argument type="service" id="translator" />
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\SettingsService">

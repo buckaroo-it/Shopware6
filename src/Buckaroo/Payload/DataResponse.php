@@ -23,7 +23,7 @@ class DataResponse extends TransactionResponse
 
             $params = [];
 
-            foreach ($parameters as $key => $parameter) {
+            foreach ($parameters as $parameter) {
                 $params[$parameter['Name']] = $parameter['Value'];
             }
 

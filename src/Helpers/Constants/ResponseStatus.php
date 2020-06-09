@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Helpers\Constants;
 
@@ -15,8 +15,8 @@ class ResponseStatus
     const BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD       = '793';
     const BUCKAROO_STATUSCODE_CANCELLED_BY_USER     = '890';
     const BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT = '891';
-    
-	const BUCKAROO_AUTHORIZE_TYPE_CANCEL  = 'I014';
-    const BUCKAROO_AUTHORIZE_TYPE_ACCEPT  = 'I013';
-    const BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION  = 'I150';
+
+    const BUCKAROO_AUTHORIZE_TYPE_CANCEL            = 'I014';
+    const BUCKAROO_AUTHORIZE_TYPE_ACCEPT            = 'I013';
+    const BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION = 'I150';
 }

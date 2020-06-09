@@ -11,8 +11,6 @@ use Buckaroo\Shopware6\Helpers\Helpers;
  */
 class HmacHeader
 {
-    static $HTTP_METHODS = ['GET', 'POST'];
-
     /**
      * @var Buckaroo\Shopware6\Helper\Config
      */

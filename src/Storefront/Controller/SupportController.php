@@ -1,18 +1,19 @@
-<?php declare(strict_types=1);
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
-
+use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-use Buckaroo\Shopware6\Helpers\CheckoutHelper;
-
+/**
+ * @RouteScope(scopes={"api"})
+ */
 class SupportController extends StorefrontController
 {
 
@@ -23,8 +24,7 @@ class SupportController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/_action/buckaroo/support/version", name="api.action.buckaroo.support.version", methods={"POST"})
+     * @Route("/api/v{version}/_action/buckaroo/version", name="api.action.buckaroo.version", methods={"POST","GET"})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *
@@ -34,13 +34,12 @@ class SupportController extends StorefrontController
     {
         $phpVersion = $this->getPhpVersionArray();
         return new JsonResponse([
-            'phpversion' => implode('.', $phpVersion),
-            'isPhpVersionSupport' => ($phpVersion[0] . $phpVersion[1] >= '71') ? true: false
+            'phpversion'          => implode('.', $phpVersion),
+            'isPhpVersionSupport' => ($phpVersion[0] . $phpVersion[1] >= '71') ? true : false,
         ]);
     }
 
     /**
-     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/_action/buckaroo/getBuckarooTransaction", name="api.action.buckaroo.support.version", methods={"POST"})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
@@ -50,7 +49,7 @@ class SupportController extends StorefrontController
     public function getBuckarooTransaction(Request $request)
     {
         $orderId = $request->get('transaction');
-        $items = $this->checkoutHelper->getBuckarooTransactionsByOrderId($orderId);
+        $items   = $this->checkoutHelper->getBuckarooTransactionsByOrderId($orderId);
         return new JsonResponse($items);
     }
 
@@ -59,8 +58,7 @@ class SupportController extends StorefrontController
         $version = false;
         if (defined('PHP_VERSION')) {
             $version = explode('.', PHP_VERSION);
-        }
-        elseif (function_exists('phpversion')){
+        } elseif (function_exists('phpversion')) {
             $version = explode('.', phpversion());
         }
 

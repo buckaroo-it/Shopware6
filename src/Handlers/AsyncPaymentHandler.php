@@ -63,12 +63,12 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         $request = new TransactionRequest;
 
-        $finalize_page = $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize');
+        $finalizePage = $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize');
 
         $request->setDescription($this->checkoutHelper->getTranslate('buckaroo.order.paymentDescription', ['orderNumber' => $order->getOrderNumber()]));
 
-        $request->setReturnURL($finalize_page);
-        $request->setReturnURLCancel(sprintf('%s?cancel=1', $finalize_page));
+        $request->setReturnURL($finalizePage);
+        $request->setReturnURLCancel(sprintf('%s?cancel=1', $finalizePage));
         $request->setPushURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.push'));
 
         $request->setAdditionalParameter('orderTransactionId', $transaction->getOrderTransaction()->getId());
@@ -103,7 +103,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         }
 
         if (!empty($gatewayInfo['additional']) && ($additional = $gatewayInfo['additional'])) {
-            foreach ($additional as $key2 => $item) {
+            foreach ($additional as $item) {
                 foreach ($item as $key => $value) {
                     $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
                 }
@@ -120,6 +120,10 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         }
 
+        if($this->helper->getSettingsValue('stockReserve') && !$response->isCanceled()){
+            $this->checkoutHelper->stockReserve($order);
+        }
+
         if ($response->hasRedirect()) {
             return new RedirectResponse($response->getRedirectUrl());
         } elseif ($response->isSuccess() || $response->isAwaitingConsumer() || $response->isPendingProcessing()) {
@@ -131,7 +135,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         }
 
-        return new RedirectResponse($finalize_page . '?orderId=' . $order->getId() . '&error=' . base64_encode($response->getSubCodeMessage()));
+        return new RedirectResponse($finalizePage . '?orderId=' . $order->getId() . '&error=' . base64_encode($response->getSubCodeMessage()));
 
     }
 

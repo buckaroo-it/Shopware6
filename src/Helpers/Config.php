@@ -1,4 +1,4 @@
-<?php
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Helpers;
 
@@ -53,7 +53,7 @@ class Config
     public function isLive($name)
     {
         $paymentEnv = strtolower($this->get('buckaroo_environment', 'test'));
-        $env = strtolower($this->get("buckaroo_{$name}_env", 'test'));
+        $env        = strtolower($this->get("buckaroo_{$name}_env", 'test'));
 
         return $paymentEnv == 'live' && $env == 'live';
     }
@@ -193,7 +193,7 @@ class Config
      */
     public function femaleSalutations()
     {
-        $str = $this->get('buckaroo_female_salutations', "mrs, ms, miss, ma'am, frau, mevrouw, mevr");
+        $str         = $this->get('buckaroo_female_salutations', "mrs, ms, miss, ma'am, frau, mevrouw, mevr");
         $salutations = explode(',', $str);
         return array_map('trim', $salutations);
     }
@@ -213,7 +213,7 @@ class Config
      */
     public function applepayButtonShowProduct()
     {
-        return $this->get('buckaroo_applepay_show_product', "no") == 'yes';        
+        return $this->get('buckaroo_applepay_show_product', "no") == 'yes';
     }
 
     /**
@@ -223,7 +223,7 @@ class Config
      */
     public function applepayButtonShowCart()
     {
-        return $this->get('buckaroo_applepay_show_cart', "no") == 'yes';        
+        return $this->get('buckaroo_applepay_show_cart', "no") == 'yes';
     }
 
     /**
@@ -233,9 +233,8 @@ class Config
      */
     public function applepayButtonShowCheckout()
     {
-        return $this->get('buckaroo_applepay_show_checkout', "no") == 'yes';        
+        return $this->get('buckaroo_applepay_show_checkout', "no") == 'yes';
     }
-
 
     /**
      * Show Apple pay button on checkout page
@@ -245,5 +244,5 @@ class Config
     public function applepayMerchantGUID()
     {
         return $this->get('buckaroo_applepay_merchant_guid');
-    }    
+    }
 }

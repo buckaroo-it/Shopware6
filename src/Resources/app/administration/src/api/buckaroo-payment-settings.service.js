@@ -7,7 +7,7 @@ class BuckarooPaymentSettingsService extends ApiService {
     }
 
     getSupportVersion() {
-        const apiRoute = `_action/${this.getApiBasePath()}/support/version`;
+        const apiRoute = `_action/${this.getApiBasePath()}/version`;
 
         return this.httpClient.post(
             apiRoute,

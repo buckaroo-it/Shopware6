@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
@@ -57,7 +57,7 @@ class AfterPay implements PaymentMethodInterface
      *
      * @return string|null
      */
-    public function getTemplate(): ?string
+    public function getTemplate():  ? string
     {
         return null;
     }
@@ -67,9 +67,9 @@ class AfterPay implements PaymentMethodInterface
      *
      * @return string
      */
-    public function getMedia(): string
+    public function getMedia() : string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/afterpay.png';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/logo/afterpay.png';
     }
 
     /**

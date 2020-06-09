@@ -30,3 +30,7 @@ Added payment methods
 
 # 1.0.8
 Updated refund tab
+
+# 1.0.9
+## Added
+Stock reserve option
