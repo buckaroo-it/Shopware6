@@ -55,7 +55,6 @@ class RefundController extends StorefrontController
     public function refundBuckaroo(Request $request, Context $context): JsonResponse
     {
         $orderId = $request->get('transaction');
-        // $amount = $request->get('amount');
         $transactionsToRefund = $request->get('transactionsToRefund');
         $orderItems = $request->get('orderItems');
 
@@ -65,25 +64,12 @@ class RefundController extends StorefrontController
 
         $order = $this->checkoutHelper->getOrderById($orderId, $context);
 
-/*        $lineItems = $order->getLineItems();
-        if ($lineItems != null || $lineItems->count() > 0) {
-            foreach ($lineItems as $item) {
-                foreach ($orderItems as $orderItemskey => $orderItem) {
-                    if($orderItem['id'] == $item->getId()){
-                        $item->setQuantity($item->getQuantity() - $orderItem['quantity']);
-                    }
-                }
-            }
-            $order->setLineItems($lineItems);
-        }
-*/
         if (null === $order) {
             return new JsonResponse(['status' => false, 'message' => 'Order transaction not found'], Response::HTTP_NOT_FOUND);
         }
         try {
-            foreach ($transactionsToRefund as $key => $item) {
+            foreach ($transactionsToRefund as $item) {
                 $responses[] = $this->checkoutHelper->refundTransaction($order, $context, $item, 'refund', $orderItems);
-                $orderItems = '';
             }
         } catch (Exception $exception) {
             return new JsonResponse(

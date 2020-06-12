@@ -1043,7 +1043,7 @@ class CheckoutHelper
         return $this->orderRepository->search($orderCriteria, $context)->first();
     }
 
-    public function refundTransaction($order, $context, $item, $state, $orderItems = '')
+    public function refundTransaction($order, $context, $item, $state, &$orderItems = '')
     {
         if (!$this->isBuckarooPaymentMethod($order)) {
             return;
@@ -1106,9 +1106,10 @@ class CheckoutHelper
 
             // updating refunded items in transaction
             if ($orderItems) {
-                foreach ($orderItems as $key => $value) {
+                foreach ($orderItems as $value) {
                     $orderItemsRefunded[$value['id']] = $value['quantity'];
                 }
+                $orderItems = '';
 
                 $refunded_items = $this->buckarooTransactionEntityRepository->getById($item['id'])->get("refunded_items");
                 if ($refunded_items) {

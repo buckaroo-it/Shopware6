@@ -79,7 +79,7 @@ class PushController extends StorefrontController
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
             try {
-                $paymentState = ($brqAmount == $totalPrice) ? "completed" : "pay_partially";
+                $paymentState = (round($brqAmount,2) == round($totalPrice,2)) ? "completed" : "pay_partially";
                 $this->checkoutHelper->transitionPaymentState($paymentState, $orderTransactionId, $context);
                 $data = [
                     'originalTransactionKey' => $request->request->get('brq_transactions'),
@@ -88,7 +88,7 @@ class PushController extends StorefrontController
                 $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
 
                 if(!$this->checkoutHelper->isInvoiced($brqOrderId, $context)){
-                    if($brqAmount == $totalPrice){
+                    if(round($brqAmount,2) == round($totalPrice,2)){
                         $this->checkoutHelper->generateInvoice($brqOrderId, $context, $brqInvoicenumber);
                         $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'reopen');
                     }
