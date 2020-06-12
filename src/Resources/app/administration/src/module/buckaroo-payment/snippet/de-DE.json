@@ -62,7 +62,8 @@
           "total_including_vat": "Total einschließlich Mehrwertsteuer",
           "vat": "Mehrwertsteuer",
           "transaction_key": "Transaktionsschlüssel",
-          "transaction_method": "Zahlungsmethode"
+          "transaction_method": "Zahlungsmethode",
+          "statuscode": "Status"
       }
     },
     "messageNotBlank": "Dieses Feld darf nicht leer sein."

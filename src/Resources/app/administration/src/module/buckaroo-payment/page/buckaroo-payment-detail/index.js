@@ -92,6 +92,10 @@ Component.register('buckaroo-payment-detail', {
                     property: 'transaction_method',
                     label: this.$tc('buckaroo-payment.transactionHistory.types.transaction_method'),
                     rawData: true
+                },{
+                    property: 'statuscode',
+                    label: this.$tc('buckaroo-payment.transactionHistory.types.statuscode'),
+                    rawData: true
                 }
             ];
         }
@@ -159,7 +163,8 @@ Component.register('buckaroo-payment-detail', {
                             vat: element.vat,
                             transaction_method: element.transaction_method,
                             logo: element.transaction_method?element.logo:null,
-                            created_at: element.created_at
+                            created_at: element.created_at,
+                            statuscode: element.statuscode
                         });
                     })
                     

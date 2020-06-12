@@ -62,7 +62,8 @@
           "total_including_vat": "Totaal inclusief VAT",
           "vat": "VAT",
           "transaction_key": "Transactiesleutel",
-          "transaction_method": "Betaalmethode"
+          "transaction_method": "Betaalmethode",
+          "statuscode": "Toestand"
       }
     },
     "messageNotBlank": "Dit veld mag niet leeg zijn."

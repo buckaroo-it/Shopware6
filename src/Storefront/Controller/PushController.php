@@ -44,6 +44,7 @@ class PushController extends StorefrontController
     {
         $orderTransactionId   = $request->request->get('ADD_orderTransactionId');
         $context              = $salesChannelContext->getContext();
+        $brqAmount    = $request->request->get('brq_amount');
         $brqAmountCredit    = $request->request->get('brq_amount_credit');
         $status               = $request->request->get('brq_statuscode');
         $brqTransactionType = $request->request->get('brq_transaction_type');
@@ -60,6 +61,7 @@ class PushController extends StorefrontController
         }
 
         $transaction = $this->checkoutHelper->getOrderTransaction($orderTransactionId, $context);
+        $totalPrice = $transaction->getAmount()->getTotalPrice();
 
         //Check if the push is a refund request or cancel authorize
         if (isset($brqAmountCredit)) {
@@ -67,7 +69,6 @@ class PushController extends StorefrontController
                 return $this->json(['status' => true, 'message' => "Payment cancelled"]);
             }
 
-            $totalPrice = $transaction->getAmount()->getTotalPrice();
             $status     = ($brqAmountCredit < $totalPrice) ? 'partial_refunded' : 'refunded';
             $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, [$status => 1]);
 
@@ -78,7 +79,8 @@ class PushController extends StorefrontController
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
             try {
-                $this->checkoutHelper->transitionPaymentState('completed', $orderTransactionId, $context);
+                $paymentState = ($brqAmount == $totalPrice) ? "completed" : "pay_partially";
+                $this->checkoutHelper->transitionPaymentState($paymentState, $orderTransactionId, $context);
                 $data = [
                     'originalTransactionKey' => $request->request->get('brq_transactions'),
                     'brqPaymentMethod'       => $request->request->get('brq_transaction_method'),
@@ -86,7 +88,10 @@ class PushController extends StorefrontController
                 $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
 
                 if(!$this->checkoutHelper->isInvoiced($brqOrderId, $context)){
-                    $this->checkoutHelper->generateInvoice($brqOrderId, $context, $brqInvoicenumber);
+                    if($brqAmount == $totalPrice){
+                        $this->checkoutHelper->generateInvoice($brqOrderId, $context, $brqInvoicenumber);
+                        $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'reopen');
+                    }
                 }
 
             } catch (InconsistentCriteriaIdsException | IllegalTransitionException | StateMachineNotFoundException
@@ -98,7 +103,7 @@ class PushController extends StorefrontController
 
         if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_TECHNICAL_ERROR, ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER, ResponseStatus::BUCKAROO_STATUSCODE_FAILED, ResponseStatus::BUCKAROO_STATUSCODE_REJECTED])) {
             $this->checkoutHelper->transitionPaymentState('cancelled', $orderTransactionId, $context);
-            $this->checkoutHelper->cancelOrder($brqOrderId, $context);
+            $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'cancel');
 
             return $this->json(['status' => true, 'message' => "Order cancelled"]);
         }

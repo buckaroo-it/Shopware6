@@ -53,6 +53,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailServiceInterface;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
+use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 
 class CheckoutHelper
 {
@@ -237,6 +238,9 @@ class CheckoutHelper
         switch ($status) {
             case 'completed' :
                 return StateMachineTransitionActions::ACTION_PAY;
+                break;
+            case 'pay_partially' :
+                return StateMachineTransitionActions::ACTION_PAY_PARTIALLY;
                 break;
             case 'declined':
             case 'cancelled':
@@ -1246,13 +1250,13 @@ class CheckoutHelper
         return $this->translator->trans($id, $parameters);
     }
 
-    public function cancelOrder(string $orderId, Context $context): void
+    public function changeOrderStatus(string $orderId, Context $context, $status): void
     {
         $this->stateMachineRegistry->transition(
             new Transition(
                 'order',
                 $orderId,
-                StateMachineTransitionActions::ACTION_CANCEL,
+                $status,
                 'stateId'
             ),
             $context
@@ -1275,6 +1279,7 @@ class CheckoutHelper
             $items['transactions'][] = (object) [
                 'id'                  => $buckarooTransactionEntity->get("id"),
                 'transaction'         => $buckarooTransactionEntity->get("transactions"),
+                'statuscode'          => $buckarooTransactionEntity->get("statuscode"),
                 'total'               => $amount,
                 'shipping_costs'      => $shipping_costs,
                 'vat'                 => $vat ? "plus $vat% VAT" : null,
@@ -1283,7 +1288,7 @@ class CheckoutHelper
                 'created_at'          => Date("Y-m-d H:i:s", strtotime($buckarooTransactionEntity->get("created_at")->date)),
             ];
 
-            if ($buckarooTransactionEntity->get("amount")) {
+            if ($buckarooTransactionEntity->get("amount") && $buckarooTransactionEntity->get("statuscode")==ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
                 $items['transactionsToRefund'][] = (object) [
                     'id'                 => $buckarooTransactionEntity->get("id"),
                     'transactions'       => $buckarooTransactionEntity->get("transactions"),

@@ -62,7 +62,8 @@
           "total_including_vat": "Total including VAT",
           "vat": "VAT",
           "transaction_key": "Transaction key",
-          "transaction_method": "Payment method"
+          "transaction_method": "Payment method",
+          "statuscode": "Status"
       }
     },
     "messageNotBlank": "This field must not be empty."
