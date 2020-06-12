@@ -47,7 +47,8 @@ class PushController extends StorefrontController
         $brqAmountCredit    = $request->request->get('brq_amount_credit');
         $status               = $request->request->get('brq_statuscode');
         $brqTransactionType = $request->request->get('brq_transaction_type');
-        $brq_orderId          = $request->request->get('ADD_orderId');
+        $brqOrderId          = $request->request->get('ADD_orderId');
+        $brqInvoicenumber          = $request->request->get('brq_invoicenumber');
 
         $validSignature = $this->checkoutHelper->validateSignature();
         if (!$validSignature) {
@@ -83,6 +84,11 @@ class PushController extends StorefrontController
                     'brqPaymentMethod'       => $request->request->get('brq_transaction_method'),
                 ];
                 $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
+
+                if(!$this->checkoutHelper->isInvoiced($brqOrderId, $context)){
+                    $this->checkoutHelper->generateInvoice($brqOrderId, $context, $brqInvoicenumber);
+                }
+
             } catch (InconsistentCriteriaIdsException | IllegalTransitionException | StateMachineNotFoundException
                  | StateMachineStateNotFoundException $exception) {
                 throw new AsyncPaymentFinalizeException($orderTransactionId, $exception->getMessage());
@@ -92,7 +98,7 @@ class PushController extends StorefrontController
 
         if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_TECHNICAL_ERROR, ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER, ResponseStatus::BUCKAROO_STATUSCODE_FAILED, ResponseStatus::BUCKAROO_STATUSCODE_REJECTED])) {
             $this->checkoutHelper->transitionPaymentState('cancelled', $orderTransactionId, $context);
-            $this->checkoutHelper->cancelOrder($brq_orderId, $context);
+            $this->checkoutHelper->cancelOrder($brqOrderId, $context);
 
             return $this->json(['status' => true, 'message' => "Order cancelled"]);
         }

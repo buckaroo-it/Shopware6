@@ -42,6 +42,17 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Defaults;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
+use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
+use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Exception;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
+use Shopware\Core\Content\MailTemplate\Service\MailServiceInterface;
+use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 
 class CheckoutHelper
 {
@@ -73,6 +84,15 @@ class CheckoutHelper
     private $buckarooTransactionEntityRepository;
     /** @var Connection */
     private $connection;
+    /** @var DocumentService */
+    protected $documentService;
+    /** @var EntityRepositoryInterface */
+    private $documentRepository;
+    /** * @var MailServiceInterface */
+    private $mailService;
+    /** * @var EntityRepositoryInterface */
+    private $mailTemplateRepository;
+
 
     /**
      * CheckoutHelper constructor.
@@ -97,7 +117,11 @@ class CheckoutHelper
         TranslatorInterface $translator,
         StateMachineRegistry $stateMachineRegistry,
         BuckarooTransactionEntityRepository $buckarooTransactionEntityRepository,
-        Connection $connection
+        Connection $connection,
+        DocumentService $documentService,
+        EntityRepositoryInterface $documentRepository,
+        MailServiceInterface $mailService,
+        EntityRepositoryInterface $mailTemplateRepository
     ) {
         $this->router                              = $router;
         $this->transactionRepository               = $transactionRepository;
@@ -113,6 +137,10 @@ class CheckoutHelper
         $this->stateMachineRegistry                = $stateMachineRegistry;
         $this->buckarooTransactionEntityRepository = $buckarooTransactionEntityRepository;
         $this->connection = $connection;
+        $this->documentService = $documentService;
+        $this->documentRepository = $documentRepository;
+        $this->mailService = $mailService;
+        $this->mailTemplateRepository = $mailTemplateRepository;
     }
 
     public function getSetting($name)
@@ -849,6 +877,7 @@ class CheckoutHelper
     public function getTransferData($order, $additional, $salesChannelContext, $dataBag)
     {
         $address = $this->getBillingAddress($order, $salesChannelContext);
+        $customer = $this->getOrderCustomer($order, $salesChannelContext);
 
         if ($address === null) {
             return $additional;
@@ -1340,5 +1369,173 @@ class CheckoutHelper
                 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ]);
         }
+    }
+
+    public function isInvoiced($orderId, $context){
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        $criteria->addAssociation('documentMediaFile');
+        $criteria->addAssociation('documentType');
+        $criteria->addFilter(new EqualsFilter('documentType.technicalName', InvoiceGenerator::INVOICE));
+
+        /** @var DocumentEntity|null $documentEntity */
+        $documentEntity = $this->documentRepository->search($criteria, $context);
+
+        if (($documentEntity === null) || ($documentEntity->first() == null)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function getMailTemplate(Context $context, string $technicalName, OrderEntity $order): ?MailTemplateEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('mailTemplateType.technicalName', $technicalName));
+        $criteria->setLimit(1);
+
+        if ($order->getSalesChannelId()) {
+            $criteria->addFilter(
+                new EqualsFilter('mail_template.salesChannels.salesChannel.id', $order->getSalesChannelId())
+            );
+        }
+
+        /** @var MailTemplateEntity|null $mailTemplate */
+        $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
+
+        return $mailTemplate;
+    }
+
+    /**
+     * @throws InvalidDocumentException
+     */
+    private function getDocument(string $documentId, Context $context): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $documentId));
+        $criteria->addAssociation('documentMediaFile');
+        $criteria->addAssociation('documentType');
+
+        /** @var DocumentEntity|null $documentEntity */
+        $documentEntity = $this->documentRepository->search($criteria, $context)->get($documentId);
+
+        if ($documentEntity === null) {
+            throw new InvalidDocumentException($documentId);
+        }
+
+        $document = $this->documentService->getDocument($documentEntity, $context);
+
+        return [
+            'content' => $document->getFileBlob(),
+            'fileName' => $document->getFilename(),
+            'mimeType' => $document->getContentType(),
+        ];
+    }
+    
+    /**
+     * @param string[] $mediaIds
+     * @param string[] $documentIds
+     */
+    private function sendMail(
+        Context $context,
+        MailTemplateEntity $mailTemplate,
+        OrderEntity $order,
+        ? array $mediaIds,
+        ? array $documentIds,
+        ?StateMachineStateEntity $toPlace,
+        ?StateMachineStateEntity $fromPlace
+    ): void {
+        $customer = $order->getOrderCustomer();
+        if ($customer === null) {
+            return;
+        }
+
+        $data = new ParameterBag();
+        $data->set(
+            'recipients',
+            [
+                $customer->getEmail() => $customer->getFirstName() . ' ' . $customer->getLastName(),
+            ]
+        );
+        $data->set('senderName', $mailTemplate->getSenderName());
+        $data->set('salesChannelId', $order->getSalesChannelId());
+
+        $data->set('contentHtml', $mailTemplate->getContentHtml());
+        $data->set('contentPlain', $mailTemplate->getContentPlain());
+        $data->set('subject', $mailTemplate->getSubject());
+        if ($mediaIds) {
+            $data->set('mediaIds', $mediaIds);
+        }
+
+        $documents = [];
+        foreach ($documentIds as $documentId) {
+            $documents[] = $this->getDocument($documentId, $context);
+        }
+
+        if (!empty($documents)) {
+            $data->set('binAttachments', $documents);
+        }
+
+        // getting the correct sales channel domain with the help of the languageId of the order
+        $languageId = $order->getLanguageId();
+   /*     $salesChannelCriteria = new Criteria([$order->getSalesChannel()->getId()]);
+        $salesChannelCriteria->getAssociation('domains')
+            ->addFilter(
+                new EqualsFilter('languageId', $languageId)
+            );
+
+        $salesChannel = $this->salesChannelRepository->search($salesChannelCriteria, $context)->first();
+*/
+        $this->mailService->send(
+            $data->all(),
+            $context,
+            [
+                'order' => $order,
+                'previousState' => $fromPlace,
+                'newState' => $toPlace,
+                // 'salesChannel' => $salesChannel,
+            ]
+        );
+
+        $writes = array_map(static function ($id) {
+            return ['id' => $id, 'sent' => true];
+        }, $documentIds);
+
+        if (!empty($writes)) {
+            $this->documentRepository->update($writes, $context);
+        }
+    }
+
+    public function generateInvoice($orderId, $context, $invoiceNumber){
+        $documentConfiguration = new DocumentConfiguration();
+        $documentConfiguration->setDocumentNumber($invoiceNumber);
+        $invoice = $this->documentService->create(
+            $orderId,
+            InvoiceGenerator::INVOICE,
+            FileTypes::PDF,
+            $documentConfiguration,
+            $context
+        );
+
+        if($this->helper->getSettingsValue('sendInvoiceEmail')){
+            $documentIds = [$invoice->getId()];
+            $technicalName = 'order_transaction.state.paid';
+            $order = $this->getOrderById($orderId, $context);
+            $mailTemplate = $this->getMailTemplate($context, $technicalName, $order);
+
+            if ($mailTemplate !== null) {
+                $this->sendMail(
+                    $context,
+                    $mailTemplate,
+                    $order,
+                    $mediaIds,
+                    $documentIds,
+                    $toPlace,
+                    $fromPlace
+                );
+            }
+        }
+
+        return $invoice;
     }
 }

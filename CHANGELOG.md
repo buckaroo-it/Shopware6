@@ -34,3 +34,4 @@ Updated refund tab
 # 1.0.9
 ## Added
 Stock reserve option
+Invoices on paid status
