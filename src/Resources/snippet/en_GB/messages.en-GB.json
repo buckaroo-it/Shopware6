@@ -22,7 +22,17 @@
       "buckarooAfterpayDoBTitle": "Date of Birth",
       "buckarooAfterpayDoBTitleSup": "(DD/MM/YYYY)",
       "buckarooAfterpayTermsConditionTitle": "Terms and Conditions",
-      "buckarooAfterpayTermsCondition": "Yes, I accept the terms and condition for the use of Afterpay."
+      "buckarooAfterpayTermsCondition": "Yes, I accept the terms and condition for the use of Afterpay.",
+      "creditcards": {
+        "card": "Card",
+        "cardholder": "Cardholder",
+        "cardNumber": "Card number",
+        "month": "Month",
+        "selectMonth": "Select a month",
+        "year": "Year",
+        "selectYear": "Select a year",
+        "securityCode": "Security Code"
+      }
     }
   },
   "bkr-applepay": {

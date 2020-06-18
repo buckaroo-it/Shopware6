@@ -22,7 +22,17 @@
       "buckarooAfterpayDoBTitle": "Geboortedatum",
       "buckarooAfterpayDoBTitleSup": "(DD/MM/YYYY)",
       "buckarooAfterpayTermsConditionTitle": "Algemene voorwaarden",
-      "buckarooAfterpayTermsCondition": "Ja, ik accepteer de voorwaarden voor het gebruik van Afterpay."
+      "buckarooAfterpayTermsCondition": "Ja, ik accepteer de voorwaarden voor het gebruik van Afterpay.",
+      "creditcards": {
+        "card": "Card",
+        "cardholder": "Kaarthouder",
+        "cardNumber": "Kaartnummer",
+        "month": "Month",
+        "selectMonth": "Selecteer een maand",
+        "year": "Year",
+        "selectYear": "Selecteer een jaar",
+        "securityCode": "Beveiligingscode"
+      }
     }
   },
   "bkr-applepay": {

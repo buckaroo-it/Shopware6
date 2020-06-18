@@ -87,8 +87,14 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $this->payApplePay($dataBag, $request);
         }
 
-        if ($buckarooKey == 'creditcards' && $creditcard = $dataBag->get('creditcard')) {
-            $request->setServiceName($creditcard);
+        if ($buckarooKey == 'creditcard' && $dataBag->get('creditcard')) {
+            $request->setServiceName($dataBag->get('creditcard'));
+        }
+
+        if ($buckarooKey == 'creditcards' && $dataBag->get('creditcards_issuer') && $dataBag->get('encryptedCardData')) {
+            $request->setServiceAction('PayEncrypted');
+            $request->setServiceName($dataBag->get('creditcards_issuer'));
+            $request->setServiceParameter('EncryptedCardData', $dataBag->get('encryptedCardData'));
         }
 
         if ($buckarooKey == 'giftcards') {

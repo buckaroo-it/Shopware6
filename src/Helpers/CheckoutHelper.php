@@ -1068,7 +1068,7 @@ class CheckoutHelper
             return ['status' => false, 'message' => 'This order is already refunded'];
         }
 
-        $serviceName = (in_array($customFields['serviceName'], ['creditcards', 'giftcards'])) ? $customFields['brqPaymentMethod'] : $customFields['serviceName'];
+        $serviceName = (in_array($customFields['serviceName'], ['creditcard','creditcards', 'giftcards'])) ? $customFields['brqPaymentMethod'] : $customFields['serviceName'];
 
         $request = new TransactionRequest;
         $request->setServiceAction('Refund');

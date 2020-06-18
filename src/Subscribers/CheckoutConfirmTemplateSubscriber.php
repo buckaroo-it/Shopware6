@@ -78,7 +78,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         ],
     ];
 
-    protected $issuersProcessing = [
+    protected $availableCreditcards = [
         'mastercard'     => 'MasterCard',
         'visa'           => 'Visa',
         'amex'           => 'American Express',
@@ -126,14 +126,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $request  = $this->helper->getGlobals();
         $customer = $event->getSalesChannelContext()->getCustomer();
 
-        $creditcard = $request->get('creditcard');
-
-        if ($creditcard) {
+        if ($lastCreditcard = $request->get('creditcard')) {
             $this->customerRepository->upsert(
                 [[
                     'id'           => $customer->getId(),
                     'customFields' => [
-                        'last_used_creditcard' => $creditcard,
+                        'last_used_creditcard' => $lastCreditcard,
                     ],
                 ]],
                 $event->getContext()
@@ -144,10 +142,18 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $struct             = new BuckarooStruct();
         $issuers            = $this->issuers;
         $lastUsedCreditcard = $customer->getCustomFields()['last_used_creditcard'];
+        $allowedcreditcard = $this->helper->getSettingsValue('allowedcreditcard');
+        foreach ($allowedcreditcard as $value) {
+            $creditcard[] = [
+                'name' => $this->availableCreditcards[$value],
+                'code' => $value,
+            ];
+        }
+
         $allowedcreditcards = $this->helper->getSettingsValue('allowedcreditcards');
-        foreach ($allowedcreditcards as $key => $value) {
+        foreach ($allowedcreditcards as $value) {
             $creditcards[] = [
-                'name' => $this->issuersProcessing[$value],
+                'name' => $this->availableCreditcards[$value],
                 'code' => $value,
             ];
         }
@@ -165,7 +171,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct->assign([
             'issuers'                  => $issuers,
-            'payment_method_name_card' => $this->getPaymentMethodName($creditcards, $lastUsedCreditcard, ''),
+            'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
+            'creditcard'               => $creditcard,
             'creditcards'              => $creditcards,
             'last_used_creditcard'     => $lastUsedCreditcard,
             'payment_labels'           => $paymentLabels,

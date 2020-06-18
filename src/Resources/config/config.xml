@@ -74,6 +74,86 @@
         <title lang="de-DE">Kreditkarten</title>
         
         <input-field type="single-select">
+            <name>creditcardEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>creditcardLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Buckaroo Creditcard and Debit Card</defaultValue>
+        </input-field>
+
+        <input-field type="multi-select">
+            <name>allowedcreditcard</name>
+            <label lang="en-GB">Allowed Creditcards:</label>
+            <label lang="nl-NL">Toegestane creditcards</label>
+            <label lang="de-DE">Zulässige Kreditkarten</label>
+            <options>
+                <option>
+                    <id>mastercard</id>
+                    <name>MasterCard</name>
+                </option>
+                <option>
+                    <id>visa</id>
+                    <name>Visa</name>
+                </option>
+                <option>
+                    <id>amex</id>
+                    <name>American Express</name>
+                </option>
+                <option>
+                    <id>vpay</id>
+                    <name>VPay</name>
+                </option>
+                <option>
+                    <id>maestro</id>
+                    <name>Maestro</name>
+                </option>
+                <option>
+                    <id>visaelectron</id>
+                    <name>Visa Electron</name>
+                </option>
+                <option>
+                    <id>cartebleuevisa</id>
+                    <name>Carte Bleue</name>
+                </option>
+                <option>
+                    <id>cartebancaire</id>
+                    <name>Carte Bancaire</name>
+                </option>
+                <option>
+                    <id>dankort</id>
+                    <name>Dankort</name>
+                </option>
+                <option>
+                    <id>nexi</id>
+                    <name>Nexi</name>
+                </option>
+            </options>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Creditcards (Client sided)</title>
+        <title lang="nl-NL">Kredietkaarten (klantzijde)</title>
+        <title lang="de-DE">Kreditkarten (kundenseitig)</title>
+        
+        <input-field type="single-select">
             <name>creditcardsEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>

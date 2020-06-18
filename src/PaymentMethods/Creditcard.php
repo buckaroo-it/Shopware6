@@ -2,16 +2,16 @@
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\CreditcardsPaymentHandler;
+use Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler;
 
-class Creditcards implements PaymentMethodInterface
+class Creditcard implements PaymentMethodInterface
 {
     /*
     * @return string
     */
     public function getBuckarooKey(): string
     {
-        return 'creditcards';
+        return 'creditcard';
     }
 
     /**
@@ -29,7 +29,7 @@ class Creditcards implements PaymentMethodInterface
      */
     public function getName(): string
     {
-        return 'Buckaroo Creditcards';
+        return 'Buckaroo Creditcard and Debit Card';
     }
 
     /**
@@ -39,7 +39,7 @@ class Creditcards implements PaymentMethodInterface
      */
     public function getDescription(): string
     {
-        return 'Pay with Creditcards';
+        return 'Pay with Buckaroo Creditcard and Debit Card';
     }
 
     /**
@@ -49,7 +49,7 @@ class Creditcards implements PaymentMethodInterface
      */
     public function getPaymentHandler(): string
     {
-        return CreditcardsPaymentHandler::class;
+        return CreditcardPaymentHandler::class;
     }
 
     /**
@@ -59,7 +59,7 @@ class Creditcards implements PaymentMethodInterface
      */
     public function getTemplate(): ?string
     {
-        return null;
+        return '@BuckarooPayment/storefront/buckaroo/creditcards/creditcards.html.twig';
     }
 
     /**
@@ -82,7 +82,7 @@ class Creditcards implements PaymentMethodInterface
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit Creditcards',
+                'description' => 'Bezahlen mit Buckaroo Creditcard and Debit Card',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),

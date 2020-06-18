@@ -35,3 +35,6 @@ Updated refund tab
 ## Added
 Stock reserve option
 Invoices on paid status
+
+## Added payment methods
+* Creditcards Client Sided
