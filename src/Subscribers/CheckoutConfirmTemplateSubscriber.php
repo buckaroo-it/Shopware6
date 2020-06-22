@@ -142,20 +142,25 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $struct             = new BuckarooStruct();
         $issuers            = $this->issuers;
         $lastUsedCreditcard = $customer->getCustomFields()['last_used_creditcard'];
+        
         $allowedcreditcard = $this->helper->getSettingsValue('allowedcreditcard');
-        foreach ($allowedcreditcard as $value) {
-            $creditcard[] = [
-                'name' => $this->availableCreditcards[$value],
-                'code' => $value,
-            ];
+        if (!empty($allowedcreditcard)){
+            foreach ($allowedcreditcard as $value) {
+                $creditcard[] = [
+                    'name' => $this->availableCreditcards[$value],
+                    'code' => $value,
+                ];
+            }
         }
 
         $allowedcreditcards = $this->helper->getSettingsValue('allowedcreditcards');
-        foreach ($allowedcreditcards as $value) {
-            $creditcards[] = [
-                'name' => $this->availableCreditcards[$value],
-                'code' => $value,
-            ];
+        if (!empty($allowedcreditcards)){
+            foreach ($allowedcreditcards as $value) {
+                $creditcards[] = [
+                    'name' => $this->availableCreditcards[$value],
+                    'code' => $value,
+                ];
+            }
         }
 
         $criteria = (new Criteria())
