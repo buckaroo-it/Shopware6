@@ -166,12 +166,15 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');
+        $paymentLabels = [];
         /** @var PaymentMethodCollection $paymentMethods */
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $event->getSalesChannelContext())->getEntities();
         foreach ($paymentMethods as $key => $paymentMethod) {
             $method                        = $paymentMethod->getTranslated();
-            $buckaroo_key                  = $method['customFields']['buckaroo_key'];
-            $paymentLabels[$buckaroo_key] = $this->helper->getSettingsValue($buckaroo_key . 'Label');
+            if (!empty($method['customFields']['buckaroo_key'])) {
+                $buckaroo_key = $method['customFields']['buckaroo_key'];
+                $paymentLabels[$buckaroo_key] = $this->helper->getSettingsValue($buckaroo_key . 'Label');
+            }
         }
 
         $struct->assign([
