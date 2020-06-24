@@ -6,6 +6,12 @@
       "refundDescription": "Rückerstattung für Bestellung #orderNumber"
     },
     "checkout": {
+      "cOCNumber": "COC-Nummer",
+      "companyName": "Name der Firma",
+      "private": "Private",
+      "company": "Unternehmen",
+      "oneManBusiness": "Ein-Mann-Geschäft",
+      "orderAs": "Bestellen als",
       "selectBankIssuer": "Wählen Sie Ihre Bank",
       "selectCreditCard": "Wählen Sie Ihre Kreditkarte",
       "buckarooSepaDirectDebitCustomer": "Bank account holder",

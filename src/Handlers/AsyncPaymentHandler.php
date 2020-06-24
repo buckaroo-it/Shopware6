@@ -87,6 +87,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $this->payApplePay($dataBag, $request);
         }
 
+        if ($buckarooKey == 'capayable') {
+            $request->setServiceAction('PayInInstallments');
+            $request->setOrder(null);
+        }
+
         if ($buckarooKey == 'creditcard' && $dataBag->get('creditcard')) {
             $request->setServiceName($dataBag->get('creditcard'));
         }
@@ -110,7 +115,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         if (!empty($gatewayInfo['additional']) && ($additional = $gatewayInfo['additional'])) {
             foreach ($additional as $item) {
-                foreach ($item as $key => $value) {
+                foreach ($item as $value) {
                     $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
                 }
             }

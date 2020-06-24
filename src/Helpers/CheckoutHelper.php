@@ -1544,4 +1544,130 @@ class CheckoutHelper
 
         return $invoice;
     }
+
+    /**
+     * @param string          $value
+     * @param string          $name
+     * @param null|string     $groupType
+     * @param null|string|int $groupId
+     *
+     * @return array
+     */
+    private function getRequestParameterRow($value, $name, $groupType = null, $groupId = null)
+    {
+        $row = [
+            '_' => $value,
+            'Name' => $name
+        ];
+
+        if ($groupType !== null) {
+            $row['Group'] = $groupType;
+        }
+
+        if ($groupId !== null) {
+            $row['GroupID'] = $groupId;
+        }
+
+        return $row;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return string
+     */
+    public function getInitials($name)
+    {
+        $initials = '';
+        $nameParts = explode(' ', $name);
+
+        if (empty($nameParts)) {
+            return $initials;
+        }
+
+        foreach ($nameParts as $part) {
+            $initials .= strtoupper(substr($part, 0, 1)) . '.';
+        }
+
+        return $initials;
+    }
+
+    /**
+     * @param CustomerEntity $customer
+     * @return string|null
+     */
+    public function getGenderFromSalutation(CustomerEntity $customer): ?string
+    {
+        switch ($customer->getSalutation()->getSalutationKey()) {
+            case 'mr':
+                return '1';
+            case 'mrs':
+                return '2';
+        }
+        return '0';
+    }
+
+    public function getProductLineData($order)
+    {
+        $lines = $this->getOrderLinesArray($order);
+
+        $productData = [];
+        $max = 99;
+        $i = 1;
+
+        foreach ($lines as $item) {
+            $productData[] = $this->getRequestParameterRow($item['sku'], 'Code', 'ProductLine', $i);
+            $productData[] = $this->getRequestParameterRow($item['name'], 'Name', 'ProductLine', $i);
+            $productData[] = $this->getRequestParameterRow($item['quantity'], 'Quantity', 'ProductLine', $i);
+            $productData[] = $this->getRequestParameterRow($item['unitPrice']['value'], 'Price', 'ProductLine', $i);
+
+            $i++;
+
+            if ($i > $max) {
+                break;
+            }
+        }
+
+        return $productData;
+    }
+
+    public function getIn3Data($order, $additional, $salesChannelContext, $dataBag){
+        $now = new \DateTime();
+
+        $address  = $this->getBillingAddress($order, $salesChannelContext);
+        $customer = $this->getOrderCustomer($order, $salesChannelContext);
+        $streetData  = $this->formatStreet($address->getStreet());
+
+        $requestParameter = [
+            $this->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_orderAs'), 'CustomerType'),
+            $this->getRequestParameterRow($now->format('Y-m-d'), 'InvoiceDate'),
+            $this->getRequestParameterRow($dataBag->get('buckaroo_in3_phone'), 'Phone', 'Phone'),
+            $this->getRequestParameterRow($customer->getEmail(), 'Email', 'Email'),
+
+            $this->getRequestParameterRow($this->getInitials($address->getFirstName()), 'Initials', 'Person'),
+            $this->getRequestParameterRow($address->getLastName(), 'LastName', 'Person'),
+            $this->getRequestParameterRow('nl-NL', 'Culture', 'Person'),
+            $this->getRequestParameterRow($this->getGenderFromSalutation($customer), 'Gender', 'Person'),
+            $this->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_DoB'), 'BirthDate', 'Person'),
+            
+            $this->getRequestParameterRow($streetData['street'], 'Street', 'Address'),
+            $this->getRequestParameterRow($streetData['house_number'], 'HouseNumber', 'Address'),
+            $this->getRequestParameterRow($address->getZipCode(), 'ZipCode', 'Address'),
+            $this->getRequestParameterRow($address->getCity(), 'City', 'Address'),
+            $this->getRequestParameterRow(($address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL'), 'Country', 'Address')
+        ];
+
+        if (strlen($streetData['number_addition']) > 0) {
+            $param = $this->getRequestParameterRow($streetData['number_addition'], 'HouseNumberSuffix', 'Address');
+            $requestParameter[] = $param;
+        }
+
+        if(in_array($dataBag->get('buckaroo_capayablein3_orderAs'),[1,2])){
+            $requestParameter[] = $this->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_orderAs'), 'Name', 'Company');
+            $requestParameter[] = $this->getRequestParameterRow($cocNumber, 'ChamberOfCommerce', 'Company');
+        }
+        $requestParameter = array_merge($requestParameter, $this->getProductLineData($order));
+
+        return $requestParameter;
+    }
 }

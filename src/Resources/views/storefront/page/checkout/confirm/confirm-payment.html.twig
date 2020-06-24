@@ -171,6 +171,86 @@
 
         </fieldset>
     </div>
+    
+    {% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'capayable' %}
+        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
+        
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+
+        <div class="payment-method-second-col billing-address-form">
+            <fieldset class="fieldset payment">
+
+                <div class="form-group">
+                    <label class="form-label" for="buckarooIn3Phone">
+                        {{ "buckaroo.checkout.buckarooAfterpayPhone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                    </label>
+
+                    <input type="text"
+                           class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
+                           form="confirmOrderForm"
+                           id="buckarooIn3Phone"
+                           name="buckaroo_in3_phone"
+                           placeholder="{{ "buckaroo.checkout.buckarooAfterpayPhonePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                           value=""
+                           required="required"
+                           minlength="10">
+                </div>
+
+                <div class="form-group">
+                    <label class="label" for="buckaroo_capayablein3_DoB">{{ "buckaroo.checkout.buckarooAfterpayDoBTitle"|trans }}:</label>
+                    <span><sup>{{ "buckaroo.checkout.buckarooAfterpayDoBTitleSup"|trans }}</sup></span>
+                    <div class="control">
+                        <input id="buckaroo_capayablein3_DoB" 
+                        class="form-control field" 
+                        type="date"
+                        max='{{ "now"|date_modify("-18 years")|date("Y-m-d") }}'
+                        name="buckaroo_capayablein3_DoB"
+                        form="confirmOrderForm"
+                        required="required"
+                        >
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="buckaroo_capayablein3_OrderAs"> <span>{{ "buckaroo.checkout.orderAs"|trans }}:</span> </label>
+                    <div class="control">
+                        <select id="buckaroo_capayablein3_OrderAs" name="buckaroo_capayablein3_orderAs" form="confirmOrderForm">
+                            <option value="Debtor">{{ "buckaroo.checkout.private"|trans }}</option>
+                            <option value="Company">{{ "buckaroo.checkout.company"|trans }}</option>
+                            <option value="SoleProprietor">{{ "buckaroo.checkout.oneManBusiness"|trans }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id='buckaroo_capayablein3_COCNumberDiv'>
+                    <label class="label" for="buckaroo_capayablein3_COCNumber">{{ "buckaroo.checkout.cOCNumber"|trans }}:</label>
+                    <div class="control">
+                        <input id="buckaroo_capayablein3_COCNumber" 
+                        class="form-control field" 
+                        type="text"
+                        name="buckaroo_capayablein3_COCNumber"
+                        form="confirmOrderForm"
+                        minlength="8"
+                        required="required"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group" id='buckaroo_capayablein3_CompanyNameDiv'>
+                    <label class="label" for="buckaroo_capayablein3_CompanyName">{{ "buckaroo.checkout.companyName"|trans }}:</label>
+                    <div class="control">
+                        <input id="buckaroo_capayablein3_CompanyName" 
+                        class="form-control field" 
+                        type="text"
+                        name="buckaroo_capayablein3_CompanyName"
+                        form="confirmOrderForm"
+                        required="required"
+                        >
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
 
     {% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'giropay' %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
