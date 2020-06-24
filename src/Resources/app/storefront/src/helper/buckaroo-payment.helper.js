@@ -22,10 +22,13 @@ export default class BuckarooPaymentHelper extends Plugin {
                 display = 'block';
             }
         }
-        document.getElementById('buckaroo_capayablein3_COCNumberDiv').style.display = display;
-        document.getElementById('buckaroo_capayablein3_CompanyNameDiv').style.display = display;
-        document.getElementById('buckaroo_capayablein3_COCNumber').required = required;
-        document.getElementById('buckaroo_capayablein3_CompanyName').required = required;
+        const div = document.getElementById('buckaroo_capayablein3_COCNumberDiv');
+        if(div){
+            div.style.display = display;
+            document.getElementById('buckaroo_capayablein3_CompanyNameDiv').style.display = display;
+            document.getElementById('buckaroo_capayablein3_COCNumber').required = required;
+            document.getElementById('buckaroo_capayablein3_CompanyName').required = required;
+        }
     }
 
     _handleInputChanged(event) {
