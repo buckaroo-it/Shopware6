@@ -33,9 +33,9 @@
         "card": "Card",
         "cardholder": "Kaarthouder",
         "cardNumber": "Kaartnummer",
-        "month": "Month",
+        "month": "Maand",
         "selectMonth": "Selecteer een maand",
-        "year": "Year",
+        "year": "Jaar",
         "selectYear": "Selecteer een jaar",
         "securityCode": "CVC/VV"
       }

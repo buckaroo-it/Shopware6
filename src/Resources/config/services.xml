@@ -185,6 +185,12 @@
             <tag name="shopware.payment.method.async" />
         </service>
 
+        <service id="Buckaroo\Shopware6\Handlers\EpsPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <tag name="shopware.payment.method.async" />
+        </service>
+
         <!-- /Payment methods -->
 
         <!-- Controllers -->

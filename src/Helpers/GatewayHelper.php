@@ -19,6 +19,7 @@ use Buckaroo\Shopware6\PaymentMethods\Payconiq;
 use Buckaroo\Shopware6\PaymentMethods\Giftcards;
 use Buckaroo\Shopware6\PaymentMethods\Rtp;
 use Buckaroo\Shopware6\PaymentMethods\In3;
+use Buckaroo\Shopware6\PaymentMethods\Eps;
 
 class GatewayHelper
 {
@@ -39,6 +40,7 @@ class GatewayHelper
         Payconiq::class,
         Giftcards::class,
         Rtp::class,
-        In3::class
+        In3::class,
+        Eps::class
     ];
 }
