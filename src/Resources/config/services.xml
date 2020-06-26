@@ -53,6 +53,7 @@
             <argument type="service" id="document.repository"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
             <argument type="service" id="mail_template.repository"/>
+            <argument type="service" id="currency.repository" />
         </service>
 
         <service id="Buckaroo\Shopware6\Service\SettingsService">
@@ -191,6 +192,12 @@
             <tag name="shopware.payment.method.async" />
         </service>
 
+        <service id="Buckaroo\Shopware6\Handlers\P24PaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <tag name="shopware.payment.method.async" />
+        </service>
+
         <!-- /Payment methods -->
 
         <!-- Controllers -->
@@ -223,6 +230,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <tag name="kernel.event_subscriber"/>
         </service>
         <!-- /Controllers -->

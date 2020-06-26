@@ -316,6 +316,17 @@
             </fieldset>
         </div>
 
+    {% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'Przelewy24' %}
+        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+
+        <input type="hidden"
+                           value="{{ page.extensions.buckaroo.currency }}"
+                           class="form-control"
+                           form="confirmOrderForm"
+                           id="P24Currency"
+                           name="P24Currency">
+        <div id="P24CurrencyError">To process the payment with Przelewy24 the currency must be set to polish Zloty</div>
     {% else %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
         {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}

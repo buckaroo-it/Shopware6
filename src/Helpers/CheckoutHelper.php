@@ -54,6 +54,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
+use Shopware\Core\System\Currency\CurrencyEntity;
 
 class CheckoutHelper
 {
@@ -93,7 +94,8 @@ class CheckoutHelper
     private $mailService;
     /** * @var EntityRepositoryInterface */
     private $mailTemplateRepository;
-
+    /** @var EntityRepositoryInterface */
+    private $currencyRepository;
 
     /**
      * CheckoutHelper constructor.
@@ -122,7 +124,8 @@ class CheckoutHelper
         DocumentService $documentService,
         EntityRepositoryInterface $documentRepository,
         MailService $mailService,
-        EntityRepositoryInterface $mailTemplateRepository
+        EntityRepositoryInterface $mailTemplateRepository,
+        EntityRepositoryInterface $currencyRepository
     ) {
         $this->router                              = $router;
         $this->transactionRepository               = $transactionRepository;
@@ -142,6 +145,7 @@ class CheckoutHelper
         $this->documentRepository = $documentRepository;
         $this->mailService = $mailService;
         $this->mailTemplateRepository = $mailTemplateRepository;
+        $this->currencyRepository = $currencyRepository;
     }
 
     public function getSetting($name)
@@ -610,7 +614,7 @@ class CheckoutHelper
         return $customer;
     }
 
-    private function getOrderCustomer($order, $salesChannelContext)
+    public function getOrderCustomer($order, $salesChannelContext)
     {
         if ($order->getOrderCustomer() !== null) {
             $customer = $this->getCustomer(
@@ -1669,5 +1673,19 @@ class CheckoutHelper
         $requestParameter = array_merge($requestParameter, $this->getProductLineData($order));
 
         return $requestParameter;
+    }
+
+    public function getOrderCurrency(Context $context): CurrencyEntity
+    {
+        $criteria = new Criteria([$context->getCurrencyId()]);
+
+        /** @var null|CurrencyEntity $currency */
+        $currency = $this->currencyRepository->search($criteria, $context)->first();
+
+        if (null === $currency) {
+            throw new RuntimeException('missing order currency entity');
+        }
+
+        return $currency;
     }
 }

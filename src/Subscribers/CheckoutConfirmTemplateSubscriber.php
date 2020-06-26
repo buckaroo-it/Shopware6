@@ -12,12 +12,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 {
     /** @var Helper */
     private $helper;
     private $customerRepository;
+    /** @var CheckoutHelper $checkoutHelper */
+    public $checkoutHelper;
 
     /**
      * @var SalesChannelRepositoryInterface
@@ -100,11 +103,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     public function __construct(
         Helper $helper,
         EntityRepositoryInterface $customerRepository,
-        SalesChannelRepositoryInterface $paymentMethodRepository
+        SalesChannelRepositoryInterface $paymentMethodRepository,
+        CheckoutHelper $checkoutHelper
     ) {
         $this->helper                  = $helper;
         $this->customerRepository      = $customerRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
+        $this->checkoutHelper = $checkoutHelper;
     }
 
     /**
@@ -177,7 +182,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             }
         }
 
+        $currency = $this->checkoutHelper->getOrderCurrency($event->getContext());
         $struct->assign([
+            'currency'                 => $currency->getIsoCode(),
             'issuers'                  => $issuers,
             'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
             'creditcard'               => $creditcard,

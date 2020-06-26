@@ -40,3 +40,4 @@ Invoices on paid status
 * Creditcards Client Sided
 * In3
 * Eps
+* Przelewy24

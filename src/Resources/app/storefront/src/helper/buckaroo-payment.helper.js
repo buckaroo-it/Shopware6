@@ -10,6 +10,14 @@ export default class BuckarooPaymentHelper extends Plugin {
                 field.addEventListener('change', this._handleInputChanged.bind(this));
             }
         }
+
+        const field = document.getElementById('P24Currency');
+        if (field) {
+            if(field.value != 'PLN'){
+                document.getElementById('confirmFormSubmit').disabled = true;
+                document.getElementById('P24CurrencyError').style.display = 'block';
+            }
+        }
     }
 
     _checkCompany() {

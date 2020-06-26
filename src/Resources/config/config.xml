@@ -1048,7 +1048,35 @@
             <name>epsButtonLabel</name>
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
-            <defaultValue>In3</defaultValue>
+            <defaultValue>EPS</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+    <title>Przelewy24</title>
+        <input-field type="single-select">
+            <name>Przelewy24Environment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>Przelewy24ButtonLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Przelewy24</defaultValue>
         </input-field>
     </card>
 

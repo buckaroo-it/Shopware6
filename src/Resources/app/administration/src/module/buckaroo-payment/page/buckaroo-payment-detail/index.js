@@ -148,9 +148,11 @@ Component.register('buckaroo-payment-detail', {
                             transactions: element.transactions,
                             amount: element.total,
                             amountMax: element.total,
+                            currency: element.currency,
                             transaction_method: element.transaction_method,
                             logo: element.transaction_method?element.logo:null
                         });
+                        that.currency = element.currency;
                     })
 
                     response.transactions.forEach((element) => {
