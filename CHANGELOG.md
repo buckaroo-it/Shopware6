@@ -41,3 +41,4 @@ Invoices on paid status
 * In3
 * Eps
 * Przelewy24
+* Alipay

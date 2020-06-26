@@ -21,6 +21,7 @@ use Buckaroo\Shopware6\PaymentMethods\Rtp;
 use Buckaroo\Shopware6\PaymentMethods\In3;
 use Buckaroo\Shopware6\PaymentMethods\Eps;
 use Buckaroo\Shopware6\PaymentMethods\P24;
+use Buckaroo\Shopware6\PaymentMethods\Alipay;
 
 class GatewayHelper
 {
@@ -43,6 +44,7 @@ class GatewayHelper
         Rtp::class,
         In3::class,
         Eps::class,
-        P24::class
+        P24::class,
+        Alipay::class
     ];
 }
