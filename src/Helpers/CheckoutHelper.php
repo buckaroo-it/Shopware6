@@ -645,10 +645,27 @@ class CheckoutHelper
         return $customer->getDefaultBillingAddress();
     }
 
+    public function getShippingAddress($order, $salesChannelContext)
+    {
+        if ($order->getOrderCustomer() !== null) {
+            $customer = $this->getCustomer(
+                $order->getOrderCustomer()->getCustomerId(),
+                $salesChannelContext->getContext()
+            );
+        }
+
+        if ($customer === null) {
+            $customer = $salesChannelContext->getCustomer();
+        }
+
+        return $customer->getDefaultShippingAddress();
+    }
+
     public function getAddressArray($order, $additional, &$latestKey, $salesChannelContext, $dataBag)
     {
         $address  = $this->getBillingAddress($order, $salesChannelContext);
         $customer = $this->getOrderCustomer($order, $salesChannelContext);
+        $shippingAddress  = $this->getShippingAddress($order, $salesChannelContext);
 
         if ($address === null) {
             return $additional;
@@ -658,6 +675,9 @@ class CheckoutHelper
         $birthDayStamp = $dataBag->get('buckaroo_afterpay_DoB');
         $address->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
         $salutation = $customer->getSalutation()->getSalutationKey();
+        
+        $shippingAddress->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
+        $shippingStreetFormat  = $this->formatStreet($shippingAddress->getStreet());
 
         $category    = 'Person';
         $billingData = [
@@ -757,9 +777,107 @@ class CheckoutHelper
             ];
         }
 
+
+        $shippingData = [
+            [
+                '_'       => $category,
+                'Name'    => 'Category',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getFirstName(),
+                'Name'    => 'FirstName',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getLastName(),
+                'Name'    => 'LastName',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getStreet(),
+                'Name'    => 'Street',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getZipCode(),
+                'Name'    => 'PostalCode',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getCity(),
+                'Name'    => 'City',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getCountry() !== null ? $shippingAddress->getCountry()->getIso() : 'NL',
+                'Name'    => 'Country',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getPhoneNumber(),
+                'Name'    => 'MobilePhone',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getPhoneNumber(),
+                'Name'    => 'Phone',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $customer->getEmail(),
+                'Name'    => 'Email',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+        ];
+
+        if (!empty($shippingStreetFormat['house_number'])) {
+            $shippingData[] = [
+                '_'       => $shippingStreetFormat['house_number'],
+                'Name'    => 'StreetNumber',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ];
+        }
+
+        if (!empty($shippingStreetFormat['number_addition'])) {
+            $shippingData[] = [
+                '_'       => $shippingStreetFormat['number_addition'],
+                'Name'    => 'StreetNumberAdditional',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ];
+        }
+
+        if ($shippingAddress->getCountry()->getIso() == 'NL' || $shippingAddress->getCountry()->getIso() == 'BE') {
+            $shippingData[] = [
+                '_'       => $salutation,
+                'Name'    => 'Salutation',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ];
+
+            $shippingData[] = [
+                '_'       => $birthDayStamp,
+                'Name'    => 'BirthDate',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ];
+        }
+
         $latestKey++;
 
-        return array_merge($additional, [$billingData]);
+        return array_merge($additional, [$billingData,$shippingData]);
 
     }
 
