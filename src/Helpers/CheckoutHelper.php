@@ -1400,6 +1400,7 @@ class CheckoutHelper
     public function getBuckarooTransactionsByOrderId($orderId)
     {
         $transactionsToRefund = [];
+        $brqSignatures = [];
         $order = $this->getOrderById($orderId, false);
         $vat   = $order->get("price")->getTaxRules()->first()->getTaxRate();
 
@@ -1410,6 +1411,8 @@ class CheckoutHelper
 
         $collection = $this->buckarooTransactionEntityRepository->findByOrderId($orderId, ['created_at' => 'DESC']);
         foreach ($collection as $buckarooTransactionEntity) {
+            $brqSignature = md5($buckarooTransactionEntity->get("transactions").$buckarooTransactionEntity->get("amount") . $buckarooTransactionEntity->get("statuscode").$buckarooTransactionEntity->get("amount_credit").$buckarooTransactionEntity->get("currency").$buckarooTransactionEntity->get("transaction_type"));
+            if(in_array($transactions, $brqSignatures)){continue;} array_push($brqSignatures, $brqSignature);
             $amount                  = $buckarooTransactionEntity->get("amount_credit") ? '-' . $buckarooTransactionEntity->get("amount_credit") : $buckarooTransactionEntity->get("amount");
             $items['transactions'][] = (object) [
                 'id'                  => $buckarooTransactionEntity->get("id"),
@@ -1600,8 +1603,9 @@ class CheckoutHelper
 
         $data->set('senderName', $mailTemplate->getTranslation('senderName'));
         $data->set('salesChannelId', $order->getSalesChannelId());
-        $data->set('contentHtml', $mailTemplate->getTranslation('contentHtml'));
-        $data->set('contentPlain', $mailTemplate->getTranslation('contentPlain'));
+        $contentHtml = 'Hello! Your invoice attached';
+        $data->set('contentHtml', $mailTemplate->getContentHtml() ?? $contentHtml);
+        $data->set('contentPlain', $mailTemplate->getContentPlain() ?? $contentHtml);
         $data->set('subject', $mailTemplate->getTranslation('subject'));
         if ($mediaIds) {
             $data->set('mediaIds', $mediaIds);
