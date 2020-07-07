@@ -34,6 +34,11 @@
             <argument type="service" id="Buckaroo\Shopware6\Buckaroo\BkrClient"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Helpers\Logger" class="Monolog\Logger">
+            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
+            <argument type="string">buckaroo_payment</argument>
+        </service>
+
         <service id="Buckaroo\Shopware6\Helpers\CheckoutHelper">
             <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
@@ -54,6 +59,8 @@
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
             <argument type="service" id="mail_template.repository"/>
             <argument type="service" id="currency.repository" />
+            <argument type="service" id="sales_channel.repository" />
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\SettingsService">

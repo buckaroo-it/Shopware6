@@ -55,6 +55,9 @@ use Shopware\Core\Content\MailTemplate\Service\MailService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Psr\Log\LoggerInterface;
 
 class CheckoutHelper
 {
@@ -96,6 +99,10 @@ class CheckoutHelper
     private $mailTemplateRepository;
     /** @var EntityRepositoryInterface */
     private $currencyRepository;
+    /** @var EntityRepositoryInterface */
+    private $salesChannelRepository;
+    /** @var LoggerInterface */
+    private $logger;
 
     /**
      * CheckoutHelper constructor.
@@ -125,7 +132,9 @@ class CheckoutHelper
         EntityRepositoryInterface $documentRepository,
         MailService $mailService,
         EntityRepositoryInterface $mailTemplateRepository,
-        EntityRepositoryInterface $currencyRepository
+        EntityRepositoryInterface $currencyRepository,
+        EntityRepositoryInterface $salesChannelRepository,
+        LoggerInterface $logger
     ) {
         $this->router                              = $router;
         $this->transactionRepository               = $transactionRepository;
@@ -146,6 +155,8 @@ class CheckoutHelper
         $this->mailService = $mailService;
         $this->mailTemplateRepository = $mailTemplateRepository;
         $this->currencyRepository = $currencyRepository;
+        $this->salesChannelRepository  = $salesChannelRepository;
+        $this->logger = $logger;
     }
 
     public function getSetting($name)
@@ -1572,9 +1583,7 @@ class CheckoutHelper
         MailTemplateEntity $mailTemplate,
         OrderEntity $order,
         ? array $mediaIds,
-        ? array $documentIds,
-        ?StateMachineStateEntity $toPlace,
-        ?StateMachineStateEntity $fromPlace
+        ? array $documentIds
     ): void {
         $customer = $order->getOrderCustomer();
         if ($customer === null) {
@@ -1588,12 +1597,12 @@ class CheckoutHelper
                 $customer->getEmail() => $customer->getFirstName() . ' ' . $customer->getLastName(),
             ]
         );
-        $data->set('senderName', $mailTemplate->getSenderName());
-        $data->set('salesChannelId', $order->getSalesChannelId());
 
-        $data->set('contentHtml', $mailTemplate->getContentHtml());
-        $data->set('contentPlain', $mailTemplate->getContentPlain());
-        $data->set('subject', $mailTemplate->getSubject());
+        $data->set('senderName', $mailTemplate->getTranslation('senderName'));
+        $data->set('salesChannelId', $order->getSalesChannelId());
+        $data->set('contentHtml', $mailTemplate->getTranslation('contentHtml'));
+        $data->set('contentPlain', $mailTemplate->getTranslation('contentPlain'));
+        $data->set('subject', $mailTemplate->getTranslation('subject'));
         if ($mediaIds) {
             $data->set('mediaIds', $mediaIds);
         }
@@ -1609,22 +1618,19 @@ class CheckoutHelper
 
         // getting the correct sales channel domain with the help of the languageId of the order
         $languageId = $order->getLanguageId();
-   /*     $salesChannelCriteria = new Criteria([$order->getSalesChannel()->getId()]);
+        $salesChannelCriteria = new Criteria([$order->getSalesChannel()->getId()]);
         $salesChannelCriteria->getAssociation('domains')
             ->addFilter(
                 new EqualsFilter('languageId', $languageId)
             );
 
         $salesChannel = $this->salesChannelRepository->search($salesChannelCriteria, $context)->first();
-*/
         $this->mailService->send(
             $data->all(),
             $context,
             [
                 'order' => $order,
-                'previousState' => $fromPlace,
-                'newState' => $toPlace,
-                // 'salesChannel' => $salesChannel,
+                'salesChannel' => $salesChannel,
             ]
         );
 
@@ -1655,14 +1661,13 @@ class CheckoutHelper
             $mailTemplate = $this->getMailTemplate($context, $technicalName, $order);
 
             if ($mailTemplate !== null) {
+                $context = Context::createDefaultContext();
                 $this->sendMail(
                     $context,
                     $mailTemplate,
                     $order,
                     $mediaIds,
-                    $documentIds,
-                    $toPlace,
-                    $fromPlace
+                    $documentIds
                 );
             }
         }
