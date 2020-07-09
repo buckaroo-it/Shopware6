@@ -1032,4 +1032,116 @@
         </input-field>
     </card>
 
+    <card>
+    <title>In3</title>
+        <input-field type="single-select">
+            <name>In3Environment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>In3ButtonLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>In3</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+    <title>EPS</title>
+        <input-field type="single-select">
+            <name>epsEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>epsButtonLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>EPS</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+    <title>Przelewy24</title>
+        <input-field type="single-select">
+            <name>Przelewy24Environment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>Przelewy24ButtonLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Przelewy24</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+    <title>Alipay</title>
+        <input-field type="single-select">
+            <name>AlipayEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>AlipayButtonLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Alipay</defaultValue>
+        </input-field>
+    </card>
+
 </config>

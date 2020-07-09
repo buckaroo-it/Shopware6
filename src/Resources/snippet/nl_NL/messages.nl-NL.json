@@ -6,6 +6,12 @@
       "refundDescription": "Restitutie voor bestelling #orderNumber"
     },
     "checkout": {
+      "cOCNumber": "COC-nummer",
+      "companyName": "Bedrijfsnaam",
+      "private": "Private",
+      "company": "Company",
+      "oneManBusiness": "Eenmanszaak",
+      "orderAs": "Bestel als",
       "selectBankIssuer": "Selecteer uw bank",
       "selectCreditCard": "Selecteer uw credit card",
       "buckarooSepaDirectDebitCustomer": "Bankrekeninghouder",
@@ -27,11 +33,11 @@
         "card": "Card",
         "cardholder": "Kaarthouder",
         "cardNumber": "Kaartnummer",
-        "month": "Month",
+        "month": "Maand",
         "selectMonth": "Selecteer een maand",
-        "year": "Year",
+        "year": "Jaar",
         "selectYear": "Selecteer een jaar",
-        "securityCode": "Beveiligingscode"
+        "securityCode": "CVC/VV"
       }
     }
   },

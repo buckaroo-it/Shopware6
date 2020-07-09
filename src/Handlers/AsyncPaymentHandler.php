@@ -75,7 +75,9 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         $finalizePage = $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize');
 
-        $request->setDescription($this->checkoutHelper->getTranslate('buckaroo.order.paymentDescription', ['orderNumber' => $order->getOrderNumber()]));
+        if ($buckarooKey != 'RequestToPay') {
+            $request->setDescription($this->checkoutHelper->getTranslate('buckaroo.order.paymentDescription', ['orderNumber' => $order->getOrderNumber()]));
+        }
 
         $request->setReturnURL($finalizePage);
         $request->setReturnURLCancel(sprintf('%s?cancel=1', $finalizePage));
@@ -95,6 +97,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         if ($buckarooKey == 'applepay') {
             $this->payApplePay($dataBag, $request);
+        }
+
+        if ($buckarooKey == 'capayable') {
+            $request->setServiceAction('PayInInstallments');
+            $request->setOrder(null);
         }
 
         if ($buckarooKey == 'creditcard' && $dataBag->get('creditcard')) {
@@ -120,7 +127,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         if (!empty($gatewayInfo['additional']) && ($additional = $gatewayInfo['additional'])) {
             foreach ($additional as $item) {
-                foreach ($item as $key => $value) {
+                foreach ($item as $value) {
                     $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
                 }
             }

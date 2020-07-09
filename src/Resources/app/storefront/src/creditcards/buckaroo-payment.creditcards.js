@@ -32,10 +32,19 @@ export default class BuckarooPaymentCreditcards extends Plugin {
                 cardholder,
                 function(encryptedCardData) {
                     const encryptedCardDataInput = document.getElementById('encryptedCardData');
-                    encryptedCardDataInput.value = encryptedCardData;
+                    if(encryptedCardDataInput){
+                        encryptedCardDataInput.value = encryptedCardData;
+                    }
                 });
         };
-        getEncryptedData(document.getElementById('creditcards_cardnumber').value, document.getElementById('creditcards_expirationyear').value, document.getElementById('creditcards_expirationmonth').value, document.getElementById('creditcards_cvc').value, document.getElementById('creditcards_cardholdername').value);
+        const creditcards_cardnumber = document.getElementById('creditcards_cardnumber');
+        const creditcards_expirationyear = document.getElementById('creditcards_expirationyear');
+        const creditcards_expirationmonth = document.getElementById('creditcards_expirationmonth');
+        const creditcards_cvc = document.getElementById('creditcards_cvc');
+        const creditcards_cardholdername = document.getElementById('creditcards_cardholdername');
+        if(creditcards_cardnumber && creditcards_expirationyear && creditcards_expirationmonth && creditcards_cvc && creditcards_cardholdername){
+            getEncryptedData(creditcards_cardnumber.value, creditcards_expirationyear.value, creditcards_expirationmonth.value, creditcards_cvc.value, creditcards_cardholdername.value);
+        }
     }
 
     _handleInputChanged(event) {

@@ -38,3 +38,7 @@ Invoices on paid status
 
 ## Added payment methods
 * Creditcards Client Sided
+* In3
+* Eps
+* Przelewy24
+* Alipay

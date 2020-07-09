@@ -109,7 +109,7 @@ Component.register('buckaroo-payment-detail', {
         recalculateOrderItems() {
             this.buckaroo_refund_amount = 0;
             for (const key in this.orderItems) {
-                this.orderItems[key]['totalAmount'] = parseFloat(parseFloat(this.orderItems[key]['unitPrice']) * parseFloat(this.orderItems[key]['quantity'])).toFixed(2);
+                this.orderItems[key]['totalAmount'] = parseFloat(parseFloat(this.orderItems[key]['unitPrice']) * parseFloat(this.orderItems[key]['quantity'] || 0)).toFixed(2);
                 this.buckaroo_refund_amount = parseFloat(parseFloat(this.buckaroo_refund_amount) + parseFloat(this.orderItems[key]['totalAmount'])).toFixed(2);
             }
         },
@@ -148,9 +148,11 @@ Component.register('buckaroo-payment-detail', {
                             transactions: element.transactions,
                             amount: element.total,
                             amountMax: element.total,
+                            currency: element.currency,
                             transaction_method: element.transaction_method,
                             logo: element.transaction_method?element.logo:null
                         });
+                        that.currency = element.currency;
                     })
 
                     response.transactions.forEach((element) => {

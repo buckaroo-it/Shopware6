@@ -60,65 +60,64 @@
 
         {% if page.extensions.buckaroo.creditcards|length > 0 %}
 
-            <div class="card styled">
-                <div class="fieldset card_front width-100">
-                    <div class="card_kind">
-                        <img id="card_kind_img" src="/bundles/buckaroopayment/storefront/buckaroo/logo/creditcards.png">
-                    </div>
-                    <div class="field required width-70">
-                        <label class="label" for="creditcards_issuer">
-                            <span>{{ "buckaroo.checkout.creditcards.card"|trans }}:</span>
-                        </label>
-                        <select name="creditcards_issuer" id="creditcards_issuer" form="confirmOrderForm" required="required" class="creditcards_input">
+        <div class="card buckaroo-creditcards">
+            <fieldset>
+                <div class="form-row col-md-12">
+                    <div class="form-group col-md-12">
+                        <label class="form-label" for="creditcards_issuer">{{ "buckaroo.checkout.creditcards.card" | trans }}:</label>
+                        <select name="creditcards_issuer" id="creditcards_issuer" form="confirmOrderForm" required="required" class="form-control">
                             <option value="" data-logo="/bundles/buckaroopayment/storefront/buckaroo/logo/creditcards.png">{{ "buckaroo.checkout.selectCreditCard"|trans }}</option>
                                 {% for creditcard in page.extensions.buckaroo.creditcards %}
                                     <option data-logo="/bundles/buckaroopayment/storefront/buckaroo/logo/{{ creditcard.code }}.png" value="{{ creditcard.code }}">{{ creditcard.name }}</option>
                                 {% endfor %}
-                        </select>   
-                    </div>
-
-                <div class="field required width-100">
-                    <label class="label" for="creditcards_cardholdername"><span>{{ "buckaroo.checkout.creditcards.cardholder"|trans }}:</span></label>
-                    <input type="text" id="creditcards_cardholdername" name="creditcards_cardholdername" form="confirmOrderForm" required="required" class="creditcards_input">
-                    <input type="hidden" id="encryptedCardData" name="encryptedCardData" form="confirmOrderForm">
-                </div>
-
-                <div class="field required width-100">
-                    <label class="label" for="creditcards_cardnumber"><span>{{ "buckaroo.checkout.creditcards.cardNumber"|trans }}:</span></label>
-                    <input type="text" id="creditcards_cardnumber" name="creditcards_cardnumber" form="confirmOrderForm" required="required" class="creditcards_input">
-                </div>
-
-                <div class="field required width-50-l">
-                    <label class="label" for="creditcards_expirationmonth"><span>{{ "buckaroo.checkout.creditcards.month"|trans }}:</span></label>
-                    <select type="text" id="creditcards_expirationmonth" name="creditcards_expirationmonth" form="confirmOrderForm" required="required" class="creditcards_input">
-                        <option value="">{{ "buckaroo.checkout.creditcards.selectMonth"|trans }}</option>
-                        <option value="1">1</option> <option value="2">2</option> <option value="3">3</option> <option value="4">4</option> <option value="5">5</option> <option value="6">6</option> <option value="7">7</option> <option value="8">8</option> <option value="9">9</option> <option value="10">10</option> <option value="11">11</option> <option value="12">12</option>
-                    </select>
-                </div>
-
-                <div class="field required width-50-r">
-                    <label class="label" for="creditcards_expirationyear"><span>{{ "buckaroo.checkout.creditcards.year"|trans }}:</span></label>
-                    <select type="text" id="creditcards_expirationyear" name="creditcards_expirationyear" form="confirmOrderForm" required="required" class="creditcards_input">
-                        <option value="">{{ "buckaroo.checkout.creditcards.selectYear"|trans }}</option>
-                        <option value="2020">2020</option> <option value="2021">2021</option> <option value="2022">2022</option> <option value="2023">2023</option> <option value="2024">2024</option> <option value="2025">2025</option> <option value="2026">2026</option> <option value="2027">2027</option> <option value="2028">2028</option> <option value="2029">2029</option> <option value="2030">2030</option>
-                    </select>
-                </div>
-
-                </div>
-
-                <div class="fieldset card_back width-100">
-                    <div class="magnet_stripe width-100"></div>
-                    <div class="field required card_security width-100">
-                        <label class="label width-65-l" for="creditcards_cvc">
-                            <span>{{ "buckaroo.checkout.creditcards.securityCode"|trans }}:</span></label>
-                        <div class="control card-info-input width-25-l">
-                            <input type="text" id="creditcards_cvc" name="creditcards_cvc" form="confirmOrderForm" required="required" class="creditcards_input">
+                        </select>  
+                        <div class="card_kind">
+                            <img id="card_kind_img" src="/bundles/buckaroopayment/storefront/buckaroo/logo/creditcards.png">
                         </div>
-                        <div class="card_info width-10"></div>
                     </div>
-                </div>
 
-            </div>
+                    <div class="form-group col-md-12">
+                        <label class="form-label" for="creditcards_cardholdername">{{ "buckaroo.checkout.creditcards.cardholder" | trans }}:</label>
+                        <input class="form-control" id="creditcards_cardholdername" name="creditcards_cardholdername" form="confirmOrderForm" required="required" />
+                        <input type="hidden" id="encryptedCardData" name="encryptedCardData" form="confirmOrderForm">
+                    </div>
+
+                    <div class="form-group col-md-12">
+                        <label class="form-label" for="creditcards_cardnumber">{{ "buckaroo.checkout.creditcards.cardNumber" | trans }}:</label>
+                        <input class="form-control" id="creditcards_cardnumber" name="creditcards_cardnumber" form="confirmOrderForm" required="required" />
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="form-label" for="creditcards_expirationmonth">{{ "buckaroo.checkout.creditcards.month" | trans }}:</label>
+                        <select type="text" id="creditcards_expirationmonth" name="creditcards_expirationmonth" form="confirmOrderForm" required="required" class="form-control">
+                            <option value="">{{ "buckaroo.checkout.creditcards.selectMonth"|trans }}</option>
+                            {% for month in 1..12 %}
+                                <option value="{{ month }}">{{ month }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="form-label" for="creditcards_expirationyear">{{ "buckaroo.checkout.creditcards.year" | trans }}:</label>
+                        <select type="text" id="creditcards_expirationyear" name="creditcards_expirationyear" form="confirmOrderForm" required="required" class="form-control">
+                            <option value="">{{ "buckaroo.checkout.creditcards.selectYear"|trans }}</option>
+                            {% set start_year = date() | date('Y') %}
+                            {% set end_year = start_year + 10 %}
+
+                            {% for year in start_year..end_year %}
+                                <option value="{{ year }}">{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="form-label" for="creditcards_cvc">{{ "buckaroo.checkout.creditcards.securityCode" | trans }}:</label>
+                        <input class="form-control" id="creditcards_cvc" name="creditcards_cvc" form="confirmOrderForm" required="required" />
+                    </div>
+
+                </div>
+            </fieldset>
+        </div>
 
         {% endif %}
 
@@ -171,6 +170,86 @@
 
         </fieldset>
     </div>
+    
+    {% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'capayable' %}
+        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
+        
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+
+        <div class="payment-method-second-col billing-address-form">
+            <fieldset class="fieldset payment">
+
+                <div class="form-group">
+                    <label class="form-label" for="buckarooIn3Phone">
+                        {{ "buckaroo.checkout.buckarooAfterpayPhone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                    </label>
+
+                    <input type="text"
+                           class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
+                           form="confirmOrderForm"
+                           id="buckarooIn3Phone"
+                           name="buckaroo_in3_phone"
+                           placeholder="{{ "buckaroo.checkout.buckarooAfterpayPhonePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                           value=""
+                           required="required"
+                           minlength="10">
+                </div>
+
+                <div class="form-group">
+                    <label class="label" for="buckaroo_capayablein3_DoB">{{ "buckaroo.checkout.buckarooAfterpayDoBTitle"|trans }}:</label>
+                    <span><sup>{{ "buckaroo.checkout.buckarooAfterpayDoBTitleSup"|trans }}</sup></span>
+                    <div class="control">
+                        <input id="buckaroo_capayablein3_DoB" 
+                        class="form-control field" 
+                        type="date"
+                        max='{{ "now"|date_modify("-18 years")|date("Y-m-d") }}'
+                        name="buckaroo_capayablein3_DoB"
+                        form="confirmOrderForm"
+                        required="required"
+                        >
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="buckaroo_capayablein3_OrderAs"> <span>{{ "buckaroo.checkout.orderAs"|trans }}:</span> </label>
+                    <div class="control">
+                        <select id="buckaroo_capayablein3_OrderAs" name="buckaroo_capayablein3_orderAs" form="confirmOrderForm">
+                            <option value="Debtor">{{ "buckaroo.checkout.private"|trans }}</option>
+                            <option value="Company">{{ "buckaroo.checkout.company"|trans }}</option>
+                            <option value="SoleProprietor">{{ "buckaroo.checkout.oneManBusiness"|trans }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id='buckaroo_capayablein3_COCNumberDiv'>
+                    <label class="label" for="buckaroo_capayablein3_COCNumber">{{ "buckaroo.checkout.cOCNumber"|trans }}:</label>
+                    <div class="control">
+                        <input id="buckaroo_capayablein3_COCNumber" 
+                        class="form-control field" 
+                        type="text"
+                        name="buckaroo_capayablein3_COCNumber"
+                        form="confirmOrderForm"
+                        minlength="8"
+                        required="required"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group" id='buckaroo_capayablein3_CompanyNameDiv'>
+                    <label class="label" for="buckaroo_capayablein3_CompanyName">{{ "buckaroo.checkout.companyName"|trans }}:</label>
+                    <div class="control">
+                        <input id="buckaroo_capayablein3_CompanyName" 
+                        class="form-control field" 
+                        type="text"
+                        name="buckaroo_capayablein3_CompanyName"
+                        form="confirmOrderForm"
+                        required="required"
+                        >
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
 
     {% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'giropay' %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
@@ -237,6 +316,17 @@
             </fieldset>
         </div>
 
+    {% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'Przelewy24' %}
+        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+
+        <input type="hidden"
+                           value="{{ page.extensions.buckaroo.currency }}"
+                           class="form-control"
+                           form="confirmOrderForm"
+                           id="P24Currency"
+                           name="P24Currency">
+        <div id="P24CurrencyError">To process the payment with Przelewy24 the currency must be set to polish Zloty</div>
     {% else %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
         {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}

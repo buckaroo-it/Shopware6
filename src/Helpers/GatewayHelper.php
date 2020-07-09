@@ -18,6 +18,10 @@ use Buckaroo\Shopware6\PaymentMethods\SepaDirectDebit;
 use Buckaroo\Shopware6\PaymentMethods\Payconiq;
 use Buckaroo\Shopware6\PaymentMethods\Giftcards;
 use Buckaroo\Shopware6\PaymentMethods\Rtp;
+use Buckaroo\Shopware6\PaymentMethods\In3;
+use Buckaroo\Shopware6\PaymentMethods\Eps;
+use Buckaroo\Shopware6\PaymentMethods\P24;
+use Buckaroo\Shopware6\PaymentMethods\Alipay;
 
 class GatewayHelper
 {
@@ -37,6 +41,10 @@ class GatewayHelper
         SepaDirectDebit::class,
         Payconiq::class,
         Giftcards::class,
-        Rtp::class
+        Rtp::class,
+        In3::class,
+        Eps::class,
+        P24::class,
+        Alipay::class
     ];
 }

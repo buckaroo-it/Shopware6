@@ -42,14 +42,14 @@ class PushController extends StorefrontController
      */
     public function pushBuckaroo(Request $request, SalesChannelContext $salesChannelContext)
     {
-        $orderTransactionId   = $request->request->get('ADD_orderTransactionId');
-        $context              = $salesChannelContext->getContext();
-        $brqAmount    = $request->request->get('brq_amount');
+        $status             = $request->request->get('brq_statuscode');
+        $context            = $salesChannelContext->getContext();
+        $brqAmount          = $request->request->get('brq_amount');
+        $brqOrderId         = $request->request->get('ADD_orderId');
         $brqAmountCredit    = $request->request->get('brq_amount_credit');
-        $status               = $request->request->get('brq_statuscode');
+        $brqInvoicenumber   = $request->request->get('brq_invoicenumber');
+        $orderTransactionId = $request->request->get('ADD_orderTransactionId');
         $brqTransactionType = $request->request->get('brq_transaction_type');
-        $brqOrderId          = $request->request->get('ADD_orderId');
-        $brqInvoicenumber          = $request->request->get('brq_invoicenumber');
 
         $validSignature = $this->checkoutHelper->validateSignature();
         if (!$validSignature) {
@@ -61,7 +61,7 @@ class PushController extends StorefrontController
         }
 
         $transaction = $this->checkoutHelper->getOrderTransaction($orderTransactionId, $context);
-        $totalPrice = $transaction->getAmount()->getTotalPrice();
+        $totalPrice  = $transaction->getAmount()->getTotalPrice();
 
         //Check if the push is a refund request or cancel authorize
         if (isset($brqAmountCredit)) {
@@ -69,7 +69,7 @@ class PushController extends StorefrontController
                 return $this->json(['status' => true, 'message' => "Payment cancelled"]);
             }
 
-            $status     = ($brqAmountCredit < $totalPrice) ? 'partial_refunded' : 'refunded';
+            $status = ($brqAmountCredit < $totalPrice) ? 'partial_refunded' : 'refunded';
             $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, [$status => 1]);
 
             $this->checkoutHelper->transitionPaymentState($status, $orderTransactionId, $context);
@@ -79,7 +79,7 @@ class PushController extends StorefrontController
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
             try {
-                $paymentState = (round($brqAmount,2) == round($totalPrice,2)) ? "completed" : "pay_partially";
+                $paymentState = (round($brqAmount, 2) == round($totalPrice, 2)) ? "completed" : "pay_partially";
                 $this->checkoutHelper->transitionPaymentState($paymentState, $orderTransactionId, $context);
                 $data = [
                     'originalTransactionKey' => $request->request->get('brq_transactions'),
@@ -87,8 +87,8 @@ class PushController extends StorefrontController
                 ];
                 $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
 
-                if(!$this->checkoutHelper->isInvoiced($brqOrderId, $context)){
-                    if(round($brqAmount,2) == round($totalPrice,2)){
+                if (!$this->checkoutHelper->isInvoiced($brqOrderId, $context)) {
+                    if (round($brqAmount, 2) == round($totalPrice, 2)) {
                         $this->checkoutHelper->generateInvoice($brqOrderId, $context, $brqInvoicenumber);
                         // $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'reopen');
                     }
@@ -122,9 +122,9 @@ class PushController extends StorefrontController
      */
     public function finalizeBuckaroo(Request $request, SalesChannelContext $salesChannelContext)
     {
-        $status         = $request->request->get('brq_statuscode');
+        $status        = $request->request->get('brq_statuscode');
         $statusMessage = $request->request->get('brq_statusmessage');
-        $orderId        = $request->request->get('ADD_orderId');
+        $orderId       = $request->request->get('ADD_orderId');
 
         if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS, ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS, ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING])) {
             return new RedirectResponse('/checkout/finish?orderId=' . $request->request->get('ADD_orderId'));

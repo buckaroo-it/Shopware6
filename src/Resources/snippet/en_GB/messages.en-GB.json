@@ -6,6 +6,12 @@
       "refundDescription": "Refund for order #orderNumber"
     },
     "checkout": {
+      "cOCNumber": "COC Number",
+      "companyName": "Company Name",
+      "private": "Private",
+      "company": "Company",
+      "oneManBusiness": "One-man business",
+      "orderAs": "Order As",
       "selectBankIssuer": "Select your bank",
       "selectCreditCard": "Select your credit card",
       "buckarooSepaDirectDebitCustomer": "Bank account holder",
@@ -31,7 +37,7 @@
         "selectMonth": "Select a month",
         "year": "Year",
         "selectYear": "Select a year",
-        "securityCode": "Security Code"
+        "securityCode": "CVC/VV"
       }
     }
   },
