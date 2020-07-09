@@ -15,12 +15,20 @@ function loadBuckarooApple() {
     loadBuckarooSdk.then(() => {
         const applepay = new ApplePay;
         applepay.init();
+
+        if (document.querySelector('.product-detail-quantity-select')) {
+            document.querySelector('.product-detail-quantity-select').addEventListener(
+                "change",
+                () => {
+                    applepay.rebuild();
+                    applepay.init();
+                });
+        }
     });
 
 }
 
 if ((typeof jQuery == 'undefined') || (typeof jQuery.ajax == 'undefined')) {
-    //console.log("====applepay====jQuery1");
     const loadJquery = new Promise((resolve) => {
         var script = document.createElement("script");
         script.src = "https://code.jquery.com/jquery-3.2.1.min.js";

@@ -207,36 +207,6 @@ class Config
     }
 
     /**
-     * Show Apple pay button on product page
-     *
-     * @return boolean
-     */
-    public function applepayButtonShowProduct()
-    {
-        return $this->get('buckaroo_applepay_show_product', "no") == 'yes';
-    }
-
-    /**
-     * Show Apple pay button on cart page
-     *
-     * @return boolean
-     */
-    public function applepayButtonShowCart()
-    {
-        return $this->get('buckaroo_applepay_show_cart', "no") == 'yes';
-    }
-
-    /**
-     * Show Apple pay button on checkout page
-     *
-     * @return boolean
-     */
-    public function applepayButtonShowCheckout()
-    {
-        return $this->get('buckaroo_applepay_show_checkout', "no") == 'yes';
-    }
-
-    /**
      * Show Apple pay button on checkout page
      *
      * @return boolean

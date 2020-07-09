@@ -575,6 +575,42 @@
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Apple Pay</defaultValue>
         </input-field>
+
+        <input-field type="single-select">
+            <name>applepayShowProduct</name>
+            <label lang="en-GB">Show Apple Pay button on product page</label>
+            <label lang="de-DE">Apple Pay-Schaltfläche auf der Produktseite anzeigen</label>
+            <label lang="nl-NL">Toon Apple Pay-knop op productpagina</label>
+            <defaultValue>0</defaultValue>
+            <options>
+                <option>
+                    <id>1</id>
+                    <name>Yes</name>
+                </option>
+                <option>
+                    <id>0</id>
+                    <name>No</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>applepayShowCart</name>
+            <label lang="en-GB">Show Apple Pay button in the cart</label>
+            <label lang="de-DE">Apple Pay-Schaltfläche im Warenkorb anzeigen</label>
+            <label lang="nl-NL">Toon Apple Pay-knop in de winkelwagen</label>
+            <defaultValue>0</defaultValue>
+            <options>
+                <option>
+                    <id>1</id>
+                    <name>Yes</name>
+                </option>
+                <option>
+                    <id>0</id>
+                    <name>No</name>
+                </option>
+            </options>
+        </input-field>
     </card>
 
     <card>

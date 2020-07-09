@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Psr\Log\LoggerInterface;
 
 class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
@@ -24,16 +25,24 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     public $checkoutHelper;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * Buckaroo constructor.
      * @param Helper $helper
      * @param CheckoutHelper $checkoutHelper
      */
     public function __construct(
         Helper $helper,
-        CheckoutHelper $checkoutHelper
+        CheckoutHelper $checkoutHelper,
+        LoggerInterface $logger
     ) {
+
         $this->helper         = $helper;
         $this->checkoutHelper = $checkoutHelper;
+        $this->logger = $logger;
     }
 
     /**
@@ -56,6 +65,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse{
+        $this->logger->info(__METHOD__ . "|1|");
 
         $bkrClient = $this->helper->initializeBkr();
 

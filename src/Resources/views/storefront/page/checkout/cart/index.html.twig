@@ -1,0 +1,22 @@
+{% sw_extends '@Storefront/storefront/page/checkout/cart/index.html.twig' %}
+
+{% block page_checkout_cart_action_proceed %}
+    {{ parent() }}
+    {% if shopware.config.BuckarooPayment.config.applepayShowCart %}
+        <div id="applepay-button-container" class="applepay-button-container" style="margin-top: 10px;">
+            <div></div>
+        </div>
+        <script>
+            if (!window.buckaroo) {
+                window.buckaroo = {
+                    submit: false,
+                    csrf: {
+                        '/Buckaroo/applepayInitNonCheckout': '{{ sw_csrf("frontend.buckaroo.applepayInitNonCheckout", {"mode": "token"}) }}',
+                        '/Buckaroo/applepaySaveOrder': '{{ sw_csrf("frontend.buckaroo.applepaySaveOrder", {"mode": "token"}) }}'
+                    }
+                };
+            }
+        </script>
+        <script type="module" src="/bundles/buckaroopayment/storefront/buckaroo/js/applepay/index.js"></script>
+    {% endif %}
+{% endblock %}
