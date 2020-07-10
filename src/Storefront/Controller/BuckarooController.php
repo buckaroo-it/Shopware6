@@ -156,6 +156,11 @@ class BuckarooController extends StorefrontController
     private $finishPageLoader;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $paymentMethodRepository;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -179,6 +184,7 @@ class BuckarooController extends StorefrontController
         EntityRepositoryInterface $salutationRepository,
         EntityRepositoryInterface $customerAddressRepository,
         CheckoutFinishPageLoader $finishPageLoader,
+        EntityRepositoryInterface $paymentMethodRepository,
         LoggerInterface $logger
     )
     {
@@ -200,6 +206,7 @@ class BuckarooController extends StorefrontController
         $this->salutationRepository = $salutationRepository;
         $this->customerAddressRepository = $customerAddressRepository;
         $this->finishPageLoader = $finishPageLoader;
+        $this->paymentMethodRepository = $paymentMethodRepository;
         $this->logger = $logger;
     }
 
@@ -471,7 +478,7 @@ class BuckarooController extends StorefrontController
             $dataBag->set('applePayInfo', json_encode($paymentData));
             $response = $this->paymentService->handlePaymentByOrder($orderId, $dataBag, $salesChannelContext, $finishUrl, $errorUrl);
 
-            $this->logger->info(__METHOD__ . "|7|", [$response->getTargetUrl()]);
+            $this->logger->info(__METHOD__ . "|7|", [$response]);
 
             if ($response && $response->getTargetUrl()) {
                 return $this->json([
@@ -850,11 +857,14 @@ class BuckarooController extends StorefrontController
                 ],
                 'defaultShippingAddressId' => $addressId,
                 'defaultBillingAddressId' => $addressId2,
+                'defaultPaymentMethodId' => $this->getValidPaymentMethodId($context),
+                /*
                 'defaultPaymentMethod' => [
                     'name' => 'Apple Pay',
                     'description' => 'Pay with Apple Pay',
-                    'handlerIdentifier' => ApplePayPaymentHandler::class,
+                    'handlerIdentifier' => \Buckaroo\Shopware6\Handlers\ApplePayPaymentHandler::class,
                 ],
+                */
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $shipping_address['emailAddress'],
                 'password' => $customerId,
@@ -872,6 +882,15 @@ class BuckarooController extends StorefrontController
         return $this->customerRepository->search($criteria, $context->getContext())->first();
 
 
+    }
+
+    protected function getValidPaymentMethodId(SalesChannelContext $context): string
+    {
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('handlerIdentifier', 'Buckaroo\Shopware6\Handlers\ApplePayPaymentHandler'));
+
+        return $this->paymentMethodRepository->search($criteria, $context->getContext())->first()->getId();
     }
 
     protected function getValidSalutationId(SalesChannelContext $context): string

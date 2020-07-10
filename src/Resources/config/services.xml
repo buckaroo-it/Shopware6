@@ -265,6 +265,7 @@
             <argument type="service" id="salutation.repository" />
             <argument type="service" id="customer_address.repository" />
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader" />
+            <argument type="service" id="payment_method.repository" />
             <argument type="service" id="logger" />
         </service>
 
