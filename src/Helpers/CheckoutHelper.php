@@ -1408,6 +1408,8 @@ class CheckoutHelper
         $shipping       = $order->getShippingCosts();
         $shipping_costs = $shipping->getTotalPrice();
 
+        $orderRefundedItems = [];
+
         $collection = $this->buckarooTransactionEntityRepository->findByOrderId($orderId, ['created_at' => 'DESC']);
         foreach ($collection as $buckarooTransactionEntity) {
             $transactions = $buckarooTransactionEntity->get("transactions");
