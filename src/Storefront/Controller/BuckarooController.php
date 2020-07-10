@@ -239,25 +239,20 @@ class BuckarooController extends StorefrontController
 
         $result = $this->applepayInitCommon($context);
 
-
         if ($request->request->get('product_id') && $request->request->get('qty')) {
             $mode = 'product';
         } else {
             $mode = 'cart';
         }
 
-
         $cart = $this->cartService->getCart($context->getToken(), $context);
-        //var_dump($context->getToken(), $request->request->get('product_id'));
 
         if ($mode == 'product') {
 
             ////save and remove existing cart items
             $previousProducts = [];
             if ($previousLineItems = $cart->getLineItems()) {
-                //var_dump("=================21");
                 foreach ($previousLineItems as $lineItem) {
-                    //var_dump("=================22");
                     $previousProducts[] = [
                         'id' => $lineItem->getReferencedId(),
                         'qty' => $lineItem->getQuantity()
@@ -338,11 +333,13 @@ class BuckarooController extends StorefrontController
                 $this->logger->info(__METHOD__ . "|12|");
                 foreach ($previousProducts as $previousProduct) {
                     $this->logger->info(__METHOD__ . "|13|", [$previousProduct['id']]);
-                    $lineItem = (new ProductLineItemFactory())->create(
-                        $previousProduct['id'],
-                        ['quantity' => $previousProduct['qty']]
-                    );
-                    $this->cartService->add($cart, $lineItem, $context);
+                    if (!empty($previousProduct['id'])) {
+                        $lineItem = (new ProductLineItemFactory())->create(
+                            $previousProduct['id'],
+                            ['quantity' => $previousProduct['qty']]
+                        );
+                        $this->cartService->add($cart, $lineItem, $context);
+                    }
                 }
             }
 
