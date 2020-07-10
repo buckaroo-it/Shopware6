@@ -161,6 +161,11 @@ class BuckarooController extends StorefrontController
     private $paymentMethodRepository;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $orderTransactionRepository;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -185,6 +190,7 @@ class BuckarooController extends StorefrontController
         EntityRepositoryInterface $customerAddressRepository,
         CheckoutFinishPageLoader $finishPageLoader,
         EntityRepositoryInterface $paymentMethodRepository,
+        EntityRepositoryInterface $orderTransactionRepository,
         LoggerInterface $logger
     )
     {
@@ -207,6 +213,7 @@ class BuckarooController extends StorefrontController
         $this->customerAddressRepository = $customerAddressRepository;
         $this->finishPageLoader = $finishPageLoader;
         $this->paymentMethodRepository = $paymentMethodRepository;
+        $this->orderTransactionRepository = $orderTransactionRepository;
         $this->logger = $logger;
     }
 
@@ -474,6 +481,31 @@ class BuckarooController extends StorefrontController
                 'paymentFailed' => true,
             ]);
 
+            ///////////
+
+            $criteria = new Criteria([$orderId]);
+            $criteria->addAssociation('transactions.paymentMethod');
+            $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+            $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
+
+            $transactions = $order->getTransactions();
+            if ($transactions === null) {
+                throw new InvalidOrderException($orderId);
+            }
+            $transactions = $transactions->filterByState(OrderTransactionStates::STATE_OPEN);
+            $transaction = $transactions->last();
+            if ($transaction !== null) {
+                $paymentMethod = $transaction->getPaymentMethod();
+
+                $this->orderTransactionRepository->update([[
+                    'id' => $transaction->getId(),
+                    'paymentMethodId' => $this->getValidPaymentMethod($salesChannelContext)->getId(),
+                ]], $salesChannelContext->getContext());
+
+                $this->logger->info(__METHOD__ . "|666|");
+            }
+            ///////////
+
             $dataBag = new RequestDataBag();
             $dataBag->set('applePayInfo', json_encode($paymentData));
             $response = $this->paymentService->handlePaymentByOrder($orderId, $dataBag, $salesChannelContext, $finishUrl, $errorUrl);
@@ -536,7 +568,7 @@ class BuckarooController extends StorefrontController
                     $context->getCurrentCustomerGroup(),
                     $context->getFallbackCustomerGroup(),
                     $context->getTaxRules(),
-                    $context->getPaymentMethod(),
+                    $this->getValidPaymentMethod($context),
                     $context->getShippingMethod(),
                     $context->getShippingLocation(),
                     $customer,
@@ -727,6 +759,8 @@ class BuckarooController extends StorefrontController
 
             $context->getSalesChannel()->setShippingMethodId($shippingMethod->getId());
             $context->getSalesChannel()->setShippingMethod($shippingMethod);
+            $context->getSalesChannel()->setPaymentMethodId($this->getValidPaymentMethod($context)->getId());
+            $context->getSalesChannel()->setPaymentMethod($this->getValidPaymentMethod($context));
 
             $cart = $this->cartService->getCart($context->getToken(), $context);
 
@@ -857,7 +891,7 @@ class BuckarooController extends StorefrontController
                 ],
                 'defaultShippingAddressId' => $addressId,
                 'defaultBillingAddressId' => $addressId2,
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId($context),
+                'defaultPaymentMethodId' => $this->getValidPaymentMethod($context)->getId(),
                 /*
                 'defaultPaymentMethod' => [
                     'name' => 'Apple Pay',
@@ -884,13 +918,13 @@ class BuckarooController extends StorefrontController
 
     }
 
-    protected function getValidPaymentMethodId(SalesChannelContext $context): string
+    protected function getValidPaymentMethod(SalesChannelContext $context)
     {
         $criteria = (new Criteria())
             ->setLimit(1)
             ->addFilter(new EqualsFilter('handlerIdentifier', 'Buckaroo\Shopware6\Handlers\ApplePayPaymentHandler'));
 
-        return $this->paymentMethodRepository->search($criteria, $context->getContext())->first()->getId();
+        return $this->paymentMethodRepository->search($criteria, $context->getContext())->first();
     }
 
     protected function getValidSalutationId(SalesChannelContext $context): string
@@ -930,7 +964,7 @@ class BuckarooController extends StorefrontController
             throw new OrderNotFoundException($orderId);
         }
 
-        $this->logger->info(__METHOD__ . "|4|", [$order->getOrderCustomer()->getCustomer()]);
+        $this->logger->info(__METHOD__ . "|4|", []);
 
         $salesChannelContext = new SalesChannelContext(
             $salesChannelContext->getContext(),
@@ -940,7 +974,7 @@ class BuckarooController extends StorefrontController
             $salesChannelContext->getCurrentCustomerGroup(),
             $salesChannelContext->getFallbackCustomerGroup(),
             $salesChannelContext->getTaxRules(),
-            $salesChannelContext->getPaymentMethod(),
+            $this->getValidPaymentMethod($salesChannelContext),
             $salesChannelContext->getShippingMethod(),
             $salesChannelContext->getShippingLocation(),
             $order->getOrderCustomer()->getCustomer(),
