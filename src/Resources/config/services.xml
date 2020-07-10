@@ -208,24 +208,28 @@
         <service id="Buckaroo\Shopware6\Handlers\In3PaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="logger" />
             <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\EpsPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="logger" />
             <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\P24PaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="logger" />
             <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\AlipayPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="logger" />
             <tag name="shopware.payment.method.async" />
         </service>
 
