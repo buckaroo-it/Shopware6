@@ -42,3 +42,7 @@ Invoices on paid status
 * Eps
 * Przelewy24
 * Alipay
+
+# 1.1.0
+BP-309 Added payment fee (fixed amount) to all payment methods
+BP-201 Added payment method WeChatPay

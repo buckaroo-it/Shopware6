@@ -1606,7 +1606,6 @@ class CheckoutHelper
         Context $context,
         MailTemplateEntity $mailTemplate,
         OrderEntity $order,
-        ? array $mediaIds,
         ? array $documentIds
     ): void {
         $customer = $order->getOrderCustomer();
@@ -1691,7 +1690,6 @@ class CheckoutHelper
                     $context,
                     $mailTemplate,
                     $order,
-                    $mediaIds,
                     $documentIds
                 );
             }

@@ -22,6 +22,7 @@ use Buckaroo\Shopware6\PaymentMethods\In3;
 use Buckaroo\Shopware6\PaymentMethods\Eps;
 use Buckaroo\Shopware6\PaymentMethods\P24;
 use Buckaroo\Shopware6\PaymentMethods\Alipay;
+use Buckaroo\Shopware6\PaymentMethods\WeChatPay;
 
 class GatewayHelper
 {
@@ -45,6 +46,7 @@ class GatewayHelper
         In3::class,
         Eps::class,
         P24::class,
-        Alipay::class
+        Alipay::class,
+        WeChatPay::class
     ];
 }
