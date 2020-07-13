@@ -34,8 +34,9 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         $latestKey  = 1;
         $order      = $transaction->getOrder();
 
-        $additional = $this->checkoutHelper->getArticleData($order, $additional, $latestKey);
-        $additional = $this->checkoutHelper->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag);
+        $additional = $this->getArticleData($order, $additional, $latestKey);
+        $additional = $this->getBuckarooFee($order, $additional, $latestKey);
+        $additional = $this->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag);
 
         $paymentMethod = new AfterPay();
         $gatewayInfo   = [
@@ -51,5 +52,309 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
             $paymentMethod->getVersion(),
             $gatewayInfo
         );
+    }
+
+    public function getBuckarooFee($order, $additional, &$latestKey)
+    {
+        $buckarooFee = $this->checkoutHelper->getBuckarooFee('afterpayFee');
+        if (false !== $buckarooFee && (double)$buckarooFee > 0) {
+            $additional[] = [
+                [
+                    '_'       => 'buckarooFee',
+                    'Name'    => 'Description',
+                    'GroupID' => $latestKey,
+                    'Group'   => 'Article',
+                ],
+                [
+                    '_'       => 'buckarooFee',
+                    'Name'    => 'Identifier',
+                    'Group'   => 'Article',
+                    'GroupID' => $latestKey,
+                ],
+                [
+                    '_'       => 1,
+                    'Name'    => 'Quantity',
+                    'GroupID' => $latestKey,
+                    'Group'   => 'Article',
+                ],
+                [
+                    '_'       => round($buckarooFee, 2),
+                    'Name'    => 'GrossUnitPrice',
+                    'GroupID' => $latestKey,
+                    'Group'   => 'Article',
+                ],
+                [
+                    '_'       => 0,
+                    'Name'    => 'VatPercentage',
+                    'GroupID' => $latestKey,
+                    'Group'   => 'Article',
+                ],
+            ];
+            $latestKey++;
+        }
+        return $additional;
+    }
+    
+    public function getArticleData($order, $additional, &$latestKey)
+    {
+        $lines = $this->checkoutHelper->getOrderLinesArray($order);
+
+        foreach ($lines as $key => $item) {
+            $additional[] = [
+                [
+                    '_'       => $item['name'],
+                    'Name'    => 'Description',
+                    'GroupID' => $latestKey,
+                    'Group'   => 'Article',
+                ],
+                [
+                    '_'       => $item['sku'],
+                    'Name'    => 'Identifier',
+                    'Group'   => 'Article',
+                    'GroupID' => $latestKey,
+                ],
+                [
+                    '_'       => $item['quantity'],
+                    'Name'    => 'Quantity',
+                    'GroupID' => $latestKey,
+                    'Group'   => 'Article',
+                ],
+                [
+                    '_'       => $item['unitPrice']['value'],
+                    'Name'    => 'GrossUnitPrice',
+                    'GroupID' => $latestKey,
+                    'Group'   => 'Article',
+                ],
+                [
+                    '_'       => $item['vatRate'],
+                    'Name'    => 'VatPercentage',
+                    'GroupID' => $latestKey,
+                    'Group'   => 'Article',
+                ],
+            ];
+            $latestKey++;
+        }
+
+        return $additional;
+    }
+
+    public function getAddressArray($order, $additional, &$latestKey, $salesChannelContext, $dataBag)
+    {
+        $address  = $this->checkoutHelper->getBillingAddress($order, $salesChannelContext);
+        $customer = $this->checkoutHelper->getOrderCustomer($order, $salesChannelContext);
+        $shippingAddress  = $this->checkoutHelper->getShippingAddress($order, $salesChannelContext);
+
+        if ($address === null) {
+            return $additional;
+        }
+
+        $streetFormat  = $this->checkoutHelper->formatStreet($address->getStreet());
+        $birthDayStamp = $dataBag->get('buckaroo_afterpay_DoB');
+        $address->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
+        $salutation = $customer->getSalutation()->getSalutationKey();
+        
+        $shippingAddress->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
+        $shippingStreetFormat  = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
+
+        $category    = 'Person';
+        $billingData = [
+            [
+                '_'       => $category,
+                'Name'    => 'Category',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $address->getFirstName(),
+                'Name'    => 'FirstName',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $address->getLastName(),
+                'Name'    => 'LastName',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $address->getStreet(),
+                'Name'    => 'Street',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $address->getZipCode(),
+                'Name'    => 'PostalCode',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $address->getCity(),
+                'Name'    => 'City',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL',
+                'Name'    => 'Country',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $address->getPhoneNumber(),
+                'Name'    => 'MobilePhone',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $address->getPhoneNumber(),
+                'Name'    => 'Phone',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $customer->getEmail(),
+                'Name'    => 'Email',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ],
+        ];
+
+        if (!empty($streetFormat['house_number'])) {
+            $billingData[] = [
+                '_'       => $streetFormat['house_number'],
+                'Name'    => 'StreetNumber',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ];
+        }
+
+        if (!empty($streetFormat['number_addition'])) {
+            $billingData[] = [
+                '_'       => $streetFormat['number_addition'],
+                'Name'    => 'StreetNumberAdditional',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ];
+        }
+
+        if ($address->getCountry()->getIso() == 'NL' || $address->getCountry()->getIso() == 'BE') {
+            $billingData[] = [
+                '_'       => $salutation,
+                'Name'    => 'Salutation',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ];
+
+            $billingData[] = [
+                '_'       => $birthDayStamp,
+                'Name'    => 'BirthDate',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ];
+        }
+
+
+        $shippingData = [
+            [
+                '_'       => $category,
+                'Name'    => 'Category',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getFirstName(),
+                'Name'    => 'FirstName',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getLastName(),
+                'Name'    => 'LastName',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getStreet(),
+                'Name'    => 'Street',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getZipCode(),
+                'Name'    => 'PostalCode',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getCity(),
+                'Name'    => 'City',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getCountry() !== null ? $shippingAddress->getCountry()->getIso() : 'NL',
+                'Name'    => 'Country',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getPhoneNumber(),
+                'Name'    => 'MobilePhone',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $shippingAddress->getPhoneNumber(),
+                'Name'    => 'Phone',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+            [
+                '_'       => $customer->getEmail(),
+                'Name'    => 'Email',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
+        ];
+
+        if (!empty($shippingStreetFormat['house_number'])) {
+            $shippingData[] = [
+                '_'       => $shippingStreetFormat['house_number'],
+                'Name'    => 'StreetNumber',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ];
+        }
+
+        if (!empty($shippingStreetFormat['number_addition'])) {
+            $shippingData[] = [
+                '_'       => $shippingStreetFormat['number_addition'],
+                'Name'    => 'StreetNumberAdditional',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ];
+        }
+
+        if ($shippingAddress->getCountry()->getIso() == 'NL' || $shippingAddress->getCountry()->getIso() == 'BE') {
+            $shippingData[] = [
+                '_'       => $salutation,
+                'Name'    => 'Salutation',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ];
+
+            $shippingData[] = [
+                '_'       => $birthDayStamp,
+                'Name'    => 'BirthDate',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ];
+        }
+
+        $latestKey++;
+
+        return array_merge($additional, [$billingData,$shippingData]);
+
     }
 }

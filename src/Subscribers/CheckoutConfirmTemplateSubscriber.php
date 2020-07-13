@@ -196,7 +196,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'payment_labels'           => $paymentLabels,
             'media_path'               => '/bundles/buckaroopayment/storefront/buckaroo/logo/',
             'payment_media'            => $lastUsedCreditcard . '.png',
-            'buckarooFee'              => round(str_replace(',','.',$this->helper->getSettingsValue($buckarooKey . 'Fee')), 2),
+            'buckarooFee'              => $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee'),
         ]);
 
         $event->getPage()->addExtension(
