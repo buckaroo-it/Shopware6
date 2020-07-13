@@ -1207,7 +1207,7 @@ class CheckoutHelper
         foreach ($orderRefundedItems as $key => $value) {
             foreach ($value as $key3 => $quantity) {
                 foreach ($items['orderItems'] as $key2 => $value2) {
-                    if ($key3 == $value2['id']) {
+                    if (isset($value2['id']) && $key3 == $value2['id']) {
                         $items['orderItems'][$key2]['quantity']             = $value2['quantity'] - $quantity;
                         $items['orderItems'][$key2]['totalAmount']['value'] = ($value2['totalAmount']['value'] - ($value2['unitPrice']['value'] * $quantity));
                         if ($items['orderItems'][$key2]['quantity'] < 0) {$items['orderItems'][$key2]['quantity'] = 0;}
