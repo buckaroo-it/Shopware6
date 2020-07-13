@@ -5,6 +5,7 @@ namespace Buckaroo\Shopware6\Buckaroo;
 use Buckaroo\Shopware6\Helpers\PluginInfo;
 use Shopware;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Context;
 
 class SoftwareHeader
 {
@@ -27,12 +28,13 @@ class SoftwareHeader
 
     public function getHeader()
     {
+        $context = Context::createDefaultContext();
         return "Software: " . json_encode([
             "PlatformName"    => "Shopware",
             "PlatformVersion" => $this->shopwareVersion,
-            "ModuleSupplier"  => "X",
-            "ModuleName"      => "X",
-            "ModuleVersion"   => "1.0",
+            "ModuleSupplier"  => "Buckaroo",
+            "ModuleName"      => "BuckarooPayment",
+            "ModuleVersion"   => $this->pluginService->getPluginByName('BuckarooPayment', $context)->getVersion(),
         ]);
     }
 }
