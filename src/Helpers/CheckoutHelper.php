@@ -1339,7 +1339,6 @@ class CheckoutHelper
     }
     
     /**
-     * @param string[] $mediaIds
      * @param string[] $documentIds
      */
     private function sendMail(
@@ -1367,9 +1366,6 @@ class CheckoutHelper
         $data->set('contentHtml', $contentHtml);
         $data->set('contentPlain', $contentHtml);
         $data->set('subject', $mailTemplate->getTranslation('subject'));
-        if ($mediaIds) {
-            $data->set('mediaIds', $mediaIds);
-        }
 
         $documents = [];
         foreach ($documentIds as $documentId) {
