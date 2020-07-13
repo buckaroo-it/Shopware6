@@ -1,6 +1,7 @@
 {
   "buckaroo": {
     "title": "Buckaroo",
+    "fee": "Buckaroo Fee",
     "order": {
       "paymentDescription": "Payment for order #orderNumber",
       "refundDescription": "Refund for order #orderNumber"

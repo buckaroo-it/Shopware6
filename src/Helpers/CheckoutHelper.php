@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -393,6 +394,27 @@ class CheckoutHelper
         ];
 
         $this->transactionRepository->update([$data], Context::createDefaultContext());
+    }
+
+    public function updateOrderCustomFields(string $orderId, array $customFields): void
+    {
+        $order = $this->getOrderById($orderId, false);
+        $price = $order->getPrice();
+
+        $data = [
+            'id'           => $orderId,
+            'customFields' => $customFields,
+            'price' => new CartPrice(
+                $price->getNetPrice() + $customFields['buckarooFee'],
+                $price->getTotalPrice() + $customFields['buckarooFee'],
+                $price->getPositionPrice(),
+                $price->getCalculatedTaxes(),
+                $price->getTaxRules(),
+                CartPrice::TAX_STATE_GROSS
+            )
+        ];
+
+        $this->orderRepository->update([$data], Context::createDefaultContext());
     }
 
     public function getOrderTransactionById(Context $context, string $orderTransactionId):  ? OrderTransactionEntity
@@ -1829,5 +1851,14 @@ class CheckoutHelper
             return true;
         }
         return false;
+    }
+
+    public function getBuckarooFeeLabel($buckarooKey, $label, $context)
+    {
+        $currency = $this->getOrderCurrency($context);
+        if($buckarooFee = $this->getSetting($buckarooKey.'Fee')){
+            $label .= ' +' . $currency->getSymbol() . $buckarooFee;
+        }
+        return $label;
     }
 }

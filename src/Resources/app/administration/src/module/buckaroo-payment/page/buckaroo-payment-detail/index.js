@@ -23,6 +23,7 @@ Component.register('buckaroo-payment-detail', {
             isRefundPossible: true,
             isLoading: false,
             order: false,
+            buckarooFee: false,
             buckarooTransactions: null,
             orderItems: [],
             transactionsToRefund: [],
@@ -112,6 +113,9 @@ Component.register('buckaroo-payment-detail', {
                 this.orderItems[key]['totalAmount'] = parseFloat(parseFloat(this.orderItems[key]['unitPrice']) * parseFloat(this.orderItems[key]['quantity'] || 0)).toFixed(2);
                 this.buckaroo_refund_amount = parseFloat(parseFloat(this.buckaroo_refund_amount) + parseFloat(this.orderItems[key]['totalAmount'])).toFixed(2);
             }
+            if(this.buckarooFee){
+                this.buckaroo_refund_amount = parseFloat(parseFloat(this.buckaroo_refund_amount) + parseFloat(this.buckarooFee)).toFixed(2);
+            }
         },
         
         createdComponent() {
@@ -125,6 +129,9 @@ Component.register('buckaroo-payment-detail', {
             orderRepository.get(orderId, Context.api, orderCriteria).then((order) => {
                 // that.buckaroo_refund_amount = order.amountTotal;
                 // that.order = order;
+                if(order.customFields != undefined && order.customFields.buckarooFee != undefined){
+                    this.buckarooFee = order.customFields.buckarooFee;
+                }
             });
 
             this.BuckarooPaymentService.getBuckarooTransaction(orderId)

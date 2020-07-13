@@ -1,5 +1,6 @@
 {
   "buckaroo-payment": {
+    "fee": "Buckaroo Vergoeding",
     "order": {
       "refundDescription": "Terugbetaling voor bestelling #orderNumber"
     },

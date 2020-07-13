@@ -128,8 +128,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      */
     public function addBuckarooExtension(CheckoutConfirmPageLoadedEvent $event): void
     {
+        $context = $event->getContext();
         $request  = $this->helper->getGlobals();
         $customer = $event->getSalesChannelContext()->getCustomer();
+        $customFields = $event->getSalesChannelContext()->getPaymentMethod()->getCustomFields();
+        $buckarooKey = isset($customFields['buckaroo_key']) ? $customFields['buckaroo_key'] : null;
+        $currency = $this->checkoutHelper->getOrderCurrency($context);
 
         if ($lastCreditcard = $request->get('creditcard')) {
             $this->customerRepository->upsert(
@@ -152,7 +156,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if (!empty($allowedcreditcard)){
             foreach ($allowedcreditcard as $value) {
                 $creditcard[] = [
-                    'name' => $this->availableCreditcards[$value],
+                    'name' => $this->checkoutHelper->getBuckarooFeeLabel('allowedcreditcard',$this->availableCreditcards[$value], $context),
                     'code' => $value,
                 ];
             }
@@ -162,7 +166,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if (!empty($allowedcreditcards)){
             foreach ($allowedcreditcards as $value) {
                 $creditcards[] = [
-                    'name' => $this->availableCreditcards[$value],
+                    'name' => $this->checkoutHelper->getBuckarooFeeLabel('allowedcreditcards',$this->availableCreditcards[$value], $context),
                     'code' => $value,
                 ];
             }
@@ -175,14 +179,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         /** @var PaymentMethodCollection $paymentMethods */
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $event->getSalesChannelContext())->getEntities();
         foreach ($paymentMethods as $key => $paymentMethod) {
-            $method                        = $paymentMethod->getTranslated();
+            $method = $paymentMethod->getTranslated();
             if (!empty($method['customFields']['buckaroo_key'])) {
                 $buckaroo_key = $method['customFields']['buckaroo_key'];
-                $paymentLabels[$buckaroo_key] = $this->helper->getSettingsValue($buckaroo_key . 'Label');
+                $paymentLabels[$buckaroo_key] = $this->checkoutHelper->getBuckarooFeeLabel($buckaroo_key, $this->helper->getSettingsValue($buckaroo_key . 'Label'), $context);
             }
         }
 
-        $currency = $this->checkoutHelper->getOrderCurrency($event->getContext());
         $struct->assign([
             'currency'                 => $currency->getIsoCode(),
             'issuers'                  => $issuers,
@@ -193,6 +196,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'payment_labels'           => $paymentLabels,
             'media_path'               => '/bundles/buckaroopayment/storefront/buckaroo/logo/',
             'payment_media'            => $lastUsedCreditcard . '.png',
+            'buckarooFee'              => round(str_replace(',','.',$this->helper->getSettingsValue($buckarooKey . 'Fee')), 2),
         ]);
 
         $event->getPage()->addExtension(

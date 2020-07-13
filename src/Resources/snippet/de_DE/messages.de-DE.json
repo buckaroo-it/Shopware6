@@ -1,6 +1,7 @@
 {
   "buckaroo": {
     "title": "Buckaroo",
+    "fee": "Buckaroo Gebühr",
     "order": {
       "paymentDescription": "Zahlung für Bestellung #orderNumber",
       "refundDescription": "Rückerstattung für Bestellung #orderNumber"

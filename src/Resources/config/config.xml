@@ -98,6 +98,13 @@
             <defaultValue>Buckaroo Creditcard and Debit Card</defaultValue>
         </input-field>
 
+        <input-field>
+            <name>creditcardFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
+
         <input-field type="multi-select">
             <name>allowedcreditcard</name>
             <label lang="en-GB">Allowed Creditcards:</label>
@@ -178,6 +185,13 @@
             <defaultValue>Buckaroo Creditcards</defaultValue>
         </input-field>
 
+        <input-field>
+            <name>creditcardsFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
+
         <input-field type="multi-select">
             <name>allowedcreditcards</name>
             <label lang="en-GB">Allowed Creditcards:</label>
@@ -254,6 +268,13 @@
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>iDEAL</defaultValue>
         </input-field>
+
+        <input-field>
+            <name>idealFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
     </card>
 
     <card>
@@ -282,6 +303,14 @@
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>iDEAL Processing</defaultValue>
         </input-field>
+
+        <input-field>
+            <name>idealprocessingFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
+
     </card>
 
     <card>
@@ -309,6 +338,13 @@
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Bancontact</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>bancontactmrcashFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
     </card>
 
@@ -338,6 +374,13 @@
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>AfterPay</defaultValue>
         </input-field>
+
+        <input-field>
+            <name>afterpayFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
     </card>
 
     <card>
@@ -365,6 +408,13 @@
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Sofort</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>sofortueberweisungFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
     </card>
 
@@ -394,6 +444,13 @@
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>PayPal</defaultValue>
         </input-field>
+
+        <input-field>
+            <name>paypalFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
     </card>
 
     <card>
@@ -421,6 +478,13 @@
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Bank Transfer</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>transferFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
 
         <input-field>
@@ -463,6 +527,13 @@
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Giropay</defaultValue>
         </input-field>
+
+        <input-field>
+            <name>giropayFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
     </card>
 
     <card>
@@ -491,6 +562,13 @@
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>KBC</defaultValue>
         </input-field>
+
+        <input-field>
+            <name>KBCPaymentButtonFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
     </card>
 
     <card>
@@ -514,10 +592,17 @@
         </input-field>
 
         <input-field>
-            <name>sepadirectdebitButtonLabel</name>
+            <name>sepadirectdebitLabel</name>
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Sepa Direct Debit</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>sepadirectdebitFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
     </card>
 
@@ -542,10 +627,17 @@
         </input-field>
 
         <input-field>
-            <name>payconiqButtonLabel</name>
+            <name>payconiqLabel</name>
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Payconiq</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>payconiqFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
     </card>
 
@@ -574,6 +666,13 @@
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Apple Pay</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>applepayFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
 
         <input-field type="single-select">
@@ -640,6 +739,13 @@
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Buckaroo Giftcards</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>giftcardsFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
 
         <input-field type="multi-select">
@@ -1025,10 +1131,17 @@
         </input-field>
 
         <input-field>
-            <name>RequestToPayButtonLabel</name>
+            <name>RequestToPayLabel</name>
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Request To Pay</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>RequestToPayFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
     </card>
 
@@ -1053,10 +1166,17 @@
         </input-field>
 
         <input-field>
-            <name>In3ButtonLabel</name>
+            <name>In3Label</name>
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>In3</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>In3Fee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
     </card>
 
@@ -1081,10 +1201,17 @@
         </input-field>
 
         <input-field>
-            <name>epsButtonLabel</name>
+            <name>epsLabel</name>
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>EPS</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>epsFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
     </card>
 
@@ -1109,10 +1236,17 @@
         </input-field>
 
         <input-field>
-            <name>Przelewy24ButtonLabel</name>
+            <name>Przelewy24Label</name>
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Przelewy24</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>Przelewy24Fee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
     </card>
 
@@ -1137,10 +1271,17 @@
         </input-field>
 
         <input-field>
-            <name>AlipayButtonLabel</name>
+            <name>AlipayLabel</name>
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>Alipay</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>AlipayFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
     </card>
 

@@ -91,6 +91,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setCurrency($salesChannelContext->getCurrency()->getIsoCode());
         $request->setAmountDebit($order->getAmountTotal());
 
+        if($buckarooFee = $this->helper->getSettingsValue($buckarooKey.'Fee')) {
+            $this->checkoutHelper->updateOrderCustomFields($order->getId(),['buckarooFee' => $buckarooFee]);
+            $request->setAmountDebit($order->getAmountTotal() + $buckarooFee);
+        }
+
         $request->setServiceName($buckarooKey);
         $request->setServiceVersion($version);
         $request->setServiceAction('Pay');
@@ -128,7 +133,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         if (!empty($gatewayInfo['additional']) && ($additional = $gatewayInfo['additional'])) {
             foreach ($additional as $item) {
                 foreach ($item as $value) {
-                    $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
+                    $request->setServiceParameter($value['Name'], $value['_'], isset($value['Group'])?$value['Group']:null, isset($value['GroupID'])?$value['GroupID']:null);
                 }
             }
         }

@@ -1,0 +1,29 @@
+{% sw_extends '@Storefront/storefront/page/checkout/summary.html.twig' %}
+
+{% block page_checkout_summary_total %}
+
+    {% if page.extensions.buckaroo.buckarooFee > 0 %}
+        <dt class="col-7 checkout-aside-summary-label">
+            {{ "buckaroo.fee"|trans|sw_sanitize }}
+        </dt>
+        <dd class="col-5 checkout-aside-summary-value">
+            {{ page.extensions.buckaroo.buckarooFee|currency }}{{ "general.star"|trans|sw_sanitize }}
+        </dd>
+    {% endif %}
+
+    {% block page_checkout_summary_total_label %}
+        <dt class="col-7 checkout-aside-summary-label checkout-aside-summary-total">
+            {{ "checkout.summaryTotalPrice"|trans|sw_sanitize }}
+        </dt>
+    {% endblock %}
+
+    {% block page_checkout_summary_total_value %}
+        <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total">
+            {% if page.extensions.buckaroo.buckarooFee > 0 %}
+                {{ (summary.price.totalPrice + page.extensions.buckaroo.buckarooFee)|currency }}{{ "general.star"|trans|sw_sanitize }}
+            {% else %}
+                {{ summary.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+            {% endif %}
+        </dd>
+    {% endblock %}
+{% endblock %}

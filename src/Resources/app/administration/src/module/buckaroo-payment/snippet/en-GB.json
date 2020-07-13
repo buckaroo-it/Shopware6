@@ -1,5 +1,6 @@
 {
   "buckaroo-payment": {
+    "fee": "Buckaroo Fee",
     "order": {
       "refundDescription": "Refund for order #orderNumber"
     },

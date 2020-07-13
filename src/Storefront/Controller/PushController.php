@@ -61,7 +61,10 @@ class PushController extends StorefrontController
         }
 
         $transaction = $this->checkoutHelper->getOrderTransaction($orderTransactionId, $context);
-        $totalPrice  = $transaction->getAmount()->getTotalPrice();
+        // $totalPrice  = $transaction->getAmount()->getTotalPrice();
+
+        $order = $this->checkoutHelper->getOrderById($brqOrderId, $context);
+        $totalPrice  = $order->getPrice()->getTotalPrice();
 
         //Check if the push is a refund request or cancel authorize
         if (isset($brqAmountCredit)) {

@@ -1,0 +1,13 @@
+{% sw_extends '@Framework/documents/invoice.html.twig' %}
+
+{% block document_sum_table_inner %}
+    {% if order.customFields.buckarooFee > 0 %}
+        <tr>
+            <td class="align-right">Buckaroo Fee</td>
+            <td class="align-right">{{ order.customFields.buckarooFee }}</td>
+        </tr>
+    {% endif %}
+
+    {{ parent() }}
+
+{% endblock %}
