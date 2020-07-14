@@ -152,9 +152,16 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $this->checkoutHelper->stockReserve($order);
         }
 
+        $context = $salesChannelContext->getContext();
         if ($response->hasRedirect()) {
+            if($response->isAwaitingConsumer() || $response->isPendingProcessing() || $response->isWaitingOnUserInput()){
+                $this->checkoutHelper->changeOrderStatus($order->getId(), $context, 'process');
+            }
             return new RedirectResponse($response->getRedirectUrl());
-        } elseif ($response->isSuccess() || $response->isAwaitingConsumer() || $response->isPendingProcessing()) {
+        } elseif ($response->isSuccess() || $response->isAwaitingConsumer() || $response->isPendingProcessing() || $response->isWaitingOnUserInput()) {
+            if(!$response->isSuccess()){
+                $this->checkoutHelper->changeOrderStatus($order->getId(), $context, 'process');
+            }
             return new RedirectResponse('/checkout/finish?orderId=' . $order->getId());
         } elseif ($response->isCanceled()) {
             throw new CustomerCanceledAsyncPaymentException(

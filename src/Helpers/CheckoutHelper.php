@@ -1231,8 +1231,8 @@ class CheckoutHelper
             foreach ($value as $key3 => $quantity) {
                 foreach ($items['orderItems'] as $key2 => $value2) {
                     if (isset($value2['id']) && $key3 == $value2['id']) {
-                        $items['orderItems'][$key2]['quantity']             = $value2['quantity'] - $quantity;
-                        $items['orderItems'][$key2]['totalAmount']['value'] = ($value2['totalAmount']['value'] - ($value2['unitPrice']['value'] * $quantity));
+                        $items['orderItems'][$key2]['quantity'] = (int)$value2['quantity'] - (int)$quantity;
+                        $items['orderItems'][$key2]['totalAmount']['value'] = ((float)$value2['totalAmount']['value'] - ((float)$value2['unitPrice']['value'] * (int)$quantity));
                         if ($items['orderItems'][$key2]['quantity'] < 0) {$items['orderItems'][$key2]['quantity'] = 0;}
                     }
                 }

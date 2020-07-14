@@ -40,6 +40,11 @@ class TransactionResponse extends Response
         return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING;
     }
 
+    public function isWaitingOnUserInput()
+    {
+        return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_WAITING_ON_USER_INPUT;
+    }
+
     /**
      * @return boolean
      */

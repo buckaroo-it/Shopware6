@@ -99,7 +99,7 @@ class PushController extends StorefrontController
                 if (!$this->checkoutHelper->isInvoiced($brqOrderId, $context)) {
                     if (round($brqAmount, 2) == round($totalPrice, 2)) {
                         $this->checkoutHelper->generateInvoice($brqOrderId, $context, $brqInvoicenumber);
-                        // $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'reopen');
+                        $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'reopen');
                     }
                 }
 
