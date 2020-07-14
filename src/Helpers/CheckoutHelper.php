@@ -320,6 +320,23 @@ class CheckoutHelper
         return $this->stateMachineRepository->search($criteria, $context)->first();
     }
 
+    public function isTransitionPaymentState(array $statuses, string $orderTransactionId, Context $context): bool
+    {
+        foreach($statuses as $status){
+            $transitionAction = $this->getCorrectTransitionAction($status);
+
+            if ($transitionAction === null) {
+                continue;
+            }
+            $transaction    = $this->getOrderTransaction($orderTransactionId, $context);
+            $actionStatusTransition   = $this->getTransitionFromActionName($transitionAction, $context);
+            if($transaction->getStateId() == $actionStatusTransition->getId()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * @param string $actionName
      * @return string
@@ -332,6 +349,12 @@ class CheckoutHelper
                 break;
             case StateMachineTransitionActions::ACTION_CANCEL:
                 return OrderTransactionStates::STATE_CANCELLED;
+                break;
+            case StateMachineTransitionActions::ACTION_REFUND:
+                return OrderTransactionStates::STATE_REFUNDED;
+                break;
+            case StateMachineTransitionActions::ACTION_REFUND_PARTIALLY:
+                return OrderTransactionStates::STATE_PARTIALLY_REFUNDED;
                 break;
         }
         return OrderTransactionStates::STATE_OPEN;

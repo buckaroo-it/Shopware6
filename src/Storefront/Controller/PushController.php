@@ -61,7 +61,6 @@ class PushController extends StorefrontController
         }
 
         $transaction = $this->checkoutHelper->getOrderTransaction($orderTransactionId, $context);
-        // $totalPrice  = $transaction->getAmount()->getTotalPrice();
 
         $order = $this->checkoutHelper->getOrderById($brqOrderId, $context);
         $totalPrice  = $order->getPrice()->getTotalPrice();
@@ -69,6 +68,7 @@ class PushController extends StorefrontController
         //Check if the push is a refund request or cancel authorize
         if (isset($brqAmountCredit)) {
             if ($status != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS && $brqTransactionType == ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_CANCEL) {
+                $currentStateId = $transaction->getStateId();
                 return $this->json(['status' => true, 'message' => "Payment cancelled"]);
             }
 
@@ -82,6 +82,12 @@ class PushController extends StorefrontController
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
             try {
+                if ($brqTransactionType == ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION){
+                    if($this->checkoutHelper->isTransitionPaymentState(['refunded','partial_refunded'], $orderTransactionId, $context)){
+                        return $this->json(['status' => true, 'message' => "Payment state was updated earlier"]);
+                    }
+                }
+
                 $paymentState = (round($brqAmount, 2) == round($totalPrice, 2)) ? "completed" : "pay_partially";
                 $this->checkoutHelper->transitionPaymentState($paymentState, $orderTransactionId, $context);
                 $data = [
@@ -147,6 +153,7 @@ class PushController extends StorefrontController
 
         if (!$orderId && $orderId = $request->query->filter('orderId')) {}
 
+        $lineItems = [];
         if ($orderId) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('id', $orderId))
