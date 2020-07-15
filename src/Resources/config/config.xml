@@ -1148,7 +1148,7 @@
     <card>
     <title>In3</title>
         <input-field type="single-select">
-            <name>In3Environment</name>
+            <name>capayableEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of leef</label>
@@ -1166,14 +1166,14 @@
         </input-field>
 
         <input-field>
-            <name>In3Label</name>
+            <name>capayableLabel</name>
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
             <defaultValue>In3</defaultValue>
         </input-field>
 
         <input-field>
-            <name>In3Fee</name>
+            <name>capayableFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo Vergoeding</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
