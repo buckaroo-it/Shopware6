@@ -33,7 +33,7 @@ class In3PaymentHandler extends AsyncPaymentHandler
         $order      = $transaction->getOrder();
         $paymentMethod = new In3();
         $gatewayInfo   = [
-            'additional' => [$this->checkoutHelper->getIn3Data($order, $additional, $salesChannelContext, $dataBag)]
+            'additional' => [$this->getIn3Data($order, $salesChannelContext, $dataBag)]
         ];
 
         return parent::pay(
@@ -45,5 +45,45 @@ class In3PaymentHandler extends AsyncPaymentHandler
             $paymentMethod->getVersion(),
             $gatewayInfo
         );
+    }
+
+    public function getIn3Data($order, $salesChannelContext, $dataBag){
+        $now = new \DateTime();
+
+        $address  = $this->checkoutHelper->getBillingAddress($order, $salesChannelContext);
+        $customer = $this->checkoutHelper->getOrderCustomer($order, $salesChannelContext);
+        $streetData  = $this->checkoutHelper->formatStreet($address->getStreet());
+
+        $requestParameter = [
+            $this->checkoutHelper->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_orderAs'), 'CustomerType'),
+            $this->checkoutHelper->getRequestParameterRow($now->format('Y-m-d'), 'InvoiceDate'),
+            $this->checkoutHelper->getRequestParameterRow($dataBag->get('buckaroo_in3_phone'), 'Phone', 'Phone'),
+            $this->checkoutHelper->getRequestParameterRow($customer->getEmail(), 'Email', 'Email'),
+
+            $this->checkoutHelper->getRequestParameterRow($this->checkoutHelper->getInitials($address->getFirstName()), 'Initials', 'Person'),
+            $this->checkoutHelper->getRequestParameterRow($address->getLastName(), 'LastName', 'Person'),
+            $this->checkoutHelper->getRequestParameterRow('nl-NL', 'Culture', 'Person'),
+            $this->checkoutHelper->getRequestParameterRow($this->checkoutHelper->getGenderFromSalutation($customer), 'Gender', 'Person'),
+            $this->checkoutHelper->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_DoB'), 'BirthDate', 'Person'),
+            
+            $this->checkoutHelper->getRequestParameterRow($streetData['street'], 'Street', 'Address'),
+            $this->checkoutHelper->getRequestParameterRow($streetData['house_number'], 'HouseNumber', 'Address'),
+            $this->checkoutHelper->getRequestParameterRow($address->getZipCode(), 'ZipCode', 'Address'),
+            $this->checkoutHelper->getRequestParameterRow($address->getCity(), 'City', 'Address'),
+            $this->checkoutHelper->getRequestParameterRow(($address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL'), 'Country', 'Address')
+        ];
+
+        if (strlen($streetData['number_addition']) > 0) {
+            $param = $this->checkoutHelper->getRequestParameterRow($streetData['number_addition'], 'HouseNumberSuffix', 'Address');
+            $requestParameter[] = $param;
+        }
+
+        if(in_array($dataBag->get('buckaroo_capayablein3_orderAs'),[1,2])){
+            $requestParameter[] = $this->checkoutHelper->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_orderAs'), 'Name', 'Company');
+            $requestParameter[] = $this->checkoutHelper->getRequestParameterRow($cocNumber, 'ChamberOfCommerce', 'Company');
+        }
+        $requestParameter = array_merge($requestParameter, $this->checkoutHelper->getProductLineData($order));
+
+        return $requestParameter;
     }
 }
