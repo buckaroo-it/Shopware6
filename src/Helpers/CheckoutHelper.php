@@ -270,6 +270,8 @@ class CheckoutHelper
                 return StateMachineTransitionActions::ACTION_REFUND_PARTIALLY;
             case 'initialized':
                 return StateMachineTransitionActions::ACTION_REOPEN;
+            case 'process':
+                return StateMachineTransitionActions::ACTION_PROCESS;
         }
         return null;
     }
