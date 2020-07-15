@@ -601,6 +601,7 @@ class CheckoutHelper
 
         // Build the order line array
         $line = [
+            'id'          => 'shipping',
             'type'        => 'Shipping',
             'name'        => 'Shipping',
             'quantity'    => $shipping->getQuantity(),
@@ -633,6 +634,7 @@ class CheckoutHelper
 
         // Build the order line array
         $line = [
+            'id'          => 'buckarooFee',
             'type'        => 'BuckarooFee',
             'name'        => 'Buckaroo Fee',
             'quantity'    => 1,
@@ -1235,6 +1237,9 @@ class CheckoutHelper
 
         $collection = $this->buckarooTransactionEntityRepository->findByOrderId($orderId, ['created_at' => 'DESC']);
         foreach ($collection as $buckarooTransactionEntity) {
+            if ($refunded_items = $buckarooTransactionEntity->get("refunded_items")) {
+                $orderRefundedItems[] = json_decode($refunded_items);
+            }
             $transactions = $buckarooTransactionEntity->get("transactions");
             if(in_array($transactions, $transactionsToRefund)){continue;}
             array_push($transactionsToRefund, $transactions);
@@ -1259,9 +1264,6 @@ class CheckoutHelper
                     'currency'           => $buckarooTransactionEntity->get("currency"),
                     'transaction_method' => $buckarooTransactionEntity->get("transaction_method"),
                 ];
-            }
-            if ($refunded_items = $buckarooTransactionEntity->get("refunded_items")) {
-                $orderRefundedItems[] = json_decode($refunded_items);
             }
         }
 
