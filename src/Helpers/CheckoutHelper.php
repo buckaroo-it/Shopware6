@@ -426,7 +426,7 @@ class CheckoutHelper
         $order = $this->getOrderById($orderId, false);
         $price = $order->getPrice();
 
-        $buckarooFee = round(str_replace(',','.',$customFields['buckarooFee']), 2);
+        $buckarooFee = round((float) str_replace(',','.',$customFields['buckarooFee']), 2);
         $data = [
             'id'           => $orderId,
             'customFields' => $customFields,
@@ -557,6 +557,10 @@ class CheckoutHelper
 
         $lines[] = $this->getShippingItemArray($order);
 
+        if($this->getBuckarooFeeArray($order)){
+            $lines[] = $this->getBuckarooFeeArray($order);
+        }
+
         return $lines;
     }
 
@@ -605,6 +609,38 @@ class CheckoutHelper
             'vatRate'     => number_format($vatRate, 2, '.', ''),
             'vatAmount'   => $this->getPriceArray($currencyCode, $vatAmount),
             'sku'         => 'Shipping',
+            'imageUrl'    => null,
+            'productUrl'  => null,
+        ];
+
+        return $line;
+    }
+
+    public function getBuckarooFeeArray(OrderEntity $order)
+    {
+        // Variables
+        $line     = [];
+        $customFields = $order->getCustomFields();
+
+        if ($customFields === null || !isset($customFields['buckarooFee'])) {
+            return false;
+        }
+
+        // Get currency code
+        $currency     = $order->getCurrency();
+        $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
+        $buckarooFee = round(str_replace(',','.',(float) $customFields['buckarooFee']), 2);
+
+        // Build the order line array
+        $line = [
+            'type'        => 'BuckarooFee',
+            'name'        => 'Buckaroo Fee',
+            'quantity'    => 1,
+            'unitPrice'   => $this->getPriceArray($currencyCode, $buckarooFee),
+            'totalAmount' => $this->getPriceArray($currencyCode, $buckarooFee),
+            'vatRate'     => 0,
+            'vatAmount'   => $this->getPriceArray($currencyCode, 0),
+            'sku'         => 'BuckarooFee',
             'imageUrl'    => null,
             'productUrl'  => null,
         ];

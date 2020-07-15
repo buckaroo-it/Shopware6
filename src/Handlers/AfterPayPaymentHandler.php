@@ -98,7 +98,6 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
     public function getArticleData($order, $additional, &$latestKey)
     {
         $lines = $this->checkoutHelper->getOrderLinesArray($order);
-
         foreach ($lines as $key => $item) {
             $additional[] = [
                 [

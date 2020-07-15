@@ -12,12 +12,11 @@
     {% endif %}
 
     {% if page.order.customFields.buckarooFee > 0 %}
-
     <dt class="col-7 checkout-aside-summary-label">
             {{ "buckaroo.fee"|trans|sw_sanitize }}
         </dt>
         <dd class="col-5 checkout-aside-summary-value">
-            {{ (page.order.customFields.buckarooFee) }}{{ "general.star"|trans|sw_sanitize }}
+            {{ page.header.activeCurrency.symbol }}{{ "%.2f"|format(page.order.customFields.buckarooFee) }}{{ "general.star"|trans|sw_sanitize }}
         </dd>
     {% endif %}
 
