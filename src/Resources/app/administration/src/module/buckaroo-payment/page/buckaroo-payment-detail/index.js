@@ -19,6 +19,7 @@ Component.register('buckaroo-payment-detail', {
     data() {
         return {
             buckaroo_refund_amount: '0',
+            buckaroo_refund_total_amount: '0',
             currency: 'EUR',
             isRefundPossible: true,
             isLoading: false,
@@ -114,6 +115,12 @@ Component.register('buckaroo-payment-detail', {
                 this.buckaroo_refund_amount = parseFloat(parseFloat(this.buckaroo_refund_amount) + parseFloat(this.orderItems[key]['totalAmount'])).toFixed(2);
             }
         },
+        recalculateRefundItems() {
+            this.buckaroo_refund_total_amount = 0;
+            for (const key in this.transactionsToRefund) {
+                this.buckaroo_refund_total_amount = parseFloat(parseFloat(this.buckaroo_refund_total_amount) + parseFloat(this.transactionsToRefund[key]['amount'])).toFixed(2);
+            }
+        },
         
         createdComponent() {
             let that = this;
@@ -158,6 +165,7 @@ Component.register('buckaroo-payment-detail', {
                         });
                         that.currency = element.currency;
                     })
+                    that.recalculateRefundItems();
 
                     response.transactions.forEach((element) => {
                         that.relatedResources.push({

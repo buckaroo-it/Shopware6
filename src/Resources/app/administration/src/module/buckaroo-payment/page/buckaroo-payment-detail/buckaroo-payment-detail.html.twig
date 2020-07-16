@@ -15,13 +15,19 @@
 
             </sw-data-grid>
 
+            <sw-container columns="1fr 440px" class="sw-order-detail__summary">
+                <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
+                        <dt>{{ $tc('buckaroo-payment.paymentDetail.amountTotalTitle') }}: </dt>
+                        <dd>{{ buckaroo_refund_amount }}  {{ currency }}</dd>
+                </sw-description-list>
+            </sw-container>
+                 
             <sw-card-section divider="top" secondary slim>
                 <sw-container columns="1fr 440px"
                               class="sw-order-detail__summary">
                     <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
-                            <dt>{{ $tc('buckaroo-payment.transactionsToRefund.title') }}</dt>
                             <dd></dd>
-
+                            <dt>{{ $tc('buckaroo-payment.transactionsToRefund.title') }}</dt>
                     </sw-description-list>
                 </sw-container>
 
@@ -37,15 +43,15 @@
                         </template>
 
                         <template #column-amount="{ item }">
-                            <input type="number" min="0" :max="item.amountMax" v-model="item.amount" onkeydown="return event.keyCode !== 69">
+                            <input type="number" min="0" :max="item.amountMax" v-model="item.amount"  @input="recalculateRefundItems" onkeydown="return event.keyCode !== 69">
                         </template>
 
                 </sw-data-grid>
 
                 <sw-container columns="1fr 440px" class="sw-order-detail__summary">
                     <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
-                            <dt>{{ $tc('buckaroo-payment.paymentDetail.amountTotalTitle') }}: </dt>
-                            <dd>{{ buckaroo_refund_amount }}  {{ currency }}</dd>
+                            <dt>{{ $tc('buckaroo-payment.paymentDetail.amountRefundTotalTitle') }}: </dt>
+                            <dd>{{ buckaroo_refund_total_amount }}  {{ currency }}</dd>
                     </sw-description-list>
                 </sw-container>
                  
