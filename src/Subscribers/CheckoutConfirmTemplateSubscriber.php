@@ -131,8 +131,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $context = $event->getContext();
         $request  = $this->helper->getGlobals();
         $customer = $event->getSalesChannelContext()->getCustomer();
-        $customFields = $event->getSalesChannelContext()->getPaymentMethod()->getCustomFields();
-        $buckarooKey = isset($customFields['buckaroo_key']) ? $customFields['buckaroo_key'] : null;
+        $buckarooKey = isset($event->getSalesChannelContext()->getPaymentMethod()->getTranslated()['customFields']['buckaroo_key']) ? $event->getSalesChannelContext()->getPaymentMethod()->getTranslated()['customFields']['buckaroo_key'] : null;
         $currency = $this->checkoutHelper->getOrderCurrency($context);
 
         if ($lastCreditcard = $request->get('creditcard')) {
