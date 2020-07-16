@@ -1074,9 +1074,9 @@ class CheckoutHelper
                     $refunded_items = json_decode($refunded_items);
                     foreach ($refunded_items as $k => $qnt) {
                         if ($orderItemsRefunded[$k]) {
-                            $orderItemsRefunded[$k] = $orderItemsRefunded[$k] + $qnt;
+                            $orderItemsRefunded[$k] = (int)$orderItemsRefunded[$k] + (int)$qnt;
                         } else {
-                            $orderItemsRefunded[$k] = $qnt;
+                            $orderItemsRefunded[$k] = (int)$qnt;
                         }
                     }
                 }
