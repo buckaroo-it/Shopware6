@@ -151,6 +151,10 @@ class PushController extends StorefrontController
             $messages[] = ['type' => 'danger', 'text' => base64_decode($error)];
         }
 
+        if ($statusMessage=='Failed' && in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_FAILED])) {
+            $messages[] = ['type' => 'danger', 'text' => 'Card number or pin is incorrect'];
+        }
+
         if (empty($messages)) {
             $messages[] = ['type' => 'danger', 'text' => $statusMessage ? $statusMessage : $this->trans('Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.')];
         }
