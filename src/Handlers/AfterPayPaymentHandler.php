@@ -154,6 +154,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         
         $shippingAddress->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
         $shippingStreetFormat  = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
+        
 
         $category    = 'Person';
         $billingData = [
@@ -176,7 +177,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                 'GroupID' => '',
             ],
             [
-                '_'       => $address->getStreet(),
+                '_'       => (!empty($streetFormat['house_number']) ? $streetFormat['street'] : $address->getStreet()),
                 'Name'    => 'Street',
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
@@ -274,7 +275,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                 'GroupID' => '',
             ],
             [
-                '_'       => $shippingAddress->getStreet(),
+                '_'       => (!empty($shippingStreetFormat['house_number']) ? $shippingStreetFormat['street'] : $shippingAddress->getStreet()),
                 'Name'    => 'Street',
                 'Group'   => 'ShippingCustomer',
                 'GroupID' => '',
