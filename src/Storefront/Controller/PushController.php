@@ -82,11 +82,13 @@ class PushController extends StorefrontController
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
             try {
-                // if ($brqTransactionType == ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION){
-                    if($this->checkoutHelper->isTransitionPaymentState(['refunded','partial_refunded'], $orderTransactionId, $context)){
-                        return $this->json(['status' => true, 'message' => "Payment state was updated earlier"]);
-                    }
-                // }
+                if($this->checkoutHelper->isOrderState(['cancelled'], $brqOrderId, $context)){
+                    $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'reopen');
+                }
+
+                if($this->checkoutHelper->isTransitionPaymentState(['refunded','partial_refunded'], $orderTransactionId, $context)){
+                    return $this->json(['status' => true, 'message' => "Payment state was updated earlier"]);
+                }
 
                 $paymentState = (round($brqAmount, 2) == round($totalPrice, 2)) ? "completed" : "pay_partially";
                 $this->checkoutHelper->transitionPaymentState($paymentState, $orderTransactionId, $context);
@@ -101,12 +103,6 @@ class PushController extends StorefrontController
                         $this->checkoutHelper->generateInvoice($brqOrderId, $context, $brqInvoicenumber);
                     }
                 }
-
-                if($this->checkoutHelper->isTransitionPaymentState(['cancel'], $orderTransactionId, $context)){
-                    $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'reopen');
-                    return $this->json(['status' => true, 'message' => "Payment state was updated earlier"]);
-                }
-
             } catch (InconsistentCriteriaIdsException | IllegalTransitionException | StateMachineNotFoundException
                  | StateMachineStateNotFoundException $exception) {
                 throw new AsyncPaymentFinalizeException($orderTransactionId, $exception->getMessage());

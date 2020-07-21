@@ -322,6 +322,17 @@ class CheckoutHelper
         return $this->stateMachineRepository->search($criteria, $context)->first();
     }
 
+    public function isOrderState(array $statuses, string $orderId, Context $context): bool
+    {
+        $order = $this->getOrderById($orderId, $context);
+        foreach($statuses as $status){
+            if($order->getStateMachineState()->getTechnicalName() == $status){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function isTransitionPaymentState(array $statuses, string $orderTransactionId, Context $context): bool
     {
         foreach($statuses as $status){
