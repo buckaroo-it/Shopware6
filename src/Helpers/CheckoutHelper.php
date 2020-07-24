@@ -1241,6 +1241,12 @@ class CheckoutHelper
         $order = $this->getOrderById($orderId, false);
         $vat   = $order->get("price")->getTaxRules()->first()->getTaxRate();
 
+        $vat_show  = null;
+        $ii=0;
+        foreach ($order->get("price")->getTaxRules()->getElements() as $taxRate) {
+            $vat_show .= ($ii>0?"/":"")."plus ".$taxRate->getTaxRate()."% VAT";$ii++;
+        }
+
         $items['orderItems'] = $this->getOrderLinesArray($order);
 
         $shipping       = $order->getShippingCosts();
@@ -1263,7 +1269,7 @@ class CheckoutHelper
                 'statuscode'          => $buckarooTransactionEntity->get("statuscode"),
                 'total'               => $amount,
                 'shipping_costs'      => $shipping_costs,
-                'vat'                 => $vat ? "plus $vat% VAT" : null,
+                'vat'                 => $vat_show,
                 'total_excluding_vat' => $vat ? round(($amount - (($amount / 100) * $vat)), 2) : $amount,
                 'transaction_method'  => $buckarooTransactionEntity->get("transaction_method"),
                 'created_at'          => Date("Y-m-d H:i:s", strtotime($buckarooTransactionEntity->get("created_at")->date)),
