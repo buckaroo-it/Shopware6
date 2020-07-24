@@ -135,7 +135,13 @@ class PushController extends StorefrontController
         $statusMessage = $request->request->get('brq_statusmessage');
         $orderId       = $request->request->get('ADD_orderId');
 
-        if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS, ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS, ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING])) {
+        if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING])) {
+            return $this->renderStorefront('@Storefront/storefront/buckaroo/page/finalize/_page2.html.twig', [
+                'messages'     => [['type' => 'success', 'text' => $this->trans('buckaroo.messages.return791')]]
+            ]);
+        }
+
+        if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS, ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS])) {
             return new RedirectResponse('/checkout/finish?orderId=' . $request->request->get('ADD_orderId'));
         }
 

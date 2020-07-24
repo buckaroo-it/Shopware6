@@ -6,6 +6,9 @@
       "paymentDescription": "Betaling voor bestelling #orderNumber",
       "refundDescription": "Restitutie voor bestelling #orderNumber"
     },
+    "messages": {
+      "return791": "Je order is succesvol geplaatst maar de betaling is nog niet ontvangen. Zodra de betaling is ontvangen word je bestelling verwerkt. "
+    },
     "checkout": {
       "cOCNumber": "COC-nummer",
       "companyName": "Bedrijfsnaam",

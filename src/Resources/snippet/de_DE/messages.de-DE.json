@@ -6,6 +6,9 @@
       "paymentDescription": "Zahlung für Bestellung #orderNumber",
       "refundDescription": "Rückerstattung für Bestellung #orderNumber"
     },
+    "messages": {
+      "return791": "Ihre Bestellung wurde erfolgreich aufgegeben, aber die Zahlung ist noch nicht eingegangen. Ihre Bestellung wird bearbeitet, sobald die Zahlung eingegangen ist."
+    },
     "checkout": {
       "cOCNumber": "COC-Nummer",
       "companyName": "Name der Firma",
