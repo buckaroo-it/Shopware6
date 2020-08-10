@@ -240,6 +240,13 @@
             <tag name="shopware.payment.method.async" />
         </service>
 
+        <service id="Buckaroo\Shopware6\Handlers\TrustlyPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="logger" />
+            <tag name="shopware.payment.method.async" />
+        </service>
+
         <!-- /Payment methods -->
 
         <!-- Controllers -->

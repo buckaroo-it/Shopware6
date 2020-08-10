@@ -23,6 +23,7 @@ use Buckaroo\Shopware6\PaymentMethods\Eps;
 use Buckaroo\Shopware6\PaymentMethods\P24;
 use Buckaroo\Shopware6\PaymentMethods\Alipay;
 use Buckaroo\Shopware6\PaymentMethods\WeChatPay;
+use Buckaroo\Shopware6\PaymentMethods\Trustly;
 
 class GatewayHelper
 {
@@ -47,6 +48,7 @@ class GatewayHelper
         Eps::class,
         P24::class,
         Alipay::class,
-        WeChatPay::class
+        WeChatPay::class,
+        Trustly::class
     ];
 }
