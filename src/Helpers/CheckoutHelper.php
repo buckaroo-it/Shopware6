@@ -59,6 +59,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class CheckoutHelper
 {
@@ -236,7 +237,7 @@ class CheckoutHelper
             $functionName = $this->convertToFunctionName($transitionAction);
             $this->orderTransactionStateHandler->$functionName($orderTransactionId, $context);
         } catch (IllegalTransitionException $exception) {
-            if ($transitionAction !== StateMachineTransitionActions::ACTION_PAY) {
+            if ($transitionAction !== StateMachineTransitionActions::ACTION_PAID) {
                 return;
             }
 
@@ -253,7 +254,7 @@ class CheckoutHelper
     {
         switch ($status) {
             case 'completed' :
-                return StateMachineTransitionActions::ACTION_PAY;
+                return StateMachineTransitionActions::ACTION_PAID;
                 break;
             case 'pay_partially' :
                 return StateMachineTransitionActions::ACTION_PAY_PARTIALLY;
@@ -357,7 +358,7 @@ class CheckoutHelper
     public function getOrderTransactionStatesNameFromAction(string $actionName): string
     {
         switch ($actionName) {
-            case StateMachineTransitionActions::ACTION_PAY:
+            case StateMachineTransitionActions::ACTION_PAID:
                 return OrderTransactionStates::STATE_PAID;
                 break;
             case StateMachineTransitionActions::ACTION_CANCEL:

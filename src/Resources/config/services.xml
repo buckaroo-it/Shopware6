@@ -5,6 +5,18 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        
+        <!-- Entity -->
+        <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityDefinition">
+            <tag name="shopware.entity.definition" entity="buckaroo_transaction" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository">
+            <argument type="service" id="buckaroo_transaction.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <!-- /Entity -->
 
         <service id="Buckaroo\Shopware6\Helpers\Config">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
@@ -73,17 +85,6 @@
             <argument type="service" id="logger" />
             <tag name="shopware.payment.method.async" />
         </service>
-
-        <!-- Entity -->
-        <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityDefinition">
-            <tag name="shopware.entity.definition" entity="buckaroo_transactions" />
-        </service>
-
-        <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository">
-            <argument type="service" id="buckaroo_transactions.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-        <!-- /Entity -->
 
         <!-- Payment methods -->
         <service id="Buckaroo\Shopware6\Handlers\VisaPaymentHandler">
