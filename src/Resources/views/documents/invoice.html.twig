@@ -3,8 +3,14 @@
 {% block document_sum_table_inner %}
     {% if order.customFields.buckarooFee > 0 %}
         <tr>
-            <td class="align-right">Buckaroo Fee</td>
-            <td class="align-right">{{ order.customFields.buckarooFee }}</td>
+            <td class="align-right">{{ 'buckaroo.fee'|trans() }}</td>
+            <td class="align-right">
+                {% if order.currency.isoCode == "PLN" %}
+                    PLN
+                {% else %}
+                    {{ order.currency.symbol }}
+                {% endif %}{{ "%.2f"|format(order.customFields.buckarooFee) }}
+                </td>
         </tr>
     {% endif %}
 

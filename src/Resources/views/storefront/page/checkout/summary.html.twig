@@ -16,7 +16,12 @@
             {{ "buckaroo.fee"|trans|sw_sanitize }}
         </dt>
         <dd class="col-5 checkout-aside-summary-value">
-            {{ page.header.activeCurrency.symbol }}{{ "%.2f"|format(page.order.customFields.buckarooFee) }}{{ "general.star"|trans|sw_sanitize }}
+            {% if page.header.activeCurrency.isoCode == "PLN" %}
+                PLN
+            {% else %}
+                {{ page.header.activeCurrency.symbol }}
+            {% endif %}
+            {{ "%.2f"|format(page.order.customFields.buckarooFee) }}{{ "general.star"|trans|sw_sanitize }}
         </dd>
     {% endif %}
 

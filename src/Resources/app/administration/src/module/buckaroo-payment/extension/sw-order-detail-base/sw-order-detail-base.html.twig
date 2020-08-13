@@ -6,7 +6,13 @@
             <sw-description-list grid="265px 1fr"
             class="sw-order-detail__summary-data">
                 <dt>{{ $tc('buckaroo-payment.fee') }}</dt>
-                <dd>{{ order.customFields.buckarooFee | currency }} {{ order.currency.translated.shortName}}</dd>
+                <dd>{{ order.customFields.buckarooFee }}
+                    {% if order.currency.isoCode == "PLN" %}
+                        PLN
+                    {% else %}
+                        {{ order.currency.symbol }}
+                    {% endif %}
+                    </dd>
             </sw-description-list>
         </sw-container>
     </sw-card-section>
