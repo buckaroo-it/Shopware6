@@ -261,6 +261,7 @@ class BuckarooController extends StorefrontController
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
+        $isFreeShipping = false;
         if ($mode == 'product') {
 
             ////save and remove existing cart items
@@ -282,7 +283,15 @@ class BuckarooController extends StorefrontController
                 ['quantity' => $request->request->get('qty')]
             );
             $this->cartService->add($cart, $lineItem, $context);
+            $isFreeShipping = $lineItem->getDeliveryInformation()->getFreeDelivery();
+            //$this->logger->info(__METHOD__ . "|2|", [$lineItem->getDeliveryInformation()->getFreeDelivery()]);
             /////
+        } else {
+            if ($lineItems = $cart->getLineItems()) {
+                foreach ($lineItems as $lineItem) {
+                    $isFreeShipping = $lineItem->getDeliveryInformation()->getFreeDelivery();
+                }
+            }
         }
 
         ////set custom shipping
@@ -305,31 +314,45 @@ class BuckarooController extends StorefrontController
         //////list possible shipping methods and prices
         $shippingMethods = [];
 
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
-        $shippingMethodsCollection = $this->shippingMethodRepository->search($criteria, $context->getContext())->getEntities();
-        if ($shippingMethodsCollectionResult = $shippingMethodsCollection->filterByActiveRules($context)) {
-            foreach ($shippingMethodsCollectionResult as $shippingMethod) {
-                if ($delivery = $this->buildSingleDelivery($shippingMethod, $cart->getLineItems(), $context)) {
+        if ($isFreeShipping) {
+            $this->logger->info(__METHOD__ . "|3|");
+            $shippingMethods[] = [
+                'identifier' => 0,
+                'detail' => "",
+                'label' => 'No shipping fee',
+                'amount' => 0
+            ];
+        } else {
 
-                    if ($deliveriesCollection = new DeliveryCollection([$delivery])) {
-                        $cart->setDeliveries($deliveriesCollection);
-                        $this->cartService->recalculate($cart, $context);
-                        $this->deliveryCalculator->calculate($cart->getData(), $cart, $deliveriesCollection, $context);
-                        foreach ($deliveriesCollection as $delivery) {
-                            $shippingMethods[] = [
-                                'label' => $delivery->getShippingMethod()->getName(),
-                                'amount' => $delivery->getShippingCosts()->getTotalPrice(),
-                                'identifier' => $delivery->getShippingMethod()->getId(),
-                                'detail' => ''
-                            ];
+            $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+            $shippingMethodsCollection = $this->shippingMethodRepository->search($criteria, $context->getContext())->getEntities();
+            if ($shippingMethodsCollectionResult = $shippingMethodsCollection->filterByActiveRules($context)) {
+                foreach ($shippingMethodsCollectionResult as $shippingMethod) {
+                    if ($delivery = $this->buildSingleDelivery($shippingMethod, $cart->getLineItems(), $context)) {
+
+                        if ($deliveriesCollection = new DeliveryCollection([$delivery])) {
+                            $cart->setDeliveries($deliveriesCollection);
+                            $this->cartService->recalculate($cart, $context);
+                            $this->deliveryCalculator->calculate($cart->getData(), $cart, $deliveriesCollection, $context);
+                            foreach ($deliveriesCollection as $delivery) {
+                                $shippingMethods[] = [
+                                    'label' => $delivery->getShippingMethod()->getName(),
+                                    'amount' => $delivery->getShippingCosts()->getTotalPrice(),
+                                    'identifier' => $delivery->getShippingMethod()->getId(),
+                                    'detail' => ''
+                                ];
+                            }
+
                         }
-
                     }
                 }
             }
+
         }
 
         $result['shippingMethods'] = $shippingMethods;
+
+
         ////////////////////
 
         if ($mode == 'product') {
@@ -461,10 +484,10 @@ class BuckarooController extends StorefrontController
 
             $this->logger->info(__METHOD__ . "|3|");
 
-            $user_id = $order->getOrderCustomer()->getCustomerNumber();
+            //$user_id = $order->getOrderCustomer()->getCustomerNumber();
             $orderId = $order->getUniqueIdentifier();
-            $order_number = $order->getOrderNumber();
-            $amount = $order->getPrice()->getTotalPrice();
+            //$order_number = $order->getOrderNumber();
+            //$amount = $order->getPrice()->getTotalPrice();
 
             $this->logger->info(__METHOD__ . "|4|", [$orderId]);
 
@@ -537,11 +560,15 @@ class BuckarooController extends StorefrontController
 
     private function createOrder(Request $request, SalesChannelContext $context, $paymentData)
     {
-        $this->logger->info(__METHOD__ . "|1|", [$request->request]);
+        $this->logger->info(__METHOD__ . "|1|", [$_POST]);
 
-        if (!$request->request->get('selected_shipping_method')) {
+
+        if (($request->request->get('selected_shipping_method') || $request->request->get('selected_shipping_method') === 0)) {
+        } else {
+            $this->logger->info(__METHOD__ . "|5|");
             return $this->json(false);
         }
+
 
         if ($request->request->get('items')) {
             $mode = 'product';
@@ -551,9 +578,9 @@ class BuckarooController extends StorefrontController
 
         $context2 = null;
         if ($customer = $context->getCustomer()) {
-            $this->logger->info(__METHOD__ . "|11|");
+            $this->logger->info(__METHOD__ . "|10|");
         } else {
-            $this->logger->info(__METHOD__ . "|111|");
+            $this->logger->info(__METHOD__ . "|15|");
             if ($customer = $this->createAccount($context, $paymentData['billingContact'], $paymentData['shippingContact'])) {
 
                 $event = new CustomerLoginEvent($context, $customer, $context->getToken());
@@ -579,7 +606,7 @@ class BuckarooController extends StorefrontController
         }
 
         if ($cart = $this->setCustomShippingToCart($request, $context, $customer)) {
-            $this->logger->info(__METHOD__ . "|2|");
+            $this->logger->info(__METHOD__ . "|20|");
         } else {
             return $this->json(false);
         }
@@ -592,7 +619,7 @@ class BuckarooController extends StorefrontController
             }
         }
 
-        $this->logger->info(__METHOD__ . "|3|");
+        $this->logger->info(__METHOD__ . "|30|");
 
         if ($mode == 'product') {
             foreach ($request->request->get('items') as $item) {
@@ -611,7 +638,7 @@ class BuckarooController extends StorefrontController
         );
         $cart->setPrice($amount);
 
-        $this->logger->info(__METHOD__ . "|4|");
+        $this->logger->info(__METHOD__ . "|40|");
         $this->persister->save($cart, $context);
 
 
@@ -621,13 +648,13 @@ class BuckarooController extends StorefrontController
 
         if ($orderId = $this->order($cart, $context)) {
             if ($order = $this->getOrderById($orderId, $context)) {
-                $this->logger->info(__METHOD__ . "|5|", [$orderId]);
-
+                $this->logger->info(__METHOD__ . "|50|", [$orderId]);
                 //restore previous items from order
-
                 return $order;
             }
         }
+
+        $this->logger->info(__METHOD__ . "|60|");
 
         return $this->json(false);
     }
@@ -743,33 +770,40 @@ class BuckarooController extends StorefrontController
 
     private function setCustomShippingToCart(Request $request, SalesChannelContext $context, $customer = null)
     {
-        $this->logger->info(__METHOD__ . "|1|", [$customer]);
+        $this->logger->info(__METHOD__ . "|1|");
 
-        if ($request->request->get('selected_shipping_method')) {
+        if (($request->request->get('selected_shipping_method') || $request->request->get('selected_shipping_method') === 0)) {
             $this->logger->info(__METHOD__ . "|2|", [$request->request->get('selected_shipping_method')]);
-            $criteria = new Criteria([$request->request->get('selected_shipping_method')]);
-            $shippingMethod = $this->shippingMethodRepository->search(
-                $criteria,
-                $context->getContext())->get($request->request->get('selected_shipping_method')
-            );
 
-            if (!$shippingMethod || !$shippingMethod->getId()) {
-                return false;
+
+            if ($request->request->get('selected_shipping_method')) {
+                $criteria = new Criteria([$request->request->get('selected_shipping_method')]);
+                $shippingMethod = $this->shippingMethodRepository->search(
+                    $criteria,
+                    $context->getContext())->get($request->request->get('selected_shipping_method')
+                );
+
+
+                if (!$shippingMethod || !$shippingMethod->getId()) {
+                    return false;
+                }
+
+                $context->getSalesChannel()->setShippingMethodId($shippingMethod->getId());
+                $context->getSalesChannel()->setShippingMethod($shippingMethod);
             }
-
-            $context->getSalesChannel()->setShippingMethodId($shippingMethod->getId());
-            $context->getSalesChannel()->setShippingMethod($shippingMethod);
             $context->getSalesChannel()->setPaymentMethodId($this->getValidPaymentMethod($context)->getId());
             $context->getSalesChannel()->setPaymentMethod($this->getValidPaymentMethod($context));
 
             $cart = $this->cartService->getCart($context->getToken(), $context);
 
-            if ($delivery = $this->buildSingleDelivery($shippingMethod, $cart->getLineItems(), $context, $customer)) {
-                if ($deliveriesCollection = new DeliveryCollection([$delivery])) {
-                    $cart->setDeliveries($deliveriesCollection);
-                    $this->cartService->recalculate($cart, $context);
-                    $this->deliveryCalculator->calculate($cart->getData(), $cart, $deliveriesCollection, $context);
-                    $this->logger->info(__METHOD__ . "|3|", [$deliveriesCollection->first()->getLocation()]);
+            if ($request->request->get('selected_shipping_method')) {
+                if ($delivery = $this->buildSingleDelivery($shippingMethod, $cart->getLineItems(), $context, $customer)) {
+                    if ($deliveriesCollection = new DeliveryCollection([$delivery])) {
+                        $cart->setDeliveries($deliveriesCollection);
+                        $this->cartService->recalculate($cart, $context);
+                        $this->deliveryCalculator->calculate($cart->getData(), $cart, $deliveriesCollection, $context);
+                        $this->logger->info(__METHOD__ . "|3|", [$deliveriesCollection->first()->getLocation()]);
+                    }
                 }
             }
 
