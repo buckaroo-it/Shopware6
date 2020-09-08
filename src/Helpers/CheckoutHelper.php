@@ -930,6 +930,14 @@ class CheckoutHelper
         return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/Transaction', '/');
     }
 
+    /**
+     * @return string Full transaction url
+     */
+    public function getDataRequestUrl($method = ''): string
+    {
+        return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/DataRequest', '/');
+    }
+
     public function addLineItems($lineItems, SalesChannelContext $salesChannelContext)
     {
         $count = 0;
@@ -1052,6 +1060,15 @@ class CheckoutHelper
         $request->setServiceVersion($customFields['version']);
 
         if ($customFields['serviceName'] == 'afterpay') {
+            $additional = $this->getRefundArticleData($amount);
+            foreach ($additional as $key2 => $item3) {
+                foreach ($item3 as $key => $value) {
+                    $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
+                }
+            }
+        }
+
+        if ($customFields['serviceName'] == 'klarnakp') {
             $additional = $this->getRefundArticleData($amount);
             foreach ($additional as $key2 => $item3) {
                 foreach ($item3 as $key => $value) {

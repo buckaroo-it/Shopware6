@@ -1355,4 +1355,39 @@
         </input-field>
     </card>
 
+    <card>
+        <title>Klarna</title>
+        <input-field type="single-select">
+            <name>klarnakpEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of leef</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>klarnakpLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Klarna</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>klarnakpFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
+    </card>
+
 </config>

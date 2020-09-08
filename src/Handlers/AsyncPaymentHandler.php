@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Buckaroo\Shopware6\Buckaroo\Payload\DataRequest;
 use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Helpers\Helper;
@@ -65,13 +66,19 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse{
-        $this->logger->info(__METHOD__ . "|1|");
+        $this->logger->info(__METHOD__ . "|1|", [$buckarooKey]);
 
         $bkrClient = $this->helper->initializeBkr();
 
         $order = $transaction->getOrder();
 
-        $request = new TransactionRequest;
+        if ($buckarooKey == 'klarnakp') {
+            $this->logger->info(__METHOD__ . "|5|");
+            $request = new DataRequest;
+        } else {
+            $this->logger->info(__METHOD__ . "|10|");
+            $request = new TransactionRequest;
+        }
 
         $finalizePage = $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize');
 
@@ -139,8 +146,13 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         }
 
         try {
-            $url      = $this->checkoutHelper->getTransactionUrl($buckarooKey);
-            $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
+            if ($buckarooKey == 'klarnakp') {
+                $url = $this->checkoutHelper->getDataRequestUrl($buckarooKey);
+                $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
+            } else {
+                $url = $this->checkoutHelper->getTransactionUrl($buckarooKey);
+                $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
+            }
         } catch (Exception $exception) {
             throw new AsyncPaymentProcessException(
                 $transaction->getOrderTransaction()->getId(),

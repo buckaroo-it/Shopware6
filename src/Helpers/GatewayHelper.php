@@ -24,6 +24,7 @@ use Buckaroo\Shopware6\PaymentMethods\P24;
 use Buckaroo\Shopware6\PaymentMethods\Alipay;
 use Buckaroo\Shopware6\PaymentMethods\WeChatPay;
 use Buckaroo\Shopware6\PaymentMethods\Trustly;
+use Buckaroo\Shopware6\PaymentMethods\KlarnaKp;
 
 class GatewayHelper
 {
@@ -49,6 +50,7 @@ class GatewayHelper
         P24::class,
         Alipay::class,
         WeChatPay::class,
-        Trustly::class
+        Trustly::class,
+        KlarnaKp::class
     ];
 }

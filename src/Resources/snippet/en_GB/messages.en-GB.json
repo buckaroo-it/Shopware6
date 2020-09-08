@@ -26,6 +26,8 @@
       "buckarooGiropayBicPlaceholder": "Enter your BIC number here...",
       "buckarooAfterpayPhone": "Mobile",
       "buckarooAfterpayPhonePlaceholder": "Enter your mobile here...",
+      "buckarooKlarnakpPhone": "Phone",
+      "buckarooKlarnakpPhonePlaceholder": "Enter your phone here...",
       "salutation": "Salutation",
       "mr": "Mr.",
       "mrs": "Mrs.",
@@ -33,6 +35,8 @@
       "buckarooAfterpayDoBTitleSup": "(DD/MM/YYYY)",
       "buckarooAfterpayTermsConditionTitle": "Terms and Conditions",
       "buckarooAfterpayTermsCondition": "Yes, I accept the terms and condition for the use of Afterpay.",
+      "buckarooKlarnakpDoBTitle": "Date of Birth",
+      "buckarooKlarnakpDoBTitleSup": "(DD/MM/YYYY)",
       "creditcards": {
         "card": "Card",
         "cardholder": "Cardholder",
