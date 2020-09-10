@@ -16,19 +16,27 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Psr\Log\LoggerInterface;
 
 /**
  */
 class PushController extends StorefrontController
 {
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
     public function __construct(
         EntityRepositoryInterface $transactionRepository,
         CheckoutHelper $checkoutHelper,
-        EntityRepositoryInterface $orderRepository
+        EntityRepositoryInterface $orderRepository,
+        LoggerInterface $logger
     ) {
         $this->transactionRepository = $transactionRepository;
         $this->checkoutHelper        = $checkoutHelper;
         $this->orderRepository       = $orderRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -42,6 +50,8 @@ class PushController extends StorefrontController
      */
     public function pushBuckaroo(Request $request, SalesChannelContext $salesChannelContext)
     {
+        $this->logger->info(__METHOD__ . "|1|", [$_POST]);
+
         $status             = $request->request->get('brq_statuscode');
         $context            = $salesChannelContext->getContext();
         $brqAmount          = $request->request->get('brq_amount');
@@ -50,13 +60,16 @@ class PushController extends StorefrontController
         $brqInvoicenumber   = $request->request->get('brq_invoicenumber');
         $orderTransactionId = $request->request->get('ADD_orderTransactionId');
         $brqTransactionType = $request->request->get('brq_transaction_type');
+        $paymentMethod      = $request->request->get('brq_primary_service');
 
         $validSignature = $this->checkoutHelper->validateSignature();
         if (!$validSignature) {
+            $this->logger->info(__METHOD__ . "|5|");
             return $this->json(['status' => false, 'message' => 'Signature from push is incorrect']);
         }
 
         if ($brqTransactionType != ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION) {
+            $this->logger->info(__METHOD__ . "|10|");
             $this->checkoutHelper->saveBuckarooTransaction($request, $context);
         }
 
@@ -67,12 +80,15 @@ class PushController extends StorefrontController
 
         //Check if the push is a refund request or cancel authorize
         if (isset($brqAmountCredit)) {
+            $this->logger->info(__METHOD__ . "|15|", [$brqAmountCredit]);
             if ($status != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS && $brqTransactionType == ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_CANCEL) {
                 $currentStateId = $transaction->getStateId();
+                $this->logger->info(__METHOD__ . "|20|");
                 return $this->json(['status' => true, 'message' => "Payment cancelled"]);
             }
 
             $status = ($brqAmountCredit < $totalPrice) ? 'partial_refunded' : 'refunded';
+            $this->logger->info(__METHOD__ . "|25|", [$status]);
             $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, [$status => 1]);
 
             $this->checkoutHelper->transitionPaymentState($status, $orderTransactionId, $context);
@@ -81,16 +97,23 @@ class PushController extends StorefrontController
         }
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
+            $this->logger->info(__METHOD__ . "|30|");
             try {
                 if($this->checkoutHelper->isOrderState(['cancelled'], $brqOrderId, $context)){
+                    $this->logger->info(__METHOD__ . "|35|");
                     $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'reopen');
                 }
 
                 if($this->checkoutHelper->isTransitionPaymentState(['refunded','partial_refunded'], $orderTransactionId, $context)){
+                    $this->logger->info(__METHOD__ . "|40|");
                     return $this->json(['status' => true, 'message' => "Payment state was updated earlier"]);
                 }
 
                 $paymentState = (round($brqAmount, 2) == round($totalPrice, 2)) ? "completed" : "pay_partially";
+                if (strtolower($paymentMethod) == 'klarnakp') {
+                    $paymentState = 'do_pay';
+                }
+                $this->logger->info(__METHOD__ . "|45|", [$paymentState, $brqAmount, $totalPrice]);
                 $this->checkoutHelper->transitionPaymentState($paymentState, $orderTransactionId, $context);
                 $data = [
                     'originalTransactionKey' => $request->request->get('brq_transactions'),
@@ -99,14 +122,17 @@ class PushController extends StorefrontController
                 $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
 
                 if (!$this->checkoutHelper->isInvoiced($brqOrderId, $context)) {
+                    $this->logger->info(__METHOD__ . "|50|");
                     if (round($brqAmount, 2) == round($totalPrice, 2)) {
                         $this->checkoutHelper->generateInvoice($brqOrderId, $context, $brqInvoicenumber);
                     }
                 }
             } catch (InconsistentCriteriaIdsException | IllegalTransitionException | StateMachineNotFoundException
                  | StateMachineStateNotFoundException $exception) {
+                $this->logger->info(__METHOD__ . "|55|");
                 throw new AsyncPaymentFinalizeException($orderTransactionId, $exception->getMessage());
             }
+            $this->logger->info(__METHOD__ . "|60|");
             return $this->json(['status' => true, 'message' => "Payment state was updated"]);
         }
 

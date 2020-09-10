@@ -5,6 +5,7 @@ namespace Buckaroo\Shopware6\Buckaroo;
 use Buckaroo\Shopware6\Buckaroo\HmacHeader;
 use Buckaroo\Shopware6\Buckaroo\Payload\Request;
 use Exception;
+use Psr\Log\LoggerInterface;
 
 class BkrClient
 {
@@ -31,11 +32,19 @@ class BkrClient
      */
     protected $culture;
 
-    public function __construct(HmacHeader $hmac, SoftwareHeader $software, CultureHeader $culture)
+    /**
+     * @var Psr\Log\LoggerInterface
+     */
+    protected $logger;
+
+    public function __construct(HmacHeader $hmac, SoftwareHeader $software, CultureHeader $culture,
+        LoggerInterface $logger
+    )
     {
         $this->hmac     = $hmac;
         $this->software = $software;
         $this->culture  = $culture;
+        $this->logger = $logger;
     }
 
     protected function initCurl()
@@ -46,6 +55,10 @@ class BkrClient
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($curl, CURLOPT_USERAGENT, 'Shopware');
+
+        //ZAK
+        //curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+        //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
 
         return $curl;
     }
@@ -63,6 +76,8 @@ class BkrClient
 
     protected function call($url, $method = self::METHOD_GET, Request $data = null, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response')
     {
+        $this->logger->info(__METHOD__ . "|1|", [$url, $method, $data]);
+
         if (!in_array($method, $this->validMethods)) {
             throw new Exception('Invalid HTTP-Methode: ' . $method);
         }
@@ -97,8 +112,11 @@ class BkrClient
 
         // check for curl errors
         if ($result === false) {
+            $this->logger->info(__METHOD__ . "|5|", [curl_error($curl)]);
             throw new Exception('Buckaroo API curl error: ' . curl_error($curl));
         }
+
+        $this->logger->info(__METHOD__ . "|10|", [$result]);
 
         $decodedResult = json_decode($result, true);
 

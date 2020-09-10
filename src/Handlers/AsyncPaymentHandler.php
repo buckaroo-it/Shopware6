@@ -28,7 +28,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    protected $logger;
 
     /**
      * Buckaroo constructor.
@@ -66,7 +66,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse{
-        $this->logger->info(__METHOD__ . "|1|", [$buckarooKey]);
+        $this->logger->info(__METHOD__ . "|1|", [$buckarooKey, $_POST]);
 
         $bkrClient = $this->helper->initializeBkr();
 
@@ -106,6 +106,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setServiceName($buckarooKey);
         $request->setServiceVersion($version);
         $request->setServiceAction('Pay');
+
+        $this->payBefore($dataBag, $request);
 
         if ($buckarooKey == 'applepay') {
             $this->payApplePay($dataBag, $request);
@@ -184,6 +186,13 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         return new RedirectResponse($finalizePage . '?orderId=' . $order->getId() . '&error=' . base64_encode($response->getSubCodeMessage()));
 
+    }
+
+    protected function payBefore(
+        RequestDataBag $dataBag,
+        \Buckaroo\Shopware6\Buckaroo\Payload\Request $request
+    ): void {
+        $this->logger->info(__METHOD__ . "|1|");
     }
 
     /**

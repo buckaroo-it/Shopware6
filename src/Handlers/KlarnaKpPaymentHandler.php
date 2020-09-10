@@ -10,6 +10,10 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class KlarnaKpPaymentHandler extends AsyncPaymentHandler
 {
+    const KLARNAKP_ARTICLE_TYPE_GENERAL = 'General';
+    const KLARNAKP_ARTICLE_TYPE_HANDLINGFEE = 'HandlingFee';
+    const KLARNAKP_ARTICLE_TYPE_SHIPMENTFEE = 'ShipmentFee';
+
     /**
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
@@ -54,6 +58,17 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
         );
     }
 
+    protected function payBefore(
+        RequestDataBag $dataBag,
+        \Buckaroo\Shopware6\Buckaroo\Payload\Request $request
+    ): void {
+        $this->logger->info(__METHOD__ . "|1|");
+
+        $request->setServiceAction('Reserve');
+
+        parent::payBefore($dataBag, $request);
+    }
+
     public function getBuckarooFee($order, $additional, &$latestKey)
     {
         $buckarooFee = $this->checkoutHelper->getBuckarooFee('klarnakpFee');
@@ -61,31 +76,31 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
             $additional[] = [
                 [
                     '_'       => 'buckarooFee',
-                    'Name'    => 'Description',
+                    'Name'    => 'ArticleTitle',
                     'GroupID' => $latestKey,
                     'Group'   => 'Article',
                 ],
                 [
                     '_'       => 'buckarooFee',
-                    'Name'    => 'Identifier',
-                    'Group'   => 'Article',
+                    'Name'    => 'ArticleNumber',
                     'GroupID' => $latestKey,
+                    'Group'   => 'Article',
                 ],
                 [
                     '_'       => 1,
-                    'Name'    => 'Quantity',
+                    'Name'    => 'ArticleQuantity',
                     'GroupID' => $latestKey,
                     'Group'   => 'Article',
                 ],
                 [
                     '_'       => round($buckarooFee, 2),
-                    'Name'    => 'GrossUnitPrice',
+                    'Name'    => 'ArticlePrice',
                     'GroupID' => $latestKey,
                     'Group'   => 'Article',
                 ],
                 [
                     '_'       => 0,
-                    'Name'    => 'VatPercentage',
+                    'Name'    => 'ArticleVat',
                     'GroupID' => $latestKey,
                     'Group'   => 'Article',
                 ],
@@ -102,31 +117,37 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
             $additional[] = [
                 [
                     '_'       => $item['name'],
-                    'Name'    => 'Description',
+                    'Name'    => 'ArticleTitle',
                     'GroupID' => $latestKey,
                     'Group'   => 'Article',
                 ],
                 [
                     '_'       => $item['sku'],
-                    'Name'    => 'Identifier',
+                    'Name'    => 'ArticleNumber',
                     'Group'   => 'Article',
                     'GroupID' => $latestKey,
                 ],
                 [
                     '_'       => $item['quantity'],
-                    'Name'    => 'Quantity',
+                    'Name'    => 'ArticleQuantity',
                     'GroupID' => $latestKey,
                     'Group'   => 'Article',
                 ],
                 [
                     '_'       => $item['unitPrice']['value'],
-                    'Name'    => 'GrossUnitPrice',
+                    'Name'    => 'ArticlePrice',
                     'GroupID' => $latestKey,
                     'Group'   => 'Article',
                 ],
                 [
                     '_'       => $item['vatRate'],
-                    'Name'    => 'VatPercentage',
+                    'Name'    => 'ArticleVat',
+                    'GroupID' => $latestKey,
+                    'Group'   => 'Article',
+                ],
+                [
+                    '_'       => $item['sku'] == 'Shipping' ? self::KLARNAKP_ARTICLE_TYPE_SHIPMENTFEE : self::KLARNAKP_ARTICLE_TYPE_GENERAL,
+                    'Name'    => 'ArticleType',
                     'GroupID' => $latestKey,
                     'Group'   => 'Article',
                 ],
@@ -139,6 +160,8 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
 
     public function getAddressArray($order, $additional, &$latestKey, $salesChannelContext, $dataBag)
     {
+        $this->logger->info(__METHOD__ . "|1|");
+
         $address  = $this->checkoutHelper->getBillingAddress($order, $salesChannelContext);
         $customer = $this->checkoutHelper->getOrderCustomer($order, $salesChannelContext);
         $shippingAddress  = $this->checkoutHelper->getShippingAddress($order, $salesChannelContext);
@@ -151,6 +174,8 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
         $birthDayStamp = $dataBag->get('buckaroo_klarnakp_DoB');
         $address->setPhoneNumber($dataBag->get('buckaroo_klarnakp_phone'));
         $salutation = $customer->getSalutation()->getSalutationKey();
+
+        $this->logger->info(__METHOD__ . "|5|", [$address->getId(), $shippingAddress->getId()]);
         
         $shippingAddress->setPhoneNumber($dataBag->get('buckaroo_klarnakp_phone'));
         $shippingStreetFormat  = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
@@ -159,200 +184,140 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
         $category    = 'Person';
         $billingData = [
             [
-                '_'       => $category,
-                'Name'    => 'Category',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ],
-            [
                 '_'       => $address->getFirstName(),
-                'Name'    => 'FirstName',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
+                'Name'    => 'BillingFirstName',
             ],
             [
                 '_'       => $address->getLastName(),
-                'Name'    => 'LastName',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
+                'Name'    => 'BillingLastName',
             ],
             [
                 '_'       => (!empty($streetFormat['house_number']) ? $streetFormat['street'] : $address->getStreet()),
-                'Name'    => 'Street',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
+                'Name'    => 'BillingStreet',
             ],
             [
                 '_'       => $address->getZipCode(),
-                'Name'    => 'PostalCode',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
+                'Name'    => 'BillingPostalCode',
             ],
             [
                 '_'       => $address->getCity(),
-                'Name'    => 'City',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
+                'Name'    => 'BillingCity',
             ],
             [
                 '_'       => $address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL',
-                'Name'    => 'Country',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
+                'Name'    => 'BillingCountry',
             ],
             [
                 '_'       => $address->getPhoneNumber(),
-                'Name'    => 'MobilePhone',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $address->getPhoneNumber(),
-                'Name'    => 'Phone',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
+                'Name'    => 'BillingPhoneNumber',
             ],
             [
                 '_'       => $customer->getEmail(),
-                'Name'    => 'Email',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
+                'Name'    => 'BillingEmail',
             ],
         ];
 
         if (!empty($streetFormat['house_number'])) {
             $billingData[] = [
                 '_'       => $streetFormat['house_number'],
-                'Name'    => 'StreetNumber',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
+                'Name'    => 'BillingHouseNumber',
             ];
         }
 
         if (!empty($streetFormat['number_addition'])) {
             $billingData[] = [
                 '_'       => $streetFormat['number_addition'],
-                'Name'    => 'StreetNumberAdditional',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
+                'Name'    => 'BillingHouseNumberSuffix',
             ];
         }
-
-        if ($address->getCountry()->getIso() == 'NL' || $address->getCountry()->getIso() == 'BE') {
-            $billingData[] = [
-                '_'       => $salutation,
-                'Name'    => 'Salutation',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ];
-
-            $billingData[] = [
-                '_'       => $birthDayStamp,
-                'Name'    => 'BirthDate',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ];
-        }
-
 
         $shippingData = [
             [
-                '_'       => $category,
-                'Name'    => 'Category',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ],
-            [
                 '_'       => $shippingAddress->getFirstName(),
-                'Name'    => 'FirstName',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
+                'Name'    => 'ShippingFirstName',
             ],
             [
                 '_'       => $shippingAddress->getLastName(),
-                'Name'    => 'LastName',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
+                'Name'    => 'ShippingLastName',
             ],
             [
                 '_'       => (!empty($shippingStreetFormat['house_number']) ? $shippingStreetFormat['street'] : $shippingAddress->getStreet()),
-                'Name'    => 'Street',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
+                'Name'    => 'ShippingStreet',
             ],
             [
                 '_'       => $shippingAddress->getZipCode(),
-                'Name'    => 'PostalCode',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
+                'Name'    => 'ShippingPostalCode',
             ],
             [
                 '_'       => $shippingAddress->getCity(),
-                'Name'    => 'City',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
+                'Name'    => 'ShippingCity',
             ],
             [
                 '_'       => $shippingAddress->getCountry() !== null ? $shippingAddress->getCountry()->getIso() : 'NL',
-                'Name'    => 'Country',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
+                'Name'    => 'ShippingCountry',
             ],
             [
                 '_'       => $shippingAddress->getPhoneNumber(),
-                'Name'    => 'MobilePhone',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $shippingAddress->getPhoneNumber(),
-                'Name'    => 'Phone',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
+                'Name'    => 'ShippingPhoneNumber',
             ],
             [
                 '_'       => $customer->getEmail(),
-                'Name'    => 'Email',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
+                'Name'    => 'ShippingEmail',
             ],
         ];
 
         if (!empty($shippingStreetFormat['house_number'])) {
             $shippingData[] = [
                 '_'       => $shippingStreetFormat['house_number'],
-                'Name'    => 'StreetNumber',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
+                'Name'    => 'ShippingHouseNumber',
             ];
         }
 
         if (!empty($shippingStreetFormat['number_addition'])) {
             $shippingData[] = [
                 '_'       => $shippingStreetFormat['number_addition'],
-                'Name'    => 'StreetNumberAdditional',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ];
-        }
-
-        if ($shippingAddress->getCountry()->getIso() == 'NL' || $shippingAddress->getCountry()->getIso() == 'BE') {
-            $shippingData[] = [
-                '_'       => $salutation,
-                'Name'    => 'Salutation',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ];
-
-            $shippingData[] = [
-                '_'       => $birthDayStamp,
-                'Name'    => 'BirthDate',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
+                'Name'    => 'ShippingHouseNumberSuffix',
             ];
         }
 
         $latestKey++;
+
+        $additional = array_merge($additional, [[
+            [
+                '_'       => $address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL',
+                'Name'    => 'OperatingCountry',
+            ],
+            [
+                '_'       => $salutation == 'mrs' ? 2 : 1,
+                'Name'    => 'Gender',
+            ],
+            [
+                '_'       => $address->getId() == $shippingAddress->getId(),
+                'Name'    => 'ShippingSameAsBilling',
+            ]
+        ]]);
+
+        if ($birthDayStamp) {
+            $additional = array_merge($additional, [[
+                [
+                    '_'       => gmdate('mdY', strtotime($birthDayStamp)),
+                    'Name'    => 'Pno',
+                ],
+            ]]);
+        }
+
+        if ($address->getCompany()) {
+            $additional = array_merge($additional, [[
+                [
+                    '_'       => $address->getCompany(),
+                    'Name'    => 'BillingCompanyName',
+                ],
+                [
+                    '_'       => $address->getCompany(),
+                    'Name'    => 'ShippingCompany',
+                ],
+            ]]);
+        }
 
         return array_merge($additional, [$billingData,$shippingData]);
 
