@@ -48,3 +48,6 @@ BP-379 Compatibility with 6.3
 BP-309 Added payment fee (fixed amount) to all payment methods
 BP-201 Added payment method WeChatPay
 BP-204 Added payment method Trustly
+
+# 1.1.1
+BP-206 Shopware 6 - Add payment method KlarnaKP
