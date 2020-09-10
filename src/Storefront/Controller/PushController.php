@@ -110,7 +110,7 @@ class PushController extends StorefrontController
                 }
 
                 $paymentState = (round($brqAmount, 2) == round($totalPrice, 2)) ? "completed" : "pay_partially";
-                if (strtolower($paymentMethod) == 'klarnakp') {
+                if ($paymentMethod && (strtolower($paymentMethod) == 'klarnakp')) {
                     $paymentState = 'do_pay';
                 }
                 $this->logger->info(__METHOD__ . "|45|", [$paymentState, $brqAmount, $totalPrice]);
