@@ -4,7 +4,7 @@ namespace Buckaroo\Shopware6\PaymentMethods;
 
 use Buckaroo\Shopware6\Handlers\KbcPaymentHandler;
 
-class Kbc implements PaymentMethodInterface
+class Kbc extends AbstractPayment
 {
     /*
     * @return string
@@ -12,14 +12,6 @@ class Kbc implements PaymentMethodInterface
     public function getBuckarooKey(): string
     {
         return 'KBCPaymentButton';
-    }
-
-    /**
-     * @return string
-     */
-    public function getVersion(): string
-    {
-        return '1';
     }
 
     /**
@@ -65,16 +57,6 @@ class Kbc implements PaymentMethodInterface
     /**
      * {@inheritDoc}
      *
-     * @return string|null
-     */
-    public function getTemplate(): ?string
-    {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
      * @return array
      */
     public function getTranslations(): array
@@ -91,18 +73,4 @@ class Kbc implements PaymentMethodInterface
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return string
-     */
-    public function getType(): string
-    {
-        return 'redirect';
-    }
-
-    public function canRefund(): bool
-    {
-        return true;
-    }
 }

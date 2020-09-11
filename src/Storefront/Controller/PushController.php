@@ -110,15 +110,18 @@ class PushController extends StorefrontController
                 }
 
                 $paymentState = (round($brqAmount, 2) == round($totalPrice, 2)) ? "completed" : "pay_partially";
+                $data = [];
                 if ($paymentMethod && (strtolower($paymentMethod) == 'klarnakp')) {
+                    $this->logger->info(__METHOD__ . "|42|");
                     $paymentState = 'do_pay';
+                    $data['reservationNumber'] = $request->request->get('brq_SERVICE_klarnakp_ReservationNumber');
                 }
                 $this->logger->info(__METHOD__ . "|45|", [$paymentState, $brqAmount, $totalPrice]);
                 $this->checkoutHelper->transitionPaymentState($paymentState, $orderTransactionId, $context);
-                $data = [
+                $data = array_merge($data, [
                     'originalTransactionKey' => $request->request->get('brq_transactions'),
                     'brqPaymentMethod'       => $request->request->get('brq_transaction_method'),
-                ];
+                ]);
                 $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
 
                 if (!$this->checkoutHelper->isInvoiced($brqOrderId, $context)) {

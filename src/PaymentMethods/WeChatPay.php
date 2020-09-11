@@ -4,7 +4,7 @@ namespace Buckaroo\Shopware6\PaymentMethods;
 
 use Buckaroo\Shopware6\Handlers\WeChatPayPaymentHandler;
 
-class WeChatPay implements PaymentMethodInterface
+class WeChatPay extends AbstractPayment
 {
     /*
     * @return string
@@ -12,14 +12,6 @@ class WeChatPay implements PaymentMethodInterface
     public function getBuckarooKey(): string
     {
         return 'WeChatPay';
-    }
-
-    /**
-     * @return string
-     */
-    public function getVersion(): string
-    {
-        return '1';
     }
 
     /**
@@ -91,18 +83,4 @@ class WeChatPay implements PaymentMethodInterface
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return string
-     */
-    public function getType(): string
-    {
-        return 'redirect';
-    }
-
-    public function canRefund(): bool
-    {
-        return true;
-    }
 }

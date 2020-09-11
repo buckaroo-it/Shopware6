@@ -39,6 +39,22 @@ class BuckarooPaymentService extends ApiService {
             return ApiService.handleResponse(response);
         });
     }
+
+    captureOrder(transaction, transactionsToRefund, orderItems) {
+        const apiRoute = `_action/${this.getApiBasePath()}/capture`;
+
+        return this.httpClient.post(
+            apiRoute,
+            {
+                transaction: transaction
+            },
+            {
+                headers: this.getBasicHeaders()
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
 }
 
 Application.addServiceProvider('BuckarooPaymentService', (container) => {

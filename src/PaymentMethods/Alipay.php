@@ -4,7 +4,7 @@ namespace Buckaroo\Shopware6\PaymentMethods;
 
 use Buckaroo\Shopware6\Handlers\AlipayPaymentHandler;
 
-class Alipay implements PaymentMethodInterface
+class Alipay extends AbstractPayment
 {
     /*
     * @return string
@@ -12,14 +12,6 @@ class Alipay implements PaymentMethodInterface
     public function getBuckarooKey(): string
     {
         return 'Alipay';
-    }
-
-    /**
-     * @return string
-     */
-    public function getVersion(): string
-    {
-        return '1';
     }
 
     /**
@@ -91,18 +83,4 @@ class Alipay implements PaymentMethodInterface
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return string
-     */
-    public function getType(): string
-    {
-        return 'redirect';
-    }
-
-    public function canRefund(): bool
-    {
-        return true;
-    }
 }

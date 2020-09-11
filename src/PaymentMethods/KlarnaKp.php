@@ -4,7 +4,7 @@ namespace Buckaroo\Shopware6\PaymentMethods;
 
 use Buckaroo\Shopware6\Handlers\KlarnaKpPaymentHandler;
 
-class KlarnaKp implements PaymentMethodInterface
+class KlarnaKp extends AbstractPayment
 {
     /*
      * @return string
@@ -55,16 +55,6 @@ class KlarnaKp implements PaymentMethodInterface
     /**
      * {@inheritDoc}
      *
-     * @return string|null
-     */
-    public function getTemplate():  ? string
-    {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
      * @return string
      */
     public function getMedia() : string
@@ -91,17 +81,7 @@ class KlarnaKp implements PaymentMethodInterface
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return string
-     */
-    public function getType(): string
-    {
-        return 'redirect';
-    }
-
-    public function canRefund(): bool
+    public function canCapture(): bool
     {
         return true;
     }

@@ -4,7 +4,7 @@ namespace Buckaroo\Shopware6\PaymentMethods;
 
 use Buckaroo\Shopware6\Handlers\IdealPaymentHandler;
 
-class Ideal implements PaymentMethodInterface
+class Ideal extends AbstractPayment
 {
     /*
     * @return string
@@ -55,16 +55,6 @@ class Ideal implements PaymentMethodInterface
     /**
      * {@inheritDoc}
      *
-     * @return string|null
-     */
-    public function getTemplate(): ?string
-    {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
      * @return string
      */
     public function getMedia(): string
@@ -101,8 +91,4 @@ class Ideal implements PaymentMethodInterface
         return 'direct';
     }
 
-    public function canRefund(): bool
-    {
-        return true;
-    }
 }

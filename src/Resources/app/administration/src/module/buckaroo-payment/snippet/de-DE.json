@@ -40,7 +40,10 @@
       "buttonTitle": "Rückerstattung",
       "successTitle": "Erfolg",
       "successMessage": "Buckaroo-Erfolg erstattet ",
-      "errorTitle": "Fehler"
+      "errorTitle": "Fehler",
+      "payTitle": "Geld erhalten",
+      "payDescription": "Zahlung für Bestellung erhalten",
+      "payButton": "Geld erhalten"
     },
     "orderItems": {
         "title": "Zu erstattende Gegenstände",

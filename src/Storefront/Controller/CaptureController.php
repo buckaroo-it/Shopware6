@@ -26,53 +26,62 @@ use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentExcepti
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
+use Psr\Log\LoggerInterface;
 
 /**
  */
-class RefundController extends StorefrontController
+class CaptureController extends StorefrontController
 {
-    /** @var LoggerInterface */
-    private $logger;
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     public function __construct(
         EntityRepositoryInterface $transactionRepository,
         CheckoutHelper $checkoutHelper,
-        EntityRepositoryInterface $orderRepository
+        EntityRepositoryInterface $orderRepository,
+        LoggerInterface $logger
     ) {
         $this->transactionRepository = $transactionRepository;
         $this->checkoutHelper = $checkoutHelper;
         $this->orderRepository = $orderRepository;
+        $this->logger = $logger;
     }
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/_action/buckaroo/refund", name="api.action.buckaroo.refund", methods={"POST"})
+     * @Route("/api/v{version}/_action/buckaroo/capture", name="api.action.buckaroo.capture", methods={"POST"})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *
      * @return RedirectResponse
      */
-    public function refundBuckaroo(Request $request, Context $context): JsonResponse
+    public function captureBuckaroo(Request $request, Context $context): JsonResponse
     {
+        $this->logger->info(__METHOD__ . "|1|");
+
         $orderId = $request->get('transaction');
-        $transactionsToRefund = $request->get('transactionsToRefund');
-        $orderItems = $request->get('orderItems');
 
         if (empty($orderId)) {
+            $this->logger->info(__METHOD__ . "|5|");
             return new JsonResponse(['status' => false, 'message' => 'Missing order orderId'], Response::HTTP_NOT_FOUND);
         }
 
         $order = $this->checkoutHelper->getOrderById($orderId, $context);
 
         if (null === $order) {
+            $this->logger->info(__METHOD__ . "|10|");
             return new JsonResponse(['status' => false, 'message' => 'Order transaction not found'], Response::HTTP_NOT_FOUND);
         }
-        $responses = [];
+
+        $this->logger->info(__METHOD__ . "|15|", [$orderId]);
+
         try {
-            foreach ($transactionsToRefund as $item) {
-                $responses[] = $this->checkoutHelper->refundTransaction($order, $context, $item, 'refund', $orderItems);
-            }
+            $this->logger->info(__METHOD__ . "|20|");
+            $response = $this->checkoutHelper->captureTransaction($order, $context);
         } catch (Exception $exception) {
+            $this->logger->info(__METHOD__ . "|25|");
             return new JsonResponse(
                 [
                     'status'  => false,
@@ -83,8 +92,8 @@ class RefundController extends StorefrontController
             );
         }
 
-        if($responses){
-            return new JsonResponse($responses);
+        if($response){
+            return new JsonResponse($response);
         }
 
         return new JsonResponse(

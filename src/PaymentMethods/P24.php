@@ -4,7 +4,7 @@ namespace Buckaroo\Shopware6\PaymentMethods;
 
 use Buckaroo\Shopware6\Handlers\P24PaymentHandler;
 
-class P24 implements PaymentMethodInterface
+class P24 extends AbstractPayment
 {
     /*
     * @return string
@@ -12,14 +12,6 @@ class P24 implements PaymentMethodInterface
     public function getBuckarooKey(): string
     {
         return 'Przelewy24';
-    }
-
-    /**
-     * @return string
-     */
-    public function getVersion(): string
-    {
-        return '1';
     }
 
     /**
@@ -91,18 +83,4 @@ class P24 implements PaymentMethodInterface
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return string
-     */
-    public function getType(): string
-    {
-        return 'redirect';
-    }
-
-    public function canRefund(): bool
-    {
-        return true;
-    }
 }

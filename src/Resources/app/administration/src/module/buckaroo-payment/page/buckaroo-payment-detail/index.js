@@ -22,6 +22,7 @@ Component.register('buckaroo-payment-detail', {
             buckaroo_refund_total_amount: '0',
             currency: 'EUR',
             isRefundPossible: true,
+            isCapturePossible: true,
             isLoading: false,
             order: false,
             buckarooFee: false,
@@ -216,6 +217,33 @@ Component.register('buckaroo-payment-detail', {
                         message: errorResponse.response.data.message
                     });
                     that.isRefundPossible = true;
+                });
+        },
+
+        captureOrder(transaction) {
+            let that = this;
+            that.isCapturePossible = false;
+            this.BuckarooPaymentService.captureOrder(transaction, this.transactionsToRefund, this.orderItems)
+                .then((response) => {
+                    if(response.status){
+                        this.createNotificationSuccess({
+                            title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
+                            message: response.message
+                        });
+                    }else{
+                        this.createNotificationError({
+                            title: that.$tc('buckaroo-payment.settingsForm.titleError'),
+                            message: response.message
+                        });
+                    }
+                    that.isCapturePossible = true;
+                })
+                .catch((errorResponse) => {
+                    this.createNotificationError({
+                        title: this.$tc('buckaroo-payment.settingsForm.titleError'),
+                        message: errorResponse.response.data.message
+                    });
+                    that.isCapturePossible = true;
                 });
         }
     }

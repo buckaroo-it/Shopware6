@@ -4,7 +4,7 @@ namespace Buckaroo\Shopware6\PaymentMethods;
 
 use Buckaroo\Shopware6\Handlers\GiropayPaymentHandler;
 
-class Giropay implements PaymentMethodInterface
+class Giropay extends AbstractPayment
 {
     /*
     * @return string
@@ -91,18 +91,4 @@ class Giropay implements PaymentMethodInterface
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return string
-     */
-    public function getType(): string
-    {
-        return 'redirect';
-    }
-
-    public function canRefund(): bool
-    {
-        return true;
-    }
 }

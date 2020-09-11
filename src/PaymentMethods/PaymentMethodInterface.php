@@ -73,4 +73,11 @@ interface PaymentMethodInterface
      * @return bool
      */
     public function canRefund(): bool;
+
+    /**
+     * Get the canCapture status
+     *
+     * @return bool
+     */
+    public function canCapture(): bool;
 }

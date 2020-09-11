@@ -4,7 +4,7 @@ namespace Buckaroo\Shopware6\PaymentMethods;
 
 use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 
-class AfterPay implements PaymentMethodInterface
+class AfterPay extends AbstractPayment
 {
     /*
      * @return string
@@ -12,14 +12,6 @@ class AfterPay implements PaymentMethodInterface
     public function getBuckarooKey(): string
     {
         return 'afterpay';
-    }
-
-    /**
-     * @return string
-     */
-    public function getVersion(): string
-    {
-        return '1';
     }
 
     /**
@@ -55,16 +47,6 @@ class AfterPay implements PaymentMethodInterface
     /**
      * {@inheritDoc}
      *
-     * @return string|null
-     */
-    public function getTemplate():  ? string
-    {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
      * @return string
      */
     public function getMedia() : string
@@ -91,19 +73,9 @@ class AfterPay implements PaymentMethodInterface
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return string
-     */
-    public function getType(): string
+    public function canCapture(): bool
     {
-        return 'redirect';
-    }
-
-    public function canRefund(): bool
-    {
-        return true;
+        return false;
     }
 
 }

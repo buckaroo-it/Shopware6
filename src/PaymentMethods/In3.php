@@ -4,7 +4,7 @@ namespace Buckaroo\Shopware6\PaymentMethods;
 
 use Buckaroo\Shopware6\Handlers\In3PaymentHandler;
 
-class In3 implements PaymentMethodInterface
+class In3 extends AbstractPayment
 {
     /*
      * @return string
@@ -12,14 +12,6 @@ class In3 implements PaymentMethodInterface
     public function getBuckarooKey(): string
     {
         return 'capayable';
-    }
-
-    /**
-     * @return string
-     */
-    public function getVersion(): string
-    {
-        return '1';
     }
 
     /**
@@ -89,21 +81,6 @@ class In3 implements PaymentMethodInterface
                 'description' => $this->getDescription(),
             ],
         ];
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string
-     */
-    public function getType(): string
-    {
-        return 'redirect';
-    }
-
-    public function canRefund(): bool
-    {
-        return true;
     }
 
 }

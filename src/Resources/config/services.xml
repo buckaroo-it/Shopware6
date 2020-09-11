@@ -300,6 +300,15 @@
             <argument type="service" id="order.repository" />
         </service>
 
+        <service id="Buckaroo\Shopware6\Storefront\Controller\CaptureController" public="true">
+            <argument type="service" id="order_transaction.repository" />
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="order.repository" />
+            <argument type="service" id="logger" />
+        </service>
+
+        <!-- /Controllers -->
+
         <service id="Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber" >
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="customer.repository"/>
@@ -307,7 +316,6 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <tag name="kernel.event_subscriber"/>
         </service>
-        <!-- /Controllers -->
 
         <service id="Buckaroo\Shopware6\Resources\snippet\de_DE\GermanTranslations" public="true">
             <tag name="shopware.snippet.file"/>

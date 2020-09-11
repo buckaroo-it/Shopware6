@@ -40,7 +40,10 @@
       "buttonTitle": "Refund",
       "successTitle": "Success",
       "successMessage": "Buckaroo success refunded ",
-      "errorTitle": "Error"
+      "errorTitle": "Error",
+      "payTitle": "Receive payment",
+      "payDescription": "Receive payment for order",
+      "payButton": "Receive payment"
     },
     "orderItems": {
         "title": "Items to Refund",

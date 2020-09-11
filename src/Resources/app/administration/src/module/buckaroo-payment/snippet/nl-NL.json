@@ -40,7 +40,10 @@
       "buttonTitle": "Restitutie",
       "successTitle": "Succes",
       "successMessage": "Buckaroo-succes terugbetaald ",
-      "errorTitle": "Fout"
+      "errorTitle": "Fout",
+      "payTitle": "Betaling ontvangen",
+      "payDescription": "Ontvang betaling voor bestelling",
+      "payButton": "Betaling ontvangen"
     },
     "orderItems": {
         "title": "Te restitueren items",

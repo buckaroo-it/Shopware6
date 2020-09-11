@@ -412,6 +412,7 @@ class CheckoutHelper
 
     public function saveTransactionData(string $orderTransactionId, Context $context, array $data): void
     {
+        $this->logger->info(__METHOD__ . "|1|");
         $orderTransaction = $this->getOrderTransactionById(
             $context,
             $orderTransactionId
@@ -420,6 +421,7 @@ class CheckoutHelper
         $customFields = $orderTransaction->getCustomFields() ?? [];
         $customFields = array_merge($customFields, $data);
 
+        $this->logger->info(__METHOD__ . "|5|", [$customFields]);
         $this->updateTransactionCustomFields($orderTransactionId, $customFields);
     }
 
@@ -978,6 +980,7 @@ class CheckoutHelper
         $method_path                = str_replace('Handlers', 'PaymentMethods', str_replace('PaymentHandler', '', $transaction->getPaymentMethod()->getHandlerIdentifier()));
         $paymentMethod              = new $method_path;
         $customField['canRefund']   = $paymentMethod->canRefund() ? 1 : 0;
+        $customField['canCapture']   = $paymentMethod->canCapture() ? 1 : 0;
         $customField['serviceName'] = $paymentMethod->getBuckarooKey();
         $customField['version']     = $paymentMethod->getVersion();
 
@@ -1039,7 +1042,7 @@ class CheckoutHelper
         }
 
         if ($customFields['canRefund'] == 0) {
-            return ['status' => false, 'message' => 'Refund not supported'];
+            return ['status' => false, 'message' => 'Refund is not supported'];
         }
 
         if (!empty($customFields['refunded']) && ($customFields['refunded'] == 1)) {
@@ -1117,6 +1120,102 @@ class CheckoutHelper
 
             return ['status' => true, 'message' => 'Buckaroo success refunded ' . $amount . ' ' . $currency];
         }
+
+        return [
+            'status'  => false,
+            'message' => $response->getSubCodeMessageFull() ?? $response->getSomeError(),
+            'code'    => $response->getStatusCode(),
+        ];
+    }
+
+    public function captureTransaction($order, $context)
+    {
+        $this->logger->info(__METHOD__ . "|1|", [$order]);
+        if (!$this->isBuckarooPaymentMethod($order)) {
+            $this->logger->info(__METHOD__ . "|5|");
+            return;
+        }
+
+        $customFields = $this->getCustomFields($order, $context);
+
+        $amount                                 = $order->getAmountTotal();
+        $currency     = $order->getCurrency();
+        $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
+
+        $this->logger->info(__METHOD__ . "|10|", [$customFields, $amount, $currencyCode]);
+
+        if ($amount <= 0) {
+            $this->logger->info(__METHOD__ . "|15|");
+            return ['status' => false, 'message' => 'Amount is not valid'];
+            return false;
+        }
+
+        if ($customFields['canCapture'] == 0) {
+            $this->logger->info(__METHOD__ . "|20|");
+            return ['status' => false, 'message' => 'Capture is not supported'];
+        }
+
+        $this->logger->info(__METHOD__ . "|25|");
+
+        if (!empty($customFields['captured']) && ($customFields['captured'] == 1)) {
+            $this->logger->info(__METHOD__ . "|30|");
+            return ['status' => false, 'message' => 'This order is already captured'];
+        }
+
+        $request = new TransactionRequest;
+        $request->setServiceAction('Pay');
+        //$request->setDescription($this->getTranslate('buckaroo.order.refundDescription', ['orderNumber' => $order->getOrderNumber()]));
+        $request->setDescription('');
+        $request->setServiceName($customFields['serviceName']);
+        $request->setAmountCredit(0);
+        $request->setAmountDebit($amount);
+        $request->setInvoice($order->getOrderNumber());
+        $request->setOrder($order->getOrderNumber());
+        $request->setCurrency($currencyCode);
+        $request->setOriginalTransactionKey($customFields['originalTransactionKey']);
+        $request->setServiceVersion($customFields['version']);
+
+        $request->setAdditionalParameter('orderTransactionId', $order->getTransactions()->last()->getId());
+        $request->setAdditionalParameter('orderId', $order->getId());
+
+        $request->setPushURL($this->getReturnUrl('buckaroo.payment.push'));
+
+        if ($customFields['serviceName'] == 'klarnakp') {
+
+            $orderItems = $this->getProductLineDataCapture($order);
+            $this->logger->info(__METHOD__ . "|35|", [$orderItems]);
+            foreach ($orderItems as $value) {
+                $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
+            }
+
+            $request->setServiceParameter('ReservationNumber', $customFields['reservationNumber']);
+        }
+
+        $url       = $this->getTransactionUrl($customFields['serviceName']);
+        $bkrClient = $this->helper->initializeBkr();
+        $response  = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
+
+        $this->logger->info(__METHOD__ . "|40|");
+
+        if ($response->isSuccess()) {
+            $this->logger->info(__METHOD__ . "|45|");
+
+            //$transaction = $order->getTransactions()->first();
+            //$status      = ($amount < $order->getAmountTotal()) ? 'pay_partially' : 'completed';
+            //$this->transitionPaymentState($status, $transaction->getId(), $context);
+            //$this->saveTransactionData($transaction->getId(), $context, [$status => 1]);
+
+            $this->logger->info(__METHOD__ . "|50|");
+
+            if (!$this->isInvoiced($order->getId(), $context)) {
+                $this->logger->info(__METHOD__ . "|55|");
+                $this->generateInvoice($order->getId(), $context, $order->getId());
+            }
+
+            return ['status' => true, 'message' => 'Amount '.$currency . $amount. ' has been captured!'];
+        }
+
+        $this->logger->info(__METHOD__ . "|50|", [$response->getStatusCode(), $response->getSubCodeMessageFull() ?? $response->getSomeError()]);
 
         return [
             'status'  => false,
@@ -1609,6 +1708,28 @@ class CheckoutHelper
             $productData[] = $this->getRequestParameterRow($item['name'], 'Name', 'ProductLine', $i);
             $productData[] = $this->getRequestParameterRow($item['quantity'], 'Quantity', 'ProductLine', $i);
             $productData[] = $this->getRequestParameterRow($item['unitPrice']['value'], 'Price', 'ProductLine', $i);
+
+            $i++;
+
+            if ($i > $max) {
+                break;
+            }
+        }
+
+        return $productData;
+    }
+
+    public function getProductLineDataCapture($order)
+    {
+        $lines = $this->getOrderLinesArray($order);
+
+        $productData = [];
+        $max = 99;
+        $i = 1;
+
+        foreach ($lines as $item) {
+            $productData[] = $this->getRequestParameterRow($item['sku'], 'ArticleNumber', 'Article', $i);
+            $productData[] = $this->getRequestParameterRow($item['quantity'], 'ArticleQuantity', 'Article', $i);
 
             $i++;
 

@@ -75,13 +75,13 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
         if (false !== $buckarooFee && (double)$buckarooFee > 0) {
             $additional[] = [
                 [
-                    '_'       => 'buckarooFee',
+                    '_'       => 'BuckarooFee',
                     'Name'    => 'ArticleTitle',
                     'GroupID' => $latestKey,
                     'Group'   => 'Article',
                 ],
                 [
-                    '_'       => 'buckarooFee',
+                    '_'       => 'BuckarooFee',
                     'Name'    => 'ArticleNumber',
                     'GroupID' => $latestKey,
                     'Group'   => 'Article',

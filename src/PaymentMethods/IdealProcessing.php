@@ -4,7 +4,7 @@ namespace Buckaroo\Shopware6\PaymentMethods;
 
 use Buckaroo\Shopware6\Handlers\IdealProcessingPaymentHandler;
 
-class IdealProcessing implements PaymentMethodInterface
+class IdealProcessing extends AbstractPayment
 {
     /*
     * @return string
@@ -50,16 +50,6 @@ class IdealProcessing implements PaymentMethodInterface
     public function getPaymentHandler(): string
     {
         return IdealProcessingPaymentHandler::class;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string|null
-     */
-    public function getTemplate(): ?string
-    {
-        return null;
     }
 
     /**

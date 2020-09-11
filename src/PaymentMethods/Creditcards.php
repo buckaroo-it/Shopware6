@@ -4,7 +4,7 @@ namespace Buckaroo\Shopware6\PaymentMethods;
 
 use Buckaroo\Shopware6\Handlers\CreditcardsPaymentHandler;
 
-class Creditcards implements PaymentMethodInterface
+class Creditcards extends AbstractPayment
 {
     /*
     * @return string
@@ -55,16 +55,6 @@ class Creditcards implements PaymentMethodInterface
     /**
      * {@inheritDoc}
      *
-     * @return string|null
-     */
-    public function getTemplate(): ?string
-    {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
      * @return string
      */
     public function getMedia(): string
@@ -101,8 +91,4 @@ class Creditcards implements PaymentMethodInterface
         return 'direct';
     }
 
-    public function canRefund(): bool
-    {
-        return true;
-    }
 }
