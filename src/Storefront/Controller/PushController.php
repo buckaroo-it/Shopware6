@@ -120,7 +120,7 @@ class PushController extends StorefrontController
                 $this->checkoutHelper->transitionPaymentState($paymentState, $orderTransactionId, $context);
                 $data = array_merge($data, [
                     'originalTransactionKey' => $request->request->get('brq_transactions'),
-                    'brqPaymentMethod'       => $request->request->get('brq_transaction_method'),
+                    'brqPaymentMethod'       => $paymentMethod ? $paymentMethod : $request->request->get('brq_transaction_method'),
                 ]);
                 $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
 

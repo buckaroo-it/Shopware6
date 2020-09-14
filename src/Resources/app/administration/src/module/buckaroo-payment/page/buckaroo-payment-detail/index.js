@@ -22,7 +22,7 @@ Component.register('buckaroo-payment-detail', {
             buckaroo_refund_total_amount: '0',
             currency: 'EUR',
             isRefundPossible: true,
-            isCapturePossible: true,
+            isCapturePossible: false,
             isLoading: false,
             order: false,
             buckarooFee: false,
@@ -133,10 +133,13 @@ Component.register('buckaroo-payment-detail', {
             orderCriteria.addAssociation('transactions');
             orderRepository.get(orderId, Context.api, orderCriteria).then((order) => {
                 // that.buckaroo_refund_amount = order.amountTotal;
-                // that.order = order;
+                //that.order = order;
                 if(order.customFields != undefined && order.customFields.buckarooFee != undefined){
                     this.buckarooFee = order.customFields.buckarooFee;
                 }
+                that.isCapturePossible = order.transactions && order.transactions.last().customFields &&
+                    order.transactions.last().customFields.brqPaymentMethod &&
+                    order.transactions.last().customFields.brqPaymentMethod.toLowerCase() == 'klarnakp';
             });
 
             this.BuckarooPaymentService.getBuckarooTransaction(orderId)
