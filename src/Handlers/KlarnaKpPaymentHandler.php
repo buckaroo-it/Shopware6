@@ -300,7 +300,7 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
         if ($birthDayStamp) {
             $additional = array_merge($additional, [[
                 [
-                    '_'       => gmdate('mdY', strtotime($birthDayStamp)),
+                    '_'       => gmdate('dmY', strtotime($birthDayStamp)),
                     'Name'    => 'Pno',
                 ],
             ]]);
