@@ -171,6 +171,9 @@ class PushController extends StorefrontController
         }
 
         if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS, ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS])) {
+            if($token  = $request->request->get('ADD_sw-context-token')){
+                $this->get('session')->set('sw-context-token', $token);
+            }
             return new RedirectResponse('/checkout/finish?orderId=' . $request->request->get('ADD_orderId'));
         }
 

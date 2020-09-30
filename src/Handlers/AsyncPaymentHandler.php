@@ -93,6 +93,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setAdditionalParameter('orderTransactionId', $transaction->getOrderTransaction()->getId());
         $request->setAdditionalParameter('orderId', $order->getId());
 
+        $request->setAdditionalParameter('sw-context-token', $salesChannelContext->getToken());
+
         $request->setInvoice($order->getOrderNumber());
         $request->setOrder($order->getOrderNumber());
         $request->setCurrency($salesChannelContext->getCurrency()->getIsoCode());
