@@ -143,6 +143,10 @@
                        value=""
                        required="required"
                        minlength="10">
+
+                <label class="form-label" style="display:none; color:red" for="buckarooAfterpayPhone" id="buckarooMobilePhoneError">
+                    {{ "buckaroo.checkout.buckarooMobilePhoneError"|trans|sw_sanitize }}
+                </label>
             </div>
 
             <div class="form-group">
@@ -157,6 +161,10 @@
                     form="confirmOrderForm"
                     required="required"
                     >
+
+                    <label class="form-label" style="display:none; color:red" for="buckaroo_afterpay_DoB" id="buckarooDoBPhoneError">
+                        {{ "buckaroo.checkout.buckarooDoBError"|trans|sw_sanitize }}
+                    </label>
                 </div>
             </div>
 
@@ -193,6 +201,10 @@
                            value=""
                            required="required"
                            minlength="10">
+
+                    <label class="form-label" style="display:none; color:red" for="buckarooIn3Phone" id="buckarooMobilePhoneError">
+                        {{ "buckaroo.checkout.buckarooMobilePhoneError"|trans|sw_sanitize }}
+                    </label>
                 </div>
 
                 <div class="form-group">
@@ -207,6 +219,9 @@
                         form="confirmOrderForm"
                         required="required"
                         >
+                    <label class="form-label" style="display:none; color:red" for="buckaroo_capayablein3_DoB" id="buckarooDoBPhoneError">
+                        {{ "buckaroo.checkout.buckarooDoBError"|trans|sw_sanitize }}
+                    </label>
                     </div>
                 </div>
 
