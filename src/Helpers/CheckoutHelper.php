@@ -1376,6 +1376,7 @@ class CheckoutHelper
             if ($refunded_items = $buckarooTransactionEntity->get("refunded_items")) {
                 $orderRefundedItems[] = json_decode($refunded_items);
             }
+            if(!$buckarooTransactionEntity->get("transaction_method")){continue;}
             $transactions = $buckarooTransactionEntity->get("transactions");
             if(in_array($transactions, $transactionsToRefund)){continue;}
             array_push($transactionsToRefund, $transactions);
