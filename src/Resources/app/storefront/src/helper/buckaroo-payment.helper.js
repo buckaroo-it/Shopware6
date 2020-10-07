@@ -68,18 +68,26 @@ export default class BuckarooPaymentHelper extends Plugin {
 
     _handleMobileInputChanged(event) {
         document.getElementById('buckarooMobilePhoneError').style.display = 'none';
+        this._disableConfirmFormSubmit(false);
         if(!event.target.value.match(/^\d{10}$/)){
             document.getElementById('buckarooMobilePhoneError').style.display = 'block';
+            this._disableConfirmFormSubmit(true);
         }
     }
 
     _handleDoBInputChanged(event) {
         document.getElementById('buckarooDoBPhoneError').style.display = 'none';
+        this._disableConfirmFormSubmit(false);
         const fieldValue = event.target.value;
         const x = new Date(Date.parse(fieldValue));  
         const Cnow = new Date();
         if ((Cnow.getFullYear() - x.getFullYear() < 18) || x.getFullYear() < 1900){
             document.getElementById('buckarooDoBPhoneError').style.display = 'block';
+            this._disableConfirmFormSubmit(true);
         }  
+    }
+
+    _disableConfirmFormSubmit(disable) {
+        document.getElementById('confirmFormSubmit').disabled = disable;
     }
 }
