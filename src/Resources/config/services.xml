@@ -329,5 +329,9 @@
             <tag name="shopware.snippet.file"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Resources\snippet\fr_FR\FrenchTranslations" public="true">
+            <tag name="shopware.snippet.file"/>
+        </service>
+
     </services>
 </container>

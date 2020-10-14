@@ -1,0 +1,59 @@
+{
+  "buckaroo": {
+    "title": "Buckaroo",
+    "fee": "Buckaroo Frais",
+    "order": {
+      "paymentDescription": "Paiement de la commande #orderNumber",
+      "refundDescription": "Remboursement de la commande #orderNumber"
+    },
+    "messages": {
+      "return791": "Votre commande a été passée avec succès mais le paiement n'a pas encore été reçu. Votre commande sera traitée dès réception du paiement."
+    },
+    "checkout": {
+      "cOCNumber": "COC Nombre",
+      "companyName": "Nom de la compagnie",
+      "private": "Privée",
+      "company": "Compagnie",
+      "oneManBusiness": "Entreprise individuelle",
+      "orderAs": "Commander comme",
+      "selectBankIssuer": "Sélectionnez votre banque",
+      "selectCreditCard": "Sélectionnez votre carte de crédit",
+      "buckarooSepaDirectDebitCustomer": "Titulaire du compte en banque",
+      "buckarooSepaDirectDebitCustomerholder": "Entrez votre titulaire de compte ici ...",
+      "buckarooIBAN": "Numéro de compte bancaire",
+      "buckarooIBANPlaceholder": "Entrez votre numéro de compte bancaire ici ...",
+      "buckarooGiropayBic": "BIC Nombre",
+      "buckarooGiropayBicPlaceholder": "Entrez votre numéro BIC ici ...",
+      "buckarooAfterpayPhone": "Mobile",
+      "buckarooAfterpayPhonePlaceholder": "Entrez votre mobile ici ...",
+      "buckarooMobilePhoneError": "Entrez un numéro de téléphone valide.",
+      "buckarooDoBError": "Entrez une date de naissance valide",
+      "buckarooKlarnakpPhone": "Téléphone",
+      "buckarooKlarnakpPhonePlaceholder": "Entrez votre téléphone ici ...",
+      "salutation": "Salutation",
+      "mr": "M.",
+      "mrs": "Mme.",
+      "buckarooAfterpayDoBTitle": "Date de naissance",
+      "buckarooAfterpayDoBTitleSup": "(DD/MM/YYYY)",
+      "buckarooAfterpayTermsConditionTitle": "Termes et conditions",
+      "buckarooAfterpayTermsCondition": "Oui, j'accepte les conditions générales d'utilisation d'Afterpay.",
+      "buckarooKlarnakpDoBTitle": "Date de naissance",
+      "buckarooKlarnakpDoBTitleSup": "(DD/MM/YYYY)",
+      "creditcards": {
+        "card": "Carte",
+        "cardholder": "Titulaire de la carte",
+        "cardNumber": "Numéro de carte",
+        "month": "Mois",
+        "selectMonth": "Sélectionnez un mois",
+        "year": "Année",
+        "selectYear": "Sélectionnez une année",
+        "securityCode": "CVC/VV"
+      }
+    }
+  },
+  "bkr-applepay": {
+    "Subtotal": "Subtotal",
+    "Deliverycosts" : "Coûts de livraison",
+    "Discount" : "Remise"
+  }
+}

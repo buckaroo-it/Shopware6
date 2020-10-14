@@ -26,7 +26,7 @@
       "buckarooGiropayBicPlaceholder": "Enter your BIC number here...",
       "buckarooAfterpayPhone": "Mobile",
       "buckarooAfterpayPhonePlaceholder": "Enter your mobile here...",
-      "buckarooMobilePhoneError": "Bitte geben Sie ein gültiges Telefon ein",
+      "buckarooMobilePhoneError": "Geben Sie eine gültige Telefonnummer ein.",
       "buckarooDoBError": "Bitte geben Sie ein gültiges Geburtsdatum ein",
       "buckarooKlarnakpPhone": "Phone",
       "buckarooKlarnakpPhonePlaceholder": "Enter your phone here...",
