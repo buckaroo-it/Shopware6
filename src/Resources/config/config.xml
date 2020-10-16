@@ -9,15 +9,15 @@
 
         <input-field >
             <name>websiteKey</name>
-            <label lang="en-GB">(Merchant) key</label>
-            <label lang="nl-NL">Verkoperssleutel</label>
-            <label lang="de-DE">Händlerschlüssel</label>
+            <label lang="en-GB">(Website) key</label>
+            <label lang="nl-NL">(Website) key<</label>
+            <label lang="de-DE">(Website) key<</label>
             <description>Enter your Buckaroo merchant/website key.</description>
-            <description lang="nl-NL">Voer uw Buckaroo-verkoper / websitesleutel in.</description>
-            <description lang="de-DE">Geben Sie Ihren Buckaroo-Händler- / Website-Schlüssel ein.</description>
-            <helpText>The (Merchant) Key can be retrieved in Payment Plaza under My Buckaroo > Websites. For support contact Buckaroo.</helpText>
-            <helpText lang="nl-NL">De (Merchant) Key kan worden opgehaald in Payment Plaza onder My Buckaroo> Websites. Neem voor ondersteuning contact op met Buckaroo.</helpText>
-            <helpText lang="de-DE">Der (Händler-) Schlüssel kann auf der Payment Plaza unter My Buckaroo> Websites abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
+            <description lang="nl-NL">Voer uw merchant/website key in.</description>
+            <description lang="de-DE">Geben Sie Ihren website-Schlüssel ein.</description>
+            <helpText>The (Website) Key can be retrieved in Payment Plaza under My Buckaroo > Websites. For support contact Buckaroo.</helpText>
+            <helpText lang="nl-NL">De (Website) Key kan worden opgehaald in Payment Plaza onder My Buckaroo > Websites. Neem voor ondersteuning contact op met Buckaroo.</helpText>
+            <helpText lang="de-DE">Der (Website-) Schlüssel kann auf der Payment Plaza unter My Buckaroo > Websites abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
         </input-field>
 
         <input-field >
@@ -38,9 +38,9 @@
             <label lang="en-GB">Guid</label>
             <label lang="nl-NL">Guid</label>
             <label lang="de-DE">Guid</label>
-            <description>Enter your Buckaroo guid key.</description>
-            <description lang="nl-NL">Voer uw Buckaroo-gidssleutel in.</description>
-            <description lang="de-DE">Geben Sie Ihren Buckaroo-Leitschlüssel ein.</description>
+            <description>Enter your Buckaroo guid key (only when using Apple Pay).</description>
+            <description lang="nl-NL">Voer uw Buckaroo-GUID in (enkel bij gebruik Apple Pay).</description>
+            <description lang="de-DE">Geben Sie Ihren Buckaroo-Leitschlüssel ein (Nur bei Verwendung von Apple Pay).</description>
             <helpText>The guid key can be retrieved in Payment Plaza under the profile tab. For support contact Buckaroo.</helpText>
             <helpText lang="nl-NL">De gidssleutel kan worden opgehaald in Payment Plaza onder het tabblad Profiel. Neem voor ondersteuning contact op met Buckaroo.</helpText>
             <helpText lang="de-DE">Der Guid-Schlüssel kann in Payment Plaza unter der Registerkarte Profil abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
@@ -70,14 +70,14 @@
     
     <card>
         <title>Credit cards</title>
-        <title lang="nl-NL">Kredietkaarten</title>
+        <title lang="nl-NL">Credit cards</title>
         <title lang="de-DE">Kreditkarten</title>
         
         <input-field type="single-select">
             <name>creditcardEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -157,14 +157,14 @@
 
     <card>
         <title>Creditcards (Client sided)</title>
-        <title lang="nl-NL">Kredietkaarten (klantzijde)</title>
+        <title lang="nl-NL">Credit cards (klantzijde)</title>
         <title lang="de-DE">Kreditkarten (kundenseitig)</title>
         
         <input-field type="single-select">
             <name>creditcardsEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -248,7 +248,7 @@
             <name>idealEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -283,7 +283,7 @@
             <name>idealprocessingEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -319,7 +319,7 @@
             <name>bancontactmrcashEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -354,7 +354,7 @@
             <name>afterpayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -389,7 +389,7 @@
             <name>sofortueberweisungEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -424,7 +424,7 @@
             <name>paypalEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -459,7 +459,7 @@
             <name>transferEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -507,7 +507,7 @@
             <name>giropayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -542,7 +542,7 @@
             <name>KBCPaymentButtonEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -577,7 +577,7 @@
             <name>sepadirectdebitEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -612,7 +612,7 @@
             <name>payconiqEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -647,7 +647,7 @@
             <name>applepayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -720,7 +720,7 @@
             <name>giftcardsEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1116,7 +1116,7 @@
             <name>RequestToPayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1151,7 +1151,7 @@
             <name>capayableEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1186,7 +1186,7 @@
             <name>epsEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1221,7 +1221,7 @@
             <name>Przelewy24Environment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1256,7 +1256,7 @@
             <name>AlipayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1291,7 +1291,7 @@
             <name>WeChatPayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1326,7 +1326,7 @@
             <name>TrustlyEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1361,7 +1361,7 @@
             <name>klarnakpEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of leef</label>
+            <label lang="nl-NL">Test of Live</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
