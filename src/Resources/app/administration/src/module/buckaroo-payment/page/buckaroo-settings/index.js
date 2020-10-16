@@ -77,10 +77,10 @@ Component.register('buckaroo-settings', {
             const salesChannelId = this.$refs.systemConfig.currentSalesChannelId;
 
             if (salesChannelId === null) {
-                return this.config[`BuckarooPayment.config.${field}`];
+                return this.config[`BuckarooPayments.config.${field}`];
             }
-            return this.config[`BuckarooPayment.config.${field}`]
-                    || defaultConfig[`BuckarooPayment.config.${field}`];
+            return this.config[`BuckarooPayments.config.${field}`]
+                    || defaultConfig[`BuckarooPayments.config.${field}`];
         },
 
         getPaymentConfigValue(field, prefix) {
@@ -111,13 +111,13 @@ Component.register('buckaroo-settings', {
                 this.onConfigChange(config);
             }
             if (this.showValidationErrors) {
-                if (element.name === 'BuckarooPayment.config.websiteKey' && !this.websiteKeyIdFilled) {
+                if (element.name === 'BuckarooPayments.config.websiteKey' && !this.websiteKeyIdFilled) {
                     element.config.error = {
                         code: 1,
                         detail: this.$tc('buckaroo-payment.messageNotBlank')
                     };
                 }
-                if (element.name === 'BuckarooPayment.config.secretKey' && !this.websiteKeyIdFilled) {
+                if (element.name === 'BuckarooPayments.config.secretKey' && !this.websiteKeyIdFilled) {
                     element.config.error = {
                         code: 1,
                         detail: this.$tc('buckaroo-payment.messageNotBlank')

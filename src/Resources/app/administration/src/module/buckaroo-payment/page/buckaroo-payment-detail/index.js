@@ -119,7 +119,9 @@ Component.register('buckaroo-payment-detail', {
         recalculateRefundItems() {
             this.buckaroo_refund_total_amount = 0;
             for (const key in this.transactionsToRefund) {
-                this.buckaroo_refund_total_amount = parseFloat(parseFloat(this.buckaroo_refund_total_amount) + parseFloat(this.transactionsToRefund[key]['amount'])).toFixed(2);
+                if(this.transactionsToRefund[key]['amount']){
+                    this.buckaroo_refund_total_amount = parseFloat(parseFloat(this.buckaroo_refund_total_amount) + parseFloat(this.transactionsToRefund[key]['amount'])).toFixed(2);
+                }
             }
         },
         

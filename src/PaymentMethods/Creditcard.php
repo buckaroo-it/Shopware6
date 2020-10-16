@@ -59,7 +59,7 @@ class Creditcard extends AbstractPayment
      */
     public function getTemplate(): ?string
     {
-        return '@BuckarooPayment/storefront/buckaroo/creditcards/creditcards.html.twig';
+        return '@BuckarooPayments/storefront/buckaroo/creditcards/creditcards.html.twig';
     }
 
     /**

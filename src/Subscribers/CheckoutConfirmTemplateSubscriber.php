@@ -151,6 +151,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $issuers            = $this->issuers;
         $lastUsedCreditcard = $customer->getCustomFields()['last_used_creditcard'];
         
+        $creditcard = [];
         $allowedcreditcard = $this->helper->getSettingsValue('allowedcreditcard');
         if (!empty($allowedcreditcard)){
             foreach ($allowedcreditcard as $value) {
@@ -161,6 +162,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             }
         }
 
+        $creditcards = [];
         $allowedcreditcards = $this->helper->getSettingsValue('allowedcreditcards');
         if (!empty($allowedcreditcards)){
             foreach ($allowedcreditcards as $value) {
@@ -193,7 +195,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'creditcards'              => $creditcards,
             'last_used_creditcard'     => $lastUsedCreditcard,
             'payment_labels'           => $paymentLabels,
-            'media_path'               => '/bundles/buckaroopayment/storefront/buckaroo/logo/',
+            'media_path'               => '/bundles/buckaroopayments/storefront/buckaroo/logo/',
             'payment_media'            => $lastUsedCreditcard . '.png',
             'buckarooFee'              => $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee'),
         ]);

@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Shopware6\Buckaroo\Payload;
 
+use Exception;
 use ArrayAccess;
 use Buckaroo\Shopware6\Helpers\Arrayable;
 use Buckaroo\Shopware6\Helpers\Helpers;

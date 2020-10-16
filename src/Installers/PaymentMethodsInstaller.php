@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Shopware6\Installers;
 
-use Buckaroo\Shopware6\BuckarooPayment;
+use Buckaroo\Shopware6\BuckarooPayments;
 use Buckaroo\Shopware6\Helpers\GatewayHelper;
 use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -33,7 +33,6 @@ class PaymentMethodsInstaller implements InstallerInterface
     public $paymentMethodRepository;
     /** @var EntityRepositoryInterface */
     public $mediaRepository;
-
     /** @var SystemConfigService */
     private $systemConfigService;
 
@@ -54,8 +53,6 @@ class PaymentMethodsInstaller implements InstallerInterface
      */
     public function install(InstallContext $context): void
     {
-        $this->updateBuckarooPaymentMethod($context->getContext());
-
         foreach (GatewayHelper::GATEWAYS as $gateway) {
             $this->addPaymentMethod(new $gateway(), $context->getContext());
         }
@@ -102,7 +99,7 @@ class PaymentMethodsInstaller implements InstallerInterface
     {
         $paymentMethodId = $this->getPaymentMethodId($paymentMethod, $context);
 
-        $pluginId = $this->pluginIdProvider->getPluginIdByBaseClass(BuckarooPayment::class, $context);
+        $pluginId = $this->pluginIdProvider->getPluginIdByBaseClass(BuckarooPayments::class, $context);
 
         $mediaId = $this->getMediaId($paymentMethod, $context);
 
@@ -198,36 +195,6 @@ class PaymentMethodsInstaller implements InstallerInterface
     }
 
     /**
-     * @param Context $context
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
-     */
-    private function updateBuckarooPaymentMethod(Context $context): void
-    {
-        $paymentCriteria = (new Criteria())->addFilter(
-            new EqualsFilter(
-                'handlerIdentifier',
-                Buckaroo::class
-            )
-        );
-
-        $paymentIds = $this->paymentMethodRepository->searchIds(
-            $paymentCriteria,
-            $context
-        );
-
-        if ($paymentIds->getTotal() === 0) {
-            return;
-        }
-
-        $paymentData = [
-            'id' => $paymentIds->getIds()[0],
-            'handlerIdentifier' => (new Buckaroo())->getPaymentHandler(),
-        ];
-
-        $this->paymentMethodRepository->upsert([$paymentData], $context);
-    }
-
-    /**
      * @param PaymentMethodInterface $paymentMethod
      * @return string
      */
@@ -259,7 +226,7 @@ class PaymentMethodsInstaller implements InstallerInterface
 
     private function setBuckarooPaymentSettingsValue($key, $value, $label)
     {
-        $domain = 'BuckarooPayment.config.';
+        $domain = 'BuckarooPayments.config.';
         $configKey = $domain . $key . $label;
         $currentValue = $this->systemConfigService->get($configKey);
 

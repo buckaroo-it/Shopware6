@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
@@ -249,8 +248,6 @@ class BuckarooController extends StorefrontController
      */
     public function applepayInitNonCheckout(Request $request, SalesChannelContext $context)
     {
-        $this->logger->info(__METHOD__ . "|1|");
-
         $result = $this->applepayInitCommon($context);
 
         if ($request->request->get('product_id') && $request->request->get('qty')) {
@@ -284,8 +281,6 @@ class BuckarooController extends StorefrontController
             );
             $this->cartService->add($cart, $lineItem, $context);
             $isFreeShipping = $lineItem->getDeliveryInformation()->getFreeDelivery();
-            //$this->logger->info(__METHOD__ . "|2|", [$lineItem->getDeliveryInformation()->getFreeDelivery()]);
-            /////
         } else {
             if ($lineItems = $cart->getLineItems()) {
                 foreach ($lineItems as $lineItem) {
@@ -315,7 +310,6 @@ class BuckarooController extends StorefrontController
         $shippingMethods = [];
 
         if ($isFreeShipping) {
-            $this->logger->info(__METHOD__ . "|3|");
             $shippingMethods[] = [
                 'identifier' => 0,
                 'detail' => "",
@@ -356,20 +350,15 @@ class BuckarooController extends StorefrontController
         ////////////////////
 
         if ($mode == 'product') {
-            $this->logger->info(__METHOD__ . "|10|");
-
             //revert cart back
             if ($lineItems = $cart->getLineItems()) {
                 foreach ($lineItems as $lineItem) {
-                    $this->logger->info(__METHOD__ . "|11|", [$lineItem->getId()]);
                     $cart->remove($lineItem->getId());
                 }
             }
 
             if ($previousProducts) {
-                $this->logger->info(__METHOD__ . "|12|");
                 foreach ($previousProducts as $previousProduct) {
-                    $this->logger->info(__METHOD__ . "|13|", [$previousProduct['id']]);
                     if (!empty($previousProduct['id'])) {
                         $lineItem = (new ProductLineItemFactory())->create(
                             $previousProduct['id'],
@@ -468,43 +457,29 @@ class BuckarooController extends StorefrontController
      */
     public function applepaySaveOrder(Request $request, SalesChannelContext $salesChannelContext)
     {
-        $this->logger->info(__METHOD__ . "|1|");
-
         $isLoggedIn = $salesChannelContext->getCustomer();
 
         $paymentData = $request->request->get('paymentData');
 
         $CustomerCardName = $paymentData['billingContact']['givenName'] . ' ' . $paymentData['billingContact']['familyName'];
 
-        $this->logger->info(__METHOD__ . "|2|", [$isLoggedIn, $paymentData, $CustomerCardName]);
-
         $token = $paymentData['token'];
 
         if ($order = $this->createOrder($request, $salesChannelContext, $paymentData)) {
 
-            $this->logger->info(__METHOD__ . "|3|");
-
-            //$user_id = $order->getOrderCustomer()->getCustomerNumber();
             $orderId = $order->getUniqueIdentifier();
-            //$order_number = $order->getOrderNumber();
-            //$amount = $order->getPrice()->getTotalPrice();
-
-            $this->logger->info(__METHOD__ . "|4|", [$orderId]);
 
             if ($isLoggedIn) {
                 $finishUrl = $this->generateUrl('frontend.checkout.finish.page', ['orderId' => $orderId]);
             } else {
                 $finishUrl = $this->generateUrl('frontend.buckaroo.applepayFinishOrder', ['orderId' => $orderId]);
             }
-            $this->logger->info(__METHOD__ . "|6|", [$finishUrl]);
 
             $errorUrl = $this->generateUrl('frontend.checkout.finish.page', [
                 'orderId' => $orderId,
                 'changedPayment' => false,
                 'paymentFailed' => true,
             ]);
-
-            ///////////
 
             $criteria = new Criteria([$orderId]);
             $criteria->addAssociation('transactions.paymentMethod');
@@ -525,15 +500,11 @@ class BuckarooController extends StorefrontController
                     'paymentMethodId' => $this->getValidPaymentMethod($salesChannelContext)->getId(),
                 ]], $salesChannelContext->getContext());
 
-                $this->logger->info(__METHOD__ . "|666|");
             }
-            ///////////
 
             $dataBag = new RequestDataBag();
             $dataBag->set('applePayInfo', json_encode($paymentData));
             $response = $this->paymentService->handlePaymentByOrder($orderId, $dataBag, $salesChannelContext, $finishUrl, $errorUrl);
-
-            $this->logger->info(__METHOD__ . "|7|", [$response]);
 
             if ($response && $response->getTargetUrl()) {
                 return $this->json([
@@ -546,29 +517,14 @@ class BuckarooController extends StorefrontController
         return $this->json([
             'error' => 1
         ]);
-
-        //$this->addFlash('danger', $this->trans('error.message-default'));
-        //return new RedirectResponse('/checkout/confirm');
-
-        return $this->json([
-            'RequiredAction' => [
-                'RedirectURL' => '/checkout/confirm'
-            ],
-        ]);
-
     }
 
     private function createOrder(Request $request, SalesChannelContext $context, $paymentData)
     {
-        $this->logger->info(__METHOD__ . "|1|", [$_POST]);
-
-
         if (($request->request->get('selected_shipping_method') || $request->request->get('selected_shipping_method') === 0)) {
         } else {
-            $this->logger->info(__METHOD__ . "|5|");
             return $this->json(false);
         }
-
 
         if ($request->request->get('items')) {
             $mode = 'product';
@@ -580,7 +536,6 @@ class BuckarooController extends StorefrontController
         if ($customer = $context->getCustomer()) {
             $this->logger->info(__METHOD__ . "|10|");
         } else {
-            $this->logger->info(__METHOD__ . "|15|");
             if ($customer = $this->createAccount($context, $paymentData['billingContact'], $paymentData['shippingContact'])) {
 
                 $event = new CustomerLoginEvent($context, $customer, $context->getToken());
@@ -619,8 +574,6 @@ class BuckarooController extends StorefrontController
             }
         }
 
-        $this->logger->info(__METHOD__ . "|30|");
-
         if ($mode == 'product') {
             foreach ($request->request->get('items') as $item) {
                 $lineItem = (new ProductLineItemFactory())->create(
@@ -638,9 +591,7 @@ class BuckarooController extends StorefrontController
         );
         $cart->setPrice($amount);
 
-        $this->logger->info(__METHOD__ . "|40|");
         $this->persister->save($cart, $context);
-
 
         if ($context2) {
             $context = $context2;
@@ -648,13 +599,10 @@ class BuckarooController extends StorefrontController
 
         if ($orderId = $this->order($cart, $context)) {
             if ($order = $this->getOrderById($orderId, $context)) {
-                $this->logger->info(__METHOD__ . "|50|", [$orderId]);
                 //restore previous items from order
                 return $order;
             }
         }
-
-        $this->logger->info(__METHOD__ . "|60|");
 
         return $this->json(false);
     }
@@ -677,8 +625,6 @@ class BuckarooController extends StorefrontController
         ShippingMethodEntity $shippingMethod, LineItemCollection $collection, SalesChannelContext $context, $customer = null
     ): ?Delivery
     {
-        $this->logger->info(__METHOD__ . "|1|");
-
         $positions = new DeliveryPositionCollection();
 
         foreach ($collection as $item) {
@@ -723,11 +669,9 @@ class BuckarooController extends StorefrontController
         }
 
         if ($customer) {
-            $this->logger->info(__METHOD__ . "|5|", [$customer->getDefaultShippingAddressId()]);
             $criteria = (new Criteria([$customer->getDefaultShippingAddressId()]))->setLimit(1);
             $criteria->addAssociation('country');
             $shippingAddress = $this->customerAddressRepository->search($criteria, $context->getContext())->first();
-            $this->logger->info(__METHOD__ . "|6|", [$shippingAddress]);
             $shippingLocation = \Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation::createFromAddress(
                 $shippingAddress
             );
@@ -770,11 +714,7 @@ class BuckarooController extends StorefrontController
 
     private function setCustomShippingToCart(Request $request, SalesChannelContext $context, $customer = null)
     {
-        $this->logger->info(__METHOD__ . "|1|");
-
         if (($request->request->get('selected_shipping_method') || $request->request->get('selected_shipping_method') === 0)) {
-            $this->logger->info(__METHOD__ . "|2|", [$request->request->get('selected_shipping_method')]);
-
 
             if ($request->request->get('selected_shipping_method')) {
                 $criteria = new Criteria([$request->request->get('selected_shipping_method')]);
@@ -802,7 +742,6 @@ class BuckarooController extends StorefrontController
                         $cart->setDeliveries($deliveriesCollection);
                         $this->cartService->recalculate($cart, $context);
                         $this->deliveryCalculator->calculate($cart->getData(), $cart, $deliveriesCollection, $context);
-                        $this->logger->info(__METHOD__ . "|3|", [$deliveriesCollection->first()->getLocation()]);
                     }
                 }
             }
@@ -814,8 +753,6 @@ class BuckarooController extends StorefrontController
             );
             $cart->setPrice($amount);
 
-            $this->logger->info(__METHOD__ . "|4|");
-
             return $cart;
         }
     }
@@ -826,11 +763,8 @@ class BuckarooController extends StorefrontController
      */
     private function order(Cart $cart, SalesChannelContext $context): string
     {
-        $this->logger->info(__METHOD__ . "|1|");
         //$calculatedCart = $this->calculate($cart, $context);
         $orderId = $this->orderPersister->persist($cart, $context);
-
-        $this->logger->info(__METHOD__ . "|2|");
 
         $criteria = new Criteria([$orderId]);
         $criteria
@@ -854,8 +788,6 @@ class BuckarooController extends StorefrontController
             $this->fetchCustomer($orderEntity->getId(), $context->getContext())
         );
 
-        $this->logger->info(__METHOD__ . "|3|");
-
         $orderPlacedEvent = new CheckoutOrderPlacedEvent(
             $context->getContext(),
             $orderEntity,
@@ -864,10 +796,8 @@ class BuckarooController extends StorefrontController
 
         $this->eventDispatcher->dispatch($orderPlacedEvent);
 
-        $this->logger->info(__METHOD__ . "|4|");
-
         $this->persister->delete($context->getToken(), $context);
-        unset($this->cart[$cart->getToken()]);
+        // unset($this->cart[$cart->getToken()]); //Access to an undefined property
 
         return $orderId;
     }
@@ -891,19 +821,15 @@ class BuckarooController extends StorefrontController
 
     private function createAccount(SalesChannelContext $context, $billing_address, $shipping_address)
     {
-        $this->logger->info(__METHOD__ . "|1|", [$billing_address, $shipping_address]);
-
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
         $addressId2 = Uuid::randomHex();
-
-        $this->logger->info(__METHOD__ . "|2|", [$customerId, $addressId, $addressId2]);
 
         $this->customerRepository->create([
             [
                 'id' => $customerId,
                 'salesChannelId' => $context->getSalesChannel()->getUniqueIdentifier(),
-                'defaultShippingAddress' => [
+                /*'defaultShippingAddress' => [  //Array has 2 duplicate keys
                     'id' => $addressId,
                     'firstName' => $shipping_address['givenName'],
                     'lastName' => $shipping_address['familyName'],
@@ -912,7 +838,7 @@ class BuckarooController extends StorefrontController
                     'zipcode' => $shipping_address['postalCode'],
                     'salutationId' => $this->getValidSalutationId($context),
                     'country' => ['name' => $shipping_address['country']],
-                ],
+                ],*/
                 'defaultShippingAddress' => [
                     'id' => $addressId2,
                     'firstName' => $billing_address['givenName'],
@@ -977,15 +903,12 @@ class BuckarooController extends StorefrontController
      */
     public function applepayFinishOrder(Request $request, SalesChannelContext $salesChannelContext)
     {
-        $this->logger->info(__METHOD__ . "|1|");
-
         $orderId = $request->get('orderId');
         if (!$orderId) {
             throw new MissingRequestParameterException('orderId', '/orderId');
         }
 
         try {
-            $this->logger->info(__METHOD__ . "|2|");
             $criteria = (new Criteria([$orderId]))
                 ->addAssociation('orderCustomer')
                 ->addAssociation('orderCustomer.customer')
@@ -993,12 +916,9 @@ class BuckarooController extends StorefrontController
                 ->addAssociation('orderCustomer.customer.defaultShippingAddress')
             ;
             $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
-            $this->logger->info(__METHOD__ . "|3|");
         } catch (InvalidUuidException $e) {
             throw new OrderNotFoundException($orderId);
         }
-
-        $this->logger->info(__METHOD__ . "|4|", []);
 
         $salesChannelContext = new SalesChannelContext(
             $salesChannelContext->getContext(),
@@ -1018,8 +938,6 @@ class BuckarooController extends StorefrontController
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
 
         $page = $this->finishPageLoader->load($request, $salesChannelContext);
-
-        $this->logger->info(__METHOD__ . "|4|", [$page]);
 
         return $this->renderStorefront('@Storefront/storefront/page/checkout/finish/index.html.twig', ['page' => $page]);
     }

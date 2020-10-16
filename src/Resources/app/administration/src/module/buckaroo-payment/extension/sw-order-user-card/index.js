@@ -14,7 +14,7 @@ Component.override('sw-order-user-card', {
     },
 
     created() {
-        this.systemConfigApiService.getValues('BuckarooPayment.config', null)
+        this.systemConfigApiService.getValues('BuckarooPayments.config', null)
             .then(values => {
                 this.config = values;
             })

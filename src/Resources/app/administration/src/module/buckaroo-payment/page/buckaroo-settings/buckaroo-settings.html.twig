@@ -50,7 +50,7 @@
                 <div class="buckaroo-feedback__col">
                     <p class="buckaroo-feedback__desc">
                         <a href="https://buckaroo.nl/" target="_blank">
-                            <img src="/bundles/buckaroopayment/storefront/buckaroo/logo/buckaroo_config_logo_black.png" >
+                            <img src="/bundles/buckaroopayments/storefront/buckaroo/logo/buckaroo_config_logo_black.png" >
                         </a>
                     </p>
                 </div>
@@ -106,7 +106,7 @@
                     salesChannelSwitchable
                     inherit
                     @config-changed="onConfigChange"
-                    domain="BuckarooPayment.config">
+                    domain="BuckarooPayments.config">
                 <template #card-element="{ element, config }">
                     <sw-form-field-renderer
                             v-bind="getBind(element, config)"

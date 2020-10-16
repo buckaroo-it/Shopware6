@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Shopware6\Buckaroo\Payload;
 
+use Exception;
 use Buckaroo\Shopware6\Buckaroo\Payload\Request;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Buckaroo\Shopware6\Helpers\Helpers;

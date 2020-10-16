@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Shopware6\Helpers;
 
+use Buckaroo\Shopware6\BuckarooPayments;
 use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntity;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
@@ -60,6 +61,8 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use RuntimeException;
 
 class CheckoutHelper
 {
@@ -396,7 +399,7 @@ class CheckoutHelper
         return [
             'shop'           => 'Shopware',
             'shop_version'   => $this->shopwareVersion,
-            'plugin_version' => $this->pluginService->getPluginByName('BuckarooPayment', $context)->getVersion(),
+            'plugin_version' => $this->pluginService->getPluginByName('BuckarooPayments', $context)->getVersion(),
             'partner'        => 'Buckaroo',
         ];
     }
@@ -412,7 +415,6 @@ class CheckoutHelper
 
     public function saveTransactionData(string $orderTransactionId, Context $context, array $data): void
     {
-        $this->logger->info(__METHOD__ . "|1|");
         $orderTransaction = $this->getOrderTransactionById(
             $context,
             $orderTransactionId
@@ -421,7 +423,6 @@ class CheckoutHelper
         $customFields = $orderTransaction->getCustomFields() ?? [];
         $customFields = array_merge($customFields, $data);
 
-        $this->logger->info(__METHOD__ . "|5|", [$customFields]);
         $this->updateTransactionCustomFields($orderTransactionId, $customFields);
     }
 
@@ -1004,7 +1005,7 @@ class CheckoutHelper
         $plugin = $transaction->getPaymentMethod()->getPlugin();
 
         $baseClassArr         = explode('\\', $plugin->getBaseClass());
-        $buckarooPaymentClass = explode('\\', BuckarooPayment::class);
+        $buckarooPaymentClass = explode('\\', BuckarooPayments::class);
 
         return end($baseClassArr) === end($buckarooPaymentClass);
     }
@@ -1130,9 +1131,7 @@ class CheckoutHelper
 
     public function captureTransaction($order, $context)
     {
-        $this->logger->info(__METHOD__ . "|1|", [$order]);
         if (!$this->isBuckarooPaymentMethod($order)) {
-            $this->logger->info(__METHOD__ . "|5|");
             return;
         }
 
@@ -1142,23 +1141,15 @@ class CheckoutHelper
         $currency     = $order->getCurrency();
         $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
 
-        $this->logger->info(__METHOD__ . "|10|", [$customFields, $amount, $currencyCode]);
-
         if ($amount <= 0) {
-            $this->logger->info(__METHOD__ . "|15|");
             return ['status' => false, 'message' => 'Amount is not valid'];
-            return false;
         }
 
         if ($customFields['canCapture'] == 0) {
-            $this->logger->info(__METHOD__ . "|20|");
             return ['status' => false, 'message' => 'Capture is not supported'];
         }
 
-        $this->logger->info(__METHOD__ . "|25|");
-
         if (!empty($customFields['captured']) && ($customFields['captured'] == 1)) {
-            $this->logger->info(__METHOD__ . "|30|");
             return ['status' => false, 'message' => 'This order is already captured'];
         }
 
@@ -1183,7 +1174,6 @@ class CheckoutHelper
         if ($customFields['serviceName'] == 'klarnakp') {
 
             $orderItems = $this->getProductLineDataCapture($order);
-            $this->logger->info(__METHOD__ . "|35|", [$orderItems]);
             foreach ($orderItems as $value) {
                 $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
             }
@@ -1195,27 +1185,19 @@ class CheckoutHelper
         $bkrClient = $this->helper->initializeBkr();
         $response  = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
 
-        $this->logger->info(__METHOD__ . "|40|");
-
         if ($response->isSuccess()) {
-            $this->logger->info(__METHOD__ . "|45|");
 
             //$transaction = $order->getTransactions()->first();
             //$status      = ($amount < $order->getAmountTotal()) ? 'pay_partially' : 'completed';
             //$this->transitionPaymentState($status, $transaction->getId(), $context);
             //$this->saveTransactionData($transaction->getId(), $context, [$status => 1]);
 
-            $this->logger->info(__METHOD__ . "|50|");
-
             if (!$this->isInvoiced($order->getId(), $context)) {
-                $this->logger->info(__METHOD__ . "|55|");
                 $this->generateInvoice($order->getId(), $context, $order->getId());
             }
 
             return ['status' => true, 'message' => 'Amount '.$currency . $amount. ' has been captured!'];
         }
-
-        $this->logger->info(__METHOD__ . "|50|", [$response->getStatusCode(), $response->getSubCodeMessageFull() ?? $response->getSomeError()]);
 
         return [
             'status'  => false,

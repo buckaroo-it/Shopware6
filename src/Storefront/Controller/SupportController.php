@@ -16,7 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SupportController extends StorefrontController
 {
-
+    protected $checkoutHelper;
+    
     public function __construct(
         CheckoutHelper $checkoutHelper
     ) {
@@ -44,7 +45,7 @@ class SupportController extends StorefrontController
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *
-     * @return RedirectResponse
+     * @return JsonResponse
      */
     public function getBuckarooTransaction(Request $request)
     {

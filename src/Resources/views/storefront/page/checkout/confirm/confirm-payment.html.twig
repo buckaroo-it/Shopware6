@@ -66,13 +66,13 @@
                     <div class="form-group col-md-12">
                         <label class="form-label" for="creditcards_issuer">{{ "buckaroo.checkout.creditcards.card" | trans }}:</label>
                         <select name="creditcards_issuer" id="creditcards_issuer" form="confirmOrderForm" required="required" class="form-control">
-                            <option value="" data-logo="/bundles/buckaroopayment/storefront/buckaroo/logo/creditcards.png">{{ "buckaroo.checkout.selectCreditCard"|trans }}</option>
+                            <option value="" data-logo="/bundles/buckaroopayments/storefront/buckaroo/logo/creditcards.png">{{ "buckaroo.checkout.selectCreditCard"|trans }}</option>
                                 {% for creditcard in page.extensions.buckaroo.creditcards %}
-                                    <option data-logo="/bundles/buckaroopayment/storefront/buckaroo/logo/{{ creditcard.code }}.png" value="{{ creditcard.code }}">{{ creditcard.name }}</option>
+                                    <option data-logo="/bundles/buckaroopayments/storefront/buckaroo/logo/{{ creditcard.code }}.png" value="{{ creditcard.code }}">{{ creditcard.name }}</option>
                                 {% endfor %}
                         </select>  
                         <div class="card_kind">
-                            <img id="card_kind_img" src="/bundles/buckaroopayment/storefront/buckaroo/logo/creditcards.png">
+                            <img id="card_kind_img" src="/bundles/buckaroopayments/storefront/buckaroo/logo/creditcards.png">
                         </div>
                     </div>
 
@@ -436,6 +436,6 @@
                 }
             }, 200)
         </script>
-        <script type="module" src="/bundles/buckaroopayment/storefront/buckaroo/js/applepay/index.js"></script>
+        <script type="module" src="/bundles/buckaroopayments/storefront/buckaroo/js/applepay/index.js"></script>
     {% endif %}
 {% endblock %}

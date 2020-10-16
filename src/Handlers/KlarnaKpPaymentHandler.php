@@ -62,8 +62,6 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
         RequestDataBag $dataBag,
         \Buckaroo\Shopware6\Buckaroo\Payload\Request $request
     ): void {
-        $this->logger->info(__METHOD__ . "|1|");
-
         $request->setServiceAction('Reserve');
 
         parent::payBefore($dataBag, $request);
@@ -160,8 +158,6 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
 
     public function getAddressArray($order, $additional, &$latestKey, $salesChannelContext, $dataBag)
     {
-        $this->logger->info(__METHOD__ . "|1|");
-
         $address  = $this->checkoutHelper->getBillingAddress($order, $salesChannelContext);
         $customer = $this->checkoutHelper->getOrderCustomer($order, $salesChannelContext);
         $shippingAddress  = $this->checkoutHelper->getShippingAddress($order, $salesChannelContext);
@@ -175,11 +171,8 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
         $address->setPhoneNumber($dataBag->get('buckaroo_klarnakp_phone'));
         $salutation = $customer->getSalutation()->getSalutationKey();
 
-        $this->logger->info(__METHOD__ . "|5|", [$address->getId(), $shippingAddress->getId()]);
-        
         $shippingAddress->setPhoneNumber($dataBag->get('buckaroo_klarnakp_phone'));
         $shippingStreetFormat  = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
-        
 
         $category    = 'Person';
         $billingData = [

@@ -4,7 +4,7 @@
 
 1) Upload plugin on "My plugins" page "Settings -> System -> Plugins -> Upload plugin"
 or
-create folder "<root_folder>/custom/plugins/BuckarooPayment/" and unzip here archive
+create folder "<root_folder>/custom/plugins/BuckarooPayments/" and unzip here archive
 
 2) Install plugin on "My plugins" page "Settings -> System -> Plugins" by clicking "Install" on the icon of three dots, next to the name of the plugin
 

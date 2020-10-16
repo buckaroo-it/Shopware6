@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,7 +36,13 @@ class CaptureController extends StorefrontController
     /**
      * @var LoggerInterface
      */
-    protected $logger;
+    private $logger;
+    
+    private $transactionRepository;
+    
+    private $checkoutHelper;
+    
+    private $orderRepository;
 
     public function __construct(
         EntityRepositoryInterface $transactionRepository,
@@ -59,29 +66,21 @@ class CaptureController extends StorefrontController
      */
     public function captureBuckaroo(Request $request, Context $context): JsonResponse
     {
-        $this->logger->info(__METHOD__ . "|1|");
-
         $orderId = $request->get('transaction');
 
         if (empty($orderId)) {
-            $this->logger->info(__METHOD__ . "|5|");
             return new JsonResponse(['status' => false, 'message' => 'Missing order orderId'], Response::HTTP_NOT_FOUND);
         }
 
         $order = $this->checkoutHelper->getOrderById($orderId, $context);
 
         if (null === $order) {
-            $this->logger->info(__METHOD__ . "|10|");
             return new JsonResponse(['status' => false, 'message' => 'Order transaction not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $this->logger->info(__METHOD__ . "|15|", [$orderId]);
-
         try {
-            $this->logger->info(__METHOD__ . "|20|");
             $response = $this->checkoutHelper->captureTransaction($order, $context);
         } catch (Exception $exception) {
-            $this->logger->info(__METHOD__ . "|25|");
             return new JsonResponse(
                 [
                     'status'  => false,

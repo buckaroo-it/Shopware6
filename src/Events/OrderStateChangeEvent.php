@@ -17,6 +17,8 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     private $orderDeliveryRepository;
     /** @var helper */
     private $helper;
+    /** @var CheckoutHelper */
+    private $checkoutHelper;
     /** @var LoggerInterface */
     protected $logger;
 

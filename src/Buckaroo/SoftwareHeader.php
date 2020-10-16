@@ -33,8 +33,8 @@ class SoftwareHeader
             "PlatformName"    => "Shopware",
             "PlatformVersion" => $this->shopwareVersion,
             "ModuleSupplier"  => "Buckaroo",
-            "ModuleName"      => "BuckarooPayment",
-            "ModuleVersion"   => $this->pluginService->getPluginByName('BuckarooPayment', $context)->getVersion(),
+            "ModuleName"      => "BuckarooPayments",
+            "ModuleVersion"   => $this->pluginService->getPluginByName('BuckarooPayments', $context)->getVersion(),
         ]);
     }
 }

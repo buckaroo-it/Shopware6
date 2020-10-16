@@ -76,8 +76,6 @@ class BkrClient
 
     protected function call($url, $method = self::METHOD_GET, Request $data = null, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response')
     {
-        $this->logger->info(__METHOD__ . "|1|", [$url, $method, $data]);
-
         if (!in_array($method, $this->validMethods)) {
             throw new Exception('Invalid HTTP-Methode: ' . $method);
         }
@@ -112,11 +110,8 @@ class BkrClient
 
         // check for curl errors
         if ($result === false) {
-            $this->logger->info(__METHOD__ . "|5|", [curl_error($curl)]);
             throw new Exception('Buckaroo API curl error: ' . curl_error($curl));
         }
-
-        $this->logger->info(__METHOD__ . "|10|", [$result]);
 
         $decodedResult = json_decode($result, true);
 

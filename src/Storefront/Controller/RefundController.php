@@ -20,6 +20,7 @@ use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+use Exception;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
@@ -33,6 +34,12 @@ class RefundController extends StorefrontController
 {
     /** @var LoggerInterface */
     private $logger;
+    
+    private $transactionRepository;
+    
+    private $checkoutHelper;
+    
+    private $orderRepository;
 
     public function __construct(
         EntityRepositoryInterface $transactionRepository,

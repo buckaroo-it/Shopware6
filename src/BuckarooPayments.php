@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare (strict_types = 1);
 
 namespace Buckaroo\Shopware6;
 
@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
-class BuckarooPayment extends Plugin
+class BuckarooPayments extends Plugin
 {
     /**
      * @param ContainerBuilder $container
@@ -77,10 +77,10 @@ class BuckarooPayment extends Plugin
     /**
      * @return array
      */
-    public function getViewPaths(): array
+/*    public function getViewPaths(): array
     {
         $viewPaths = parent::getViewPaths();
         $viewPaths[] = 'Resources/views/storefront';
         return $viewPaths;
-    }
+    }*/
 }

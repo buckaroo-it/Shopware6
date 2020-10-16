@@ -80,7 +80,7 @@ class In3PaymentHandler extends AsyncPaymentHandler
 
         if(in_array($dataBag->get('buckaroo_capayablein3_orderAs'),[1,2])){
             $requestParameter[] = $this->checkoutHelper->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_orderAs'), 'Name', 'Company');
-            $requestParameter[] = $this->checkoutHelper->getRequestParameterRow($cocNumber, 'ChamberOfCommerce', 'Company');
+            $requestParameter[] = $this->checkoutHelper->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_COCNumber'), 'ChamberOfCommerce', 'Company');
         }
         $requestParameter = array_merge($requestParameter, $this->checkoutHelper->getProductLineData($order));
 
