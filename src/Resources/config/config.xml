@@ -10,8 +10,8 @@
         <input-field >
             <name>websiteKey</name>
             <label lang="en-GB">(Website) key</label>
-            <label lang="nl-NL">(Website) key<</label>
-            <label lang="de-DE">(Website) key<</label>
+            <label lang="nl-NL">(Website) key</label>
+            <label lang="de-DE">(Website) key</label>
             <description>Enter your Buckaroo merchant/website key.</description>
             <description lang="nl-NL">Voer uw merchant/website key in.</description>
             <description lang="de-DE">Geben Sie Ihren website-Schlüssel ein.</description>
