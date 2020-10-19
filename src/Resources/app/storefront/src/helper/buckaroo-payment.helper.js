@@ -27,6 +27,8 @@ export default class BuckarooPaymentHelper extends Plugin {
             }
         }
 
+        this._CheckValidate();
+
         const field = document.getElementById('P24Currency');
         if (field) {
             if(field.value != 'PLN'){
@@ -56,35 +58,71 @@ export default class BuckarooPaymentHelper extends Plugin {
     }
 
     _handleInputChanged(event) {
-        const fieldId = event.target.id;
-        switch (fieldId) {
+        switch (event.target.id) {
             case 'buckaroo_capayablein3_OrderAs':
                 this._checkCompany();
                 break;
             default:
         }
-
     }
 
-    _handleMobileInputChanged(event) {
-        document.getElementById('buckarooMobilePhoneError').style.display = 'none';
-        this._disableConfirmFormSubmit(false);
-        if(!event.target.value.match(/^\d{10}$/)){
-            document.getElementById('buckarooMobilePhoneError').style.display = 'block';
-            this._disableConfirmFormSubmit(true);
+    _handleMobileInputChanged() {
+        this._CheckValidate();
+    }
+
+    _handleDoBInputChanged() {
+        this._CheckValidate();
+    }
+
+    _CheckValidate(){
+        let not_valid = false;
+
+        const buckarooMobileInputs = ['buckarooAfterpayPhone','buckarooIn3Phone'];
+        for (const fieldId of buckarooMobileInputs) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                if(!this._handleCheckMobile(field)){
+                    not_valid = true;
+                }
+            }
         }
+
+        const buckarooDoBInputs = ['buckaroo_afterpay_DoB','buckaroo_capayablein3_DoB'];
+        for (const fieldId of buckarooDoBInputs) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                if(!this._handleCheckDoB(field)){
+                    not_valid = true;
+                }
+            }
+        }
+
+        return this._disableConfirmFormSubmit(not_valid);
     }
 
-    _handleDoBInputChanged(event) {
+    _handleCheckMobile(field) {
+        document.getElementById('buckarooMobilePhoneError').style.display = 'none';
+        if(!field.value.match(/^\d{10}$/)){
+            document.getElementById('buckarooMobilePhoneError').style.display = 'block';
+            return false;
+        }
+        return true;
+    }
+
+    _handleCheckDoB(field) {
         document.getElementById('buckarooDoBPhoneError').style.display = 'none';
-        this._disableConfirmFormSubmit(false);
-        const fieldValue = event.target.value;
-        const x = new Date(Date.parse(fieldValue));  
+        const x = new Date(Date.parse(field.value));
+        if(x == 'Invalid Date'){
+            document.getElementById('buckarooDoBPhoneError').style.display = 'block';
+            return false;
+        }
         const Cnow = new Date();
         if ((Cnow.getFullYear() - x.getFullYear() < 18) || x.getFullYear() < 1900){
             document.getElementById('buckarooDoBPhoneError').style.display = 'block';
-            this._disableConfirmFormSubmit(true);
-        }  
+            return false;
+        }
+        
+        return true;
     }
 
     _disableConfirmFormSubmit(disable) {

@@ -130,9 +130,10 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         if ($buckarooKey == 'giftcards') {
             $list = 'ideal';
             $request->removeServices();
-            $allowedgiftcards = $this->helper->getSettingsValue('allowedgiftcards');
-            foreach ($allowedgiftcards as $key => $value) {
-                $list .= ',' . $value;
+            if($allowedgiftcards = $this->helper->getSettingsValue('allowedgiftcards')){
+                foreach ($allowedgiftcards as $key => $value) {
+                    $list .= ',' . $value;
+                }
             }
             $request->setServicesSelectableByClient($list);
             $request->setContinueOnIncomplete('RedirectToHTML');
