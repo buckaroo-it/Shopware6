@@ -108,9 +108,11 @@
                     @config-changed="onConfigChange"
                     domain="BuckarooPayments.config">
                 <template #card-element="{ element, config }">
+                    <div v-show="displayField(element, config)">
                     <sw-form-field-renderer
                             v-bind="getBind(element, config)"
                             v-model="config[element.name]"/>
+                    </div>
                 </template>
             </sw-system-config>
         </sw-card-view>

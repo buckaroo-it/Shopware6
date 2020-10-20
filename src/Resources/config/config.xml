@@ -73,6 +73,13 @@
         <title lang="nl-NL">Credit cards</title>
         <title lang="de-DE">Kreditkarten</title>
         
+        <input-field type="bool">
+            <name>creditcardEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+
         <input-field type="single-select">
             <name>creditcardEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -160,6 +167,13 @@
         <title lang="nl-NL">Credit cards (klantzijde)</title>
         <title lang="de-DE">Kreditkarten (kundenseitig)</title>
         
+        <input-field type="bool">
+            <name>creditcardsEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+
         <input-field type="single-select">
             <name>creditcardsEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -244,6 +258,14 @@
 
     <card>
         <title>iDEAL</title>
+        
+        <input-field type="bool">
+            <name>idealEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+
         <input-field type="single-select">
             <name>idealEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -279,6 +301,14 @@
 
     <card>
         <title>iDEAL Processing</title>
+
+        <input-field type="bool">
+            <name>idealprocessingEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+        
         <input-field type="single-select">
             <name>idealprocessingEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -315,6 +345,14 @@
 
     <card>
         <title>Bancontact</title>
+
+        <input-field type="bool">
+            <name>bancontactmrcashEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+        
         <input-field type="single-select">
             <name>bancontactmrcashEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -350,6 +388,14 @@
 
     <card>
         <title>AfterPay</title>
+
+        <input-field type="bool">
+            <name>afterpayEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+        
         <input-field type="single-select">
             <name>afterpayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -385,6 +431,14 @@
 
     <card>
         <title>Sofort</title>
+
+        <input-field type="bool">
+            <name>sofortueberweisungEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+        
         <input-field type="single-select">
             <name>sofortueberweisungEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -420,6 +474,14 @@
 
     <card>
     <title>PayPal</title>
+
+        <input-field type="bool">
+            <name>paypalEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+        
         <input-field type="single-select">
             <name>paypalEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -455,6 +517,14 @@
 
     <card>
     <title>Bank Transfer</title>
+
+        <input-field type="bool">
+            <name>transferEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+        
         <input-field type="single-select">
             <name>transferEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -503,6 +573,14 @@
 
     <card>
     <title>Giropay</title>
+
+        <input-field type="bool">
+            <name>giropayEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+        
         <input-field type="single-select">
             <name>giropayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -538,6 +616,14 @@
 
     <card>
     <title>KBC</title>
+
+        <input-field type="bool">
+            <name>KBCPaymentButtonEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+        
         <input-field type="single-select">
             <name>KBCPaymentButtonEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -573,6 +659,14 @@
 
     <card>
     <title>Sepa Direct Debit</title>
+
+        <input-field type="bool">
+            <name>sepadirectdebitEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+        
         <input-field type="single-select">
             <name>sepadirectdebitEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -608,6 +702,14 @@
 
     <card>
     <title>Payconiq</title>
+
+        <input-field type="bool">
+            <name>payconiqEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+        
         <input-field type="single-select">
             <name>payconiqEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -643,6 +745,14 @@
 
     <card>
         <title>Apple Pay</title>
+
+        <input-field type="bool">
+            <name>applepayEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+        
         <input-field type="single-select">
             <name>applepayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -716,6 +826,14 @@
         <title>Giftcards cards</title>
         <title lang="nl-NL">Cadeaubonnen kaarten</title>
         <title lang="de-DE">Geschenkkarten Karten</title>
+
+        <input-field type="bool">
+            <name>giftcardsEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+       
         <input-field type="single-select">
             <name>giftcardsEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -1112,6 +1230,14 @@
 
     <card>
     <title>Request To Pay</title>
+
+        <input-field type="bool">
+            <name>RequestToPayEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+       
         <input-field type="single-select">
             <name>RequestToPayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -1147,6 +1273,14 @@
 
     <card>
     <title>In3</title>
+
+        <input-field type="bool">
+            <name>capayableEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+       
         <input-field type="single-select">
             <name>capayableEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -1182,6 +1316,14 @@
 
     <card>
     <title>EPS</title>
+
+        <input-field type="bool">
+            <name>epsEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+       
         <input-field type="single-select">
             <name>epsEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -1217,6 +1359,14 @@
 
     <card>
     <title>Przelewy24</title>
+
+        <input-field type="bool">
+            <name>Przelewy24Enabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+       
         <input-field type="single-select">
             <name>Przelewy24Environment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -1252,6 +1402,14 @@
 
     <card>
     <title>Alipay</title>
+
+        <input-field type="bool">
+            <name>AlipayEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+       
         <input-field type="single-select">
             <name>AlipayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -1287,6 +1445,14 @@
 
     <card>
     <title>WeChatPay</title>
+
+        <input-field type="bool">
+            <name>WeChatPayEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+       
         <input-field type="single-select">
             <name>WeChatPayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -1322,6 +1488,14 @@
     
     <card>
     <title>Trustly</title>
+
+        <input-field type="bool">
+            <name>TrustlyEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+       
         <input-field type="single-select">
             <name>TrustlyEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -1357,6 +1531,14 @@
 
     <card>
         <title>Klarna</title>
+                    
+        <input-field type="bool">
+            <name>klarnakpEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+       
         <input-field type="single-select">
             <name>klarnakpEnvironment</name>
             <label lang="en-GB">Test or Live:</label>

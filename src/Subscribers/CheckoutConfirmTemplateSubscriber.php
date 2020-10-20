@@ -10,9 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
+use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 {
@@ -118,8 +122,26 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            CheckoutConfirmPageLoadedEvent::class => 'addBuckarooExtension',
+            AccountPaymentMethodPageLoadedEvent::class => 'hideNotEnabledPaymentMethods',
+            AccountEditOrderPageLoadedEvent::class     => 'hideNotEnabledPaymentMethods',
+            CheckoutConfirmPageLoadedEvent::class      => 'addBuckarooExtension',
         ];
+    }
+
+    /**
+     * @param AccountEditOrderPageLoadedEvent|AccountPaymentMethodPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
+     */
+    public function hideNotEnabledPaymentMethods($event): void
+    {
+        $paymentMethods = $event->getPage()->getPaymentMethods();
+        foreach ($paymentMethods as $paymentMethod) {
+            if($buckarooKey = $paymentMethod->getCustomFields()['buckaroo_key']) {
+                if(!$this->helper->getEnabled($buckarooKey)){
+                    $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
+                }
+            }
+        }
+        $event->getPage()->setPaymentMethods($paymentMethods);
     }
 
     /**
@@ -128,6 +150,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      */
     public function addBuckarooExtension(CheckoutConfirmPageLoadedEvent $event): void
     {
+        $this->hideNotEnabledPaymentMethods($event);
+
         $context = $event->getContext();
         $request  = $this->helper->getGlobals();
         $customer = $event->getSalesChannelContext()->getCustomer();
@@ -233,5 +257,14 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             }
         }
         return $name;
+    }
+
+    private function removePaymentMethod(PaymentMethodCollection $paymentMethods, string $paymentMethodId): PaymentMethodCollection
+    {
+        return $paymentMethods->filter(
+            static function (PaymentMethodEntity $paymentMethod) use ($paymentMethodId) {
+                return $paymentMethod->getId() !== $paymentMethodId;
+            }
+        );
     }
 }

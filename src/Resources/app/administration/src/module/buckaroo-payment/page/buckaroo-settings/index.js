@@ -23,7 +23,38 @@ Component.register('buckaroo-settings', {
             showValidationErrors: false,
             phpversion: false,
             isSupportModalOpen: false,
-            isPhpVersionSupport: false
+            isPhpVersionSupport: false,
+            collapsibleState: {
+                'websiteKey': true,
+                'secretKey': true,
+                'guid': true,
+                'stockReserve': true,
+                'sendInvoiceEmail': true,
+                'creditcardEnabled': true,
+                'creditcardsEnabled': true,
+                'idealEnabled': true,
+                'idealprocessingEnabled': true,
+                'idealprocessingEnabled': true,
+                'bancontactmrcashEnabled': true,
+                'afterpayEnabled': true,
+                'sofortueberweisungEnabled': true,
+                'paypalEnabled': true,
+                'transferEnabled': true,
+                'giropayEnabled': true,
+                'KBCPaymentButtonEnabled': true,
+                'sepadirectdebitEnabled': true,
+                'payconiqEnabled': true,
+                'applepayEnabled': true,
+                'giftcardsEnabled': true,
+                'RequestToPayEnabled': true,
+                'capayableEnabled': true,
+                'epsEnabled': true,
+                'Przelewy24Enabled': true,
+                'AlipayEnabled': true,
+                'WeChatPayEnabled': true,
+                'TrustlyEnabled': true,
+                'klarnakpEnabled': true,
+            }
         };
     },
 
@@ -104,6 +135,42 @@ Component.register('buckaroo-settings', {
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        displayField(element, config) {
+            let id = element.name.replace("BuckarooPayments.config.", "");
+            if (id in this.collapsibleState) {
+                return true;
+            }
+
+            let fid = id;
+            id = id.split(/([A-Z][a-z]+)/).filter(function(e){return e});
+            id.pop();
+            id = id.join("");
+
+            if(config["BuckarooPayments.config."+id+"Enabled"] != undefined && config["BuckarooPayments.config."+id+"Enabled"]){
+                return true;
+            }
+            
+            if(fid == 'allowedcreditcard'){
+                if(config["BuckarooPayments.config.creditcardEnabled"] != undefined && config["BuckarooPayments.config.creditcardEnabled"]){
+                    return true;
+                }
+            }
+
+            if(fid == 'allowedcreditcards'){
+                if(config["BuckarooPayments.config.creditcardsEnabled"] != undefined && config["BuckarooPayments.config.creditcardsEnabled"]){
+                    return true;
+                }
+            }
+
+            if(fid == 'allowedgiftcards'){
+                if(config["BuckarooPayments.config.giftcardsEnabled"] != undefined && config["BuckarooPayments.config.giftcardsEnabled"]){
+                    return true;
+                }
+            }
+
+            return false;
         },
 
         getBind(element, config) {
