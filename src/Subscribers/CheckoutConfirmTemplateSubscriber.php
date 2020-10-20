@@ -135,7 +135,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $paymentMethods = $event->getPage()->getPaymentMethods();
         foreach ($paymentMethods as $paymentMethod) {
-            if($buckarooKey = $paymentMethod->getCustomFields()['buckaroo_key']) {
+            if(!isset($paymentMethod->getTranslated()['customFields']['buckaroo_key'])){continue;} 
+            if($buckarooKey = $paymentMethod->getTranslated()['customFields']['buckaroo_key']) {
                 if(!$this->helper->getEnabled($buckarooKey)){
                     $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
                 }
