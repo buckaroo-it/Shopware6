@@ -333,5 +333,11 @@
             <tag name="shopware.snippet.file"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Storefront\Framework\Cookie\BuckarooCookieProvider"
+                decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
+             <argument type="service" 
+                       id="Buckaroo\Shopware6\Storefront\Framework\Cookie\BuckarooCookieProvider.inner" />
+        </service>
+
     </services>
 </container>
