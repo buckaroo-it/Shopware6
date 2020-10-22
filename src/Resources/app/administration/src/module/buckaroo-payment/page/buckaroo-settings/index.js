@@ -28,8 +28,6 @@ Component.register('buckaroo-settings', {
                 'websiteKey': true,
                 'secretKey': true,
                 'guid': true,
-                'stockReserve': true,
-                'sendInvoiceEmail': true,
                 'creditcardEnabled': true,
                 'creditcardsEnabled': true,
                 'idealEnabled': true,
@@ -54,6 +52,15 @@ Component.register('buckaroo-settings', {
                 'WeChatPayEnabled': true,
                 'TrustlyEnabled': true,
                 'klarnakpEnabled': true,
+                'advancedConfiguration': true,
+            },
+            collapsibleAdvancedState: {
+                'stockReserve': true,
+                'sendInvoiceEmail': true,
+                'pendingPaymentStatus': true,
+                'paymentSuccesStatus': true,
+                'paymentFailedStatus': true,
+                'orderStatus': true,
             }
         };
     },
@@ -141,6 +148,12 @@ Component.register('buckaroo-settings', {
             let id = element.name.replace("BuckarooPayments.config.", "");
             if (id in this.collapsibleState) {
                 return true;
+            }
+
+            if (id in this.collapsibleAdvancedState) {
+                if(config["BuckarooPayments.config.advancedConfiguration"] != undefined && config["BuckarooPayments.config.advancedConfiguration"]){
+                    return true;
+                }
             }
 
             let fid = id;

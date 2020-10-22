@@ -3,6 +3,7 @@
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Buckaroo\Shopware6\Helpers\Helper;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\Framework\Context;
@@ -46,7 +47,7 @@ class PushController extends StorefrontController
         $this->transactionRepository = $transactionRepository;
         $this->checkoutHelper        = $checkoutHelper;
         $this->orderRepository       = $orderRepository;
-        $this->logger = $logger;
+        $this->logger                = $logger;
     }
 
     /**
@@ -109,18 +110,27 @@ class PushController extends StorefrontController
                     return $this->json(['status' => true, 'message' => "Payment state was updated earlier"]);
                 }
 
-                $paymentState = (round($brqAmount, 2) == round($totalPrice, 2)) ? "completed" : "pay_partially";
+                $paymentSuccesStatus = $this->checkoutHelper->getSettingsValue('paymentSuccesStatus') ? $this->checkoutHelper->getSettingsValue('paymentSuccesStatus') : "completed";
+                $paymentState = (round($brqAmount, 2) == round($totalPrice, 2)) ? $paymentSuccesStatus : "pay_partially";
                 $data = [];
                 if ($paymentMethod && (strtolower($paymentMethod) == 'klarnakp')) {
                     $paymentState = 'do_pay';
                     $data['reservationNumber'] = $request->request->get('brq_SERVICE_klarnakp_ReservationNumber');
                 }
+
                 $this->checkoutHelper->transitionPaymentState($paymentState, $orderTransactionId, $context);
                 $data = array_merge($data, [
                     'originalTransactionKey' => $request->request->get('brq_transactions'),
                     'brqPaymentMethod'       => $paymentMethod ? $paymentMethod : $request->request->get('brq_transaction_method'),
                 ]);
                 $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
+
+                if($orderStatus = $this->checkoutHelper->getSettingsValue('orderStatus')){
+                    if($orderStatus == 'complete'){
+                        $this->checkoutHelper->changeOrderStatus($brqOrderId, $context,'process');
+                    }
+                    $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, $orderStatus);
+                }
 
                 if (!$this->checkoutHelper->isInvoiced($brqOrderId, $context)) {
                     if (round($brqAmount, 2) == round($totalPrice, 2)) {
@@ -135,7 +145,10 @@ class PushController extends StorefrontController
         }
 
         if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_TECHNICAL_ERROR, ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER, ResponseStatus::BUCKAROO_STATUSCODE_FAILED, ResponseStatus::BUCKAROO_STATUSCODE_REJECTED])) {
-            $this->checkoutHelper->transitionPaymentState('cancelled', $orderTransactionId, $context);
+
+            $paymentFailedStatus = $this->checkoutHelper->getSettingsValue('paymentFailedStatus') ? $this->checkoutHelper->getSettingsValue('paymentFailedStatus') : "cancelled";
+
+            $this->checkoutHelper->transitionPaymentState($paymentFailedStatus, $orderTransactionId, $context);
             $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'cancel');
 
             return $this->json(['status' => true, 'message' => "Order cancelled"]);

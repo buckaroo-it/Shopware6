@@ -4,27 +4,27 @@
 
     <card>
         <title>Configuration</title>
-        <title lang="nl-NL">Configuratie</title>
         <title lang="de-DE">Konfiguration</title>
+        <title lang="nl-NL">Configuratie</title>
 
         <input-field >
             <name>websiteKey</name>
             <label lang="en-GB">(Website) key</label>
-            <label lang="nl-NL">(Website) key</label>
             <label lang="de-DE">(Website) key</label>
+            <label lang="nl-NL">(Website) key</label>
             <description>Enter your Buckaroo merchant/website key.</description>
-            <description lang="nl-NL">Voer uw merchant/website key in.</description>
             <description lang="de-DE">Geben Sie Ihren website-Schlüssel ein.</description>
+            <description lang="nl-NL">Voer uw merchant/website key in.</description>
             <helpText>The (Website) Key can be retrieved in Payment Plaza under My Buckaroo > Websites. For support contact Buckaroo.</helpText>
-            <helpText lang="nl-NL">De (Website) Key kan worden opgehaald in Payment Plaza onder My Buckaroo > Websites. Neem voor ondersteuning contact op met Buckaroo.</helpText>
             <helpText lang="de-DE">Der (Website-) Schlüssel kann auf der Payment Plaza unter My Buckaroo > Websites abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
+            <helpText lang="nl-NL">De (Website) Key kan worden opgehaald in Payment Plaza onder My Buckaroo > Websites. Neem voor ondersteuning contact op met Buckaroo.</helpText>
         </input-field>
 
         <input-field >
             <name>secretKey</name>
             <label lang="en-GB">Secret key</label>
-            <label lang="nl-NL">Geheime sleutel</label>
             <label lang="de-DE">Geheimer Schlüssel</label>
+            <label lang="nl-NL">Geheime sleutel</label>
             <description>Enter your Buckaroo secret key.</description>
             <description lang="nl-NL">Voer uw geheime sleutel van Buckaroo in.</description>
             <description lang="de-DE">Geben Sie Ihren geheimen Buckaroo-Schlüssel ein.</description>
@@ -36,34 +36,132 @@
         <input-field >
             <name>guid</name>
             <label lang="en-GB">Guid</label>
-            <label lang="nl-NL">Guid</label>
             <label lang="de-DE">Guid</label>
+            <label lang="nl-NL">Guid</label>
             <description>Enter your Buckaroo guid key (only when using Apple Pay).</description>
-            <description lang="nl-NL">Voer uw Buckaroo-GUID in (enkel bij gebruik Apple Pay).</description>
             <description lang="de-DE">Geben Sie Ihren Buckaroo-Leitschlüssel ein (Nur bei Verwendung von Apple Pay).</description>
+            <description lang="nl-NL">Voer uw Buckaroo-GUID in (enkel bij gebruik Apple Pay).</description>
             <helpText>The guid key can be retrieved in Payment Plaza under the profile tab. For support contact Buckaroo.</helpText>
-            <helpText lang="nl-NL">De gidssleutel kan worden opgehaald in Payment Plaza onder het tabblad Profiel. Neem voor ondersteuning contact op met Buckaroo.</helpText>
             <helpText lang="de-DE">Der Guid-Schlüssel kann in Payment Plaza unter der Registerkarte Profil abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
+            <helpText lang="nl-NL">De gidssleutel kan worden opgehaald in Payment Plaza onder het tabblad Profiel. Neem voor ondersteuning contact op met Buckaroo.</helpText>
+        </input-field>
+        
+        <input-field type="bool">
+            <name>advancedConfiguration</name>
+            <label lang="en-GB">Advanced Configuration</label>
+            <label lang="de-DE">Erweiterte Konfiguration</label>
+            <label lang="nl-NL">Geavanceerde configuratie</label>
+            <helpText lang="en-GB">Advanced settings for the payment plugin</helpText>
+            <helpText lang="de-DE">Erweiterte Einstellungen für das Zahlungs-Plugin</helpText>
+            <helpText lang="nl-NL">Geavanceerde instellingen voor de payment plugin</helpText>
         </input-field>
 
         <input-field type="bool">
             <name>stockReserve</name>
             <label lang="en-GB">Stock reserve</label>
-            <label lang="nl-NL">Stock reserve</label>
             <label lang="de-DE">Aktienreserve</label>
+            <label lang="nl-NL">Stock reserve</label>
+            <helpText lang="de-DE">Aktivieren Sie den Reservebestand, nachdem die Bestellung gebucht wurde.</helpText>
             <helpText lang="en-GB">Enable reserve stock after order is booked.</helpText>
             <helpText lang="nl-NL">Schakel reservevoorraad in nadat de bestelling is geboekt.</helpText>
-            <helpText lang="de-DE">Aktivieren Sie den Reservebestand, nachdem die Bestellung gebucht wurde.</helpText>
         </input-field>
 
         <input-field type="bool">
             <name>sendInvoiceEmail</name>
             <label lang="en-GB">Send transactional invoice email</label>
-            <label lang="nl-NL">Verzend transactionele factuur-e-mail</label>
             <label lang="de-DE">Senden Sie eine Transaktionsrechnungs-E-Mail</label>
+            <label lang="nl-NL">Verzend transactionele factuur-e-mail</label>
             <helpText lang="en-GB">Send a mail after successful payment.</helpText>
-            <helpText lang="nl-NL">Stuur een mail na succesvolle betaling.</helpText>
             <helpText lang="de-DE">Senden Sie nach erfolgreicher Zahlung eine Mail.</helpText>
+            <helpText lang="nl-NL">Stuur een mail na succesvolle betaling.</helpText>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>pendingPaymentStatus</name>
+            <label lang="en-GB">Pending payment status</label>
+            <label lang="de-DE">Ausstehender Zahlungsstatus</label>
+            <label lang="nl-NL">In afwachting van betalingsstatus</label>
+            <helpText lang="en-GB">This status will be given to orders pending payment.</helpText>
+            <helpText lang="de-DE">Dieser Status wird für Bestellungen bis zur Zahlung vergeben.</helpText>
+            <helpText lang="nl-NL">Deze status wordt gegeven aan bestellingen die in afwachting zijn van betaling.</helpText>
+            <defaultValue>open</defaultValue>
+            <options>
+                <option>
+                    <id>open</id>
+                    <name>Open</name>
+                </option>
+                <option>
+                    <id>process</id>
+                    <name>In progress</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>paymentSuccesStatus</name>
+            <label lang="en-GB">Payment success status</label>
+            <label lang="de-DE">Status des Zahlungserfolgs</label>
+            <label lang="nl-NL">Successtatus van betaling</label>
+            <helpText lang="en-GB">This status will be given to orders paid.</helpText>
+            <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde bestellingen.</helpText>
+            <helpText lang="de-DE">Dieser Status wird für bezahlte Bestellungen vergeben.</helpText>
+            <defaultValue>paid</defaultValue>
+            <options>
+                <option>
+                    <id>paid</id>
+                    <name>Paid</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>paymentFailedStatus</name>
+            <label lang="en-GB">Payment failed status</label>
+            <label lang="de-DE">Zahlungsstatus</label>
+            <label lang="nl-NL">Status betaling mislukt</label>
+            <helpText lang="en-GB">This status will be given to unsuccessful orders.</helpText>
+            <helpText lang="nl-NL">Deze status wordt gegeven aan niet-succesvolle bestellingen.</helpText>
+            <helpText lang="de-DE">Dieser Status wird für nicht erfolgreiche Bestellungen vergeben.</helpText>
+            <defaultValue>cancelled</defaultValue>
+            <options>
+                <option>
+                    <id>cancelled</id>
+                    <name>Cancelled</name>
+                </option>
+                <option>
+                    <id>fail</id>
+                    <name>Failed</name>
+                </option>
+                <option>
+                    <id>open</id>
+                    <name>Open</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>orderStatus</name>
+            <label lang="en-GB">Order status</label>
+            <label lang="de-DE">Bestellstatus</label>
+            <label lang="nl-NL">Bestelstatus</label>
+            <helpText lang="en-GB">This status will be given to paid orders</helpText>
+            <helpText lang="de-DE">Dieser Status wird für bezahlte Bestellungen vergeben</helpText>
+            <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde bestellingen</helpText>
+            <defaultValue>reopen</defaultValue>
+            <options>
+                <option>
+                    <id>reopen</id>
+                    <name>Open</name>
+                </option>
+                <option>
+                    <id>complete</id>
+                    <name>Done</name>
+                </option>
+                <option>
+                    <id>process</id>
+                    <name>In Progress</name>
+                </option>
+            </options>
         </input-field>
 
     </card>

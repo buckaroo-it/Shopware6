@@ -257,6 +257,7 @@ class CheckoutHelper
     {
         switch ($status) {
             case 'completed' :
+            case 'paid' :
                 return StateMachineTransitionActions::ACTION_PAID;
                 break;
             case 'pay_partially' :
@@ -267,12 +268,15 @@ class CheckoutHelper
             case 'void':
             case 'expired':
                 return StateMachineTransitionActions::ACTION_CANCEL;
+            case 'fail':
+                return StateMachineTransitionActions::ACTION_FAIL;
                 break;
             case 'refunded':
                 return StateMachineTransitionActions::ACTION_REFUND;
             case 'partial_refunded':
                 return StateMachineTransitionActions::ACTION_REFUND_PARTIALLY;
             case 'initialized':
+            case 'open':
                 return StateMachineTransitionActions::ACTION_REOPEN;
             case 'process':
                 return StateMachineTransitionActions::ACTION_PROCESS;
@@ -1766,5 +1770,9 @@ class CheckoutHelper
             return round(str_replace(',','.',$buckarooFee), 2);
         }
         return false;
+    }
+
+    public function getSettingsValue($value){
+        return $this->helper->getSettingsValue($value);
     }
 }

@@ -56,7 +56,7 @@ class PaymentMethodsInstaller implements InstallerInterface
         foreach (GatewayHelper::GATEWAYS as $gateway) {
             $this->addPaymentMethod(new $gateway(), $context->getContext());
         }
-
+        $this->setDefaultValues();
         $this->copyAppleDomainAssociationFile();
     }
 
@@ -78,7 +78,6 @@ class PaymentMethodsInstaller implements InstallerInterface
         foreach (GatewayHelper::GATEWAYS as $gateway) {
             $this->setPaymentMethodActive(true, new $gateway(), $context->getContext());
         }
-        $this->setDefaultValues();
     }
 
     /**
@@ -221,10 +220,11 @@ class PaymentMethodsInstaller implements InstallerInterface
 
     public function update(UpdateContext $updateContext): void
     {
+        $this->setDefaultValues();
         $this->copyAppleDomainAssociationFile();
     }
 
-    private function setBuckarooPaymentSettingsValue($key, $value, $label)
+    private function setBuckarooPaymentSettingsValue($key, $value, $label = '')
     {
         $domain = 'BuckarooPayments.config.';
         $configKey = $domain . $key . $label;
@@ -240,10 +240,12 @@ class PaymentMethodsInstaller implements InstallerInterface
     {
         foreach (GatewayHelper::GATEWAYS as $gateway) {
             $paymentMethod = new $gateway();
-
             $this->setBuckarooPaymentSettingsValue($paymentMethod->getBuckarooKey(), 'test', 'Environment');
             $this->setBuckarooPaymentSettingsValue($paymentMethod->getBuckarooKey(), $paymentMethod->getName(), 'Label');
+        }
 
+        foreach ([['pendingPaymentStatus'=>'open'],['paymentSuccesStatus'=>'paid'],['paymentFailedStatus'=>'cancelled'],['orderStatus'=>'reopen']] as $key => $value) {
+            $this->setBuckarooPaymentSettingsValue($key, $value);
         }
     }
 }
