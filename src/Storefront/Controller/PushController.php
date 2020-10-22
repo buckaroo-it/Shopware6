@@ -182,7 +182,8 @@ class PushController extends StorefrontController
             if($token  = $request->request->get('ADD_sw-context-token')){
                 $this->get('session')->set('sw-context-token', $token);
             }
-            return new RedirectResponse('/checkout/finish?orderId=' . $request->request->get('ADD_orderId'));
+
+            return new RedirectResponse($this->generateUrl('frontend.checkout.finish.page', ['orderId' => $request->request->get('ADD_orderId')]));
         }
 
         if ($request->query->getBoolean('cancel')) {
