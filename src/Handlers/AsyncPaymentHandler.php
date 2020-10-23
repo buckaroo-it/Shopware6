@@ -178,7 +178,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             if(!$response->isSuccess()){
                 $this->checkoutHelper->transitionPaymentState($pendingPaymentStatus, $transaction->getOrderTransaction()->getId(), $context);
             }
-            return new RedirectResponse($this->generateUrl('frontend.checkout.finish.page', ['orderId' => $order->getId()]));
+            return new RedirectResponse($this->checkoutHelper->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $order->getId()]));
         } elseif ($response->isCanceled()) {
             throw new CustomerCanceledAsyncPaymentException(
                 $transaction->getOrderTransaction()->getId(),

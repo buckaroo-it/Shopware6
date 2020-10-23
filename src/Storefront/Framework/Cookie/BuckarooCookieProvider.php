@@ -8,7 +8,7 @@ class BuckarooCookieProvider implements CookieProviderInterface {
 
     private $originalService;
 
-    function __construct(CookieProviderInterface $service)
+    public function __construct(CookieProviderInterface $service)
     {
         $this->originalService = $service;
     }

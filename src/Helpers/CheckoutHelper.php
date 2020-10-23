@@ -1775,4 +1775,9 @@ class CheckoutHelper
     public function getSettingsValue($value){
         return $this->helper->getSettingsValue($value);
     }
+
+    public function forwardToRoute($path,$parameters = []){
+        return $this->router->generate($path, $parameters);
+    }
+    
 }
