@@ -169,6 +169,8 @@ class BuckarooController extends StorefrontController
      */
     private $logger;
 
+    private $checkoutHelper;
+
     public function __construct(
         EntityRepositoryInterface $countryRepository,
         EntityRepositoryInterface $languageRepository,
@@ -190,7 +192,8 @@ class BuckarooController extends StorefrontController
         CheckoutFinishPageLoader $finishPageLoader,
         EntityRepositoryInterface $paymentMethodRepository,
         EntityRepositoryInterface $orderTransactionRepository,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        CheckoutHelper $checkoutHelper
     )
     {
         $this->countryRepository = $countryRepository;
@@ -214,6 +217,7 @@ class BuckarooController extends StorefrontController
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->orderTransactionRepository = $orderTransactionRepository;
         $this->logger = $logger;
+        $this->checkoutHelper = $checkoutHelper;
     }
 
     /**
@@ -445,13 +449,23 @@ class BuckarooController extends StorefrontController
             ];
         }
 
+        $buckarooFee = $this->checkoutHelper->getBuckarooFee('applepayFee');
+
+        if ($buckarooFee > 0) {
+            $lineItems[] = [
+                'label' => $this->trans('bkr-applepay.BuckarooFee'),
+                'amount' => round($buckarooFee, 2),
+                'type' => 'final'
+            ];
+        }
+
         $result = array_merge($result, [
             'shippingMethods' => [],
             'shippingType' => 'shipping',
             'lineItems' => $lineItems,
             'totalLineItems' => [
                 'label' => $context->getSalesChannel()->getName(),
-                'amount' => round($cart->getPrice()->getTotalPrice(), 2),
+                'amount' => round($cart->getPrice()->getTotalPrice() + $buckarooFee, 2),
                 'type' => 'final'
             ]
         ]);

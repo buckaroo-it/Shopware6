@@ -54,6 +54,7 @@
   "bkr-applepay": {
     "Subtotal": "Subtotal",
     "Deliverycosts" : "Coûts de livraison",
-    "Discount" : "Remise"
+    "Discount" : "Remise",
+    "BuckarooFee": "Buckaroo Fee"
   }
 }

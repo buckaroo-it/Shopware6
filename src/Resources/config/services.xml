@@ -292,6 +292,7 @@
             <argument type="service" id="payment_method.repository" />
             <argument type="service" id="order_transaction.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Storefront\Controller\RefundController" public="true">
