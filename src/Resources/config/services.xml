@@ -39,7 +39,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Buckaroo\HmacHeader"/>
             <argument type="service" id="Buckaroo\Shopware6\Buckaroo\SoftwareHeader"/>
             <argument type="service" id="Buckaroo\Shopware6\Buckaroo\CultureHeader"/>
-            <argument type="service" id="Psr\Log\LoggerInterface"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
         </service>
         
         <service id="Buckaroo\Shopware6\Helpers\Helper">
@@ -83,7 +83,7 @@
         <service id="Buckaroo\Shopware6\Handlers\AsyncPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="logger" />
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <tag name="shopware.payment.method.async" />
         </service>
 
@@ -267,7 +267,7 @@
             <argument type="service" id="order_transaction.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="order.repository" />
-            <argument type="service" id="logger" />
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Storefront\Controller\BuckarooController" public="true">
@@ -291,7 +291,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader" />
             <argument type="service" id="payment_method.repository" />
             <argument type="service" id="order_transaction.repository" />
-            <argument type="service" id="logger" />
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Storefront\Controller\RefundController" public="true">
@@ -304,7 +304,7 @@
             <argument type="service" id="order_transaction.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="order.repository" />
-            <argument type="service" id="logger" />
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
         </service>
 
         <!-- /Controllers -->

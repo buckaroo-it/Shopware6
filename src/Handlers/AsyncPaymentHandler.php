@@ -66,6 +66,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse{
+        $this->logger->info(__METHOD__ . "|1|", [$_POST]);
 
         $bkrClient = $this->helper->initializeBkr();
 
