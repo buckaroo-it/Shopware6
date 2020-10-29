@@ -147,10 +147,10 @@
             <helpText lang="en-GB">This status will be given to paid orders</helpText>
             <helpText lang="de-DE">Dieser Status wird für bezahlte Bestellungen vergeben</helpText>
             <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde bestellingen</helpText>
-            <defaultValue>reopen</defaultValue>
+            <defaultValue>open</defaultValue>
             <options>
                 <option>
-                    <id>reopen</id>
+                    <id>open</id>
                     <name>Open</name>
                 </option>
                 <option>

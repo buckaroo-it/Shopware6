@@ -1341,6 +1341,10 @@ class CheckoutHelper
 
     public function changeOrderStatus(string $orderId, Context $context, $status): void
     {
+        if($this->isOrderState([$status], $orderId, $context)){
+            return;
+        }
+
         $this->stateMachineRegistry->transition(
             new Transition(
                 'order',
