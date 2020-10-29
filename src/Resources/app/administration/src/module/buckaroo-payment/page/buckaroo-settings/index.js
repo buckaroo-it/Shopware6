@@ -182,6 +182,12 @@ Component.register('buckaroo-settings', {
                 }
             }
 
+            if((fid == 'applepayShowProduct') || (fid == 'applepayShowCart')) {
+                if(config["BuckarooPayments.config.applepayEnabled"] != undefined && config["BuckarooPayments.config.applepayEnabled"]){
+                    return true;
+                }
+            }
+
             return false;
         },
 
