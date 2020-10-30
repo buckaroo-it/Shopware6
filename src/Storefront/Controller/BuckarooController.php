@@ -773,28 +773,37 @@ class BuckarooController extends StorefrontController
                     $criteria,
                     $context->getContext())->get($request->request->get('selected_shipping_method')
                 );
-
-
-                if (!$shippingMethod || !$shippingMethod->getId()) {
-                    return false;
-                }
-
-                $context->getSalesChannel()->setShippingMethodId($shippingMethod->getId());
-                $context->getSalesChannel()->setShippingMethod($shippingMethod);
             }
+
+            if ($request->request->get('selected_shipping_method') === 0) {
+
+                $criteria  = new Criteria();
+                $criteria->addFilter(new EqualsFilter('active', 1));
+                $shippingMethod = $this->shippingMethodRepository->search(
+                    $criteria,
+                    $context->getContext()
+                )->first();
+
+            }
+
+            if (!$shippingMethod || !$shippingMethod->getId()) {
+                return false;
+            }
+
+            $context->getSalesChannel()->setShippingMethodId($shippingMethod->getId());
+            $context->getSalesChannel()->setShippingMethod($shippingMethod);
+
             $context->getSalesChannel()->setPaymentMethodId($this->getValidPaymentMethod($context)->getId());
             $context->getSalesChannel()->setPaymentMethod($this->getValidPaymentMethod($context));
 
             $cart = $this->cartService->getCart($context->getToken(), $context);
 
-            if ($request->request->get('selected_shipping_method')) {
-                if ($delivery = $this->buildSingleDelivery($shippingMethod, $cart->getLineItems(), $context, $customer)) {
-                    if ($deliveriesCollection = new DeliveryCollection([$delivery])) {
-                        $cart->setDeliveries($deliveriesCollection);
-                        $this->cartService->recalculate($cart, $context);
-                        $this->deliveryCalculator->calculate($cart->getData(), $cart, $deliveriesCollection, $context);
-                        $this->logger->info(__METHOD__ . "|3|", [$deliveriesCollection->first()->getLocation()]);
-                    }
+            if ($delivery = $this->buildSingleDelivery($shippingMethod, $cart->getLineItems(), $context, $customer)) {
+                if ($deliveriesCollection = new DeliveryCollection([$delivery])) {
+                    $cart->setDeliveries($deliveriesCollection);
+                    $this->cartService->recalculate($cart, $context);
+                    $this->deliveryCalculator->calculate($cart->getData(), $cart, $deliveriesCollection, $context);
+                    $this->logger->info(__METHOD__ . "|3|", [$deliveriesCollection->first()->getLocation()]);
                 }
             }
 
