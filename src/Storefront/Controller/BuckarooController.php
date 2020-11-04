@@ -864,28 +864,40 @@ class BuckarooController extends StorefrontController
         );
 
         if (!empty($this->orderAddress)) {
-            $this->orderAddressRepository->update([[
-                'firstName' => $this->orderAddress->getDefaultBillingAddress()->getFirstName(),
-                'lastName' => $this->orderAddress->getDefaultBillingAddress()->getLastName(),
-                'street' => $this->orderAddress->getDefaultBillingAddress()->getStreet(),
-                'zipcode' => $this->orderAddress->getDefaultBillingAddress()->getZipcode(),
-                'city' => $this->orderAddress->getDefaultBillingAddress()->getCity(),
-                'countryId' => $this->orderAddress->getDefaultBillingAddress()->getCountryId(),
-                'id' => $orderEntity->getBillingAddressId()
-            ]], $context->getContext());
-
-            /*
             $shippingIds = $orderEntity->getDeliveries()->getShippingAddressIds();
-            $this->orderAddressRepository->update([[
-                'firstName' => $this->orderAddress->getDefaultShippingAddress()->getFirstName(),
-                'lastName' => $this->orderAddress->getDefaultShippingAddress()->getLastName(),
-                'street' => $this->orderAddress->getDefaultShippingAddress()->getStreet(),
-                'zipcode' => $this->orderAddress->getDefaultShippingAddress()->getZipcode(),
-                'city' => $this->orderAddress->getDefaultShippingAddress()->getCity(),
-                'countryId' => $this->orderAddress->getDefaultShippingAddress()->getCountryId(),
-                'id' => reset($shippingIds)
-            ]], $context->getContext());
-            */
+
+            if ((sizeof($shippingIds) == 1) && (md5(reset($shippingIds))==$orderEntity->getBillingAddressId())) {
+                $this->orderAddressRepository->update([[
+                    'firstName' => $this->orderAddress->getDefaultShippingAddress()->getFirstName(),
+                    'lastName' => $this->orderAddress->getDefaultShippingAddress()->getLastName(),
+                    'street' => $this->orderAddress->getDefaultShippingAddress()->getStreet(),
+                    'zipcode' => $this->orderAddress->getDefaultShippingAddress()->getZipcode(),
+                    'city' => $this->orderAddress->getDefaultShippingAddress()->getCity(),
+                    'countryId' => $this->orderAddress->getDefaultShippingAddress()->getCountryId(),
+                    'id' => $orderEntity->getBillingAddressId()
+                ]], $context->getContext());
+            } else {
+                $this->orderAddressRepository->update([[
+                    'firstName' => $this->orderAddress->getDefaultBillingAddress()->getFirstName(),
+                    'lastName' => $this->orderAddress->getDefaultBillingAddress()->getLastName(),
+                    'street' => $this->orderAddress->getDefaultBillingAddress()->getStreet(),
+                    'zipcode' => $this->orderAddress->getDefaultBillingAddress()->getZipcode(),
+                    'city' => $this->orderAddress->getDefaultBillingAddress()->getCity(),
+                    'countryId' => $this->orderAddress->getDefaultBillingAddress()->getCountryId(),
+                    'id' => $orderEntity->getBillingAddressId()
+                ]], $context->getContext());
+
+                $this->orderAddressRepository->update([[
+                    'firstName' => $this->orderAddress->getDefaultShippingAddress()->getFirstName(),
+                    'lastName' => $this->orderAddress->getDefaultShippingAddress()->getLastName(),
+                    'street' => $this->orderAddress->getDefaultShippingAddress()->getStreet(),
+                    'zipcode' => $this->orderAddress->getDefaultShippingAddress()->getZipcode(),
+                    'city' => $this->orderAddress->getDefaultShippingAddress()->getCity(),
+                    'countryId' => $this->orderAddress->getDefaultShippingAddress()->getCountryId(),
+                    'id' => reset($shippingIds)
+                ]], $context->getContext());
+
+            }
         }
 
         $this->logger->info(__METHOD__ . "|5|");
