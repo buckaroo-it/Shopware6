@@ -865,17 +865,30 @@ class BuckarooController extends StorefrontController
 
         if (!empty($this->orderAddress)) {
             $this->orderAddressRepository->update([[
+                'firstName' => $this->orderAddress->getDefaultBillingAddress()->getFirstName(),
+                'lastName' => $this->orderAddress->getDefaultBillingAddress()->getLastName(),
+                'street' => $this->orderAddress->getDefaultBillingAddress()->getStreet(),
+                'zipcode' => $this->orderAddress->getDefaultBillingAddress()->getZipcode(),
+                'city' => $this->orderAddress->getDefaultBillingAddress()->getCity(),
+                'countryId' => $this->orderAddress->getDefaultBillingAddress()->getCountryId(),
+                'id' => $orderEntity->getBillingAddressId()
+            ]], $context->getContext());
+
+            /*
+            $shippingIds = $orderEntity->getDeliveries()->getShippingAddressIds();
+            $this->orderAddressRepository->update([[
                 'firstName' => $this->orderAddress->getDefaultShippingAddress()->getFirstName(),
                 'lastName' => $this->orderAddress->getDefaultShippingAddress()->getLastName(),
                 'street' => $this->orderAddress->getDefaultShippingAddress()->getStreet(),
                 'zipcode' => $this->orderAddress->getDefaultShippingAddress()->getZipcode(),
                 'city' => $this->orderAddress->getDefaultShippingAddress()->getCity(),
                 'countryId' => $this->orderAddress->getDefaultShippingAddress()->getCountryId(),
-                'id' => $orderEntity->getBillingAddressId()
+                'id' => reset($shippingIds)
             ]], $context->getContext());
+            */
         }
 
-        $this->logger->info(__METHOD__ . "|3|");
+        $this->logger->info(__METHOD__ . "|5|");
 
         $orderPlacedEvent = new CheckoutOrderPlacedEvent(
             $context->getContext(),
@@ -885,7 +898,7 @@ class BuckarooController extends StorefrontController
 
         $this->eventDispatcher->dispatch($orderPlacedEvent);
 
-        $this->logger->info(__METHOD__ . "|4|");
+        $this->logger->info(__METHOD__ . "|10|");
 
         $this->persister->delete($context->getToken(), $context);
         // unset($this->cart[$cart->getToken()]); //Access to an undefined property
@@ -913,14 +926,14 @@ class BuckarooController extends StorefrontController
     private function createAccount(SalesChannelContext $context, $billing_address, $shipping_address)
     {
         $customerId = Uuid::randomHex();
-        //$addressId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
         $addressId2 = Uuid::randomHex();
 
         $this->customerRepository->create([
             [
                 'id' => $customerId,
                 'salesChannelId' => $context->getSalesChannel()->getUniqueIdentifier(),
-                /*'defaultShippingAddress' => [  //Array has 2 duplicate keys
+                'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => $shipping_address['givenName'],
                     'lastName' => $shipping_address['familyName'],
@@ -929,8 +942,8 @@ class BuckarooController extends StorefrontController
                     'zipcode' => $shipping_address['postalCode'],
                     'salutationId' => $this->getValidSalutationId($context),
                     'country' => ['name' => $shipping_address['country']],
-                ],*/
-                'defaultShippingAddress' => [
+                ],
+                'defaultBillingAddress' => [
                     'id' => $addressId2,
                     'firstName' => $billing_address['givenName'],
                     'lastName' => $billing_address['familyName'],
@@ -940,7 +953,7 @@ class BuckarooController extends StorefrontController
                     'salutationId' => $this->getValidSalutationId($context),
                     'country' => ['name' => $shipping_address['country']],
                 ],
-                'defaultShippingAddressId' => $addressId2,
+                'defaultShippingAddressId' => $addressId,
                 'defaultBillingAddressId' => $addressId2,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethod($context)->getId(),
                 /*
