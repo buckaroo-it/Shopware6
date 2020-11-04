@@ -293,6 +293,7 @@
             <argument type="service" id="order_transaction.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="order_address.repository" />
         </service>
 
         <service id="Buckaroo\Shopware6\Storefront\Controller\RefundController" public="true">

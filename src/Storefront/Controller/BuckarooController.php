@@ -58,6 +58,7 @@ use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 
 /**
  * @RouteScope(scopes={"storefront"})
@@ -118,6 +119,11 @@ class BuckarooController extends StorefrontController
      * @var EntityRepositoryInterface
      */
     private $orderCustomerRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $orderAddressRepository;
 
     /**
      * @var EventDispatcherInterface
@@ -193,7 +199,8 @@ class BuckarooController extends StorefrontController
         EntityRepositoryInterface $paymentMethodRepository,
         EntityRepositoryInterface $orderTransactionRepository,
         LoggerInterface $logger,
-        CheckoutHelper $checkoutHelper
+        CheckoutHelper $checkoutHelper,
+        EntityRepositoryInterface $orderAddressRepository
     )
     {
         $this->countryRepository = $countryRepository;
@@ -218,6 +225,7 @@ class BuckarooController extends StorefrontController
         $this->orderTransactionRepository = $orderTransactionRepository;
         $this->logger = $logger;
         $this->checkoutHelper = $checkoutHelper;
+        $this->orderAddressRepository = $orderAddressRepository;
     }
 
     /**
@@ -572,6 +580,7 @@ class BuckarooController extends StorefrontController
         $context2 = null;
         if ($customer = $context->getCustomer()) {
             $this->logger->info(__METHOD__ . "|10|");
+            $this->orderAddress = $this->createAccount($context, $paymentData['billingContact'], $paymentData['shippingContact']);
         } else {
             $this->logger->info(__METHOD__ . "|15|");
             if ($customer = $this->createAccount($context, $paymentData['billingContact'], $paymentData['shippingContact'])) {
@@ -854,6 +863,18 @@ class BuckarooController extends StorefrontController
             $this->fetchCustomer($orderEntity->getId(), $context->getContext())
         );
 
+        if (!empty($this->orderAddress)) {
+            $this->orderAddressRepository->update([[
+                'firstName' => $this->orderAddress->getDefaultShippingAddress()->getFirstName(),
+                'lastName' => $this->orderAddress->getDefaultShippingAddress()->getLastName(),
+                'street' => $this->orderAddress->getDefaultShippingAddress()->getStreet(),
+                'zipcode' => $this->orderAddress->getDefaultShippingAddress()->getZipcode(),
+                'city' => $this->orderAddress->getDefaultShippingAddress()->getCity(),
+                'countryId' => $this->orderAddress->getDefaultShippingAddress()->getCountryId(),
+                'id' => $orderEntity->getBillingAddressId()
+            ]], $context->getContext());
+        }
+
         $this->logger->info(__METHOD__ . "|3|");
 
         $orderPlacedEvent = new CheckoutOrderPlacedEvent(
@@ -892,7 +913,7 @@ class BuckarooController extends StorefrontController
     private function createAccount(SalesChannelContext $context, $billing_address, $shipping_address)
     {
         $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
+        //$addressId = Uuid::randomHex();
         $addressId2 = Uuid::randomHex();
 
         $this->customerRepository->create([
@@ -919,7 +940,7 @@ class BuckarooController extends StorefrontController
                     'salutationId' => $this->getValidSalutationId($context),
                     'country' => ['name' => $shipping_address['country']],
                 ],
-                'defaultShippingAddressId' => $addressId,
+                'defaultShippingAddressId' => $addressId2,
                 'defaultBillingAddressId' => $addressId2,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethod($context)->getId(),
                 /*
