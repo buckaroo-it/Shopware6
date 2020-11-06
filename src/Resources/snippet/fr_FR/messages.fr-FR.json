@@ -28,6 +28,7 @@
       "buckarooAfterpayPhonePlaceholder": "Entrez votre mobile ici ...",
       "buckarooMobilePhoneError": "Entrez un numéro de téléphone valide.",
       "buckarooDoBError": "Entrez une date de naissance valide",
+      "buckarooError": "Veuillez entrer une valeur valide",
       "buckarooKlarnakpPhone": "Téléphone",
       "buckarooKlarnakpPhonePlaceholder": "Entrez votre téléphone ici ...",
       "salutation": "Salutation",

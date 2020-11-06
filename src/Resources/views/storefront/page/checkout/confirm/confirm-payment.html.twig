@@ -66,13 +66,13 @@
                     <div class="form-group col-md-12">
                         <label class="form-label" for="creditcards_issuer">{{ "buckaroo.checkout.creditcards.card" | trans }}:</label>
                         <select name="creditcards_issuer" id="creditcards_issuer" form="confirmOrderForm" required="required" class="form-control">
-                            <option value="" data-logo="/bundles/buckaroopayments/storefront/buckaroo/logo/creditcards.png">{{ "buckaroo.checkout.selectCreditCard"|trans }}</option>
+                            <option value="" data-logo="{{ page.extensions.buckaroo.media_path }}creditcards.png">{{ "buckaroo.checkout.selectCreditCard"|trans }}</option>
                                 {% for creditcard in page.extensions.buckaroo.creditcards %}
-                                    <option data-logo="/bundles/buckaroopayments/storefront/buckaroo/logo/{{ creditcard.code }}.png" value="{{ creditcard.code }}">{{ creditcard.name }}</option>
+                                    <option data-logo="{{ page.extensions.buckaroo.media_path }}{{ creditcard.code }}.png" value="{{ creditcard.code }}">{{ creditcard.name }}</option>
                                 {% endfor %}
                         </select>  
                         <div class="card_kind">
-                            <img id="card_kind_img" src="/bundles/buckaroopayments/storefront/buckaroo/logo/creditcards.png">
+                            <img id="card_kind_img" src="{{ page.extensions.buckaroo.media_path }}creditcards.png">
                         </div>
                     </div>
 
@@ -80,11 +80,17 @@
                         <label class="form-label" for="creditcards_cardholdername">{{ "buckaroo.checkout.creditcards.cardholder" | trans }}:</label>
                         <input class="form-control" id="creditcards_cardholdername" name="creditcards_cardholdername" form="confirmOrderForm" required="required" />
                         <input type="hidden" id="encryptedCardData" name="encryptedCardData" form="confirmOrderForm">
+                        <label class="form-label" style="display:none; color:red" for="creditcards_cardholdername" id="creditcards_cardholdernameError">
+                            {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
+                        </label>
                     </div>
 
                     <div class="form-group col-md-12">
                         <label class="form-label" for="creditcards_cardnumber">{{ "buckaroo.checkout.creditcards.cardNumber" | trans }}:</label>
                         <input class="form-control" id="creditcards_cardnumber" name="creditcards_cardnumber" form="confirmOrderForm" required="required" />
+                        <label class="form-label" style="display:none; color:red" for="creditcards_cardnumber" id="creditcards_cardnumberError">
+                            {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
+                        </label>
                     </div>
 
                     <div class="form-group col-md-6">
@@ -95,6 +101,9 @@
                                 <option value="{{ month }}">{{ month }}</option>
                             {% endfor %}
                         </select>
+                        <label class="form-label" style="display:none; color:red" for="creditcards_expirationmonth" id="creditcards_expirationmonthError">
+                            {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
+                        </label>
                     </div>
 
                     <div class="form-group col-md-6">
@@ -108,11 +117,17 @@
                                 <option value="{{ year }}">{{ year }}</option>
                             {% endfor %}
                         </select>
+                        <label class="form-label" style="display:none; color:red" for="creditcards_expirationyear" id="creditcards_expirationyearError">
+                            {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
+                        </label>
                     </div>
 
                     <div class="form-group col-md-6">
                         <label class="form-label" for="creditcards_cvc">{{ "buckaroo.checkout.creditcards.securityCode" | trans }}:</label>
                         <input class="form-control" id="creditcards_cvc" name="creditcards_cvc" form="confirmOrderForm" required="required" />
+                        <label class="form-label" style="display:none; color:red" for="creditcards_cvc" id="creditcards_cvcError">
+                            {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
+                        </label>
                     </div>
 
                 </div>
