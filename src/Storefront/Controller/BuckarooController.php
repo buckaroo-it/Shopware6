@@ -320,7 +320,7 @@ class BuckarooController extends StorefrontController
             $context
         );
         $cart->setPrice($amount);
-        $this->applepayInitCommonCart($context, $cart, $result);
+        $this->applepayInitCommonCart($context, $cart, $result, $mode);
 
         //////list possible shipping methods and prices
         $shippingMethods = [];
@@ -355,6 +355,18 @@ class BuckarooController extends StorefrontController
                             }
 
                         }
+                    }
+                }
+            }
+
+            if ($shippingMethods && ($mode == 'cart') && $this->defaultShippingMethodId) {
+                $this->logger->info(__METHOD__ . "|5|", [$this->defaultShippingMethodId]);
+                foreach ($shippingMethods as $key => $value) {
+                    if (($value['identifier'] == $this->defaultShippingMethodId) && $key)  {
+                        $selectedShippingCopy = $shippingMethods[$key];
+                        unset($shippingMethods[$key]);
+                        array_unshift($shippingMethods, $selectedShippingCopy);
+                        break;
                     }
                 }
             }
@@ -423,8 +435,10 @@ class BuckarooController extends StorefrontController
         ];
     }
 
-    private function applepayInitCommonCart(SalesChannelContext $context, $cart, &$result)
+    private function applepayInitCommonCart(SalesChannelContext $context, $cart, &$result, $mode = '')
     {
+        $this->logger->info(__METHOD__ . "|1|");
+
         $lineItemsTotal = 0;
         $lineItemsDiscount = 0;
         if ($lineItemsPrices = $cart->getLineItems()->getPrices()) {
@@ -448,6 +462,11 @@ class BuckarooController extends StorefrontController
                 'type' => 'final'
             ]
         ];
+
+        if (($mode == 'cart') && $cart->getDeliveries()->first()) {
+            $this->logger->info(__METHOD__ . "|10|", [$cart->getDeliveries()->first()->getShippingMethod()->getId()]);
+            $this->defaultShippingMethodId = $cart->getDeliveries()->first()->getShippingMethod()->getId();
+        }
 
         if ($lineItemsDiscount > 0) {
             $lineItems[] = [
