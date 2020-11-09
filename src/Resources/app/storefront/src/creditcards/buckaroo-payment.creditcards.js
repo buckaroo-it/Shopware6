@@ -11,6 +11,7 @@ export default class BuckarooPaymentCreditcards extends Plugin {
                 }
             }
             this._getEncryptedData();
+            this._CheckValidate();
         });
     }
 
@@ -54,23 +55,68 @@ export default class BuckarooPaymentCreditcards extends Plugin {
             case 'creditcards_issuer':
                 document.getElementById('card_kind_img').setAttribute('src', field.options[field.selectedIndex].getAttribute('data-logo'));
                 break;
+            default:
+                this._CheckValidate();
+        }
+        this._getEncryptedData();
+    }
+
+    _handleCheckField(field) {
+        document.getElementById(field.id+'Error').style.display = 'none';
+        switch (field.id) {
             case 'creditcards_cardnumber':
                 if(!window.BuckarooClientSideEncryption.V001.validateCardNumber(field.value.replace(/\s+/g, ''))){
-                    console.log('validateCardNumber false');
-                }else{
-                    console.log('validateCardNumber ok');
+                    document.getElementById(field.id+'Error').style.display = 'block';
+                    return false;
                 }
                 break;
             case 'creditcards_cardholdername':
                 if(!window.BuckarooClientSideEncryption.V001.validateCardholderName(field.value)){
-                    console.log('validateCardholderName false');
-                }else{
-                    console.log('validateCardholderName ok');
+                    document.getElementById(field.id+'Error').style.display = 'block';
+                    return false;
+                }
+                break;
+            case 'creditcards_cvc':
+                if(!window.BuckarooClientSideEncryption.V001.validateCvc(field.value)){
+                    document.getElementById(field.id+'Error').style.display = 'block';
+                    return false;
+                }
+                break;
+            case 'creditcards_expirationmonth':
+                if(!window.BuckarooClientSideEncryption.V001.validateMonth(field.value)){
+                    document.getElementById(field.id+'Error').style.display = 'block';
+                    return false;
+                }
+                break;
+            case 'creditcards_expirationyear':
+                if(!window.BuckarooClientSideEncryption.V001.validateYear(field.value)){
+                    document.getElementById(field.id+'Error').style.display = 'block';
+                    return false;
                 }
                 break;
             default:
         }
+        return true;
+    }
 
-        this._getEncryptedData();
+    _CheckValidate(){
+        let not_valid = false;
+        const buckarooInputs = ['creditcards_cardholdername', 'creditcards_cardnumber', 'creditcards_expirationmonth', 'creditcards_expirationyear', 'creditcards_cvc'];
+        for (const fieldId of buckarooInputs) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                if(!this._handleCheckField(field)){
+                    not_valid = true;
+                }
+            }
+        }
+        return this._disableConfirmFormSubmit(not_valid);
+    }
+
+    _disableConfirmFormSubmit(disable) {
+        const field = document.getElementById('confirmFormSubmit');
+        if (field) {
+            document.getElementById('confirmFormSubmit').disabled = disable;
+        }
     }
 }

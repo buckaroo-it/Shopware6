@@ -220,7 +220,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'creditcards'              => $creditcards,
             'last_used_creditcard'     => $lastUsedCreditcard,
             'payment_labels'           => $paymentLabels,
-            'media_path'               => '/bundles/buckaroopayments/storefront/buckaroo/logo/',
+            'media_path'               => $this->checkoutHelper->getReturnUrl('root.fallback') . 'bundles/buckaroopayments/storefront/buckaroo/logo/',
             'payment_media'            => $lastUsedCreditcard . '.png',
             'buckarooFee'              => $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee'),
         ]);

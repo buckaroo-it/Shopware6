@@ -71,6 +71,7 @@
           "statuscode": "Status"
       }
     },
+    "messageNotValid": "This field not valid.",
     "messageNotBlank": "This field must not be empty."
   }
 }

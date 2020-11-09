@@ -109,6 +109,14 @@ Component.register('buckaroo-settings', {
             this.secretKeyIdFilled = !!this.getConfigValue('secretKey');
         },
 
+        validateWebsiteKey() {
+            return ((this.getConfigValue('websiteKey').length < 10) || (this.getConfigValue('websiteKey').length > 10)) ? false : true ;
+        },
+
+        validateSecretKey() {
+            return ((this.getConfigValue('secretKey').length < 5) || (this.getConfigValue('secretKey').length > 50)) ? false : true ;
+        },
+
         getConfigValue(field) {
             const defaultConfig = this.$refs.systemConfig.actualConfigData.null;
             const salesChannelId = this.$refs.systemConfig.currentSalesChannelId;
@@ -129,6 +137,16 @@ Component.register('buckaroo-settings', {
 
         onSave() {
             if (this.credentialsMissing) {
+                this.showValidationErrors = true;
+                return;
+            }
+
+            if (!this.validateWebsiteKey()) {
+                this.showValidationErrors = true;
+                return;
+            }
+
+            if (!this.validateSecretKey()) {
                 this.showValidationErrors = true;
                 return;
             }
@@ -202,10 +220,22 @@ Component.register('buckaroo-settings', {
                         detail: this.$tc('buckaroo-payment.messageNotBlank')
                     };
                 }
-                if (element.name === 'BuckarooPayments.config.secretKey' && !this.websiteKeyIdFilled) {
+                if (element.name === 'BuckarooPayments.config.secretKey' && !this.secretKeyIdFilled) {
                     element.config.error = {
                         code: 1,
                         detail: this.$tc('buckaroo-payment.messageNotBlank')
+                    };
+                }
+                if (element.name === 'BuckarooPayments.config.websiteKey' && !this.validateWebsiteKey()) {
+                    element.config.error = {
+                        code: 1,
+                        detail: this.$tc('buckaroo-payment.messageNotValid')
+                    };
+                }
+                if (element.name === 'BuckarooPayments.config.secretKey' && !this.validateSecretKey()) {
+                    element.config.error = {
+                        code: 1,
+                        detail: this.$tc('buckaroo-payment.messageNotValid')
                     };
                 }
             }

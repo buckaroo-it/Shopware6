@@ -126,6 +126,9 @@ export default class BuckarooPaymentHelper extends Plugin {
     }
 
     _disableConfirmFormSubmit(disable) {
-        document.getElementById('confirmFormSubmit').disabled = disable;
+        const field = document.getElementById('confirmFormSubmit');
+        if (field) {
+            document.getElementById('confirmFormSubmit').disabled = disable;
+        }
     }
 }

@@ -71,6 +71,7 @@
           "statuscode": "Toestand"
       }
     },
+    "messageNotValid": "Dit veld is niet geldig.",
     "messageNotBlank": "Dit veld mag niet leeg zijn."
   }
 }
