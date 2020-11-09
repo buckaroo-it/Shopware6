@@ -114,7 +114,7 @@ Component.register('buckaroo-settings', {
         },
 
         validateSecretKey() {
-            return ((this.getConfigValue('secretKey').length < 10) || (this.getConfigValue('secretKey').length > 50)) ? false : true ;
+            return ((this.getConfigValue('secretKey').length < 5) || (this.getConfigValue('secretKey').length > 50)) ? false : true ;
         },
 
         getConfigValue(field) {
