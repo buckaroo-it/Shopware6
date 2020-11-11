@@ -408,12 +408,21 @@ class CheckoutHelper
         ];
     }
 
-    public function getReturnUrl($route): string
-    {
-        return $this->router->generate(
-            $route,
+    public function getSaleBaseUrl(){
+        $checkoutConfirmUrl = $this->router->generate(
+            'frontend.checkout.confirm.page',
             [],
             UrlGeneratorInterface::ABSOLUTE_URL
+        );
+        return str_replace('/checkout/confirm','',$checkoutConfirmUrl);
+    }
+
+    public function getReturnUrl($route): string
+    {
+        return $this->getSaleBaseUrl() . $this->router->generate(
+            $route,
+            [],
+            UrlGeneratorInterface::ABSOLUTE_PATH
         );
     }
 
