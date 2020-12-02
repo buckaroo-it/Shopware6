@@ -19,11 +19,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use Buckaroo\Shopware6\Helpers\GatewayHelper;
 use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
+use Exception;
 
 class MediaInstaller implements InstallerInterface
 {
     /** @var EntityRepositoryInterface */
     private $mediaRepository;
+    private $mediaFolderRepository;
     /** @var FileSaver */
     private $fileSaver;
 
@@ -34,6 +36,7 @@ class MediaInstaller implements InstallerInterface
     public function __construct(ContainerInterface $container)
     {
         $this->mediaRepository = $container->get('media.repository');
+        $this->mediaFolderRepository = $container->get('media_folder.repository');
         $this->fileSaver = $container->get(FileSaver::class);
     }
 
@@ -96,7 +99,9 @@ class MediaInstaller implements InstallerInterface
         $this->mediaRepository->create(
             [
                 [
-                    'id' => $mediaId
+                    'id' => $mediaId,
+                    'private' => false,
+                    'mediaFolderId' => $this->getMediaFolderIdByName('Theme Media', $context),
                 ]
             ],
             $context
@@ -156,5 +161,19 @@ class MediaInstaller implements InstallerInterface
 
     public function update(UpdateContext $updateContext): void
     {
+    }
+
+    private function getMediaFolderIdByName(string $folder, Context $context): ?string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $folder));
+        $criteria->setLimit(1);
+        $defaultFolder = $this->mediaFolderRepository->search($criteria, $context);
+        $defaultFolderId = null;
+        if ($defaultFolder->count() === 1) {
+            $defaultFolderId = $defaultFolder->first()->getId();
+        }
+
+        return $defaultFolderId;
     }
 }
