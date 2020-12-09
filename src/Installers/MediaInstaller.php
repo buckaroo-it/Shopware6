@@ -23,6 +23,7 @@ use Exception;
 
 class MediaInstaller implements InstallerInterface
 {
+    const BUCKAROO_FOLDER  = 'Buckaroo';
     /** @var EntityRepositoryInterface */
     private $mediaRepository;
     private $mediaFolderRepository;
@@ -55,7 +56,10 @@ class MediaInstaller implements InstallerInterface
      */
     public function uninstall(UninstallContext $context): void
     {
-        return;
+        foreach (GatewayHelper::GATEWAYS as $gateway) {
+            $this->removeMedia(new $gateway(), $context->getContext());
+        }
+        $this->removeMediaFolderIdByName(self::BUCKAROO_FOLDER, $context->getContext());
     }
 
     /**
@@ -93,6 +97,10 @@ class MediaInstaller implements InstallerInterface
             return;
         }
 
+        if(!$mediaFolderId = $this->getMediaFolderIdByName(self::BUCKAROO_FOLDER, $context)){
+            $mediaFolderId = $this->createMediaFolderIdByName(self::BUCKAROO_FOLDER, $context);
+        }
+
         $mediaFile = $this->createMediaFile($paymentMethod->getMedia());
         $mediaId = Uuid::randomHex();
 
@@ -101,7 +109,7 @@ class MediaInstaller implements InstallerInterface
                 [
                     'id' => $mediaId,
                     'private' => false,
-                    'mediaFolderId' => $this->getMediaFolderIdByName('Theme Media', $context),
+                    'mediaFolderId' => $mediaFolderId,
                 ]
             ],
             $context
@@ -113,6 +121,18 @@ class MediaInstaller implements InstallerInterface
             $mediaId,
             $context
         );
+    }
+
+    private function removeMedia(PaymentMethodInterface $paymentMethod, Context $context): void
+    {
+        if (!$paymentMethod->getMedia()) {
+            return;
+        }
+
+        if($mediaId = $this->getMediaId($paymentMethod, $context)){
+            $this->mediaRepository->delete([['id' => $mediaId]], $context);
+        }
+
     }
 
     /**
@@ -150,6 +170,25 @@ class MediaInstaller implements InstallerInterface
         return $media ? true : false;
     }
 
+    private function getMediaId(PaymentMethodInterface $paymentMethod, Context $context) : ?string
+    {
+        $criteria = (new Criteria())->addFilter(
+            new EqualsFilter(
+                'fileName',
+                $this->getMediaName($paymentMethod)
+            )
+        );
+
+        /** @var MediaEntity $media */
+        $media = $this->mediaRepository->search($criteria, $context)->first();
+
+        if (!$media) {
+            return null;
+        }
+
+        return $media->getId();
+    }
+
     /**
      * @param PaymentMethodInterface $paymentMethod
      * @return string
@@ -175,5 +214,24 @@ class MediaInstaller implements InstallerInterface
         }
 
         return $defaultFolderId;
+    }
+
+    private function createMediaFolderIdByName(string $folder, Context $context): ?string
+    {
+        $defaultFolder = $this->mediaFolderRepository->create([
+            [
+                'name' => $folder,
+                'useParentConfiguration' => false,
+                'configuration' => [],
+            ],
+        ], $context);
+        return $this->getMediaFolderIdByName($folder, $context);
+    }
+
+    private function removeMediaFolderIdByName(string $folder, Context $context): void
+    {
+        if($mediaFolderId = $this->getMediaFolderIdByName($folder, $context)){
+            $this->mediaFolderRepository->delete([['id' => $mediaFolderId]], $context);
+        }
     }
 }
