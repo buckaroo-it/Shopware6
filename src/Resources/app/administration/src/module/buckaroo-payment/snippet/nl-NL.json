@@ -72,6 +72,9 @@
       }
     },
     "messageNotValid": "Dit veld is niet geldig.",
-    "messageNotBlank": "Dit veld mag niet leeg zijn."
+    "messageNotBlank": "Dit veld mag niet leeg zijn.",
+    "button": {
+      "labelTestApi": "Test verbinding"
+    }
   }
 }

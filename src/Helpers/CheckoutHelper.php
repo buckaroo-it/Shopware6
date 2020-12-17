@@ -951,6 +951,14 @@ class CheckoutHelper
     /**
      * @return string Full transaction url
      */
+    public function getApiTestUrl($method = ''): string
+    {
+        return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/DataRequest/Specifications', '/');
+    }
+
+    /**
+     * @return string Full transaction url
+     */
     public function getDataRequestUrl($method = ''): string
     {
         return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/DataRequest', '/');
@@ -1805,6 +1813,23 @@ class CheckoutHelper
 
     public function forwardToRoute($path,$parameters = []){
         return $this->router->generate($path, $parameters);
+    }
+
+    public function getBuckarooApiTest($websiteKeyId, $secretKeyId){
+        $request = new TransactionRequest;
+        $url       = $this->getApiTestUrl();
+        $bkrClient = $this->helper->initializeBkr();
+        $response  = $bkrClient->post($url, $request);
+        if($response->getHttpCode() == '200'){
+            return [
+                'status' => 'success',
+                'message' => 'Connection ready',
+            ];
+        }
+        return [
+            'status' => 'error',
+            'message' => 'Connection failed',
+        ];
     }
     
 }

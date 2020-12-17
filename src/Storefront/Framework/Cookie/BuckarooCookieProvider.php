@@ -30,7 +30,7 @@ class BuckarooCookieProvider implements CookieProviderInterface {
                 continue;
             }
 
-            foreach (['__cfduid','_gid','_ga','ARRAffinity','ARRAffinitySameSite'] as $key) {
+            foreach (['__cfduid','ARRAffinity','ARRAffinitySameSite'] as $key) {
                 $cookie['entries'][] = [
                     'snippet_name' => 'Buckaroo Payments - '.$key,
                     'cookie' => $key,

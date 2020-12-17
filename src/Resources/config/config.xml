@@ -78,10 +78,10 @@
 
         <input-field type="single-select">
             <name>pendingPaymentStatus</name>
-            <label lang="en-GB">Pending payment status</label>
+            <label>Pending payment status</label>
             <label lang="de-DE">Ausstehender Zahlungsstatus</label>
             <label lang="nl-NL">In afwachting van betalingsstatus</label>
-            <helpText lang="en-GB">This status will be given to orders pending payment.</helpText>
+            <helpText>This status will be given to orders pending payment.</helpText>
             <helpText lang="de-DE">Dieser Status wird für Bestellungen bis zur Zahlung vergeben.</helpText>
             <helpText lang="nl-NL">Deze status wordt gegeven aan bestellingen die in afwachting zijn van betaling.</helpText>
             <defaultValue>open</defaultValue>

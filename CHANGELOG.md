@@ -50,4 +50,7 @@ BP-201 Added payment method WeChatPay
 BP-204 Added payment method Trustly
 
 # 1.1.1
-BP-206 Shopware 6 - Add payment method KlarnaKP
+BP-206 Add payment method KlarnaKP
+
+# 1.1.2
+BP-584 Multiple issues after code review

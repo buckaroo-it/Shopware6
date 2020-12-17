@@ -20,6 +20,23 @@ class BuckarooPaymentSettingsService extends ApiService {
             return ApiService.handleResponse(response);
         });
     }
+
+    getApiTest(websiteKeyId, secretKeyId) {
+        const apiRoute = `_action/${this.getApiBasePath()}/getBuckarooApiTest`;
+
+        return this.httpClient.post(
+            apiRoute,
+            {
+                websiteKeyId: websiteKeyId,
+                secretKeyId: secretKeyId
+            },
+            {
+                headers: this.getBasicHeaders()
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
 }
 
 Application.addServiceProvider('BuckarooPaymentSettingsService', (container) => {

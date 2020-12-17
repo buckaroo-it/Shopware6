@@ -54,6 +54,21 @@ class SupportController extends StorefrontController
         return new JsonResponse($items);
     }
 
+    /**
+     * @Route("/api/v{version}/_action/buckaroo/getBuckarooApiTest", name="api.action.buckaroo.support.apitest", methods={"POST"})
+     * @param Request $request
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return JsonResponse
+     */
+    public function getBuckarooApiTest(Request $request)
+    {
+        $websiteKeyId = $request->get('websiteKeyId');
+        $secretKeyId = $request->get('secretKeyId');
+        $res = $this->checkoutHelper->getBuckarooApiTest($websiteKeyId, $secretKeyId);
+        return new JsonResponse($res);
+    }
+
     private function getPhpVersionArray()
     {
         $version = false;

@@ -41,6 +41,17 @@
 
     {% block buckaroo_payment_settings_content %}
     <template #content>
+
+        <sw-modal
+                v-if="isSupportMessageModalOpen"
+                @modal-close="isSupportMessageModalOpen = false"
+                :title="$tc('buckaroo-payment.supportModal.title')"
+                class="buckaroo-feedback sw-modal--large">
+            <sw-container columns="1fr">
+                {{ supportMessage }}
+            </sw-container>
+        </sw-modal>
+            
         <sw-modal
                 v-if="isSupportModalOpen"
                 @modal-close="isSupportModalOpen = false"
@@ -107,11 +118,14 @@
                     inherit
                     @config-changed="onConfigChange"
                     domain="BuckarooPayments.config">
-                <template #card-element="{ element, config }">
-                    <div v-show="displayField(element, config)">
-                    <sw-form-field-renderer
-                            v-bind="getBind(element, config)"
-                            v-model="config[element.name]"/>
+                <template #card-element="{ element, config, card}">
+                    <div v-show="displayField(element, config, card)">
+                        <sw-label variant="neutral" size="default" :ghost="false" :caps="false" :dismissable="true" v-if="showLabel(element, card)">{{getCardInfo(element, card, 'label')}}</sw-label>
+                        <sw-help-text :width="200" v-if="showHelpText(element, card)" :text="getCardInfo(element, card, 'helpText')" :width="400" tooltipPosition="right"></sw-help-text>
+                        <sw-form-field-renderer
+                                v-bind="getBind(element, config)"
+                                v-model="config[element.name]"/>
+                        <sw-button @click="sendTestApi" :disabled="false" v-if="showButtonAfter('orderStatus', element, card)" variant="primary" :square="false" :block="true" :isLoading="false">{{ $tc('buckaroo-payment.button.labelTestApi') }}</sw-button>
                     </div>
                 </template>
             </sw-system-config>

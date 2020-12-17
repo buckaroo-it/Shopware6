@@ -72,6 +72,9 @@
       }
     },
     "messageNotValid": "Dieses Feld ist ungültig.",
-    "messageNotBlank": "Dieses Feld darf nicht leer sein."
+    "messageNotBlank": "Dieses Feld darf nicht leer sein.",
+    "button": {
+      "labelTestApi": "Testverbindung"
+    }
   }
 }

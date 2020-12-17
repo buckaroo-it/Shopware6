@@ -22,7 +22,9 @@ Component.register('buckaroo-settings', {
             secretKeyIdFilled: false,
             showValidationErrors: false,
             phpversion: false,
+            supportMessage: false,
             isSupportModalOpen: false,
+            isSupportMessageModalOpen: false,
             isPhpVersionSupport: false,
             collapsibleState: {
                 'websiteKey': true,
@@ -88,6 +90,83 @@ Component.register('buckaroo-settings', {
     },
 
     methods: {
+        sendTestApi() {
+            var that = this,
+                websiteKeyId = this.getConfigValue('websiteKey'),
+                secretKeyId = this.getConfigValue('secretKey');
+            this.BuckarooPaymentSettingsService.getApiTest(websiteKeyId, secretKeyId)
+                .then((result) => {
+
+                    if(result.status == 'success'){
+                        this.createNotificationSuccess({
+                            title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
+                            message: result.message
+                        });
+                    }else{
+                        this.createNotificationError({
+                            title: that.$tc('buckaroo-payment.settingsForm.titleError'),
+                            message: result.message
+                        });  
+                    }
+
+                });
+        },
+        
+        getCardConfig(element, card) {
+            card.elements.forEach(el => {
+                if(el.name == element.name){
+                    return el.config;
+                }
+            });
+            return false;
+        },
+
+        showLabel(element, card) {
+            if(element.type == 'single-select'){
+                return true;
+            }
+            if(element.type == 'multi-select'){
+                return true;
+            }
+            return false;
+        },
+
+        showHelpText(element, card) {
+            if(this.showLabel(element, card)){
+                if(this.getCardInfo(element, card, 'helpText')){
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        showButtonAfter(name, element, card) {
+            if(element.name.includes(name)){
+                return true;
+            }
+            return false;
+        },
+        
+        getCardInfo(element, card, type) {
+            let text = '';
+            card.elements.forEach(el => {
+                if(el.name == element.name){
+                    if(el.config != undefined){
+                        switch (type) {
+                            case 'label':
+                                text = (el.config.label != undefined) ? el.config.label['en-GB'] : '';
+                            break;
+                            case 'helpText':
+                                text = (el.config.helpText != undefined) ? el.config.helpText['en-GB'] : '';
+                            break;
+                        }
+                    }
+                }
+
+            });
+            return text;
+        },
+
         createdComponent() {
             var me = this;
         },
