@@ -148,7 +148,7 @@ Component.register('buckaroo-settings', {
         },
         
         getLocale(config) {
-            const adminLocale = window.localStorage.getItem('sw-admin-locale');
+            let adminLocale = window.localStorage.getItem('sw-admin-locale');
             if (adminLocale == null) {
                 adminLocale = 'en-GB';
             }
