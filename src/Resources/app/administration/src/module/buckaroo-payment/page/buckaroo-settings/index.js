@@ -147,6 +147,17 @@ Component.register('buckaroo-settings', {
             return false;
         },
         
+        getLocale(config) {
+            const adminLocale = window.localStorage.getItem('sw-admin-locale');
+            if (adminLocale == null) {
+                adminLocale = 'en-GB';
+            }
+            if(config[adminLocale] != undefined){
+                return config[adminLocale];
+            }
+            return config['en-GB'];
+        },
+
         getCardInfo(element, card, type) {
             let text = '';
             card.elements.forEach(el => {
@@ -154,10 +165,10 @@ Component.register('buckaroo-settings', {
                     if(el.config != undefined){
                         switch (type) {
                             case 'label':
-                                text = (el.config.label != undefined) ? el.config.label['en-GB'] : '';
+                                text = (el.config.label != undefined) ? this.getLocale(el.config.label) : '';
                             break;
                             case 'helpText':
-                                text = (el.config.helpText != undefined) ? el.config.helpText['en-GB'] : '';
+                                text = (el.config.helpText != undefined) ? this.getLocale(el.config.helpText) : '';
                             break;
                         }
                     }

@@ -1816,20 +1816,28 @@ class CheckoutHelper
     }
 
     public function getBuckarooApiTest($websiteKeyId, $secretKeyId){
+        $this->settingsService->setSetting('websiteKey', $websiteKeyId);
+        $this->settingsService->setSetting('secretKey', $secretKeyId);
         $request = new TransactionRequest;
-        $url       = $this->getApiTestUrl();
+        $request->setServiceName('ideal');
+        $request->setServiceVersion('2');
+
+        $url       = $this->getTransactionUrl('ideal');
         $bkrClient = $this->helper->initializeBkr();
-        $response  = $bkrClient->post($url, $request);
-        if($response->getHttpCode() == '200'){
+        try {
+            $response  = $bkrClient->post($url, $request);
+            if($response->getHttpCode() == '200'){
+                return [
+                    'status' => 'success',
+                    'message' => 'Connection ready',
+                ];
+            }
+        } catch (Exception $e) {
             return [
-                'status' => 'success',
-                'message' => 'Connection ready',
+                'status' => 'error',
+                'message' => 'Connection failed',
             ];
         }
-        return [
-            'status' => 'error',
-            'message' => 'Connection failed',
-        ];
     }
     
 }

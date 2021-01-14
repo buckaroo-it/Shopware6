@@ -29,4 +29,9 @@ class SettingsService
     {
         return $this->systemConfigService->get('BuckarooPayments.config.' . $setting);
     }
+
+    public function setSetting(string $setting, $value)
+    {
+        return $this->systemConfigService->set('BuckarooPayments.config.' . $setting, $value);
+    }
 }

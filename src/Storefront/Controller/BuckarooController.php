@@ -177,6 +177,10 @@ class BuckarooController extends StorefrontController
 
     private $checkoutHelper;
 
+    private $defaultShippingMethodId;
+    
+    private $orderAddress;
+
     public function __construct(
         EntityRepositoryInterface $countryRepository,
         EntityRepositoryInterface $languageRepository,
