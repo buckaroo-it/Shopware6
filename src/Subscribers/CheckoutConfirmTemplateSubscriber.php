@@ -227,6 +227,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'media_path'               => $this->checkoutHelper->forwardToRoute('root.fallback') . 'bundles/buckaroopayments/storefront/buckaroo/logo/',
             'payment_media'            => $lastUsedCreditcard . '.png',
             'buckarooFee'              => $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee'),
+            'BillinkBusiness'          => $this->checkoutHelper->getSettingsValue('BillinkBusiness'),
         ]);
 
         $event->getPage()->addExtension(

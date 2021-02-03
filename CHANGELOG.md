@@ -55,3 +55,6 @@ BP-206 Add payment method KlarnaKP
 # 1.1.2
 BP-584 Multiple issues after code review
 BP-583 Add new bank to iDEAL payment method
+
+# 1.1.3
+BP-643 Add payment method Billink

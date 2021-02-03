@@ -11,7 +11,7 @@ export default class BuckarooPaymentHelper extends Plugin {
             }
         }
 
-        const buckarooMobileInputs = ['buckarooAfterpayPhone','buckarooIn3Phone'];
+        const buckarooMobileInputs = ['buckarooAfterpayPhone','buckarooIn3Phone','buckarooBillinkPhone'];
         for (const fieldId of buckarooMobileInputs) {
             const field = document.getElementById(fieldId);
             if (field) {
@@ -19,7 +19,7 @@ export default class BuckarooPaymentHelper extends Plugin {
             }
         }
 
-        const buckarooDoBInputs = ['buckaroo_afterpay_DoB','buckaroo_capayablein3_DoB'];
+        const buckarooDoBInputs = ['buckaroo_afterpay_DoB','buckaroo_capayablein3_DoB','buckaroo_billink_DoB'];
         for (const fieldId of buckarooDoBInputs) {
             const field = document.getElementById(fieldId);
             if (field) {
@@ -87,7 +87,7 @@ export default class BuckarooPaymentHelper extends Plugin {
             }
         }
 
-        const buckarooDoBInputs = ['buckaroo_afterpay_DoB','buckaroo_capayablein3_DoB'];
+        const buckarooDoBInputs = ['buckaroo_afterpay_DoB','buckaroo_capayablein3_DoB','buckaroo_billink_DoB'];
         for (const fieldId of buckarooDoBInputs) {
             const field = document.getElementById(fieldId);
             if (field) {
@@ -110,15 +110,15 @@ export default class BuckarooPaymentHelper extends Plugin {
     }
 
     _handleCheckDoB(field) {
-        document.getElementById('buckarooDoBPhoneError').style.display = 'none';
+        document.getElementById('buckarooDoBError').style.display = 'none';
         const x = new Date(Date.parse(field.value));
         if(x == 'Invalid Date'){
-            document.getElementById('buckarooDoBPhoneError').style.display = 'block';
+            document.getElementById('buckarooDoBError').style.display = 'block';
             return false;
         }
         const Cnow = new Date();
         if ((Cnow.getFullYear() - x.getFullYear() < 18) || x.getFullYear() < 1900){
-            document.getElementById('buckarooDoBPhoneError').style.display = 'block';
+            document.getElementById('buckarooDoBError').style.display = 'block';
             return false;
         }
         

@@ -866,6 +866,26 @@ class CheckoutHelper
         return $additional;
     }
 
+    public function getRefundBillinkArticleData($amount)
+    {
+        $additional[] = [
+            [
+                '_'       => $amount,
+                'Name'    => 'GrossUnitPriceIncl',
+                'GroupID' => 1,
+                'Group'   => 'Article',
+            ],
+            [
+                '_'       => 0,
+                'Name'    => 'VatPercentage',
+                'GroupID' => 1,
+                'Group'   => 'Article',
+            ],
+        ];
+
+        return $additional;
+    }
+
     public function getTransferData($order, $additional, $salesChannelContext, $dataBag)
     {
         $address = $this->getBillingAddress($order, $salesChannelContext);
@@ -1088,6 +1108,15 @@ class CheckoutHelper
 
         if ($customFields['serviceName'] == 'afterpay') {
             $additional = $this->getRefundArticleData($amount);
+            foreach ($additional as $key2 => $item3) {
+                foreach ($item3 as $key => $value) {
+                    $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
+                }
+            }
+        }
+
+        if ($customFields['serviceName'] == 'Billink') {
+            $additional = $this->getRefundBillinkArticleData($amount);
             foreach ($additional as $key2 => $item3) {
                 foreach ($item3 as $key => $value) {
                     $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
@@ -1706,15 +1735,15 @@ class CheckoutHelper
      * @param CustomerEntity $customer
      * @return string|null
      */
-    public function getGenderFromSalutation(CustomerEntity $customer): ?string
+    public function getGenderFromSalutation(CustomerEntity $customer, $format = ''): ?string
     {
         switch ($customer->getSalutation()->getSalutationKey()) {
             case 'mr':
-                return '1';
+                return $format?'Male':'1';
             case 'mrs':
-                return '2';
+                return $format?'Female':'2';
         }
-        return '0';
+        return $format?'Unknown':'0';
     }
 
     public function getProductLineData($order)

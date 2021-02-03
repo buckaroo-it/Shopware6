@@ -36,6 +36,7 @@ Component.register('buckaroo-settings', {
                 'idealprocessingEnabled': true,
                 'bancontactmrcashEnabled': true,
                 'afterpayEnabled': true,
+                'BillinkEnabled': true,
                 'sofortueberweisungEnabled': true,
                 'paypalEnabled': true,
                 'transferEnabled': true,

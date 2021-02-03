@@ -154,7 +154,7 @@
                        form="confirmOrderForm"
                        id="buckarooAfterpayPhone"
                        name="buckaroo_afterpay_phone"
-                       placeholder="{{ "buckaroo.checkout.buckarooAfterpayPhonePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                       placeholder="{{ "buckaroo.checkout.PhonePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                        value=""
                        required="required"
                        minlength="10">
@@ -177,7 +177,7 @@
                     required="required"
                     >
 
-                    <label class="form-label" style="display:none; color:red" for="buckaroo_afterpay_DoB" id="buckarooDoBPhoneError">
+                    <label class="form-label" style="display:none; color:red" for="buckaroo_afterpay_DoB" id="buckarooDoBError">
                         {{ "buckaroo.checkout.buckarooDoBError"|trans|sw_sanitize }}
                     </label>
                 </div>
@@ -190,6 +190,99 @@
                     <a target="_blank" href="https://documents.myafterpay.com/consumer-terms-conditions/nl_nl/">{{ "buckaroo.checkout.buckarooAfterpayTermsCondition"|trans }}</a>
                 </span>
             </div>
+
+        </fieldset>
+    </div>
+
+    {% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'Billink' %}
+        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
+        
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+
+    <div class="payment-method-second-col billing-address-form">
+        <fieldset class="fieldset payment">
+
+                <div class="form-group">
+                    <label class="form-label" for="buckarooBillinkPhone">
+                        {{ "buckaroo.checkout.Phone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                    </label>
+
+                    <input type="text"
+                           class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
+                           form="confirmOrderForm"
+                           id="buckarooBillinkPhone"
+                           name="buckaroo_billink_phone"
+                           placeholder="{{ "buckaroo.checkout.PhonePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                           value=""
+                           required="required"
+                           minlength="10">
+
+                    <label class="form-label" style="display:none; color:red" for="buckarooBillinkPhone" id="buckarooMobilePhoneError">
+                        {{ "buckaroo.checkout.buckarooMobilePhoneError"|trans|sw_sanitize }}
+                    </label>
+                </div>
+                
+            {% if page.extensions.buckaroo.BillinkBusiness == 'B2B' %}
+                <div class="form-group">
+                    <label class="form-label" for="buckarooChamberOfCommerce">
+                        {{ "buckaroo.checkout.ChamberOfCommerce"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                    </label>
+
+                    <input type="text"
+                           class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
+                           form="confirmOrderForm"
+                           id="buckarooChamberOfCommerce"
+                           name="buckaroo_ChamberOfCommerce"
+                           placeholder="{{ "buckaroo.checkout.ChamberOfCommercePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                           value=""
+                           required="required"
+                           minlength="3">
+
+                    <label class="form-label" style="display:none; color:red" for="buckarooChamberOfCommerce" id="buckarooChamberOfCommerceError">
+                        {{ "buckaroo.checkout.buckarooMobilePhoneError"|trans|sw_sanitize }}
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="buckarooVATNumber">
+                        {{ "buckaroo.checkout.VATNumber"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                    </label>
+
+                    <input type="text"
+                           class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
+                           form="confirmOrderForm"
+                           id="buckarooVATNumber"
+                           name="buckaroo_VATNumber"
+                           placeholder="{{ "buckaroo.checkout.VATNumberPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                           value=""
+                           required="required"
+                           minlength="3">
+
+                    <label class="form-label" style="display:none; color:red" for="buckarooVATNumber" id="buckarooVATNumberError">
+                        {{ "buckaroo.checkout.buckarooMobilePhoneError"|trans|sw_sanitize }}
+                    </label>
+                </div>
+            {% else %}
+
+                <div class="form-group">
+                    <label class="label" for="buckaroo_billink_DoB">{{ "buckaroo.checkout.buckarooAfterpayDoBTitle"|trans }}:</label>
+                    <span><sup>{{ "buckaroo.checkout.buckarooAfterpayDoBTitleSup"|trans }}</sup></span>
+                    <div class="control">
+                        <input id="buckaroo_billink_DoB" 
+                        class="form-control field" 
+                        type="date"
+                        max='{{ "now"|date_modify("-18 years")|date("Y-m-d") }}'
+                        name="buckaroo_billink_DoB"
+                        form="confirmOrderForm"
+                        required="required"
+                        >
+
+                        <label class="form-label" style="display:none; color:red" for="buckaroo_billink_DoB" id="buckarooDoBError">
+                            {{ "buckaroo.checkout.buckarooDoBError"|trans|sw_sanitize }}
+                        </label>
+                    </div>
+                </div>
+            {% endif %}
 
         </fieldset>
     </div>
@@ -212,7 +305,7 @@
                            form="confirmOrderForm"
                            id="buckarooIn3Phone"
                            name="buckaroo_in3_phone"
-                           placeholder="{{ "buckaroo.checkout.buckarooAfterpayPhonePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                           placeholder="{{ "buckaroo.checkout.PhonePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                            value=""
                            required="required"
                            minlength="10">
@@ -234,7 +327,7 @@
                         form="confirmOrderForm"
                         required="required"
                         >
-                    <label class="form-label" style="display:none; color:red" for="buckaroo_capayablein3_DoB" id="buckarooDoBPhoneError">
+                    <label class="form-label" style="display:none; color:red" for="buckaroo_capayablein3_DoB" id="buckarooDoBError">
                         {{ "buckaroo.checkout.buckarooDoBError"|trans|sw_sanitize }}
                     </label>
                     </div>
