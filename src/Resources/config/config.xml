@@ -1629,12 +1629,72 @@
 
     <card>
         <title>Klarna</title>
-                    
+        
+        <input-field type="bool">
+            <name>klarnaEnabled</name>
+            <label lang="en-GB">Enabled Klarna Pay later (pay)</label>
+            <label lang="nl-NL">Ingeschakeld Klarna Pay later (pay)</label>
+            <label lang="de-DE">Aktiviert Klarna Pay later (pay)</label>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>klarnaEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>klarnaLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Klarna: Pay later</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>klarnaFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>klarnaBusiness</name>
+            <label lang="en-GB">Klarna payment method:</label>
+            <label lang="de-DE">Klarna Zahlungsmethode:</label>
+            <label lang="nl-NL">Klarna betaalmethode</label>
+            <helpText>Select which paymethod must be used at Klarna.</helpText>
+            <helpText lang="de-DE">Wählen Sie aus, welche Zahlungsmethode bei Klarna verwendet werden muss.</helpText>
+            <helpText lang="nl-NL">Selecteer welke betaalmethode bij Klarna gebruikt moet worden.</helpText>
+            <defaultValue>B2C</defaultValue>
+            <options>
+                <option>
+                    <id>B2C</id>
+                    <name>B2C</name>
+                </option>
+                <option>
+                    <id>B2B</id>
+                    <name>B2B</name>
+                </option>
+            </options>
+        </input-field>
+
         <input-field type="bool">
             <name>klarnakpEnabled</name>
-            <label lang="en-GB">Enabled</label>
-            <label lang="nl-NL">Ingeschakeld</label>
-            <label lang="de-DE">Aktiviert</label>
+            <label lang="en-GB">Enabled Klarna Pay later (authorize/capture)</label>
+            <label lang="nl-NL">Ingeschakeld Klarna Pay later (authorize/capture)</label>
+            <label lang="de-DE">Aktiviert Klarna Pay later (authorize/capture)</label>
         </input-field>
        
         <input-field type="single-select">
@@ -1659,7 +1719,7 @@
             <name>klarnakpLabel</name>
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
-            <defaultValue>Klarna</defaultValue>
+            <defaultValue>Klarna: Pay later</defaultValue>
         </input-field>
 
         <input-field>
@@ -1668,6 +1728,67 @@
             <label lang="nl-NL">Buckaroo Vergoeding</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
+
+        <input-field type="bool">
+            <name>klarnainEnabled</name>
+            <label lang="en-GB">Enabled Klarna Pay later (pay)</label>
+            <label lang="nl-NL">Ingeschakeld Klarna Pay later (pay)</label>
+            <label lang="de-DE">Aktiviert Klarna Pay later (pay)</label>
+        </input-field>
+       
+        <input-field type="single-select">
+            <name>klarnainEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>klarnainLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Klarna: Slice it</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>klarnainFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>klarnainBusiness</name>
+            <label lang="en-GB">Klarna payment method:</label>
+            <label lang="de-DE">Klarna Zahlungsmethode:</label>
+            <label lang="nl-NL">Klarna betaalmethode</label>
+            <helpText>Select which paymethod must be used at Klarna.</helpText>
+            <helpText lang="de-DE">Wählen Sie aus, welche Zahlungsmethode bei Klarna verwendet werden muss.</helpText>
+            <helpText lang="nl-NL">Selecteer welke betaalmethode bij Klarna gebruikt moet worden.</helpText>
+            <defaultValue>B2C</defaultValue>
+            <options>
+                <option>
+                    <id>B2C</id>
+                    <name>B2C</name>
+                </option>
+                <option>
+                    <id>B2B</id>
+                    <name>B2B</name>
+                </option>
+            </options>
+        </input-field>
+
     </card>
 
     <card>

@@ -58,3 +58,6 @@ BP-583 Add new bank to iDEAL payment method
 
 # 1.1.3
 BP-643 Add payment method Billink
+
+# 1.1.4
+BP-683 Add Klarna 'Pay' and 'PayInInstallments'

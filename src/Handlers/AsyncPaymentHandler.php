@@ -72,7 +72,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         $order = $transaction->getOrder();
 
-        if ($buckarooKey == 'klarnakp') {
+        if (in_array($buckarooKey, ['klarnakp'])) {
             $request = new DataRequest;
         } else {
             $request = new TransactionRequest;
@@ -114,6 +114,12 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         }
 
         if ($buckarooKey == 'capayable') {
+            $request->setServiceAction('PayInInstallments');
+            $request->setOrder(null);
+        }
+
+        if ($buckarooKey == 'klarnain') {
+            $request->setServiceName('klarna');
             $request->setServiceAction('PayInInstallments');
             $request->setOrder(null);
         }

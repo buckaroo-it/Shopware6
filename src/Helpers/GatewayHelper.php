@@ -24,7 +24,9 @@ use Buckaroo\Shopware6\PaymentMethods\P24;
 use Buckaroo\Shopware6\PaymentMethods\Alipay;
 use Buckaroo\Shopware6\PaymentMethods\WeChatPay;
 use Buckaroo\Shopware6\PaymentMethods\Trustly;
+use Buckaroo\Shopware6\PaymentMethods\Klarna;
 use Buckaroo\Shopware6\PaymentMethods\KlarnaKp;
+use Buckaroo\Shopware6\PaymentMethods\Klarnain;
 use Buckaroo\Shopware6\PaymentMethods\Billink;
 
 class GatewayHelper
@@ -52,7 +54,9 @@ class GatewayHelper
         Alipay::class,
         WeChatPay::class,
         Trustly::class,
+        Klarna::class,
         KlarnaKp::class,
+        Klarnain::class,
         Billink::class
     ];
 }

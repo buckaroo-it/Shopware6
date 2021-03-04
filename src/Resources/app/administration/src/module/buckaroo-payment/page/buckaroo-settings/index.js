@@ -53,6 +53,8 @@ Component.register('buckaroo-settings', {
                 'AlipayEnabled': true,
                 'WeChatPayEnabled': true,
                 'TrustlyEnabled': true,
+                'klarnaEnabled': true,
+                'klarnainEnabled': true,
                 'klarnakpEnabled': true,
                 'advancedConfiguration': true,
             },

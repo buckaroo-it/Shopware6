@@ -2,24 +2,16 @@
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\KlarnaKpPaymentHandler;
+use Buckaroo\Shopware6\Handlers\KlarnaPaymentHandler;
 
-class KlarnaKp extends AbstractPayment
+class Klarna extends AbstractPayment
 {
     /*
      * @return string
      */
     public function getBuckarooKey(): string
     {
-        return 'klarnakp';
-    }
-
-    /**
-     * @return string
-     */
-    public function getVersion(): string
-    {
-        return '1';
+        return 'klarna';
     }
 
     /**
@@ -29,7 +21,7 @@ class KlarnaKp extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Klarna Pay later (authorize/capture)';
+        return 'Klarna Pay later (pay)';
     }
 
     /**
@@ -39,7 +31,15 @@ class KlarnaKp extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with Klarna';
+        return 'Pay with Klarna Pay later (pay)';
+    }
+
+    /**
+     * @return string
+     */
+    public function getVersion(): string
+    {
+        return '0';
     }
 
     /**
@@ -49,7 +49,7 @@ class KlarnaKp extends AbstractPayment
      */
     public function getPaymentHandler(): string
     {
-        return KlarnaKpPaymentHandler::class;
+        return KlarnaPaymentHandler::class;
     }
 
     /**
@@ -83,7 +83,7 @@ class KlarnaKp extends AbstractPayment
 
     public function canCapture(): bool
     {
-        return true;
+        return false;
     }
 
 }

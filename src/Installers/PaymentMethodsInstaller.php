@@ -200,7 +200,7 @@ class PaymentMethodsInstaller implements InstallerInterface
      */
     private function getMediaName(PaymentMethodInterface $paymentMethod): string
     {
-        return 'bkr_' . $paymentMethod->getName();
+        return md5($paymentMethod->getName());
     }
 
     /**
@@ -245,7 +245,7 @@ class PaymentMethodsInstaller implements InstallerInterface
             $this->setBuckarooPaymentSettingsValue($paymentMethod->getBuckarooKey(), $paymentMethod->getName(), 'Label');
         }
 
-        foreach ([['pendingPaymentStatus'=>'open'],['paymentSuccesStatus'=>'paid'],['paymentFailedStatus'=>'cancelled'],['orderStatus'=>'open'],['BillinkBusiness'=>'B2C']] as $key => $value) {
+        foreach ([['pendingPaymentStatus'=>'open'],['paymentSuccesStatus'=>'paid'],['paymentFailedStatus'=>'cancelled'],['orderStatus'=>'open'],['BillinkBusiness'=>'B2C','klarnaBusiness'=>'B2C','klarnainBusiness'=>'B2C']] as $key => $value) {
             $this->setBuckarooPaymentSettingsValue($key, $value);
         }
     }

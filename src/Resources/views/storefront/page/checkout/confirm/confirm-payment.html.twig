@@ -451,6 +451,47 @@
                            name="P24Currency">
         <div id="P24CurrencyError">To process the payment with Przelewy24 the currency must be set to polish Zloty</div>
 
+    {% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'klarna' or context.paymentMethod.translated.customFields.buckaroo_key == 'klarnain' %}
+        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
+
+        {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+
+        <div class="payment-method-second-col billing-address-form">
+            <fieldset class="fieldset payment">
+
+                <div class="form-group">
+                    <label class="form-label" for="buckarooKlarnaPhone">
+                        {{ "buckaroo.checkout.buckarooKlarnakpPhone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                    </label>
+
+                    <input type="text"
+                           class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
+                           form="confirmOrderForm"
+                           id="buckarooKlarnaPhone"
+                           name="buckaroo_klarna_phone"
+                           placeholder="{{ "buckaroo.checkout.buckarooKlarnakpPhonePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                           value=""
+                           required="required"
+                           minlength="10">
+                </div>
+
+                <div class="form-group">
+                    <label class="label" for="buckaroo_klarna_DoB">{{ "buckaroo.checkout.buckarooKlarnakpDoBTitle"|trans }}:</label>
+                    <span><sup>{{ "buckaroo.checkout.buckarooKlarnakpDoBTitleSup"|trans }}</sup></span>
+                    <div class="control">
+                        <input id="buckaroo_klarna_DoB"
+                               class="form-control field"
+                               type="date"
+                               name="buckaroo_klarna_DoB"
+                               form="confirmOrderForm"
+                               required="required"
+                        >
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
+
     {% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'klarnakp' %}
         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
 
