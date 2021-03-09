@@ -178,7 +178,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct             = new BuckarooStruct();
         $issuers            = $this->issuers;
-        $lastUsedCreditcard = $customer->getCustomFields()['last_used_creditcard'];
+        $lastUsedCreditcard = 'visa';
+        if($customFields = $customer->getCustomFields()){
+            if (isset($customFields['last_used_creditcard'])) {
+                $lastUsedCreditcard = $customFields['last_used_creditcard'];
+            }
+        }
         
         $creditcard = [];
         $allowedcreditcard = $this->helper->getSettingsValue('allowedcreditcard');
