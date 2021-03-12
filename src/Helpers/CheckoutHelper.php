@@ -63,6 +63,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use RuntimeException;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 
 class CheckoutHelper
 {
@@ -334,7 +335,8 @@ class CheckoutHelper
     {
         $order = $this->getOrderById($orderId, $context);
         foreach($statuses as $status){
-            if($order->getStateMachineState()->getTechnicalName() == $status){
+            $stateName = $this->getOrderTransactionStatesNameFromAction($status);
+            if($order->getStateMachineState()->getTechnicalName() == $stateName){
                 return true;
             }
         }
@@ -1385,21 +1387,36 @@ class CheckoutHelper
         return $this->translator->trans($id, $parameters);
     }
 
-    public function changeOrderStatus(string $orderId, Context $context, $status): void
+    public function changeOrderStatus(string $orderId, Context $context, $transitionName): void
     {
-        if($this->isOrderState([$status], $orderId, $context)){
+        if($this->isOrderState([$transitionName], $orderId, $context)){
             return;
         }
 
-        $this->stateMachineRegistry->transition(
-            new Transition(
-                'order',
-                $orderId,
-                $status,
-                'stateId'
-            ),
-            $context
-        );
+        if (isset($transitionName)) {
+            try {
+                $this->stateMachineRegistry->transition(
+                    new Transition(
+                        OrderDefinition::ENTITY_NAME,
+                        $orderId,
+                        $transitionName,
+                        'stateId'
+                    ),
+                    $context
+                );
+            } catch (Exception $e) {
+                $this->logger->addEntry(
+                    $e->getMessage(),
+                    $context,
+                    $e,
+                    [
+                        'function' => 'change-order-status',
+                    ]
+                );
+            }
+        }
+
+        return;
     }
 
     public function getBuckarooTransactionsByOrderId($orderId)
