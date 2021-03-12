@@ -21,7 +21,7 @@ class Billink extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Billink';
+        return 'Billink - achteraf betalen';
     }
 
     /**
@@ -31,7 +31,7 @@ class Billink extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with Billink';
+        return 'Pay with Billink - achteraf betalen';
     }
 
     /**
@@ -64,7 +64,7 @@ class Billink extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit Billink',
+                'description' => 'Bezahlen mit Billink - achteraf betalen',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),

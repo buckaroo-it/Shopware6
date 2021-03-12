@@ -1792,7 +1792,7 @@
     </card>
 
     <card>
-        <title>Billink</title>
+        <title>Billink - achteraf betalen</title>
 
         <input-field type="bool">
             <name>BillinkEnabled</name>
@@ -1823,7 +1823,7 @@
             <name>BillinkLabel</name>
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
-            <defaultValue>Billink</defaultValue>
+            <defaultValue>Billink - achteraf betalen</defaultValue>
         </input-field>
 
         <input-field>
