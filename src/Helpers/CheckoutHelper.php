@@ -309,12 +309,8 @@ class CheckoutHelper
     public function isSameState(string $actionName, string $orderTransactionId, Context $context): bool
     {
         $transaction    = $this->getOrderTransaction($orderTransactionId, $context);
-        $currentStateId = $transaction->getStateId();
-
-        $actionStatusTransition   = $this->getTransitionFromActionName($actionName, $context);
-        $actionStatusTransitionId = $actionStatusTransition->getId();
-
-        return $currentStateId === $actionStatusTransitionId;
+        $stateName = $this->getOrderTransactionStatesNameFromAction($actionName);
+        return $transaction->getStateMachineState()->getTechnicalName() == $stateName;
     }
 
     /**
