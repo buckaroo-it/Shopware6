@@ -79,6 +79,10 @@ class PushController extends StorefrontController
             return $this->json(['status' => false, 'message' => 'Signature from push is incorrect']);
         }
 
+        if(!$this->checkoutHelper->checkDuplicatePush()){
+            return $this->json(['status' => false, 'message' => 'Push already send']);
+        }
+
         if ($brqTransactionType != ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION) {
             $this->logger->info(__METHOD__ . "|10|");
             $this->checkoutHelper->saveBuckarooTransaction($request, $context);

@@ -64,6 +64,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use RuntimeException;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class CheckoutHelper
 {
@@ -109,6 +110,8 @@ class CheckoutHelper
     private $salesChannelRepository;
     /** @var LoggerInterface */
     private $logger;
+    /** @var Session */
+    private $session;
 
     /**
      * CheckoutHelper constructor.
@@ -140,6 +143,7 @@ class CheckoutHelper
         EntityRepositoryInterface $mailTemplateRepository,
         EntityRepositoryInterface $currencyRepository,
         EntityRepositoryInterface $salesChannelRepository,
+        Session $session,
         LoggerInterface $logger
     ) {
         $this->router                              = $router;
@@ -162,6 +166,7 @@ class CheckoutHelper
         $this->mailTemplateRepository = $mailTemplateRepository;
         $this->currencyRepository = $currencyRepository;
         $this->salesChannelRepository  = $salesChannelRepository;
+        $this->session = $session;
         $this->logger = $logger;
     }
 
@@ -1882,4 +1887,25 @@ class CheckoutHelper
         }
     }
     
+    public function checkDuplicatePush(){
+        $request  = $this->helper->getGlobals();
+        $postData = $_POST;
+        $signature = $this->calculateSignature($postData);
+
+        if($push = $this->session->get('_buckaroo_check_push')){
+            $push = json_decode($push);
+        }
+
+        if(!is_array($push)){
+            $push = [];
+        }
+        if(in_array($signature, $push)){
+            return false;
+        }
+        array_push($push, $signature);
+
+        $this->session->set('_buckaroo_check_push', json_encode($push));
+
+        return true;
+    }
 }

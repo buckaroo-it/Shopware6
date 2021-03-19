@@ -73,6 +73,7 @@
             <argument type="service" id="mail_template.repository"/>
             <argument type="service" id="currency.repository" />
             <argument type="service" id="sales_channel.repository" />
+            <argument type="service" id="session"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
         </service>
 
