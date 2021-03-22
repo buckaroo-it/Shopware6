@@ -1326,6 +1326,24 @@ class CheckoutHelper
         return $signature;
     }
 
+    protected function calculatePushHash($postData)
+    {
+        $copyData = $postData;
+        unset($copyData['brq_signature']);
+        unset($copyData['brq_timestamp']);
+        unset($copyData['brq_customer_name']);
+
+        $sortableArray = $this->buckarooArraySort($copyData);
+
+        $calculatedString = Date("YmdHi");
+        foreach ($sortableArray as $brq_key => $value) {
+            $value = $this->decodePushValue($brq_key, $value);
+            $calculatedString .= $brq_key . '=' . $value;
+        }
+
+        return SHA1($calculatedString);
+    }
+
     /**
      * @param string $brq_key
      * @param string $brq_value
@@ -1887,24 +1905,22 @@ class CheckoutHelper
         }
     }
     
-    public function checkDuplicatePush(){
+    public function checkDuplicatePush($order, $orderTransactionId, $context){
         $request  = $this->helper->getGlobals();
         $postData = $_POST;
-        $signature = $this->calculateSignature($postData);
+        $calculated = $this->calculatePushHash($postData);
+        $this->logger->info(__METHOD__ . "|calculated|". $calculated);
 
-        if($push = $this->session->get('_buckaroo_check_push')){
-            $push = json_decode($push);
-        }
+        $customFields = $this->getCustomFields($order, $context);
+        $pushHash = isset($customFields['pushHash']) ? $customFields['pushHash'] : '';
 
-        if(!is_array($push)){
-            $push = [];
-        }
-        if(in_array($signature, $push)){
+        $this->logger->info(__METHOD__ . "|pushHash|". $pushHash);
+        $customFields['pushHash'] = $calculated;
+        $this->updateTransactionCustomFields($orderTransactionId, $customFields);
+        if($pushHash == $calculated){
+            $this->logger->info(__METHOD__ . "|pushHash == calculated|");
             return false;
         }
-        array_push($push, $signature);
-
-        $this->session->set('_buckaroo_check_push', json_encode($push));
 
         return true;
     }

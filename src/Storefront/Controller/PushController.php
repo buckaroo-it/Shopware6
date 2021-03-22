@@ -79,7 +79,8 @@ class PushController extends StorefrontController
             return $this->json(['status' => false, 'message' => 'Signature from push is incorrect']);
         }
 
-        if(!$this->checkoutHelper->checkDuplicatePush()){
+        $order = $this->checkoutHelper->getOrderById($brqOrderId, $context);
+        if(!$this->checkoutHelper->checkDuplicatePush($order, $orderTransactionId, $context)){
             return $this->json(['status' => false, 'message' => 'Push already send']);
         }
 
@@ -90,7 +91,6 @@ class PushController extends StorefrontController
 
         $transaction = $this->checkoutHelper->getOrderTransaction($orderTransactionId, $context);
 
-        $order = $this->checkoutHelper->getOrderById($brqOrderId, $context);
         $totalPrice  = $order->getPrice()->getTotalPrice();
 
         //Check if the push is a refund request or cancel authorize
