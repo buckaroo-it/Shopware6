@@ -1906,6 +1906,8 @@ class CheckoutHelper
     }
     
     public function checkDuplicatePush($order, $orderTransactionId, $context){
+        $rand = range(0,6,2); shuffle($rand);
+        sleep(array_shift($rand));
         $request  = $this->helper->getGlobals();
         $postData = $_POST;
         $calculated = $this->calculatePushHash($postData);
