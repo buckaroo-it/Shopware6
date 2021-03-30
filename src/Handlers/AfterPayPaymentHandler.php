@@ -227,6 +227,13 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ];
+        }elseif(!empty($address->getAdditionalAddressLine1())){
+            $billingData[] = [
+                '_'       => $address->getAdditionalAddressLine1(),
+                'Name'    => 'StreetNumber',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ]; 
         }
 
         if (!empty($streetFormat['number_addition'])) {
@@ -236,6 +243,13 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ];
+        }elseif(!empty($address->getAdditionalAddressLine2())){
+            $billingData[] = [
+                '_'       => $address->getAdditionalAddressLine2(),
+                'Name'    => 'StreetNumberAdditional',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ]; 
         }
 
         if ($address->getCountry()->getIso() == 'NL' || $address->getCountry()->getIso() == 'BE') {
@@ -325,11 +339,25 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                 'Group'   => 'ShippingCustomer',
                 'GroupID' => '',
             ];
+        }elseif (!empty($shippingAddress->getAdditionalAddressLine1())) {
+            $shippingData[] = [
+                '_'       => $shippingAddress->getAdditionalAddressLine1(),
+                'Name'    => 'StreetNumber',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ];
         }
 
         if (!empty($shippingStreetFormat['number_addition'])) {
             $shippingData[] = [
                 '_'       => $shippingStreetFormat['number_addition'],
+                'Name'    => 'StreetNumberAdditional',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ];
+        }elseif(!empty($shippingAddress->getAdditionalAddressLine2())){
+            $shippingData[] = [
+                '_'       => $shippingAddress->getAdditionalAddressLine2(),
                 'Name'    => 'StreetNumberAdditional',
                 'Group'   => 'ShippingCustomer',
                 'GroupID' => '',
