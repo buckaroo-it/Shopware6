@@ -1782,6 +1782,17 @@ class CheckoutHelper
         return $format?'Unknown':'0';
     }
 
+    public function getSalutation(CustomerEntity $customer): ?string
+    {
+        switch ($customer->getSalutation()->getSalutationKey()) {
+            case 'mrs':
+                return 'Mrs';
+            case 'miss':
+                return 'Miss';
+        }
+        return 'Mr';
+    }
+
     public function getProductLineData($order)
     {
         $lines = $this->getOrderLinesArray($order);

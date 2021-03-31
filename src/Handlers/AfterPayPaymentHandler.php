@@ -150,7 +150,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         $streetFormat  = $this->checkoutHelper->formatStreet($address->getStreet());
         $birthDayStamp = $dataBag->get('buckaroo_afterpay_DoB');
         $address->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
-        $salutation = $customer->getSalutation()->getSalutationKey();
+        $salutation = $this->checkoutHelper->getSalutation($customer);
         
         $shippingAddress->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
         $shippingStreetFormat  = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
