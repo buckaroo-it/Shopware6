@@ -957,13 +957,6 @@
             <defaultValue>Buckaroo Giftcards</defaultValue>
         </input-field>
 
-        <input-field>
-            <name>giftcardsFee</name>
-            <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-        </input-field>
-
         <input-field type="multi-select">
             <name>allowedgiftcards</name>
             <label lang="en-GB">Allowed Giftcards:</label>
