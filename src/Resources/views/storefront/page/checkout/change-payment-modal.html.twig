@@ -1,0 +1,12 @@
+{% sw_extends '@Storefront/storefront/page/checkout/change-payment-modal.html.twig' %}
+
+{# Hide submit and cancel button #}
+{% block page_checkout_change_payment_form_submit %}
+    {% if shopware.config.BuckarooPayments.config.showPaymentMethodsList == false %}
+        <button class="btn btn-primary" type="submit">
+            {{ "checkout.confirmChangePaymentShippingSave"|trans|sw_sanitize }}
+        </button>
+    {% endif %}
+{% endblock %}
+
+{% block page_checkout_change_payment_cancel %}{% endblock %}

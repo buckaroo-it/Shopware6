@@ -31,6 +31,7 @@
       "buckarooError": "Bitte geben sie einen gültigen Wert ein",
       "buckarooKlarnakpPhone": "Phone",
       "buckarooKlarnakpPhonePlaceholder": "Enter your phone here...",
+      "buckarooP24CurrencyError": "Um die Zahlung mit Przelewy24 zu verarbeiten, muss die Währung so eingestellt sein, dass Zloty poliert wird",
       "salutation": "Salutation",
       "mr": "Mr.",
       "mrs": "Mrs.",

@@ -31,6 +31,7 @@
       "buckarooError": "Vul alstublieft een geldige waarde in",
       "buckarooKlarnakpPhone": "Phone",
       "buckarooKlarnakpPhonePlaceholder": "Enter your phone here...",
+      "buckarooP24CurrencyError": "Om de betaling met Przelewy24 te verwerken, moet de valuta worden ingesteld op Poolse Zloty",
       "salutation": "Salutation",
       "mr": "Mr.",
       "mrs": "Mrs.",

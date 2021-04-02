@@ -31,6 +31,7 @@
       "buckarooError": "Veuillez entrer une valeur valide",
       "buckarooKlarnakpPhone": "Téléphone",
       "buckarooKlarnakpPhonePlaceholder": "Entrez votre téléphone ici ...",
+      "buckarooP24CurrencyError": "Pour traiter le paiement avec Przelewy24, la devise doit être définie sur le Zloty polonais",
       "salutation": "Salutation",
       "mr": "M.",
       "mrs": "Mme.",

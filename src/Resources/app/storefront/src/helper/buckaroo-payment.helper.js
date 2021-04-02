@@ -1,8 +1,21 @@
 import Plugin from 'src/plugin-system/plugin.class';
+import DomAccess from 'src/helper/dom-access.helper';
+import Iterator from 'src/helper/iterator.helper';
 
 export default class BuckarooPaymentHelper extends Plugin {
     init() {
+        try {
+            this._form = DomAccess.querySelector(document, '#confirmPaymentForm');
+            this._registerEvents();
+        } catch (e) {
+            // do nothing
+            console.log('init error', e);
+        }
+    }
+
+    _registerEvents() {
         this._checkCompany();
+
         const buckarooInputs = ['buckaroo_capayablein3_OrderAs'];
         for (const fieldId of buckarooInputs) {
             const field = document.getElementById(fieldId);
@@ -36,6 +49,22 @@ export default class BuckarooPaymentHelper extends Plugin {
                 document.getElementById('P24CurrencyError').style.display = 'block';
             }
         }
+
+        const radios = DomAccess.querySelectorAll(this._form, '.payment-method-input');
+        Iterator.iterate(radios, (radio) => {
+            radio.addEventListener('click', this._onRadioClick.bind(this));
+        });
+
+        const submitButton = DomAccess.querySelector(document, '#confirmFormSubmit');
+        submitButton.addEventListener('click', this._onOrderSubmit.bind(this));
+    }
+
+    _onRadioClick() {
+        this._form.submit();
+    }
+
+    _onOrderSubmit(e) {
+        console.log('_onOrderSubmit', e);
     }
 
     _checkCompany() {

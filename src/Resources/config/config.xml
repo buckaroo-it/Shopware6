@@ -76,6 +76,16 @@
             <helpText lang="nl-NL">Stuur een mail na succesvolle betaling.</helpText>
         </input-field>
 
+        <input-field type="bool">
+            <name>showPaymentMethodsList</name>
+            <label lang="en-GB">Display all payment methods on the checkout page</label>
+            <label lang="de-DE">Zeigen Sie alle Zahlungsmethoden auf der Checkout-Seite an</label>
+            <label lang="nl-NL">Geef alle betaalmethoden weer op de afrekenpagina</label>
+            <helpText lang="en-GB">Display all payment methods on the checkout page</helpText>
+            <helpText lang="de-DE">Zeigen Sie alle Zahlungsmethoden auf der Checkout-Seite an</helpText>
+            <helpText lang="nl-NL">Geef alle betaalmethoden weer op de afrekenpagina</helpText>
+        </input-field>
+
         <input-field type="single-select">
             <name>pendingPaymentStatus</name>
             <label>Pending payment status</label>

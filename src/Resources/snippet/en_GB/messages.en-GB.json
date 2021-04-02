@@ -44,6 +44,7 @@
       "ChamberOfCommercePlaceholder": "Enter your COC here...",
       "VATNumber": "VAT number",
       "VATNumberPlaceholder": "Enter your VAT number here...",
+      "buckarooP24CurrencyError": "To process the payment with Przelewy24 the currency must be set to polish Zloty",
       "creditcards": {
         "card": "Card",
         "cardholder": "Cardholder",
