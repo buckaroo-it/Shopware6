@@ -1,43 +1,9 @@
 {% sw_extends '@Storefront/storefront/page/checkout/summary.html.twig' %}
 
-{% block page_checkout_summary_total %}
+{% block page_checkout_summary_inner %}
+
+    {% sw_include '@BuckarooPayments/storefront/page/checkout/summary/summary-buckaroo-fee.html.twig' with { 'summary': summary } %}
+
+    {{ parent() }}
     
-    {% if page.extensions.buckaroo.buckarooFee > 0 %}
-        <dt class="col-7 checkout-aside-summary-label">
-            {{ "buckaroo.fee"|trans|sw_sanitize }}
-        </dt>
-        <dd class="col-5 checkout-aside-summary-value">
-            {{ page.extensions.buckaroo.buckarooFee|currency }}{{ "general.star"|trans|sw_sanitize }}
-        </dd>
-    {% endif %}
-
-    {% if page.order.customFields.buckarooFee > 0 %}
-    <dt class="col-7 checkout-aside-summary-label">
-            {{ "buckaroo.fee"|trans|sw_sanitize }}
-        </dt>
-        <dd class="col-5 checkout-aside-summary-value">
-            {% if page.header.activeCurrency.isoCode == "PLN" %}
-                PLN
-            {% else %}
-                {{ page.header.activeCurrency.symbol }}
-            {% endif %}
-            {{ "%.2f"|format(page.order.customFields.buckarooFee) }}{{ "general.star"|trans|sw_sanitize }}
-        </dd>
-    {% endif %}
-
-    {% block page_checkout_summary_total_label %}
-        <dt class="col-7 checkout-aside-summary-label checkout-aside-summary-total">
-            {{ "checkout.summaryTotalPrice"|trans|sw_sanitize }}
-        </dt>
-    {% endblock %}
-
-    {% block page_checkout_summary_total_value %}
-        <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total">
-            {% if page.extensions.buckaroo.buckarooFee > 0 %}
-                {{ (summary.price.totalPrice + page.extensions.buckaroo.buckarooFee)|currency }}{{ "general.star"|trans|sw_sanitize }}
-            {% else %}
-                {{ summary.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
-            {% endif %}
-        </dd>
-    {% endblock %}
 {% endblock %}

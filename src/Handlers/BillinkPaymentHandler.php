@@ -234,6 +234,13 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ];
+        }elseif(!empty($address->getAdditionalAddressLine1())){
+            $billingData[] = [
+                '_'       => $address->getAdditionalAddressLine1(),
+                'Name'    => 'StreetNumber',
+                'Group'   => 'BillingCustomer',
+                'GroupID' => '',
+            ]; 
         }
 
         if (!empty($streetFormat['number_addition'])) {
@@ -243,14 +250,21 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ];
-        }
-
+        }elseif(!empty($address->getAdditionalAddressLine2())){
             $billingData[] = [
-                '_'       => $salutation,
-                'Name'    => 'Salutation',
+                '_'       => $address->getAdditionalAddressLine2(),
+                'Name'    => 'StreetNumberAdditional',
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
-            ];
+            ]; 
+        }
+
+        $billingData[] = [
+            '_'       => $salutation,
+            'Name'    => 'Salutation',
+            'Group'   => 'BillingCustomer',
+            'GroupID' => '',
+        ];
 
         if ($birthDayStamp) {
             $billingData[] = [
@@ -358,6 +372,13 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
                 'Group'   => 'ShippingCustomer',
                 'GroupID' => '',
             ];
+        }elseif (!empty($shippingAddress->getAdditionalAddressLine1())) {
+            $shippingData[] = [
+                '_'       => $shippingAddress->getAdditionalAddressLine1(),
+                'Name'    => 'StreetNumber',
+                'Group'   => 'ShippingCustomer',
+                'GroupID' => '',
+            ];
         }
 
         if (!empty($shippingStreetFormat['number_addition'])) {
@@ -367,14 +388,21 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
                 'Group'   => 'ShippingCustomer',
                 'GroupID' => '',
             ];
-        }
-
+        }elseif(!empty($shippingAddress->getAdditionalAddressLine2())){
             $shippingData[] = [
-                '_'       => $salutation,
-                'Name'    => 'Salutation',
+                '_'       => $shippingAddress->getAdditionalAddressLine2(),
+                'Name'    => 'StreetNumberAdditional',
                 'Group'   => 'ShippingCustomer',
                 'GroupID' => '',
             ];
+        }
+
+        $shippingData[] = [
+            '_'       => $salutation,
+            'Name'    => 'Salutation',
+            'Group'   => 'ShippingCustomer',
+            'GroupID' => '',
+        ];
 
         if ($birthDayStamp) {
             $shippingData[] = [

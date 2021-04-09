@@ -215,11 +215,21 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
                 '_'       => $streetFormat['house_number'],
                 'Name'    => 'BillingHouseNumber',
             ];
+        }elseif(!empty($address->getAdditionalAddressLine1())){
+            $billingData[] = [
+                '_'       => $address->getAdditionalAddressLine1(),
+                'Name'    => 'BillingHouseNumber',
+            ];
         }
 
         if (!empty($streetFormat['number_addition'])) {
             $billingData[] = [
                 '_'       => $streetFormat['number_addition'],
+                'Name'    => 'BillingHouseNumberSuffix',
+            ];
+        }elseif(!empty($address->getAdditionalAddressLine2())){
+            $billingData[] = [
+                '_'       => $address->getAdditionalAddressLine2(),
                 'Name'    => 'BillingHouseNumberSuffix',
             ];
         }
@@ -264,11 +274,21 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
                 '_'       => $shippingStreetFormat['house_number'],
                 'Name'    => 'ShippingHouseNumber',
             ];
+        }elseif (!empty($shippingAddress->getAdditionalAddressLine1())) {
+            $shippingData[] = [
+                '_'       => $shippingAddress->getAdditionalAddressLine1(),
+                'Name'    => 'ShippingHouseNumber',
+            ];
         }
 
         if (!empty($shippingStreetFormat['number_addition'])) {
             $shippingData[] = [
                 '_'       => $shippingStreetFormat['number_addition'],
+                'Name'    => 'ShippingHouseNumberSuffix',
+            ];
+        }elseif(!empty($shippingAddress->getAdditionalAddressLine2())){
+            $shippingData[] = [
+                '_'       => $shippingAddress->getAdditionalAddressLine2(),
                 'Name'    => 'ShippingHouseNumberSuffix',
             ];
         }

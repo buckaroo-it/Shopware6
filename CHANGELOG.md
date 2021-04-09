@@ -61,3 +61,6 @@ BP-643 Add payment method Billink
 
 # 1.1.4
 BP-683 Add Klarna 'Pay' and 'PayInInstallments'
+
+# 1.2.0
+BP-765 Update to Shopware 6.4 and test

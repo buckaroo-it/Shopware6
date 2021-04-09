@@ -24,6 +24,7 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 
 /**
+ * @RouteScope(scopes={"storefront"})
  */
 class PushController extends StorefrontController
 {
@@ -176,7 +177,6 @@ class PushController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/buckaroo/finalize", name="buckaroo.payment.finalize", defaults={"csrf_protected"=false}, methods={"POST","GET"})
      *
      * @param Request $request

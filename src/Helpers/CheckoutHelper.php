@@ -53,7 +53,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Exception;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
-use Shopware\Core\Content\MailTemplate\Service\MailService;
+use Shopware\Core\Content\Mail\Service\MailService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -1363,6 +1363,7 @@ class CheckoutHelper
             case 'brq_DueDate':
             case 'brq_PreviousStepDateTime':
             case 'brq_EventDateTime':
+            case 'brq_customer_name':
                 $decodedValue = $brq_value;
                 break;
             default:
@@ -1476,7 +1477,7 @@ class CheckoutHelper
                 'vat'                 => $vat_show,
                 'total_excluding_vat' => $vat ? round(($amount - (($amount / 100) * $vat)), 2) : $amount,
                 'transaction_method'  => $buckarooTransactionEntity->get("transaction_method"),
-                'created_at'          => Date("Y-m-d H:i:s", strtotime($buckarooTransactionEntity->get("created_at")->date)),
+                'created_at'          => $buckarooTransactionEntity->get("created_at")->format('Y-m-d H:i:s'),
             ];
 
             if ($buckarooTransactionEntity->get("amount") && $buckarooTransactionEntity->get("statuscode")==ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
@@ -1586,11 +1587,11 @@ class CheckoutHelper
         $criteria->addFilter(new EqualsFilter('mailTemplateType.technicalName', $technicalName));
         $criteria->setLimit(1);
 
-        if ($order->getSalesChannelId()) {
+/*        if ($order->getSalesChannelId()) {
             $criteria->addFilter(
                 new EqualsFilter('mail_template.salesChannels.salesChannel.id', $order->getSalesChannelId())
             );
-        }
+        }*/
 
         /** @var MailTemplateEntity|null $mailTemplate */
         $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();

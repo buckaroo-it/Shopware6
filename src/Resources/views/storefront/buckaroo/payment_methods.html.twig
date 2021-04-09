@@ -1,7 +1,8 @@
-{% if context.paymentMethod.translated.customFields.buckaroo_key == 'ideal' or context.paymentMethod.translated.customFields.buckaroo_key == 'idealprocessing' %}
+{% if context.paymentMethod.translated.customFields.buckaroo_key == payment.translated.customFields.buckaroo_key %}
+{% if payment.translated.customFields.buckaroo_key == 'ideal' or payment.translated.customFields.buckaroo_key == 'idealprocessing' %}
 <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
     
-    {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
 
     {% if page.extensions.buckaroo.issuers|length > 0 %}
         <div>
@@ -24,15 +25,16 @@
         </div>
     {% endif %}
 
-{% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'creditcard' %}
+{% elseif payment.translated.customFields.buckaroo_key == 'creditcard' %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
     {{ page.extensions.buckaroo.payment_method_name_card }}
-
-{% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'creditcards' %}
+    {% include '@BuckarooPayments/storefront/buckaroo/creditcards/creditcards.html.twig' %}
+    
+{% elseif payment.translated.customFields.buckaroo_key == 'creditcards' %}
 
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
     
-    {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
 
     {% if page.extensions.buckaroo.creditcards|length > 0 %}
 
@@ -112,10 +114,10 @@
 
     {% endif %}
 
-{% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'afterpay' %}
+{% elseif payment.translated.customFields.buckaroo_key == 'afterpay' %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
     
-    {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
 
 <div class="payment-method-second-col billing-address-form">
     <fieldset class="fieldset payment">
@@ -170,10 +172,10 @@
     </fieldset>
 </div>
 
-{% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'Billink' %}
+{% elseif payment.translated.customFields.buckaroo_key == 'Billink' %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
     
-    {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
 
 <div class="payment-method-second-col billing-address-form">
     <fieldset class="fieldset payment">
@@ -263,10 +265,10 @@
     </fieldset>
 </div>
 
-{% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'capayable' %}
+{% elseif payment.translated.customFields.buckaroo_key == 'capayable' %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
     
-    {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
 
     <div class="payment-method-second-col billing-address-form">
         <fieldset class="fieldset payment">
@@ -350,10 +352,10 @@
         </fieldset>
     </div>
 
-{% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'giropay' %}
+{% elseif payment.translated.customFields.buckaroo_key == 'giropay' %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
     
-    {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
 
 <div class="payment-method-second-col billing-address-form">
     <fieldset class="fieldset payment">
@@ -375,10 +377,10 @@
     </fieldset>
 </div>
 
-{% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'sepadirectdebit' %}
+{% elseif payment.translated.customFields.buckaroo_key == 'sepadirectdebit' %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
     
-    {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
 
         <div class="payment-method-second-col billing-address-form">
             <fieldset class="fieldset payment">
@@ -415,9 +417,9 @@
         </fieldset>
     </div>
 
-{% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'Przelewy24' %}
+{% elseif payment.translated.customFields.buckaroo_key == 'Przelewy24' %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
-    {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
 
     <input type="hidden"
                        value="{{ page.extensions.buckaroo.currency }}"
@@ -427,10 +429,10 @@
                        name="P24Currency">
     <div id="P24CurrencyError">{{ "buckaroo.checkout.buckarooP24CurrencyError"|trans|sw_sanitize }}</div>
 
-{% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'klarna' or context.paymentMethod.translated.customFields.buckaroo_key == 'klarnain' %}
+{% elseif payment.translated.customFields.buckaroo_key == 'klarna' or payment.translated.customFields.buckaroo_key == 'klarnain' %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
 
-    {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
 
     <div class="payment-method-second-col billing-address-form">
         <fieldset class="fieldset payment">
@@ -468,10 +470,10 @@
         </fieldset>
     </div>
 
-{% elseif context.paymentMethod.translated.customFields.buckaroo_key == 'klarnakp' %}
+{% elseif payment.translated.customFields.buckaroo_key == 'klarnakp' %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
 
-    {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
 
     <div class="payment-method-second-col billing-address-form">
         <fieldset class="fieldset payment">
@@ -511,7 +513,8 @@
 
 {% else %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
-    {{ page.extensions.buckaroo.payment_labels[context.paymentMethod.translated.customFields.buckaroo_key]?:context.paymentMethod.translated.name }}
+    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
 {% endif %}
 
+{% endif %}
 <br>

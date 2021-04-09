@@ -10,8 +10,12 @@ export default class BuckarooPaymentCreditcards extends Plugin {
                     field.addEventListener('change', this._handleInputChanged.bind(this));
                 }
             }
+            const field = document.getElementById('creditcards_issuer');
+            if (field) {
+                document.getElementById('card_kind_img').setAttribute('src', field.options[field.selectedIndex].getAttribute('data-logo'));
+            }
             this._getEncryptedData();
-            this._CheckValidate();
+            // this._CheckValidate();
         });
     }
 

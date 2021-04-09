@@ -25,7 +25,7 @@ class SupportController extends StorefrontController
     }
 
     /**
-     * @Route("/api/v{version}/_action/buckaroo/version", name="api.action.buckaroo.version", methods={"POST","GET"})
+     * @Route("/api/_action/buckaroo/version", name="api.action.buckaroo.version", methods={"POST","GET"})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *
@@ -41,7 +41,7 @@ class SupportController extends StorefrontController
     }
 
     /**
-     * @Route("/api/v{version}/_action/buckaroo/getBuckarooTransaction", name="api.action.buckaroo.support.version", methods={"POST"})
+     * @Route("/api/_action/buckaroo/getBuckarooTransaction", name="api.action.buckaroo.support.version", methods={"POST"})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *
@@ -55,7 +55,7 @@ class SupportController extends StorefrontController
     }
 
     /**
-     * @Route("/api/v{version}/_action/buckaroo/getBuckarooApiTest", name="api.action.buckaroo.support.apitest", methods={"POST"})
+     * @Route("/api/_action/buckaroo/getBuckarooApiTest", name="api.action.buckaroo.support.apitest", methods={"POST"})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *

@@ -53,7 +53,7 @@ class RefundController extends StorefrontController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/_action/buckaroo/refund", name="api.action.buckaroo.refund", methods={"POST"})
+     * @Route("/api/_action/buckaroo/refund", name="api.action.buckaroo.refund", methods={"POST"})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *

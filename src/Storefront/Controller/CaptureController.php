@@ -58,7 +58,7 @@ class CaptureController extends StorefrontController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/_action/buckaroo/capture", name="api.action.buckaroo.capture", methods={"POST"})
+     * @Route("/api/_action/buckaroo/capture", name="api.action.buckaroo.capture", methods={"POST"})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *

@@ -5,7 +5,8 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        
+        <defaults public="true" />
+
         <!-- Entity -->
         <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityDefinition">
             <tag name="shopware.entity.definition" entity="buckaroo_transaction" />
@@ -69,7 +70,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <argument type="service" id="document.repository"/>
-            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
             <argument type="service" id="mail_template.repository"/>
             <argument type="service" id="currency.repository" />
             <argument type="service" id="sales_channel.repository" />
@@ -283,6 +284,9 @@
         <!-- Controllers -->
         <service id="Buckaroo\Shopware6\Storefront\Controller\SupportController" public="true">
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <service id="Buckaroo\Shopware6\Storefront\Controller\PushController" public="true">
@@ -290,6 +294,9 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="order.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <service id="Buckaroo\Shopware6\Storefront\Controller\BuckarooController" public="true">
@@ -316,12 +323,18 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="order_address.repository" />
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <service id="Buckaroo\Shopware6\Storefront\Controller\RefundController" public="true">
             <argument type="service" id="order_transaction.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="order.repository" />
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <service id="Buckaroo\Shopware6\Storefront\Controller\CaptureController" public="true">
@@ -329,6 +342,9 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="order.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <!-- /Controllers -->
