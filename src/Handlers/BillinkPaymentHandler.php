@@ -61,6 +61,12 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
             $additional[] = [
                 [
                     '_'       => 'buckarooFee',
+                    'Name'    => 'Description',
+                    'GroupID' => $latestKey,
+                    'Group'   => 'Article',
+                ],
+                [
+                    '_'       => 'buckarooFee',
                     'Name'    => 'Identifier',
                     'Group'   => 'Article',
                     'GroupID' => $latestKey,
@@ -94,6 +100,12 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
         $lines = $this->checkoutHelper->getOrderLinesArray($order);
         foreach ($lines as $key => $item) {
             $additional[] = [
+                [
+                    '_'       => $item['name'],
+                    'Name'    => 'Description',
+                    'GroupID' => $latestKey,
+                    'Group'   => 'Article',
+                ],
                 [
                     '_'       => $item['sku'],
                     'Name'    => 'Identifier',
