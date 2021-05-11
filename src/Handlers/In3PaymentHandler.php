@@ -67,7 +67,7 @@ class In3PaymentHandler extends AsyncPaymentHandler
             $this->checkoutHelper->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_DoB'), 'BirthDate', 'Person'),
             
             $this->checkoutHelper->getRequestParameterRow($streetData['street'], 'Street', 'Address'),
-            $this->checkoutHelper->getRequestParameterRow($streetData['house_number'], 'HouseNumber', 'Address'),
+            $this->checkoutHelper->getRequestParameterRow($streetData['house_number']?$streetData['house_number']:$address->getAdditionalAddressLine1(), 'HouseNumber', 'Address'),
             $this->checkoutHelper->getRequestParameterRow($address->getZipCode(), 'ZipCode', 'Address'),
             $this->checkoutHelper->getRequestParameterRow($address->getCity(), 'City', 'Address'),
             $this->checkoutHelper->getRequestParameterRow(($address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL'), 'Country', 'Address')
