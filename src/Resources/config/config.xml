@@ -1727,4 +1727,47 @@
             </options>
         </input-field>
     </card>
+    
+    <card>
+        <title>Belfius</title>
+        
+        <input-field type="bool">
+            <name>belfiusEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>belfiusEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>belfiusLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Belfius</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>belfiusFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
+    </card>
 </config>

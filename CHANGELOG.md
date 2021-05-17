@@ -64,3 +64,6 @@ BP-683 Add Klarna 'Pay' and 'PayInInstallments'
 
 # 1.2.0
 BP-765 Update to Shopware 6.4 and test
+
+# 1.2.1
+BP-817 Add payment method Belfius

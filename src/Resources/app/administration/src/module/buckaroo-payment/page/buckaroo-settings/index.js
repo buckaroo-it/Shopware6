@@ -34,6 +34,7 @@ Component.register('buckaroo-settings', {
                 'creditcardsEnabled': true,
                 'idealEnabled': true,
                 'idealprocessingEnabled': true,
+                'belfiusEnabled': true,
                 'bancontactmrcashEnabled': true,
                 'afterpayEnabled': true,
                 'BillinkEnabled': true,
