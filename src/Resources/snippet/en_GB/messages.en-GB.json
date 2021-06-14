@@ -7,7 +7,18 @@
       "refundDescription": "Refund for order #orderNumber"
     },
     "messages": {
-      "return791": "Your order has been successfully placed but payment has not yet been received. Your order will be processed as soon as payment has been received."
+      "return791": "Your order has been successfully placed but payment has not yet been received. Your order will be processed as soon as payment has been received.",
+      "userCanceled": "According to our system, you have canceled the payment. If this is not the case, please contact us.",
+      "incorrectPin": "Card number or pin is incorrect",
+      "errorOccurred": "Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.",
+      "paymentUpdated": "Payment state was updated",
+      "signatureIncorrect": "Signature from push is incorrect",
+      "pushAlreadySend": "Push already send",
+      "refundSuccessful": "Refund successful",
+      "paymentError": "Payment error",
+      "paymentCancelled": "Payment cancelled",
+      "paymentUpdatedEarlier": "Payment state was updated earlier",
+      "orderCancelled": "Order cancelled"
     },
     "checkout": {
       "cOCNumber": "COC Number",

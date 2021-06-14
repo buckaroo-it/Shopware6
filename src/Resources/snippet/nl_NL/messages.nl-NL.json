@@ -7,7 +7,18 @@
       "refundDescription": "Restitutie voor bestelling #orderNumber"
     },
     "messages": {
-      "return791": "Je order is succesvol geplaatst maar de betaling is nog niet ontvangen. Zodra de betaling is ontvangen word je bestelling verwerkt. "
+      "return791": "Je order is succesvol geplaatst maar de betaling is nog niet ontvangen. Zodra de betaling is ontvangen word je bestelling verwerkt. ",
+      "userCanceled": "Volgens ons systeem heb je de betaling geannuleerd. Mocht dit niet het geval zijn, neem dan contact met ons op.",
+      "incorrectPin": "Kaartnummer of pincode is onjuist",
+      "errorOccurred": "Helaas is er een fout opgetreden tijdens het verwerken van uw betaling. Probeer het opnieuw. Als deze fout zich blijft voordoen, kies dan een andere betaalmethode.",
+      "paymentUpdated": "Betalingsstatus is bijgewerkt",
+      "signatureIncorrect": "Handtekening van push is onjuist",
+      "pushAlreadySend": "Push al verzonden",
+      "refundSuccessful": "Refund succesvol",
+      "paymentError": "Betalingsfout",
+      "paymentCancelled": "Betaling geannuleerd",
+      "paymentUpdatedEarlier": "Betalingsstatus is eerder bijgewerkt",
+      "orderCancelled": "Bestelling geannuleerd"
     },
     "checkout": {
       "cOCNumber": "COC-nummer",

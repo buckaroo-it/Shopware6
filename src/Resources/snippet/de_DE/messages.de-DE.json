@@ -7,7 +7,18 @@
       "refundDescription": "Rückerstattung für Bestellung #orderNumber"
     },
     "messages": {
-      "return791": "Ihre Bestellung wurde erfolgreich aufgegeben, aber die Zahlung ist noch nicht eingegangen. Ihre Bestellung wird bearbeitet, sobald die Zahlung eingegangen ist."
+      "return791": "Ihre Bestellung wurde erfolgreich aufgegeben, aber die Zahlung ist noch nicht eingegangen. Ihre Bestellung wird bearbeitet, sobald die Zahlung eingegangen ist.",
+      "userCanceled": "Laut unserem System haben Sie die Zahlung storniert. Sollte dies nicht der Fall sein, kontaktieren Sie uns bitte.",
+      "incorrectPin": "Kartennummer oder PIN ist falsch",
+      "errorOccurred": "Leider ist bei der Verarbeitung Ihrer Zahlung ein Fehler aufgetreten. Bitte versuchen Sie es erneut. Sollte dieser Fehler weiterhin bestehen, wählen Sie bitte eine andere Zahlungsmethode.",
+      "paymentUpdated": "Zahlungsstatus wurde aktualisiert",
+      "signatureIncorrect": "Signatur von Push ist falsch",
+      "pushAlreadySend": "Push bereits senden",
+      "refundSuccessful": "Erstattung erfolgreich",
+      "paymentError": "Zahlungsfehler",
+      "paymentCancelled": "Zahlung storniert",
+      "paymentUpdatedEarlier": "Zahlungsstatus wurde früher aktualisiert",
+      "orderCancelled": "Bestellung storniert"
     },
     "checkout": {
       "cOCNumber": "COC-Nummer",

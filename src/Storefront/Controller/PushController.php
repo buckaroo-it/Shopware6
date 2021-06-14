@@ -3,25 +3,24 @@
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
-use Buckaroo\Shopware6\Helpers\Helper;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
+use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
+use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Psr\Log\LoggerInterface;
-use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 
 /**
  * @RouteScope(scopes={"storefront"})
@@ -32,11 +31,11 @@ class PushController extends StorefrontController
      * @var LoggerInterface
      */
     private $logger;
-    
+
     private $transactionRepository;
-    
+
     private $checkoutHelper;
-    
+
     private $orderRepository;
 
     public function __construct(
@@ -77,12 +76,12 @@ class PushController extends StorefrontController
         $validSignature = $this->checkoutHelper->validateSignature();
         if (!$validSignature) {
             $this->logger->info(__METHOD__ . "|5|");
-            return $this->json(['status' => false, 'message' => 'Signature from push is incorrect']);
+            return $this->json(['status' => false, 'message' => $this->trans('buckaroo.messages.signatureIncorrect')]);
         }
 
         $order = $this->checkoutHelper->getOrderById($brqOrderId, $context);
-        if(!$this->checkoutHelper->checkDuplicatePush($order, $orderTransactionId, $context)){
-            return $this->json(['status' => false, 'message' => 'Push already send']);
+        if (!$this->checkoutHelper->checkDuplicatePush($order, $orderTransactionId, $context)) {
+            return $this->json(['status' => false, 'message' => $this->trans('buckaroo.messages.pushAlreadySend')]);
         }
 
         if ($brqTransactionType != ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION) {
@@ -92,7 +91,7 @@ class PushController extends StorefrontController
 
         $transaction = $this->checkoutHelper->getOrderTransaction($orderTransactionId, $context);
 
-        $totalPrice  = $order->getPrice()->getTotalPrice();
+        $totalPrice = $order->getPrice()->getTotalPrice();
 
         //Check if the push is a refund request or cancel authorize
         if (isset($brqAmountCredit)) {
@@ -100,7 +99,7 @@ class PushController extends StorefrontController
             if ($status != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS && $brqTransactionType == ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_CANCEL) {
                 $currentStateId = $transaction->getStateId();
                 $this->logger->info(__METHOD__ . "|20|");
-                return $this->json(['status' => true, 'message' => "Payment cancelled"]);
+                return $this->json(['status' => true, 'message' => $this->trans('buckaroo.messages.paymentCancelled')]);
             }
 
             $status = ($brqAmountCredit < $totalPrice) ? 'partial_refunded' : 'refunded';
@@ -109,28 +108,28 @@ class PushController extends StorefrontController
 
             $this->checkoutHelper->transitionPaymentState($status, $orderTransactionId, $context);
 
-            return $this->json(['status' => true, 'message' => "Refund successful"]);
+            return $this->json(['status' => true, 'message' => $this->trans('buckaroo.messages.refundSuccessful')]);
         }
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
             $this->logger->info(__METHOD__ . "|30|");
             try {
-                if($this->checkoutHelper->isOrderState(['cancelled'], $brqOrderId, $context)){
+                if ($this->checkoutHelper->isOrderState(['cancelled'], $brqOrderId, $context)) {
                     $this->logger->info(__METHOD__ . "|35|");
                     $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'reopen');
                 }
 
-                if($this->checkoutHelper->isTransitionPaymentState(['refunded','partial_refunded'], $orderTransactionId, $context)){
+                if ($this->checkoutHelper->isTransitionPaymentState(['refunded', 'partial_refunded'], $orderTransactionId, $context)) {
                     $this->logger->info(__METHOD__ . "|40|");
-                    return $this->json(['status' => true, 'message' => "Payment state was updated earlier"]);
+                    return $this->json(['status' => true, 'message' => $this->trans('buckaroo.messages.paymentUpdatedEarlier')]);
                 }
 
                 $paymentSuccesStatus = $this->checkoutHelper->getSettingsValue('paymentSuccesStatus') ? $this->checkoutHelper->getSettingsValue('paymentSuccesStatus') : "completed";
-                $paymentState = (round($brqAmount, 2) == round($totalPrice, 2)) ? $paymentSuccesStatus : "pay_partially";
-                $data = [];
+                $paymentState        = (round($brqAmount, 2) == round($totalPrice, 2)) ? $paymentSuccesStatus : "pay_partially";
+                $data                = [];
                 if ($paymentMethod && (strtolower($paymentMethod) == 'klarnakp')) {
                     $this->logger->info(__METHOD__ . "|42|");
-                    $paymentState = 'do_pay';
+                    $paymentState              = 'do_pay';
                     $data['reservationNumber'] = $request->request->get('brq_SERVICE_klarnakp_ReservationNumber');
                 }
                 $this->logger->info(__METHOD__ . "|45|", [$paymentState, $brqAmount, $totalPrice]);
@@ -141,9 +140,9 @@ class PushController extends StorefrontController
                 ]);
                 $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
 
-                if($orderStatus = $this->checkoutHelper->getSettingsValue('orderStatus')){
-                    if($orderStatus == 'complete'){
-                        $this->checkoutHelper->changeOrderStatus($brqOrderId, $context,'process');
+                if ($orderStatus = $this->checkoutHelper->getSettingsValue('orderStatus')) {
+                    if ($orderStatus == 'complete') {
+                        $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'process');
                     }
                     $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, $orderStatus);
                 }
@@ -160,7 +159,7 @@ class PushController extends StorefrontController
                 throw new AsyncPaymentFinalizeException($orderTransactionId, $exception->getMessage());
             }
             $this->logger->info(__METHOD__ . "|60|");
-            return $this->json(['status' => true, 'message' => "Payment state was updated"]);
+            return $this->json(['status' => true, 'message' => $this->trans('buckaroo.messages.paymentUpdated')]);
         }
 
         if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_TECHNICAL_ERROR, ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER, ResponseStatus::BUCKAROO_STATUSCODE_FAILED, ResponseStatus::BUCKAROO_STATUSCODE_REJECTED])) {
@@ -170,10 +169,10 @@ class PushController extends StorefrontController
             $this->checkoutHelper->transitionPaymentState($paymentFailedStatus, $orderTransactionId, $context);
             $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'cancel');
 
-            return $this->json(['status' => true, 'message' => "Order cancelled"]);
+            return $this->json(['status' => true, 'message' => $this->trans('buckaroo.messages.orderCancelled')]);
         }
 
-        return $this->json(['status' => false, 'message' => "Payment error"]);
+        return $this->json(['status' => false, 'message' => $this->trans('buckaroo.messages.paymentError')]);
     }
 
     /**
@@ -192,12 +191,12 @@ class PushController extends StorefrontController
 
         if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING])) {
             return $this->renderStorefront('@Storefront/storefront/buckaroo/page/finalize/_page2.html.twig', [
-                'messages'     => [['type' => 'success', 'text' => $this->trans('buckaroo.messages.return791')]]
+                'messages' => [['type' => 'success', 'text' => $this->trans('buckaroo.messages.return791')]],
             ]);
         }
 
         if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS, ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS])) {
-            if($token  = $request->request->get('ADD_sw-context-token')){
+            if ($token = $request->request->get('ADD_sw-context-token')) {
                 $this->get('session')->set('sw-context-token', $token);
             }
 
@@ -205,19 +204,19 @@ class PushController extends StorefrontController
         }
 
         if ($request->query->getBoolean('cancel')) {
-            $messages[] = ['type' => 'warning', 'text' => $this->trans('According to our system, you have canceled the payment. If this is not the case, please contact us.')];
+            $messages[] = ['type' => 'warning', 'text' => $this->trans('buckaroo.messages.userCanceled')];
         }
 
         if ($error = $request->query->filter('error')) {
             $messages[] = ['type' => 'danger', 'text' => base64_decode($error)];
         }
 
-        if ($statusMessage=='Failed' && in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_FAILED])) {
-            $messages[] = ['type' => 'danger', 'text' => 'Card number or pin is incorrect'];
+        if ($statusMessage == 'Failed' && in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_FAILED])) {
+            $messages[] = ['type' => 'danger', 'text' => $this->trans('buckaroo.messages.incorrectPin')];
         }
 
         if (empty($messages)) {
-            $messages[] = ['type' => 'danger', 'text' => $statusMessage ? $statusMessage : $this->trans('Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.')];
+            $messages[] = ['type' => 'danger', 'text' => $statusMessage ? $statusMessage : $this->trans('errorOccurred')];
         }
 
         if (!$orderId && $orderId = $request->query->filter('orderId')) {}
@@ -237,12 +236,9 @@ class PushController extends StorefrontController
             }
 
         }
-
         return $this->renderStorefront('@Storefront/storefront/buckaroo/page/finalize/_page.html.twig', [
             'messages'     => $messages,
             'orderDetails' => $lineItems,
         ]);
-
     }
-
 }
