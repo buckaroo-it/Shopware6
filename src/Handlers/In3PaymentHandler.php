@@ -70,7 +70,7 @@ class In3PaymentHandler extends AsyncPaymentHandler
             $this->checkoutHelper->getRequestParameterRow($streetData['house_number']?$streetData['house_number']:$address->getAdditionalAddressLine1(), 'HouseNumber', 'Address'),
             $this->checkoutHelper->getRequestParameterRow($address->getZipCode(), 'ZipCode', 'Address'),
             $this->checkoutHelper->getRequestParameterRow($address->getCity(), 'City', 'Address'),
-            $this->checkoutHelper->getRequestParameterRow(($address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL'), 'Country', 'Address')
+            $this->checkoutHelper->getRequestParameterRow((($address->getCountry() && $address->getCountry()->getIso()) ? $address->getCountry()->getIso() : 'NL'), 'Country', 'Address')
         ];
 
         if (strlen($streetData['number_addition']) > 0) {
