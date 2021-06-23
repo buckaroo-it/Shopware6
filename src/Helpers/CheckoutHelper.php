@@ -1425,14 +1425,7 @@ class CheckoutHelper
                     $context
                 );
             } catch (Exception $e) {
-                $this->logger->addEntry(
-                    $e->getMessage(),
-                    $context,
-                    $e,
-                    [
-                        'function' => 'change-order-status',
-                    ]
-                );
+                $this->logger->error($e->getMessage(), [$e]);
             }
         }
 
@@ -1550,7 +1543,7 @@ class CheckoutHelper
 
     public function stockReserve(OrderEntity $order){
         $products = $this->getProductsOfOrder($order->getId());
-        
+
         $query = new RetryableQuery(
             $this->connection->prepare('UPDATE product SET stock = stock - :quantity WHERE id = :id AND version_id = :version')
         );
@@ -1624,7 +1617,7 @@ class CheckoutHelper
             'mimeType' => $document->getContentType(),
         ];
     }
-    
+
     /**
      * @param string[] $documentIds
      */
@@ -1916,7 +1909,7 @@ class CheckoutHelper
             ];
         }
     }
-    
+
     public function checkDuplicatePush($order, $orderTransactionId, $context){
         $rand = range(0,6,2); shuffle($rand);
         sleep(array_shift($rand));
