@@ -1705,27 +1705,6 @@
             <label lang="nl-NL">Buckaroo Vergoeding</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
-
-        <input-field type="single-select">
-            <name>BillinkBusiness</name>
-            <label lang="en-GB">Billink payment method:</label>
-            <label lang="de-DE">Billink Zahlungsmethode:</label>
-            <label lang="nl-NL">Billink betaalmethode</label>
-            <helpText>Select which paymethod must be used at Billink.</helpText>
-            <helpText lang="de-DE">Wählen Sie aus, welche Zahlungsmethode bei Billink verwendet werden muss.</helpText>
-            <helpText lang="nl-NL">Selecteer welke betaalmethode bij Billink gebruikt moet worden.</helpText>
-            <defaultValue>B2C</defaultValue>
-            <options>
-                <option>
-                    <id>B2C</id>
-                    <name>B2C</name>
-                </option>
-                <option>
-                    <id>B2B</id>
-                    <name>B2B</name>
-                </option>
-            </options>
-        </input-field>
     </card>
     
     <card>

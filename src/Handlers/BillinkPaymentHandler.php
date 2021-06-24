@@ -166,7 +166,8 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
 
         $shippingStreetFormat  = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
 
-        $category = $this->helper->getSettingsValue('BillinkBusiness') ?? 'B2C';
+        $category = $address->getCompany() ? 'B2B' : 'B2C';
+        
         $billingData = [
             [
                 '_'       => $category,
