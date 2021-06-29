@@ -1124,6 +1124,10 @@
                     <name>GWS</name>
                 </option>
                 <option>
+                    <id>huistuincadeau</id>
+                    <name>Huis&amp;Tuin cadeau</name>
+                </option>
+                <option>
                     <id>JewelleryGiftcard</id>
                     <name>Jewellery Giftcard</name>
                 </option>
