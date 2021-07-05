@@ -79,6 +79,14 @@ class PushController extends StorefrontController
             return $this->json(['status' => false, 'message' => $this->trans('buckaroo.messages.signatureIncorrect')]);
         }
 
+        if (
+            !empty($request->request->get('brq_transaction_method'))
+            && ($request->request->get('brq_transaction_method') === 'paypal')
+            && ($status == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
+        ) {
+            $status = ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
+        }
+
         $order = $this->checkoutHelper->getOrderById($brqOrderId, $context);
         if (!$this->checkoutHelper->checkDuplicatePush($order, $orderTransactionId, $context)) {
             return $this->json(['status' => false, 'message' => $this->trans('buckaroo.messages.pushAlreadySend')]);
@@ -188,6 +196,15 @@ class PushController extends StorefrontController
         $status        = $request->request->get('brq_statuscode');
         $statusMessage = $request->request->get('brq_statusmessage');
         $orderId       = $request->request->get('ADD_orderId');
+
+        if (
+            !empty($request->request->get('brq_payment_method'))
+            && ($request->request->get('brq_payment_method') == 'paypal')
+            && ($status == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
+        ) {
+            $status = ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
+            $request->query->set('cancel', 1);
+        }
 
         if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING])) {
             return $this->renderStorefront('@Storefront/storefront/buckaroo/page/finalize/_page2.html.twig', [
