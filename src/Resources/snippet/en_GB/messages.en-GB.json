@@ -18,7 +18,8 @@
       "paymentError": "Payment error",
       "paymentCancelled": "Payment cancelled",
       "paymentUpdatedEarlier": "Payment state was updated earlier",
-      "orderCancelled": "Order cancelled"
+      "orderCancelled": "Order cancelled",
+      "skipInformational": "Informational push"
     },
     "checkout": {
       "cOCNumber": "COC Number",

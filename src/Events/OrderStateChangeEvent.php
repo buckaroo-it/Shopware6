@@ -50,6 +50,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         return [
             'state_enter.order_transaction.state.refunded'           => 'onOrderTransactionRefunded',
             'state_enter.order_transaction.state.refunded_partially' => 'onOrderTransactionRefundedPartially',
+            'state_enter.order_delivery.state.shipped' => 'onOrderDeliveryStateShipped',
         ];
     }
 
@@ -60,6 +61,21 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
     public function onOrderTransactionRefundedPartially(OrderStateMachineStateChangeEvent $event)
     {
+        return true;
+    }
+
+    public function onOrderDeliveryStateShipped(OrderStateMachineStateChangeEvent $event)
+    {
+        $context = $event->getContext();
+        $eventOrder = $event->getOrder();
+        $order = $this->checkoutHelper->getOrderById($eventOrder->getId(), $context);
+        $customFields = $this->checkoutHelper->getCustomFields($order, $context);
+
+        if(isset($customFields['brqPaymentMethod']) && $customFields['brqPaymentMethod'] == 'Billink' && $this->checkoutHelper->getSettingsValue('BillinkMode') == 'authorize' && $this->checkoutHelper->getSettingsValue('BillinkCreateInvoiceAfterShipment')){
+            $brqInvoicenumber = $customFields['brqInvoicenumber'] ?? $order->getOrderNumber();
+            $this->checkoutHelper->generateInvoice($eventOrder->getId(), $context, $brqInvoicenumber);
+        }
+
         return true;
     }
 

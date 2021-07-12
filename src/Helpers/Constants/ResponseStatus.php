@@ -19,4 +19,7 @@ class ResponseStatus
     const BUCKAROO_AUTHORIZE_TYPE_CANCEL            = 'I014';
     const BUCKAROO_AUTHORIZE_TYPE_ACCEPT            = 'I013';
     const BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION = 'I150';
+
+    const BUCKAROO_MUTATION_TYPE_INFORMATIONAL      = 'Informational';
+    const BUCKAROO_BILLINK_CAPTURE_TYPE_ACCEPT      = 'C073';
 }

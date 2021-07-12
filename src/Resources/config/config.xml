@@ -1696,6 +1696,31 @@
             </options>
         </input-field>
 
+        <input-field type="single-select">
+            <name>BillinkMode</name>
+            <label lang="en-GB">Billink Mode</label>
+            <label lang="de-DE">Billink Mode</label>
+            <label lang="nl-NL">Billink Mode</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>pay</id>
+                    <name>Pay</name>
+                </option>
+                <option>
+                    <id>authorize</id>
+                    <name>Authorize/capture</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="bool">
+            <name>BillinkCreateInvoiceAfterShipment</name>
+            <label lang="en-GB">BillinkCreateInvoiceAfterShipment</label>
+            <label lang="de-DE">BillinkCreateInvoiceAfterShipment</label>
+            <label lang="nl-NL">BillinkCreateInvoiceAfterShipment</label>
+        </input-field>
+
         <input-field>
             <name>BillinkLabel</name>
             <label lang="en-GB">Frontend label</label>

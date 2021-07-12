@@ -449,4 +449,19 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
         return array_merge($additional, [$billingData,$shippingData]);
 
     }
+
+    public function getMode(){
+        return $this->checkoutHelper->getSettingsValue('BillinkMode');
+    }
+
+    protected function payBefore(
+        RequestDataBag $dataBag,
+        \Buckaroo\Shopware6\Buckaroo\Payload\Request $request
+    ): void {
+        if($this->checkoutHelper->getSettingsValue('BillinkMode') == 'authorize'){
+            $request->setServiceAction('Authorize');
+        }
+
+        parent::payBefore($dataBag, $request);
+    }
 }

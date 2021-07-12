@@ -58,6 +58,7 @@ Component.register('buckaroo-settings', {
                 'klarnainEnabled': true,
                 'klarnakpEnabled': true,
                 'advancedConfiguration': true,
+                'BillinkCreateInvoiceAfterShipment': true,
             },
             collapsibleAdvancedState: {
                 'stockReserve': true,

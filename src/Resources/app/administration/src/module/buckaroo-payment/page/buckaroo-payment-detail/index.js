@@ -132,21 +132,22 @@ Component.register('buckaroo-payment-detail', {
             const orderCriteria = new Criteria(1, 1);
             
             this.orderId = orderId;
-            orderCriteria.addAssociation('transactions');
+            orderCriteria.addAssociation('transactions.paymentMethod')
+                         .addAssociation('transactions');
             orderRepository.get(orderId, Context.api, orderCriteria).then((order) => {
                 // that.buckaroo_refund_amount = order.amountTotal;
                 //that.order = order;
                 if(order.customFields != undefined && order.customFields.buckarooFee != undefined){
                     this.buckarooFee = order.customFields.buckarooFee;
                 }
-                that.isCapturePossible = order.transactions && order.transactions.last().customFields &&
-                    order.transactions.last().customFields.brqPaymentMethod &&
-                    order.transactions.last().customFields.brqPaymentMethod.toLowerCase() == 'klarnakp';
+
+                that.isCapturePossible = order.transactions && order.transactions.last().paymentMethod && order.transactions.last().paymentMethod.customFields &&
+                    order.transactions.last().paymentMethod.customFields.buckaroo_key &&
+                    ['klarnakp', 'billink'].includes(order.transactions.last().paymentMethod.customFields.buckaroo_key.toLowerCase());
             });
 
             this.BuckarooPaymentService.getBuckarooTransaction(orderId)
                 .then((response) => {
-
                     response.orderItems.forEach((element) => {
                         that.orderItems.push({
                             id: element.id,

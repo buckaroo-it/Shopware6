@@ -72,11 +72,26 @@ class PushController extends StorefrontController
         $orderTransactionId = $request->request->get('ADD_orderTransactionId');
         $brqTransactionType = $request->request->get('brq_transaction_type');
         $paymentMethod      = $request->request->get('brq_primary_service');
+        $mutationType       = $request->request->get('brq_mutationtype');
+        $brqPaymentMethod   = $request->request->get('brq_transaction_method');
+        $originalTransactionKey   = $request->request->get('brq_transactions');
 
-        $validSignature = $this->checkoutHelper->validateSignature();
-        if (!$validSignature) {
+        if (!$this->checkoutHelper->validateSignature()) {
             $this->logger->info(__METHOD__ . "|5|");
             return $this->json(['status' => false, 'message' => $this->trans('buckaroo.messages.signatureIncorrect')]);
+        }
+
+        //skip mutationType Informational 
+        if ($mutationType == ResponseStatus::BUCKAROO_MUTATION_TYPE_INFORMATIONAL) {
+            $this->logger->info(__METHOD__ . "|5.1|");
+            $data = [
+                'originalTransactionKey' => $originalTransactionKey,
+                'brqPaymentMethod'       => $brqPaymentMethod,
+                'brqInvoicenumber'       => $brqInvoicenumber,
+            ];
+            $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
+
+            return $this->json(['status' => true, 'message' => $this->trans('buckaroo.messages.skipInformational')]);
         }
 
         if (
@@ -155,8 +170,10 @@ class PushController extends StorefrontController
                     $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, $orderStatus);
                 }
 
-                if (!$this->checkoutHelper->isInvoiced($brqOrderId, $context)) {
-                    $this->logger->info(__METHOD__ . "|50|");
+                $this->logger->info(__METHOD__ . "|50.1|");
+                if (!$this->checkoutHelper->isInvoiced($brqOrderId, $context) 
+                    && !$this->checkoutHelper->isCreateInvoiceAfterShipment($brqTransactionType)) {
+                    $this->logger->info(__METHOD__ . "|50.2|");
                     if (round($brqAmount, 2) == round($totalPrice, 2)) {
                         $this->checkoutHelper->generateInvoice($brqOrderId, $context, $brqInvoicenumber);
                     }

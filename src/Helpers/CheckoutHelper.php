@@ -869,7 +869,7 @@ class CheckoutHelper
         return $additional;
     }
 
-    public function getRefundBillinkArticleData($amount)
+    public function getBillinkArticleData($amount)
     {
         $additional[] = [
             [
@@ -1119,7 +1119,7 @@ class CheckoutHelper
         }
 
         if ($customFields['serviceName'] == 'Billink') {
-            $additional = $this->getRefundBillinkArticleData($amount);
+            $additional = $this->getBillinkArticleData($amount);
             foreach ($additional as $key2 => $item3) {
                 foreach ($item3 as $key => $value) {
                     $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
@@ -1218,7 +1218,6 @@ class CheckoutHelper
 
         $request = new TransactionRequest;
         $request->setServiceAction('Pay');
-        //$request->setDescription($this->getTranslate('buckaroo.order.refundDescription', ['orderNumber' => $order->getOrderNumber()]));
         $request->setDescription('');
         $request->setServiceName($customFields['serviceName']);
         $request->setAmountCredit(0);
@@ -1234,8 +1233,17 @@ class CheckoutHelper
 
         $request->setPushURL($this->getReturnUrl('buckaroo.payment.push'));
 
-        if ($customFields['serviceName'] == 'klarnakp') {
+        if ($customFields['serviceName'] == 'Billink') {
+            $request->setServiceAction('Capture');
+            $additional = $this->getBillinkArticleData($amount);
+            foreach ($additional as $key2 => $item3) {
+                foreach ($item3 as $key => $value) {
+                    $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
+                }
+            }
+        }
 
+        if ($customFields['serviceName'] == 'klarnakp') {
             $orderItems = $this->getProductLineDataCapture($order);
             foreach ($orderItems as $value) {
                 $request->setServiceParameter($value['Name'], $value['_'], $value['Group'], $value['GroupID']);
@@ -1251,12 +1259,7 @@ class CheckoutHelper
         if ($response->isSuccess()) {
             $this->logger->info(__METHOD__ . "|45|");
 
-            //$transaction = $order->getTransactions()->first();
-            //$status      = ($amount < $order->getAmountTotal()) ? 'pay_partially' : 'completed';
-            //$this->transitionPaymentState($status, $transaction->getId(), $context);
-            //$this->saveTransactionData($transaction->getId(), $context, [$status => 1]);
-
-            if (!$this->isInvoiced($order->getId(), $context)) {
+            if (!$this->isInvoiced($order->getId(), $context) && !$this->isCreateInvoiceAfterShipment(false, $customFields['serviceName'])) {
                 $this->logger->info(__METHOD__ . "|55|");
                 $this->generateInvoice($order->getId(), $context, $order->getId());
             }
@@ -1555,6 +1558,19 @@ class CheckoutHelper
                 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ]);
         }
+    }
+
+    public function isCreateInvoiceAfterShipment($brqTransactionType = false, $serviceName = false){
+        if($brqTransactionType){
+            if(ResponseStatus::BUCKAROO_BILLINK_CAPTURE_TYPE_ACCEPT == $brqTransactionType && $this->helper->getSettingsValue('BillinkCreateInvoiceAfterShipment')){
+                return true;
+            }
+        }else{
+            if($serviceName == 'Billink' && $this->getSettingsValue('BillinkMode') == 'authorize' && $this->getSettingsValue('BillinkCreateInvoiceAfterShipment')){
+                return true;
+            }
+        }
+        return false;
     }
 
     public function isInvoiced($orderId, $context){
