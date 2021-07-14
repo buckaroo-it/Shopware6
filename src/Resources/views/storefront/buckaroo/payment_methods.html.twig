@@ -223,7 +223,7 @@
 
             <div class="form-group">
                 <label class="form-label" for="buckarooVATNumber">
-                    {{ "buckaroo.checkout.VATNumber"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                    {{ "buckaroo.checkout.VATNumber"|trans|sw_sanitize }}
                 </label>
 
                 <input type="text"
@@ -231,9 +231,8 @@
                        form="confirmOrderForm"
                        id="buckarooVATNumber"
                        name="buckaroo_VATNumber"
-                       placeholder="{{ "buckaroo.checkout.VATNumberPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                       placeholder="{{ "buckaroo.checkout.VATNumberPlaceholder"|trans|striptags }}"
                        value=""
-                       required="required"
                        minlength="3">
 
                 <label class="form-label" style="display:none; color:red" for="buckarooVATNumber" id="buckarooVATNumberError">
