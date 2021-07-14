@@ -256,6 +256,10 @@
                     <id>nexi</id>
                     <name>Nexi</name>
                 </option>
+                <option>
+                    <id>postepay</id>
+                    <name>PostePay</name>
+                </option>
             </options>
         </input-field>
     </card>
@@ -349,6 +353,10 @@
                 <option>
                     <id>nexi</id>
                     <name>Nexi</name>
+                </option>
+                <option>
+                    <id>postepay</id>
+                    <name>PostePay</name>
                 </option>
             </options>
         </input-field>

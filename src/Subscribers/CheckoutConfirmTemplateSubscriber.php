@@ -96,6 +96,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         'cartebancaire'  => 'Carte Bancaire',
         'dankort'        => 'Dankort',
         'nexi'           => 'Nexi',
+        'postepay'       => 'PostePay',
     ];
 
     /**
@@ -228,7 +229,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'media_path'               => $this->checkoutHelper->forwardToRoute('root.fallback') . 'bundles/buckaroopayments/storefront/buckaroo/logo/',
             'payment_media'            => $lastUsedCreditcard . '.png',
             'buckarooFee'              => $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee'),
-            'BillinkBusiness'          => $customer->getActiveBillingAddress()->getCompany() ? 'B2B' : 'B2C',
+            'BillinkBusiness'          => $customer->getActiveBillingAddress() && $customer->getActiveBillingAddress()->getCompany() ? 'B2B' : 'B2C',
         ]);
 
         $event->getPage()->addExtension(
