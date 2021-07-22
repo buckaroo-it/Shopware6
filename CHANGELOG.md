@@ -67,3 +67,12 @@ BP-765 Update to Shopware 6.4 and test
 
 # 1.2.1
 BP-817 Add payment method Belfius
+BP-906 Translation issue
+in3 / fix country for guest mode
+Modified error log in exception handler. The injected logger does not
+Make it possible for Billink to enable bothe methods (B2B+B2C)
+BP-946 Add giftcard Huis & Tuin Cadeau (giftcard)
+BP-941 All plugins - PayPal (V2) cancellation returns to the homepage
+BP-945 Add payment method Billink Authorize/Capture
+BP-957 Make 'VAT number' field non-required (BILLINK)
+BP-970 Add CreditCard brand PostePay
