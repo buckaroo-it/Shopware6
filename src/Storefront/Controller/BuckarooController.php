@@ -624,6 +624,8 @@ class BuckarooController extends StorefrontController
                     $context->getShippingMethod(),
                     $context->getShippingLocation(),
                     $customer,
+                    $context->getItemRounding(),
+                    $context->getTotalRounding(),
                     []
                 );
 
@@ -1077,6 +1079,8 @@ class BuckarooController extends StorefrontController
             $salesChannelContext->getShippingMethod(),
             $salesChannelContext->getShippingLocation(),
             $order->getOrderCustomer()->getCustomer(),
+            $salesChannelContext->getItemRounding(),
+            $salesChannelContext->getTotalRounding(),
             []
         );
 

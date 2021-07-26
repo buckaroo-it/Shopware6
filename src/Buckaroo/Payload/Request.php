@@ -29,9 +29,9 @@ class Request implements JsonSerializable, ArrayAccess, Arrayable
     public function offsetSet($offset, $value)
     {
         if (is_null($offset)) {
-            $this->data[] = $value;
+            return $this->data[] = $value;
         } else {
-            $this->data[$offset] = $value;
+            return $this->data[$offset] = $value;
         }
     }
 
@@ -75,7 +75,8 @@ class Request implements JsonSerializable, ArrayAccess, Arrayable
         $arg    = isset($args[0]) ? $args[0] : null;
 
         if ($prefix === 'set') {
-            return $this->offsetSet($param, $arg);
+            $this->offsetSet($param, $arg);
+            return;
         } else if ($prefix === 'get') {
             return $this->offsetGet($param);
         }
@@ -95,7 +96,7 @@ class Request implements JsonSerializable, ArrayAccess, Arrayable
      */
     public function setHeader($name, $value)
     {
-        $this->headers[strtolower($name)] = $value;
+        return $this->headers[strtolower($name)] = $value;
     }
 
     /**

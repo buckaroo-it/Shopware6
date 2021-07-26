@@ -267,7 +267,7 @@ class CheckoutHelper
                 return StateMachineTransitionActions::ACTION_PAID;
                 break;
             case 'pay_partially' :
-                return StateMachineTransitionActions::ACTION_PAY_PARTIALLY;
+                return StateMachineTransitionActions::ACTION_PAID_PARTIALLY;
                 break;
             case 'declined':
             case 'cancelled':
@@ -1928,7 +1928,7 @@ class CheckoutHelper
 
     public function checkDuplicatePush($order, $orderTransactionId, $context){
         $rand = range(0,6,2); shuffle($rand);
-        sleep(array_shift($rand));
+        usleep(array_shift($rand) * 1000000);
         $request  = $this->helper->getGlobals();
         $postData = $_POST;
         $calculated = $this->calculatePushHash($postData);
