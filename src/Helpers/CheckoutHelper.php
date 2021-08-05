@@ -365,23 +365,19 @@ class CheckoutHelper
      * @param string $actionName
      * @return string
      */
-    public function getOrderTransactionStatesNameFromAction(string $actionName): string
+    public function getOrderTransactionStatesNameFromAction(string $actionName)
     {
         switch ($actionName) {
             case StateMachineTransitionActions::ACTION_PAID:
                 return OrderTransactionStates::STATE_PAID;
-                break;
             case StateMachineTransitionActions::ACTION_CANCEL:
                 return OrderTransactionStates::STATE_CANCELLED;
-                break;
             case StateMachineTransitionActions::ACTION_REFUND:
                 return OrderTransactionStates::STATE_REFUNDED;
-                break;
             case StateMachineTransitionActions::ACTION_REFUND_PARTIALLY:
                 return OrderTransactionStates::STATE_PARTIALLY_REFUNDED;
-                break;
         }
-        return OrderTransactionStates::STATE_OPEN;
+        return false;
     }
 
     /**
