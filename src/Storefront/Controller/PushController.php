@@ -81,7 +81,7 @@ class PushController extends StorefrontController
             return $this->json(['status' => false, 'message' => $this->trans('buckaroo.messages.signatureIncorrect')]);
         }
 
-        //skip mutationType Informational 
+        //skip mutationType Informational
         if ($mutationType == ResponseStatus::BUCKAROO_MUTATION_TYPE_INFORMATIONAL) {
             $this->logger->info(__METHOD__ . "|5.1|");
             $data = [
@@ -137,7 +137,7 @@ class PushController extends StorefrontController
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
             $this->logger->info(__METHOD__ . "|30|");
             try {
-                if ($this->checkoutHelper->isOrderState(['cancelled'], $brqOrderId, $context)) {
+                if ($this->checkoutHelper->isOrderState(['cancel'], $brqOrderId, $context)) {
                     $this->logger->info(__METHOD__ . "|35|");
                     $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'reopen');
                 }
@@ -171,7 +171,7 @@ class PushController extends StorefrontController
                 }
 
                 $this->logger->info(__METHOD__ . "|50.1|");
-                if (!$this->checkoutHelper->isInvoiced($brqOrderId, $context) 
+                if (!$this->checkoutHelper->isInvoiced($brqOrderId, $context)
                     && !$this->checkoutHelper->isCreateInvoiceAfterShipment($brqTransactionType)) {
                     $this->logger->info(__METHOD__ . "|50.2|");
                     if (round($brqAmount, 2) == round($totalPrice, 2)) {
