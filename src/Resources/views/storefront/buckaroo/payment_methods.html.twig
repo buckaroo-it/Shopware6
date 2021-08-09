@@ -261,6 +261,14 @@
             </div>
         {% endif %}
 
+        <div class="custom-control custom-checkbox">
+            <input id="buckaroo_afterpay_TermsCondition" class="custom-control-input" form="confirmOrderForm" name="buckaroo_afterpay_TermsCondition" required="required" type="checkbox">
+            <label class="custom-control-label" for="buckaroo_afterpay_TermsCondition"> <span>{{ "buckaroo.checkout.buckarooAfterpayTermsConditionTitle"|trans }}:</span> </label>
+            <span>
+                <a target="_blank" href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf">{{ "buckaroo.checkout.buckarooBillinkTermsCondition"|trans }}</a>
+            </span>
+        </div>
+        
     </fieldset>
 </div>
 
