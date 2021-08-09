@@ -389,7 +389,13 @@ class CheckoutHelper
     private function convertToFunctionName(string $string): string
     {
         $string = str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
-        return lcfirst($string);
+        $functionName = lcfirst($string);
+
+        if($functionName === 'paidPartially') {
+            $functionName = 'payPartially';
+        }
+
+        return $functionName;
     }
 
     /**
