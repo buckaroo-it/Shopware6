@@ -1949,4 +1949,8 @@ class CheckoutHelper
 
         return true;
     }
+
+    public function getCountryCode($address){
+        return $address->getCountry() !== null && $address->getCountry()->getIso() !== null ? $address->getCountry()->getIso() : 'NL';
+    }
 }

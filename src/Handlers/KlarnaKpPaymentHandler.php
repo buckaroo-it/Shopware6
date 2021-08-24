@@ -197,7 +197,7 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
                 'Name'    => 'BillingCity',
             ],
             [
-                '_'       => $address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL',
+                '_'       => $this->checkoutHelper->getCountryCode($address),
                 'Name'    => 'BillingCountry',
             ],
             [
@@ -256,7 +256,7 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
                 'Name'    => 'ShippingCity',
             ],
             [
-                '_'       => $shippingAddress->getCountry() !== null ? $shippingAddress->getCountry()->getIso() : 'NL',
+                '_'       => $this->checkoutHelper->getCountryCode($shippingAddress),
                 'Name'    => 'ShippingCountry',
             ],
             [
@@ -297,7 +297,7 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
 
         $additional = array_merge($additional, [[
             [
-                '_'       => $address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL',
+                '_'       => $this->checkoutHelper->getCountryCode($address),
                 'Name'    => 'OperatingCountry',
             ],
             [

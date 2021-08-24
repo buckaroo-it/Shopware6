@@ -52,7 +52,7 @@ class TrustlyPaymentHandler extends AsyncPaymentHandler
         return [
             $this->checkoutHelper->getRequestParameterRow($address->getFirstName(), 'CustomerFirstName'),
             $this->checkoutHelper->getRequestParameterRow($address->getLastName(), 'CustomerLastName'),
-            $this->checkoutHelper->getRequestParameterRow(($address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL'), 'CustomerCountryCode')
+            $this->checkoutHelper->getRequestParameterRow(($this->checkoutHelper->getCountryCode($address)), 'CustomerCountryCode')
         ];
     }
 }

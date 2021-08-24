@@ -197,7 +197,7 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
                 'GroupID' => '',
             ],
             [
-                '_'       => $address->getCountry() !== null ? $address->getCountry()->getIso() : 'NL',
+                '_'       => $this->checkoutHelper->getCountryCode($address),
                 'Name'    => 'Country',
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
@@ -300,7 +300,7 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
                 'GroupID' => '',
             ],
             [
-                '_'       => $shippingAddress->getCountry() !== null ? $shippingAddress->getCountry()->getIso() : 'NL',
+                '_'       => $this->checkoutHelper->getCountryCode($shippingAddress),
                 'Name'    => 'Country',
                 'Group'   => 'ShippingCustomer',
                 'GroupID' => '',
