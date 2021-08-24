@@ -252,7 +252,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
             ]; 
         }
 
-        if ($address->getCountry()->getIso() == 'NL' || $address->getCountry()->getIso() == 'BE') {
+        if (in_array($this->checkoutHelper->getCountryCode($address),['NL','BE'])) {
             $billingData[] = [
                 '_'       => $salutation,
                 'Name'    => 'Salutation',
