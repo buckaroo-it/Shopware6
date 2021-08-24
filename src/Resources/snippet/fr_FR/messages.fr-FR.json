@@ -21,6 +21,8 @@
       "orderCancelled": "Commande annulée"
     },
     "checkout": {
+      "buckarooAfterpayOrClick": "Ou cliquez ici pour la traduction française",
+      "buckarooAfterpayTermsAndCondition": "termes et conditions",
       "cOCNumber": "COC Nombre",
       "companyName": "Nom de la compagnie",
       "private": "Privée",

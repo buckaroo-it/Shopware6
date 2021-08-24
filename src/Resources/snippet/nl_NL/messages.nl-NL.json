@@ -21,6 +21,8 @@
       "orderCancelled": "Bestelling geannuleerd"
     },
     "checkout": {
+      "buckarooAfterpayOrClick": "Of klik hier voor de Franse vertaling",
+      "buckarooAfterpayTermsAndCondition": "algemene voorwaarden",
       "cOCNumber": "COC-nummer",
       "companyName": "Bedrijfsnaam",
       "private": "Private",

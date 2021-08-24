@@ -21,6 +21,8 @@
       "orderCancelled": "Bestellung storniert"
     },
     "checkout": {
+      "buckarooAfterpayOrClick": "Oder klicken Sie hier für die französische Übersetzung",
+      "buckarooAfterpayTermsAndCondition": "geschäftsbedingung",
       "cOCNumber": "COC-Nummer",
       "companyName": "Name der Firma",
       "private": "Private",

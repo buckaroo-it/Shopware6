@@ -76,3 +76,6 @@ BP-941 All plugins - PayPal (V2) cancellation returns to the homepage
 BP-945 Add payment method Billink Authorize/Capture
 BP-957 Make 'VAT number' field non-required (BILLINK)
 BP-970 Add CreditCard brand PostePay
+
+# 1.2.2
+BP-1020 Afterpay terms and condition with a address in Belgium is showing the terms for NL.

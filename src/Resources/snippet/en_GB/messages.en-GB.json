@@ -22,6 +22,8 @@
       "skipInformational": "Informational push"
     },
     "checkout": {
+      "buckarooAfterpayOrClick": "Or click here for the French translation",
+      "buckarooAfterpayTermsAndCondition": "terms and condition",
       "cOCNumber": "COC Number",
       "companyName": "Company Name",
       "private": "Private",
