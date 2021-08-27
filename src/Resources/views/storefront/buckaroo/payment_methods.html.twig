@@ -534,6 +534,71 @@ en_nl
 
         </fieldset>
     </div>
+{% elseif payment.translated.customFields.buckaroo_key == 'payperemail' %}
+    <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
+    
+    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
+
+    <div class="payment-method-second-col billing-address-form">
+        <fieldset class="fieldset payment">
+
+            <div class="form-row">
+                <div class="form-group col-md-3 col-sm-6">
+                    <label class="form-label" for="buckaroo_payperemail_CustomerGender">
+                        {{ "buckaroo.checkout.salutation" | trans }}*
+                    </label>
+                    <select class="custom-select" id="buckaroo_payperemail_CustomerGender" name="buckaroo_payperemail_CustomerGender" required="required" form="confirmOrderForm">
+                        <option value="0">{{ "buckaroo.checkout.NotSpecified" | trans }}</option>
+                        <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="2">{{ "buckaroo.checkout.mrs" | trans }}</option>
+                        <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="1">{{ "buckaroo.checkout.mr" | trans }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" id='buckaroo_payperemail_CustomerEmail'>
+                <label class="label" for="buckaroo_payperemail_CustomerEmail">{{ "buckaroo.checkout.CustomerEmail"|trans }}:</label>
+                <div class="control">
+                    <input id="buckaroo_payperemail_CustomerEmail" 
+                    class="form-control field" 
+                    type="text"
+                    name="buckaroo_payperemail_CustomerEmail"
+                    form="confirmOrderForm"
+                    required="required"
+                    value="{{ context.customer.email }}"
+                    >
+                </div>
+            </div>
+
+            <div class="form-group" id='buckaroo_payperemail_CustomerFirstName'>
+                <label class="label" for="buckaroo_payperemail_CustomerFirstName">{{ "buckaroo.checkout.CustomerFirstName"|trans }}:</label>
+                <div class="control">
+                    <input id="buckaroo_payperemail_CustomerFirstName" 
+                    class="form-control field" 
+                    type="text"
+                    name="buckaroo_payperemail_CustomerFirstName"
+                    form="confirmOrderForm"
+                    required="required"
+                    value="{{ context.customer.firstName }}"
+                    >
+                </div>
+            </div>
+
+            <div class="form-group" id='buckaroo_payperemail_CustomerLastName'>
+                <label class="label" for="buckaroo_payperemail_CustomerLastName">{{ "buckaroo.checkout.CustomerLastName"|trans }}:</label>
+                <div class="control">
+                    <input id="buckaroo_payperemail_CustomerLastName" 
+                    class="form-control field" 
+                    type="text"
+                    name="buckaroo_payperemail_CustomerLastName"
+                    form="confirmOrderForm"
+                    required="required"
+                    value="{{ context.customer.lastName }}"
+                    >
+                </div>                
+            </div>
+
+        </fieldset>
+    </div>
 
 {% else %}
     <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>

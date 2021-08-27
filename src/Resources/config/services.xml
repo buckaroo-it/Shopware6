@@ -285,6 +285,13 @@
             <argument type="service" id="logger" />
             <tag name="shopware.payment.method.async" />
         </service>
+        
+        <service id="Buckaroo\Shopware6\Handlers\PayPerEmailPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="logger" />
+            <tag name="shopware.payment.method.async" />
+        </service>
 
         <!-- /Payment methods -->
 
@@ -345,6 +352,16 @@
         </service>
 
         <service id="Buckaroo\Shopware6\Storefront\Controller\CaptureController" public="true">
+            <argument type="service" id="order_transaction.repository" />
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="order.repository" />
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+        
+        <service id="Buckaroo\Shopware6\Storefront\Controller\PaylinkController" public="true">
             <argument type="service" id="order_transaction.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="order.repository" />

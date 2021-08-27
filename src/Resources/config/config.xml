@@ -1786,4 +1786,174 @@
             <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
     </card>
+
+    <card>
+        <title>PayPerEmail</title>
+        
+        <input-field type="bool">
+            <name>payperemailEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>payperemailEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>payperemailLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Belfius</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>payperemailFee</name>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
+
+        <input-field>
+            <name>payperemailExpireDays</name>
+            <label lang="en-GB">Expire days</label>
+            <label lang="nl-NL">Verlopen dagen</label>
+            <label lang="de-DE">Ablauftage</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>paylinkEnabled</name>
+            <label lang="en-GB">Paylink Enabled</label>
+            <label lang="nl-NL">Paylink Ingeschakeld</label>
+            <label lang="de-DE">Paylink Aktiviert</label>
+        </input-field>
+
+        <input-field type="multi-select">
+            <name>payperemailAllowed</name>
+            <label lang="en-GB">PayPerEmail payment methods:</label>
+            <label lang="nl-NL">PayPerEmail-betaalmethoden</label>
+            <label lang="de-DE">PayPerEmail-Zahlungsmethoden</label>
+            <options>
+                <option>
+                    <id>amex</id>
+                    <name>American Express</name>
+                </option>
+                <option>
+                    <id>bancontactmrcash</id>
+                    <name>Bancontact / Mr Cash</name>
+                </option>
+                <option>
+                    <id>transfer</id>
+                    <name>Bank Transfer</name>
+                </option>
+                <option>
+                    <id>cartebancaire</id>
+                    <name>Carte Bancaire</name>
+                </option>
+                <option>
+                    <id>cartebleuevisa</id>
+                    <name>Carte Bleue</name>
+                </option>
+                <option>
+                    <id>dankort</id>
+                    <name>Dankort</name>
+                </option>
+                <option>
+                    <id>eps</id>
+                    <name>EPS</name>
+                </option>
+                <option>
+                    <id>giftcard</id>
+                    <name>Giftcards</name>
+                </option>
+                <option>
+                    <id>giropay</id>
+                    <name>Giropay</name>
+                </option>
+                <option>
+                    <id>ideal</id>
+                    <name>iDEAL</name>
+                </option>
+                <option>
+                    <id>idealprocessing</id>
+                    <name>iDEAL Processing</name>
+                </option>
+                <option>
+                    <id>maestro</id>
+                    <name>Maestro</name>
+                </option>
+                <option>
+                    <id>mastercard</id>
+                    <name>Mastercard</name>
+                </option>
+                <option>
+                    <id>paypal</id>
+                    <name>PayPal</name>
+                </option>
+                <option>
+                    <id>sepadirectdebit</id>
+                    <name>SEPA Direct Debit</name>
+                </option>
+                <option>
+                    <id>sofortueberweisung</id>
+                    <name>Sofort Banking</name>
+                </option>
+                <option>
+                    <id>belfius</id>
+                    <name>Belfius</name>
+                </option>
+                <option>
+                    <id>visa</id>
+                    <name>Visa</name>
+                </option>
+                <option>
+                    <id>visaelectron</id>
+                    <name>Visa Electron</name>
+                </option>
+                <option>
+                    <id>vpay</id>
+                    <name>V PAY</name>
+                </option>
+                <option>
+                    <id>alipay</id>
+                    <name>Alipay</name>
+                </option>
+                <option>
+                    <id>wechatpay</id>
+                    <name>WeChatPay</name>
+                </option>
+                <option>
+                    <id>p24</id>
+                    <name>P24</name>
+                </option>
+                <option>
+                    <id>trustly</id>
+                    <name>Trustly</name>
+                </option>
+                <option>
+                    <id>rtp</id>
+                    <name>Request To Pay</name>
+                </option>
+                <option>
+                    <id>tinka</id>
+                    <name>Tinka</name>
+                </option>
+            </options>
+        </input-field>
+    </card>
 </config>

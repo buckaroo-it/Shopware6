@@ -134,6 +134,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $request->setServiceParameter('EncryptedCardData', $dataBag->get('encryptedCardData'));
         }
 
+        if ($buckarooKey == 'payperemail') {
+            $request->setServiceAction('PaymentInvitation');
+            $request->setAdditionalParameter('fromPayPerEmail', 1);
+        }
+
         if ($buckarooKey == 'giftcards') {
             $list = 'ideal';
             $request->removeServices();

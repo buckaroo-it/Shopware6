@@ -1,6 +1,25 @@
 {% block buckaroo_payment_detail %}
     <div class="buckaroo-payment-detail">
         
+        <sw-card :title="$tc('buckaroo-payment.paymentDetail.paylinkTitle')" v-if="isPaylinkVisible">
+
+            {{ $tc('buckaroo-payment.paymentDetail.paylinkDescription') }}
+            
+            <span v-if="paylink"> <br>
+            {{ $tc('buckaroo-payment.paymentDetail.yourLink') }}: <a :href="paylink">{{ paylink }}</a>
+            </span>
+
+            <sw-container columns="1fr 440px" class="sw-order-detail__summary">
+                <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data"><dt></dt> <dd>
+            
+                        <sw-button @click="createPaylink(orderId)" :disabled="!isPaylinkAvailable">
+                            {{ $tc('buckaroo-payment.paymentDetail.paylinkButton') }}
+                        </sw-button></dd>
+                </sw-description-list>
+            </sw-container>
+
+        </sw-card>
+
          <sw-card :title="$tc('buckaroo-payment.paymentDetail.refundTitle')">
             
             {{ $tc('buckaroo-payment.orderItems.title') }}

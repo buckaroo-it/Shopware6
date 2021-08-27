@@ -22,6 +22,10 @@
       "skipInformational": "Informational push"
     },
     "checkout": {
+      "CustomerEmail": "Email",
+      "CustomerFirstName": "Billing First Name",
+      "CustomerLastName": "Billing Last Name",
+      "NotSpecified": "Not specified",
       "buckarooAfterpayOrClick": "Or click here for the French translation",
       "buckarooAfterpayTermsAndCondition": "terms and condition",
       "cOCNumber": "COC Number",

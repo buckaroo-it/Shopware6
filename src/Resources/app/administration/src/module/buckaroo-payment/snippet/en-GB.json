@@ -32,6 +32,10 @@
       "overview": "Overview"
     },
     "paymentDetail": {
+      "yourLink": "Your Paylink",
+      "paylinkButton": "Create paylink",
+      "paylinkDescription": "Create paylink for order",
+      "paylinkTitle": "Paylink",
       "refundTitle": "Refund",
       "transactionsTitle": "Transactions",
       "amountTitle": "Amount",

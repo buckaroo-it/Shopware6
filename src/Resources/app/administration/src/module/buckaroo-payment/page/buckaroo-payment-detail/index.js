@@ -9,7 +9,8 @@ Component.register('buckaroo-payment-detail', {
 
     inject: [
         'repositoryFactory',
-        'BuckarooPaymentService'
+        'BuckarooPaymentService',
+        'systemConfigApiService'
     ],
     
     mixins: [
@@ -18,11 +19,16 @@ Component.register('buckaroo-payment-detail', {
 
     data() {
         return {
+            config: {},
             buckaroo_refund_amount: '0',
             buckaroo_refund_total_amount: '0',
             currency: 'EUR',
             isRefundPossible: true,
             isCapturePossible: false,
+            isPaylinkAvailable: false,
+            isPaylinkVisible: false,
+            paylinkMessage: '',
+            paylink: '',
             isLoading: false,
             order: false,
             buckarooFee: false,
@@ -128,6 +134,12 @@ Component.register('buckaroo-payment-detail', {
         createdComponent() {
             let that = this;
             const orderId = this.$route.params.id;
+
+            this.systemConfigApiService.getValues('BuckarooPayments.config', null)
+            .then(values => {
+                this.config = values;
+            });
+
             const orderRepository = this.repositoryFactory.create('order');
             const orderCriteria = new Criteria(1, 1);
             
@@ -135,8 +147,6 @@ Component.register('buckaroo-payment-detail', {
             orderCriteria.addAssociation('transactions.paymentMethod')
                          .addAssociation('transactions');
             orderRepository.get(orderId, Context.api, orderCriteria).then((order) => {
-                // that.buckaroo_refund_amount = order.amountTotal;
-                //that.order = order;
                 if(order.customFields != undefined && order.customFields.buckarooFee != undefined){
                     this.buckarooFee = order.customFields.buckarooFee;
                 }
@@ -144,6 +154,8 @@ Component.register('buckaroo-payment-detail', {
                 that.isCapturePossible = order.transactions && order.transactions.last().paymentMethod && order.transactions.last().paymentMethod.customFields &&
                     order.transactions.last().paymentMethod.customFields.buckaroo_key &&
                     ['klarnakp', 'billink'].includes(order.transactions.last().paymentMethod.customFields.buckaroo_key.toLowerCase());
+
+                that.isPaylinkVisible = that.isPaylinkAvailable = this.getConfigValue('paylinkEnabled') && order.stateMachineState && order.stateMachineState.technicalName && order.stateMachineState.technicalName == 'open' && order.transactions && order.transactions.last().stateMachineState.technicalName == 'open';
             });
 
             this.BuckarooPaymentService.getBuckarooTransaction(orderId)
@@ -224,6 +236,39 @@ Component.register('buckaroo-payment-detail', {
                     });
                     that.isRefundPossible = true;
                 });
+        },
+
+        createPaylink(transaction) {
+            let that = this;
+            that.isPaylinkAvailable = false;
+            this.BuckarooPaymentService.createPaylink(transaction, this.transactionsToRefund, this.orderItems)
+                .then((response) => {
+                    if(response.status){
+                        that.paylinkMessage = response.message;
+                        that.paylink = response.paylink;
+                        this.createNotificationSuccess({
+                            title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
+                            message: response.message
+                        });
+                    }else{
+                        this.createNotificationError({
+                            title: that.$tc('buckaroo-payment.settingsForm.titleError'),
+                            message: response.message
+                        });
+                    }
+                    that.isPaylinkAvailable = true;
+                })
+                .catch((errorResponse) => {
+                    this.createNotificationError({
+                        title: this.$tc('buckaroo-payment.settingsForm.titleError'),
+                        message: errorResponse.response.data.message
+                    });
+                    that.isPaylinkAvailable = true;
+                });
+        },
+
+        getConfigValue(field) {
+            return this.config[`BuckarooPayments.config.${field}`];
         },
 
         captureOrder(transaction) {

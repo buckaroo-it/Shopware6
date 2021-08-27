@@ -59,8 +59,10 @@ Component.register('buckaroo-settings', {
                 'klarnakpEnabled': true,
                 'advancedConfiguration': true,
                 'BillinkCreateInvoiceAfterShipment': true,
+                'payperemailEnabled': true,
             },
             collapsibleAdvancedState: {
+                'paylinkEnabled': true,
                 'stockReserve': true,
                 'sendInvoiceEmail': true,
                 'showPaymentMethodsList': true,

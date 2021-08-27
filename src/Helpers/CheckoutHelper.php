@@ -1953,4 +1953,103 @@ class CheckoutHelper
     public function getCountryCode($address){
         return $address->getCountry() !== null && $address->getCountry()->getIso() !== null ? $address->getCountry()->getIso() : 'NL';
     }
+
+    public function getPayPerEmailPaymentMethodsAllowed()
+    {
+        $methods = [];
+        if($payperemailAllowed = $this->getSettingsValue('payperemailAllowed')){
+
+            foreach ($payperemailAllowed as $key => $item){
+                if($item == 'giftcard'){
+                    if($allowedgiftcards = $this->getSettingsValue('allowedgiftcards')){
+                        foreach ($allowedgiftcards as $giftcard){
+                            array_push($methods, $giftcard);
+                        }
+                    }
+                }else{
+                    array_push($methods, $item);
+                }
+
+            }
+
+        }
+
+       return join(',', $methods);
+    }
+
+    public function createPaylink($order, $context)
+    {
+        $this->logger->info(__METHOD__ . "|1|", [$order]);
+        if (!$this->isBuckarooPaymentMethod($order)) {
+            return;
+        }
+
+        $context = $context ?? Context::createDefaultContext();
+
+        $customFields = $this->getCustomFields($order, $context);
+
+        $amount       = $order->getAmountTotal();
+        $currency     = $order->getCurrency();
+        $customer     = $order->getOrderCustomer();
+        $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
+
+        if ($amount <= 0) {
+            $this->logger->info(__METHOD__ . "|15|");
+            return ['status' => false, 'message' => 'Amount is not valid'];
+        }
+
+        $request = new TransactionRequest;
+        $request->setServiceAction('PaymentInvitation');
+        $request->setDescription('');
+        $request->setServiceName('payperemail');
+        $request->setAmountCredit(0);
+        $request->setAmountDebit($amount);
+        $request->setInvoice($order->getOrderNumber());
+        $request->setOrder($order->getOrderNumber());
+        $request->setCurrency($currencyCode);
+        $request->setServiceVersion(1);
+
+        $request->setAdditionalParameter('orderTransactionId', $order->getTransactions()->last()->getId());
+        $request->setAdditionalParameter('orderId', $order->getId());
+        $request->setAdditionalParameter('fromPayPerEmail', 1);
+        $request->setAdditionalParameter('fromPayLink', 1);
+
+        $finalizePage = $this->getReturnUrl('buckaroo.payment.finalize');
+        $request->setReturnURL($finalizePage);
+        $request->setReturnURLCancel(sprintf('%s?cancel=1', $finalizePage));
+        $request->setPushURL($this->getReturnUrl('buckaroo.payment.push'));
+
+        $request->setServiceParameter('CustomerGender',$customer->getSalutation()->getSalutationKey()=='mr'?1:2);
+        $request->setServiceParameter('CustomerEmail',$customer->getEmail());
+        $request->setServiceParameter('CustomerFirstName',$customer->getFirstName());
+        $request->setServiceParameter('CustomerLastName',$customer->getLastName());
+        $request->setServiceParameter('MerchantSendsEmail','true');
+        $request->setServiceParameter('PaymentMethodsAllowed',$this->getPayPerEmailPaymentMethodsAllowed());
+
+        if($payperemailExpireDays = $this->getSettingsValue('payperemailExpireDays')){
+            $request->setServiceParameter('ExpirationDate',date('Y-m-d', time() + $payperemailExpireDays * 86400));
+        }
+
+        $url       = $this->getTransactionUrl('payperemail');
+        $bkrClient = $this->helper->initializeBkr();
+        $response  = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
+
+        if ($response->isSuccess() || $response->isAwaitingConsumer()) {
+            $this->logger->info(__METHOD__ . "|45|");
+            if($parameters = $response->getServiceParameters()){
+                $payLink = $parameters['paylink'];
+            }
+            if ($payLink) {
+                return ['status' => true, 'paylink' => $payLink, 'message' => 'Your Paylink: <a href="'.$payLink.'">'.$payLink.'</a>'];
+            } 
+        }
+
+        $this->logger->info(__METHOD__ . "|60|");
+
+        return [
+            'status'  => false,
+            'message' => $response->getSubCodeMessageFull() ?? $response->getSomeError(),
+            'code'    => $response->getStatusCode(),
+        ];
+    }
 }

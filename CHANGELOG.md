@@ -78,4 +78,9 @@ BP-957 Make 'VAT number' field non-required (BILLINK)
 BP-970 Add CreditCard brand PostePay
 
 # 1.2.2
+#5 Edit order - impossible
+BP-985 Fix warnings
+
+# 1.2.3
 BP-1020 Afterpay terms and condition with a address in Belgium is showing the terms for NL.
+BP-969 Add payment method PayPerEmail + Paylink
