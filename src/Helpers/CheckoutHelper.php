@@ -1112,6 +1112,7 @@ class CheckoutHelper
         $request->setServiceVersion($customFields['version']);
 
         if ($customFields['serviceName'] == 'afterpay') {
+            $request->setInvoice($this->getRefundTransactionInvoceId($order->getOrderNumber(), $order->getTransactions()->last()->getId(), $customFields));
             $additional = $this->getRefundArticleData($amount);
             foreach ($additional as $key2 => $item3) {
                 foreach ($item3 as $key => $value) {
@@ -2051,5 +2052,14 @@ class CheckoutHelper
             'message' => $response->getSubCodeMessageFull() ?? $response->getSomeError(),
             'code'    => $response->getStatusCode(),
         ];
+    }
+
+    public function getRefundTransactionInvoceId($invoiceIncrementId, $orderTransactionId, $customFields)
+    {
+        $refundIncrementInvoceId = $customFields['refundIncrementInvoceId'] ?? 0; 
+        $refundIncrementInvoceId++;
+        $customFields['refundIncrementInvoceId'] = $refundIncrementInvoceId;
+        $this->updateTransactionCustomFields($orderTransactionId, $customFields);
+        return $invoiceIncrementId . '_R' . ($refundIncrementInvoceId > 1 ? $refundIncrementInvoceId : '');
     }
 }
