@@ -250,6 +250,7 @@ class PushController extends StorefrontController
         }
 
         if (empty($messages)) {
+            $statusMessage = $this->checkoutHelper->getStatusMessageByStatusCode($status);
             $messages[] = ['type' => 'danger', 'text' => $statusMessage ? $statusMessage : $this->trans('errorOccurred')];
         }
 

@@ -59,18 +59,18 @@ class BkrClient
         return $curl;
     }
 
-    protected function getHeaders($curl, $url, $data, $method)
+    protected function getHeaders($curl, $url, $data, $method, $locale)
     {
         return [
             'Content-Type: application/json; charset=utf-8',
             'Accept: application/json',
             $this->hmac->getHeader($url, $data, $method),
             $this->software->getHeader(),
-            $this->culture->getHeader(),
+            $this->culture->getHeader($locale),
         ];
     }
 
-    protected function call($url, $method = self::METHOD_GET, Request $data = null, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response')
+    protected function call($url, $method = self::METHOD_GET, Request $data = null, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response', $locale = '')
     {
         $this->logger->info(__METHOD__ . "|1|", [$url, $method, $data]);
 
@@ -97,7 +97,7 @@ class BkrClient
         //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
 
         // all headers have to be set at once
-        $headers = $this->getHeaders($curl, $url, $json, $method);
+        $headers = $this->getHeaders($curl, $url, $json, $method, $locale);
         $headers = array_merge($headers, $data->getHeaders());
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
@@ -144,9 +144,9 @@ class BkrClient
         return $this->call($url, self::METHOD_GET, null, $responseClass);
     }
 
-    public function post($url, Request $data = null, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response')
+    public function post($url, Request $data = null, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response',$locale='')
     {
-        return $this->call($url, self::METHOD_POST, $data, $responseClass);
+        return $this->call($url, self::METHOD_POST, $data, $responseClass, $locale);
     }
 
     protected function getCurlHeaders($curl, &$headers)

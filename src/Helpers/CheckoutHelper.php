@@ -2062,4 +2062,27 @@ class CheckoutHelper
         $this->updateTransactionCustomFields($orderTransactionId, $customFields);
         return $invoiceIncrementId . '_R' . ($refundIncrementInvoceId > 1 ? $refundIncrementInvoceId : '');
     }
+
+    public function getSalesChannelLocaleCode($context)
+    {
+        $salesChannelCriteria = new Criteria([$context->getSalesChannel()->getId()]);
+
+        return $this->salesChannelRepository->search(
+            $salesChannelCriteria->addAssociation('language.locale'),
+            Context::createDefaultContext()
+        )->first()->getLanguage()->getLocale()->getCode();
+    }
+
+    public function getStatusMessageByStatusCode($statusCode)
+    {
+        $statusCodeAddErrorMessage = [];
+        $statusCodeAddErrorMessage[ResponseStatus::BUCKAROO_STATUSCODE_FAILED] = 
+        $this->getTranslate('buckaroo.messages.statuscode_failed');
+        $statusCodeAddErrorMessage[ResponseStatus::BUCKAROO_STATUSCODE_REJECTED] =
+            $this->getTranslate('buckaroo.messages.statuscode_failed');
+        $statusCodeAddErrorMessage[ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER] =
+            $this->getTranslate('buckaroo.messages.statuscode_cancelled_by_user');
+            return $statusCodeAddErrorMessage[$statusCode] ?? '';
+    }
+
 }

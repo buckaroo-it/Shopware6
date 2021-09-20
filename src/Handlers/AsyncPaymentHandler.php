@@ -165,7 +165,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             } else {
                 $url = $this->checkoutHelper->getTransactionUrl($buckarooKey);
             }
-            $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
+            $locale = $this->checkoutHelper->getSalesChannelLocaleCode($salesChannelContext);
+            $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse',$locale);
         } catch (Exception $exception) {
             throw new AsyncPaymentProcessException(
                 $transaction->getOrderTransaction()->getId(),

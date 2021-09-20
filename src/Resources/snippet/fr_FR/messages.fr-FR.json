@@ -7,6 +7,8 @@
       "refundDescription": "Remboursement de la commande #orderNumber"
     },
     "messages": {
+      "statuscode_failed": "Malheureusement, une erreur s'est produite lors du traitement de votre paiement. Veuillez réessayer. Si cette erreur persiste, veuillez choisir un autre mode de paiement.",
+      "statuscode_cancelled_by_user": "Selon notre système, vous avez annulé le paiement. Si ce n'est pas le cas, veuillez nous contacter.",
       "return791": "Votre commande a été passée avec succès mais le paiement n'a pas encore été reçu. Votre commande sera traitée dès réception du paiement.",
       "userCanceled": "Selon notre système, vous avez annulé le paiement. Si ce n'est pas le cas, veuillez nous contacter.",
       "incorrectPin": "Le numéro de carte ou le code PIN est incorrect",
