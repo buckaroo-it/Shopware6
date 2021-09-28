@@ -1359,17 +1359,38 @@ class CheckoutHelper
     private function decodePushValue($brq_key, $brq_value)
     {
         switch ($brq_key) {
-            case 'brq_SERVICE_payconiq_PayconiqAndroidUrl' :
-            case 'brq_SERVICE_payconiq_PayconiqIosUrl':
-            case 'brq_SERVICE_payconiq_PayconiqUrl':
-            case 'brq_SERVICE_payconiq_QrUrl':
-            case 'brq_SERVICE_masterpass_CustomerPhoneNumber':
-            case 'brq_SERVICE_masterpass_ShippingRecipientPhoneNumber':
-            case 'brq_InvoiceDate':
-            case 'brq_DueDate':
-            case 'brq_PreviousStepDateTime':
-            case 'brq_EventDateTime':
             case 'brq_customer_name':
+            case 'brq_service_ideal_consumername':
+            case 'brq_service_transfer_consumername':
+            case 'brq_service_payconiq_payconiqandroidurl':
+            case 'brq_service_paypal_payeremail':
+            case 'brq_service_paypal_payerfirstname':
+            case 'brq_service_paypal_payerlastname':
+            case 'brq_service_payconiq_payconiqiosurl':
+            case 'brq_service_payconiq_payconiqurl':
+            case 'brq_service_payconiq_qrurl':
+            case 'brq_service_masterpass_customerphonenumber':
+            case 'brq_service_masterpass_shippingrecipientphonenumber':
+            case 'brq_invoicedate':
+            case 'brq_duedate':
+            case 'brq_previousstepdatetime':
+            case 'brq_eventdatetime':
+            case 'brq_service_transfer_accountholdername':
+            case 'brq_service_transfer_customeraccountname':
+            case 'cust_customerbillingfirstname':
+            case 'cust_customerbillinglastname':
+            case 'cust_customerbillingemail':
+            case 'cust_customerbillingstreet':
+            case 'cust_customerbillingtelephone':
+            case 'cust_customerbillinghousenumber':
+            case 'cust_customerbillinghouseadditionalnumber':
+            case 'cust_customershippingfirstname':
+            case 'cust_customershippinglastname':
+            case 'cust_customershippingemail':
+            case 'cust_customershippingstreet':
+            case 'cust_customershippingtelephone':
+            case 'cust_customershippinghousenumber':
+            case 'cust_customershippinghouseadditionalnumber':
                 $decodedValue = $brq_value;
                 break;
             default:
