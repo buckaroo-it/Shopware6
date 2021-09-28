@@ -1358,7 +1358,7 @@ class CheckoutHelper
      */
     private function decodePushValue($brq_key, $brq_value)
     {
-        switch ($brq_key) {
+        switch (strtolower($brq_key)) {
             case 'brq_customer_name':
             case 'brq_service_ideal_consumername':
             case 'brq_service_transfer_consumername':
