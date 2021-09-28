@@ -1391,6 +1391,8 @@ class CheckoutHelper
             case 'cust_customershippingtelephone':
             case 'cust_customershippinghousenumber':
             case 'cust_customershippinghouseadditionalnumber':
+            case 'cust_mailadres':
+            case 'brq_description':
                 $decodedValue = $brq_value;
                 break;
             default:
