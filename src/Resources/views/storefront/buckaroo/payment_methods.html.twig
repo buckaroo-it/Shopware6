@@ -177,7 +177,7 @@
                                     <span>
                                         <a target="_blank" href="https://documents.myafterpay.com/consumer-terms-conditions/{% set countryIso = context.customer.activeBillingAddress.country.iso %} {% if countryIso == 'DE' %} de_de {% elseif countryIso == 'AT' %} de_at {% elseif countryIso == 'NL' %} nl_nl {% elseif countryIso == 'BE' %} nl_be {% elseif countryIso == 'FI' %} fi_fi {% else %} en_nl {% endif %}/">{{ "buckaroo.checkout.buckarooAfterpayTermsCondition"|trans }}</a>
                                         {% if countryIso == 'BE' %}
-                                            ({{ "buckaroo.checkout.buckarooAfterpayOrClick"|trans }}: <a target="_blank" href="https://documents.myafterpay.com/consumer-terms-conditions/fr_be/">{{ "buckaroo.checkout.buckarooAfterpayTermsAndCondition"|trans }}</a>.)
+                                            ({{ "buckaroo.checkout.buckarooAfterpayOrClickHere"|trans }}: <a target="_blank" href="https://documents.myafterpay.com/consumer-terms-conditions/fr_be/">{{ "buckaroo.checkout.buckarooAfterpayTermsAndCondition"|trans }}</a>.)
                                         {% endif %}
                                     </span>
                                 </div>

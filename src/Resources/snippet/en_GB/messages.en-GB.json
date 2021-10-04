@@ -28,6 +28,7 @@
       "CustomerFirstName": "Billing First Name",
       "CustomerLastName": "Billing Last Name",
       "NotSpecified": "Not specified",
+      "buckarooAfterpayOrClickHere": "Oder klicken Sie hier",
       "buckarooAfterpayOrClick": "Or click here for the French translation",
       "buckarooAfterpayTermsAndCondition": "terms and condition",
       "cOCNumber": "COC Number",
