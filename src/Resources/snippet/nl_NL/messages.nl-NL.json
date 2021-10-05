@@ -20,6 +20,7 @@
       "paymentError": "Betalingsfout",
       "paymentCancelled": "Betaling geannuleerd",
       "paymentUpdatedEarlier": "Betalingsstatus is eerder bijgewerkt",
+      "skippedPush": "Push is overgeslagen",
       "orderCancelled": "Bestelling geannuleerd"
     },
     "checkout": {

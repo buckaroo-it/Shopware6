@@ -147,8 +147,10 @@ class PushController extends StorefrontController
                     return $this->json(['status' => true, 'message' => $this->trans('buckaroo.messages.paymentUpdatedEarlier')]);
                 }
 
+                $customFields = $this->checkoutHelper->getCustomFields($order, $context);
                 $paymentSuccesStatus = $this->checkoutHelper->getSettingsValue('paymentSuccesStatus') ? $this->checkoutHelper->getSettingsValue('paymentSuccesStatus') : "completed";
-                $paymentState        = (round($brqAmount, 2) == round($totalPrice, 2)) ? $paymentSuccesStatus : "pay_partially";
+                $alreadyPaid = round($brqAmount + ($customFields['alreadyPaid'] ?? 0), 2);
+                $paymentState        = ($alreadyPaid >= round($totalPrice, 2)) ? $paymentSuccesStatus : "pay_partially";
                 $data                = [];
                 if ($paymentMethod && (strtolower($paymentMethod) == 'klarnakp')) {
                     $this->logger->info(__METHOD__ . "|42|");
@@ -160,6 +162,7 @@ class PushController extends StorefrontController
                 $data = array_merge($data, [
                     'originalTransactionKey' => $request->request->get('brq_transactions'),
                     'brqPaymentMethod'       => $paymentMethod ? $paymentMethod : $request->request->get('brq_transaction_method'),
+                    'alreadyPaid' => $alreadyPaid,
                 ]);
                 $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
 
@@ -188,6 +191,10 @@ class PushController extends StorefrontController
         }
 
         if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_TECHNICAL_ERROR, ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER, ResponseStatus::BUCKAROO_STATUSCODE_FAILED, ResponseStatus::BUCKAROO_STATUSCODE_REJECTED])) {
+
+            if ($this->checkoutHelper->isTransitionPaymentState(['paid','pay_partially'], $orderTransactionId, $context)) {
+                return $this->json(['status' => true, 'message' => $this->trans('buckaroo.messages.skippedPush')]);
+            }
 
             $paymentFailedStatus = $this->checkoutHelper->getSettingsValue('paymentFailedStatus') ? $this->checkoutHelper->getSettingsValue('paymentFailedStatus') : "cancelled";
 

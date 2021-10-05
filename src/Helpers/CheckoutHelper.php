@@ -370,6 +370,8 @@ class CheckoutHelper
         switch ($actionName) {
             case StateMachineTransitionActions::ACTION_PAID:
                 return OrderTransactionStates::STATE_PAID;
+            case StateMachineTransitionActions::ACTION_PAID_PARTIALLY:
+                return OrderTransactionStates::STATE_PARTIALLY_PAID;
             case StateMachineTransitionActions::ACTION_CANCEL:
                 return OrderTransactionStates::STATE_CANCELLED;
             case StateMachineTransitionActions::ACTION_REFUND:

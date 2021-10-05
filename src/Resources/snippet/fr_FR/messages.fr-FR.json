@@ -20,6 +20,7 @@
       "paymentError": "Erreur de paiement",
       "paymentCancelled": "Paiement annulé",
       "paymentUpdatedEarlier": "L'état du paiement a été mis à jour plus tôt",
+      "skippedPush": "La poussée a été ignorée",
       "orderCancelled": "Commande annulée"
     },
     "checkout": {

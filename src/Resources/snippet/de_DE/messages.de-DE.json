@@ -20,6 +20,7 @@
       "paymentError": "Zahlungsfehler",
       "paymentCancelled": "Zahlung storniert",
       "paymentUpdatedEarlier": "Zahlungsstatus wurde früher aktualisiert",
+      "skippedPush": "Push wurde übersprungen",
       "orderCancelled": "Bestellung storniert"
     },
     "checkout": {

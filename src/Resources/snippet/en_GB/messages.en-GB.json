@@ -21,6 +21,7 @@
       "paymentCancelled": "Payment cancelled",
       "paymentUpdatedEarlier": "Payment state was updated earlier",
       "orderCancelled": "Order cancelled",
+      "skippedPush": "Push was skipped",
       "skipInformational": "Informational push"
     },
     "checkout": {
