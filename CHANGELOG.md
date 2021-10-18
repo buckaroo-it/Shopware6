@@ -83,4 +83,3 @@ BP-985 Fix warnings
 
 # 1.2.3
 BP-1020 Afterpay terms and condition with a address in Belgium is showing the terms for NL.
-BP-969 Add payment method PayPerEmail + Paylink
