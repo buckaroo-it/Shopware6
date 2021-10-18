@@ -82,4 +82,21 @@ BP-970 Add CreditCard brand PostePay
 BP-985 Fix warnings
 
 # 1.2.3
+#6 Fix for partial payment issue with cancelled parts
+#8 Version in composer.json is not updated
+Fix composer stable
+#6 Fix getOrderTransactionStatesNameFromAction function
+#9 Fix for partial payment pushes issue
+BP-996 Add accept terms & conditions for Billink
+BP-1017 Choosing Postepay card uses VISA instead
+FIX AfterPay. Country does not seem to be filled and therefor 
 BP-1020 Afterpay terms and condition with a address in Belgium is showing the terms for NL.
+#12 Update AsyncPaymentHandler.php
+BP-452 Fix KBS title
+BP-1052 Afterpay refund from Shopware backend is showing a error.
+BP-1064 Wrong language errormessage in shopware checkout
+BP-1065 Use {% blocks %} to override
+#15 Incorrect signature on partial payments
+BP-1020 Fix text
+#16 Partial payments - order gets incorrectly cancelled
+BP-1088 Billink logo update
