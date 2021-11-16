@@ -172,9 +172,8 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
         $shippingCareOf =  $shippingAddress->getFirstName() . ' ' . $shippingAddress->getLastName();
 
         if ($address->getCompany()) {
-            $careOf = $shippingCareOf = $address->getCompany();
+            $careOf = $address->getCompany();
         }
-
         $billingData = [
             [
                 '_'       => $category,
