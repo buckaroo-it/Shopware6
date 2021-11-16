@@ -167,7 +167,14 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
         $shippingStreetFormat  = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
 
         $category = $address->getCompany() ? 'B2B' : 'B2C';
-        
+
+        $careOf =  $shippingAddress->getFirstName() . ' ' . $shippingAddress->getLastName();
+        $shippingCareOf =  $shippingAddress->getFirstName() . ' ' . $shippingAddress->getLastName();
+
+        if ($address->getCompany()) {
+            $careOf = $shippingCareOf = $address->getCompany();
+        }
+
         $billingData = [
             [
                 '_'       => $category,
@@ -188,7 +195,7 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
                 'GroupID' => '',
             ],
             [
-                '_'       => $address->getFirstName() . ' ' . $address->getLastName(),
+                '_'       => $careOf,
                 'Name'    => 'CareOf',
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
@@ -326,7 +333,7 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
                 'GroupID' => '',
             ],
             [
-                '_'       => $shippingAddress->getFirstName() . ' ' . $shippingAddress->getLastName(),
+                '_'       => $shippingCareOf,
                 'Name'    => 'CareOf',
                 'Group'   => 'ShippingCustomer',
                 'GroupID' => '',
