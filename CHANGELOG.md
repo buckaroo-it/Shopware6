@@ -100,3 +100,8 @@ BP-1065 Use {% blocks %} to override
 BP-1020 Fix text
 #16 Partial payments - order gets incorrectly cancelled
 BP-1088 Billink logo update
+
+# 1.2.4
+BP-1146 Company name not filled at Billink
+Update README.md
+BP-1163 remove case sensitive logos 

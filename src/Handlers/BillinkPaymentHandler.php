@@ -167,7 +167,18 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
         $shippingStreetFormat  = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
 
         $category = $address->getCompany() ? 'B2B' : 'B2C';
-        
+
+        $careOf =  $shippingAddress->getFirstName() . ' ' . $shippingAddress->getLastName();
+        $shippingCareOf =  $shippingAddress->getFirstName() . ' ' . $shippingAddress->getLastName();
+
+        if ($address->getCompany()) {
+            $careOf = $address->getCompany();
+        }
+
+        if ($shippingAddress->getCompany()) {
+            $shippingCareOf = $shippingAddress->getCompany();
+        }
+
         $billingData = [
             [
                 '_'       => $category,
@@ -188,13 +199,13 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
                 'GroupID' => '',
             ],
             [
-                '_'       => $address->getFirstName() . ' ' . $address->getLastName(),
+                '_'       => $careOf,
                 'Name'    => 'CareOf',
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ],
             [
-                '_'       => strtoupper(substr($address->getLastName(), 0, 1)),
+                '_'       => strtoupper(substr($address->getFirstName(), 0, 1)),
                 'Name'    => 'Initials',
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
@@ -326,13 +337,13 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
                 'GroupID' => '',
             ],
             [
-                '_'       => $shippingAddress->getFirstName() . ' ' . $shippingAddress->getLastName(),
+                '_'       => $shippingCareOf,
                 'Name'    => 'CareOf',
                 'Group'   => 'ShippingCustomer',
                 'GroupID' => '',
             ],
             [
-                '_'       => strtoupper(substr($shippingAddress->getLastName(), 0, 1)),
+                '_'       => strtoupper(substr($shippingAddress->getFirstName(), 0, 1)),
                 'Name'    => 'Initials',
                 'Group'   => 'ShippingCustomer',
                 'GroupID' => '',

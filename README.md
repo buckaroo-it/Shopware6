@@ -1,4 +1,8 @@
-# Buckaroo plugin Shopware 6
+<p align="center">
+  <img src="https://www.buckaroo.nl/media/2988/sw6_icon.jpg" width="150px" position="center">
+</p>
+
+# Buckaroo Shopware 6 Extension
 
 ### Installation & Configuration 
 
@@ -18,7 +22,10 @@ create folder "<root_folder>/custom/plugins/BuckarooPayments/" and unzip here ar
 
 7) Fill other payment method settings and click "Save".
 
+### Additional information
+Knowledge base & FAQ:
 
+https://support.buckaroo.nl/categorieen/plugins/shopware-6
 
 Support:
 
