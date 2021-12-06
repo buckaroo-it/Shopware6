@@ -274,6 +274,8 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+            <helpText lang="en-GB">Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.</helpText>
+            <helpText lang="nl-NL">Controleer bij Buckaroo of Client Side Encryption is ingeschakeld, anders mislukken transacties. Bij twijfel, neem contact met ons op.</helpText>
         </input-field>
 
         <input-field type="single-select">
