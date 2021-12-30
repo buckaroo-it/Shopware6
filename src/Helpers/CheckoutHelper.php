@@ -1081,11 +1081,22 @@ class CheckoutHelper
             return;
         }
 
+        $amount = 0;
+        if (!empty($orderItems) && is_array($orderItems)) {
+            foreach ($orderItems as $orderItem) {
+                if (isset($orderItem['totalAmount'])) {
+                    $amount = $amount + $orderItem['totalAmount'];
+                }
+            }
+        }
+
         $customFields = $this->getCustomFields($order, $context);
 
         $customFields['serviceName']            = $item['transaction_method'];
         $customFields['originalTransactionKey'] = $item['transactions'];
-        $amount                                 = $item['amount'];
+        if ($amount <= 0) {
+            $amount = $item['amount']; //backward compatibility only or in case no $orderItems was passed
+        }
         $currency                               = !empty($item['currency']) ? $item['currency'] : 'EUR';
 
         if ($amount <= 0) {
