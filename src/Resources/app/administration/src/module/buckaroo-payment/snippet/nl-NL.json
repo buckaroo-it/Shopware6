@@ -41,9 +41,9 @@
       "successTitle": "Succes",
       "successMessage": "Buckaroo-succes terugbetaald ",
       "errorTitle": "Fout",
-      "payTitle": "Betaling ontvangen",
-      "payDescription": "Ontvang betaling voor bestelling",
-      "payButton": "Betaling ontvangen"
+      "payTitle": "Capture betaling",
+      "payDescription": "Capture en maak factuur voor order",
+      "payButton": "Capture betaling"
     },
     "orderItems": {
         "title": "Te restitueren items",
