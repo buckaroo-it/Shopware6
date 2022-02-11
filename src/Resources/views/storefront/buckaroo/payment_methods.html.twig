@@ -2,6 +2,20 @@
 
     {% if context.paymentMethod.translated.customFields.buckaroo_key == payment.translated.customFields.buckaroo_key %}
 
+        {% if page.extensions.buckaroo.backLink %}
+            <script>
+                setTimeout(function() {
+                    if (document.getElementById('confirmFormSubmit')) {
+                        document.getElementById('confirmFormSubmit').addEventListener('click', function(e) {
+                            window.history.pushState(
+                                null, null, '{{ page.extensions.buckaroo.backLink|raw }}'
+                            );
+                        });
+                    }
+                }, 200)
+            </script>
+        {% endif %}
+
         {% block buckaroo_payment_method %}
 
             {% block buckaroo_payment_method_payment_shipping %}

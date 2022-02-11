@@ -2121,4 +2121,8 @@ class CheckoutHelper
             return $statusCodeAddErrorMessage[$statusCode] ?? '';
     }
 
+    public function getSession()
+    {
+        return $this->session;
+    }
 }

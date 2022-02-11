@@ -217,9 +217,18 @@ class PushController extends StorefrontController
      */
     public function finalizeBuckaroo(Request $request, SalesChannelContext $salesChannelContext)
     {
-        $status        = $request->request->get('brq_statuscode');
-        $statusMessage = $request->request->get('brq_statusmessage');
-        $orderId       = $request->request->get('ADD_orderId');
+        if ($request->query->getBoolean('back_return')) {
+            $status = 890;
+            $statusMessage = 'The transaction was cancelled by the user.';
+            $orderId = $this->get('session')->get('buckaroo_order_number');
+            if ($token = $request->query->get('ADD_sw-context-token')) {
+                $this->get('session')->set('sw-context-token', $token);
+            }
+        } else {
+            $status = $request->request->get('brq_statuscode');
+            $statusMessage = $request->request->get('brq_statusmessage');
+            $orderId       = $request->request->get('ADD_orderId');
+        }
 
         if (
             !empty($request->request->get('brq_payment_method'))

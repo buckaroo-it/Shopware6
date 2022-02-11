@@ -95,6 +95,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         $request->setInvoice($order->getOrderNumber());
         $request->setOrder($order->getOrderNumber());
+        $this->checkoutHelper->getSession()->set('buckaroo_order_number', $order->getId());
         $request->setCurrency($salesChannelContext->getCurrency()->getIsoCode());
         $request->setAmountDebit($order->getAmountTotal());
 
