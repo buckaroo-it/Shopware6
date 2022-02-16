@@ -11,11 +11,6 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
         }
     }
     _registerCheckoutSubmitButton() {
-        const field = document.getElementById('confirmFormSubmit');
-        if (field) {
-            field.addEventListener('click', this._handleCheckoutSubmit.bind(this));
-        }
-
         const editButton = document.getElementById('confirmOrderForm').querySelector('[type="submit"]');
         if (editButton) {
             editButton.addEventListener('click', this._handleCheckoutSubmit.bind(this));
