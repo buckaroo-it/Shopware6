@@ -124,7 +124,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         return [
             AccountPaymentMethodPageLoadedEvent::class => 'hideNotEnabledPaymentMethods',
-            AccountEditOrderPageLoadedEvent::class     => 'hideNotEnabledPaymentMethods',
+            AccountEditOrderPageLoadedEvent::class     => 'addBuckarooExtension',
             CheckoutConfirmPageLoadedEvent::class      => 'addBuckarooExtension',
         ];
     }
@@ -147,10 +147,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param CheckoutConfirmPageLoadedEvent $event
+     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
      * @throws \Exception
      */
-    public function addBuckarooExtension(CheckoutConfirmPageLoadedEvent $event): void
+    public function addBuckarooExtension($event): void
     {
         $this->hideNotEnabledPaymentMethods($event);
 
