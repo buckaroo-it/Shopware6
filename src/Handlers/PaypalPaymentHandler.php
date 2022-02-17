@@ -29,6 +29,7 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
         $paymentMethod = new Paypal();
         return parent::pay(
             $transaction,

@@ -29,6 +29,7 @@ class BelfiusPaymentHandler extends AsyncPaymentHandler
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
         $paymentMethod = new Belfius();
         return parent::pay(
             $transaction,

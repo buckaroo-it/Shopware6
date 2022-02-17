@@ -30,6 +30,7 @@ class CreditcardsPaymentHandler extends AsyncPaymentHandler
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
         $paymentMethod = new Creditcards();
         return parent::pay(
             $transaction,

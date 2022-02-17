@@ -28,7 +28,8 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
         string $type = null,
         string $version = null,
         array $gatewayInfo = []
-    ): RedirectResponse{
+    ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
 
         $additional = [];
         $latestKey  = 1;
