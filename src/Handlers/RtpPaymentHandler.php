@@ -29,6 +29,7 @@ class RtpPaymentHandler extends AsyncPaymentHandler
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
         $order = $transaction->getOrder();
         $address = $this->checkoutHelper->getBillingAddress($order, $salesChannelContext);
         $gatewayInfo['additional'][] = [['Name' => 'DebtorName', '_' => $address->getFirstName() . ' ' . $address->getLastName()]];

@@ -29,6 +29,7 @@ class GiropayPaymentHandler extends AsyncPaymentHandler
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
         $paymentMethod = new Giropay();
 
         if($bic = $dataBag->get('buckarooGiropayBic')){

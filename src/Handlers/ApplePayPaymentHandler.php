@@ -29,6 +29,7 @@ class ApplePayPaymentHandler extends AsyncPaymentHandler
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
         $paymentMethod = new ApplePay();
         return parent::pay(
             $transaction,

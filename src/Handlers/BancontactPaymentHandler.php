@@ -29,6 +29,7 @@ class BancontactPaymentHandler extends AsyncPaymentHandler
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
         $paymentMethod = new Bancontact();
         return parent::pay(
             $transaction,

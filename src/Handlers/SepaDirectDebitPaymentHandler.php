@@ -29,6 +29,7 @@ class SepaDirectDebitPaymentHandler extends AsyncPaymentHandler
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
         $paymentMethod = new SepaDirectDebit();
 
         if($customeraccountname = $dataBag->get('buckarooSepaDirectDebitCustomer')){

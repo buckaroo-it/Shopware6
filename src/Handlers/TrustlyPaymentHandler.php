@@ -28,7 +28,8 @@ class TrustlyPaymentHandler extends AsyncPaymentHandler
         string $type = null,
         string $version = null,
         array $gatewayInfo = []
-    ): RedirectResponse{
+    ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
 
         $order      = $transaction->getOrder();
         $paymentMethod = new Trustly();

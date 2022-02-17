@@ -29,6 +29,7 @@ class TransferPaymentHandler extends AsyncPaymentHandler
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
         $additional = [];
         $order = $transaction->getOrder();
 
