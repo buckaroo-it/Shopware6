@@ -121,7 +121,7 @@
                 <template #card-element="{ element, config, card}">
                     <div v-show="displayField(element, config, card)">
                         <sw-label variant="neutral" size="default" :ghost="false" :caps="false" :dismissable="true" v-if="showLabel(element, card)">{{getCardInfo(element, card, 'label')}}</sw-label>
-                        <sw-help-text :width="200" v-if="showHelpText(element, card)" :text="getCardInfo(element, card, 'helpText')" :width="400" tooltipPosition="right"></sw-help-text>
+                        <sw-help-text v-if="showHelpText(element, card)" :text="getCardInfo(element, card, 'helpText')" :width="400" tooltipPosition="right"></sw-help-text>
                         <sw-form-field-renderer
                                 v-bind="getBind(element, config)"
                                 v-model="config[element.name]"/>

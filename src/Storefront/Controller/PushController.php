@@ -120,14 +120,36 @@ class PushController extends StorefrontController
         if (isset($brqAmountCredit)) {
             $this->logger->info(__METHOD__ . "|15|", [$brqAmountCredit]);
             if ($status != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS && $brqTransactionType == ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_CANCEL) {
-                $currentStateId = $transaction->getStateId();
                 $this->logger->info(__METHOD__ . "|20|");
                 return $this->json(['status' => true, 'message' => $this->trans('buckaroo.messages.paymentCancelled')]);
             }
 
-            $status = ($brqAmountCredit < $totalPrice) ? 'partial_refunded' : 'refunded';
+            $alreadyRefunded = 0;
+            if ($orderTransaction = $this->checkoutHelper->getOrderTransactionById(
+                $context,
+                $orderTransactionId
+            )) {
+                $this->logger->info(__METHOD__ . "|21|");
+                $customFields = $orderTransaction->getCustomFields() ?? [];
+                if (!empty($customFields['alreadyRefunded'])) {
+                    $this->logger->info(__METHOD__ . "|22|");
+                    $alreadyRefunded = $customFields['alreadyRefunded'];
+                }
+            }
+
+            $this->logger->info(
+                __METHOD__ . "|23|",
+                [$brqAmountCredit, $alreadyRefunded, $brqAmountCredit + $alreadyRefunded, $totalPrice]
+            );
+            $status = $this->checkoutHelper->areEqualAmounts($brqAmountCredit + $alreadyRefunded, $totalPrice)
+                ? 'refunded'
+                : 'partial_refunded';
             $this->logger->info(__METHOD__ . "|25|", [$status]);
-            $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, [$status => 1]);
+            $this->checkoutHelper->saveTransactionData(
+                $orderTransactionId,
+                $context,
+                [$status => 1, 'alreadyRefunded' => $brqAmountCredit + $alreadyRefunded]
+            );
 
             $this->checkoutHelper->transitionPaymentState($status, $orderTransactionId, $context);
 

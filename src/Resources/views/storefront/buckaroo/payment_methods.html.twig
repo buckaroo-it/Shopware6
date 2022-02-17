@@ -4,15 +4,8 @@
 
         {% if page.extensions.buckaroo.backLink %}
             <script>
-                setTimeout(function() {
-                    if (document.getElementById('confirmFormSubmit')) {
-                        document.getElementById('confirmFormSubmit').addEventListener('click', function(e) {
-                            window.history.pushState(
-                                null, null, '{{ page.extensions.buckaroo.backLink|raw }}'
-                            );
-                        });
-                    }
-                }, 200)
+                var buckaroo_back_link = '{{ app.request.baseUrl }}{{ page.extensions.buckaroo.backLink|raw }}';
+                var buckaroo_required_message =' {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}';
             </script>
         {% endif %}
 
