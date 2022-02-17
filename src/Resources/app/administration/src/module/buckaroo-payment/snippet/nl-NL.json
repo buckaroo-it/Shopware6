@@ -37,6 +37,7 @@
       "amountTitle": "Bedrag",
       "amountTotalTitle": "Algemeen totaal",
       "amountRefundTotalTitle": "Eindtotaal totaal",
+      "amountCustomRefundTitle": "Aangepast bedrag terugbetalen",
       "buttonTitle": "Restitutie",
       "successTitle": "Succes",
       "successMessage": "Buckaroo-succes terugbetaald ",

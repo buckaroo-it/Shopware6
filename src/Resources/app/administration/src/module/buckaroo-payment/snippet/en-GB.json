@@ -41,6 +41,7 @@
       "amountTitle": "Amount",
       "amountTotalTitle": "Grand total",
       "amountRefundTotalTitle": "Refund Grand total",
+      "amountCustomRefundTitle": "Refund custom amount",
       "buttonTitle": "Refund",
       "successTitle": "Success",
       "successMessage": "Buckaroo success refunded ",

@@ -22,7 +22,7 @@ class BuckarooPaymentService extends ApiService {
         });
     }
 
-    refundPayment(transaction, transactionsToRefund, orderItems) {
+    refundPayment(transaction, transactionsToRefund, orderItems, customRefundAmount) {
         const apiRoute = `_action/${this.getApiBasePath()}/refund`;
 
         return this.httpClient.post(
@@ -30,7 +30,8 @@ class BuckarooPaymentService extends ApiService {
             {
                 transaction: transaction,
                 transactionsToRefund: transactionsToRefund,
-                orderItems: orderItems
+                orderItems: orderItems,
+                customRefundAmount: customRefundAmount
             },
             {
                 headers: this.getBasicHeaders()

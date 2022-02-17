@@ -37,6 +37,7 @@
       "amountTitle": "Amount",
       "amountTotalTitle": "Gesamtsumme",
       "amountRefundTotalTitle": "Rückerstattung Gesamtsumme",
+      "amountCustomRefundTitle": "Benutzerdefinierten betrag erstatten",
       "buttonTitle": "Rückerstattung",
       "successTitle": "Erfolg",
       "successMessage": "Buckaroo-Erfolg erstattet ",

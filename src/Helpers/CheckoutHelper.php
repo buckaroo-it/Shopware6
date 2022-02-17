@@ -1075,25 +1075,31 @@ class CheckoutHelper
         return $this->orderRepository->search($orderCriteria, $context)->first();
     }
 
-    public function refundTransaction($order, $context, $item, $state, &$orderItems = '')
+    public function refundTransaction($order, $context, $item, $state, &$orderItems = '', $customRefundAmount = 0)
     {
         if (!$this->isBuckarooPaymentMethod($order)) {
             return;
         }
 
+        $customFields = $this->getCustomFields($order, $context);
+        $customFields['serviceName']            = $item['transaction_method'];
+        $customFields['originalTransactionKey'] = $item['transactions'];
+
+        $serviceName = (in_array($customFields['serviceName'], ['creditcard','creditcards', 'giftcards'])) ? $customFields['brqPaymentMethod'] : $customFields['serviceName'];
+
         $amount = 0;
-        if (!empty($orderItems) && is_array($orderItems)) {
-            foreach ($orderItems as $orderItem) {
-                if (isset($orderItem['totalAmount'])) {
-                    $amount = $amount + $orderItem['totalAmount'];
+        if ($customRefundAmount && !in_array($serviceName, ['afterpay', 'Billink', 'klarnakp' ])) {
+            $amount = $customRefundAmount;
+        } else {
+            if (!empty($orderItems) && is_array($orderItems)) {
+                foreach ($orderItems as $orderItem) {
+                    if (isset($orderItem['totalAmount'])) {
+                        $amount = $amount + $orderItem['totalAmount'];
+                    }
                 }
             }
         }
 
-        $customFields = $this->getCustomFields($order, $context);
-
-        $customFields['serviceName']            = $item['transaction_method'];
-        $customFields['originalTransactionKey'] = $item['transactions'];
         if ($amount <= 0) {
             $amount = $item['amount']; //backward compatibility only or in case no $orderItems was passed
         }
@@ -1110,8 +1116,6 @@ class CheckoutHelper
         if (!empty($customFields['refunded']) && ($customFields['refunded'] == 1)) {
             return ['status' => false, 'message' => 'This order is already refunded'];
         }
-
-        $serviceName = (in_array($customFields['serviceName'], ['creditcard','creditcards', 'giftcards'])) ? $customFields['brqPaymentMethod'] : $customFields['serviceName'];
 
         $request = new TransactionRequest;
         $request->setServiceAction('Refund');
