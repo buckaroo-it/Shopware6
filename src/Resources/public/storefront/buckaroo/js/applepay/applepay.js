@@ -106,7 +106,7 @@ export default class ApplePay {
           applepay_payment.showPayButton("black");
 
         } else {
-          alert('ApplePay is not available!')
+          window['alert']('ApplePay is not available!');
         }
     });
   }
