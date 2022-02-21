@@ -1,32 +1,50 @@
 <p align="center">
-  <img src="https://www.buckaroo.nl/media/2988/sw6_icon.jpg" width="150px" position="center">
+  <img src="https://www.buckaroo.nl/media/3216/shopware6-logo.png" width="225px" position="center">
 </p>
 
-# Buckaroo Shopware 6 Extension
+# Buckaroo Payments Shopware 6
+
+### About WooCommerce 
+
+Shopware is a modular online shop system developed in Germany since 2004. It is available both as open source software and in commercial editions.
 
 ### Installation & Configuration 
 
-1) Upload plugin on "My plugins" page "Settings -> System -> Plugins -> Upload plugin"
-or
-create folder "<root_folder>/custom/plugins/BuckarooPayments/" and unzip here archive
+The Buckaroo Payments Plugin ([Dutch](https://support.buckaroo.nl/categorieen/plugins/shopware-6)) for Shopware 6 enables a ready-to-sell payment gateway. You can choose from popular online payment methods in The Netherlands, Belgium, France, Germany and globally. 
 
-2) Upload extension plugin on "My extensions" page "Extensions -> My extensions" by clicking "Install" on the icon of three dots, next to the name of the plugin
+### Install via composer
+We recommend you to install the Buckaroo Shopware 6 plugin via composer. It is easy to install, update and maintain.
+Run the following commands:
 
-3) Activate plugin on "My extensions" by click Activate near the name of the plugin
+### Install
+```
+composer require buckaroo/magento2
+php bin/magento module:enable Buckaroo_Magento2
+php bin/magento setup:upgrade
+php bin/magento setup:static-content:deploy
+```
+### Upgrade
+```
+composer update buckaroo/magento2
+php bin/magento setup:upgrade
+php bin/magento setup:static-content:deploy
+```
 
-4) Configurate plugin on "My extensions" by clicking "Configuration" on the icon of three dots, next to the name of the plugin
+### Contribute
 
-5) Fill "(Merchant) key". The (Merchant) Key can be retrieved in Payment Plaza under My Buckaroo > Websites. For support contact Buckaroo.
+See [Contribution Guidelines](CONTRIBUTING.md)
 
-6) Fill "Secret Key". The Secret Key can be retrieved in Payment Plaza under Configuration > Security > Secret Key. For support contact Buckaroo.
+### Versioning 
+<p align="left">
+  <img src="https://www.buckaroo.nl/media/3212/versioning.png" width="600px" position="center">
+</p>
 
-7) Fill other payment method settings and click "Save".
+- **MAJOR:** Breaking changes that require additional testing/caution
+- **MINOR:** Changes that should not have a big impact 
+- **PATCHES:** Bug and hotfixes only 
 
 ### Additional information
-Knowledge base & FAQ:
+- **Knowledge base & FAQ:** [Dutch](https://support.buckaroo.nl/categorieen/plugins/shopware-6)
+- **Support:** https://support.buckaroo.eu/contact
+- **Contact:** support@buckaroo.nl or +31 (0)30 711 50 50
 
-https://support.buckaroo.nl/categorieen/plugins/shopware-6
-
-Support:
-
-https://support.buckaroo.nl/contact
