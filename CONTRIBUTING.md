@@ -2,7 +2,7 @@
 
 ### Repository setup:
 - Fork the repository to your account
-- more details about [how to fork a repo](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo) can be found [here](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo): 
+- more details about how to fork a repo can be found [here](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo) 
 
 ### Making changes:
 - create a branch from develop branch
