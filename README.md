@@ -18,16 +18,17 @@ Run the following commands:
 
 ### Install
 ```
-composer require buckaroo/magento2
-php bin/magento module:enable Buckaroo_Magento2
-php bin/magento setup:upgrade
-php bin/magento setup:static-content:deploy
+cd S6_INSTALLATION_ROOT
+composer require buckaroo/shopware6
+ln -s ../../vendor/buckaroo/shopware6 custom/plugins/BuckarooPayments
+bin/console plugin:refresh
+bin/console plugin:install --activate BuckarooPayments
+bin/console cache:clear
 ```
 ### Upgrade
 ```
-composer update buckaroo/magento2
-php bin/magento setup:upgrade
-php bin/magento setup:static-content:deploy
+composer update buckaroo/shopware6
+plugin:update BuckarooPayments
 ```
 
 ### Contribute
