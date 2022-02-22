@@ -35,7 +35,8 @@ Component.register('buckaroo-payment-detail', {
             buckarooTransactions: null,
             orderItems: [],
             transactionsToRefund: [],
-            relatedResources: []
+            relatedResources: [],
+            isAllowedCustomRefund: true
         };
     },
 
@@ -130,7 +131,28 @@ Component.register('buckaroo-payment-detail', {
                 }
             }
         },
-        
+
+        getCustomRefundEnabledEl() {
+            return document.getElementById('buckaroo_custom_refund_enabled');
+        },
+
+        getCustomRefundAmountEl() {
+            return document.getElementById('buckaroo_custom_refund_amount');
+        },
+
+        toggleCustomRefund() {
+            if (this.getCustomRefundEnabledEl() && this.getCustomRefundAmountEl()) {
+                this.getCustomRefundAmountEl().disabled = !this.getCustomRefundEnabledEl().checked;
+            }
+        },
+
+        getCustomRefundAmount() {
+            if (this.getCustomRefundEnabledEl() && this.getCustomRefundAmountEl() && this.getCustomRefundEnabledEl().checked) {
+                return this.getCustomRefundAmountEl().value;
+            }
+            return 0;
+        },
+
         createdComponent() {
             let that = this;
             const orderId = this.$route.params.id;
@@ -173,6 +195,9 @@ Component.register('buckaroo-payment-detail', {
                     that.recalculateOrderItems();
 
                     response.transactionsToRefund.forEach((element) => {
+                        if (['afterpay', 'Billink', 'klarnakp'].includes(element.transaction_method)) {
+                            that.isAllowedCustomRefund = false;
+                        }
                         that.transactionsToRefund.push({
                             id: element.id,
                             transactions: element.transactions,
@@ -211,7 +236,7 @@ Component.register('buckaroo-payment-detail', {
         refundOrder(transaction, amount) {
             let that = this;
             that.isRefundPossible = false;
-            this.BuckarooPaymentService.refundPayment(transaction, this.transactionsToRefund, this.orderItems)
+            this.BuckarooPaymentService.refundPayment(transaction, this.transactionsToRefund, this.orderItems, this.getCustomRefundAmount())
                 .then((response) => {
                     for (const key in response) {
                         if(response[key].status){

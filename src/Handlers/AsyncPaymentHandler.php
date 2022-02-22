@@ -65,7 +65,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         string $type = 'redirect',
         string $version = null,
         array $gatewayInfo = []
-    ): RedirectResponse{
+    ): RedirectResponse {
         $this->logger->info(__METHOD__ . "|1|", [$_POST]);
 
         $bkrClient = $this->helper->initializeBkr();
@@ -95,6 +95,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         $request->setInvoice($order->getOrderNumber());
         $request->setOrder($order->getOrderNumber());
+        $this->checkoutHelper->getSession()->set('buckaroo_order_number', $order->getId());
         $request->setCurrency($salesChannelContext->getCurrency()->getIsoCode());
         $request->setAmountDebit($order->getAmountTotal());
 
@@ -247,5 +248,34 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 $request->setServiceParameter('PaymentData', base64_encode(json_encode($applePayInfo->token)));
             }
         }
+    }
+    /**
+     * When you do payment in update order mode the request bag doesn't have all the request parameter
+     * so we create a new bag with the current $_GET & $_POST parameters
+     *
+     * @param RequestDataBag $currentBag
+     *
+     * @return RequestDataBag $bag
+     */
+    protected function getRequestBag(RequestDataBag $currentBag)
+    {
+        if($this->isUpdateOrder($currentBag)) {
+            $request = new Request($_GET, $_POST);
+            return new RequestDataBag(
+                    $request->request->all()
+            );
+        }
+        return $currentBag;
+    }
+    /**
+     * Check if update order
+     *
+     * @param RequestDataBag $bag
+     *
+     * @return boolean
+     */
+    protected function isUpdateOrder(RequestDataBag $bag)
+    {
+        return $bag->has('errorUrl') && strstr($bag->get('errorUrl'), '/account/order/edit/') !== false;
     }
 }

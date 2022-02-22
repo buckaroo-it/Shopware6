@@ -2,6 +2,13 @@
 
     {% if context.paymentMethod.translated.customFields.buckaroo_key == payment.translated.customFields.buckaroo_key %}
 
+        {% if page.extensions.buckaroo.backLink %}
+            <script>
+                var buckaroo_back_link = '{{ app.request.baseUrl }}{{ page.extensions.buckaroo.backLink|raw }}';
+                var buckaroo_required_message =' {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}';
+            </script>
+        {% endif %}
+
         {% block buckaroo_payment_method %}
 
             {% block buckaroo_payment_method_payment_shipping %}

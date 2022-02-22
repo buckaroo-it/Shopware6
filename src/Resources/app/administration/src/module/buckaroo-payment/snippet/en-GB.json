@@ -41,13 +41,14 @@
       "amountTitle": "Amount",
       "amountTotalTitle": "Grand total",
       "amountRefundTotalTitle": "Refund Grand total",
+      "amountCustomRefundTitle": "Refund custom amount",
       "buttonTitle": "Refund",
       "successTitle": "Success",
       "successMessage": "Buckaroo success refunded ",
       "errorTitle": "Error",
-      "payTitle": "Receive payment",
-      "payDescription": "Receive payment for order",
-      "payButton": "Receive payment"
+      "payTitle": "Capture payment",
+      "payDescription": "Capture and create invoice for order",
+      "payButton": "Capture payment"
     },
     "orderItems": {
         "title": "Items to Refund",

@@ -28,7 +28,8 @@ class In3PaymentHandler extends AsyncPaymentHandler
         string $type = null,
         string $version = null,
         array $gatewayInfo = []
-    ): RedirectResponse{
+    ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
 
         $order      = $transaction->getOrder();
         $paymentMethod = new In3();
@@ -78,8 +79,8 @@ class In3PaymentHandler extends AsyncPaymentHandler
             $requestParameter[] = $param;
         }
 
-        if(in_array($dataBag->get('buckaroo_capayablein3_orderAs'),[1,2])){
-            $requestParameter[] = $this->checkoutHelper->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_orderAs'), 'Name', 'Company');
+        if(in_array($dataBag->get('buckaroo_capayablein3_orderAs'),['SoleProprietor', 'Company'])){
+            $requestParameter[] = $this->checkoutHelper->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_CompanyName'), 'Name', 'Company');
             $requestParameter[] = $this->checkoutHelper->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_COCNumber'), 'ChamberOfCommerce', 'Company');
         }
         $requestParameter = array_merge($requestParameter, $this->checkoutHelper->getProductLineData($order));

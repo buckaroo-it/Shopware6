@@ -37,13 +37,14 @@
       "amountTitle": "Amount",
       "amountTotalTitle": "Gesamtsumme",
       "amountRefundTotalTitle": "Rückerstattung Gesamtsumme",
+      "amountCustomRefundTitle": "Benutzerdefinierten betrag erstatten",
       "buttonTitle": "Rückerstattung",
       "successTitle": "Erfolg",
       "successMessage": "Buckaroo-Erfolg erstattet ",
       "errorTitle": "Fehler",
-      "payTitle": "Geld erhalten",
-      "payDescription": "Zahlung für Bestellung erhalten",
-      "payButton": "Geld erhalten"
+      "payTitle": "Zahlung erfassen",
+      "payDescription": "Erfassen und erstellen sie eine rechnung für die bestellung",
+      "payButton": "Zahlung erfassen"
     },
     "orderItems": {
         "title": "Zu erstattende Gegenstände",

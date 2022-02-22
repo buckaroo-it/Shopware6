@@ -30,6 +30,7 @@ class GiftcardsPaymentHandler extends AsyncPaymentHandler
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
         $paymentMethod = new Giftcards();
         return parent::pay(
             $transaction,

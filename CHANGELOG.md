@@ -105,3 +105,21 @@ BP-1088 Billink logo update
 BP-1146 Company name not filled at Billink
 Update README.md
 BP-1163 remove case sensitive logos 
+
+# 1.3.0
+BP-1189 New Sofort logo added
+BP-1193 Shopware 6 CSE tooltip
+BP-1172 Fix 'composer' warning
+BP-1236 Shopware 6 - incorrect amount for partial refunds
+BP-969 Add payment method PayPerEmail + Paylink (restore deleted config)
+BP-1333 In3 invalid request when ordering as company
+BP-1336 Unkown button in order buckaroo tab
+BP-1331 Empty cart at browser go back from payment
+BP-1340 User logout after payment cancel
+BP-1335 Applepay disables pay button without any message
+BP-1341 last partial refund doesn't update payment status to "Refunded"
+BP-1332 No validation message for payment fields in checkout
+BP-1330 TotalPrice not changeable
+BP-1339 invalid payments from admin order
+
+

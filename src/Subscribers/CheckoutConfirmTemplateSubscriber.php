@@ -124,7 +124,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         return [
             AccountPaymentMethodPageLoadedEvent::class => 'hideNotEnabledPaymentMethods',
-            AccountEditOrderPageLoadedEvent::class     => 'hideNotEnabledPaymentMethods',
+            AccountEditOrderPageLoadedEvent::class     => 'addBuckarooExtension',
             CheckoutConfirmPageLoadedEvent::class      => 'addBuckarooExtension',
         ];
     }
@@ -147,10 +147,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param CheckoutConfirmPageLoadedEvent $event
+     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
      * @throws \Exception
      */
-    public function addBuckarooExtension(CheckoutConfirmPageLoadedEvent $event): void
+    public function addBuckarooExtension($event): void
     {
         $this->hideNotEnabledPaymentMethods($event);
 
@@ -218,6 +218,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             }
         }
 
+        $backUrl = '/buckaroo/finalize?cancel=1&back_return=1&ADD_sw-context-token='.$this->checkoutHelper->getSession()->get('sw-context-token');
+
         $struct->assign([
             'currency'                 => $currency->getIsoCode(),
             'issuers'                  => $issuers,
@@ -230,6 +232,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'payment_media'            => $lastUsedCreditcard . '.png',
             'buckarooFee'              => $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee'),
             'BillinkBusiness'          => $customer->getActiveBillingAddress() && $customer->getActiveBillingAddress()->getCompany() ? 'B2B' : 'B2C',
+            'backLink'                 => $backUrl
         ]);
 
         $event->getPage()->addExtension(

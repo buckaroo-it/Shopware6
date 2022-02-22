@@ -29,6 +29,7 @@ class P24PaymentHandler extends AsyncPaymentHandler
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
+        $dataBag = $this->getRequestBag($dataBag);
         $paymentMethod = new P24();
 
         $order = $transaction->getOrder();

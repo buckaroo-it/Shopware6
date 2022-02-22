@@ -2,6 +2,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 
 export default class BuckarooPaymentCreditcards extends Plugin {
     init() {
+        this._listenToSubmit();
         this._createScript(() => {
             const creditcardsInputs = ['creditcards_issuer', 'creditcards_cardholdername', 'creditcards_cardnumber', 'creditcards_expirationmonth', 'creditcards_expirationyear', 'creditcards_cvc'];
             for (const fieldId of creditcardsInputs) {
@@ -122,5 +123,20 @@ export default class BuckarooPaymentCreditcards extends Plugin {
         if (field) {
             document.getElementById('confirmFormSubmit').disabled = disable;
         }
+        return disable;
+    }
+    _registerCheckoutSubmitButton() {
+        const field = document.getElementById('confirmFormSubmit');
+        if (field) {
+            field.addEventListener('click', this._handleCheckoutSubmit.bind(this));
+        }
+    }
+    _validateOnSubmit(e) {
+        e.preventDefault();
+        let valid = !this._CheckValidate();
+        document.$emitter.publish('buckaroo_payment_validate', {valid, type:'credicard'});
+    }
+    _listenToSubmit() {
+        document.$emitter.subscribe('buckaroo_payment_submit', this._validateOnSubmit.bind(this))
     }
 }
