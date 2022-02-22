@@ -4,7 +4,7 @@
 
 # Buckaroo Payments Shopware 6
 
-### About Shopeware
+### About Shopware
 
 Shopware is a modular online shop system developed in Germany since 2004. It is available both as open source software and in commercial editions.
 
