@@ -65,7 +65,7 @@ class PushController extends StorefrontController
 
         $status             = $request->request->get('brq_statuscode');
         $context            = $salesChannelContext->getContext();
-        $brqAmount          = $request->request->get('brq_amount');
+        $brqAmount          = (float)$request->request->get('brq_amount');
         $brqOrderId         = $request->request->get('ADD_orderId');
         $brqAmountCredit    = $request->request->get('brq_amount_credit');
         $brqInvoicenumber   = $request->request->get('brq_invoicenumber');
