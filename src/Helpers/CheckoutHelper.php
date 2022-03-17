@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -78,8 +77,6 @@ class CheckoutHelper
     private $stateMachineRepository;
     /** @var Helper */
     private $helper;
-    /** @var CartService */
-    private $cartService;
     /** * @var string */
     private $shopwareVersion;
     /** * @var PluginService */
@@ -131,7 +128,6 @@ class CheckoutHelper
         PluginService $pluginService,
         SettingsService $settingsService,
         Helper $helper,
-        CartService $cartService,
         EntityRepositoryInterface $orderRepository,
         TranslatorInterface $translator,
         StateMachineRegistry $stateMachineRegistry,
@@ -154,7 +150,6 @@ class CheckoutHelper
         $this->pluginService                       = $pluginService;
         $this->settingsService                     = $settingsService;
         $this->helper                              = $helper;
-        $this->cartService                         = $cartService;
         $this->orderRepository                     = $orderRepository;
         $this->translator                          = $translator;
         $this->stateMachineRegistry                = $stateMachineRegistry;
@@ -989,33 +984,6 @@ class CheckoutHelper
     public function getDataRequestUrl($method = ''): string
     {
         return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/DataRequest', '/');
-    }
-
-    public function addLineItems($lineItems, SalesChannelContext $salesChannelContext)
-    {
-        $count = 0;
-        try {
-            $cart = new Cart('recalculation', Uuid::randomHex());
-            foreach ($lineItems as $lineItemDatas) {
-                foreach ($lineItemDatas as $referencedId => $lineItemData) {
-
-                    $lineItem = new LineItem(
-                        $lineItemData['id'],
-                        $lineItemData['type'],
-                        $referencedId,
-                        $lineItemData['quantity']
-                    );
-
-                    $lineItem->setStackable(true);
-                    $lineItem->setRemovable(true);
-
-                    $count += $lineItem->getQuantity();
-
-                    $cart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
-                }
-            }
-        } catch (ProductNotFoundException $exception) {
-        }
     }
 
     public function getCustomFields($order, $context)

@@ -62,7 +62,6 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService" />
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="order.repository" />
             <argument type="service" id="translator" />
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
