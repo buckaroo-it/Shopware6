@@ -122,4 +122,8 @@ BP-1332 No validation message for payment fields in checkout
 BP-1330 TotalPrice not changeable
 BP-1339 invalid payments from admin order
 
+# 1.3.1
+BP-1432 Plugin crashes for shopware 6.4.9.0
+BP-1433 Uncaught PHP Exception TypeError: "round(): Argument #1 ($num) must be of type int|float, string given"
+BP-1434 Fixing typeError inside _registerCheckoutSubmitButton (Thanks to @nielsVoogt)
 
