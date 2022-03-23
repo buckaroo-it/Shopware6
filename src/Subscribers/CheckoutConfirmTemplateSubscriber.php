@@ -175,6 +175,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct             = new BuckarooStruct();
         $issuers            = $this->issuers;
+        $idealRenderMode    = $this->checkoutHelper->getIdealRenderMode(); 
         $lastUsedCreditcard = 'visa';
         if($customFields = $customer->getCustomFields()){
             if (isset($customFields['last_used_creditcard'])) {
@@ -223,6 +224,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $struct->assign([
             'currency'                 => $currency->getIsoCode(),
             'issuers'                  => $issuers,
+            'ideal_render_mode'        => $idealRenderMode,
             'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
             'creditcard'               => $creditcard,
             'creditcards'              => $creditcards,

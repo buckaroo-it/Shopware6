@@ -1887,6 +1887,11 @@ class CheckoutHelper
         return false;
     }
 
+    public function getIdealRenderMode()
+    {
+        return $this->getSetting('idealRenderMode');
+    }
+    
     public function getBuckarooFeeLabel($buckarooKey, $label, $context)
     {
         $currency = $this->getOrderCurrency($context);

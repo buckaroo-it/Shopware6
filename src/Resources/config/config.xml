@@ -405,6 +405,24 @@
             <label lang="nl-NL">Buckaroo Vergoeding</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
+
+        <input-field type="single-select">
+            <name>idealRenderMode</name>
+            <label lang="en-GB">Issuer list render mode</label>
+            <label lang="de-DE">Issuer list render mode</label>
+            <label lang="nl-NL">Issuer list render mode</label>
+            <defaultValue>0</defaultValue>
+            <options>
+                <option>
+                    <id>0</id>
+                    <name>Radio</name>
+                </option>
+                <option>
+                    <id>1</id>
+                    <name>Selectbox</name>
+                </option>
+            </options>
+        </input-field>
     </card>
 
     <card>

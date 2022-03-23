@@ -304,6 +304,12 @@ Component.register('buckaroo-settings', {
                 }
             }
 
+            if((fid == 'idealRenderMode')) {
+                if(config["BuckarooPayments.config.idealRenderMode"] != undefined && config["BuckarooPayments.config.idealEnabled"]){
+                    return true;
+                }
+            }
+
             return false;
         },
 
