@@ -405,6 +405,28 @@
             <label lang="nl-NL">Buckaroo Vergoeding</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
+
+        <input-field type="single-select">
+            <name>idealRenderMode</name>
+            <label lang="en-GB">Bank selection display</label>
+            <label lang="nl-NL">Bank selectie weergave</label>
+            <label lang="de-DE">Anzeige der Bankauswahl</label>
+            <defaultValue>0</defaultValue>
+            <options>
+                <option>
+                    <id>0</id>
+                    <name lang="en-GB">Radio button</name>
+                    <name lang="nl-NL">Radio keuzeknop</name>
+                    <name lang="de-DE">Radio knopf</name>
+                </option>
+                <option>
+                    <id>1</id>
+                    <name lang="en-GB">Dropdown</name>
+                    <name lang="nl-NL">Keuzelijst</name>
+                    <name lang="de-DE">Dropdown liste</name>
+                </option>
+            </options>
+        </input-field>
     </card>
 
     <card>

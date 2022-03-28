@@ -28,6 +28,17 @@
                 {% if payment.translated.customFields.buckaroo_key == 'ideal' or payment.translated.customFields.buckaroo_key == 'idealprocessing' %}
                     {% block buckaroo_payment_method_ideal %}
                         {% if page.extensions.buckaroo.issuers|length > 0 %}
+                        {% if page.extensions.buckaroo.ideal_render_mode > 0 %}
+                            <div>
+                                <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
+                                <select name="bankMethodId" id="bankMethodId" form="confirmOrderForm" required="required" class="form-control">
+                                    <option value="">{{ "buckaroo.checkout.selectBankIssuer"|trans }}</option>
+                                        {% for issuer in page.extensions.buckaroo.issuers %}
+                                            <option data-logo="{{ page.extensions.buckaroo.media_path }}{{ issuer.code }}.png" value="{{ issuer.code }}">{{ issuer.name }}</option>
+                                        {% endfor %}
+                                </select>  
+                            </div>
+                            {% else %}
                             <div>
                                 <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
                                 {% for issuer in page.extensions.buckaroo.issuers %}
@@ -46,6 +57,7 @@
                                     </div>
                                 {% endfor %}
                             </div>
+                            {% endif %}
                         {% endif %}
                     {% endblock %}
 
