@@ -25,13 +25,13 @@ class SettingsService
      * @param string $setting
      * @return mixed|null
      */
-    public function getSetting(string $setting)
+    public function getSetting(string $setting, string $salesChannelId = null)
     {
-        return $this->systemConfigService->get('BuckarooPayments.config.' . $setting);
+        return $this->systemConfigService->get('BuckarooPayments.config.' . $setting, $salesChannelId);
     }
 
-    public function setSetting(string $setting, $value)
+    public function setSetting(string $setting, $value, string $salesChannelId = null)
     {
-        return $this->systemConfigService->set('BuckarooPayments.config.' . $setting, $value);
+        return $this->systemConfigService->set('BuckarooPayments.config.' . $setting, $value, $salesChannelId);
     }
 }

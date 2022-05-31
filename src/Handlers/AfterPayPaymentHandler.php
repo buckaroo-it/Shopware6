@@ -36,7 +36,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         $order      = $transaction->getOrder();
 
         $additional = $this->getArticleData($order, $additional, $latestKey);
-        $additional = $this->getBuckarooFee($order, $additional, $latestKey);
+        $additional = $this->getBuckarooFee($order, $additional, $latestKey, $salesChannelContext->getSalesChannelId());
         $additional = $this->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag);
 
         $paymentMethod = new AfterPay();
@@ -55,9 +55,9 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         );
     }
 
-    public function getBuckarooFee($order, $additional, &$latestKey)
+    public function getBuckarooFee($order, $additional, &$latestKey, $salesChannelId)
     {
-        $buckarooFee = $this->checkoutHelper->getBuckarooFee('afterpayFee');
+        $buckarooFee = $this->checkoutHelper->getBuckarooFee('afterpayFee', $salesChannelId);
         if (false !== $buckarooFee && (double)$buckarooFee > 0) {
             $additional[] = [
                 [

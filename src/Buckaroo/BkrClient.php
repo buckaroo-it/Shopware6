@@ -47,6 +47,18 @@ class BkrClient
         $this->logger = $logger;
     }
 
+    /**
+     * Set channel id used for hmac generation
+     *
+     * @param string|null $salesChannelId
+     *
+     * @return void
+     */
+    public function setSalesChannelId(string $salesChannelId = null)
+    {
+        $this->hmac->setSalesChannelId($salesChannelId);
+    }
+
     protected function initCurl()
     {
         //Initializes the curl instance

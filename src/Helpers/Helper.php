@@ -28,24 +28,25 @@ class Helper
     /**
      * @return BkrClient
      */
-    public function initializeBkr(): BkrClient
+    public function initializeBkr(string $salesChannelId = null): BkrClient
     {
+        $this->bkrClient->setSalesChannelId($salesChannelId);
         return $this->bkrClient;
     }
 
-    public function getEnabled($method = '')
+    public function getEnabled($method = '', $salesChannelId = null)
     {
-        return $this->settingsService->getSetting($method . 'Enabled');
+        return $this->settingsService->getSetting($method . 'Enabled', $salesChannelId);
     }
 
-    public function getEnvironment($method = '')
+    public function getEnvironment($method = '', $salesChannelId = null)
     {
-        return $this->settingsService->getSetting($method . 'Environment');
+        return $this->settingsService->getSetting($method . 'Environment', $salesChannelId);
     }
 
-    public function getSettingsValue($name)
+    public function getSettingsValue($name, $salesChannelId = null)
     {
-        return $this->settingsService->getSetting($name);
+        return $this->settingsService->getSetting($name, $salesChannelId);
     }
 
     public function getGlobals(): Request

@@ -50,12 +50,12 @@ class PayPerEmailPaymentHandler extends AsyncPaymentHandler
                 '_' => $dataBag->get('buckaroo_payperemail_CustomerLastName'),
             ],
             [
-                '_'    => $this->checkoutHelper->getPayPerEmailPaymentMethodsAllowed(),
+                '_'    => $this->checkoutHelper->getPayPerEmailPaymentMethodsAllowed($this->salesChannelContext->getSalesChannelId()),
                 'Name' => 'PaymentMethodsAllowed',
             ],
         ];
 
-        if($payperemailExpireDays = $this->checkoutHelper->getSettingsValue('payperemailExpireDays')){
+        if($payperemailExpireDays = $this->checkoutHelper->getSettingsValue('payperemailExpireDays', $this->salesChannelContext->getSalesChannelId())){
             $gatewayInfo['additional'][] = [[
                 'Name' => 'ExpirationDate',
                 '_' => date('Y-m-d', time() + $payperemailExpireDays * 86400),
