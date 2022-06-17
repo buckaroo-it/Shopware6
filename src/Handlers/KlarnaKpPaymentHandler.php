@@ -40,7 +40,7 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
         $order      = $transaction->getOrder();
 
         $additional = $this->getArticleData($order, $additional, $latestKey);
-        $additional = $this->getBuckarooFee($order, $additional, $latestKey);
+        $additional = $this->getBuckarooFee($order, $additional, $latestKey, $salesChannelContext->getSalesChannelId());
         $additional = $this->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag);
 
         $paymentMethod = new KlarnaKp();
@@ -61,16 +61,17 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
 
     protected function payBefore(
         RequestDataBag $dataBag,
-        \Buckaroo\Shopware6\Buckaroo\Payload\Request $request
+        \Buckaroo\Shopware6\Buckaroo\Payload\Request $request,
+        $salesChannelId
     ): void {
         $request->setServiceAction('Reserve');
 
-        parent::payBefore($dataBag, $request);
+        parent::payBefore($dataBag, $request, $salesChannelId);
     }
 
-    public function getBuckarooFee($order, $additional, &$latestKey)
+    public function getBuckarooFee($order, $additional, &$latestKey, $salesChannelId)
     {
-        $buckarooFee = $this->checkoutHelper->getBuckarooFee('klarnakpFee');
+        $buckarooFee = $this->checkoutHelper->getBuckarooFee('klarnakpFee', $salesChannelId);
         if (false !== $buckarooFee && (double)$buckarooFee > 0) {
             $additional[] = [
                 [

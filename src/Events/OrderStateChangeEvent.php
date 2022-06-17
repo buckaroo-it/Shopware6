@@ -71,9 +71,14 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $order = $this->checkoutHelper->getOrderById($eventOrder->getId(), $context);
         $customFields = $this->checkoutHelper->getCustomFields($order, $context);
 
-        if(isset($customFields['brqPaymentMethod']) && $customFields['brqPaymentMethod'] == 'Billink' && $this->checkoutHelper->getSettingsValue('BillinkMode') == 'authorize' && $this->checkoutHelper->getSettingsValue('BillinkCreateInvoiceAfterShipment')){
+        if(
+            isset($customFields['brqPaymentMethod']) &&
+            $customFields['brqPaymentMethod'] == 'Billink' &&
+            $this->checkoutHelper->getSettingsValue('BillinkMode', $event->getSalesChannelId()) == 'authorize' &&
+            $this->checkoutHelper->getSettingsValue('BillinkCreateInvoiceAfterShipment', $event->getSalesChannelId())
+        ) {
             $brqInvoicenumber = $customFields['brqInvoicenumber'] ?? $order->getOrderNumber();
-            $this->checkoutHelper->generateInvoice($eventOrder->getId(), $context, $brqInvoicenumber);
+            $this->checkoutHelper->generateInvoice($eventOrder->getId(), $context, $brqInvoicenumber,  $event->getSalesChannelId());
         }
 
         return true;

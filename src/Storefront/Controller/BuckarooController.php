@@ -238,7 +238,7 @@ class BuckarooController extends StorefrontController
     public function getShopInformation(SalesChannelContext $context)
     {
         return $this->json([
-            'merchant_id' => $this->config->guid()
+            'merchant_id' => $this->config->guid($context->getSalesChannelId())
         ]);
     }
 
@@ -480,7 +480,7 @@ class BuckarooController extends StorefrontController
             ];
         }
 
-        $buckarooFee = $this->checkoutHelper->getBuckarooFee('applepayFee');
+        $buckarooFee = $this->checkoutHelper->getBuckarooFee('applepayFee', $context->getSalesChannelId());
 
         if ($buckarooFee > 0) {
             $lineItems[] = [

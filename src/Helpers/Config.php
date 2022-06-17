@@ -21,25 +21,25 @@ class Config
     /**
      * @return string
      */
-    public function websiteKey()
+    public function websiteKey(string $salesChannelId = null)
     {
-        return $this->settingsService->getSetting('websiteKey');
+        return $this->settingsService->getSetting('websiteKey', $salesChannelId);
     }
 
     /**
      * @return string
      */
-    public function secretKey()
+    public function secretKey(string $salesChannelId = null)
     {
-        return $this->settingsService->getSetting('secretKey');
+        return $this->settingsService->getSetting('secretKey', $salesChannelId);
     }
 
     /**
      * @return string
      */
-    public function guid()
+    public function guid(string $salesChannelId = null)
     {
-        return $this->settingsService->getSetting('guid');
+        return $this->settingsService->getSetting('guid', $salesChannelId);
     }
 
 }

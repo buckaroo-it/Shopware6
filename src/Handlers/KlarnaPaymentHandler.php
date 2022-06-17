@@ -36,9 +36,9 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
         $order      = $transaction->getOrder();
 
         $paymentMethod = new Klarna();
-        $additional    = $this->getArticleTotalData($order, $additional, $latestKey, $paymentMethod->getBuckarooKey());
+        $additional    = $this->getArticleTotalData($order, $additional, $latestKey, $paymentMethod->getBuckarooKey(),  $salesChannelContext->getSalesChannelId());
         // $additional = $this->getArticleData($order, $additional, $latestKey);
-        // $additional = $this->getBuckarooFee($order, $additional, $latestKey);
+        // $additional = $this->getBuckarooFee($order, $additional, $latestKey, $salesChannelContext->getSalesChannelId());
         $additional = $this->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag, $paymentMethod);
 
         $gatewayInfo = [
@@ -56,9 +56,9 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
         );
     }
 
-    public function getBuckarooFee($order, $additional, &$latestKey)
+    public function getBuckarooFee($order, $additional, &$latestKey, $salesChannelId)
     {
-        $buckarooFee = $this->checkoutHelper->getBuckarooFee('klarnaFee');
+        $buckarooFee = $this->checkoutHelper->getBuckarooFee('klarnaFee', $salesChannelId);
         if (false !== $buckarooFee && (double) $buckarooFee > 0) {
             $additional[] = [
                 [
@@ -159,7 +159,7 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
         $shippingAddress->setPhoneNumber($dataBag->get('buckaroo_klarna_phone'));
         $shippingStreetFormat = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
 
-        $category    = $this->helper->getSettingsValue($paymentMethod->getBuckarooKey() . 'Business') ?? 'B2C';
+        $category    = $this->helper->getSettingsValue($paymentMethod->getBuckarooKey() . 'Business', $salesChannelContext->getSalesChannelId()) ?? 'B2C';
         $billingData = [
             [
                 '_'       => $category,
@@ -372,10 +372,10 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
 
     }
 
-    public function getArticleTotalData($order, $additional, &$latestKey, $buckarooKey)
+    public function getArticleTotalData($order, $additional, &$latestKey, $buckarooKey, $salesChannelId)
     {
         $total   = $order->getAmountTotal();
-        if ($buckarooFee = $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee')) {
+        if ($buckarooFee = $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee', $salesChannelId)) {
             $total += $buckarooFee;
         }
 
