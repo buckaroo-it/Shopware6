@@ -53,4 +53,8 @@ class Helper
     {
         return new Request($_GET, $_POST, array(), $_COOKIE, $_FILES, $_SERVER);
     }
+    public function getShopName(string $salesChannelId = null)
+    {
+        return $this->settingsService->getShopName($salesChannelId);
+    }
 }

@@ -30,6 +30,7 @@ Component.register('buckaroo-settings', {
                 'websiteKey': true,
                 'secretKey': true,
                 'guid': true,
+                'transactionLabel':true,
                 'creditcardEnabled': true,
                 'creditcardsEnabled': true,
                 'idealEnabled': true,

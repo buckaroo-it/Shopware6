@@ -46,6 +46,20 @@
             <helpText lang="nl-NL">De gidssleutel kan worden opgehaald in Payment Plaza onder het tabblad Profiel. Neem voor ondersteuning contact op met Buckaroo.</helpText>
         </input-field>
         
+
+        <input-field >
+            <name>transactionLabel</name>
+            <label lang="en-GB">Transaction label</label>
+            <label lang="de-DE">Transaction label</label>
+            <label lang="nl-NL">Transaction label</label>
+            <description>The transaction description, shown in Buckaroo plaza and visible on bank account of consumers. You can also add the order number with the following {order_number} tag.</description>
+            <description lang="de-DE">Die Transaktionsbeschreibung, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</description>
+            <description lang="nl-NL">De transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</description>
+            <helpText>The transaction description, shown in Buckaroo plaza and visible on bank account of consumers. You can also add the order number with the following {order_number} tag.</helpText>
+            <helpText lang="de-DE">Die Transaktionsbeschreibung, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</helpText>
+            <helpText lang="nl-NL">De transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</helpText>
+        </input-field>
+
         <input-field type="bool">
             <name>advancedConfiguration</name>
             <label lang="en-GB">Advanced Configuration</label>
