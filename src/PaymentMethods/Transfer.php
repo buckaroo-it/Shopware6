@@ -19,7 +19,7 @@ class Transfer extends AbstractPayment
      */
     public function getVersion(): string
     {
-        return '2';
+        return '1';
     }
 
     /**
