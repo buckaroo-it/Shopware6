@@ -365,12 +365,17 @@ class TransactionResponse extends Response
      */
     public function getSubCodeMessage()
     {
+        $message = '';
         if ($this->hasSubCodeMessage()) {
-            $parts = explode(':', $this->data['Status']['SubCode']['Description']);
-            return trim(array_pop($parts));
-        }
+            $parts = explode(':',  $this->getSubCodeMessageFull());
+            array_shift($parts);
+            $message = trim(implode(":", $parts));
 
-        return '';
+            if (strlen($message) < 20) {
+               $message = $this->getSubCodeMessageFull();
+            }
+        }
+        return $message;
     }
 
     public function getSubCodeMessageFull()
