@@ -1099,7 +1099,9 @@ class CheckoutHelper
 
         $request = new TransactionRequest;
         $request->setServiceAction('Refund');
-        $request->setDescription($this->getTranslate('buckaroo.order.refundDescription', ['orderNumber' => $order->getOrderNumber()]));
+        $request->setDescription(
+            $this->getParsedLabel($order, $order->getSalesChannelId())
+        );
         $request->setServiceName($serviceName);
         $request->setAmountCredit($amount ? $amount : $order->getAmountTotal());
         $request->setInvoice($order->getOrderNumber());
@@ -1184,6 +1186,32 @@ class CheckoutHelper
             'message' => $response->getSubCodeMessageFull() ?? $response->getSomeError(),
             'code'    => $response->getStatusCode(),
         ];
+    }
+    /**
+     * Get the parsed label, we replace the template variables with the values
+     *
+     * @param Store $store
+     * @param \Shopware\Core\Checkout\Order\OrderEntity $order
+     *
+     * @return string
+     */
+    public function getParsedLabel(\Shopware\Core\Checkout\Order\OrderEntity $order, string $salesChannelId)
+    {
+        $label = $this->helper->getSettingsValue('transactionLabel', $salesChannelId);
+
+        if ($label === null) {
+            return $this->helper->getShopName($salesChannelId);
+        }
+
+        $label = preg_replace('/\{order_number\}/', $order->getOrderNumber(), $label);
+        $label = preg_replace('/\{shop_name\}/',$this->helper->getShopName($salesChannelId), $label);
+
+        $products = $order->getLineItems();
+
+        if ($products->first() !== null) {
+            $label = preg_replace('/\{product_name\}/',$products->first()->getLabel(), $label);
+        }
+        return mb_substr($label, 0, 244);
     }
 
     public function captureTransaction($order, $context)
