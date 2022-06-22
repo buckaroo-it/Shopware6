@@ -315,6 +315,12 @@ Component.register('buckaroo-settings', {
                 }
             }
 
+            if((fid == 'transferSendEmail') || (fid == 'transferDateDue')) {
+                if(config["BuckarooPayments.config.transferEnabled"] != undefined && config["BuckarooPayments.config.transferEnabled"]){
+                    return true;
+                }
+            }
+
             return false;
         },
 

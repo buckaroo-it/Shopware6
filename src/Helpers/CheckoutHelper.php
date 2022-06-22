@@ -898,7 +898,7 @@ class CheckoutHelper
         }
 
         $now = new \DateTime();
-        $now->modify('+' . ($this->getSetting('transferDueDate', $salesChannelContext->getSalesChannelId()) > 0 ? $this->getSetting('transferDueDate', $salesChannelContext->getSalesChannelId()) : 7) . ' day');
+        $now->modify('+' . ($this->getSetting('transferDateDue', $salesChannelContext->getSalesChannelId()) > 0 ? $this->getSetting('transferDateDue', $salesChannelContext->getSalesChannelId()) : 7) . ' day');
         $sendEmail = $this->getSetting('transferSendEmail', $salesChannelContext->getSalesChannelId()) ? 'true' : 'false';
 
         $services = [
