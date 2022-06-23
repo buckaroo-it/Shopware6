@@ -701,17 +701,40 @@
             <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
 
-        <input-field>
-            <name>transferDueDate</name>
-            <label lang="en-GB">Due date (in days)</label>
-            <helpText>The amount of days after the order date in which the customer has to complete the payment. This is only for display purposes; you can add this due date in the template of the Transfer email.</helpText>
-            <defaultValue>7</defaultValue>
+        <input-field type="single-select">
+            <name>transferSendEmail</name>
+            <label lang="en-GB">Send payment instruction email</label>
+            <label lang="nl-NL">Stuur betalingsinstructie e-mail</label>
+            <label lang="de-DE">Zahlungsanweisungen per E-Mail senden</label>
+            <defaultValue>0</defaultValue>
+            <options>
+                <option>
+                    <id>0</id>
+                    <name lang="en-GB">No</name>
+                    <name lang="nl-NL">Nee</name>
+                    <name lang="de-DE">Nein</name>
+                </option>
+                <option>
+                    <id>1</id>
+                    <name lang="en-GB">Yes</name>
+                    <name lang="nl-NL">Ja</name>
+                    <name lang="de-DE">Ja</name>
+                </option>
+            </options>
+            <helpText lang="en-GB">Buckaroo sends an email to the customer with the payment procedures.</helpText>
+            <helpText lang="nl-NL">Buckaroo stuurt een e-mail naar de klant met de betalingsprocedures.</helpText>
+            <helpText lang="de-DE">Buckaroo sendet eine E-Mail mit den Zahlungsvorgängen an den Kunden.</helpText>
         </input-field>
 
-        <input-field type="bool">
-            <name>transferSendEmail</name>
-            <label lang="en-GB">Send order confirmation email</label>
-            <helpText>Enable to send an order confirmation email to the customer when the creating of the order is successful. Specific for this payment method.</helpText>
+        <input-field>
+            <name>transferDateDue</name>
+            <label lang="en-GB">Due date (in days)</label>
+            <label lang="nl-NL">Vervaldatum (in dagen)</label>
+            <label lang="de-DE">Fälligkeitsdatum (in Tagen)</label>
+            <defaultValue>7</defaultValue>
+            <helpText lang="en-GB">The amount of days after the order date in which the customer has to complete the payment. After this period order will be cancelled. You can add this due date in the template of the Transfer email.</helpText>
+            <helpText lang="nl-NL">Het aantal dagen na de besteldatum waarin de klant de betaling moet voltooien. Na deze periode wordt de bestelling geannuleerd. U kunt deze vervaldatum toevoegen in het sjabloon van de Transfer-e-mail.</helpText>
+            <helpText lang="de-DE">Die Anzahl der Tage nach dem Bestelldatum, in denen der Kunde die Zahlung abschließen muss. Nach Ablauf dieser Frist wird die Bestellung storniert. Sie können dieses Fälligkeitsdatum in der Vorlage der Überweisungs-E-Mail hinzufügen.</helpText>
         </input-field>
     </card>
 
