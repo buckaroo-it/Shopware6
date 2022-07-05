@@ -122,6 +122,7 @@
                name="applePayInfo"
                value="">
         <script>
+            window.isApplePay = true;
             if (!window.buckaroo) {
                 window.buckaroo = {
                     submit: false,
@@ -136,19 +137,6 @@
                     document.getElementById('confirmFormSubmit').disabled = true;
                     document.getElementById('confirmFormSubmit').addEventListener('click', function(e){
                         e.stopPropagation();
-                    });
-                    document.getElementById('confirmOrderForm').addEventListener('submit', function(e){
-                        if (window.buckaroo.submit) {
-                            //allow to submit
-                            return true;
-                        } else {
-                            //don't allow to submit
-                            e.preventDefault();
-                            var child = document.querySelector('.apple-pay-button');
-                            if (child) {
-                                child.click();
-                            }
-                        }
                     });
                 }
             }, 200)

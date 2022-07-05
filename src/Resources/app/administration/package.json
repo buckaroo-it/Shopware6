@@ -4,5 +4,6 @@
     "description": "Buckaroo Payment",
     "main": "index.js",
     "author": "Buckaroo",
-    "license": "MIT"
+    "license": "MIT",
+    "private": true
 }
