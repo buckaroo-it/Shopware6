@@ -15,6 +15,9 @@ export default class ApplePay {
   init() {
     this.log('9', this.store_info.merchant_id);
     this.mode =  '';
+    if (document.getElementById('confirmFormSubmit')) {
+      this.mode = 'checkout';
+    }
     this.data =  {};
     BuckarooSdk.ApplePay
       .checkApplePaySupport(this.store_info.merchant_id)
@@ -108,8 +111,10 @@ export default class ApplePay {
           applepay_payment.showPayButton("black");
 
         } else {
-          const aFunction = 'alert';
-          window[aFunction]('ApplePay is not available!');
+          if (this.mode == 'checkout') {
+            const aFunction = 'alert';
+            window[aFunction]('ApplePay is not available!');
+          }
         }
     });
   }
