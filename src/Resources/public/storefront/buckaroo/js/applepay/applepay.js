@@ -25,7 +25,7 @@ export default class ApplePay {
         // is_applepay_supported = true; //ZAK
         this.log('10', is_applepay_supported);
         if (is_applepay_supported && location.protocol === 'https:') {
-
+          document.querySelector('.applepay-button-container').style.display = 'block';
           if (document.getElementById('confirmFormSubmit')) {
             //checkout
             this.mode = 'checkout';
@@ -37,7 +37,7 @@ export default class ApplePay {
                 document.querySelector('[itemprop~="productID"]').getAttribute('content')
             ) {
 
-              document.querySelector('.applepay-button-container').style.display = 'block';
+             
               //product
               const productId = document.querySelector('[itemprop~="productID"]').getAttribute('content');
               this.log('11', productId);
