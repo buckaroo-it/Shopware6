@@ -2,21 +2,22 @@
 
 namespace Buckaroo\Shopware6\Subscribers;
 
-use Buckaroo\Shopware6\Helpers\Helper;
-use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Buckaroo\Shopware6\Helpers\Helper;
+use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
-use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
-use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Buckaroo\Shopware6\Helpers\CheckoutHelper;
-use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 {
@@ -126,6 +127,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             AccountPaymentMethodPageLoadedEvent::class => 'hideNotEnabledPaymentMethods',
             AccountEditOrderPageLoadedEvent::class     => 'addBuckarooExtension',
             CheckoutConfirmPageLoadedEvent::class      => 'addBuckarooExtension',
+            ProductPageLoadedEvent::class              => 'addBuckarooToProductPage'
         ];
     }
 
@@ -293,6 +295,19 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             static function (PaymentMethodEntity $paymentMethod) use ($paymentMethodId) {
                 return $paymentMethod->getId() !== $paymentMethodId;
             }
+        );
+    }
+    public function addBuckarooToProductPage($event)
+    {
+        $struct = new BuckarooStruct();
+
+        $struct->assign([
+            'applepayShowProduct' => $this->helper->getSettingsValue('applepayShowProduct', $event->getSalesChannelContext()->getSalesChannelId()) == 1,
+        ]);
+
+        $event->getPage()->addExtension(
+            BuckarooStruct::EXTENSION_NAME,
+            $struct
         );
     }
 }

@@ -19,7 +19,7 @@ export default class ApplePay {
     BuckarooSdk.ApplePay
       .checkApplePaySupport(this.store_info.merchant_id)
       .then((is_applepay_supported) => {
-        //is_applepay_supported = true; //ZAK
+        // is_applepay_supported = true; //ZAK
         this.log('10', is_applepay_supported);
         if (is_applepay_supported && location.protocol === 'https:') {
 
@@ -33,6 +33,8 @@ export default class ApplePay {
                 &&
                 document.querySelector('[itemprop~="productID"]').getAttribute('content')
             ) {
+
+              document.querySelector('.applepay-button-container').style.display = 'block';
               //product
               const productId = document.querySelector('[itemprop~="productID"]').getAttribute('content');
               this.log('11', productId);
@@ -200,7 +202,7 @@ export default class ApplePay {
           if (document.getElementById('confirmFormSubmit')) {
             this.log('33');
             window.buckaroo.submit = true;
-            document.getElementById('confirmFormSubmit').click();
+            document.forms['confirmOrderForm'].submit();
             return Promise.resolve(authorizationSuccessResult);
           }
         }
