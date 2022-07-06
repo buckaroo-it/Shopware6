@@ -49,7 +49,15 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
                             null, null, buckaroo_back_link
                         );
                     }
-                    document.forms['confirmOrderForm'].submit();
+
+                    if (window.isApplePay && window.buckaroo.submit !== true) {
+                        var child = document.querySelector('.apple-pay-button');
+                        if (child) {
+                            child.click();
+                        }
+                    } else {
+                        document.forms['confirmOrderForm'].submit();
+                    }
                 }
             }
         })

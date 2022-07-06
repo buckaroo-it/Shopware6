@@ -15,14 +15,17 @@ export default class ApplePay {
   init() {
     this.log('9', this.store_info.merchant_id);
     this.mode =  '';
+    if (document.getElementById('confirmFormSubmit')) {
+      this.mode = 'checkout';
+    }
     this.data =  {};
     BuckarooSdk.ApplePay
       .checkApplePaySupport(this.store_info.merchant_id)
       .then((is_applepay_supported) => {
-        //is_applepay_supported = true; //ZAK
+        // is_applepay_supported = true; //ZAK
         this.log('10', is_applepay_supported);
         if (is_applepay_supported && location.protocol === 'https:') {
-
+          document.querySelector('.applepay-button-container').style.display = 'block';
           if (document.getElementById('confirmFormSubmit')) {
             //checkout
             this.mode = 'checkout';
@@ -33,6 +36,8 @@ export default class ApplePay {
                 &&
                 document.querySelector('[itemprop~="productID"]').getAttribute('content')
             ) {
+
+             
               //product
               const productId = document.querySelector('[itemprop~="productID"]').getAttribute('content');
               this.log('11', productId);
@@ -106,8 +111,10 @@ export default class ApplePay {
           applepay_payment.showPayButton("black");
 
         } else {
-          const aFunction = 'alert';
-          window[aFunction]('ApplePay is not available!');
+          if (this.mode == 'checkout') {
+            const aFunction = 'alert';
+            window[aFunction]('ApplePay is not available!');
+          }
         }
     });
   }
@@ -200,7 +207,7 @@ export default class ApplePay {
           if (document.getElementById('confirmFormSubmit')) {
             this.log('33');
             window.buckaroo.submit = true;
-            document.getElementById('confirmFormSubmit').click();
+            document.forms['confirmOrderForm'].submit();
             return Promise.resolve(authorizationSuccessResult);
           }
         }
