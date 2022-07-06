@@ -251,7 +251,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'payment_media'            => $lastUsedCreditcard . '.png',
             'buckarooFee'              => $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee', $event->getSalesChannelContext()->getSalesChannelId()),
             'BillinkBusiness'          => $customer->getActiveBillingAddress() && $customer->getActiveBillingAddress()->getCompany() ? 'B2B' : 'B2C',
-            'backLink'                 => $backUrl
+            'backLink'                 => $backUrl,
+            'afterpay_customer_type'   => $this->helper->getSettingsValue('afterpayCustomerType', $event->getSalesChannelContext()->getSalesChannelId())
         ]);
 
         $event->getPage()->addExtension(

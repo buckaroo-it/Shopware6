@@ -10,6 +10,10 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class AfterPayPaymentHandler extends AsyncPaymentHandler
 {
+
+    public const CUSTOMER_TYPE_B2C = 'b2c';
+    public const CUSTOMER_TYPE_B2B = 'b2b';
+    public const CUSTOMER_TYPE_BOTH = 'both';
     /**
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
