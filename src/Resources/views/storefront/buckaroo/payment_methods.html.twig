@@ -4,7 +4,7 @@
 
         {% if page.extensions.buckaroo.backLink %}
             <script>
-                var buckaroo_back_link = '{{ app.request.baseUrl }}{{ page.extensions.buckaroo.backLink|raw }}';
+                var buckaroo_back_link = '{{ app.request.get('sw-storefront-url') }}{{ page.extensions.buckaroo.backLink|raw }}';
                 var buckaroo_required_message =' {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}';
             </script>
         {% endif %}
