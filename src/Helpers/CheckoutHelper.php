@@ -1195,7 +1195,7 @@ class CheckoutHelper
      *
      * @return string
      */
-    public function getParsedLabel(\Shopware\Core\Checkout\Order\OrderEntity $order, string $salesChannelId, $label)
+    public function getParsedLabel(\Shopware\Core\Checkout\Order\OrderEntity $order, string $salesChannelId, string $label)
     {
         $label = $this->helper->getSettingsValue($label, $salesChannelId);
 
