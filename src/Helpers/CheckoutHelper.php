@@ -1100,7 +1100,7 @@ class CheckoutHelper
         $request = new TransactionRequest;
         $request->setServiceAction('Refund');
         $request->setDescription(
-            $this->getParsedLabel($order, $order->getSalesChannelId())
+            $this->getParsedLabel($order, $order->getSalesChannelId(), 'refundLabel')
         );
         $request->setServiceName($serviceName);
         $request->setAmountCredit($amount ? $amount : $order->getAmountTotal());
@@ -1195,9 +1195,9 @@ class CheckoutHelper
      *
      * @return string
      */
-    public function getParsedLabel(\Shopware\Core\Checkout\Order\OrderEntity $order, string $salesChannelId)
+    public function getParsedLabel(\Shopware\Core\Checkout\Order\OrderEntity $order, string $salesChannelId, $label)
     {
-        $label = $this->helper->getSettingsValue('transactionLabel', $salesChannelId);
+        $label = $this->helper->getSettingsValue($label, $salesChannelId);
 
         if ($label === null) {
             return $this->helper->getShopName($salesChannelId);
