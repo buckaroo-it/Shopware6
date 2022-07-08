@@ -82,7 +82,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         if ($buckarooKey != 'RequestToPay') {
             $request->setDescription(
-                $this->checkoutHelper->getParsedLabel($order, $salesChannelContext->getSalesChannelId())
+                $this->checkoutHelper->getParsedLabel($order, $salesChannelContext->getSalesChannelId(), 'transactionLabel')
             );
         }
 
