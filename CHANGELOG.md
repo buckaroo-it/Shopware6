@@ -129,3 +129,14 @@ BP-1434 Fixing typeError inside _registerCheckoutSubmitButton (Thanks to @nielsV
 
 # 1.3.2
 BP-1440 Add ideal issuers selectbox
+
+# 1.3.3
+BP-1815 Add support for Shopware 6 version 6.4.13.0
+BP-1675 Add support for multiple sales channels (multi-store)
+BP-1726 iDEAL status message is not clear for consumers
+BP-1766 Add transaction label and refund label
+BP-1435 Change service version of Transfer payment method
+BP-1441 Option in plugin config to set SendMail and DueDate parameters for Transfer
+BP-1508 Update README file
+[#57] Fix | Use sales channel URL instead of base url (Thank you @MelvinAchterhuis !)
+BP-1462 Apple Pay shows a error in the checkout "errorOccurred"  
