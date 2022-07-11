@@ -165,9 +165,9 @@ class CheckoutHelper
         $this->logger = $logger;
     }
 
-    public function getSetting($name)
+    public function getSetting(string $name, string $salesChannelId = null)
     {
-        return $this->settingsService->getSetting($name);
+        return $this->settingsService->getSetting($name, $salesChannelId);
     }
 
     /**
@@ -898,8 +898,8 @@ class CheckoutHelper
         }
 
         $now = new \DateTime();
-        $now->modify('+' . ($this->getSetting('transferDueDate') > 0 ? $this->getSetting('transferDueDate') : 7) . ' day');
-        $sendEmail = $this->getSetting('transferSendEmail') ? 'true' : 'false';
+        $now->modify('+' . ($this->getSetting('transferDateDue', $salesChannelContext->getSalesChannelId()) > 0 ? $this->getSetting('transferDateDue', $salesChannelContext->getSalesChannelId()) : 7) . ' day');
+        $sendEmail = $this->getSetting('transferSendEmail', $salesChannelContext->getSalesChannelId()) ? 'true' : 'false';
 
         $services = [
             [
@@ -957,33 +957,33 @@ class CheckoutHelper
      *
      * @return string Base-url
      */
-    public function getBaseUrl($method = ''): string
+    public function getBaseUrl($method = '', string $salesChannelId = null): string
     {
-        return $this->helper->getEnvironment($method) == 'live' ? UrlHelper::LIVE : UrlHelper::TEST;
+        return $this->helper->getEnvironment($method, $salesChannelId) == 'live' ? UrlHelper::LIVE : UrlHelper::TEST;
     }
 
     /**
      * @return string Full transaction url
      */
-    public function getTransactionUrl($method = ''): string
+    public function getTransactionUrl($method = '', string $salesChannelId = null): string
     {
-        return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/Transaction', '/');
+        return rtrim($this->getBaseUrl($method, $salesChannelId), '/') . '/' . ltrim('json/Transaction', '/');
     }
 
     /**
      * @return string Full transaction url
      */
-    public function getApiTestUrl($method = ''): string
+    public function getApiTestUrl($method = '', string $salesChannelId = null): string
     {
-        return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/DataRequest/Specifications', '/');
+        return rtrim($this->getBaseUrl($method, $salesChannelId), '/') . '/' . ltrim('json/DataRequest/Specifications', '/');
     }
 
     /**
      * @return string Full transaction url
      */
-    public function getDataRequestUrl($method = ''): string
+    public function getDataRequestUrl($method = '', string $salesChannelId = null): string
     {
-        return rtrim($this->getBaseUrl($method), '/') . '/' . ltrim('json/DataRequest', '/');
+        return rtrim($this->getBaseUrl($method, $salesChannelId), '/') . '/' . ltrim('json/DataRequest', '/');
     }
 
     public function getCustomFields($order, $context)
@@ -1043,6 +1043,18 @@ class CheckoutHelper
         return $this->orderRepository->search($orderCriteria, $context)->first();
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param null|\Shopware\Core\Checkout\Order\OrderEntity $order
+     * @param Context $context
+     * @param array $item
+     * @param string $state
+     * @param string $orderItems
+     * @param integer $customRefundAmount
+     *
+     * @return void
+     */
     public function refundTransaction($order, $context, $item, $state, &$orderItems = '', $customRefundAmount = 0)
     {
         if (!$this->isBuckarooPaymentMethod($order)) {
@@ -1087,7 +1099,9 @@ class CheckoutHelper
 
         $request = new TransactionRequest;
         $request->setServiceAction('Refund');
-        $request->setDescription($this->getTranslate('buckaroo.order.refundDescription', ['orderNumber' => $order->getOrderNumber()]));
+        $request->setDescription(
+            $this->getParsedLabel($order, $order->getSalesChannelId(), 'refundLabel')
+        );
         $request->setServiceName($serviceName);
         $request->setAmountCredit($amount ? $amount : $order->getAmountTotal());
         $request->setInvoice($order->getOrderNumber());
@@ -1128,8 +1142,10 @@ class CheckoutHelper
             $request->setChannelHeader('Backoffice');
         }
 
-        $url       = $this->getTransactionUrl($customFields['serviceName']);
-        $bkrClient = $this->helper->initializeBkr();
+        $salesChannelId = $order->getSalesChannelId();
+
+        $url       = $this->getTransactionUrl($customFields['serviceName'], $salesChannelId);
+        $bkrClient = $this->helper->initializeBkr($salesChannelId);
         $response  = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
 
         if ($response->isSuccess()) {
@@ -1170,6 +1186,32 @@ class CheckoutHelper
             'message' => $response->getSubCodeMessageFull() ?? $response->getSomeError(),
             'code'    => $response->getStatusCode(),
         ];
+    }
+    /**
+     * Get the parsed label, we replace the template variables with the values
+     *
+     * @param Store $store
+     * @param \Shopware\Core\Checkout\Order\OrderEntity $order
+     *
+     * @return string
+     */
+    public function getParsedLabel(\Shopware\Core\Checkout\Order\OrderEntity $order, string $salesChannelId, string $label)
+    {
+        $label = $this->helper->getSettingsValue($label, $salesChannelId);
+
+        if ($label === null) {
+            return $this->helper->getShopName($salesChannelId);
+        }
+
+        $label = preg_replace('/\{order_number\}/', $order->getOrderNumber(), $label);
+        $label = preg_replace('/\{shop_name\}/',$this->helper->getShopName($salesChannelId), $label);
+
+        $products = $order->getLineItems();
+
+        if ($products->first() !== null) {
+            $label = preg_replace('/\{product_name\}/',$products->first()->getLabel(), $label);
+        }
+        return mb_substr($label, 0, 244);
     }
 
     public function captureTransaction($order, $context)
@@ -1240,14 +1282,18 @@ class CheckoutHelper
             $request->setServiceParameter('ReservationNumber', $customFields['reservationNumber']);
         }
 
-        $url       = $this->getTransactionUrl($customFields['serviceName']);
-        $bkrClient = $this->helper->initializeBkr();
+        $salesChannelId = $order->getSalesChannelId();
+        $url       = $this->getTransactionUrl($customFields['serviceName'], $salesChannelId);
+        $bkrClient = $this->helper->initializeBkr($salesChannelId);
         $response  = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
 
         if ($response->isSuccess()) {
             $this->logger->info(__METHOD__ . "|45|");
 
-            if (!$this->isInvoiced($order->getId(), $context) && !$this->isCreateInvoiceAfterShipment(false, $customFields['serviceName'])) {
+            if (
+                !$this->isInvoiced($order->getId(), $context) &&
+                !$this->isCreateInvoiceAfterShipment(false, $customFields['serviceName'], $salesChannelId)
+            ) {
                 $this->logger->info(__METHOD__ . "|55|");
                 $this->generateInvoice($order->getId(), $context, $order->getId());
             }
@@ -1270,7 +1316,7 @@ class CheckoutHelper
      *
      * @return bool
      */
-    public function validateSignature()
+    public function validateSignature(string $salesChannelId = null)
     {
         $request  = $this->helper->getGlobals();
         $postData = $_POST;
@@ -1279,7 +1325,7 @@ class CheckoutHelper
             return false;
         }
 
-        $signature = $this->calculateSignature($postData);
+        $signature = $this->calculateSignature($postData, $salesChannelId);
 
         if ($signature !== $postData['brq_signature']) {
             return false;
@@ -1295,7 +1341,7 @@ class CheckoutHelper
      *
      * @return string
      */
-    protected function calculateSignature($postData)
+    protected function calculateSignature($postData, string $salesChannelId = null)
     {
         $copyData = $postData;
         unset($copyData['brq_signature']);
@@ -1310,7 +1356,7 @@ class CheckoutHelper
             $signatureString .= $brq_key . '=' . $value;
         }
 
-        $signatureString .= $this->helper->getSettingsValue('secretKey');
+        $signatureString .= $this->helper->getSettingsValue('secretKey', $salesChannelId);
 
         $signature = SHA1($signatureString);
 
@@ -1571,13 +1617,13 @@ class CheckoutHelper
         }
     }
 
-    public function isCreateInvoiceAfterShipment($brqTransactionType = false, $serviceName = false){
+    public function isCreateInvoiceAfterShipment($brqTransactionType = false, $serviceName = false, string $salesChannelId = null){
         if($brqTransactionType){
-            if(ResponseStatus::BUCKAROO_BILLINK_CAPTURE_TYPE_ACCEPT == $brqTransactionType && $this->helper->getSettingsValue('BillinkCreateInvoiceAfterShipment')){
+            if(ResponseStatus::BUCKAROO_BILLINK_CAPTURE_TYPE_ACCEPT == $brqTransactionType && $this->helper->getSettingsValue('BillinkCreateInvoiceAfterShipment', $salesChannelId)){
                 return true;
             }
         }else{
-            if($serviceName == 'Billink' && $this->getSettingsValue('BillinkMode') == 'authorize' && $this->getSettingsValue('BillinkCreateInvoiceAfterShipment')){
+            if($serviceName == 'Billink' && $this->getSettingsValue('BillinkMode', $salesChannelId) == 'authorize' && $this->getSettingsValue('BillinkCreateInvoiceAfterShipment', $salesChannelId)){
                 return true;
             }
         }
@@ -1710,7 +1756,7 @@ class CheckoutHelper
         }
     }
 
-    public function generateInvoice($orderId, $context, $invoiceNumber){
+    public function generateInvoice($orderId, $context, $invoiceNumber, $salesChannelId = null){
         $documentConfiguration = new DocumentConfiguration();
         $documentConfiguration->setDocumentNumber($invoiceNumber);
         $invoice = $this->documentService->create(
@@ -1721,7 +1767,7 @@ class CheckoutHelper
             $context
         );
 
-        if($this->helper->getSettingsValue('sendInvoiceEmail')){
+        if($this->helper->getSettingsValue('sendInvoiceEmail', $salesChannelId)){
             $documentIds = [$invoice->getId()];
             $technicalName = 'order_transaction.state.paid';
             $order = $this->getOrderById($orderId, $context);
@@ -1887,45 +1933,45 @@ class CheckoutHelper
         return false;
     }
 
-    public function getIdealRenderMode()
+    public function getIdealRenderMode(string $salesChannelId = null)
     {
-        return $this->getSetting('idealRenderMode');
+        return $this->getSetting('idealRenderMode', $salesChannelId);
     }
     
-    public function getBuckarooFeeLabel($buckarooKey, $label, $context)
+    public function getBuckarooFeeLabel($buckarooKey, $label, $context, string $salesChannelId = null)
     {
         $currency = $this->getOrderCurrency($context);
-        if($buckarooFee = $this->getSetting($buckarooKey.'Fee')){
+        if($buckarooFee = $this->getSetting($buckarooKey.'Fee', $salesChannelId)){
             $label .= ' +' . $currency->getSymbol() . $buckarooFee;
         }
         return $label;
     }
 
-    public function getBuckarooFee($buckarooKey)
+    public function getBuckarooFee($buckarooKey, string $salesChannelId = null)
     {
-        if($buckarooFee = $this->getSetting($buckarooKey)){
+        if($buckarooFee = $this->getSetting($buckarooKey, $salesChannelId)){
             return round(str_replace(',','.',$buckarooFee), 2);
         }
         return false;
     }
 
-    public function getSettingsValue($value){
-        return $this->helper->getSettingsValue($value);
+    public function getSettingsValue($value, string $salesChannelId = null){
+        return $this->helper->getSettingsValue($value, $salesChannelId);
     }
 
     public function forwardToRoute($path,$parameters = []){
         return $this->router->generate($path, $parameters);
     }
 
-    public function getBuckarooApiTest($websiteKeyId, $secretKeyId){
-        $this->settingsService->setSetting('websiteKey', $websiteKeyId);
-        $this->settingsService->setSetting('secretKey', $secretKeyId);
+    public function getBuckarooApiTest($websiteKeyId, $secretKeyId, $salesChannelId){
+        $this->settingsService->setSetting('websiteKey', $websiteKeyId, $salesChannelId);
+        $this->settingsService->setSetting('secretKey', $secretKeyId, $salesChannelId);
         $request = new TransactionRequest;
         $request->setServiceName('ideal');
         $request->setServiceVersion('2');
 
-        $url       = $this->getTransactionUrl('ideal');
-        $bkrClient = $this->helper->initializeBkr();
+        $url       = $this->getTransactionUrl('ideal', $salesChannelId);
+        $bkrClient = $this->helper->initializeBkr($salesChannelId);
         try {
             $response  = $bkrClient->post($url, $request);
             if($response->getHttpCode() == '200'){
@@ -1968,14 +2014,14 @@ class CheckoutHelper
         return $address->getCountry() !== null && $address->getCountry()->getIso() !== null ? $address->getCountry()->getIso() : 'NL';
     }
 
-    public function getPayPerEmailPaymentMethodsAllowed()
+    public function getPayPerEmailPaymentMethodsAllowed(string $salesChannelId = null)
     {
         $methods = [];
-        if($payperemailAllowed = $this->getSettingsValue('payperemailAllowed')){
+        if($payperemailAllowed = $this->getSettingsValue('payperemailAllowed', $salesChannelId)){
 
             foreach ($payperemailAllowed as $key => $item){
                 if($item == 'giftcard'){
-                    if($allowedgiftcards = $this->getSettingsValue('allowedgiftcards')){
+                    if($allowedgiftcards = $this->getSettingsValue('allowedgiftcards', $salesChannelId)){
                         foreach ($allowedgiftcards as $giftcard){
                             array_push($methods, $giftcard);
                         }
@@ -2040,12 +2086,13 @@ class CheckoutHelper
         $request->setServiceParameter('MerchantSendsEmail','true');
         $request->setServiceParameter('PaymentMethodsAllowed',$this->getPayPerEmailPaymentMethodsAllowed());
 
-        if($payperemailExpireDays = $this->getSettingsValue('payperemailExpireDays')){
+        $salesChannelId = $order->getSalesChannelId();
+        if($payperemailExpireDays = $this->getSettingsValue('payperemailExpireDays', $salesChannelId)){
             $request->setServiceParameter('ExpirationDate',date('Y-m-d', time() + $payperemailExpireDays * 86400));
         }
 
-        $url       = $this->getTransactionUrl('payperemail');
-        $bkrClient = $this->helper->initializeBkr();
+        $url       = $this->getTransactionUrl('payperemail', $salesChannelId);
+        $bkrClient = $this->helper->initializeBkr($salesChannelId);
         $response  = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
 
         if ($response->isSuccess() || $response->isAwaitingConsumer()) {

@@ -36,7 +36,7 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
         $order      = $transaction->getOrder();
 
         $additional = $this->getArticleData($order, $additional, $latestKey);
-        $additional = $this->getBuckarooFee($order, $additional, $latestKey);
+        $additional = $this->getBuckarooFee($order, $additional, $latestKey, $salesChannelContext->getSalesChannelId());
         $additional = $this->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag);
 
         $paymentMethod = new Billink();
@@ -55,9 +55,9 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
         );
     }
 
-    public function getBuckarooFee($order, $additional, &$latestKey)
+    public function getBuckarooFee($order, $additional, &$latestKey, $salesChannelId)
     {
-        $buckarooFee = $this->checkoutHelper->getBuckarooFee('BillinkFee');
+        $buckarooFee = $this->checkoutHelper->getBuckarooFee('BillinkFee', $salesChannelId);
         if (false !== $buckarooFee && (double)$buckarooFee > 0) {
             $additional[] = [
                 [
@@ -462,18 +462,15 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
 
     }
 
-    public function getMode(){
-        return $this->checkoutHelper->getSettingsValue('BillinkMode');
-    }
-
     protected function payBefore(
         RequestDataBag $dataBag,
-        \Buckaroo\Shopware6\Buckaroo\Payload\Request $request
+        \Buckaroo\Shopware6\Buckaroo\Payload\Request $request,
+        $salesChannelId
     ): void {
-        if($this->checkoutHelper->getSettingsValue('BillinkMode') == 'authorize'){
+        if($this->checkoutHelper->getSettingsValue('BillinkMode', $salesChannelId) == 'authorize'){
             $request->setServiceAction('Authorize');
         }
 
-        parent::payBefore($dataBag, $request);
+        parent::payBefore($dataBag, $request, $salesChannelId);
     }
 }

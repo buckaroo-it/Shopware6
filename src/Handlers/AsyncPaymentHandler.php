@@ -68,7 +68,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     ): RedirectResponse {
         $this->logger->info(__METHOD__ . "|1|", [$_POST]);
 
-        $bkrClient = $this->helper->initializeBkr();
+        $bkrClient = $this->helper->initializeBkr($salesChannelContext->getSalesChannelId());
 
         $order = $transaction->getOrder();
 
@@ -81,7 +81,9 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $finalizePage = ($dataBag->has('finishUrl')) ? $dataBag->get('finishUrl') : $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize');
 
         if ($buckarooKey != 'RequestToPay') {
-            $request->setDescription($this->checkoutHelper->getTranslate('buckaroo.order.paymentDescription', ['orderNumber' => $order->getOrderNumber()]));
+            $request->setDescription(
+                $this->checkoutHelper->getParsedLabel($order, $salesChannelContext->getSalesChannelId(), 'transactionLabel')
+            );
         }
 
         $request->setReturnURL($finalizePage);
@@ -99,7 +101,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setCurrency($salesChannelContext->getCurrency()->getIsoCode());
         $request->setAmountDebit($order->getAmountTotal());
 
-        if($buckarooFee = $this->checkoutHelper->getBuckarooFee($buckarooKey.'Fee')) {
+        if($buckarooFee = $this->checkoutHelper->getBuckarooFee($buckarooKey.'Fee', $salesChannelContext->getSalesChannelId())) {
             $this->checkoutHelper->updateOrderCustomFields($order->getId(),['buckarooFee' => $buckarooFee]);
             $request->setAmountDebit($order->getAmountTotal() + $buckarooFee);
         }
@@ -108,7 +110,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setServiceVersion($version);
         $request->setServiceAction('Pay');
 
-        $this->payBefore($dataBag, $request);
+        $this->payBefore($dataBag, $request, $salesChannelContext->getSalesChannelId());
 
         if ($buckarooKey == 'applepay') {
             $this->payApplePay($dataBag, $request);
@@ -143,7 +145,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         if ($buckarooKey == 'giftcards') {
             $list = 'ideal';
             $request->removeServices();
-            if($allowedgiftcards = $this->helper->getSettingsValue('allowedgiftcards')){
+            if($allowedgiftcards = $this->helper->getSettingsValue('allowedgiftcards', $salesChannelContext->getSalesChannelId())){
                 foreach ($allowedgiftcards as $key => $value) {
                     $list .= ',' . $value;
                 }
@@ -162,9 +164,9 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         try {
             if ($buckarooKey == 'klarnakp') {
-                $url = $this->checkoutHelper->getDataRequestUrl($buckarooKey);
+                $url = $this->checkoutHelper->getDataRequestUrl($buckarooKey, $salesChannelContext->getSalesChannelId());
             } else {
-                $url = $this->checkoutHelper->getTransactionUrl($buckarooKey);
+                $url = $this->checkoutHelper->getTransactionUrl($buckarooKey, $salesChannelContext->getSalesChannelId());
             }
             $locale = $this->checkoutHelper->getSalesChannelLocaleCode($salesChannelContext);
             $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse',$locale);
@@ -175,11 +177,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         }
 
-        if($this->helper->getSettingsValue('stockReserve') && !$response->isCanceled()){
+        if($this->helper->getSettingsValue('stockReserve', $salesChannelContext->getSalesChannelId()) && !$response->isCanceled()){
             $this->checkoutHelper->stockReserve($order);
         }
 
-        $pendingPaymentStatus = ($this->helper->getSettingsValue('pendingPaymentStatus') && !$response->isCanceled()) ? $this->helper->getSettingsValue('pendingPaymentStatus') : 'open';
+        $pendingPaymentStatus = ($this->helper->getSettingsValue('pendingPaymentStatus',$salesChannelContext->getSalesChannelId()) && !$response->isCanceled()) ? $this->helper->getSettingsValue('pendingPaymentStatus', $salesChannelContext->getSalesChannelId()) : 'open';
 
         $context = $salesChannelContext->getContext();
         if ($response->hasRedirect()) {
@@ -205,7 +207,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
     protected function payBefore(
         RequestDataBag $dataBag,
-        \Buckaroo\Shopware6\Buckaroo\Payload\Request $request
+        \Buckaroo\Shopware6\Buckaroo\Payload\Request $request,
+        $salesChannelId
     ): void {
         $this->logger->info(__METHOD__ . "|1|");
     }

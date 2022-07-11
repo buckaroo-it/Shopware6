@@ -2,21 +2,22 @@
 
 namespace Buckaroo\Shopware6\Subscribers;
 
-use Buckaroo\Shopware6\Helpers\Helper;
-use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Buckaroo\Shopware6\Helpers\Helper;
+use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
-use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
-use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Buckaroo\Shopware6\Helpers\CheckoutHelper;
-use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 {
@@ -126,6 +127,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             AccountPaymentMethodPageLoadedEvent::class => 'hideNotEnabledPaymentMethods',
             AccountEditOrderPageLoadedEvent::class     => 'addBuckarooExtension',
             CheckoutConfirmPageLoadedEvent::class      => 'addBuckarooExtension',
+            ProductPageLoadedEvent::class              => 'addBuckarooToProductPage'
         ];
     }
 
@@ -138,7 +140,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         foreach ($paymentMethods as $paymentMethod) {
             if(!isset($paymentMethod->getTranslated()['customFields']['buckaroo_key'])){continue;} 
             if($buckarooKey = $paymentMethod->getTranslated()['customFields']['buckaroo_key']) {
-                if(!$this->helper->getEnabled($buckarooKey)){
+                if(!$this->helper->getEnabled($buckarooKey, $event->getSalesChannelContext()->getSalesChannelId())){
                     $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
                 }
             }
@@ -175,7 +177,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct             = new BuckarooStruct();
         $issuers            = $this->issuers;
-        $idealRenderMode    = $this->checkoutHelper->getIdealRenderMode(); 
+        $idealRenderMode    = $this->checkoutHelper->getIdealRenderMode($event->getSalesChannelContext()->getSalesChannelId()); 
         $lastUsedCreditcard = 'visa';
         if($customFields = $customer->getCustomFields()){
             if (isset($customFields['last_used_creditcard'])) {
@@ -184,22 +186,32 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
         
         $creditcard = [];
-        $allowedcreditcard = $this->helper->getSettingsValue('allowedcreditcard');
+        $allowedcreditcard = $this->helper->getSettingsValue('allowedcreditcard', $event->getSalesChannelContext()->getSalesChannelId());
         if (!empty($allowedcreditcard)){
             foreach ($allowedcreditcard as $value) {
                 $creditcard[] = [
-                    'name' => $this->checkoutHelper->getBuckarooFeeLabel('allowedcreditcard',$this->availableCreditcards[$value], $context),
+                    'name' => $this->checkoutHelper->getBuckarooFeeLabel(
+                        'allowedcreditcard',
+                        $this->availableCreditcards[$value],
+                        $context,
+                        $event->getSalesChannelContext()->getSalesChannelId()
+                    ),
                     'code' => $value,
                 ];
             }
         }
 
         $creditcards = [];
-        $allowedcreditcards = $this->helper->getSettingsValue('allowedcreditcards');
+        $allowedcreditcards = $this->helper->getSettingsValue('allowedcreditcards', $event->getSalesChannelContext()->getSalesChannelId());
         if (!empty($allowedcreditcards)){
             foreach ($allowedcreditcards as $value) {
                 $creditcards[] = [
-                    'name' => $this->checkoutHelper->getBuckarooFeeLabel('allowedcreditcards',$this->availableCreditcards[$value], $context),
+                    'name' => $this->checkoutHelper->getBuckarooFeeLabel(
+                        'allowedcreditcards',
+                        $this->availableCreditcards[$value],
+                        $context,
+                        $event->getSalesChannelContext()->getSalesChannelId()
+                    ),
                     'code' => $value,
                 ];
             }
@@ -215,7 +227,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             $method = $paymentMethod->getTranslated();
             if (!empty($method['customFields']['buckaroo_key'])) {
                 $buckaroo_key = $method['customFields']['buckaroo_key'];
-                $paymentLabels[$buckaroo_key] = $this->checkoutHelper->getBuckarooFeeLabel($buckaroo_key, $this->helper->getSettingsValue($buckaroo_key . 'Label'), $context);
+                $paymentLabels[$buckaroo_key] = $this->checkoutHelper->getBuckarooFeeLabel(
+                    $buckaroo_key,
+                    $this->helper->getSettingsValue($buckaroo_key . 'Label', $event->getSalesChannelContext()->getSalesChannelId()),
+                    $context,
+                    $event->getSalesChannelContext()->getSalesChannelId()
+                );
             }
         }
 
@@ -232,7 +249,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'payment_labels'           => $paymentLabels,
             'media_path'               => $this->checkoutHelper->forwardToRoute('root.fallback') . 'bundles/buckaroopayments/storefront/buckaroo/logo/',
             'payment_media'            => $lastUsedCreditcard . '.png',
-            'buckarooFee'              => $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee'),
+            'buckarooFee'              => $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee', $event->getSalesChannelContext()->getSalesChannelId()),
             'BillinkBusiness'          => $customer->getActiveBillingAddress() && $customer->getActiveBillingAddress()->getCompany() ? 'B2B' : 'B2C',
             'backLink'                 => $backUrl
         ]);
@@ -278,6 +295,19 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             static function (PaymentMethodEntity $paymentMethod) use ($paymentMethodId) {
                 return $paymentMethod->getId() !== $paymentMethodId;
             }
+        );
+    }
+    public function addBuckarooToProductPage($event)
+    {
+        $struct = new BuckarooStruct();
+
+        $struct->assign([
+            'applepayShowProduct' => $this->helper->getSettingsValue('applepayShowProduct', $event->getSalesChannelContext()->getSalesChannelId()) == 1,
+        ]);
+
+        $event->getPage()->addExtension(
+            BuckarooStruct::EXTENSION_NAME,
+            $struct
         );
     }
 }

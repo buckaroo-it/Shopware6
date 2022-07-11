@@ -1,22 +1,29 @@
 <p align="center">
-  <img src="https://www.buckaroo.nl/media/3216/shopware6-logo.png" width="225px" position="center">
+  <img src="https://www.buckaroo.nl/media/3476/shopware6_icon.png" width="200px" position="center">
 </p>
 
-# Buckaroo Payments Shopware 6
+# Buckaroo Shopware 6 Payments Plugin
 
-### About Shopware
+### About
 
 Shopware is a modular online shop system developed in Germany since 2004. It is available both as open source software and in commercial editions.
 
-### Installation & Configuration 
+The Buckaroo Payments Plugin ([Dutch](https://support.buckaroo.nl/categorieen/plugins/shopware-6) or [English](https://support.buckaroo.eu/categories/plugins)) for Shopware 6 enables a ready-to-sell payment gateway. You can choose from popular online payment methods in The Netherlands, Belgium, France, Germany and globally.
+Start accepting payments within a few minutes.
 
-The Buckaroo Payments Plugin ([Dutch](https://support.buckaroo.nl/categorieen/plugins/shopware-6)) for Shopware 6 enables a ready-to-sell payment gateway. You can choose from popular online payment methods in The Netherlands, Belgium, France, Germany and globally. 
+### Requirements
 
-### Install via composer
-We recommend you to install the Buckaroo Shopware 6 plugin via composer. It is easy to install, update and maintain.
-Run the following commands:
+To use the Buckaroo plugin, please be aware of the following minimum requirements:
+- A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
+- Shopware 6.1 or higher
+- PHP 7.4 or higher
 
-### Install
+### Installation
+
+We recommend you to install the Buckaroo Shopware 6 Payments plugin with composer. It is easy to install, update and maintain.
+
+**Run the following commands:**
+
 ```
 cd S6_INSTALLATION_ROOT
 composer require buckaroo/shopware6
@@ -25,27 +32,38 @@ bin/console plugin:refresh
 bin/console plugin:install --activate BuckarooPayments
 bin/console cache:clear
 ```
+
 ### Upgrade
+
+**You can also upgrade/update the Buckaroo plugin with composer.
+To do this, please run the following commands:**
+
 ```
 composer update buckaroo/shopware6
 plugin:update BuckarooPayments
 ```
 
+### Configuration
+
+For the configuration of the plugin, please refer to our [Dutch](https://support.buckaroo.nl/categorieen/plugins/shopware-6) or [English](https://support.buckaroo.eu/categories/plugins) support website.
+You will find all the necessary information there. But if you still have some unanswered questions, then please contact our [technical support department](mailto:support@buckaroo.nl).
+
 ### Contribute
 
-See [Contribution Guidelines](CONTRIBUTING.md)
+We really appreciate it when developers contribute to improve the Buckaroo plugins.
+If you want to contribute as well, then please follow our [Contribution Guidelines](CONTRIBUTING.md).
 
 ### Versioning 
 <p align="left">
-  <img src="https://www.buckaroo.nl/media/3212/versioning.png" width="600px" position="center">
+  <img src="https://www.buckaroo.nl/media/3485/shopware6_versioning.png" width="500px" position="center">
 </p>
 
-- **MAJOR:** Breaking changes that require additional testing/caution
-- **MINOR:** Changes that should not have a big impact 
-- **PATCHES:** Bug and hotfixes only 
+- **MAJOR:** Breaking changes that require additional testing/caution.
+- **MINOR:** Changes that should not have a big impact.
+- **PATCHES:** Bug and hotfixes only.
 
 ### Additional information
-- **Knowledge base & FAQ:** [Dutch](https://support.buckaroo.nl/categorieen/plugins/shopware-6)
+- **Knowledge base & FAQ:** Available in [Dutch](https://support.buckaroo.nl/categorieen/plugins/shopware-6) or [English](https://support.buckaroo.nl/categorieen/plugins).
 - **Support:** https://support.buckaroo.eu/contact
-- **Contact:** support@buckaroo.nl or +31 (0)30 711 50 50
+- **Contact:** [support@buckaroo.nl](mailto:support@buckaroo.nl) or [+31 (0)30 711 50 50](tel:+310307115050)
 

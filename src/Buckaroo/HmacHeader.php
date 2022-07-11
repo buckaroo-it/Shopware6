@@ -12,13 +12,31 @@ use Buckaroo\Shopware6\Helpers\Helpers;
 class HmacHeader
 {
     /**
-     * @var Buckaroo\Shopware6\Helper\Config
+     * Sales channel id required to config parameter 
+     *
+     * @var string
+     */
+    protected $salesChannelId = null;
+    /**
+     * @var \Buckaroo\Shopware6\Helpers\Config
      */
     protected $config;
 
     public function __construct(Config $config)
     {
         $this->config = $config;
+    }
+    
+    /**
+     * Set channel id
+     *
+     * @param string|null $salesChannelId
+     *
+     * @return void
+     */
+    public function setSalesChannelId(string $salesChannelId = null)
+    {
+        $this->salesChannelId = $salesChannelId;
     }
 
     /**
@@ -49,7 +67,7 @@ class HmacHeader
         $requestUri = $this->escapeRequestUri($requestUri);
 
         $hmac = "Authorization: hmac " . implode(':', [
-            $this->config->websiteKey(),
+            $this->config->websiteKey($this->salesChannelId),
             $this->getHash($requestUri, $httpMethod, $encodedContent, $nonce, $timeStamp),
             $nonce,
             $timeStamp,
@@ -71,9 +89,9 @@ class HmacHeader
 
     protected function getHash($requestUri, $httpMethod, $encodedContent, $nonce, $timeStamp)
     {
-        $rawData = $this->config->websiteKey() . $httpMethod . $requestUri . $timeStamp . $nonce . $encodedContent;
+        $rawData = $this->config->websiteKey($this->salesChannelId) . $httpMethod . $requestUri . $timeStamp . $nonce . $encodedContent;
 
-        $hash = hash_hmac('sha256', $rawData, $this->config->secretKey(), true);
+        $hash = hash_hmac('sha256', $rawData, $this->config->secretKey($this->salesChannelId), true);
 
         $base64 = base64_encode($hash);
 

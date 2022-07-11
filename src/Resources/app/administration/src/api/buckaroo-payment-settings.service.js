@@ -21,14 +21,15 @@ class BuckarooPaymentSettingsService extends ApiService {
         });
     }
 
-    getApiTest(websiteKeyId, secretKeyId) {
+    getApiTest(websiteKeyId, secretKeyId, currentSalesChannelId) {
         const apiRoute = `_action/${this.getApiBasePath()}/getBuckarooApiTest`;
 
         return this.httpClient.post(
             apiRoute,
             {
                 websiteKeyId: websiteKeyId,
-                secretKeyId: secretKeyId
+                secretKeyId: secretKeyId,
+                saleChannelId: currentSalesChannelId
             },
             {
                 headers: this.getBasicHeaders()

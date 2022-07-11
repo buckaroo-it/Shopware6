@@ -125,7 +125,7 @@
                         <sw-form-field-renderer
                                 v-bind="getBind(element, config)"
                                 v-model="config[element.name]"/>
-                        <sw-button @click="sendTestApi" :disabled="false" v-if="showButtonAfter('orderStatus', element, card)" variant="primary" :square="false" :block="true" :isLoading="false">{{ $tc('buckaroo-payment.button.labelTestApi') }}</sw-button>
+                        <sw-button @click="sendTestApi" :disabled="false" v-if="showButtonAfter(element, config)" variant="primary" :square="false" :block="true" :isLoading="false">{{ $tc('buckaroo-payment.button.labelTestApi') }}</sw-button>
                     </div>
                 </template>
             </sw-system-config>

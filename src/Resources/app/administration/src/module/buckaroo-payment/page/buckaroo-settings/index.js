@@ -30,6 +30,8 @@ Component.register('buckaroo-settings', {
                 'websiteKey': true,
                 'secretKey': true,
                 'guid': true,
+                'transactionLabel': true,
+                'refundLabel': true,
                 'creditcardEnabled': true,
                 'creditcardsEnabled': true,
                 'idealEnabled': true,
@@ -101,8 +103,9 @@ Component.register('buckaroo-settings', {
         sendTestApi() {
             var that = this,
                 websiteKeyId = this.getConfigValue('websiteKey'),
-                secretKeyId = this.getConfigValue('secretKey');
-            this.BuckarooPaymentSettingsService.getApiTest(websiteKeyId, secretKeyId)
+                secretKeyId = this.getConfigValue('secretKey'),
+                currentSalesChannelId = this.$refs.systemConfig.currentSalesChannelId;
+            this.BuckarooPaymentSettingsService.getApiTest(websiteKeyId, secretKeyId, currentSalesChannelId)
                 .then((result) => {
 
                     if(result.status == 'success'){
@@ -148,7 +151,11 @@ Component.register('buckaroo-settings', {
             return false;
         },
 
-        showButtonAfter(name, element, card) {
+        showButtonAfter(element, config) {
+            let name = 'advancedConfiguration';
+            if(config["BuckarooPayments.config.advancedConfiguration"] != undefined && config["BuckarooPayments.config.advancedConfiguration"]){
+                name = 'orderStatus'
+            }
             if(element.name.includes(name)){
                 return true;
             }
@@ -306,6 +313,12 @@ Component.register('buckaroo-settings', {
 
             if((fid == 'idealRenderMode')) {
                 if(config["BuckarooPayments.config.idealRenderMode"] != undefined && config["BuckarooPayments.config.idealEnabled"]){
+                    return true;
+                }
+            }
+
+            if((fid == 'transferSendEmail') || (fid == 'transferDateDue')) {
+                if(config["BuckarooPayments.config.transferEnabled"] != undefined && config["BuckarooPayments.config.transferEnabled"]){
                     return true;
                 }
             }

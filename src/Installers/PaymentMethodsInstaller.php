@@ -245,7 +245,7 @@ class PaymentMethodsInstaller implements InstallerInterface
             $this->setBuckarooPaymentSettingsValue($paymentMethod->getBuckarooKey(), $paymentMethod->getName(), 'Label');
         }
 
-        foreach ([['pendingPaymentStatus'=>'open'],['paymentSuccesStatus'=>'paid'],['paymentFailedStatus'=>'cancelled'],['orderStatus'=>'open'],['klarnaBusiness'=>'B2C'],['BillinkMode'=>'pay']] as $key => $value) {
+        foreach ([['pendingPaymentStatus'=>'open'],['paymentSuccesStatus'=>'paid'],['paymentFailedStatus'=>'cancelled'],['orderStatus'=>'open'],['klarnaBusiness'=>'B2C'],['BillinkMode'=>'pay'], ['transferSendEmail'=> 1], ['transferDateDue'=> 7] ] as $key => $value) {
             $this->setBuckarooPaymentSettingsValue($key, $value);
         }
     }

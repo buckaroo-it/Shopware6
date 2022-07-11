@@ -76,7 +76,7 @@ class PushController extends StorefrontController
         $brqPaymentMethod   = $request->request->get('brq_transaction_method');
         $originalTransactionKey   = $request->request->get('brq_transactions');
 
-        if (!$this->checkoutHelper->validateSignature()) {
+        if (!$this->checkoutHelper->validateSignature($salesChannelContext->getSalesChannelId())) {
             $this->logger->info(__METHOD__ . "|5|");
             return $this->json(['status' => false, 'message' => $this->trans('buckaroo.messages.signatureIncorrect')]);
         }
@@ -170,7 +170,7 @@ class PushController extends StorefrontController
                 }
 
                 $customFields = $this->checkoutHelper->getCustomFields($order, $context);
-                $paymentSuccesStatus = $this->checkoutHelper->getSettingsValue('paymentSuccesStatus') ? $this->checkoutHelper->getSettingsValue('paymentSuccesStatus') : "completed";
+                $paymentSuccesStatus = $this->checkoutHelper->getSettingsValue('paymentSuccesStatus', $salesChannelContext->getSalesChannelId()) ? $this->checkoutHelper->getSettingsValue('paymentSuccesStatus', $salesChannelContext->getSalesChannelId()) : "completed";
                 $alreadyPaid = round($brqAmount + ($customFields['alreadyPaid'] ?? 0), 2);
                 $paymentState        = ($alreadyPaid >= round($totalPrice, 2)) ? $paymentSuccesStatus : "pay_partially";
                 $data                = [];
@@ -188,7 +188,7 @@ class PushController extends StorefrontController
                 ]);
                 $this->checkoutHelper->saveTransactionData($orderTransactionId, $context, $data);
 
-                if ($orderStatus = $this->checkoutHelper->getSettingsValue('orderStatus')) {
+                if ($orderStatus = $this->checkoutHelper->getSettingsValue('orderStatus', $salesChannelContext->getSalesChannelId())) {
                     if ($orderStatus == 'complete') {
                         $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'process');
                     }
@@ -197,10 +197,10 @@ class PushController extends StorefrontController
 
                 $this->logger->info(__METHOD__ . "|50.1|");
                 if (!$this->checkoutHelper->isInvoiced($brqOrderId, $context)
-                    && !$this->checkoutHelper->isCreateInvoiceAfterShipment($brqTransactionType)) {
+                    && !$this->checkoutHelper->isCreateInvoiceAfterShipment($brqTransactionType, false, $salesChannelContext->getSalesChannelId())) {
                     $this->logger->info(__METHOD__ . "|50.2|");
                     if (round($brqAmount, 2) == round($totalPrice, 2)) {
-                        $this->checkoutHelper->generateInvoice($brqOrderId, $context, $brqInvoicenumber);
+                        $this->checkoutHelper->generateInvoice($brqOrderId, $context, $brqInvoicenumber, $salesChannelContext->getSalesChannelId());
                     }
                 }
             } catch (InconsistentCriteriaIdsException | IllegalTransitionException | StateMachineNotFoundException
@@ -218,7 +218,7 @@ class PushController extends StorefrontController
                 return $this->json(['status' => true, 'message' => $this->trans('buckaroo.messages.skippedPush')]);
             }
 
-            $paymentFailedStatus = $this->checkoutHelper->getSettingsValue('paymentFailedStatus') ? $this->checkoutHelper->getSettingsValue('paymentFailedStatus') : "cancelled";
+            $paymentFailedStatus = $this->checkoutHelper->getSettingsValue('paymentFailedStatus',  $salesChannelContext->getSalesChannelId()) ? $this->checkoutHelper->getSettingsValue('paymentFailedStatus',  $salesChannelContext->getSalesChannelId()) : "cancelled";
 
             $this->checkoutHelper->transitionPaymentState($paymentFailedStatus, $orderTransactionId, $context);
             $this->checkoutHelper->changeOrderStatus($brqOrderId, $context, 'cancel');
