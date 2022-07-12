@@ -80,7 +80,8 @@
       },
       "Coc": "CoC-number:",
       "CocPlaceholder": "CoC-number",
-      "buckarooMobileCocError": "CoC-number is required"
+      "buckarooMobileCocError": "CoC-number is required",
+      "company_required": "The company name is required for this payment method"
     }
   },
   "bkr-applepay": {

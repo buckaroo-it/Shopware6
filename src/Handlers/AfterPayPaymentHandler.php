@@ -3,10 +3,11 @@
 namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 
 class AfterPayPaymentHandler extends AsyncPaymentHandler
 {
@@ -162,6 +163,27 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         
 
         $category    = 'Person';
+
+        if (
+            $this->isOnlyCustomerB2B($salesChannelContext->getSalesChannelId()) && 
+            (
+                $this->isCompanyEmpty($address->getCompany()) &&
+                $this->isCompanyEmpty($shippingAddress->getCompany())
+            )
+        ) {
+            throw new \Exception(
+                'Company name is required for this payment method'
+            );
+        }
+
+        if (
+            $this->isCustomerB2B($salesChannelContext->getSalesChannelId()) &&
+            $this->checkoutHelper->getCountryCode($address) === 'NL' &&
+            !$this->isCompanyEmpty($address->getCompany())
+        ) {
+            $category = 'Company';
+        }
+
         $billingData = [
             [
                 '_'       => $category,
@@ -273,6 +295,34 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
             ];
         }
 
+        if (
+            $this->isCustomerB2B($salesChannelContext->getSalesChannelId()) &&
+            $this->checkoutHelper->getCountryCode($address) === 'NL' &&
+            !$this->isCompanyEmpty($address->getCompany())
+        ) {
+            $billingData = array_merge($billingData,[
+                [
+                    '_'    => $address->getCompany(),
+                    'Name' => 'CompanyName',
+                    'Group' => 'BillingCustomer',
+                    'GroupID' => '',
+                ],
+                [
+                    '_'    => $dataBag->get('buckaroo_afterpay_Coc'),
+                    'Name' => 'IdentificationNumber',
+                    'Group' => 'BillingCustomer',
+                    'GroupID' => '',
+                ]
+            ]);
+        }
+
+        if (
+            $this->isCustomerB2B($salesChannelContext->getSalesChannelId()) &&
+            $this->checkoutHelper->getCountryCode($shippingAddress) === 'NL' &&
+            !$this->isCompanyEmpty($shippingAddress->getCompany())
+        ) {
+            $category = 'Company';
+        }
 
         $shippingData = [
             [
@@ -385,9 +435,53 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
             ];
         }
 
+        if (
+            $this->isCustomerB2B($salesChannelContext->getSalesChannelId()) &&
+            $this->checkoutHelper->getCountryCode($shippingAddress) === 'NL' &&
+            !$this->isCompanyEmpty($shippingAddress->getCompany())
+        ) {
+            $shippingData = array_merge($shippingData,[
+                [
+                    '_'    => $shippingAddress->getCompany(),
+                    'Name' => 'CompanyName',
+                    'Group' => 'ShippingCustomer',
+                    'GroupID' => '',
+                ],
+                [
+                    '_'    => $dataBag->get('buckaroo_afterpay_Coc'),
+                    'Name' => 'IdentificationNumber',
+                    'Group' => 'ShippingCustomer',
+                    'GroupID' => '',
+                ]
+            ]);
+        }
+
         $latestKey++;
 
         return array_merge($additional, [$billingData,$shippingData]);
 
+    }
+    public function isCustomerB2B($salesChannelId = null)
+    {
+        return $this->checkoutHelper->getSetting('afterpayCustomerType', $salesChannelId) !== self::CUSTOMER_TYPE_B2C;
+    }
+    public function isOnlyCustomerB2B($salesChannelId = null)
+    {
+        return $this->checkoutHelper->getSetting('afterpayCustomerType', $salesChannelId) === self::CUSTOMER_TYPE_B2B;
+    }
+    /**
+     * Check if company is empty
+     *
+     * @param string $company
+     *
+     * @return boolean
+     */
+    public function isCompanyEmpty(string $company = null)
+    {
+        if (null === $company) {
+            return true;
+        }
+
+        return strlen(trim($company)) === 0;
     }
 }
