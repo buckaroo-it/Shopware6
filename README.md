@@ -4,6 +4,17 @@
 
 # Buckaroo Shopware 6 Payments Plugin
 
+### Index
+- [About](#about)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Upgrade](#upgrade)
+- [Configuration](#configuration)
+- [Contribute](#contribute)
+- [Versioning](#versioning)
+- [Additional information](#additional-information)
+---
+
 ### About
 
 Shopware is a modular online shop system developed in Germany since 2004. It is available both as open source software and in commercial editions.
@@ -35,8 +46,7 @@ bin/console cache:clear
 
 ### Upgrade
 
-**You can also upgrade/update the Buckaroo plugin with composer.
-To do this, please run the following commands:**
+**You can also upgrade/update the Buckaroo plugin with composer. To do this, please run the following commands:**
 
 ```
 composer update buckaroo/shopware6
