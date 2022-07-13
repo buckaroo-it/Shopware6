@@ -72,7 +72,10 @@
         "year": "Jahr",
         "selectYear": "Wählen Sie ein Jahr",
         "securityCode": "CVC/VV"
-      }
+      },
+      "Coc": "CoC-number:",
+      "CocPlaceholder": "CoC-number",
+      "buckarooMobileCocError": "CoC-number is required"
     }
   },
   "bkr-applepay": {

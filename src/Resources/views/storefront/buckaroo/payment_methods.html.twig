@@ -151,6 +151,48 @@
                         <div class="payment-method-second-col billing-address-form">
                             <fieldset class="fieldset payment">
 
+                                {% if page.extensions.buckaroo.afterpay_customer_type == 'b2b' && 
+                                     context.customer.activeBillingAddress.company|length === 0 &&
+                                     context.customer.activeShippingAddress.company|length === 0
+                                %}
+                                       <p style="color:red"> {{ "buckaroo.checkout.company_required"|trans|sw_sanitize }}</p>
+                                {% endif %}
+
+                                {% if 
+                                    (
+                                        page.extensions.buckaroo.afterpay_customer_type == 'both' &&
+                                        (
+                                            (
+                                            context.customer.activeBillingAddress.country.iso == 'NL' &&
+                                            context.customer.activeBillingAddress.company|length > 0)  ||
+                                            (
+                                            context.customer.activeShippingAddress.country.iso == 'NL' &&
+                                            context.customer.activeShippingAddress.company|length > 0
+                                            )
+                                        )
+                                    ) || 
+                                    (
+                                        page.extensions.buckaroo.afterpay_customer_type == 'b2b' &&
+                                        (
+                                            context.customer.activeBillingAddress.country.iso == 'NL' ||
+                                            context.customer.activeShippingAddress.country.iso == 'NL'
+                                        )
+                                    )  %}
+                                    <div class="form-group">
+                                        <label class="form-label" for="buckarooAfterpayCoC">
+                                            {{ "buckaroo.checkout.Coc"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                        </label>
+
+                                        <input type="text"
+                                            class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
+                                            form="confirmOrderForm"
+                                            id="buckarooAfterpayCoC"
+                                            name="buckaroo_afterpay_Coc"
+                                            placeholder="{{ "buckaroo.checkout.CocPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                            value=""
+                                            required="required">
+                                    </div>
+                                {% endif %}
                                 <div class="form-group">
                                     <label class="form-label" for="buckarooAfterpayPhone">
                                         {{ "buckaroo.checkout.Phone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}

@@ -323,6 +323,20 @@ Component.register('buckaroo-settings', {
                 }
             }
 
+
+            if((fid == 'afterpayCustomerType')) {
+                if(config["BuckarooPayments.config.afterpayEnabled"] != undefined && config["BuckarooPayments.config.afterpayEnabled"]){
+                    return true;
+                }
+            }
+
+
+            if((fid == 'afterpayB2bMinAmount') || (fid == 'afterpayB2bMaxAmount')) {
+                if(config["BuckarooPayments.config.afterpayEnabled"] && config["BuckarooPayments.config.afterpayCustomerType"] != undefined && config["BuckarooPayments.config.afterpayCustomerType"] != 'b2c'){
+                    return true;
+                }
+            }
+
             return false;
         },
 
