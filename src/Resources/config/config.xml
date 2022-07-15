@@ -4,33 +4,41 @@
 
     <card>
         <title>Configuration</title>
+		<title lang="en-GB">Configuration</title>
         <title lang="de-DE">Konfiguration</title>
         <title lang="nl-NL">Configuratie</title>
+		<title lang="fr-FR">Configuration</title>
 
         <input-field >
             <name>websiteKey</name>
             <label lang="en-GB">(Website) key</label>
             <label lang="de-DE">(Website) key</label>
             <label lang="nl-NL">(Website) key</label>
+			<label lang="fr-FR">Clé (site Web)</label>
             <description>Enter your Buckaroo merchant/website key.</description>
             <description lang="de-DE">Geben Sie Ihren website-Schlüssel ein.</description>
             <description lang="nl-NL">Voer uw merchant/website key in.</description>
+			<description lang="fr-FR">Entrez votre clé de marchand/site Web Buckaroo.</description>
             <helpText>The (Website) Key can be retrieved in Payment Plaza under My Buckaroo > Websites. For support contact Buckaroo.</helpText>
             <helpText lang="de-DE">Der (Website-) Schlüssel kann auf der Payment Plaza unter My Buckaroo > Websites abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
             <helpText lang="nl-NL">De (Website) Key kan worden opgehaald in Payment Plaza onder My Buckaroo > Websites. Neem voor ondersteuning contact op met Buckaroo.</helpText>
+			<helpText lang="fr-FR">La clé (de site Web) peut être récupérée dans Payment Plaza sous Mon Buckaroo > Sites Web. Pour obtenir de l'aide, contactez Buckaroo.</helpText>
         </input-field>
 
         <input-field >
             <name>secretKey</name>
             <label lang="en-GB">Secret key</label>
             <label lang="de-DE">Geheimer Schlüssel</label>
-            <label lang="nl-NL">Geheime sleutel</label>
+            <label lang="nl-NL">Secret key</label>
+			<label lang="fr-FR">Clé secrète</label>
             <description>Enter your Buckaroo secret key.</description>
             <description lang="nl-NL">Voer uw geheime sleutel van Buckaroo in.</description>
             <description lang="de-DE">Geben Sie Ihren geheimen Buckaroo-Schlüssel ein.</description>
+			<description lang="fr-FR">Entrez votre clé secrète Buckaroo.</description>
             <helpText>The Secret Key can be retrieved in Payment Plaza under Configuration > Security > Secret Key. For support contact Buckaroo.</helpText>
-            <helpText lang="nl-NL">De geheime sleutel kan worden opgehaald in Payment Plaza onder Configuratie> Beveiliging> Geheime sleutel. Neem voor ondersteuning contact op met Buckaroo.</helpText>
+            <helpText lang="nl-NL">De secret key kan worden opgehaald in de Buckaroo Payment Plaza onder Configuratie> Beveiliging> Secret key. Neem voor ondersteuning contact op met Buckaroo.</helpText>
             <helpText lang="de-DE">Der geheime Schlüssel kann in Payment Plaza unter Konfiguration> Sicherheit> Geheimer Schlüssel abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
+			<helpText lang="fr-FR">La clé secrète peut être récupérée dans Payment Plaza sous Configuration> Sécurité> Clé secrète. Veuillez contacter Buckaroo pour obtenir de l'aide.</helpText>
         </input-field>
 
         <input-field >
@@ -38,26 +46,32 @@
             <label lang="en-GB">Guid</label>
             <label lang="de-DE">Guid</label>
             <label lang="nl-NL">Guid</label>
+			<label lang="fr-FR">Guid</label>
             <description>Enter your Buckaroo guid key (only when using Apple Pay).</description>
             <description lang="de-DE">Geben Sie Ihren Buckaroo-Leitschlüssel ein (Nur bei Verwendung von Apple Pay).</description>
             <description lang="nl-NL">Voer uw Buckaroo-GUID in (enkel bij gebruik Apple Pay).</description>
+			<description lang="fr-FR">Entrez votre clé de Guid Buckaroo (uniquement lors de l'utilisation d'Apple Pay).</description>
             <helpText>The guid key can be retrieved in Payment Plaza under the profile tab. For support contact Buckaroo.</helpText>
-            <helpText lang="de-DE">Der Guid-Schlüssel kann in Payment Plaza unter der Registerkarte Profil abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
-            <helpText lang="nl-NL">De gidssleutel kan worden opgehaald in Payment Plaza onder het tabblad Profiel. Neem voor ondersteuning contact op met Buckaroo.</helpText>
+            <helpText lang="de-DE">Die Guid kann im Buckaroo Payment Plaza unter der Registerkarte My Buckaroo > General abgerufen werden. Bitte wenden Sie sich an Buckaroo, um Unterstützung zu erhalten.</helpText>
+            <helpText lang="nl-NL">De Guid kan worden opgehaald in de Buckaroo Payment Plaza onder het tabblad Mijn Buckaroo > Algemeen. Neem voor ondersteuning contact op met Buckaroo.</helpText>
+			<helpText lang="fr-FR">Le Guid peut être récupéré sur la Buckaroo Payment Plaza sous l'onglet Mon Buckaroo > Général. Veuillez contacter Buckaroo pour obtenir de l'aide.</helpText>
         </input-field>
         
 
         <input-field >
             <name>transactionLabel</name>
-            <label lang="en-GB">Transaction label</label>
-            <label lang="de-DE">Transaction label</label>
-            <label lang="nl-NL">Transaction label</label>
+            <label lang="en-GB">Transaction description</label>
+            <label lang="de-DE">Transaktion Beschreibung</label>
+            <label lang="nl-NL">Transactiebeschrijving</label>
+			<label lang="fr-FR">Description de la transaction</label>
             <description>The transaction description, shown in Buckaroo plaza and visible on bank account of consumers. You can also add the order number with the following {order_number} tag.</description>
-            <description lang="de-DE">Die Transaktionsbeschreibung, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</description>
+            <description lang="de-DE">Die Transaktion beschreibung, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</description>
             <description lang="nl-NL">De transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</description>
+			<description lang="fr-FR">La description de la transaction, qui est visible sur la place Buckaroo et visible sur le compte bancaire du consommateur. Vous pouvez également ajouter le numéro de commande avec la balise {order_number} suivante.</description>
             <helpText>The transaction description, shown in Buckaroo plaza and visible on bank account of consumers. You can also add the order number with the following {order_number} tag.</helpText>
             <helpText lang="de-DE">Die Transaktionsbeschreibung, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</helpText>
             <helpText lang="nl-NL">De transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</helpText>
+			<helpText lang="fr-FR">La description de la transaction, qui est visible sur la place Buckaroo et visible sur le compte bancaire du consommateur. Vous pouvez également ajouter le numéro de commande avec la balise {order_number} suivante.</helpText>
         </input-field>
 
         <input-field >
@@ -65,12 +79,14 @@
             <label lang="en-GB">Refund label</label>
             <label lang="de-DE">Refund label</label>
             <label lang="nl-NL">Refund label</label>
-            <description>The transaction description, shown in Buckaroo plaza and visible on bank account of consumers. You can also add the order number with the following {order_number} tag.</description>
-            <description lang="de-DE">Die Transaktionsbeschreibung, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</description>
-            <description lang="nl-NL">De transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</description>
+            <description>The refund transaction description, shown in Buckaroo plaza and visible on bank account of consumers. You can also add the order number with the following {order_number} tag.</description>
+            <description lang="de-DE">Die Beschreibung der Rückerstattungstransaktion, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</description>
+            <description lang="nl-NL">De refund transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</description>
+			<description lang="fr-FR">La description de la transaction de remboursement, qui est visible sur la place Buckaroo et visible sur le compte bancaire du consommateur. Vous pouvez également ajouter le numéro de commande avec la balise {order_number} suivante.</description>
             <helpText>The transaction description, shown in Buckaroo plaza and visible on bank account of consumers. You can also add the order number with the following {order_number} tag.</helpText>
-            <helpText lang="de-DE">Die Transaktionsbeschreibung, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</helpText>
-            <helpText lang="nl-NL">De transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</helpText>
+            <helpText lang="de-DE">Die Beschreibung der Rückerstattungstransaktion, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</helpText>
+            <helpText lang="nl-NL">De refund transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</helpText>
+			<helpText lang="fr-FR">La description de la transaction de remboursement, qui est visible sur la place Buckaroo et visible sur le compte bancaire du consommateur. Vous pouvez également ajouter le numéro de commande avec la balise {order_number} suivante.</helpText>
         </input-field>
 
         <input-field type="bool">
@@ -78,19 +94,23 @@
             <label lang="en-GB">Advanced Configuration</label>
             <label lang="de-DE">Erweiterte Konfiguration</label>
             <label lang="nl-NL">Geavanceerde configuratie</label>
+			<label lang="fr-FR">Configuration avancée</label>
             <helpText lang="en-GB">Advanced settings for the payment plugin</helpText>
             <helpText lang="de-DE">Erweiterte Einstellungen für das Zahlungs-Plugin</helpText>
             <helpText lang="nl-NL">Geavanceerde instellingen voor de payment plugin</helpText>
+			<helpText lang="fr-FR">Paramètres avancés pour le plugin de paiement</helpText>
         </input-field>
 
         <input-field type="bool">
             <name>stockReserve</name>
             <label lang="en-GB">Stock reserve</label>
             <label lang="de-DE">Aktienreserve</label>
-            <label lang="nl-NL">Stock reserve</label>
+            <label lang="nl-NL">Voorraad reserveren</label>
+			<label lang="fr-FR">Réserve de stock</label>
             <helpText lang="de-DE">Aktivieren Sie den Reservebestand, nachdem die Bestellung gebucht wurde.</helpText>
             <helpText lang="en-GB">Enable reserve stock after order is booked.</helpText>
             <helpText lang="nl-NL">Schakel reservevoorraad in nadat de bestelling is geboekt.</helpText>
+			<helpText lang="fr-FR">Activer le stock de réserve après la réservation de la commande.</helpText>
         </input-field>
 
         <input-field type="bool">
@@ -98,9 +118,11 @@
             <label lang="en-GB">Send transactional invoice email</label>
             <label lang="de-DE">Senden Sie eine Transaktionsrechnungs-E-Mail</label>
             <label lang="nl-NL">Verzend transactionele factuur-e-mail</label>
+			<label lang="fr-FR">Envoyer un e-mail de facture transactionnelle</label>
             <helpText lang="en-GB">Send a mail after successful payment.</helpText>
             <helpText lang="de-DE">Senden Sie nach erfolgreicher Zahlung eine Mail.</helpText>
-            <helpText lang="nl-NL">Stuur een mail na succesvolle betaling.</helpText>
+            <helpText lang="nl-NL">Stuur een e-mail na een succesvolle betaling.</helpText>
+			<helpText lang="fr-FR">Envoyez un e-mail après un paiement réussi.</helpText>
         </input-field>
 
         <input-field type="single-select">
@@ -108,9 +130,11 @@
             <label>Pending payment status</label>
             <label lang="de-DE">Ausstehender Zahlungsstatus</label>
             <label lang="nl-NL">In afwachting van betalingsstatus</label>
+			<label lang="fr-FR">Statut de paiement en attente</label>
             <helpText>This status will be given to orders pending payment.</helpText>
             <helpText lang="de-DE">Dieser Status wird für Bestellungen bis zur Zahlung vergeben.</helpText>
             <helpText lang="nl-NL">Deze status wordt gegeven aan bestellingen die in afwachting zijn van betaling.</helpText>
+			<helpText lang="fr-FR">Ce statut est attribué aux commandes en attente de paiement.</helpText>
             <defaultValue>open</defaultValue>
             <options>
                 <option>
@@ -129,9 +153,11 @@
             <label lang="en-GB">Payment success status</label>
             <label lang="de-DE">Status des Zahlungserfolgs</label>
             <label lang="nl-NL">Successtatus van betaling</label>
-            <helpText lang="en-GB">This status will be given to orders paid.</helpText>
+			<label lang="fr-FR">État de réussite du paiement</label>
+            <helpText lang="en-GB">This status will be given to orders that are paid.</helpText>
             <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde bestellingen.</helpText>
             <helpText lang="de-DE">Dieser Status wird für bezahlte Bestellungen vergeben.</helpText>
+			<helpText lang="fr-FR">Ce statut sera attribué aux commandes payées.</helpText>
             <defaultValue>paid</defaultValue>
             <options>
                 <option>
@@ -146,9 +172,11 @@
             <label lang="en-GB">Payment failed status</label>
             <label lang="de-DE">Zahlungsstatus</label>
             <label lang="nl-NL">Status betaling mislukt</label>
+			<label lang="fr-FR">État d'échec du paiement</label>
             <helpText lang="en-GB">This status will be given to unsuccessful orders.</helpText>
             <helpText lang="nl-NL">Deze status wordt gegeven aan niet-succesvolle bestellingen.</helpText>
             <helpText lang="de-DE">Dieser Status wird für nicht erfolgreiche Bestellungen vergeben.</helpText>
+			<helpText lang="fr-FR">Ce statut sera attribué aux commandes non abouties.</helpText>
             <defaultValue>cancelled</defaultValue>
             <options>
                 <option>
@@ -171,9 +199,11 @@
             <label lang="en-GB">Order status</label>
             <label lang="de-DE">Bestellstatus</label>
             <label lang="nl-NL">Bestelstatus</label>
+			<label lang="fr-FR">Statut de la commande</label>
             <helpText lang="en-GB">This status will be given to paid orders</helpText>
             <helpText lang="de-DE">Dieser Status wird für bezahlte Bestellungen vergeben</helpText>
             <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde bestellingen</helpText>
+			<helpText lang="fr-FR">Ce statut est attribué aux commandes payées</helpText>
             <defaultValue>open</defaultValue>
             <options>
                 <option>
@@ -197,12 +227,14 @@
         <title>Credit cards</title>
         <title lang="nl-NL">Credit cards</title>
         <title lang="de-DE">Kreditkarten</title>
+		<title lang="fr-FR">Cartes de crédit</title>
         
         <input-field type="bool">
             <name>creditcardEnabled</name>
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
 
         <input-field type="single-select">
@@ -210,6 +242,7 @@
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -226,22 +259,31 @@
         <input-field>
             <name>creditcardLabel</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Libellé frontal</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (étiquette frontale).</helpText>
+			 lang="en-GB">
             <defaultValue>Buckaroo Creditcard and Debit Card</defaultValue>
         </input-field>
 
         <input-field>
             <name>creditcardFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
 
         <input-field type="multi-select">
             <name>allowedcreditcard</name>
             <label lang="en-GB">Allowed Creditcards:</label>
-            <label lang="nl-NL">Toegestane creditcards</label>
-            <label lang="de-DE">Zulässige Kreditkarten</label>
+            <label lang="nl-NL">Toegestane creditcards:</label>
+            <label lang="de-DE">Zulässige Kreditkarten:</label>
+			<label lang="fr-FR">Cartes de crédit autorisées:</label>
             <options>
                 <option>
                     <id>mastercard</id>
@@ -293,23 +335,29 @@
 
     <card>
         <title>Creditcards (Client sided)</title>
+		<title lang="gb-GB">Creditcards (Client sided)</title>
         <title lang="nl-NL">Credit cards (klantzijde)</title>
         <title lang="de-DE">Kreditkarten (kundenseitig)</title>
+		<title lang="fr-FR">Cartes de crédit (côté client)</title>
         
         <input-field type="bool">
             <name>creditcardsEnabled</name>
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
             <helpText lang="en-GB">Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.</helpText>
             <helpText lang="nl-NL">Controleer bij Buckaroo of Client Side Encryption is ingeschakeld, anders mislukken transacties. Bij twijfel, neem contact met ons op.</helpText>
+			<helpText lang="de-DE">Erkundigen Sie sich bei Buckaroo, ob Client Side Encryption aktiviert ist, andernfalls schlagen Transaktionen fehl. Im Zweifelsfall kontaktieren Sie uns bitte.</helpText>
+			<helpText lang="fr-FR">Vérifiez auprès de Buckaroo si le chiffrement côté client est activé, sinon les transactions échoueront. En cas de doute, veuillez nous contacter.</helpText>
         </input-field>
 
         <input-field type="single-select">
             <name>creditcardsEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -326,22 +374,30 @@
         <input-field>
             <name>creditcardsLabel</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Libellé frontal</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (étiquette frontale).</helpText>
             <defaultValue>Buckaroo Creditcards</defaultValue>
         </input-field>
 
         <input-field>
             <name>creditcardsFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
 
         <input-field type="multi-select">
             <name>allowedcreditcards</name>
             <label lang="en-GB">Allowed Creditcards:</label>
-            <label lang="nl-NL">Toegestane creditcards</label>
-            <label lang="de-DE">Zulässige Kreditkarten</label>
+            <label lang="nl-NL">Toegestane creditcards:</label>
+            <label lang="de-DE">Zulässige Kreditkarten:</label>
+			<label lang="fr-FR">Cartes de crédit autorisées:</label>
             <options>
                 <option>
                     <id>mastercard</id>
@@ -399,13 +455,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
 
         <input-field type="single-select">
             <name>idealEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -421,16 +479,23 @@
 
         <input-field>
             <name>idealLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>			
             <defaultValue>iDEAL</defaultValue>
         </input-field>
 
         <input-field>
             <name>idealFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
 
         <input-field type="single-select">
@@ -438,6 +503,7 @@
             <label lang="en-GB">Bank selection display</label>
             <label lang="nl-NL">Bank selectie weergave</label>
             <label lang="de-DE">Anzeige der Bankauswahl</label>
+			<label lang="fr-FR">Affichage de sélection de banque</label>
             <defaultValue>0</defaultValue>
             <options>
                 <option>
@@ -445,12 +511,14 @@
                     <name lang="en-GB">Radio button</name>
                     <name lang="nl-NL">Radio keuzeknop</name>
                     <name lang="de-DE">Radio knopf</name>
+					<name lang="fr-FR">Bouton radio</name>
                 </option>
                 <option>
                     <id>1</id>
                     <name lang="en-GB">Dropdown</name>
                     <name lang="nl-NL">Keuzelijst</name>
                     <name lang="de-DE">Dropdown liste</name>
+					<name lang="fr-FR">Menu déroulant</name>
                 </option>
             </options>
         </input-field>
@@ -464,13 +532,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
         
         <input-field type="single-select">
             <name>idealprocessingEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -486,16 +556,23 @@
 
         <input-field>
             <name>idealprocessingLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>	
             <defaultValue>iDEAL Processing</defaultValue>
         </input-field>
 
         <input-field>
             <name>idealprocessingFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
 
     </card>
@@ -508,13 +585,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
         
         <input-field type="single-select">
             <name>bancontactmrcashEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -530,16 +609,23 @@
 
         <input-field>
             <name>bancontactmrcashLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Bancontact</defaultValue>
         </input-field>
 
         <input-field>
             <name>bancontactmrcashFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -551,13 +637,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
         
         <input-field type="single-select">
             <name>afterpayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -573,40 +661,23 @@
 
         <input-field>
             <name>afterpayLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>	
             <defaultValue>AfterPay</defaultValue>
         </input-field>
 
         <input-field>
             <name>afterpayFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
-        </input-field>
-
-        <input-field type="single-select">
-            <name>afterpayCustomerType</name>
-            <label lang="en-GB">AfterPay customer type:</label>
-            <label lang="de-DE">AfterPay customer type:</label>
-            <label lang="nl-NL">AfterPay customer type:</label>
-            <helpText lang="en-GB">This setting determines whether you accept AfterPay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.</helpText>
-            <helpText lang="de-DE">Deze instelling bepaalt of je AfterPay-betalingen accepteert voor B2C, B2B of beide klanttypes. Wanneer B2B word geselecteerd wordt deze methode enkel getoond wanneer er een bedrijfsnaam is ingevuld in het checkout proces.</helpText>
-            <defaultValue>both</defaultValue>
-            <options>
-                <option>
-                    <id>b2b</id>
-                    <name>B2B (Business-to-Business)</name>
-                </option>
-                <option>
-                    <id>b2c</id>
-                    <name>B2C (Business-to-consumer) </name>
-                </option>
-                <option>
-                    <id>both</id>
-                    <name>Both</name>
-                </option>
-            </options>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -618,13 +689,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
         
         <input-field type="single-select">
             <name>sofortueberweisungEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -640,16 +713,23 @@
 
         <input-field>
             <name>sofortueberweisungLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>	
             <defaultValue>Sofort</defaultValue>
         </input-field>
 
         <input-field>
             <name>sofortueberweisungFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -661,13 +741,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
         
         <input-field type="single-select">
             <name>paypalEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -683,16 +765,23 @@
 
         <input-field>
             <name>paypalLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>	
             <defaultValue>PayPal</defaultValue>
         </input-field>
 
         <input-field>
             <name>paypalFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -704,13 +793,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
         
         <input-field type="single-select">
             <name>transferEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -726,16 +817,23 @@
 
         <input-field>
             <name>transferLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>	
             <defaultValue>Bank Transfer</defaultValue>
         </input-field>
 
         <input-field>
             <name>transferFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
 
         <input-field type="single-select">
@@ -743,6 +841,7 @@
             <label lang="en-GB">Send payment instruction email</label>
             <label lang="nl-NL">Stuur betalingsinstructie e-mail</label>
             <label lang="de-DE">Zahlungsanweisungen per E-Mail senden</label>
+			<label lang="fr-FR">Envoyer un e-mail d'instructions de paiement</label>
             <defaultValue>0</defaultValue>
             <options>
                 <option>
@@ -750,17 +849,20 @@
                     <name lang="en-GB">No</name>
                     <name lang="nl-NL">Nee</name>
                     <name lang="de-DE">Nein</name>
+					<name lang="fr-FR">Non</name>
                 </option>
                 <option>
                     <id>1</id>
                     <name lang="en-GB">Yes</name>
                     <name lang="nl-NL">Ja</name>
                     <name lang="de-DE">Ja</name>
+					<name lang="fr-FR">Oui</name>
                 </option>
             </options>
             <helpText lang="en-GB">Buckaroo sends an email to the customer with the payment procedures.</helpText>
             <helpText lang="nl-NL">Buckaroo stuurt een e-mail naar de klant met de betalingsprocedures.</helpText>
             <helpText lang="de-DE">Buckaroo sendet eine E-Mail mit den Zahlungsvorgängen an den Kunden.</helpText>
+			<helpText lang="fr-FR">Buckaroo envoie un e-mail au client avec les procédures de paiement.</helpText>
         </input-field>
 
         <input-field>
@@ -768,10 +870,12 @@
             <label lang="en-GB">Due date (in days)</label>
             <label lang="nl-NL">Vervaldatum (in dagen)</label>
             <label lang="de-DE">Fälligkeitsdatum (in Tagen)</label>
+			<label lang="fr-FR">Date d'échéance (en jours)</label>
             <defaultValue>7</defaultValue>
             <helpText lang="en-GB">The amount of days after the order date in which the customer has to complete the payment. After this period order will be cancelled. You can add this due date in the template of the Transfer email.</helpText>
             <helpText lang="nl-NL">Het aantal dagen na de besteldatum waarin de klant de betaling moet voltooien. Na deze periode wordt de bestelling geannuleerd. U kunt deze vervaldatum toevoegen in het sjabloon van de Transfer-e-mail.</helpText>
             <helpText lang="de-DE">Die Anzahl der Tage nach dem Bestelldatum, in denen der Kunde die Zahlung abschließen muss. Nach Ablauf dieser Frist wird die Bestellung storniert. Sie können dieses Fälligkeitsdatum in der Vorlage der Überweisungs-E-Mail hinzufügen.</helpText>
+			<helpText lang="fr-FR">Le nombre de jours après la date de commande pendant lesquels le client doit effectuer le paiement. Passé ce délai la commande sera annulée. Vous pouvez ajouter cette date d'échéance dans le modèle de l'e-mail de virement bancaire (Transférer).</helpText>
         </input-field>
     </card>
 
@@ -783,13 +887,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
         
         <input-field type="single-select">
             <name>giropayEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -805,16 +911,23 @@
 
         <input-field>
             <name>giropayLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Giropay</defaultValue>
         </input-field>
 
         <input-field>
             <name>giropayFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -826,13 +939,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
         
         <input-field type="single-select">
             <name>KBCPaymentButtonEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -848,16 +963,23 @@
 
         <input-field>
             <name>KBCPaymentButtonLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>KBC</defaultValue>
         </input-field>
 
         <input-field>
             <name>KBCPaymentButtonFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -869,13 +991,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
         
         <input-field type="single-select">
             <name>sepadirectdebitEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -891,16 +1015,23 @@
 
         <input-field>
             <name>sepadirectdebitLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Sepa Direct Debit</defaultValue>
         </input-field>
 
         <input-field>
             <name>sepadirectdebitFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -912,13 +1043,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
         
         <input-field type="single-select">
             <name>payconiqEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -934,16 +1067,23 @@
 
         <input-field>
             <name>payconiqLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Payconiq</defaultValue>
         </input-field>
 
         <input-field>
             <name>payconiqFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -955,13 +1095,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
         
         <input-field type="single-select">
             <name>applepayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -977,16 +1119,23 @@
 
         <input-field>
             <name>applepayLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Apple Pay</defaultValue>
         </input-field>
 
         <input-field>
             <name>applepayFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
 
         <input-field type="single-select">
@@ -994,6 +1143,7 @@
             <label lang="en-GB">Show Apple Pay button on product page</label>
             <label lang="de-DE">Apple Pay-Schaltfläche auf der Produktseite anzeigen</label>
             <label lang="nl-NL">Toon Apple Pay-knop op productpagina</label>
+			<label lang="fr-FR">Afficher le bouton Apple Pay sur la page du produit</label>
             <defaultValue>0</defaultValue>
             <options>
                 <option>
@@ -1012,6 +1162,7 @@
             <label lang="en-GB">Show Apple Pay button in the cart</label>
             <label lang="de-DE">Apple Pay-Schaltfläche im Warenkorb anzeigen</label>
             <label lang="nl-NL">Toon Apple Pay-knop in de winkelwagen</label>
+			<label lang="fr-FR">Afficher le bouton Apple Pay sur la page du panier</label>
             <defaultValue>0</defaultValue>
             <options>
                 <option>
@@ -1028,21 +1179,24 @@
 
     <card>
         <title>Giftcards cards</title>
+		<title lang="en-GB">Giftcards</title>
         <title lang="nl-NL">Cadeaubonnen kaarten</title>
         <title lang="de-DE">Geschenkkarten Karten</title>
-
+		<title lang="fr-FR">Cartes cadeaux</title>
         <input-field type="bool">
             <name>giftcardsEnabled</name>
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
        
         <input-field type="single-select">
             <name>giftcardsEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1059,7 +1213,13 @@
         <input-field>
             <name>giftcardsLabel</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Buckaroo Giftcards</defaultValue>
         </input-field>
 
@@ -1068,6 +1228,7 @@
             <label lang="en-GB">Allowed Giftcards:</label>
             <label lang="nl-NL">Toegestane cadeaubonnen</label>
             <label lang="de-DE">Zulässige Geschenkkarten</label>
+			<label lang="fr-FR">Cartes-cadeaux autorisées:</label>
             <options>
                 <option>
                     <id>customgiftcard</id>
@@ -1437,13 +1598,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
        
         <input-field type="single-select">
             <name>RequestToPayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1460,15 +1623,22 @@
         <input-field>
             <name>RequestToPayLabel</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Request To Pay</defaultValue>
         </input-field>
 
         <input-field>
             <name>RequestToPayFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -1480,13 +1650,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
        
         <input-field type="single-select">
             <name>capayableEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1503,15 +1675,22 @@
         <input-field>
             <name>capayableLabel</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>In3</defaultValue>
         </input-field>
 
         <input-field>
             <name>capayableFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -1523,13 +1702,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
        
         <input-field type="single-select">
             <name>epsEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1546,15 +1727,22 @@
         <input-field>
             <name>epsLabel</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>EPS</defaultValue>
         </input-field>
 
         <input-field>
             <name>epsFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -1566,13 +1754,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
        
         <input-field type="single-select">
             <name>Przelewy24Environment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1589,15 +1779,22 @@
         <input-field>
             <name>Przelewy24Label</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Przelewy24</defaultValue>
         </input-field>
 
         <input-field>
             <name>Przelewy24Fee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -1609,13 +1806,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
        
         <input-field type="single-select">
             <name>AlipayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1632,15 +1831,22 @@
         <input-field>
             <name>AlipayLabel</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Alipay</defaultValue>
         </input-field>
 
         <input-field>
             <name>AlipayFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -1652,13 +1858,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
        
         <input-field type="single-select">
             <name>WeChatPayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1675,15 +1883,22 @@
         <input-field>
             <name>WeChatPayLabel</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>WeChatPay</defaultValue>
         </input-field>
 
         <input-field>
             <name>WeChatPayFee</name>
             <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
     
@@ -1695,13 +1910,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
        
         <input-field type="single-select">
             <name>TrustlyEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1718,15 +1935,22 @@
         <input-field>
             <name>TrustlyLabel</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Trustly</defaultValue>
         </input-field>
 
         <input-field>
             <name>TrustlyFee</name>
-            <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+			<label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -1738,13 +1962,15 @@
             <label lang="en-GB">Enabled Klarna Pay later (authorize/capture)</label>
             <label lang="nl-NL">Ingeschakeld Klarna Pay later (authorize/capture)</label>
             <label lang="de-DE">Aktiviert Klarna Pay later (authorize/capture)</label>
+			<label lang="fr-FR">Enabled Klarna Pay later (authorize/capture)</label>
         </input-field>
        
         <input-field type="single-select">
             <name>klarnakpEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1761,15 +1987,22 @@
         <input-field>
             <name>klarnakpLabel</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Klarna: Pay later</defaultValue>
         </input-field>
 
         <input-field>
             <name>klarnakpFee</name>
-            <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+			<label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
 
     </card>
@@ -1782,13 +2015,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
         
         <input-field type="single-select">
             <name>BillinkEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1807,6 +2042,7 @@
             <label lang="en-GB">Billink Mode</label>
             <label lang="de-DE">Billink Mode</label>
             <label lang="nl-NL">Billink Mode</label>
+			<label lang="fr-FR">Billink Mode</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1825,20 +2061,28 @@
             <label lang="en-GB">BillinkCreateInvoiceAfterShipment</label>
             <label lang="de-DE">BillinkCreateInvoiceAfterShipment</label>
             <label lang="nl-NL">BillinkCreateInvoiceAfterShipment</label>
+			<label lang="fr-FR">BillinkCreateInvoiceAfterShipment (Billink Créer une facture après l\'expédition)</label>
         </input-field>
 
         <input-field>
             <name>BillinkLabel</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Billink - achteraf betalen</defaultValue>
         </input-field>
 
         <input-field>
             <name>BillinkFee</name>
-            <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+			<label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
     
@@ -1850,13 +2094,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
 
         <input-field type="single-select">
             <name>belfiusEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1873,15 +2119,22 @@
         <input-field>
             <name>belfiusLabel</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Belfius</defaultValue>
         </input-field>
 
         <input-field>
             <name>belfiusFee</name>
-            <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+			<label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -1893,13 +2146,15 @@
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
         </input-field>
 
         <input-field type="single-select">
             <name>payperemailEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live</label>
-            <label lang="nl-NL">Test of Live</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1916,15 +2171,22 @@
         <input-field>
             <name>payperemailLabel</name>
             <label lang="en-GB">Frontend label</label>
-            <helpText>Determines the frontend label shown.</helpText>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Belfius</defaultValue>
         </input-field>
 
         <input-field>
             <name>payperemailFee</name>
-            <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo Vergoeding</label>
+			<label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
 
         <input-field>
@@ -1932,6 +2194,7 @@
             <label lang="en-GB">Expire days</label>
             <label lang="nl-NL">Verlopen dagen</label>
             <label lang="de-DE">Ablauftage</label>
+			<label lang="fr-FR">Jours d'expiration</label>
         </input-field>
 
         <input-field type="bool">
@@ -1939,6 +2202,7 @@
             <label lang="en-GB">Paylink Enabled</label>
             <label lang="nl-NL">Paylink Ingeschakeld</label>
             <label lang="de-DE">Paylink Aktiviert</label>
+			<label lang="fr-FR">Paylink Activé</label>
         </input-field>
 
         <input-field type="multi-select">
@@ -1946,6 +2210,7 @@
             <label lang="en-GB">PayPerEmail payment methods:</label>
             <label lang="nl-NL">PayPerEmail-betaalmethoden</label>
             <label lang="de-DE">PayPerEmail-Zahlungsmethoden</label>
+			<label lang="fr-FR">PayPerEmail méthodes de payement:</label>
             <options>
                 <option>
                     <id>amex</id>
@@ -1953,7 +2218,7 @@
                 </option>
                 <option>
                     <id>bancontactmrcash</id>
-                    <name>Bancontact / Mr Cash</name>
+                    <name>Bancontact</name>
                 </option>
                 <option>
                     <id>transfer</id>
