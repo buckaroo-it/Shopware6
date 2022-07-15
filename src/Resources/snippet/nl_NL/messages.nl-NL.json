@@ -42,7 +42,7 @@
       "buckarooGiropayBic": "BIC-nummer",
       "buckarooGiropayBicPlaceholder": "Voer hier uw BIC-nummer in ...",
       "Phone": "Mobiel",
-      "PhonePlaceholder": "Voer hier uw mobiel in ...",
+      "PhonePlaceholder": "Voer hier uw mobiele telefoonnummer in ...",
       "buckarooMobilePhoneError": "Voer een geldig telefoonnummer.",
       "buckarooDoBError": "Voer alstublieft een geldige geboortedatum in",
       "buckarooError": "Vul alstublieft een geldige waarde in",
@@ -76,9 +76,9 @@
     }
   },
   "bkr-applepay": {
-    "Subtotal": "Subtotal",
+    "Subtotal": "Subtotaal",
     "Deliverycosts" : "Bezorgkosten",
-    "Discount" : "Discount",
-    "BuckarooFee": "Buckaroo Fee"
+    "Discount" : "Korting",
+    "BuckarooFee": "Buckaroo Betaaltoeslag"
   }
 }
