@@ -258,10 +258,10 @@
                                                 {{ "buckaroo.checkout.gender" | trans }}*
                                             </label>
                                             <select class="custom-select" id="buckaroo_billink_gender" name="buckaroo_billink_gender" required="required" form="confirmOrderForm">
-                                                <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="1">{{ "buckaroo.checkout.male" | trans }}</option>
-                                                <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="2">{{ "buckaroo.checkout.female" | trans }}</option>
-                                                <option value="0">{{ "buckaroo.checkout.they" | trans }}</option>
-                                                <option value="9">{{ "buckaroo.checkout.unknown" | trans }}</option>
+                                                <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="Male">{{ "buckaroo.checkout.male" | trans }}</option>
+                                                <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="Female">{{ "buckaroo.checkout.female" | trans }}</option>
+                                                <option value="Unknown">{{ "buckaroo.checkout.they" | trans }}</option>
+                                                <option value="Unknown">{{ "buckaroo.checkout.unknown" | trans }}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -528,10 +528,10 @@
                                         </label>
                                         <select class="custom-select" id="buckaroo_klarna_gender" name="buckaroo_klarna_gender" required="required" form="confirmOrderForm">
                                             <option value="0">{{ "buckaroo.checkout.NotSpecified" | trans }}</option>
-                                            <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="1">{{ "buckaroo.checkout.male" | trans }}</option>
-                                            <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="2">{{ "buckaroo.checkout.female" | trans }}</option>
-                                            <option value="0">{{ "buckaroo.checkout.they" | trans }}</option>
-                                            <option value="9">{{ "buckaroo.checkout.unknown" | trans }}</option>
+                                            <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="male">{{ "buckaroo.checkout.male" | trans }}</option>
+                                            <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="female">{{ "buckaroo.checkout.female" | trans }}</option>
+                                            <option value="unknown">{{ "buckaroo.checkout.they" | trans }}</option>
+                                            <option value="unknown">{{ "buckaroo.checkout.unknown" | trans }}</option>
                                         </select>
                                     </div>
                                 </div>
