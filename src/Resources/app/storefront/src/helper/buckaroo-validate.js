@@ -38,12 +38,13 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
 
         //when all validators are valid submit the form
         Promise.all([validator.general, validator.credicard]).then(function([generalValid, creditValid]) {
+            if(document.forms['confirmOrderForm'] === undefined || !document.forms['confirmOrderForm'].reportValidity()) {
+                return;
+            }
             let valid = generalValid && creditValid;
             if (!valid) {
                 document.getElementById("changePaymentForm").scrollIntoView();
-            }
-            if(document.forms['confirmOrderForm'] !== undefined && valid) {
-                if(document.forms['confirmOrderForm'].reportValidity()) {
+            } else {
                     if(buckaroo_back_link !== undefined) {
                         window.history.pushState(
                             null, null, buckaroo_back_link
@@ -58,7 +59,6 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
                     } else {
                         document.forms['confirmOrderForm'].submit();
                     }
-                }
             }
         })
 
