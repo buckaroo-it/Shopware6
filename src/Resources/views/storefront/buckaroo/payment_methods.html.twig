@@ -31,7 +31,7 @@
                         {% if page.extensions.buckaroo.ideal_render_mode > 0 %}
                             <div>
                                 <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
-                                <select name="bankMethodId" id="bankMethodId" form="confirmOrderForm" required="required" class="form-control">
+                                <select name="bankMethodId" id="bankMethodId" form="confirmOrderForm" required="required" class="form-control" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
                                     <option value="">{{ "buckaroo.checkout.selectBankIssuer"|trans }}</option>
                                         {% for issuer in page.extensions.buckaroo.issuers %}
                                             <option data-logo="{{ page.extensions.buckaroo.media_path }}{{ issuer.code }}.png" value="{{ issuer.code }}">{{ issuer.name }}</option>
@@ -41,11 +41,11 @@
                             {% else %}
                             <div>
                                 <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
+                                <div class="radio-group-required" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
                                 {% for issuer in page.extensions.buckaroo.issuers %}
                                     <div class="custom-control custom-radio bank-control">
                                         <input type="radio"
                                         form="confirmOrderForm"
-                                        required="required"
                                         id="bankMethod{{ issuer.code }}"
                                         name="bankMethodId"
                                         value="{{ issuer.code }}"
@@ -56,6 +56,7 @@
                                         </label>
                                     </div>
                                 {% endfor %}
+                                </div>
                             </div>
                             {% endif %}
                         {% endif %}

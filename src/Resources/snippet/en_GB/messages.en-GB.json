@@ -51,6 +51,7 @@
       "buckarooMobilePhoneError": "Please enter a valid phone number.",
       "buckarooDoBError": "Please enter a valid date of Birth",
       "buckarooError": "Please enter a valid value",
+      "bankRequiredError": "Select your bank to initiate the payment.",
       "buckarooKlarnakpPhone": "Phone",
       "buckarooKlarnakpPhonePlaceholder": "Enter your phone here...",
       "salutation": "Salutation",

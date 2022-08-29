@@ -46,6 +46,7 @@
       "buckarooMobilePhoneError": "Voer een geldig telefoonnummer.",
       "buckarooDoBError": "Voer alstublieft een geldige geboortedatum in",
       "buckarooError": "Vul alstublieft een geldige waarde in",
+      "bankRequiredError": "Selecteer uw bank om de betaling te starten. ",
       "buckarooKlarnakpPhone": "Phone",
       "buckarooKlarnakpPhonePlaceholder": "Enter your phone here...",
       "buckarooP24CurrencyError": "Om de betaling met Przelewy24 te verwerken, moet de valuta worden ingesteld op Poolse Zloty",
