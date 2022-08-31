@@ -35,7 +35,7 @@ class PayPerEmailPaymentHandler extends AsyncPaymentHandler
         $gatewayInfo['additional'][] = [
             [
                 'Name' => 'CustomerGender',
-                '_' => $dataBag->get('buckaroo_payperemail_CustomerGender'),
+                '_' => $dataBag->get('buckaroo_payperemail_gender'),
             ],
             [
                 'Name' => 'CustomerEmail',

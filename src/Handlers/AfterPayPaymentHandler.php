@@ -156,7 +156,6 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         $streetFormat  = $this->checkoutHelper->formatStreet($address->getStreet());
         $birthDayStamp = $dataBag->get('buckaroo_afterpay_DoB');
         $address->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
-        $salutation = $this->checkoutHelper->getSalutation($customer);
         
         $shippingAddress->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
         $shippingStreetFormat  = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
@@ -280,12 +279,6 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         }
 
         if (in_array($this->checkoutHelper->getCountryCode($address),['NL','BE'])) {
-            $billingData[] = [
-                '_'       => $salutation,
-                'Name'    => 'Salutation',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ];
 
             $billingData[] = [
                 '_'       => $birthDayStamp,
@@ -420,12 +413,6 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         }
 
         if (in_array($this->checkoutHelper->getCountryCode($shippingAddress),['NL','BE'])) {
-            $shippingData[] = [
-                '_'       => $salutation,
-                'Name'    => 'Salutation',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ];
 
             $shippingData[] = [
                 '_'       => $birthDayStamp,

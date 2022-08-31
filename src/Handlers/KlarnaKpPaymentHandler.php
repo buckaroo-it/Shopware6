@@ -171,7 +171,6 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
         $streetFormat  = $this->checkoutHelper->formatStreet($address->getStreet());
         $birthDayStamp = $dataBag->get('buckaroo_klarnakp_DoB');
         $address->setPhoneNumber($dataBag->get('buckaroo_klarnakp_phone'));
-        $salutation = $customer->getSalutation()->getSalutationKey();
 
         $shippingAddress->setPhoneNumber($dataBag->get('buckaroo_klarnakp_phone'));
         $shippingStreetFormat  = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
@@ -301,10 +300,6 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
             [
                 '_'       => $this->checkoutHelper->getCountryCode($address),
                 'Name'    => 'OperatingCountry',
-            ],
-            [
-                '_'       => $salutation == 'mrs' ? 2 : 1,
-                'Name'    => 'Gender',
             ],
             [
                 '_'       => $address->getId() == $shippingAddress->getId(),

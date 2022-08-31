@@ -253,6 +253,20 @@
                         <div class="payment-method-second-col billing-address-form">
                             <fieldset class="fieldset payment">
 
+                                    <div class="form-row">
+                                        <div class="form-group col-md-3 col-sm-6">
+                                            <label class="form-label" for="buckaroo_billink_gender">
+                                                {{ "buckaroo.checkout.gender" | trans }}*
+                                            </label>
+                                            <select class="custom-select" id="buckaroo_billink_gender" name="buckaroo_billink_gender" required="required" form="confirmOrderForm">
+                                                <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="Male">{{ "buckaroo.checkout.male" | trans }}</option>
+                                                <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="Female">{{ "buckaroo.checkout.female" | trans }}</option>
+                                                <option value="Unknown">{{ "buckaroo.checkout.they" | trans }}</option>
+                                                <option value="Unknown">{{ "buckaroo.checkout.unknown" | trans }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
                                     <div class="form-group">
                                         <label class="form-label" for="buckarooBillinkPhone">
                                             {{ "buckaroo.checkout.Phone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
@@ -507,7 +521,22 @@
                     {% block buckaroo_payment_method_klarna %}
                         <div class="payment-method-second-col billing-address-form">
                             <fieldset class="fieldset payment">
-
+                                
+                                <div class="form-row">
+                                    <div class="form-group col-md-3 col-sm-6">
+                                        <label class="form-label" for="buckaroo_klarna_gender">
+                                            {{ "buckaroo.checkout.gender" | trans }}*
+                                        </label>
+                                        <select class="custom-select" id="buckaroo_klarna_gender" name="buckaroo_klarna_gender" required="required" form="confirmOrderForm">
+                                            <option value="0">{{ "buckaroo.checkout.NotSpecified" | trans }}</option>
+                                            <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="male">{{ "buckaroo.checkout.male" | trans }}</option>
+                                            <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="female">{{ "buckaroo.checkout.female" | trans }}</option>
+                                            <option value="unknown">{{ "buckaroo.checkout.they" | trans }}</option>
+                                            <option value="unknown">{{ "buckaroo.checkout.unknown" | trans }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
                                 <div class="form-group">
                                     <label class="form-label" for="buckarooKlarnaPhone">
                                         {{ "buckaroo.checkout.buckarooKlarnakpPhone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
@@ -588,13 +617,15 @@
 
                                 <div class="form-row">
                                     <div class="form-group col-md-3 col-sm-6">
-                                        <label class="form-label" for="buckaroo_payperemail_CustomerGender">
-                                            {{ "buckaroo.checkout.salutation" | trans }}*
+                                        <label class="form-label" for="buckaroo_payperemail_gender">
+                                            {{ "buckaroo.checkout.gender" | trans }}*
                                         </label>
-                                        <select class="custom-select" id="buckaroo_payperemail_CustomerGender" name="buckaroo_payperemail_CustomerGender" required="required" form="confirmOrderForm">
+                                        <select class="custom-select" id="buckaroo_payperemail_gender" name="buckaroo_payperemail_gender" required="required" form="confirmOrderForm">
                                             <option value="0">{{ "buckaroo.checkout.NotSpecified" | trans }}</option>
-                                            <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="2">{{ "buckaroo.checkout.mrs" | trans }}</option>
-                                            <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="1">{{ "buckaroo.checkout.mr" | trans }}</option>
+                                            <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="1">{{ "buckaroo.checkout.male" | trans }}</option>
+                                            <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="2">{{ "buckaroo.checkout.female" | trans }}</option>
+                                            <option value="0">{{ "buckaroo.checkout.they" | trans }}</option>
+                                            <option value="9">{{ "buckaroo.checkout.unknown" | trans }}</option>
                                         </select>
                                     </div>
                                 </div>
