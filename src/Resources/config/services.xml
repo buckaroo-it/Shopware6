@@ -370,6 +370,12 @@
             </call>
         </service>
 
+        <service id="Buckaroo\Shopware6\Storefront\Controller\PaypalExpressController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <!-- /Controllers -->
 
         <service id="Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber" >
