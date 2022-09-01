@@ -143,9 +143,18 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 if(!$this->helper->getEnabled($buckarooKey, $event->getSalesChannelContext()->getSalesChannelId())){
                     $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
                 }
+
+                if ($buckarooKey === 'payperemail' && $this->isPayPermMailDisabledInFrontend($event->getSalesChannelContext()->getSalesChannelId())) {
+                    $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
+                }
             }
         }
         $event->getPage()->setPaymentMethods($paymentMethods);
+    }
+
+    public function isPayPermMailDisabledInFrontend($salesChannelId)
+    {
+        return $this->helper->getSettingsValue('payperemailEnabledfrontend', $salesChannelId) === false;
     }
 
     /**

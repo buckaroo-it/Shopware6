@@ -2053,5 +2053,12 @@
                 </option>
             </options>
         </input-field>
+        <input-field type="bool">
+            <name>payperemailEnabledfrontend</name>
+            <label lang="en-GB">Enabled frontend</label>
+            <label lang="nl-NL">Ingeschakeld frontend</label>
+            <label lang="de-DE">Aktiviert frontend</label>
+            <defaultValue>1</defaultValue>
+        </input-field>
     </card>
 </config>
