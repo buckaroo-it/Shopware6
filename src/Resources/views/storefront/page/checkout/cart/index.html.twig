@@ -21,7 +21,7 @@
     {% endif %}
     {% if page.extensions.buckaroo.showPaypalExpress %}
         {% set paypalExpressOptions = {
-            page: "product",
+            page: "cart",
             merchantId: page.extensions.buckaroo.paypalMerchantId,
             websiteKey: page.extensions.buckaroo.websiteKey,
             i18n: {

@@ -85,6 +85,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="order_address.repository" />
             <tag name="shopware.payment.method.async" />
         </service>
 
@@ -149,6 +150,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="logger" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData" />
             <tag name="shopware.payment.method.async" />
         </service>
         
@@ -370,7 +372,46 @@
             </call>
         </service>
 
+        <service id="Buckaroo\Shopware6\Service\CartService">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData">
+            <argument type="service" id="order_address.repository" />
+            <argument type="service" id="order_customer.repository" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\CustomerService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerAddressService"/>
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CartRestorer"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\CustomerAddressService">
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="country.repository"/>
+        </service>
+
+
+        <service id="Buckaroo\Shopware6\Service\OrderService">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
+        </service>
+
         <service id="Buckaroo\Shopware6\Storefront\Controller\PaypalExpressController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\CartService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
