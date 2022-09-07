@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -127,7 +128,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             AccountPaymentMethodPageLoadedEvent::class => 'hideNotEnabledPaymentMethods',
             AccountEditOrderPageLoadedEvent::class     => 'addBuckarooExtension',
             CheckoutConfirmPageLoadedEvent::class      => 'addBuckarooExtension',
-            ProductPageLoadedEvent::class              => 'addBuckarooToProductPage'
+            ProductPageLoadedEvent::class              => 'addBuckarooToProductPage',
+            CheckoutCartPageLoadedEvent::class         => 'addBuckarooToCart'
         ];
     }
 
@@ -163,6 +165,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      */
     public function addBuckarooExtension($event): void
     {
+        $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
+
         $this->hideNotEnabledPaymentMethods($event);
 
         $context = $event->getContext();
@@ -186,7 +190,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct             = new BuckarooStruct();
         $issuers            = $this->issuers;
-        $idealRenderMode    = $this->checkoutHelper->getIdealRenderMode($event->getSalesChannelContext()->getSalesChannelId()); 
+        $idealRenderMode    = $this->checkoutHelper->getIdealRenderMode($salesChannelId); 
         $lastUsedCreditcard = 'visa';
         if($customFields = $customer->getCustomFields()){
             if (isset($customFields['last_used_creditcard'])) {
@@ -195,7 +199,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
         
         $creditcard = [];
-        $allowedcreditcard = $this->helper->getSettingsValue('allowedcreditcard', $event->getSalesChannelContext()->getSalesChannelId());
+        $allowedcreditcard = $this->helper->getSettingsValue('allowedcreditcard', $salesChannelId);
         if (!empty($allowedcreditcard)){
             foreach ($allowedcreditcard as $value) {
                 $creditcard[] = [
@@ -203,7 +207,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                         'allowedcreditcard',
                         $this->availableCreditcards[$value],
                         $context,
-                        $event->getSalesChannelContext()->getSalesChannelId()
+                        $salesChannelId
                     ),
                     'code' => $value,
                 ];
@@ -211,7 +215,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
 
         $creditcards = [];
-        $allowedcreditcards = $this->helper->getSettingsValue('allowedcreditcards', $event->getSalesChannelContext()->getSalesChannelId());
+        $allowedcreditcards = $this->helper->getSettingsValue('allowedcreditcards', $salesChannelId);
         if (!empty($allowedcreditcards)){
             foreach ($allowedcreditcards as $value) {
                 $creditcards[] = [
@@ -219,7 +223,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                         'allowedcreditcards',
                         $this->availableCreditcards[$value],
                         $context,
-                        $event->getSalesChannelContext()->getSalesChannelId()
+                        $salesChannelId
                     ),
                     'code' => $value,
                 ];
@@ -238,9 +242,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $buckaroo_key = $method['customFields']['buckaroo_key'];
                 $paymentLabels[$buckaroo_key] = $this->checkoutHelper->getBuckarooFeeLabel(
                     $buckaroo_key,
-                    $this->helper->getSettingsValue($buckaroo_key . 'Label', $event->getSalesChannelContext()->getSalesChannelId()),
+                    $this->helper->getSettingsValue($buckaroo_key . 'Label', $salesChannelId),
                     $context,
-                    $event->getSalesChannelContext()->getSalesChannelId()
+                    $salesChannelId
                 );
             }
         }
@@ -258,10 +262,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'payment_labels'           => $paymentLabels,
             'media_path'               => $this->checkoutHelper->forwardToRoute('root.fallback') . 'bundles/buckaroopayments/storefront/buckaroo/logo/',
             'payment_media'            => $lastUsedCreditcard . '.png',
-            'buckarooFee'              => $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee', $event->getSalesChannelContext()->getSalesChannelId()),
+            'buckarooFee'              => $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee', $salesChannelId),
             'BillinkBusiness'          => $customer->getActiveBillingAddress() && $customer->getActiveBillingAddress()->getCompany() ? 'B2B' : 'B2C',
             'backLink'                 => $backUrl,
-            'afterpay_customer_type'   => $this->helper->getSettingsValue('afterpayCustomerType', $event->getSalesChannelContext()->getSalesChannelId())
+            'afterpay_customer_type'   => $this->helper->getSettingsValue('afterpayCustomerType', $salesChannelId),
+            'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'checkout'),
+            'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
+            'websiteKey'               => $this->helper->getSettingsValue('websiteKey', $salesChannelId)
         ]);
 
         $event->getPage()->addExtension(
@@ -270,6 +277,22 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         );
     }
 
+    public function addBuckarooToCart(CheckoutCartPageLoadedEvent $event)
+    {
+        $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
+        $struct             = new BuckarooStruct();
+
+        $struct->assign([
+            'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'cart'),
+            'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
+            'websiteKey'               => $this->helper->getSettingsValue('websiteKey', $salesChannelId)
+        ]);
+
+        $event->getPage()->addExtension(
+            BuckarooStruct::EXTENSION_NAME,
+            $struct
+        );
+    }
     /**
      * @param string $customerId
      * @param Context $context
@@ -311,13 +334,26 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $struct = new BuckarooStruct();
 
+        $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
         $struct->assign([
-            'applepayShowProduct' => $this->helper->getSettingsValue('applepayShowProduct', $event->getSalesChannelContext()->getSalesChannelId()) == 1,
+            'applepayShowProduct' => $this->helper->getSettingsValue('applepayShowProduct', $salesChannelId) == 1,
+            'showPaypalExpress' => $this->showPaypalExpress($salesChannelId),
+            'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
+            'websiteKey' => $this->helper->getSettingsValue('websiteKey', $salesChannelId)
         ]);
 
         $event->getPage()->addExtension(
             BuckarooStruct::EXTENSION_NAME,
             $struct
         );
+    }
+    protected function showPaypalExpress(string $salesChannelId, $page = 'product')
+    {
+        $locations = $this->helper->getSettingsValue('paypalExpresslocation', $salesChannelId);
+        return is_array($locations) && in_array($page, $locations) && $this->getPaypalExpressMerchantId($salesChannelId) != null;
+    }
+    protected function getPaypalExpressMerchantId(string $salesChannelId)
+    {
+       return $this->helper->getSettingsValue('paypalExpressmerchantid', $salesChannelId);
     }
 }

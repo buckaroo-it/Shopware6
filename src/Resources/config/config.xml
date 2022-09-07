@@ -694,6 +694,37 @@
             <label lang="nl-NL">Buckaroo Vergoeding</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
+        <input-field type="multi-select">
+            <name>paypalExpresslocation</name>
+            <label lang="en-GB">Display Paypal Express button:</label>
+            <label lang="nl-NL">Paypal Express-knop weergeven:</label>
+            <label lang="de-DE">Zeigen Sie die Paypal Express-Schaltfläche an:</label>
+            <defaultValue>["none"]</defaultValue>
+            <options>
+                <option>
+                    <id>none</id>
+                    <name>None</name>
+                </option>
+                <option>
+                    <id>product</id>
+                    <name>Product page</name>
+                </option>
+                <option>
+                    <id>cart</id>
+                    <name>Cart page</name>
+                </option>
+                <option>
+                    <id>checkout</id>
+                    <name>Checkout page</name>
+                </option>
+            </options>
+        </input-field>
+         <input-field>
+            <name>paypalExpressmerchantid</name>
+            <label lang="en-GB">Paypal express merchant id</label>
+            <label lang="nl-NL">Paypal express merchant id</label>
+            <label lang="de-DE">Paypal express merchant id</label>
+        </input-field>
     </card>
 
     <card>
