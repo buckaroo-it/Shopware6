@@ -17,6 +17,11 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+
+        <service id="Buckaroo\Shopware6\Handlers\AfterPayOld">
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+        </service>
+        
         <!-- /Entity -->
 
         <service id="Buckaroo\Shopware6\Helpers\Config">
@@ -136,6 +141,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="logger" />
+            <argument type="service" id="Buckaroo\Shopware6\Handlers\AfterPayOld" />
             <tag name="shopware.payment.method.async" />
         </service>
         
@@ -299,6 +305,8 @@
         <!-- Controllers -->
         <service id="Buckaroo\Shopware6\Storefront\Controller\SupportController" public="true">
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="tax.repository"/>
+            
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

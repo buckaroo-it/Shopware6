@@ -39,7 +39,7 @@ export default class PaypalExpressPlugin extends Plugin {
         return new Promise((resolve) => {
             var script = document.createElement("script");
             script.src = "https://checkout.buckaroo.nl/api/buckaroosdk/script/en-US";
-            script.src = "https://testcheckout.buckaroo.nl/api/buckaroosdk/script/en-US";
+            // script.src = "https://testcheckout.buckaroo.nl/api/buckaroosdk/script/en-US";
             script.async = true;
             document.head.appendChild(script);
             script.onload = () => {
@@ -187,7 +187,7 @@ export default class PaypalExpressPlugin extends Plugin {
     displayErrorMessage(message) {
         $('.buckaroo-paypal-express-error').remove();
         if (typeof message === 'object') {
-            message = buckaroo_paypal_express.i18n.cannot_create_payment;
+            message = this.options.i18n.cannot_create_payment;
         }
         const content = `
         <div role="alert" class="alert alert-warning alert-has-icon buckaroo-paypal-express-error">

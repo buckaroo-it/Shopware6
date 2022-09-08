@@ -571,6 +571,18 @@
             </options>
         </input-field>
 
+        <input-field type="bool">
+            <name>afterpayEnabledold</name>
+            <label lang="en-GB">Enabled AfterPay Old</label>
+            <label lang="nl-NL">Ingeschakeld AfterPay Old</label>
+            <label lang="de-DE">Aktiviert AfterPay Old</label>
+            <label lang="de-DE">false</label>
+        </input-field>
+
+        <component name="buckaroo-afterpay-old-tax">
+            <name>afterpayOldtax</name>
+        </component>
+
         <input-field>
             <name>afterpayLabel</name>
             <label lang="en-GB">Frontend label</label>

@@ -80,6 +80,14 @@
     "messageNotBlank": "This field must not be empty.",
     "button": {
       "labelTestApi": "Test connection"
+    },
+    "afterpay": {
+        "setup" : "Setup tax association for afterpay old ",
+        "hightTaxes" : "High VAT taxes",
+        "middleTaxes":"Middle VAT taxes",
+        "lowTaxes": "Low VAT taxes",
+        "zeroTaxes": "Zero VAT",
+        "noTaxes" : "No VAT tax"
     }
   }
 }
