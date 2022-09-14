@@ -584,6 +584,30 @@
             <label lang="nl-NL">Buckaroo Vergoeding</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
+
+        <input-field type="single-select">
+            <name>afterpayCustomerType</name>
+            <label lang="en-GB">AfterPay customer type:</label>
+            <label lang="de-DE">AfterPay customer type:</label>
+            <label lang="nl-NL">AfterPay customer type:</label>
+            <helpText lang="en-GB">This setting determines whether you accept AfterPay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.</helpText>
+            <helpText lang="de-DE">Deze instelling bepaalt of je AfterPay-betalingen accepteert voor B2C, B2B of beide klanttypes. Wanneer B2B word geselecteerd wordt deze methode enkel getoond wanneer er een bedrijfsnaam is ingevuld in het checkout proces.</helpText>
+            <defaultValue>both</defaultValue>
+            <options>
+                <option>
+                    <id>b2b</id>
+                    <name>B2B (Business-to-Business)</name>
+                </option>
+                <option>
+                    <id>b2c</id>
+                    <name>B2C (Business-to-consumer) </name>
+                </option>
+                <option>
+                    <id>both</id>
+                    <name>Both</name>
+                </option>
+            </options>
+        </input-field>
     </card>
 
     <card>
@@ -669,6 +693,37 @@
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo Vergoeding</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
+        </input-field>
+        <input-field type="multi-select">
+            <name>paypalExpresslocation</name>
+            <label lang="en-GB">Display Paypal Express button:</label>
+            <label lang="nl-NL">Paypal Express-knop weergeven:</label>
+            <label lang="de-DE">Zeigen Sie die Paypal Express-Schaltfläche an:</label>
+            <defaultValue>["none"]</defaultValue>
+            <options>
+                <option>
+                    <id>none</id>
+                    <name>None</name>
+                </option>
+                <option>
+                    <id>product</id>
+                    <name>Product page</name>
+                </option>
+                <option>
+                    <id>cart</id>
+                    <name>Cart page</name>
+                </option>
+                <option>
+                    <id>checkout</id>
+                    <name>Checkout page</name>
+                </option>
+            </options>
+        </input-field>
+         <input-field>
+            <name>paypalExpressmerchantid</name>
+            <label lang="en-GB">Paypal express merchant id</label>
+            <label lang="nl-NL">Paypal express merchant id</label>
+            <label lang="de-DE">Paypal express merchant id</label>
         </input-field>
     </card>
 
@@ -2028,6 +2083,13 @@
                     <name>Tinka</name>
                 </option>
             </options>
+        </input-field>
+        <input-field type="bool">
+            <name>payperemailEnabledfrontend</name>
+            <label lang="en-GB">Enabled frontend</label>
+            <label lang="nl-NL">Ingeschakeld frontend</label>
+            <label lang="de-DE">Aktiviert frontend</label>
+            <defaultValue>1</defaultValue>
         </input-field>
     </card>
 </config>

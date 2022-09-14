@@ -2,21 +2,23 @@
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Buckaroo\Shopware6\Buckaroo\Payload\DataRequest;
-use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
-use Buckaroo\Shopware6\Helpers\CheckoutHelper;
-use Buckaroo\Shopware6\Helpers\Helper;
 use Exception;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
+use Buckaroo\Shopware6\Helpers\Helper;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Symfony\Component\HttpFoundation\Request;
+use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Buckaroo\Shopware6\Buckaroo\Payload\DataRequest;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
+use Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
+use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 
 class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
@@ -44,6 +46,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $this->helper         = $helper;
         $this->checkoutHelper = $checkoutHelper;
         $this->logger = $logger;
+        
     }
 
     /**
@@ -142,6 +145,10 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $request->setAdditionalParameter('fromPayPerEmail', 1);
         }
 
+        if ($buckarooKey == 'paypal' && $dataBag->has('orderId')) {
+            $request->setServiceParameter('PayPalOrderId', $dataBag->get('orderId'));
+        }
+
         if ($buckarooKey == 'giftcards') {
             $list = 'ideal';
             $request->removeServices();
@@ -170,6 +177,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             }
             $locale = $this->checkoutHelper->getSalesChannelLocaleCode($salesChannelContext);
             $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse',$locale);
+            $this->handlePayResponse($response, $order, $salesChannelContext);
         } catch (Exception $exception) {
             throw new AsyncPaymentProcessException(
                 $transaction->getOrderTransaction()->getId(),
@@ -280,5 +288,23 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     protected function isUpdateOrder(RequestDataBag $bag)
     {
         return $bag->has('errorUrl') && strstr($bag->get('errorUrl'), '/account/order/edit/') !== false;
+    }
+
+   /**
+    * Handle pay response from buckaroo
+    *
+    * @param TransactionResponse $response
+    * @param OrderEntity $order
+    * @param SalesChannelContext $saleChannelContext
+    *
+    * @return void
+    */
+    protected function handlePayResponse(
+        TransactionResponse $response,
+        OrderEntity $order,
+        SalesChannelContext $saleChannelContext
+    ): void
+    {
+        return;
     }
 }

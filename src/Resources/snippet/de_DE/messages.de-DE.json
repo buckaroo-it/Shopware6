@@ -52,6 +52,11 @@
       "salutation": "Salutation",
       "mr": "Mr.",
       "mrs": "Mrs.",
+      "gender": "Gender",
+      "male": "He/him",
+      "female": "She/her",
+      "they": "They/them",
+      "unknown": "I prefer not to say",
       "buckarooAfterpayDoBTitle": "Date of Birth",
       "buckarooAfterpayDoBTitleSup": "(DD/MM/YYYY)",
       "buckarooAfterpayTermsConditionTitle": "Terms and Conditions",
@@ -72,7 +77,10 @@
         "year": "Jahr",
         "selectYear": "Wählen Sie ein Jahr",
         "securityCode": "CVC/VV"
-      }
+      },
+      "Coc": "CoC-number:",
+      "CocPlaceholder": "CoC-number",
+      "buckarooMobileCocError": "CoC-number is required"
     }
   },
   "bkr-applepay": {

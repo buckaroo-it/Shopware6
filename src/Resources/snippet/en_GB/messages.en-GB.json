@@ -51,11 +51,17 @@
       "buckarooMobilePhoneError": "Please enter a valid phone number.",
       "buckarooDoBError": "Please enter a valid date of Birth",
       "buckarooError": "Please enter a valid value",
+      "bankRequiredError": "Select your bank to initiate the payment.",
       "buckarooKlarnakpPhone": "Phone",
       "buckarooKlarnakpPhonePlaceholder": "Enter your phone here...",
       "salutation": "Salutation",
       "mr": "Mr.",
       "mrs": "Mrs.",
+      "gender": "Gender",
+      "male": "He/him",
+      "female": "She/her",
+      "they": "They/them",
+      "unknown": "I prefer not to say",
       "buckarooAfterpayDoBTitle": "Date of Birth",
       "buckarooAfterpayDoBTitleSup": "(DD/MM/YYYY)",
       "buckarooAfterpayTermsConditionTitle": "Terms and Conditions",
@@ -77,7 +83,13 @@
         "year": "Year",
         "selectYear": "Select a year",
         "securityCode": "CVC/VV"
-      }
+      },
+      "Coc": "CoC-number:",
+      "CocPlaceholder": "CoC-number",
+      "buckarooMobileCocError": "CoC-number is required",
+      "company_required": "The company name is required for this payment method",
+      "cancelOrderMessage": "You have canceled the payment request",
+      "cannotCreatePayment": "Cannot create payment"
     }
   },
   "bkr-applepay": {

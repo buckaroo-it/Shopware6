@@ -1834,21 +1834,6 @@ class CheckoutHelper
         return $initials;
     }
 
-    /**
-     * @param CustomerEntity $customer
-     * @return string|null
-     */
-    public function getGenderFromSalutation(CustomerEntity $customer, $format = ''): ?string
-    {
-        switch ($customer->getSalutation()->getSalutationKey()) {
-            case 'mr':
-                return $format?'Male':'1';
-            case 'mrs':
-                return $format?'Female':'2';
-        }
-        return $format?'Unknown':'0';
-    }
-
     public function getSalutation(CustomerEntity $customer): ?string
     {
         switch ($customer->getSalutation()->getSalutationKey()) {

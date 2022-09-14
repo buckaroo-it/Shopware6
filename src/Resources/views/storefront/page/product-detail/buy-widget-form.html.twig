@@ -19,5 +19,25 @@
             }
         </script>
         <script type="module" src="/bundles/buckaroopayments/storefront/buckaroo/js/applepay/index.js"></script>
+
+    {% endif %}
+    {% if page.extensions.buckaroo.showPaypalExpress %}
+        {% set paypalExpressOptions = {
+            page: "product",
+            merchantId: page.extensions.buckaroo.paypalMerchantId,
+            websiteKey: page.extensions.buckaroo.websiteKey,
+            i18n: {
+                cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
+                cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
+            },
+             csrf: {
+                create: sw_csrf("frontend.action.buckaroo.paypalExpressCreate", {"mode": "token"}),
+                pay: sw_csrf("frontend.action.buckaroo.paypalExpressPay", {"mode": "token"})
+            }
+        } %}
+
+        <div style="margin-top:15px;" class="bk-paypal-express" data-paypal-express data-paypal-express-plugin-options='{{ paypalExpressOptions|json_encode }}'>
+            <div class="buckaroo-paypal-express"></div>
+        </div>
     {% endif %}
 {% endblock %}
