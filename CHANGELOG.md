@@ -140,3 +140,11 @@ BP-1441 Option in plugin config to set SendMail and DueDate parameters for Trans
 BP-1508 Update README file
 [#57] Fix | Use sales channel URL instead of base url (Thank you @MelvinAchterhuis !)
 BP-1462 Apple Pay shows a error in the checkout "errorOccurred"  
+
+# 1.4.0
+BP-1981 Add a option to switch on payperemail (in the backend only)
+BP-1896 Change gender selection for BNPL methods
+BP-1878 Update contribution guidelines
+BP-1480 "Please enter a valid value" error message improvement for iDEAL
+BP-1466 Add Support for Afterpay B2B
+BP-212 Add a PayPal Express button
