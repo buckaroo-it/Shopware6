@@ -78,10 +78,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'code' => 'FVLBNL22',
         ],
         [
-            'name' => 'Handelsbanken',
-            'code' => 'HANDNL2A',
-        ],
-        [
             'name' => 'Revolut',
             'code' => 'REVOLT21',
         ],
