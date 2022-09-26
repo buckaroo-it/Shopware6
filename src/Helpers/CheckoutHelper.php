@@ -52,7 +52,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Exception;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
-use Shopware\Core\Content\Mail\Service\MailService;
+use Buckaroo\Shopware6\Service\MailService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Core\System\Currency\CurrencyEntity;
