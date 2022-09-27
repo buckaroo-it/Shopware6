@@ -6,12 +6,23 @@ use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 
 class AfterPay extends AbstractPayment
 {
+
+    protected $buckarooKey = 'afterpay';
     /*
      * @return string
      */
     public function getBuckarooKey(): string
     {
-        return 'afterpay';
+        return $this->buckarooKey;
+    }
+
+     /*
+     * @return string
+     */
+    public function setBuckarooKey(string $buckarooKey = 'afterpay'): string
+    {
+        $this->buckarooKey = $buckarooKey;
+        return $this->buckarooKey;
     }
 
     /**

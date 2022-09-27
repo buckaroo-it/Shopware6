@@ -2,14 +2,16 @@
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Shopware\Core\Framework\Context;
+use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Controller\StorefrontController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
 /**
  * @RouteScope(scopes={"api"})
@@ -17,11 +19,19 @@ use Symfony\Component\Routing\Annotation\Route;
 class SupportController extends StorefrontController
 {
     protected $checkoutHelper;
+
+    /**
+     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     */
+    protected $taxRepository;
+
     
     public function __construct(
-        CheckoutHelper $checkoutHelper
+        CheckoutHelper $checkoutHelper,
+        EntityRepository $taxRepository
     ) {
         $this->checkoutHelper = $checkoutHelper;
+        $this->taxRepository = $taxRepository;
     }
 
     /**
@@ -39,6 +49,26 @@ class SupportController extends StorefrontController
             'isPhpVersionSupport' => ($phpVersion[0] . $phpVersion[1] >= '71') ? true : false,
         ]);
     }
+
+
+    /**
+     * @Route("/api/_action/buckaroo/taxes", name="api.action.buckaroo.tax", methods={"POST"})
+     * @param Request $request
+     * @param Context $context
+     *
+     * @return RedirectResponse
+     */
+    public function getTaxes(Request $request, Context $context): JsonResponse
+    {
+        $taxes = $this->taxRepository->search(
+            new Criteria(), $context
+        )->getEntities();
+        return new JsonResponse([
+            'error' => false,
+            'taxes' => $taxes
+        ]);
+    }
+
 
     /**
      * @Route("/api/_action/buckaroo/getBuckarooTransaction", name="api.action.buckaroo.support.version", methods={"POST"})

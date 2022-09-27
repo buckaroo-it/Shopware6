@@ -104,7 +104,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setCurrency($salesChannelContext->getCurrency()->getIsoCode());
         $request->setAmountDebit($order->getAmountTotal());
 
-        if($buckarooFee = $this->checkoutHelper->getBuckarooFee($buckarooKey.'Fee', $salesChannelContext->getSalesChannelId())) {
+        $feeKey = $buckarooKey;
+        if ($buckarooKey === 'afterpaydigiaccept') {
+            $feeKey = 'afterpay';
+        }
+        if($buckarooFee = $this->checkoutHelper->getBuckarooFee($feeKey.'Fee', $salesChannelContext->getSalesChannelId())) {
             $this->checkoutHelper->updateOrderCustomFields($order->getId(),['buckarooFee' => $buckarooFee]);
             $request->setAmountDebit($order->getAmountTotal() + $buckarooFee);
         }

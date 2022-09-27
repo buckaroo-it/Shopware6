@@ -1110,6 +1110,10 @@ class CheckoutHelper
         $request->setOriginalTransactionKey($customFields['originalTransactionKey']);
         $request->setServiceVersion($customFields['version']);
 
+        if ($customFields['serviceName'] == 'afterpaydigiaccept') {
+            $this->setRefundRequestArticlesForAfterpayOld($request, $amount);
+        }
+        
         if ($customFields['serviceName'] == 'afterpay') {
             $request->setInvoice($this->getRefundTransactionInvoceId($order->getOrderNumber(), $order->getTransactions()->last()->getId(), $customFields));
             $additional = $this->getRefundArticleData($amount);
@@ -2142,5 +2146,16 @@ class CheckoutHelper
         } else {
             return abs((floatval($amount1) - floatval($amount2)) / floatval($amount2)) < 0.00001;
         }
+    }
+
+    protected function setRefundRequestArticlesForAfterpayOld(TransactionRequest &$request, float $amount)
+    {
+        $key =  'refund_article';
+
+        $request->setServiceParameter('ArticleId', 'refund_article', 'Article', $key);
+        $request->setServiceParameter('ArticleDescription', 'refund_article', 'Article', $key);
+        $request->setServiceParameter('ArticleQuantity', 1, 'Article', $key);
+        $request->setServiceParameter('ArticleUnitPrice', round($amount, 2), 'Article', $key);
+        $request->setServiceParameter('ArticleVatCategory',4, 'Article', $key);
     }
 }

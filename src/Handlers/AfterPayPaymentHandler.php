@@ -2,19 +2,44 @@
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Psr\Log\LoggerInterface;
+use Buckaroo\Shopware6\Helpers\Helper;
+use Buckaroo\Shopware6\Handlers\AfterPayOld;
+use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 
 class AfterPayPaymentHandler extends AsyncPaymentHandler
 {
+    
 
     public const CUSTOMER_TYPE_B2C = 'b2c';
     public const CUSTOMER_TYPE_B2B = 'b2b';
     public const CUSTOMER_TYPE_BOTH = 'both';
+
+    /**
+     * @var \Buckaroo\Shopware6\Handlers\AfterPayOld
+     */
+    protected $afterPayOld;
+
+    /**
+     * Buckaroo constructor.
+     * @param Helper $helper
+     * @param CheckoutHelper $checkoutHelper
+     */
+    public function __construct(
+        Helper $helper,
+        CheckoutHelper $checkoutHelper,
+        LoggerInterface $logger,
+        AfterPayOld $afterPayOld
+    ) {
+        parent::__construct($helper, $checkoutHelper, $logger);
+        $this->afterPayOld = $afterPayOld;
+    }
+
     /**
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
@@ -40,11 +65,19 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         $latestKey  = 1;
         $order      = $transaction->getOrder();
 
-        $additional = $this->getArticleData($order, $additional, $latestKey);
-        $additional = $this->getBuckarooFee($order, $additional, $latestKey, $salesChannelContext->getSalesChannelId());
-        $additional = $this->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag);
-
         $paymentMethod = new AfterPay();
+
+        if ($this->checkoutHelper->getSettingsValue('afterpayEnabledold') === true) {
+           $paymentMethod->setBuckarooKey('afterpaydigiaccept');
+           $additional = $this->afterPayOld->buildPayParameters(
+                $order, $salesChannelContext, $dataBag
+           );
+        } else {
+            $additional = $this->getArticleData($order, $additional, $latestKey);
+            $additional = $this->getBuckarooFee($order, $additional, $latestKey, $salesChannelContext->getSalesChannelId());
+            $additional = $this->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag);
+        }
+        
         $gatewayInfo   = [
             'additional' => $additional,
         ];
