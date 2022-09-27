@@ -53,6 +53,10 @@
             <argument type="string">buckaroo_payment</argument>
         </service>
 
+        <service id="Buckaroo\Shopware6\Service\MailService" decorates="Shopware\Core\Content\Mail\Service\MailService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\MailService.inner" />
+        </service>
+
         <service id="Buckaroo\Shopware6\Helpers\CheckoutHelper">
             <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
@@ -69,7 +73,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <argument type="service" id="document.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\MailService"/>
             <argument type="service" id="mail_template.repository"/>
             <argument type="service" id="currency.repository" />
             <argument type="service" id="sales_channel.repository" />
