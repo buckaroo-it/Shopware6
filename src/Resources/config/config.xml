@@ -573,9 +573,9 @@
 
         <input-field type="bool">
             <name>afterpayEnabledold</name>
-            <label lang="en-GB">Enabled AfterPay Old</label>
-            <label lang="nl-NL">Ingeschakeld AfterPay Old</label>
-            <label lang="de-DE">Aktiviert AfterPay Old</label>
+            <label lang="en-GB">Enabled Riverty | AfterPay Old</label>
+            <label lang="nl-NL">Ingeschakeld Riverty | AfterPay Old</label>
+            <label lang="de-DE">Aktiviert Riverty | AfterPay Old</label>
             <label lang="de-DE">false</label>
         </input-field>
 
