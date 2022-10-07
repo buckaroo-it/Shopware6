@@ -32,7 +32,7 @@ class AfterPay extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'AfterPay';
+        return 'Riverty | AfterPay';
     }
 
     /**
@@ -42,7 +42,7 @@ class AfterPay extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with AfterPay';
+        return 'Pay with Riverty | AfterPay';
     }
 
     /**
@@ -75,7 +75,7 @@ class AfterPay extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit AfterPay',
+                'description' => 'Bezahlen mit Riverty | AfterPay',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),
