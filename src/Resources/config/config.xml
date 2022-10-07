@@ -544,7 +544,7 @@
     </card>
 
     <card>
-        <title>AfterPay</title>
+        <title>Riverty | AfterPay</title>
 
         <input-field type="bool">
             <name>afterpayEnabled</name>
@@ -587,7 +587,7 @@
             <name>afterpayLabel</name>
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
-            <defaultValue>AfterPay</defaultValue>
+            <defaultValue>Riverty | AfterPay</defaultValue>
         </input-field>
 
         <input-field>
@@ -599,11 +599,11 @@
 
         <input-field type="single-select">
             <name>afterpayCustomerType</name>
-            <label lang="en-GB">AfterPay customer type:</label>
-            <label lang="de-DE">AfterPay customer type:</label>
-            <label lang="nl-NL">AfterPay customer type:</label>
-            <helpText lang="en-GB">This setting determines whether you accept AfterPay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.</helpText>
-            <helpText lang="de-DE">Deze instelling bepaalt of je AfterPay-betalingen accepteert voor B2C, B2B of beide klanttypes. Wanneer B2B word geselecteerd wordt deze methode enkel getoond wanneer er een bedrijfsnaam is ingevuld in het checkout proces.</helpText>
+            <label lang="en-GB">Riverty | AfterPay customer type:</label>
+            <label lang="de-DE">Riverty | AfterPay customer type:</label>
+            <label lang="nl-NL">Riverty | AfterPay customer type:</label>
+            <helpText lang="en-GB">This setting determines whether you accept Riverty | AfterPay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.</helpText>
+            <helpText lang="de-DE">Deze instelling bepaalt of je Riverty | AfterPay-betalingen accepteert voor B2C, B2B of beide klanttypes. Wanneer B2B word geselecteerd wordt deze methode enkel getoond wanneer er een bedrijfsnaam is ingevuld in het checkout proces.</helpText>
             <defaultValue>both</defaultValue>
             <options>
                 <option>
