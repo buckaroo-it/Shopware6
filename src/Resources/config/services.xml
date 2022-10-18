@@ -58,10 +58,6 @@
             <argument type="string">buckaroo_payment</argument>
         </service>
 
-        <service id="Buckaroo\Shopware6\Service\MailService" decorates="Shopware\Core\Content\Mail\Service\MailService">
-            <argument type="service" id="Buckaroo\Shopware6\Service\MailService.inner" />
-        </service>
-
         <service id="Buckaroo\Shopware6\Helpers\CheckoutHelper">
             <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
