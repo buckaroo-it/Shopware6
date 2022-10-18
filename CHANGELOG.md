@@ -148,3 +148,11 @@ BP-1878 Update contribution guidelines
 BP-1480 "Please enter a valid value" error message improvement for iDEAL
 BP-1466 Add Support for Afterpay B2B
 BP-212 Add a PayPal Express button
+
+# 1.5.0
+Add support for Shopware 6 version 6.4.16.0
+[#74] Update README.md versions change and extra notice.
+BP-1471 Remove 'Handelsbanken'
+BP-2004 Add payment method AfterPay (old) -> Digiaccept
+BP-1869 Rebranding Afterpay 
+BP-2057 Fix issue with the mailer function when installing the PostNL plugin (Thank you @daniel-memo-ict !)
