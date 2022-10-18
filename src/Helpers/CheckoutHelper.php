@@ -52,7 +52,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Exception;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
-use Buckaroo\Shopware6\Service\MailService;
+use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -97,7 +97,7 @@ class CheckoutHelper
     protected $documentService;
     /** @var EntityRepositoryInterface */
     private $documentRepository;
-    /** * @var MailService */
+    /** * @var AbstractMailService */
     private $mailService;
     /** * @var EntityRepositoryInterface */
     private $mailTemplateRepository;
@@ -135,7 +135,7 @@ class CheckoutHelper
         Connection $connection,
         DocumentService $documentService,
         EntityRepositoryInterface $documentRepository,
-        MailService $mailService,
+        AbstractMailService $mailService,
         EntityRepositoryInterface $mailTemplateRepository,
         EntityRepositoryInterface $currencyRepository,
         EntityRepositoryInterface $salesChannelRepository,
