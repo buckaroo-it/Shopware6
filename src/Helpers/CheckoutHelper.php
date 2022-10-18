@@ -52,7 +52,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Exception;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
-use Shopware\Core\Content\Mail\Service\MailService;
+use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -97,7 +97,7 @@ class CheckoutHelper
     protected $documentService;
     /** @var EntityRepositoryInterface */
     private $documentRepository;
-    /** * @var MailService */
+    /** * @var AbstractMailService */
     private $mailService;
     /** * @var EntityRepositoryInterface */
     private $mailTemplateRepository;
@@ -135,7 +135,7 @@ class CheckoutHelper
         Connection $connection,
         DocumentService $documentService,
         EntityRepositoryInterface $documentRepository,
-        MailService $mailService,
+        AbstractMailService $mailService,
         EntityRepositoryInterface $mailTemplateRepository,
         EntityRepositoryInterface $currencyRepository,
         EntityRepositoryInterface $salesChannelRepository,
@@ -1110,6 +1110,10 @@ class CheckoutHelper
         $request->setOriginalTransactionKey($customFields['originalTransactionKey']);
         $request->setServiceVersion($customFields['version']);
 
+        if ($customFields['serviceName'] == 'afterpaydigiaccept') {
+            $this->setRefundRequestArticlesForAfterpayOld($request, $amount);
+        }
+        
         if ($customFields['serviceName'] == 'afterpay') {
             $request->setInvoice($this->getRefundTransactionInvoceId($order->getOrderNumber(), $order->getTransactions()->last()->getId(), $customFields));
             $additional = $this->getRefundArticleData($amount);
@@ -2142,5 +2146,16 @@ class CheckoutHelper
         } else {
             return abs((floatval($amount1) - floatval($amount2)) / floatval($amount2)) < 0.00001;
         }
+    }
+
+    protected function setRefundRequestArticlesForAfterpayOld(TransactionRequest &$request, float $amount)
+    {
+        $key =  'refund_article';
+
+        $request->setServiceParameter('ArticleId', 'refund_article', 'Article', $key);
+        $request->setServiceParameter('ArticleDescription', 'refund_article', 'Article', $key);
+        $request->setServiceParameter('ArticleQuantity', 1, 'Article', $key);
+        $request->setServiceParameter('ArticleUnitPrice', round($amount, 2), 'Article', $key);
+        $request->setServiceParameter('ArticleVatCategory',4, 'Article', $key);
     }
 }

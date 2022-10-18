@@ -1,85 +1,93 @@
 {
-  "buckaroo-payment": {
-    "fee": "Buckaroo Fee",
-    "order": {
-      "refundDescription": "Refund for order #orderNumber"
-    },
-    "general": {
-      "title": "Buckaroo",
-      "description": "Buckaroo Payment"
-    },
-    "settingsForm": {
-      "save": "Save",
-      "titleSuccess": "Success",
-      "titleError": "Error"
-    },
-    "supportModal": {
-      "menuButton": "Version & Support",
-      "title": "Version & Support",
-      "support": {
-        "description": "Before contacting Buckaroo technical support, please retrieve your (Merchant) key, Secret key, certificate and certificate thumbprint.",
-        "label1": "Buckaroo Payment Plaza:",
-        "label2": "Phone:",
-        "label3": "E-mail:",
-        "label4": "Website:",
-        "your_version": "Your PHP version:",
-        "version": "Version compatibility",
-        "information": "Information"
-      }
-    },
-    "tabs": {
-      "title": "Buckaroo Payment",
-      "overview": "Overview"
-    },
-    "paymentDetail": {
-      "yourLink": "Your Paylink",
-      "paylinkButton": "Create paylink",
-      "paylinkDescription": "Create paylink for order",
-      "paylinkTitle": "Paylink",
-      "refundTitle": "Refund",
-      "transactionsTitle": "Transactions",
-      "amountTitle": "Amount",
-      "amountTotalTitle": "Grand total",
-      "amountRefundTotalTitle": "Refund Grand total",
-      "amountCustomRefundTitle": "Refund custom amount",
-      "buttonTitle": "Refund",
-      "successTitle": "Success",
-      "successMessage": "Buckaroo success refunded ",
-      "errorTitle": "Error",
-      "payTitle": "Capture payment",
-      "payDescription": "Capture and create invoice for order",
-      "payButton": "Capture payment"
-    },
-    "orderItems": {
-        "title": "Items to Refund",
-        "types": {
-          "id": "id",
-          "name": "Title",
-          "quantity": "Qty to Refund",
-          "totalAmount": "Subtotal"
-      }
-    },
-    "transactionsToRefund": {
-        "title": "Refund Totals"
-    },
-    "transactionHistory": {
-        "types": {
-          "id": "id",
-          "created_at": "Date/time",
-          "total": "Total",
-          "shipping_costs": "Shipping costs",
-          "total_excluding_vat": "Total excluding VAT",
-          "total_including_vat": "Total including VAT",
-          "vat": "VAT",
-          "transaction_key": "Transaction key",
-          "transaction_method": "Payment method",
-          "statuscode": "Status"
-      }
-    },
-    "messageNotValid": "This field not valid.",
-    "messageNotBlank": "This field must not be empty.",
-    "button": {
-      "labelTestApi": "Test connection"
+    "buckaroo-payment": {
+        "fee": "Buckaroo Fee",
+        "order": {
+            "refundDescription": "Refund for order #orderNumber"
+        },
+        "general": {
+            "title": "Buckaroo",
+            "description": "Buckaroo Payment"
+        },
+        "settingsForm": {
+            "save": "Save",
+            "titleSuccess": "Success",
+            "titleError": "Error"
+        },
+        "supportModal": {
+            "menuButton": "Version & Support",
+            "title": "Version & Support",
+            "support": {
+                "description": "Before contacting Buckaroo technical support, please retrieve your (Merchant) key, Secret key, certificate and certificate thumbprint.",
+                "label1": "Buckaroo Payment Plaza:",
+                "label2": "Phone:",
+                "label3": "E-mail:",
+                "label4": "Website:",
+                "your_version": "Your PHP version:",
+                "version": "Version compatibility",
+                "information": "Information"
+            }
+        },
+        "tabs": {
+            "title": "Buckaroo Payment",
+            "overview": "Overview"
+        },
+        "paymentDetail": {
+            "yourLink": "Your Paylink",
+            "paylinkButton": "Create paylink",
+            "paylinkDescription": "Create paylink for order",
+            "paylinkTitle": "Paylink",
+            "refundTitle": "Refund",
+            "transactionsTitle": "Transactions",
+            "amountTitle": "Amount",
+            "amountTotalTitle": "Grand total",
+            "amountRefundTotalTitle": "Refund Grand total",
+            "amountCustomRefundTitle": "Refund custom amount",
+            "buttonTitle": "Refund",
+            "successTitle": "Success",
+            "successMessage": "Buckaroo success refunded ",
+            "errorTitle": "Error",
+            "payTitle": "Capture payment",
+            "payDescription": "Capture and create invoice for order",
+            "payButton": "Capture payment"
+        },
+        "orderItems": {
+            "title": "Items to Refund",
+            "types": {
+                "id": "id",
+                "name": "Title",
+                "quantity": "Qty to Refund",
+                "totalAmount": "Subtotal"
+            }
+        },
+        "transactionsToRefund": {
+            "title": "Refund Totals"
+        },
+        "transactionHistory": {
+            "types": {
+                "id": "id",
+                "created_at": "Date/time",
+                "total": "Total",
+                "shipping_costs": "Shipping costs",
+                "total_excluding_vat": "Total excluding VAT",
+                "total_including_vat": "Total including VAT",
+                "vat": "VAT",
+                "transaction_key": "Transaction key",
+                "transaction_method": "Payment method",
+                "statuscode": "Status"
+            }
+        },
+        "messageNotValid": "This field not valid.",
+        "messageNotBlank": "This field must not be empty.",
+        "button": {
+            "labelTestApi": "Test connection"
+        },
+        "afterpay": {
+            "setup": "Setup tax association for Riverty | AfterPay old ",
+            "hightTaxes": "High VAT taxes",
+            "middleTaxes": "Middle VAT taxes",
+            "lowTaxes": "Low VAT taxes",
+            "zeroTaxes": "Zero VAT",
+            "noTaxes": "No VAT tax"
+        }
     }
-  }
 }
