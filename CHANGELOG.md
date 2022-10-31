@@ -156,3 +156,5 @@ BP-1471 Remove 'Handelsbanken'
 BP-2004 Add payment method AfterPay (old) -> Digiaccept
 BP-1869 Rebranding Afterpay 
 BP-2057 Fix issue with the mailer function when installing the PostNL plugin (Thank you @daniel-memo-ict !)
+# 1.5.1
+[#82] Fix Afterpay old transaction only in test mode
