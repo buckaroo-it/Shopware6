@@ -104,11 +104,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setCurrency($salesChannelContext->getCurrency()->getIsoCode());
         $request->setAmountDebit($order->getAmountTotal());
 
-        $feeKey = $buckarooKey;
+        $configKey = $buckarooKey;
         if ($buckarooKey === 'afterpaydigiaccept') {
-            $feeKey = 'afterpay';
+            $configKey = 'afterpay';
         }
-        if($buckarooFee = $this->checkoutHelper->getBuckarooFee($feeKey.'Fee', $salesChannelContext->getSalesChannelId())) {
+        if($buckarooFee = $this->checkoutHelper->getBuckarooFee($configKey.'Fee', $salesChannelContext->getSalesChannelId())) {
             $this->checkoutHelper->updateOrderCustomFields($order->getId(),['buckarooFee' => $buckarooFee]);
             $request->setAmountDebit($order->getAmountTotal() + $buckarooFee);
         }
@@ -177,7 +177,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             if ($buckarooKey == 'klarnakp') {
                 $url = $this->checkoutHelper->getDataRequestUrl($buckarooKey, $salesChannelContext->getSalesChannelId());
             } else {
-                $url = $this->checkoutHelper->getTransactionUrl($buckarooKey, $salesChannelContext->getSalesChannelId());
+                $url = $this->checkoutHelper->getTransactionUrl($configKey, $salesChannelContext->getSalesChannelId());
             }
             $locale = $this->checkoutHelper->getSalesChannelLocaleCode($salesChannelContext);
             $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse',$locale);
