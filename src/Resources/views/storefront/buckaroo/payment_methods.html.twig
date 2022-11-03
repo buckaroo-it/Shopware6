@@ -531,8 +531,6 @@
                                             <option value="0">{{ "buckaroo.checkout.NotSpecified" | trans }}</option>
                                             <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="male">{{ "buckaroo.checkout.male" | trans }}</option>
                                             <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="female">{{ "buckaroo.checkout.female" | trans }}</option>
-                                            <option value="unknown">{{ "buckaroo.checkout.they" | trans }}</option>
-                                            <option value="unknown">{{ "buckaroo.checkout.unknown" | trans }}</option>
                                         </select>
                                     </div>
                                 </div>
