@@ -322,6 +322,12 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     protected function getReturnUrl($dataBag)
     {
         if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
+            if (
+                strpos($dataBag->get('finishUrl'), 'http') === 0 ||
+                strpos($dataBag->get('finishUrl'), 'https') === 0
+            ) {
+                return $dataBag->get('finishUrl');
+            }
             return rtrim($this->checkoutHelper->forwardToRoute('frontend.home.page', []), "/") . (string)$dataBag->get('finishUrl');
         }
         return $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize');
