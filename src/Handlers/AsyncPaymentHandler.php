@@ -323,8 +323,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     {
         if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
             if (
-                strpos($dataBag->get('finishUrl'), 'http') === 0 ||
-                strpos($dataBag->get('finishUrl'), 'https') === 0
+                strpos($dataBag->get('finishUrl'), 'http://') === 0 ||
+                strpos($dataBag->get('finishUrl'), 'https://') === 0
             ) {
                 return $dataBag->get('finishUrl');
             }
