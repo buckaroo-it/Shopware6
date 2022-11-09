@@ -88,6 +88,7 @@
             "lowTaxes": "Low VAT taxes",
             "zeroTaxes": "Zero VAT",
             "noTaxes": "No VAT tax"
-        }
+        },
+        "paymentInTestMode": "The payment for this order was made in test mode"
     }
 }
