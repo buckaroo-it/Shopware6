@@ -458,10 +458,16 @@ class CheckoutHelper
         $order = $this->getOrderById($orderId, false);
         $price = $order->getPrice();
 
+        $savedCustomFields = $order->getCustomFields();
+
+        if($savedCustomFields === null) {
+            $savedCustomFields = [];
+        }
+
         $buckarooFee = round((float) str_replace(',','.',$customFields['buckarooFee']), 2);
         $data = [
             'id'           => $orderId,
-            'customFields' => $customFields,
+            'customFields' => array_merge($savedCustomFields, $customFields),
             'price' => new CartPrice(
                 $price->getNetPrice() + $buckarooFee,
                 $price->getTotalPrice() + $buckarooFee,
@@ -473,6 +479,27 @@ class CheckoutHelper
         ];
 
         $this->orderRepository->update([$data], Context::createDefaultContext());
+    }
+
+    /**
+     * Append additional data to order custom fields 
+     *
+     * @param string $orderId
+     * @param array $customFields
+     *
+     * @return void
+     */
+    public function appendCustomFields(string $orderId, array $customFields) {
+        $order = $this->getOrderById($orderId, false);
+        $savedCustomFields = $order->getCustomFields();
+
+        if($savedCustomFields === null) {
+            $savedCustomFields = [];
+        }
+        $this->orderRepository->update(
+            [['id' => $orderId, 'customFields' => array_merge($savedCustomFields, $customFields)]],
+            Context::createDefaultContext()
+        );
     }
 
     public function getOrderTransactionById(Context $context, string $orderTransactionId):  ? OrderTransactionEntity
