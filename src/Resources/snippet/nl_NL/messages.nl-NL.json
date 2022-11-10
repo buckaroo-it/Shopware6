@@ -1,7 +1,7 @@
 {
   "buckaroo": {
     "title": "Buckaroo",
-    "fee": "Buckaroo Vergoeding",
+    "fee": "Buckaroo Betaaltoeslag",
     "order": {
       "paymentDescription": "Betaling voor bestelling #orderNumber",
       "refundDescription": "Restitutie voor bestelling #orderNumber"
@@ -27,10 +27,10 @@
       "buckarooAfterpayOrClickHere": "Of klik hier",
       "buckarooAfterpayOrClick": "Of klik hier voor de Franse vertaling",
       "buckarooAfterpayTermsAndCondition": "algemene voorwaarden",
-      "cOCNumber": "COC-nummer",
+      "cOCNumber": "KVK-nummer",
       "companyName": "Bedrijfsnaam",
-      "private": "Private",
-      "company": "Company",
+      "private": "consument",
+      "company": "zakelijk",
       "oneManBusiness": "Eenmanszaak",
       "orderAs": "Bestel als",
       "selectBankIssuer": "Selecteer uw bank",
@@ -41,14 +41,14 @@
       "buckarooIBANPlaceholder": "Voer hier uw bankrekeningnummer in ...",
       "buckarooGiropayBic": "BIC-nummer",
       "buckarooGiropayBicPlaceholder": "Voer hier uw BIC-nummer in ...",
-      "Phone": "Mobiel",
-      "PhonePlaceholder": "Voer hier uw mobiel in ...",
+      "Phone": "Telefoon",
+      "PhonePlaceholder": "Voer hier uw telefoonnummer in ...",
       "buckarooMobilePhoneError": "Voer een geldig telefoonnummer.",
       "buckarooDoBError": "Voer alstublieft een geldige geboortedatum in",
       "buckarooError": "Vul alstublieft een geldige waarde in",
       "bankRequiredError": "Selecteer uw bank om de betaling te starten. ",
-      "buckarooKlarnakpPhone": "Phone",
-      "buckarooKlarnakpPhonePlaceholder": "Enter your phone here...",
+      "buckarooKlarnakpPhone": "Telefoon",
+      "buckarooKlarnakpPhonePlaceholder": "Vul hier uw telefoonnummer in...",
       "buckarooP24CurrencyError": "Om de betaling met Przelewy24 te verwerken, moet de valuta worden ingesteld op Poolse Zloty",
       "salutation": "Salutation",
       "mr": "Mr.",
@@ -57,7 +57,7 @@
       "male": "Zij/haar",
       "female": "Hij,hem",
       "they": "Zij/ze",
-      "unknown": "Ik zeg het liever niet",
+      "unknown": "Onbekend",
       "buckarooAfterpayDoBTitle": "Geboortedatum",
       "buckarooAfterpayDoBTitleSup": "(DD/MM/YYYY)",
       "buckarooAfterpayTermsConditionTitle": "Algemene voorwaarden",
@@ -66,7 +66,7 @@
       "buckarooKlarnakpDoBTitle": "Geboortedatum",
       "buckarooKlarnakpDoBTitleSup": "(DD/MM/YYYY)",
       "ChamberOfCommerce": "Kamer van koophandelnummer",
-      "ChamberOfCommercePlaceholder": "Voer hier uw Kamer van Koophandel in ...",
+      "ChamberOfCommercePlaceholder": "Voer hier uw Kamer van Koophandelnummer in ...",
       "VATNumber": "btw-nummer",
       "VATNumberPlaceholder": "Vul hier uw btw-nummer in ...",
       "creditcards": {
@@ -82,9 +82,9 @@
     }
   },
   "bkr-applepay": {
-    "Subtotal": "Subtotal",
+    "Subtotal": "Subtotaal",
     "Deliverycosts" : "Bezorgkosten",
-    "Discount" : "Discount",
-    "BuckarooFee": "Buckaroo Fee"
+    "Discount" : "Korting",
+    "BuckarooFee": "Buckaroo Transactiekosten"
   }
 }
