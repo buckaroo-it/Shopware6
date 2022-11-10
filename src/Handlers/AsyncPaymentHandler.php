@@ -196,6 +196,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $pendingPaymentStatus = ($this->helper->getSettingsValue('pendingPaymentStatus',$salesChannelContext->getSalesChannelId()) && !$response->isCanceled()) ? $this->helper->getSettingsValue('pendingPaymentStatus', $salesChannelContext->getSalesChannelId()) : 'open';
 
         $context = $salesChannelContext->getContext();
+
+        $this->checkoutHelper->appendCustomFields(
+            $order->getId(),
+            ['buckaroo_payment_in_test_mode' => $response->isTestMode()]
+        );
         if ($response->hasRedirect()) {
             if($response->isAwaitingConsumer() || $response->isPendingProcessing() || $response->isWaitingOnUserInput()){
                 $this->checkoutHelper->transitionPaymentState($pendingPaymentStatus, $transaction->getOrderTransaction()->getId(), $context);
