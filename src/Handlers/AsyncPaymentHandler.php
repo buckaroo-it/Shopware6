@@ -81,7 +81,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $request = new TransactionRequest;
         }
 
-        $finalizePage = ($dataBag->has('finishUrl')) ? $dataBag->get('finishUrl') : $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize');
+        $finalizePage = $this->getReturnUrl($dataBag);
 
         if ($buckarooKey != 'RequestToPay') {
             $request->setDescription(
@@ -196,6 +196,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $pendingPaymentStatus = ($this->helper->getSettingsValue('pendingPaymentStatus',$salesChannelContext->getSalesChannelId()) && !$response->isCanceled()) ? $this->helper->getSettingsValue('pendingPaymentStatus', $salesChannelContext->getSalesChannelId()) : 'open';
 
         $context = $salesChannelContext->getContext();
+
+        $this->checkoutHelper->appendCustomFields(
+            $order->getId(),
+            ['buckaroo_payment_in_test_mode' => $response->isTestMode()]
+        );
         if ($response->hasRedirect()) {
             if($response->isAwaitingConsumer() || $response->isPendingProcessing() || $response->isWaitingOnUserInput()){
                 $this->checkoutHelper->transitionPaymentState($pendingPaymentStatus, $transaction->getOrderTransaction()->getId(), $context);
@@ -310,5 +315,26 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     ): void
     {
         return;
+    }
+
+    /**
+     * Get full return url
+     *
+     * @param DataBag $dataBag
+     *
+     * @return string
+     */
+    protected function getReturnUrl($dataBag)
+    {
+        if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
+            if (
+                strpos($dataBag->get('finishUrl'), 'http://') === 0 ||
+                strpos($dataBag->get('finishUrl'), 'https://') === 0
+            ) {
+                return $dataBag->get('finishUrl');
+            }
+            return rtrim($this->checkoutHelper->forwardToRoute('frontend.home.page', []), "/") . (string)$dataBag->get('finishUrl');
+        }
+        return $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize');
     }
 }

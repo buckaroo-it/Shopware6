@@ -227,9 +227,9 @@ class AfterPayOld
 
         $parameters = [
             $this->setParameter('Accept', $request->has('buckaroo_afterpay_TermsCondition') ? 'true' : 'false'),
-            $this->setParameter('BillingTitle', $billingAddress->getFirstName()),
+            $this->setParameter('BillingFirstName', $billingAddress->getFirstName()),
             $this->setParameter('BillingInitials', strtoupper(substr($billingAddress->getFirstName(), 0, 1))),
-            $this->setParameter('BillingLastName', $billingAddress->getFirstName()),
+            $this->setParameter('BillingLastName', $billingAddress->getLastName()),
             $this->setParameter('BillingBirthDate', $request->get('buckaroo_afterpay_DoB', '01-01-1990')),
             $this->setParameter('BillingStreet', (!empty($streetComponents['house_number']) ? $streetComponents['street'] : $billingAddress->getStreet())),
             $this->setParameter('BillingHouseNumber', $streetComponents['house_number']),
@@ -282,9 +282,9 @@ class AfterPayOld
 
 
         $parameters = [
-            $this->setParameter('ShippingTitle', $shippingAddress->getFirstName()),
+            $this->setParameter('ShippingFirstName', $shippingAddress->getFirstName()),
             $this->setParameter('ShippingInitials', strtoupper(substr($shippingAddress->getFirstName(), 0, 1))),
-            $this->setParameter('ShippingLastName', $shippingAddress->getFirstName()),
+            $this->setParameter('ShippingLastName', $shippingAddress->getLastName()),
             $this->setParameter('ShippingBirthDate', $request->get('buckaroo_afterpay_DoB', '01-01-1990')),
             $this->setParameter('ShippingStreet', (!empty($streetComponents['house_number']) ? $streetComponents['street'] : $shippingAddress->getStreet())),
             $this->setParameter('ShippingHouseNumber', $streetComponents['house_number']),
