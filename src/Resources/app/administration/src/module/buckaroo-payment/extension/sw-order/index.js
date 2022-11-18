@@ -41,13 +41,13 @@ Component.override('sw-order-detail', {
                     this.setPaymentInTestMode(order);
 
                     if (order.transactions.length <= 0 ||
-                        !order.transactions[0].paymentMethodId
+                        !order.transactions.last().paymentMethodId
                     ) {
                         this.setIsBuckarooPayment(null);
                         return;
                     }
 
-                    const paymentMethodId = order.transactions[0].paymentMethodId;
+                    const paymentMethodId = order.transactions.last().paymentMethodId;
 
                     if (paymentMethodId !== undefined && paymentMethodId !== null) {
                         this.setIsBuckarooPayment(paymentMethodId);
