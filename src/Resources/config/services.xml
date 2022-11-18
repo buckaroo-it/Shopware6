@@ -80,6 +80,7 @@
             <argument type="service" id="sales_channel.repository" />
             <argument type="service" id="session"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="language.repository" />
         </service>
 
         <service id="Buckaroo\Shopware6\Service\SettingsService">

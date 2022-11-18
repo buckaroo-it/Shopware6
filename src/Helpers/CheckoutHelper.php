@@ -111,6 +111,11 @@ class CheckoutHelper
     private $session;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $languageRepository;
+
+    /**
      * CheckoutHelper constructor.
      * @param UrlGeneratorInterface $router
      * @param OrderTransactionStateHandler $orderTransactionStateHandler
@@ -140,7 +145,8 @@ class CheckoutHelper
         EntityRepositoryInterface $currencyRepository,
         EntityRepositoryInterface $salesChannelRepository,
         Session $session,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        EntityRepositoryInterface $languageRepository
     ) {
         $this->router                              = $router;
         $this->transactionRepository               = $transactionRepository;
@@ -163,6 +169,8 @@ class CheckoutHelper
         $this->salesChannelRepository  = $salesChannelRepository;
         $this->session = $session;
         $this->logger = $logger;
+        $this->languageRepository = $languageRepository;
+
     }
 
     public function getSetting(string $name, string $salesChannelId = null)
@@ -2174,14 +2182,21 @@ class CheckoutHelper
         return $invoiceIncrementId . '_R' . ($refundIncrementInvoceId > 1 ? $refundIncrementInvoceId : '');
     }
 
-    public function getSalesChannelLocaleCode($context)
+    public function getSalesChannelLocaleCode(SalesChannelContext $context)
     {
-        $salesChannelCriteria = new Criteria([$context->getSalesChannel()->getId()]);
+        $criteria = (new Criteria([$context->getSalesChannel()->getLanguageId()]))
+            ->addAssociation('locale');
 
-        return $this->salesChannelRepository->search(
-            $salesChannelCriteria->addAssociation('language.locale'),
-            Context::createDefaultContext()
-        )->first()->getLanguage()->getLocale()->getCode();
+        /** @var \Shopware\Core\System\Language\LanguageEntity|null */
+        $language = $this->languageRepository
+            ->search($criteria,$context->getContext())
+            ->first();
+
+        if($language !== null && $language->getLocale() !== null) {
+            return $language->getLocale()->getCode();
+        }
+
+        return "en-GB";
     }
 
     public function getStatusMessageByStatusCode($statusCode)
