@@ -87,7 +87,8 @@
             "invalid_amount": "Amount is not valid",
             "capture_not_supported": "Capture is not supported",
             "already_captured": "This order is already captured",
-            "captured_amount": "Amount '%amount% %currency% has been captured!"
+            "captured_amount": "Amount %amount% %currency% has been captured!",
+            "general_capture_error": "Unfortunately an error occurred while processing your capture. Please try again."
         },
         "test_api": {
             "connection_ready": "Connection ready",
@@ -96,6 +97,14 @@
         "paylink": {
             "invalid_amount": "Amount is not valid",
             "pay_link": "Your Paylink: <a href=\"%$payLink%\">%payLink%</a>"
-        }
+
+        },
+        "paypal_express": {
+            "missing_order_id": "Paypal express order id is required",
+            "unknown_error": "Unknown buckaroo error occurred"
+        },
+        "missing_order_id": "Missing order orderId",
+        "missing_transaction": "Order transaction not found",
+        "general_request_error": "Unfortunately an error occurred while processing your request. Please try again."
     }
 }
