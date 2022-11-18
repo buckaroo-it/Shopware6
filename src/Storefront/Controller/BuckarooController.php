@@ -414,7 +414,7 @@ class BuckarooController extends StorefrontController
 
     private function applepayInitCommon(SalesChannelContext $context)
     {
-        $defaultContext = \Shopware\Core\Framework\Context::createDefaultContext();
+        $defaultContext = $context->getContext();
 
         /** @var EntityCollection $countries */
         $countries = $this->countryRepository->search(
