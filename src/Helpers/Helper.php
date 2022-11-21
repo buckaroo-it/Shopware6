@@ -49,10 +49,6 @@ class Helper
         return $this->settingsService->getSetting($name, $salesChannelId);
     }
 
-    public function getGlobals(): Request
-    {
-        return new Request($_GET, $_POST, array(), $_COOKIE, $_FILES, $_SERVER);
-    }
     public function getShopName(string $salesChannelId = null)
     {
         return $this->settingsService->getShopName($salesChannelId);

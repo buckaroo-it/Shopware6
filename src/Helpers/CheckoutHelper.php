@@ -1347,10 +1347,9 @@ class CheckoutHelper
      *
      * @return bool
      */
-    public function validateSignature(string $salesChannelId = null)
+    public function validateSignature(Request $request, string $salesChannelId = null)
     {
-        $request  = $this->helper->getGlobals();
-        $postData = $_POST;
+        $postData = $request->request->all();
 
         if (!isset($postData['brq_signature'])) {
             return false;
@@ -2007,7 +2006,6 @@ class CheckoutHelper
     public function checkDuplicatePush($order, $orderTransactionId, $context){
         $rand = range(0,6,2); shuffle($rand);
         usleep(array_shift($rand) * 1000000);
-        $request  = $this->helper->getGlobals();
         $postData = $_POST;
         $calculated = $this->calculatePushHash($postData);
         $this->logger->info(__METHOD__ . "|calculated|". $calculated);
