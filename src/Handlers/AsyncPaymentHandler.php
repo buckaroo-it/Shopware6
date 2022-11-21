@@ -237,10 +237,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      * @throws AsyncPaymentFinalizeException
      * @throws CustomerCanceledAsyncPaymentException
      */
-    /**
-     *
-     * @Route("/example/route", name="example.route", defaults={"csrf_protected"=false}, methods={"POST"})
-     */
     public function finalize(
         AsyncPaymentTransactionStruct $transaction,
         Request $request,
