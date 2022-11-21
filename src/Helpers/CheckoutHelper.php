@@ -474,7 +474,7 @@ class CheckoutHelper
                 $price->getPositionPrice(),
                 $price->getCalculatedTaxes(),
                 $price->getTaxRules(),
-                CartPrice::TAX_STATE_GROSS
+                $price->getTaxStatus()
             )
         ];
 
