@@ -96,7 +96,7 @@ class SupportController extends StorefrontController
         $websiteKeyId = $request->get('websiteKeyId');
         $secretKeyId = $request->get('secretKeyId');
         $saleChannelId = $request->get('saleChannelId');
-        $res = $this->checkoutHelper->getBuckarooApiTest($websiteKeyId, $secretKeyId, $saleChannelId);
+        $res = $this->checkoutHelper->getBuckarooApiTest($request, $websiteKeyId, $secretKeyId, $saleChannelId);
         return new JsonResponse($res);
     }
 

@@ -86,7 +86,7 @@ class CaptureController extends StorefrontController
 
         try {
             $this->logger->info(__METHOD__ . "|20|");
-            $response = $this->checkoutHelper->captureTransaction($order, $context);
+            $response = $this->checkoutHelper->captureTransaction($request, $order, $context);
         } catch (Exception $exception) {
             $this->logger->info(__METHOD__ . "|25|");
             return new JsonResponse(

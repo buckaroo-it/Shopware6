@@ -77,7 +77,7 @@ class RefundController extends StorefrontController
         $responses = [];
         try {
             foreach ($transactionsToRefund as $item) {
-                $responses[] = $this->checkoutHelper->refundTransaction($order, $context, $item, 'refund', $orderItems, (float) $request->get('customRefundAmount'));
+                $responses[] = $this->checkoutHelper->refundTransaction($request, $order, $context, $item, 'refund', $orderItems, (float) $request->get('customRefundAmount'));
             }
         } catch (Exception $exception) {
             return new JsonResponse(

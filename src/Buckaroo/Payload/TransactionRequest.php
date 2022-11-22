@@ -5,14 +5,13 @@ namespace Buckaroo\Shopware6\Buckaroo\Payload;
 use Exception;
 use Buckaroo\Shopware6\Buckaroo\Payload\Request;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
-use Buckaroo\Shopware6\Helpers\Helpers;
+use Symfony\Component\HttpFoundation\Request as BasicRequest;
 
 class TransactionRequest extends Request
 {
     public function __construct($data = [])
     {
         parent::__construct($data);
-        $this->setClientIP();
         $this->setClientUserAgent();
         $this->createDefaultService();
 
@@ -29,22 +28,14 @@ class TransactionRequest extends Request
     /**
      * Set the remote IP of the customer
      */
-    public function setClientIP()
+    public function setClientIPAndAgent(BasicRequest $request)
     {
-        $remoteIp = Helpers::getRemoteIp();
-
+        $remoteIp = $request->getClientIp();
         $this->data['ClientIP'] = [
             'Type'    => IPProtocolVersion::getVersion($remoteIp),
             'Address' => $remoteIp,
         ];
-    }
-
-    /**
-     * Set the user agent of the request
-     */
-    public function setClientUserAgent()
-    {
-        $this->data['ClientUserAgent'] = Helpers::getRemoteUserAgent();
+        $this->data['ClientUserAgent'] = (string)$request->server->get('HTTP_USER_AGENT');
     }
 
     /**

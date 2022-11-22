@@ -81,6 +81,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $request = new TransactionRequest;
         }
 
+        $request->setClientIPAndAgent(Request::createFromGlobals());
         $finalizePage = $this->getReturnUrl($dataBag);
 
         if ($buckarooKey != 'RequestToPay') {

@@ -86,7 +86,7 @@ class PaylinkController extends StorefrontController
 
         try {
             $this->logger->info(__METHOD__ . "|20|");
-            $response = $this->checkoutHelper->createPaylink($order, $context);
+            $response = $this->checkoutHelper->createPaylink($request, $order, $context);
         } catch (Exception $exception) {
             $this->logger->info(__METHOD__ . "|25|");
             return new JsonResponse(
