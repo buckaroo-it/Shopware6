@@ -1,5 +1,5 @@
 {% block buckaroo_payment_methods %}
-
+    <div class="buckaroo-payment-body mb-2 ml-4">
     {% if context.paymentMethod.translated.customFields.buckaroo_key == payment.translated.customFields.buckaroo_key %}
 
         {% if page.extensions.buckaroo.backLink %}
@@ -10,18 +10,6 @@
         {% endif %}
 
         {% block buckaroo_payment_method %}
-
-            {% block buckaroo_payment_method_payment_shipping %}
-                <strong>
-                    {{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}
-                </strong>
-            {% endblock %}
-
-            {% block buckaroo_payment_method_label %}
-                {% if payment.translated.customFields.buckaroo_key != 'creditcard' %}
-                    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
-                {% endif %}
-            {% endblock %}
 
             {% block buckaroo_payment_method_additional %}
 
@@ -65,7 +53,14 @@
                 {% elseif payment.translated.customFields.buckaroo_key == 'creditcard' %}
                     {% block buckaroo_payment_method_creditcard %}
                         {{ page.extensions.buckaroo.payment_method_name_card }}
-                        {% include '@BuckarooPayments/storefront/buckaroo/creditcards/creditcards.html.twig' %}
+                        <label>{{ "buckaroo.checkout.selectCreditCard"|trans }}*:</label>
+                        {% if page.extensions.buckaroo.creditcard|length > 0 %}
+                            <select form="confirmOrderForm" required="required" name="creditcard" class="custom-select" style="max-width: 300px;margin-left: 0.5rem;margin-bottom: 0.5rem;">
+                                {% for creditcard in page.extensions.buckaroo.creditcard %}
+                                    <option {% if page.extensions.buckaroo.last_used_creditcard == creditcard.code %} selected="selected" {% endif %} value="{{ creditcard.code }}">{{ creditcard.name }}</option>
+                                {% endfor %}
+                            </select>
+                        {% endif %}
                     {% endblock %}
 
                 {% elseif payment.translated.customFields.buckaroo_key == 'creditcards' %}
@@ -681,5 +676,5 @@
         {% endblock %}
     
     {% endif %}
-    <br>
+    </div>
 {% endblock %}
