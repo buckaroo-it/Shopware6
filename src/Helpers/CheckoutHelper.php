@@ -770,7 +770,15 @@ class CheckoutHelper
         return $customer;
     }
 
-    public function getOrderCustomer($order, $salesChannelContext)
+    /**
+     * Get customer from order or from context
+     *
+     * @param OrderEntity $order
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return CustomerEntity
+     */
+    public function getOrderCustomer(OrderEntity $order, SalesChannelContext $salesChannelContext)
     {
         if ($order->getOrderCustomer() !== null) {
             $customer = $this->getCustomer(
@@ -785,35 +793,48 @@ class CheckoutHelper
         return $customer;
     }
 
-    public function getBillingAddress($order, $salesChannelContext)
+    /**
+     * Get billing address from order,
+     * or default address from user if not found
+     *
+     * @param OrderEntity $order
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return null|\Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity
+     * |\Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity
+     */
+    public function getBillingAddress(OrderEntity $order, SalesChannelContext $salesChannelContext)
     {
-        if ($order->getOrderCustomer() !== null) {
-            $customer = $this->getCustomer(
-                $order->getOrderCustomer()->getCustomerId(),
-                $salesChannelContext->getContext()
-            );
+        if($order->getBillingAddress() !== null) {
+            return $order->getBillingAddress();
         }
 
-        if ($customer === null) {
-            $customer = $salesChannelContext->getCustomer();
-        }
-
+        $customer = $this->getOrderCustomer($order, $salesChannelContext);
         return $customer->getDefaultBillingAddress();
     }
 
-    public function getShippingAddress($order, $salesChannelContext)
+    /** Get first shipping address from order,
+    * or default address from user if not found
+    *
+    * @param OrderEntity $order
+    * @param SalesChannelContext $salesChannelContext
+    *
+    * @return null|\Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity
+    * |\Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity
+    */
+    public function getShippingAddress(OrderEntity $order, SalesChannelContext $salesChannelContext)
     {
-        if ($order->getOrderCustomer() !== null) {
-            $customer = $this->getCustomer(
-                $order->getOrderCustomer()->getCustomerId(),
-                $salesChannelContext->getContext()
-            );
+        $deliveries = $order->getDeliveries();
+
+        if(
+            $deliveries !== null &&
+            $deliveries->getShippingAddress() !== null &&
+            $deliveries->getShippingAddress()->first() !== null
+        ) {
+            return $deliveries->getShippingAddress()->first();
         }
 
-        if ($customer === null) {
-            $customer = $salesChannelContext->getCustomer();
-        }
-
+        $customer = $this->getOrderCustomer($order, $salesChannelContext);
         return $customer->getDefaultShippingAddress();
     }
 
