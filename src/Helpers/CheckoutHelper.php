@@ -64,6 +64,7 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use RuntimeException;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse;
 
 class CheckoutHelper
 {
@@ -1177,7 +1178,7 @@ class CheckoutHelper
 
         $url       = $this->getTransactionUrl($customFields['serviceName'], $salesChannelId);
         $bkrClient = $this->helper->initializeBkr($salesChannelId);
-        $response  = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
+        $response  = $bkrClient->post($url, $request, TransactionResponse::class);
 
         if ($response->isSuccess()) {
             $transaction = $order->getTransactions()->first();
@@ -1316,7 +1317,7 @@ class CheckoutHelper
         $salesChannelId = $order->getSalesChannelId();
         $url       = $this->getTransactionUrl($customFields['serviceName'], $salesChannelId);
         $bkrClient = $this->helper->initializeBkr($salesChannelId);
-        $response  = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
+        $response  = $bkrClient->post($url, $request, TransactionResponse::class);
 
         if ($response->isSuccess()) {
             $this->logger->info(__METHOD__ . "|45|");
@@ -2109,7 +2110,7 @@ class CheckoutHelper
 
         $url       = $this->getTransactionUrl('payperemail', $salesChannelId);
         $bkrClient = $this->helper->initializeBkr($salesChannelId);
-        $response  = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse');
+        $response  = $bkrClient->post($url, $request, TransactionResponse::class);
 
         if ($response->isSuccess() || $response->isAwaitingConsumer()) {
             $this->logger->info(__METHOD__ . "|45|");
