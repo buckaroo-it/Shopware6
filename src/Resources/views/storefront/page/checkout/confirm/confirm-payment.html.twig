@@ -89,7 +89,7 @@
 {% block page_checkout_confirm_payment_current_image %}
 
     {% if context.paymentMethod.translated.customFields.buckaroo_key == 'creditcard' %}
-        <img src="{{ page.extensions.buckaroo.media_path }}{{ page.extensions.buckaroo.payment_media }}" class="payment-method-image">
+        <img src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/logo/#{page.extensions.buckaroo.payment_media}.png") }}" class="payment-method-image">
     {% elseif context.paymentMethod.media %}
         {% sw_thumbnails 'confirm-payment-current-image-thumbnails' with {
             media: context.paymentMethod.media,
