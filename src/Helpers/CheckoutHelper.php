@@ -171,17 +171,6 @@ class CheckoutHelper
         return $this->settingsService->getSetting($name, $salesChannelId);
     }
 
-    /**
-     * @param OrderLineItemEntity $item
-     * @return mixed
-     */
-    private function getMerchantItemId(OrderLineItemEntity $item)
-    {
-        if ($item->getType() === 'promotion') {
-            return $item->getPayload()['discountId'];
-        }
-        return $item->getPayload()['productNumber'];
-    }
 
     /**
      * @param CalculatedPrice $calculatedPrice
