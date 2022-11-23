@@ -313,7 +313,6 @@
         </service>
 
         <service id="Buckaroo\Shopware6\Storefront\Controller\PushController" public="true">
-            <argument type="service" id="order_transaction.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="order.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
