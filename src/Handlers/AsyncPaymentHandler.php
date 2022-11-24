@@ -81,6 +81,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $request = new TransactionRequest;
         }
 
+        $request->setClientIPAndAgent(Request::createFromGlobals());
         $finalizePage = $this->getReturnUrl($dataBag);
 
         if ($buckarooKey != 'RequestToPay') {
@@ -241,10 +242,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      * @param SalesChannelContext $salesChannelContext
      * @throws AsyncPaymentFinalizeException
      * @throws CustomerCanceledAsyncPaymentException
-     */
-    /**
-     *
-     * @Route("/example/route", name="example.route", defaults={"csrf_protected"=false}, methods={"POST"})
      */
     public function finalize(
         AsyncPaymentTransactionStruct $transaction,

@@ -3,10 +3,11 @@
 namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Alipay;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 
 class AlipayPaymentHandler extends AsyncPaymentHandler
 {
@@ -35,7 +36,7 @@ class AlipayPaymentHandler extends AsyncPaymentHandler
         $additional = [
             [
                 'Name' => 'UseMobileView',
-                '_' => $this->checkoutHelper->isMobile() ? 'true' : 'false',
+                '_' => $this->checkoutHelper->isMobile(Request::createFromGlobals()) ? 'true' : 'false',
             ]
         ];
         $gatewayInfo   = [

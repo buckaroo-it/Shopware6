@@ -68,7 +68,7 @@ class PushController extends StorefrontController
         $brqPaymentMethod   = $request->request->get('brq_transaction_method');
         $originalTransactionKey   = $request->request->get('brq_transactions');
 
-        if (!$this->checkoutHelper->validateSignature($salesChannelContext->getSalesChannelId())) {
+        if (!$this->checkoutHelper->validateSignature($request, $salesChannelContext->getSalesChannelId())) {
             $this->logger->info(__METHOD__ . "|5|");
             return $this->json(['status' => false, 'message' => $this->trans('buckaroo.messages.signatureIncorrect')]);
         }

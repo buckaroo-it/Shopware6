@@ -112,6 +112,11 @@ class CheckoutHelper
     private $session;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $languageRepository;
+
+    /**
      * CheckoutHelper constructor.
      * @param UrlGeneratorInterface $router
      * @param OrderTransactionStateHandler $orderTransactionStateHandler
@@ -141,7 +146,8 @@ class CheckoutHelper
         EntityRepositoryInterface $currencyRepository,
         EntityRepositoryInterface $salesChannelRepository,
         Session $session,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        EntityRepositoryInterface $languageRepository
     ) {
         $this->router                              = $router;
         $this->transactionRepository               = $transactionRepository;
@@ -164,6 +170,8 @@ class CheckoutHelper
         $this->salesChannelRepository  = $salesChannelRepository;
         $this->session = $session;
         $this->logger = $logger;
+        $this->languageRepository = $languageRepository;
+
     }
 
     public function getSetting(string $name, string $salesChannelId = null)
@@ -464,7 +472,7 @@ class CheckoutHelper
                 $price->getPositionPrice(),
                 $price->getCalculatedTaxes(),
                 $price->getTaxRules(),
-                CartPrice::TAX_STATE_GROSS
+                $price->getTaxStatus()
             )
         ];
 
@@ -760,7 +768,15 @@ class CheckoutHelper
         return $customer;
     }
 
-    public function getOrderCustomer($order, $salesChannelContext)
+    /**
+     * Get customer from order or from context
+     *
+     * @param OrderEntity $order
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return CustomerEntity
+     */
+    public function getOrderCustomer(OrderEntity $order, SalesChannelContext $salesChannelContext)
     {
         if ($order->getOrderCustomer() !== null) {
             $customer = $this->getCustomer(
@@ -775,35 +791,48 @@ class CheckoutHelper
         return $customer;
     }
 
-    public function getBillingAddress($order, $salesChannelContext)
+    /**
+     * Get billing address from order,
+     * or default address from user if not found
+     *
+     * @param OrderEntity $order
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return null|\Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity
+     * |\Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity
+     */
+    public function getBillingAddress(OrderEntity $order, SalesChannelContext $salesChannelContext)
     {
-        if ($order->getOrderCustomer() !== null) {
-            $customer = $this->getCustomer(
-                $order->getOrderCustomer()->getCustomerId(),
-                $salesChannelContext->getContext()
-            );
+        if($order->getBillingAddress() !== null) {
+            return $order->getBillingAddress();
         }
 
-        if ($customer === null) {
-            $customer = $salesChannelContext->getCustomer();
-        }
-
+        $customer = $this->getOrderCustomer($order, $salesChannelContext);
         return $customer->getDefaultBillingAddress();
     }
 
-    public function getShippingAddress($order, $salesChannelContext)
+    /** Get first shipping address from order,
+    * or default address from user if not found
+    *
+    * @param OrderEntity $order
+    * @param SalesChannelContext $salesChannelContext
+    *
+    * @return null|\Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity
+    * |\Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity
+    */
+    public function getShippingAddress(OrderEntity $order, SalesChannelContext $salesChannelContext)
     {
-        if ($order->getOrderCustomer() !== null) {
-            $customer = $this->getCustomer(
-                $order->getOrderCustomer()->getCustomerId(),
-                $salesChannelContext->getContext()
-            );
+        $deliveries = $order->getDeliveries();
+
+        if(
+            $deliveries !== null &&
+            $deliveries->getShippingAddress() !== null &&
+            $deliveries->getShippingAddress()->first() !== null
+        ) {
+            return $deliveries->getShippingAddress()->first();
         }
 
-        if ($customer === null) {
-            $customer = $salesChannelContext->getCustomer();
-        }
-
+        $customer = $this->getOrderCustomer($order, $salesChannelContext);
         return $customer->getDefaultShippingAddress();
     }
 
@@ -1072,7 +1101,7 @@ class CheckoutHelper
      *
      * @return void
      */
-    public function refundTransaction($order, $context, $item, $state, &$orderItems = '', $customRefundAmount = 0)
+    public function refundTransaction(Request $clientRequest, $order, $context, $item, $state, &$orderItems = '', $customRefundAmount = 0)
     {
         if (!$this->isBuckarooPaymentMethod($order)) {
             return;
@@ -1107,14 +1136,21 @@ class CheckoutHelper
         }
 
         if ($customFields['canRefund'] == 0) {
-            return ['status' => false, 'message' => 'Refund is not supported'];
+            return [
+                'status' => false,
+                'message' => $this->translation->trans("buckaroo-payment.refund.not_supported")
+            ];
         }
 
         if (!empty($customFields['refunded']) && ($customFields['refunded'] == 1)) {
-            return ['status' => false, 'message' => 'This order is already refunded'];
+            return [
+                'status' => false,
+                'message' => $this->translation->trans("buckaroo-payment.refund.already_refunded")
+            ];
         }
 
         $request = new TransactionRequest;
+        $request->setClientIPAndAgent($clientRequest);
         $request->setServiceAction('Refund');
         $request->setDescription(
             $this->getParsedLabel($order, $order->getSalesChannelId(), 'refundLabel')
@@ -1199,7 +1235,16 @@ class CheckoutHelper
                 $this->buckarooTransactionEntityRepository->save($item['id'], ['refunded_items' => json_encode($orderItemsRefunded)], []);
             }
 
-            return ['status' => true, 'message' => 'Buckaroo success refunded ' . $amount . ' ' . $currency];
+            return [
+                'status' => true,
+                'message' => $this->translation->trans(
+                    "buckaroo-payment.refund.refunded_amount",
+                    [
+                        "%amount%" => $amount,
+                        "%currency%" => $currency
+                    ]
+                )
+            ];
         }
 
         return [
@@ -1235,7 +1280,7 @@ class CheckoutHelper
         return mb_substr($label, 0, 244);
     }
 
-    public function captureTransaction($order, $context)
+    public function captureTransaction(Request $clientRequest, $order, $context)
     {
         $this->logger->info(__METHOD__ . "|1|", [$order]);
         if (!$this->isBuckarooPaymentMethod($order)) {
@@ -1252,22 +1297,32 @@ class CheckoutHelper
 
         if ($amount <= 0) {
             $this->logger->info(__METHOD__ . "|15|");
-            return ['status' => false, 'message' => 'Amount is not valid'];
+            return [
+                'status' => false,
+                'message' => $this->translation->trans("buckaroo-payment.capture.invalid_amount")
+            ];
         }
 
         if ($customFields['canCapture'] == 0) {
             $this->logger->info(__METHOD__ . "|20|");
-            return ['status' => false, 'message' => 'Capture is not supported'];
+            return [
+                'status' => false,
+                'message' => $this->translation->trans("buckaroo-payment.capture.capture_not_supported")
+            ];
         }
 
         $this->logger->info(__METHOD__ . "|25|");
 
         if (!empty($customFields['captured']) && ($customFields['captured'] == 1)) {
             $this->logger->info(__METHOD__ . "|30|");
-            return ['status' => false, 'message' => 'This order is already captured'];
+            return [
+                'status' => false,
+                'message' => $this->translation->trans("buckaroo-payment.capture.already_captured")
+            ];
         }
 
         $request = new TransactionRequest;
+        $request->setClientIPAndAgent($clientRequest);
         $request->setServiceAction('Pay');
         $request->setDescription('');
         $request->setServiceName($customFields['serviceName']);
@@ -1319,7 +1374,16 @@ class CheckoutHelper
                 $this->generateInvoice($order->getId(), $context, $order->getId());
             }
 
-            return ['status' => true, 'message' => 'Amount '.$currency . $amount. ' has been captured!'];
+            return [
+                'status' => true,
+                'message' => $this->translation->trans(
+                    "buckaroo-payment.capture.already_captured",
+                    [
+                        "%amount%" => $amount,
+                        "%currency%" => $currency
+                    ]
+                )
+                ];
         }
 
         $this->logger->info(__METHOD__ . "|60|");
@@ -1337,10 +1401,9 @@ class CheckoutHelper
      *
      * @return bool
      */
-    public function validateSignature(string $salesChannelId = null)
+    public function validateSignature(Request $request, string $salesChannelId = null)
     {
-        $request  = $this->helper->getGlobals();
-        $postData = $_POST;
+        $postData = $request->request->all();
 
         if (!isset($postData['brq_signature'])) {
             return false;
@@ -1855,16 +1918,6 @@ class CheckoutHelper
         return $initials;
     }
 
-    public function getSalutation(CustomerEntity $customer): ?string
-    {
-        switch ($customer->getSalutation()->getSalutationKey()) {
-            case 'mrs':
-                return 'Mrs';
-            case 'miss':
-                return 'Miss';
-        }
-        return 'Mr';
-    }
 
     public function getProductLineData($order)
     {
@@ -1930,9 +1983,9 @@ class CheckoutHelper
      * Detect Mobile Browser
      * @return boolean [description]
      */
-    public function isMobile(): bool
+    public function isMobile(Request $request): bool
     {
-        $useragent = Helpers::getRemoteUserAgent();
+        $useragent = (string)$request->server->get('HTTP_USER_AGENT');
         if(preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i',$useragent)||preg_match('/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i',substr($useragent,0,4))){
             return true;
         }
@@ -1969,10 +2022,11 @@ class CheckoutHelper
         return $this->router->generate($path, $parameters);
     }
 
-    public function getBuckarooApiTest($websiteKeyId, $secretKeyId, $salesChannelId){
+    public function getBuckarooApiTest(Request $clientRequest, $websiteKeyId, $secretKeyId, $salesChannelId){
         $this->settingsService->setSetting('websiteKey', $websiteKeyId, $salesChannelId);
         $this->settingsService->setSetting('secretKey', $secretKeyId, $salesChannelId);
         $request = new TransactionRequest;
+        $request->setClientIPAndAgent($clientRequest);
         $request->setServiceName('ideal');
         $request->setServiceVersion('2');
 
@@ -1983,13 +2037,13 @@ class CheckoutHelper
             if($response->getHttpCode() == '200'){
                 return [
                     'status' => 'success',
-                    'message' => 'Connection ready',
+                    'message' => $this->translation->trans("buckaroo-payment.test_api.connection_ready"),
                 ];
             }
         } catch (Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Connection failed',
+                'message' => $this->translation->trans("buckaroo-payment.test_api.connection_failed"),
             ];
         }
     }
@@ -1997,7 +2051,6 @@ class CheckoutHelper
     public function checkDuplicatePush($order, $orderTransactionId, $context){
         $rand = range(0,6,2); shuffle($rand);
         usleep(array_shift($rand) * 1000000);
-        $request  = $this->helper->getGlobals();
         $postData = $_POST;
         $calculated = $this->calculatePushHash($postData);
         $this->logger->info(__METHOD__ . "|calculated|". $calculated);
@@ -2043,7 +2096,7 @@ class CheckoutHelper
        return join(',', $methods);
     }
 
-    public function createPaylink($order, $context)
+    public function createPaylink(Request $clientRequest, $order, $context)
     {
         $this->logger->info(__METHOD__ . "|1|", [$order]);
         if (!$this->isBuckarooPaymentMethod($order)) {
@@ -2061,10 +2114,14 @@ class CheckoutHelper
 
         if ($amount <= 0) {
             $this->logger->info(__METHOD__ . "|15|");
-            return ['status' => false, 'message' => 'Amount is not valid'];
+            return [
+                'status' => false,
+                'message' => $this->translation->trans("buckaroo-payment.paylink.invalid_amount")
+            ];
         }
 
         $request = new TransactionRequest;
+        $request->setClientIPAndAgent($clientRequest);
         $request->setServiceAction('PaymentInvitation');
         $request->setDescription('');
         $request->setServiceName('payperemail');
@@ -2107,7 +2164,16 @@ class CheckoutHelper
                 $payLink = $parameters['paylink'];
             }
             if ($payLink) {
-                return ['status' => true, 'paylink' => $payLink, 'message' => 'Your Paylink: <a href="'.$payLink.'">'.$payLink.'</a>'];
+                return [
+                    'status' => true,
+                    'paylink' => $payLink,
+                    'message' => $this->translation->trans(
+                        "buckaroo-payment.paylink.pay_link",
+                        [
+                            "%payLink%" => $payLink
+                        ]
+                    )
+                ];
             } 
         }
 
@@ -2129,14 +2195,21 @@ class CheckoutHelper
         return $invoiceIncrementId . '_R' . ($refundIncrementInvoceId > 1 ? $refundIncrementInvoceId : '');
     }
 
-    public function getSalesChannelLocaleCode($context)
+    public function getSalesChannelLocaleCode(SalesChannelContext $context)
     {
-        $salesChannelCriteria = new Criteria([$context->getSalesChannel()->getId()]);
+        $criteria = (new Criteria([$context->getSalesChannel()->getLanguageId()]))
+            ->addAssociation('locale');
 
-        return $this->salesChannelRepository->search(
-            $salesChannelCriteria->addAssociation('language.locale'),
-            Context::createDefaultContext()
-        )->first()->getLanguage()->getLocale()->getCode();
+        /** @var \Shopware\Core\System\Language\LanguageEntity|null */
+        $language = $this->languageRepository
+            ->search($criteria,$context->getContext())
+            ->first();
+
+        if($language !== null && $language->getLocale() !== null) {
+            return $language->getLocale()->getCode();
+        }
+
+        return "en-GB";
     }
 
     public function getStatusMessageByStatusCode($statusCode)

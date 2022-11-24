@@ -166,7 +166,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $this->hideNotEnabledPaymentMethods($event);
 
         $context = $event->getContext();
-        $request  = $this->helper->getGlobals();
+        $request  = $event->getRequest();
         $customer = $event->getSalesChannelContext()->getCustomer();
         $buckarooKey = isset($event->getSalesChannelContext()->getPaymentMethod()->getTranslated()['customFields']['buckaroo_key']) ? $event->getSalesChannelContext()->getPaymentMethod()->getTranslated()['customFields']['buckaroo_key'] : null;
         $currency = $this->checkoutHelper->getOrderCurrency($context);

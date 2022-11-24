@@ -67,7 +67,6 @@ Component.register('buckaroo-settings', {
                 'paylinkEnabled': true,
                 'stockReserve': true,
                 'sendInvoiceEmail': true,
-                'showPaymentMethodsList': true,
                 'pendingPaymentStatus': true,
                 'paymentSuccesStatus': true,
                 'paymentFailedStatus': true,
