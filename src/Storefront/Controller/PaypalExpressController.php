@@ -92,7 +92,10 @@ class PaypalExpressController extends StorefrontController
             $cart = $this->getCart($request, $salesChannelContext);
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
-            return $this->response(["message" => "Unknown buckaroo error occurred"], true);
+            return $this->response(
+                ["message" => $this->trans("buckaroo-payment.paypal_express.unknown_error")],
+                true
+            );
         }
 
         return $this->response([
@@ -115,7 +118,7 @@ class PaypalExpressController extends StorefrontController
         $this->overrideChannelPaymentMethod($salesChannelContext);
         if (!$request->request->has('orderId')) {
             return $this->response(
-                ["message" => "Paypal express order id is required"],
+                ["message" => $this->trans("buckaroo-payment.paypal_express.missing_order_id")],
                 true
             );
         }
@@ -133,7 +136,10 @@ class PaypalExpressController extends StorefrontController
             ]);
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
-            return $this->response(["message" => "Unknown buckaroo error occurred"], true);
+            return $this->response(
+                ["message" => $this->trans("buckaroo-payment.paypal_express.unknown_error")],
+                true
+            );
         }
     }
 

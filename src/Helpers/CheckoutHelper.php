@@ -111,6 +111,11 @@ class CheckoutHelper
     private $session;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $languageRepository;
+
+    /**
      * CheckoutHelper constructor.
      * @param UrlGeneratorInterface $router
      * @param OrderTransactionStateHandler $orderTransactionStateHandler
@@ -140,7 +145,8 @@ class CheckoutHelper
         EntityRepositoryInterface $currencyRepository,
         EntityRepositoryInterface $salesChannelRepository,
         Session $session,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        EntityRepositoryInterface $languageRepository
     ) {
         $this->router                              = $router;
         $this->transactionRepository               = $transactionRepository;
@@ -163,6 +169,8 @@ class CheckoutHelper
         $this->salesChannelRepository  = $salesChannelRepository;
         $this->session = $session;
         $this->logger = $logger;
+        $this->languageRepository = $languageRepository;
+
     }
 
     public function getSetting(string $name, string $salesChannelId = null)
@@ -1138,11 +1146,17 @@ class CheckoutHelper
         }
 
         if ($customFields['canRefund'] == 0) {
-            return ['status' => false, 'message' => 'Refund is not supported'];
+            return [
+                'status' => false,
+                'message' => $this->translation->trans("buckaroo-payment.refund.not_supported")
+            ];
         }
 
         if (!empty($customFields['refunded']) && ($customFields['refunded'] == 1)) {
-            return ['status' => false, 'message' => 'This order is already refunded'];
+            return [
+                'status' => false,
+                'message' => $this->translation->trans("buckaroo-payment.refund.already_refunded")
+            ];
         }
 
         $request = new TransactionRequest;
@@ -1231,7 +1245,16 @@ class CheckoutHelper
                 $this->buckarooTransactionEntityRepository->save($item['id'], ['refunded_items' => json_encode($orderItemsRefunded)], []);
             }
 
-            return ['status' => true, 'message' => 'Buckaroo success refunded ' . $amount . ' ' . $currency];
+            return [
+                'status' => true,
+                'message' => $this->translation->trans(
+                    "buckaroo-payment.refund.refunded_amount",
+                    [
+                        "%amount%" => $amount,
+                        "%currency%" => $currency
+                    ]
+                )
+            ];
         }
 
         return [
@@ -1284,19 +1307,28 @@ class CheckoutHelper
 
         if ($amount <= 0) {
             $this->logger->info(__METHOD__ . "|15|");
-            return ['status' => false, 'message' => 'Amount is not valid'];
+            return [
+                'status' => false,
+                'message' => $this->translation->trans("buckaroo-payment.capture.invalid_amount")
+            ];
         }
 
         if ($customFields['canCapture'] == 0) {
             $this->logger->info(__METHOD__ . "|20|");
-            return ['status' => false, 'message' => 'Capture is not supported'];
+            return [
+                'status' => false,
+                'message' => $this->translation->trans("buckaroo-payment.capture.capture_not_supported")
+            ];
         }
 
         $this->logger->info(__METHOD__ . "|25|");
 
         if (!empty($customFields['captured']) && ($customFields['captured'] == 1)) {
             $this->logger->info(__METHOD__ . "|30|");
-            return ['status' => false, 'message' => 'This order is already captured'];
+            return [
+                'status' => false,
+                'message' => $this->translation->trans("buckaroo-payment.capture.already_captured")
+            ];
         }
 
         $request = new TransactionRequest;
@@ -1352,7 +1384,16 @@ class CheckoutHelper
                 $this->generateInvoice($order->getId(), $context, $order->getId());
             }
 
-            return ['status' => true, 'message' => 'Amount '.$currency . $amount. ' has been captured!'];
+            return [
+                'status' => true,
+                'message' => $this->translation->trans(
+                    "buckaroo-payment.capture.already_captured",
+                    [
+                        "%amount%" => $amount,
+                        "%currency%" => $currency
+                    ]
+                )
+                ];
         }
 
         $this->logger->info(__METHOD__ . "|60|");
@@ -1887,16 +1928,6 @@ class CheckoutHelper
         return $initials;
     }
 
-    public function getSalutation(CustomerEntity $customer): ?string
-    {
-        switch ($customer->getSalutation()->getSalutationKey()) {
-            case 'mrs':
-                return 'Mrs';
-            case 'miss':
-                return 'Miss';
-        }
-        return 'Mr';
-    }
 
     public function getProductLineData($order)
     {
@@ -2016,13 +2047,13 @@ class CheckoutHelper
             if($response->getHttpCode() == '200'){
                 return [
                     'status' => 'success',
-                    'message' => 'Connection ready',
+                    'message' => $this->translation->trans("buckaroo-payment.test_api.connection_ready"),
                 ];
             }
         } catch (Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Connection failed',
+                'message' => $this->translation->trans("buckaroo-payment.test_api.connection_failed"),
             ];
         }
     }
@@ -2093,7 +2124,10 @@ class CheckoutHelper
 
         if ($amount <= 0) {
             $this->logger->info(__METHOD__ . "|15|");
-            return ['status' => false, 'message' => 'Amount is not valid'];
+            return [
+                'status' => false,
+                'message' => $this->translation->trans("buckaroo-payment.paylink.invalid_amount")
+            ];
         }
 
         $request = new TransactionRequest;
@@ -2140,7 +2174,16 @@ class CheckoutHelper
                 $payLink = $parameters['paylink'];
             }
             if ($payLink) {
-                return ['status' => true, 'paylink' => $payLink, 'message' => 'Your Paylink: <a href="'.$payLink.'">'.$payLink.'</a>'];
+                return [
+                    'status' => true,
+                    'paylink' => $payLink,
+                    'message' => $this->translation->trans(
+                        "buckaroo-payment.paylink.pay_link",
+                        [
+                            "%payLink%" => $payLink
+                        ]
+                    )
+                ];
             } 
         }
 
@@ -2162,14 +2205,21 @@ class CheckoutHelper
         return $invoiceIncrementId . '_R' . ($refundIncrementInvoceId > 1 ? $refundIncrementInvoceId : '');
     }
 
-    public function getSalesChannelLocaleCode($context)
+    public function getSalesChannelLocaleCode(SalesChannelContext $context)
     {
-        $salesChannelCriteria = new Criteria([$context->getSalesChannel()->getId()]);
+        $criteria = (new Criteria([$context->getSalesChannel()->getLanguageId()]))
+            ->addAssociation('locale');
 
-        return $this->salesChannelRepository->search(
-            $salesChannelCriteria->addAssociation('language.locale'),
-            Context::createDefaultContext()
-        )->first()->getLanguage()->getLocale()->getCode();
+        /** @var \Shopware\Core\System\Language\LanguageEntity|null */
+        $language = $this->languageRepository
+            ->search($criteria,$context->getContext())
+            ->first();
+
+        if($language !== null && $language->getLocale() !== null) {
+            return $language->getLocale()->getCode();
+        }
+
+        return "en-GB";
     }
 
     public function getStatusMessageByStatusCode($statusCode)
