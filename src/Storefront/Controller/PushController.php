@@ -6,8 +6,7 @@ use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -19,7 +18,6 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundExcepti
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -27,24 +25,18 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PushController extends StorefrontController
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    
+    private LoggerInterface $logger;
 
-    private $transactionRepository;
+    private CheckoutHelper $checkoutHelper;
 
-    private $checkoutHelper;
-
-    private $orderRepository;
+    private EntityRepository $orderRepository;
 
     public function __construct(
-        EntityRepositoryInterface $transactionRepository,
         CheckoutHelper $checkoutHelper,
-        EntityRepositoryInterface $orderRepository,
+        EntityRepository $orderRepository,
         LoggerInterface $logger
     ) {
-        $this->transactionRepository = $transactionRepository;
         $this->checkoutHelper        = $checkoutHelper;
         $this->orderRepository       = $orderRepository;
         $this->logger                = $logger;
