@@ -576,6 +576,10 @@ class CheckoutHelper
             // Get tax
             $itemTax = null;
 
+            if($item->getType() === 'customized-products') {
+                continue;
+            }
+            
             if ($item->getPrice() !== null &&
                 $item->getPrice()->getCalculatedTaxes() !== null) {
                 $itemTax = $this->getLineItemTax($item->getPrice()->getCalculatedTaxes());
