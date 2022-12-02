@@ -55,7 +55,7 @@ class CustomerAddressService
         );
 
         return $this->customerAddressRepository->search(
-            new Criteria([$addressId]),
+            (new Criteria([$addressId]))->addAssociation('country'),
             $this->salesChannelContext->getContext()
         )->first();
     }
@@ -67,12 +67,12 @@ class CustomerAddressService
             'salutationId' => $salutationId,
             'countryId' => $this->getCountryId($data->get('country_code')),
             'firstName' => $data->get('first_name', 'Unknown'),
-            'lastName' => $data->get('last_name', 'Paypal Express'),
+            'lastName' => $data->get('last_name', 'Customer - Buckaroo Payments'),
             'zipcode' => $data->get('postal_code'),
             'city' => $data->get('city'),
-            'street' => 'Unknown',
+            'street' => $data->get('street', 'Unknown'),
             'customFields' => [
-                "paypalAddress" => true
+                "buckarooAddress" => true,
             ]
         ];
     }

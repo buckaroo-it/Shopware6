@@ -384,7 +384,26 @@
             </call>
         </service>
 
+        <service id="Buckaroo\Shopware6\Storefront\Controller\ApplePayController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\CartService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\ContextService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <!-- /Controllers -->
+
+        <service id="Buckaroo\Shopware6\Service\ContextService">
+             <argument type="service" id="country.repository" />
+        </service>
 
         <service id="Buckaroo\Shopware6\Service\CartService">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
@@ -402,7 +421,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\CustomerAddressService"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="salutation.repository"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CartRestorer"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
         </service>
 

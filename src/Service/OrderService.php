@@ -7,6 +7,7 @@ namespace Buckaroo\Shopware6\Service;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
@@ -61,11 +62,11 @@ class OrderService {
      * Place request and do payment
      *
      * @param OrderEntity $orderEntity
-     * @param string $paypalOrderId
+     * @param DataBag $data
      *
      * @return string|null
      */
-    public function place(OrderEntity $orderEntity,  string $paypalOrderId)
+    public function place(OrderEntity $orderEntity,  DataBag $data)
     {
         $this->validateSaleChannelContext();
         $this->eventDispatcher->dispatch(
@@ -75,7 +76,7 @@ class OrderService {
                 $this->salesChannelContext->getSalesChannel()->getId()
             )
         );
-        return $this->doPayment($orderEntity->getId(), $paypalOrderId);
+        return $this->doPayment($orderEntity->getId(),$data);
     }
 
 
@@ -83,16 +84,14 @@ class OrderService {
      * Do payment request
      *
      * @param string $orderId
-     * @param string $paypalOrderId
+     * @param DataBag $data
      *
      * @return string|null
      */
-    public function doPayment(string $orderId, string $paypalOrderId)
+    public function doPayment(string $orderId, DataBag $data)
     {
-        $dataBag = new RequestDataBag([
-            "orderId" => $paypalOrderId
-        ]);
-        $response = $this->paymentProcessor->process($orderId, $dataBag, $this->salesChannelContext);
+       
+        $response = $this->paymentProcessor->process($orderId, $data, $this->salesChannelContext);
 
         if ($response instanceof RedirectResponse) {
             return $response->getTargetUrl();

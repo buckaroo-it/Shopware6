@@ -4,35 +4,23 @@
 {% block page_checkout_confirm_payment_inner %}
     {{ parent() }}
     {% if context.paymentMethod.formattedHandlerIdentifier == 'handler_buckaroo_applepaypaymenthandler' %}
-        <div id="applepay-button-container" class="applepay-button-container" style="display:none;">
-            <div></div>
-        </div>
-        <input type="hidden"
-               form="confirmOrderForm"
-               id="applePayInfo"
-               name="applePayInfo"
-               value="">
-        <script>
-            window.isApplePay = true;
-            if (!window.buckaroo) {
-                window.buckaroo = {
-                    submit: false,
-                    csrf: {
-                        '/Buckaroo/applepayInit': '{{ sw_csrf("frontend.buckaroo.applepayInit", {"mode": "token"}) }}',
-                        '/Buckaroo/applepaySaveOrder': '{{ sw_csrf("frontend.buckaroo.applepaySaveOrder", {"mode": "token"}) }}'
-                    }
-                };
+        {% set applePayConfig = {
+            page: "checkout",
+            merchantId: page.extensions.buckaroo.applePayMerchantId,
+            cultureCode: page.header.activeLanguage.translationCode.code,
+             i18n: {
+                cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
+                cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
+            },
+            csrf: {
+                get: sw_csrf("frontend.action.buckaroo.appleGetCart", {"mode": "token"}),
+                update: sw_csrf("frontend.action.buckaroo.appleUpdateCart", {"mode": "token"}),
+                create: sw_csrf("frontend.action.buckaroo.appleCreateOrder", {"mode": "token"})
             }
-            setTimeout(function() {
-                if (document.getElementById('confirmFormSubmit')) {
-                    document.getElementById('confirmFormSubmit').disabled = true;
-                    document.getElementById('confirmFormSubmit').addEventListener('click', function(e){
-                        e.stopPropagation();
-                    });
-                }
-            }, 200)
-        </script>
-        <script type="module" src="{{ asset('/bundles/buckaroopayments/storefront/buckaroo/js/applepay/index.js') }}"></script>
+        } %}
+
+        <div data-bk-applepay data-buckaroo-apple-pay-plugin-options='{{ applePayConfig|json_encode }}'></div>
+        <div class="bk-apple-pay-button" style="margin-top: 10px;">
     {% endif %}
 
     {% if page.extensions.buckaroo.showPaypalExpress %}
@@ -53,6 +41,7 @@
         <div style="margin-top:15px;" class="bk-paypal-express" data-paypal-express data-paypal-express-plugin-options='{{ paypalExpressOptions|json_encode }}'>
             <div class="buckaroo-paypal-express"></div>
         </div>
+
     {% endif %}
 
 {% endblock %}

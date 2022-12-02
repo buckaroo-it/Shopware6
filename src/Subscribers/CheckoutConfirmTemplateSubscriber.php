@@ -263,6 +263,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'afterpay_customer_type'   => $this->helper->getSettingsValue('afterpayCustomerType', $salesChannelId),
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
+            'applePayMerchantId'         => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->helper->getSettingsValue('websiteKey', $salesChannelId)
         ]);
 
@@ -280,7 +281,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $struct->assign([
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'cart'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
-            'websiteKey'               => $this->helper->getSettingsValue('websiteKey', $salesChannelId)
+            'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
+            'websiteKey'               => $this->helper->getSettingsValue('websiteKey', $salesChannelId),
+            'showApplePay'         => $this->helper->getSettingsValue('applepayShowCart', $salesChannelId) == 1
         ]);
 
         $event->getPage()->addExtension(
@@ -334,6 +337,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'applepayShowProduct' => $this->helper->getSettingsValue('applepayShowProduct', $salesChannelId) == 1,
             'showPaypalExpress' => $this->showPaypalExpress($salesChannelId),
             'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
+            'applePayMerchantId' => $this->getAppleMerchantId($salesChannelId),
             'websiteKey' => $this->helper->getSettingsValue('websiteKey', $salesChannelId)
         ]);
 
@@ -350,5 +354,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected function getPaypalExpressMerchantId(string $salesChannelId)
     {
        return $this->helper->getSettingsValue('paypalExpressmerchantid', $salesChannelId);
+    }
+    protected function getAppleMerchantId(string $salesChannelId)
+    {
+        return $this->helper->getSettingsValue('guid', $salesChannelId);
     }
 }

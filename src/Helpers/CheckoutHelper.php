@@ -87,7 +87,7 @@ class CheckoutHelper
     /** @var EntityRepositoryInterface $orderRepository */
     private $orderRepository;
     /** @var TranslatorInterface */
-    private $translator;
+    private $translation;
     /** @var StateMachineRegistry */
     private $stateMachineRegistry;
     /** @var BuckarooTransactionEntityRepository */
@@ -158,7 +158,7 @@ class CheckoutHelper
         $this->settingsService                     = $settingsService;
         $this->helper                              = $helper;
         $this->orderRepository                     = $orderRepository;
-        $this->translator                          = $translator;
+        $this->translation                          = $translator;
         $this->stateMachineRegistry                = $stateMachineRegistry;
         $this->buckarooTransactionEntityRepository = $buckarooTransactionEntityRepository;
         $this->connection = $connection;
@@ -1548,7 +1548,7 @@ class CheckoutHelper
 
     public function getTranslate($id, array $parameters = [])
     {
-        return $this->translator->trans($id, $parameters);
+        return $this->translation->trans($id, $parameters);
     }
 
     public function changeOrderStatus(string $orderId, Context $context, $transitionName): void

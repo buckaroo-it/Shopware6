@@ -35,46 +35,17 @@ export default class PaypalExpressPlugin extends Plugin {
         onClickCallback: this.onClickCallback.bind(this),
     }
 
-    loadSdk() {
-        return new Promise((resolve) => {
-            var script = document.createElement("script");
-            script.src = "https://checkout.buckaroo.nl/api/buckaroosdk/script/en-US";
-            // script.src = "https://testcheckout.buckaroo.nl/api/buckaroosdk/script/en-US";
-            script.async = true;
-            document.head.appendChild(script);
-            script.onload = () => {
-                resolve();
-            };
-        })
-    }
-    loadJquery() {
-        return new Promise((resolve) => {
-            var script = document.createElement("script");
-            script.src = "https://code.jquery.com/jquery-3.2.1.min.js";
-            script.async = true;
-            document.head.appendChild(script);
-            script.onload = () => {
-                resolve();
-            };
-        });
-    }
 
     form;
 
     init() {
-
         if (this.merchantId === null) {
             alert('Merchant id is required');
         }
-
-        this.loadJquery().then(() => {
-            this.loadSdk().then(() => {
-                this.sdk = BuckarooSdk.PayPal;
-                this.sdk.initiate(this.sdkOptions);
-            })
+        document.$emitter.subscribe('buckaroo_scripts_loaded', () => {
+            this.sdk = BuckarooSdk.PayPal;
+            this.sdk.initiate(this.sdkOptions);
         })
-
-
     }
 
     /**
@@ -171,7 +142,7 @@ export default class PaypalExpressPlugin extends Plugin {
                 JSON.stringify({
                     _csrf_token: this.options.csrf.create,
                     form: formData,
-                    order: data,
+                    customer: data,
                     page: this.options.page
                 }), (response) => {
                     resolve(JSON.parse(response));
