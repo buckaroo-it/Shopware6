@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Buckaroo\Shopware6\Service\CustomerAddressService;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\Context\CartRestorer;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -43,9 +43,9 @@ class CustomerService
     protected $salesChannelContext;
 
     /**
-     * @var \Shopware\Core\System\SalesChannel\Context\CartRestorer
+     * @var \Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer
      */
-    protected CartRestorer $restorer;
+    protected SalesChannelContextRestorer $restorer;
 
     /**
      * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
@@ -56,7 +56,7 @@ class CustomerService
         CustomerAddressService $customerAddressService,
         EntityRepository $customerRepository,
         EntityRepository $salutationRepository,
-        CartRestorer $restorer,
+        SalesChannelContextRestorer $restorer,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->customerAddressService = $customerAddressService;
@@ -69,20 +69,13 @@ class CustomerService
     /**
      * Get or create user with shippinh address
      *
-     * @param DataBag $data
+     * @param DataBag $addressData
      *
      * @return void
      */
-    public function get(DataBag $data)
+    public function get(DataBag $addressData)
     {
         $this->validateSaleChannelContext();
-
-        if (!$data->has('shipping_address')) {
-            throw new CreateCustomerException('Invalid customer address provided');
-        }
-
-        /** @var DataBag */
-        $addressData = $data->get('shipping_address');
 
         $customer = $this->salesChannelContext->getCustomer();
 
@@ -101,7 +94,7 @@ class CustomerService
             return $customer;
         }
 
-        return $this->create($data);
+        return $this->create($addressData);
     }
 
     /**
@@ -117,7 +110,7 @@ class CustomerService
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
         $salutationId = $this->getSalutationId();
-        $address = $this->getAddressData($data->get('shipping_address'), $customerId, $addressId, $salutationId);
+        $address = $this->getAddressData($data, $customerId, $addressId, $salutationId);
 
         $customer = [
             'id' => $customerId,
@@ -129,9 +122,9 @@ class CustomerService
             'defaultShippingAddressId' => $addressId,
             'defaultBillingAddressId' => $addressId,
             'salutationId' => $salutationId,
-            'firstName' => 'Unknown',
-            'lastName' => 'Paypal Express',
-            'email' => 'no-replay@example.com',
+            'firstName' => $data->get('first_name', 'Unknown'),
+            'lastName' => $data->get('last_name', 'Customer - Buckaroo Payments'),
+            'email' => $data->get('email', 'no-replay@example.com'),
             'active' => true,
             'guest' =>  true,
             'firstLogin' => new \DateTimeImmutable(),
@@ -162,7 +155,7 @@ class CustomerService
         );
     }
 
-    protected function createAddress(DataBag $data, CustomerEntity $customer)
+    public function createAddress(DataBag $data, CustomerEntity $customer)
     {
         return $this->customerAddressService
             ->setSaleChannelContext($this->salesChannelContext)
@@ -180,6 +173,8 @@ class CustomerService
 
         $criteria = (new Criteria([$customerId]))
         ->addAssociation('addresses')
+        ->addAssociation('activeBillingAddress.country')
+        ->addAssociation('defaultBillingAddress.country')
         ->addAssociation('defaultShippingAddress.country')
         ->addAssociation('defaultShippingAddress.countryState')
         ->addAssociation('defaultShippingAddress.salutation');

@@ -2,42 +2,47 @@
 
 {% block page_product_detail_buy_button_container %}
     {{ parent() }}
-
-    {% if page.extensions.buckaroo.applepayShowProduct %}
-        <div id="applepay-button-container" class="applepay-button-container" style="margin-top: 10px;margin-left: 5px; display:none;">
-            <div></div>
-        </div>
-        <script>
-            if (!window.buckaroo) {
-                window.buckaroo = {
-                    submit: false,
-                    csrf: {
-                        '/Buckaroo/applepayInitNonCheckout': '{{ sw_csrf("frontend.buckaroo.applepayInitNonCheckout", {"mode": "token"}) }}',
-                        '/Buckaroo/applepaySaveOrder': '{{ sw_csrf("frontend.buckaroo.applepaySaveOrder", {"mode": "token"}) }}'
-                    }
-                };
-            }
-        </script>
-        <script type="module" src="{{ asset('/bundles/buckaroopayments/storefront/buckaroo/js/applepay/index.js') }}"></script>
-
-    {% endif %}
     {% if page.extensions.buckaroo.showPaypalExpress %}
-        {% set paypalExpressOptions = {
-            page: "product",
-            merchantId: page.extensions.buckaroo.paypalMerchantId,
-            websiteKey: page.extensions.buckaroo.websiteKey,
-            i18n: {
-                cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
-                cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
-            },
-             csrf: {
-                create: sw_csrf("frontend.action.buckaroo.paypalExpressCreate", {"mode": "token"}),
-                pay: sw_csrf("frontend.action.buckaroo.paypalExpressPay", {"mode": "token"})
-            }
-        } %}
+        <div class="col-12 p-0">
+            {% set paypalExpressOptions = {
+                page: "product",
+                merchantId: page.extensions.buckaroo.paypalMerchantId,
+                websiteKey: page.extensions.buckaroo.websiteKey,
+                i18n: {
+                    cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
+                    cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
+                },
+                csrf: {
+                    create: sw_csrf("frontend.action.buckaroo.paypalExpressCreate", {"mode": "token"}),
+                    pay: sw_csrf("frontend.action.buckaroo.paypalExpressPay", {"mode": "token"})
+                }
+            } %}
 
-        <div style="margin-top:15px;" class="bk-paypal-express" data-paypal-express data-paypal-express-plugin-options='{{ paypalExpressOptions|json_encode }}'>
-            <div class="buckaroo-paypal-express"></div>
+            <div style="margin-top:15px;" class="bk-paypal-express" data-paypal-express data-paypal-express-plugin-options='{{ paypalExpressOptions|json_encode }}'>
+                <div class="buckaroo-paypal-express"></div>
+            </div>
         </div>
     {% endif %}
+
+     {% if page.extensions.buckaroo.applepayShowProduct %}
+        <div class="col-12 p-0">
+            {% set applePayConfig = {
+                page: "product",
+                merchantId: page.extensions.buckaroo.applePayMerchantId,
+                cultureCode: page.header.activeLanguage.translationCode.code,
+                i18n: {
+                    cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
+                    cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
+                },
+                csrf: {
+                    get: sw_csrf("frontend.action.buckaroo.appleGetCart", {"mode": "token"}),
+                    update: sw_csrf("frontend.action.buckaroo.appleUpdateCart", {"mode": "token"}),
+                    create: sw_csrf("frontend.action.buckaroo.appleCreateOrder", {"mode": "token"})
+                }
+            } %}
+            <div data-bk-applepay data-buckaroo-apple-pay-plugin-options='{{ applePayConfig|json_encode }}'></div>
+            <div class="bk-apple-pay-button" style="margin-top: 10px;">
+        </div>
+    {% endif %}
+
 {% endblock %}

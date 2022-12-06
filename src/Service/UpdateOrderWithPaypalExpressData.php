@@ -137,7 +137,7 @@ class UpdateOrderWithPaypalExpressData
         if ($addresses !== null) {
             foreach ($addresses as $address) {
                 $customFields = $address->getCustomFields();
-                if ($customFields != null && isset($customFields['paypalAddress'])) {
+                if ($customFields != null && isset($customFields['buckarooAddress'])) {
                     $this->updateAddress(
                         $address->getId(),
                         $paypalData,

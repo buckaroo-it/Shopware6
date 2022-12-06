@@ -15,46 +15,18 @@ use Buckaroo\Shopware6\Service\SettingsService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 /**
  * @RouteScope(scopes={"storefront"})
  */
-class PaypalExpressController extends StorefrontController
+class PaypalExpressController extends AbstractPaymentController
 {
-
-    /**
-     * @var \Buckaroo\Shopware6\Service\CartService
-     */
-    protected $cartService;
-
-    /**
-     * @var \Buckaroo\Shopware6\Service\CustomerService
-     */
-    protected $customerService;
-
-    /**
-     * @var \Buckaroo\Shopware6\Service\OrderService
-     */
-    protected $orderService;
-
-    /**
-     * @var \Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository
-     */
-    protected $paymentMethodRepository;
-
-    /**
-     * @var \Buckaroo\Shopware6\Service\SettingsService
-     */
-    protected $settingsService;
-
     /**
      * @var \Psr\Log\LoggerInterface
      */
@@ -68,12 +40,15 @@ class PaypalExpressController extends StorefrontController
         SettingsService $settingsService,
         LoggerInterface $logger
     ) {
-        $this->cartService = $cartService;
-        $this->customerService = $customerService;
-        $this->orderService = $orderService;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->settingsService = $settingsService;
         $this->logger = $logger;
+
+        parent::__construct(
+            $cartService,
+            $customerService,
+            $orderService,
+            $settingsService,
+            $paymentMethodRepository
+        );
     }
     /**
      * @Route("buckaroo/paypal/create", name="frontend.action.buckaroo.paypalExpressCreate",  options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
@@ -85,15 +60,18 @@ class PaypalExpressController extends StorefrontController
     public function create(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
 
-        
+
         try {
-            $this->overrideChannelPaymentMethod($salesChannelContext);
-            $this->getCustomer($request, $salesChannelContext);
+            $this->overrideChannelPaymentMethod($salesChannelContext, 'PaypalPaymentHandler');
+            $this->loginCustomer(
+                $this->getCustomerData($request),
+                $salesChannelContext
+            );
             $cart = $this->getCart($request, $salesChannelContext);
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
             return $this->response(
-                ["message" => $this->trans("buckaroo-payment.paypal_express.unknown_error")],
+                ["message" => $this->trans("buckaroo-payment.button_payment.unknown_error")],
                 true
             );
         }
@@ -115,19 +93,21 @@ class PaypalExpressController extends StorefrontController
      */
     public function pay(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
-        $this->overrideChannelPaymentMethod($salesChannelContext);
+        $this->overrideChannelPaymentMethod($salesChannelContext, 'PaypalPaymentHandler');
         if (!$request->request->has('orderId')) {
             return $this->response(
-                ["message" => $this->trans("buckaroo-payment.paypal_express.missing_order_id")],
+                ["message" => $this->trans("buckaroo-payment.button_payment.missing_order_id")],
                 true
             );
         }
 
         try {
             $redirectPath = $this->placeOrder(
-                $this->createOrder($request, $salesChannelContext),
+                $this->createOrder($salesChannelContext, $request->request->get('cartToken')),
                 $salesChannelContext,
-                $request->request->get('orderId')
+                new RequestDataBag([
+                    "orderId" => $request->request->get('orderId')
+                ])
             );
 
 
@@ -137,45 +117,13 @@ class PaypalExpressController extends StorefrontController
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
             return $this->response(
-                ["message" => $this->trans("buckaroo-payment.paypal_express.unknown_error")],
+                ["message" => $this->trans("buckaroo-payment.button_payment.unknown_error")],
                 true
             );
         }
     }
 
-    /**
-     * Get absolute url to the finish page after payment
-     *
-     * @param mixed $redirectPath
-     *
-     * @return string|null
-     */
-    protected function getFinishPage($redirectPath)
-    {
-        if (is_string($redirectPath)) {
-            return $this->generateUrl('frontend.home.page',  [], UrlGeneratorInterface::ABSOLUTE_URL) . ltrim($redirectPath, "/");
-        }
-    }
-    /**
-     * Place order and do payment
-     *
-     * @param OrderEntity $orderEntity
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paypalOrderId
-     *
-     * @return string|null
-     */
-    protected function placeOrder(
-        OrderEntity $orderEntity,
-        SalesChannelContext $salesChannelContext,
-        string $paypalOrderId
-    ) {
-        return $this->orderService
-            ->setSaleChannelContext($salesChannelContext)
-            ->place($orderEntity, $paypalOrderId);
-    }
-
-    /**
+     /**
      * Create order from cart
      *
      * @param Request $request
@@ -183,12 +131,11 @@ class PaypalExpressController extends StorefrontController
      *
      * @return \Shopware\Core\Checkout\Order\OrderEntity
      */
-    protected function createOrder(Request $request, SalesChannelContext $salesChannelContext)
+    protected function createOrder(SalesChannelContext $salesChannelContext, $cartToken = null)
     {
-        $cartToken = $salesChannelContext->getToken();
-
-        if ($request->request->has('cartToken')) {
-            $cartToken = $request->request->get('cartToken');
+        
+        if (!is_string($cartToken)) {
+            $cartToken = $salesChannelContext->getToken();
         }
 
         $cart = $this->getCartByToken($cartToken, $salesChannelContext);
@@ -206,21 +153,6 @@ class PaypalExpressController extends StorefrontController
         return $order;
     }
     /**
-     * Get cart by token
-     *
-     * @param string $token
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return Cart|null
-     */
-    protected function getCartByToken(string $token, SalesChannelContext $salesChannelContext)
-    {
-        return $this->cartService
-            ->setSaleChannelContext($salesChannelContext)
-            ->load($token);
-    }
-
-    /**
      * Get cart price breakdown
      *
      * @param Cart $cart
@@ -235,6 +167,8 @@ class PaypalExpressController extends StorefrontController
 
         $shippingSum = $cart->getDeliveries()->getShippingCosts()->sum();
         $productSum = $cart->getLineItems()->getPrices()->sum();
+
+        $fee = $this->getFee($salesChannelContext, 'paypalFee');
         return [
             "breakdown" => [
                 "item_total" => [
@@ -251,236 +185,35 @@ class PaypalExpressController extends StorefrontController
                 ],
                 "tax_total" => [
                     "currency_code" => $currency,
-                    "value" => $this->formatNumber($price->getCalculatedTaxes()->getAmount() + $this->getFee($salesChannelContext))
+                    "value" => $this->formatNumber($price->getCalculatedTaxes()->getAmount() + $fee)
                 ]
             ],
             "currency_code" => $currency,
-            "value" => $this->formatNumber($price->getTotalPrice() + $this->getFee($salesChannelContext)),
-        ];
-    }
-
-    protected function formatNumber(float $number)
-    {
-        return number_format($number, 2);
-    }
-    /**
-     * Return json response with data
-     *
-     * @param array $data
-     * @param boolean $error
-     *
-     * @return JsonResponse
-     */
-    protected function response(array $data, $error = false): JsonResponse
-    {
-        $data = array_merge(
-            [
-                'error' => $error
-            ],
-            $data,
-        );
-        return new JsonResponse($data);
-    }
-    /**
-     * Set paypal as payment method
-     *
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return void
-     */
-    protected function overrideChannelPaymentMethod(SalesChannelContext $salesChannelContext)
-    {
-        $paymentMethod = $this->getValidPaymentMethod($salesChannelContext);
-
-        if ($paymentMethod === null) {
-            throw new \Exception("Cannot set paypal payment method", 1);
-        }
-        $salesChannelContext->assign([
-            'paymentMethod' => $paymentMethod
-        ]);
-    }
-
-    protected function getCustomer(Request $request, SalesChannelContext $salesChannelContext)
-    {
-        return $this->customerService
-            ->setSaleChannelContext($salesChannelContext)
-            ->get(
-                $this->getOrderData($request)
-            );
-    }
-
-    /**
-     * Get or create cart
-     *
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return \Shopware\Core\Checkout\Cart\Cart
-     */
-    protected function getCart(Request $request, SalesChannelContext $salesChannelContext)
-    {
-
-        if ($this->isFromProductPage($request)) {
-            return $this->createCart($request, $salesChannelContext);
-        }
-
-        return $this->getCartByToken(
-            $salesChannelContext->getToken(),
-            $salesChannelContext
-        );
-    }
-
-    /**
-     * Create cart for product page
-     *
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return \Shopware\Core\Checkout\Cart\Cart
-     */
-    protected function createCart(Request $request, SalesChannelContext $salesChannelContext)
-    {
-        $productData = $this->getProductData(
-            $this->getFormData($request)
-        );
-        return $this->cartService
-            ->setSaleChannelContext($salesChannelContext)
-            ->addItem($productData)
-            ->build();
-    }
-
-    /**
-     * Get form data form request
-     *
-     * @param Request $request
-     *
-     * @return DataBag
-     */
-    protected function getFormData(Request $request)
-    {
-        if (!$request->request->has('form')) {
-            throw new InvalidParameterException("Invalid payment request, form data is missing", 1);
-        }
-        return new DataBag((array)$request->request->get('form'));
-    }
-
-    /**
-     * Get product data from from data
-     *
-     * @param DataBag $formData
-     *
-     * @return array
-     */
-    protected function getProductData(DataBag $formData)
-    {
-        $productData = [];
-        foreach ($formData as $key => $value) {
-            if (strpos($key, 'lineItems') !== false) {
-                $keyPars = explode("][", $key);
-                $newKey = isset($keyPars[1]) ? str_replace("]", "", $keyPars[1]) : $key;
-                $productData[$newKey] = $value;
-            }
-        }
-        $keysRequired =  [
-            "id",
-            "quantity",
-            "referencedId",
-            "removable",
-            "stackable",
-            "type",
-        ];
-
-        if (!array_intersect($keysRequired, array_keys($productData)) == $keysRequired) {
-            throw new InvalidParameterException("Invalid product parameters", 1);
-        }
-
-
-
-        return [
-            "id" => $productData['id'],
-            "quantity" => (int)$productData['quantity'],
-            "referencedId" => $productData['referencedId'],
-            "removable" => (bool)$productData['removable'],
-            "stackable" => (bool)$productData['stackable'],
-            "type" => $productData['type'],
+            "value" => $this->formatNumber($price->getTotalPrice() + $fee),
         ];
     }
     /**
-     * Check if request is from product page
-     *
-     * @param Request $request
-     *
-     * @return boolean
-     * @throws InvalidParameterException
-     */
-    protected function isFromProductPage(Request $request)
-    {
-        if (!$request->request->has('page')) {
-            throw new InvalidParameterException("Invalid payment request, page is missing", 1);
-        }
-        return $request->request->get('page') === 'product';
-    }
-    /**
-     * Get address from paypal
+     * Get customer data from request
      *
      * @param Request $request
      *
      * @return DataBag
      * @throws InvalidParameterException
      */
-    protected function getAddress(Request $request)
+    protected function getCustomerData(Request $request)
     {
-        $orderData = $this->getOrderData($request);
-        if (!$orderData->has('shipping_address')) {
-            throw new InvalidParameterException("Invalid payment request, shipping is missing", 1);
-        }
-        return $orderData->get('shipping');
-    }
-
-    /**
-     * Get paypal order data from request
-     *
-     * @param Request $request
-     *
-     * @return DataBag
-     * @throws InvalidParameterException
-     */
-    protected function getOrderData(Request $request)
-    {
-        if (!($request->request->has('order') && is_array($request->request->get('order')))) {
+        if (!($request->request->has('customer') && is_array($request->request->get('customer')))) {
             throw new InvalidParameterException("Invalid payment request", 1);
         }
-        return new DataBag((array)$request->request->get('order'));
-    }
 
-    /**
-     * Get paypal payment method
-     *
-     * @return \Shopware\Core\Checkout\Payment\PaymentMethodEntity|null
-     */
-    public function getValidPaymentMethod(SalesChannelContext $salesChannelContext)
-    {
-        $criteria = (new Criteria())
-            ->setLimit(1)
-            ->addFilter(new EqualsFilter('handlerIdentifier', 'Buckaroo\Shopware6\Handlers\PaypalPaymentHandler'));
+        $customer = $request->request->get('customer');
 
-        return $this->paymentMethodRepository->search(
-            $criteria,
-            $salesChannelContext
-        )
-            ->first();
-    }
+        if (!isset($customer['shipping_address'])) {
+            throw new InvalidParameterException("Invalid payment request", 1);
+        }
+        $dataBag = new DataBag((array)$customer['shipping_address']);
+        $dataBag->set('paymentToken', $customer['paymentToken']);
 
-    /**
-     * Get paypal payment fee
-     *
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return float
-     */
-    public function getFee(SalesChannelContext $salesChannelContext)
-    {
-        $fee = $this->settingsService->getSetting('paypalFee', $salesChannelContext->getSalesChannelId());
-        return round(str_replace(',', '.', $fee), 2);
+        return $dataBag;
     }
 }

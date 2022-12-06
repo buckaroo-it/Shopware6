@@ -110,7 +110,7 @@ class CartService {
         }
 
         $cart = new Cart(
-            'paypal-express',
+            'buckaroo-cart',
             Uuid::randomHex()
         );
 
@@ -136,5 +136,9 @@ class CartService {
         $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $this->salesChannelContext));
 
         return $cart;
+    }
+    public function calculateCart(Cart $cart, SalesChannelContext $salesChannelContext): Cart
+    {
+        return $this->cartCalculator->calculate($cart, $salesChannelContext);
     }
 }
