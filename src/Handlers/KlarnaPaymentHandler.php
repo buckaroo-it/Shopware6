@@ -99,7 +99,7 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
 
     public function getArticleData($order, $additional, &$latestKey)
     {
-        $lines = $this->checkoutHelper->getOrderLinesArray($order);
+        $lines = $this->getOrderLinesArray($order);
         foreach ($lines as $key => $item) {
             $additional[] = [
                 [
@@ -159,7 +159,7 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
         $shippingAddress->setPhoneNumber($dataBag->get('buckaroo_klarna_phone'));
         $shippingStreetFormat = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
 
-        $category    = $this->helper->getSettingsValue($paymentMethod->getBuckarooKey() . 'Business', $salesChannelContext->getSalesChannelId()) ?? 'B2C';
+        $category    = $this->settingsService->getSetting($paymentMethod->getBuckarooKey() . 'Business', $salesChannelContext->getSalesChannelId()) ?? 'B2C';
         $billingData = [
             [
                 '_'       => $category,

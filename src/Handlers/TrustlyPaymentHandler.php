@@ -51,9 +51,9 @@ class TrustlyPaymentHandler extends AsyncPaymentHandler
     public function getTrustlyData($order, $salesChannelContext, $dataBag){
         $address  = $this->checkoutHelper->getBillingAddress($order, $salesChannelContext);
         return [
-            $this->checkoutHelper->getRequestParameterRow($address->getFirstName(), 'CustomerFirstName'),
-            $this->checkoutHelper->getRequestParameterRow($address->getLastName(), 'CustomerLastName'),
-            $this->checkoutHelper->getRequestParameterRow(($this->checkoutHelper->getCountryCode($address)), 'CustomerCountryCode')
+            $this->getRequestParameterRow($address->getFirstName(), 'CustomerFirstName'),
+            $this->getRequestParameterRow($address->getLastName(), 'CustomerLastName'),
+            $this->getRequestParameterRow(($this->checkoutHelper->getCountryCode($address)), 'CustomerCountryCode')
         ];
     }
 }

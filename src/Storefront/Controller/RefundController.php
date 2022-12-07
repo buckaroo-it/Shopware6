@@ -1,42 +1,42 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Buckaroo\Shopware6\Service\OrderService;
+use Buckaroo\Shopware6\Service\RefundService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StorefrontController;
-use Buckaroo\Shopware6\Helpers\CheckoutHelper;
-
 use Symfony\Component\HttpFoundation\RedirectResponse;
-
-use Exception;
 
 
 /**
  */
 class RefundController extends StorefrontController
 {
-    
-    private $checkoutHelper;
-    
+    private RefundService $refundService;
+
+    private OrderService $orderService;
 
     public function __construct(
-        CheckoutHelper $checkoutHelper
+        RefundService $refundService,
+        OrderService $orderService
     ) {
-        $this->checkoutHelper = $checkoutHelper;
+        $this->refundService = $refundService;
+        $this->orderService = $orderService;
     }
 
     /**
      * @RouteScope(scopes={"api"})
      * @Route("/api/_action/buckaroo/refund", name="api.action.buckaroo.refund", methods={"POST"})
      * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
+     * @param Context $context
      *
      * @return RedirectResponse
      */
@@ -53,7 +53,20 @@ class RefundController extends StorefrontController
             );
         }
 
-        $order = $this->checkoutHelper->getOrderById($orderId, $context);
+        $order = $this->orderService
+            ->getOrderById(
+                $orderId,
+                [
+                    'orderCustomer.salutation',
+                    'stateMachineState',
+                    'lineItems',
+                    'transactions',
+                    'transactions.paymentMethod',
+                    'transactions.paymentMethod.plugin',
+                    'salesChannel'
+                ],
+                $context
+            );
 
         if (null === $order) {
             return new JsonResponse(
@@ -61,12 +74,20 @@ class RefundController extends StorefrontController
                 Response::HTTP_NOT_FOUND
             );
         }
-        $responses = [];
         try {
+            $responses = [];
             foreach ($transactionsToRefund as $item) {
-                $responses[] = $this->checkoutHelper->refundTransaction($request, $order, $context, $item, 'refund', $orderItems, (float) $request->get('customRefundAmount'));
+                $responses[] = $this->refundService->refundTransaction(
+                    $request,
+                    $order,
+                    $context,
+                    $item,
+                    $orderItems,
+                    (float) $request->get('customRefundAmount')
+                );
             }
-        } catch (Exception $exception) {
+            return new JsonResponse($responses);
+        } catch (\Exception $exception) {
             return new JsonResponse(
                 [
                     'status'  => false,
@@ -77,18 +98,13 @@ class RefundController extends StorefrontController
             );
         }
 
-        if($responses){
-            return new JsonResponse($responses);
-        }
-
         return new JsonResponse(
             [
                 'status'  => false,
-                'message' => 'Unfortunately an error occurred while processing your refund. Please try again.',
+                'message' =>  $this->trans("buckaroo-payment.general_request_error"),
                 'code'    => 0,
             ],
             Response::HTTP_BAD_REQUEST
         );
-
     }
 }

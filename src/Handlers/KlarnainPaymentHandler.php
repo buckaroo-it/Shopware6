@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class KlarnainPaymentHandler extends KlarnaPaymentHandler
 {
+
     /**
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
@@ -36,9 +37,7 @@ class KlarnainPaymentHandler extends KlarnaPaymentHandler
         $order      = $transaction->getOrder();
 
         $paymentMethod = new Klarnain();
-        $additional    = $this->getArticleTotalData($order, $additional, $latestKey, $paymentMethod->getBuckarooKey());
-        // $additional = $this->getArticleData($order, $additional, $latestKey);
-        // $additional = $this->getBuckarooFee($order, $additional, $latestKey);
+        $additional    = $this->getArticleTotalData($order, $additional, $latestKey, $paymentMethod->getBuckarooKey(), $salesChannelContext->getSalesChannelId());
         $additional = $this->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag, $paymentMethod);
 
         $gatewayInfo = [

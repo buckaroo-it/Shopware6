@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Helpers\Helpers;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Symfony\Component\HttpFoundation\Request;
+use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
@@ -237,7 +238,7 @@ class AfterPayOld
             $this->setParameter('BillingCity', $billingAddress->getCity()),
             $this->setParameter('BillingCountry', $country),
             $this->setParameter('BillingEmail', $customer->getEmail()),
-            $this->setParameter('CustomerIPAddress', Helpers::getRemoteIp()),
+            $this->setParameter('CustomerIPAddress', (Request::createFromGlobals())->getClientIp()),
             $this->setParameter(
                 'BillingPhoneNumber',
                 $request->get(
