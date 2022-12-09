@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Buckaroo\Shopware6\Service\CustomerAddressService;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -18,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 
 
 class CustomerService

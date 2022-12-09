@@ -2,11 +2,9 @@
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Psr\Log\LoggerInterface;
-use Buckaroo\Shopware6\Helpers\Helper;
 use Buckaroo\Shopware6\PaymentMethods\Paypal;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Handlers\AsyncPaymentHandler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -25,17 +23,14 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
 
     /**
      * Buckaroo constructor.
-     * @param Helper $helper
-     * @param CheckoutHelper $checkoutHelper
      */
     public function __construct(
-        Helper $helper,
-        CheckoutHelper $checkoutHelper,
-        LoggerInterface $logger,
+        AsyncPaymentService $asyncPaymentService,
         UpdateOrderWithPaypalExpressData $orderUpdater
+        
         ) {
+        parent::__construct($asyncPaymentService);
         $this->orderUpdater = $orderUpdater;
-        parent::__construct($helper, $checkoutHelper, $logger);
     }
 
 

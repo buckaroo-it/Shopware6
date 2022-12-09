@@ -17,6 +17,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
+use Shopware\Core\Framework\Context;
 
 class OrderService {
 
@@ -112,22 +113,27 @@ class OrderService {
     }
 
     /**
-     * Get order by id
+     * Get order by id with associations
      *
      * @param string $orderId
+     * @param array $associations
+     * @param Context|null $context
      *
      * @return \Shopware\Core\Checkout\Order\OrderEntity|null
      */
-    public function getOrderById(string $orderId)
+    public function getOrderById(string $orderId, array $associations = ['lineItems'], Context $context = null)
     {
-        $this->validateSaleChannelContext();
+        if($context === null) {
+            $this->validateSaleChannelContext();
+            $context = $this->salesChannelContext->getContext();
+        }
 
         $criteria = (new Criteria([$orderId]))
-            ->addAssociation('lineItems')
+            ->addAssociations($associations)
         ;
         return $this->orderRepository->search(
             $criteria,
-            $this->salesChannelContext->getContext()
+            $context
         )->first();
     }
     /**
