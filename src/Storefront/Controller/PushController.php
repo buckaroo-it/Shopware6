@@ -62,6 +62,7 @@ class PushController extends StorefrontController
         $this->logger                = $logger;
     }
 
+   
     /**
      * @RouteScope(scopes={"storefront"})
      * @Route("/buckaroo/push", name="buckaroo.payment.push", defaults={"csrf_protected"=false}, methods={"POST"})
@@ -73,6 +74,7 @@ class PushController extends StorefrontController
      */
     public function pushBuckaroo(Request $request, SalesChannelContext $salesChannelContext)
     {
+        return $this->json([]);
         $this->logger->info(__METHOD__ . "|1|", [$_POST]);
 
         $status             = $request->request->get('brq_statuscode');
@@ -89,6 +91,7 @@ class PushController extends StorefrontController
         $originalTransactionKey   = $request->request->get('brq_transactions');
 
         if (!$this->signatureValidationService->validateSignature($request, $salesChannelContext->getSalesChannelId())) {
+        // if (false) {
             $this->logger->info(__METHOD__ . "|5|");
             return $this->json(['status' => false, 'message' => $this->trans('buckaroo.messages.signatureIncorrect')]);
         }
@@ -233,7 +236,6 @@ class PushController extends StorefrontController
             $paymentFailedStatus = $this->checkoutHelper->getSettingsValue('paymentFailedStatus',  $salesChannelContext->getSalesChannelId()) ? $this->checkoutHelper->getSettingsValue('paymentFailedStatus',  $salesChannelContext->getSalesChannelId()) : "cancelled";
 
             $this->stateTransitionService->transitionPaymentState($paymentFailedStatus, $orderTransactionId, $context);
-            $this->stateTransitionService->changeOrderStatus($order, $context, 'cancel');
 
             return $this->json(['status' => true, 'message' => $this->trans('buckaroo.messages.orderCancelled')]);
         }
@@ -248,6 +250,7 @@ class PushController extends StorefrontController
      * @param SalesChannelContext $salesChannelContext
      *
      * @return RedirectResponse
+     * @deprecated 2.0.0
      */
     public function finalizeBuckaroo(Request $request, SalesChannelContext $salesChannelContext)
     {

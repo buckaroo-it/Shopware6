@@ -45,11 +45,11 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
             if (!valid) {
                 document.getElementById("changePaymentForm").scrollIntoView();
             } else {
-                    if(buckaroo_back_link !== undefined) {
-                        window.history.pushState(
-                            null, null, buckaroo_back_link
-                        );
-                    }
+                    // if(buckaroo_back_link !== undefined) {
+                    //     window.history.pushState(
+                    //         null, null, buckaroo_back_link
+                    //     );
+                    // }
 
                     if (!window.isApplePay) {
                         document.forms['confirmOrderForm'].submit();

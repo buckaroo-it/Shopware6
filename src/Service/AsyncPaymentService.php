@@ -9,6 +9,7 @@ use Buckaroo\Shopware6\Buckaroo\BkrClient;
 use Buckaroo\Shopware6\Service\UrlService;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\SettingsService;
+use Buckaroo\Shopware6\Service\PaymentStateService;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 
 class AsyncPaymentService
@@ -27,9 +28,10 @@ class AsyncPaymentService
      * @var LoggerInterface
      */
     public $logger;
-
+    
     public FormatRequestParamService $formatRequestParamService;
-
+    
+    public PaymentStateService $paymentStateService;
     /**
      * Buckaroo constructor.
      */
@@ -40,7 +42,8 @@ class AsyncPaymentService
         BkrClient $client,
         CheckoutHelper $checkoutHelper,
         LoggerInterface $logger,
-        FormatRequestParamService $formatRequestParamService
+        FormatRequestParamService $formatRequestParamService,
+        PaymentStateService $paymentStateService
     ) {
 
         $this->settingsService = $settingsService;
@@ -50,5 +53,6 @@ class AsyncPaymentService
         $this->checkoutHelper = $checkoutHelper;
         $this->logger = $logger;
         $this->formatRequestParamService = $formatRequestParamService;
+        $this->paymentStateService = $paymentStateService;
     }
 }

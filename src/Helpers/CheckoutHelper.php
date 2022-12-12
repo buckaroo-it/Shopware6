@@ -113,6 +113,10 @@ class CheckoutHelper
     }
 
 
+    public function getShopwareVersion()
+    {
+        return $this->shopwareVersion;
+    }
     
     public function updateOrderCustomFields(string $orderId, array $customFields): void
     {
