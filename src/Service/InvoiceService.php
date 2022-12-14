@@ -55,14 +55,7 @@ class InvoiceService
         $criteria->addAssociation('documentType');
         $criteria->addFilter(new EqualsFilter('documentType.technicalName', InvoiceGenerator::INVOICE));
 
-        /** @var DocumentEntity|null $documentEntity */
-        $documentEntity = $this->documentRepository->search($criteria, $context)->first();
-
-        if ($documentEntity === null) {
-            return false;
-        }
-
-        return true;
+        return $this->documentRepository->search($criteria, $context)->first() !== null;
     }
     public function isCreateInvoiceAfterShipment(
         $brqTransactionType = false,

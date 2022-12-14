@@ -421,6 +421,13 @@
             </call>
         </service>
 
+         <service id="Buckaroo\Shopware6\Storefront\Controller\CartController" public="true">
+            <argument type="service" id="session"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Buckaroo\Shopware6\Storefront\Controller\ApplePayController" public="true">
             <argument type="service" id="Buckaroo\Shopware6\Service\CartService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
@@ -490,10 +497,12 @@
 
 
         <service id="Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber" >
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="sales_channel.payment_method.repository"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
+            <argument type="service" id="session"/>
+            <argument type="service" id="translator" />
             <tag name="kernel.event_subscriber"/>
         </service>
 

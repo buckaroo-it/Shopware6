@@ -86,7 +86,7 @@ class PaymentStateService
             throw new PaymentFailedException(
                 $transactionId,
                 $this->getStatusMessageByStatusCode(
-                    $request->request->get('brq_statuscode')
+                    $request->get('brq_statuscode')
                 )
             );
         }
@@ -117,17 +117,17 @@ class PaymentStateService
     }
 
     private function isPayPalPending(Request $request) {
-        return $request->request->get('brq_payment_method') === 'paypal' && 
-        $request->request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING;
+        return $request->get('brq_payment_method') === 'paypal' && 
+        $request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING;
     }
 
     private function isPendingPaymentRequest(Request $request) {
-        return $request->request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING;
+        return $request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING;
     }
     
     private function isFailedPaymentRequest(Request $request) {
         return in_array(
-            (string)$request->request->get('brq_statuscode'),
+            (string)$request->get('brq_statuscode'),
             [
                 ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
                 ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
@@ -136,7 +136,7 @@ class PaymentStateService
     }
 
     private function isCanceledPaymentRequest(Request $request) {
-        return $request->request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
+        return $request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
     }
 
     private function getStatusMessageByStatusCode($statusCode)

@@ -185,8 +185,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $this->asyncPaymentService->checkoutHelper->stockReserve($order);
         }
 
-        $pendingPaymentStatus = ($this->asyncPaymentService->settingsService->getSetting('pendingPaymentStatus', $salesChannelId) && !$response->isCanceled()) ? $this->asyncPaymentService->settingsService->getSetting('pendingPaymentStatus', $salesChannelContext->getSalesChannelId()) : 'open';
-
         $context = $salesChannelContext->getContext();
 
         $this->asyncPaymentService->checkoutHelper->appendCustomFields(
@@ -197,23 +195,23 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             ]
         );
         if ($response->hasRedirect()) {
-            if ($response->isAwaitingConsumer() || $response->isPendingProcessing() || $response->isWaitingOnUserInput()) {
-                $this->asyncPaymentService->stateTransitionService->transitionPaymentState($pendingPaymentStatus, $transaction->getOrderTransaction()->getId(), $context);
-            }
+            $this->asyncPaymentService->checkoutHelper
+            ->getSession()
+            ->set('buckaroo_latest_order', $transaction->getOrder()->getId());
+
             return new RedirectResponse($response->getRedirectUrl());
         } elseif ($response->isSuccess() || $response->isAwaitingConsumer() || $response->isPendingProcessing() || $response->isWaitingOnUserInput()) {
             if (!$response->isSuccess()) {
-                $this->asyncPaymentService->stateTransitionService->transitionPaymentState($pendingPaymentStatus, $transaction->getOrderTransaction()->getId(), $context);
+                $this->asyncPaymentService->stateTransitionService->transitionPaymentState('pending', $transaction->getOrderTransaction()->getId(), $context);
             }
             return new RedirectResponse($this->asyncPaymentService->urlService->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $order->getId()]));
         } elseif ($response->isCanceled()) {
             throw new CustomerCanceledAsyncPaymentException(
-                $transaction->getOrderTransaction()->getId(),
-                ''
+                $transaction->getOrderTransaction()->getId()
             );
         }
 
-        return new RedirectResponse($finalizePage . '?orderId=' . $order->getId() . '&error=' . base64_encode($response->getSubCodeMessage()));
+        return new RedirectResponse(sprintf('%s&brq_statuscode='.$response->getStatusCode(), $finalizePage));
     }
 
     protected function payBefore(

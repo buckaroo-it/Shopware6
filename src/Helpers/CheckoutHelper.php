@@ -492,37 +492,6 @@ class CheckoutHelper
     }
 
 
-
-
-    public function getOrderCurrency(Context $context): CurrencyEntity
-    {
-        $criteria = new Criteria([$context->getCurrencyId()]);
-
-        /** @var null|CurrencyEntity $currency */
-        $currency = $this->currencyRepository->search($criteria, $context)->first();
-
-        if (null === $currency) {
-            throw new RuntimeException('missing order currency entity');
-        }
-
-        return $currency;
-    }
-
-    
-    public function getIdealRenderMode(string $salesChannelId = null)
-    {
-        return $this->getSetting('idealRenderMode', $salesChannelId);
-    }
-    
-    public function getBuckarooFeeLabel($buckarooKey, $label, $context, string $salesChannelId = null)
-    {
-        $currency = $this->getOrderCurrency($context);
-        if($buckarooFee = $this->getSetting($buckarooKey.'Fee', $salesChannelId)){
-            $label .= ' +' . $currency->getSymbol() . $buckarooFee;
-        }
-        return $label;
-    }
-
     public function getBuckarooFee($buckarooKey, string $salesChannelId = null)
     {
         return $this->settingsService->getBuckarooFee($buckarooKey, $salesChannelId);

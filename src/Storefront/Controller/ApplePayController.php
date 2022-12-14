@@ -8,7 +8,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Buckaroo\Shopware6\Service\CartService;
 use Buckaroo\Shopware6\Service\OrderService;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\ContextService;
 use Buckaroo\Shopware6\Service\CustomerService;
