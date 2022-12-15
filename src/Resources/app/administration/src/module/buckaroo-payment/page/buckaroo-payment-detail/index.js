@@ -181,7 +181,6 @@ Component.register('buckaroo-payment-detail', {
                 order.transactions.last().paymentMethod.customFields &&
                 order.transactions.last().paymentMethod.customFields.buckaroo_key &&
                 ['klarnakp', 'billink'].includes(order.transactions.last().paymentMethod.customFields.buckaroo_key.toLowerCase());
-                console.log(order.transactions);
 
                 that.isPaylinkVisible = that.isPaylinkAvailable = this.getConfigValue('paylinkEnabled') && order.stateMachineState && order.stateMachineState.technicalName && order.stateMachineState.technicalName == 'open' && order.transactions && order.transactions.last().stateMachineState.technicalName == 'open';
             });
