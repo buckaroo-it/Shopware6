@@ -41,11 +41,13 @@ Module.register('buckaroo-payment', {
         next(currentRoute);
     },
 
-    index: {
-        component: 'buckaroo-settings',
-        path: 'index',
-        meta: {
-            parentPath: 'sw.settings.index'
+    routes: {
+        index: {
+            component: 'buckaroo-settings',
+            path: 'index',
+            meta: {
+                parentPath: 'sw.settings.index'
+            }
         }
     }
 });

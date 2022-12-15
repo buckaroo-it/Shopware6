@@ -107,12 +107,8 @@ class PayLinkService
                 return [
                     'status' => true,
                     'paylink' => $payLink,
-                    'message' => $this->translation->trans(
-                        "buckaroo-payment.paylink.pay_link",
-                        [
-                            "%payLink%" => $payLink
-                        ]
-                    )
+                    'message' => $this->translation->trans("buckaroo-payment.paylink.pay_link"),
+                    'paylinkhref' =>  sprintf(" <a href=\"%s\">%s</a>", $payLink, $payLink)
                 ];
             }
         }

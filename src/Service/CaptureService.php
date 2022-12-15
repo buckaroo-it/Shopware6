@@ -65,21 +65,21 @@ class CaptureService
         if ($amount <= 0) {
             return [
                 'status' => false,
-                'message' => $this->translation->trans("buckaroo-payment.capture.invalid_amount")
+                'message' => $this->translator->trans("buckaroo-payment.capture.invalid_amount")
             ];
         }
 
         if ($customFields['canCapture'] == 0) {
             return [
                 'status' => false,
-                'message' => $this->translation->trans("buckaroo-payment.capture.capture_not_supported")
+                'message' => $this->translator->trans("buckaroo-payment.capture.capture_not_supported")
             ];
         }
 
         if (!empty($customFields['captured']) && ($customFields['captured'] == 1)) {
             return [
                 'status' => false,
-                'message' => $this->translation->trans("buckaroo-payment.capture.already_captured")
+                'message' => $this->translator->trans("buckaroo-payment.capture.already_captured")
             ];
         }
 
@@ -135,13 +135,8 @@ class CaptureService
 
             return [
                 'status' => true,
-                'message' => $this->translation->trans(
-                    "buckaroo-payment.capture.already_captured",
-                    [
-                        "%amount%" => $amount,
-                        "%currency%" => $currency
-                    ]
-                )
+                'message' => $this->translator->trans("buckaroo-payment.capture.already_captured"),
+                'amount' => sprintf(" %s %s",$amount, $currency)
                 ];
         }
 
