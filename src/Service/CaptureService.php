@@ -13,6 +13,7 @@ use Buckaroo\Shopware6\Service\TransactionService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
+use Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse;
 
 class CaptureService
 {
@@ -135,7 +136,7 @@ class CaptureService
 
             return [
                 'status' => true,
-                'message' => $this->translator->trans("buckaroo-payment.capture.already_captured"),
+                'message' => $this->translator->trans("buckaroo-payment.capture.captured_amount"),
                 'amount' => sprintf(" %s %s",$amount, $currency)
                 ];
         }
