@@ -10,50 +10,37 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class SepaDirectDebitPaymentHandler extends AsyncPaymentHandler
 {
+
+    protected string $paymentClass = SepaDirectDebit::class;
+
     /**
+     * Get parameters for specific payment method
+     *
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $buckarooKey
-     * @param string $type
-     * @param array $gatewayInfo
-     * @return RedirectResponse
-     * @throws \Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException
+     * @param string $paymentCode
+     *
+     * @return array
      */
-    public function pay(
+    protected function getMethodPayload(
         AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $buckarooKey = null,
-        string $type = null,
-        string $version = null,
-        array $gatewayInfo = []
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $paymentMethod = new SepaDirectDebit();
+        string $paymentCode
+    ): array {
 
-        if($customeraccountname = $dataBag->get('buckarooSepaDirectDebitCustomer')){
-            $gatewayInfo['additional'][] = [[
-                'Name' => 'customeraccountname',
-                '_' => $customeraccountname,
-            ]];
+        if(
+            $dataBag->has('buckarooSepaDirectDebitIBAN') &&
+            $dataBag->has('buckarooSepaDirectDebitCustomer')
+        ) {
+            return [
+                'iban'              => $dataBag->get('buckarooSepaDirectDebitIBAN'),
+                'customer'      => [
+                    'name'          => $dataBag->get('buckarooSepaDirectDebitCustomer')
+                ]
+            ];
         }
-
-        if($customeriban = $dataBag->get('buckarooSepaDirectDebitIBAN')){
-            $gatewayInfo['additional'][] = [[
-                'Name' => 'customeriban',
-                '_' => $customeriban,
-            ]];
-        }
-
-        return parent::pay(
-            $transaction,
-            $dataBag,
-            $salesChannelContext,
-            $paymentMethod->getBuckarooKey(),
-            $paymentMethod->getType(),
-            $paymentMethod->getVersion(),
-            $gatewayInfo
-        );
+        return [];
     }
 }

@@ -73,7 +73,7 @@ class SettingsService
 
     public function getBuckarooFee($buckarooKey, string $salesChannelId = null)
     {
-        if($buckarooFee = $this->getSetting($buckarooKey, $salesChannelId)){
+        if($buckarooFee = $this->getSetting($buckarooKey. 'Fee', $salesChannelId)){
             return round((float)str_replace(',','.',$buckarooFee), 2);
         }
         return 0;

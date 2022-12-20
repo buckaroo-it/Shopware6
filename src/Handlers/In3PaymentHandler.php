@@ -1,92 +1,190 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\In3;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class In3PaymentHandler extends AsyncPaymentHandler
 {
+
+    protected string $paymentClass = In3::class;
+
+
     /**
+     * Get parameters for specific payment method
+     *
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $buckarooKey
-     * @param string $type
-     * @param array $gatewayInfo
-     * @return RedirectResponse
-     * @throws \Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException
+     * @param string $paymentCode
+     *
+     * @return array
      */
-    public function pay(
+    protected function getMethodPayload(
         AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $buckarooKey = null,
-        string $type = null,
-        string $version = null,
-        array $gatewayInfo = []
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
+        string $paymentCode
+    ): array {
+        $order = $transaction->getOrder();
 
-        $order      = $transaction->getOrder();
-        $paymentMethod = new In3();
-        $gatewayInfo   = [
-            'additional' => [$this->getIn3Data($order, $salesChannelContext, $dataBag)]
-        ];
-
-        return parent::pay(
-            $transaction,
-            $dataBag,
-            $salesChannelContext,
-            $paymentMethod->getBuckarooKey(),
-            $paymentMethod->getType(),
-            $paymentMethod->getVersion(),
-            $gatewayInfo
+        return array_merge(
+            [
+                'invoiceDate'  => date('Y-m-d'),
+                'customerType' => $dataBag->get('buckaroo_capayablein3_orderAs', 'Debtor'),
+                'email'        =>  $order->getOrderCustomer()->getEmail(),
+                'phone'        => [
+                    'mobile' => $dataBag->get('buckaroo_in3_phone')
+                ],
+            ],
+            $this->getCustomer($dataBag, $order),
+            $this->getAddress($dataBag, $order),
+            $this->getCompany($dataBag),
+            $this->getArticles($order)
         );
     }
 
-    public function getIn3Data($order, $salesChannelContext, $dataBag){
-        $now = new \DateTime();
+    /**
+     * Get method action for specific payment method
+     *
+     * @param RequestDataBag $dataBag
+     * @param SalesChannelContext $salesChannelContext
+     * @param string $paymentCode
+     *
+     * @return string
+     */
+    protected function getMethodAction(
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): string
+    {
+        return 'payInInstallments';
+    }
 
-        $address  = $this->checkoutHelper->getBillingAddress($order, $salesChannelContext);
-        $customer = $this->checkoutHelper->getOrderCustomer($order, $salesChannelContext);
-        $streetData  = $this->checkoutHelper->formatStreet($address->getStreet());
+    /**
+     * Get customer info
+     *
+     * @param RequestDataBag $dataBag
+     * @param OrderEntity $order
+     *
+     * @return array
+     */
+    private function getCustomer(RequestDataBag $dataBag, OrderEntity $order): array
+    {
 
-        $requestParameter = [
-            $this->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_orderAs'), 'CustomerType'),
-            $this->getRequestParameterRow($now->format('Y-m-d'), 'InvoiceDate'),
-            $this->getRequestParameterRow($dataBag->get('buckaroo_in3_phone'), 'Phone', 'Phone'),
-            $this->getRequestParameterRow($customer->getEmail(), 'Email', 'Email'),
+        $address = $order->getBillingAddress();
+        $customer = $order->getOrderCustomer();
 
-            $this->getRequestParameterRow($this->checkoutHelper->getInitials($address->getFirstName()), 'Initials', 'Person'),
-            $this->getRequestParameterRow($address->getLastName(), 'LastName', 'Person'),
-            $this->getRequestParameterRow('nl-NL', 'Culture', 'Person'),
-            $this->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_DoB'), 'BirthDate', 'Person'),
-            
-            $this->getRequestParameterRow($streetData['street'], 'Street', 'Address'),
-            $this->getRequestParameterRow($streetData['house_number']?$streetData['house_number']:$address->getAdditionalAddressLine1(), 'HouseNumber', 'Address'),
-            $this->getRequestParameterRow($address->getZipCode(), 'ZipCode', 'Address'),
-            $this->getRequestParameterRow($address->getCity(), 'City', 'Address'),
-            $this->getRequestParameterRow((($address->getCountry() && $address->getCountry()->getIso()) ? $address->getCountry()->getIso() : 'NL'), 'Country', 'Address')
+        return [
+            'customer' => [
+                'initials'              => $this->getInitials($address->getFirstName()),
+                'lastName'              => $address->getLastName(),
+                'email'                 => $customer->getEmail(),
+                'phone'                 => $dataBag->get('buckaroo_in3_phone'),
+                'culture'               => 'nl-NL',
+                'birthDate'             => $dataBag->get('buckaroo_capayablein3_DoB'),
+            ]
+        ];
+    }
+
+    /**
+     * Get billing address data
+     *
+     * @param RequestDataBag $dataBag
+     * @param OrderEntity $order
+     *
+     * @return array
+     */
+    private function getAddress(RequestDataBag $dataBag, OrderEntity $order): array
+    {
+
+        $address = $order->getBillingAddress();
+        $streetData  = $this->formatRequestParamService->formatStreet($address->getStreet());
+
+        $data = [
+            'address' => [
+                'street'      => $streetData['street'],
+                'houseNumber' => $streetData['house_number'] ?? $address->getAdditionalAddressLine1(),
+                'zipcode'     => $address->getZipCode(),
+                'city'        => $address->getCity(),
+                'country'     => $address->getCountry()->getIso()
+            ]
         ];
 
         if (strlen($streetData['number_addition']) > 0) {
-            $param = $this->getRequestParameterRow($streetData['number_addition'], 'HouseNumberSuffix', 'Address');
-            $requestParameter[] = $param;
+            $data['houseNumberAdditional'] = $streetData['number_addition'];
         }
 
-        if(in_array($dataBag->get('buckaroo_capayablein3_orderAs'),['SoleProprietor', 'Company'])){
-            $requestParameter[] = $this->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_CompanyName'), 'Name', 'Company');
-            $requestParameter[] = $this->getRequestParameterRow($dataBag->get('buckaroo_capayablein3_COCNumber'), 'ChamberOfCommerce', 'Company');
-        }
-        $requestParameter = array_merge(
-            $requestParameter,
-            $this->asyncPaymentService->formatRequestParamService->getProductLineData($order)
-        );
+        return $data;
+    }
 
-        return $requestParameter;
+    /**
+     * Get company data
+     *
+     * @param RequestDataBag $dataBag
+     *
+     * @return array
+     */
+    private function getCompany(RequestDataBag $dataBag): array
+    {
+        if (
+            in_array(
+                $dataBag->get('buckaroo_capayablein3_orderAs'),
+                ['SoleProprietor', 'Company']
+            )
+        ) {
+            return [
+                'company' => [
+                    'companyName'       => $dataBag->get('buckaroo_capayablein3_CompanyName'),
+                    'chamberOfCommerce' => $dataBag->get('buckaroo_capayablein3_COCNumber')
+                ]
+            ];
+        }
+
+        return [];
+    }
+
+    /**
+     * Get articles from order
+     *
+     * @param OrderEntity $order
+     *
+     * @return array
+     */
+    private function getArticles(OrderEntity $order): array
+    {
+        return [
+            'articles' => $this->asyncPaymentService
+                ->formatRequestParamService
+                ->getProductLineData($order)
+        ];
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return string
+     */
+    private function getInitials($name)
+    {
+        $initials = '';
+        $nameParts = explode(' ', $name);
+
+        if (empty($nameParts)) {
+            return $initials;
+        }
+
+        foreach ($nameParts as $part) {
+            $initials .= strtoupper(substr($part, 0, 1)) . '.';
+        }
+
+        return $initials;
     }
 }

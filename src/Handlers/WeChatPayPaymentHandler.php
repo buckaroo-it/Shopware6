@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
@@ -10,59 +12,44 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class WeChatPayPaymentHandler extends AsyncPaymentHandler
 {
+
+    protected string $paymentClass = WeChatPay::class;
+
     /**
+     * Get parameters for specific payment method
+     *
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $buckarooKey
-     * @param string $type
-     * @param array $gatewayInfo
-     * @return RedirectResponse
-     * @throws \Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException
+     * @param string $paymentCode
+     *
+     * @return array
      */
-    public function pay(
+    protected function getMethodPayload(
         AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $buckarooKey = null,
-        string $type = null,
-        string $version = null,
-        array $gatewayInfo = []
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $paymentMethod = new WeChatPay();
-
-        $additional = [
-            [
-                'Name' => 'Locale',
-                '_' => $this->getLocaleCode(),
-            ]
+        string $paymentCode
+    ): array {
+        return [
+            'locale' => $this->getLocaleCode(
+                $transaction->getOrder()
+                    ->getBillingAddress()
+                    ->getCountry()
+                    ->getIso()
+            ),
         ];
-
-        $gatewayInfo   = [
-            'additional' => [$additional],
-        ];
-
-        return parent::pay(
-            $transaction,
-            $dataBag,
-            $salesChannelContext,
-            $paymentMethod->getBuckarooKey(),
-            $paymentMethod->getType(),
-            $paymentMethod->getVersion(),
-            $gatewayInfo
-        );
     }
 
-    private function getLocaleCode($country = false)
+
+    private function getLocaleCode($country)
     {
         if ($country == 'CN') {
-            $localeCode = 'zh-CN';
-        } else if ($country == 'TW') {
-            $localeCode = 'zh-TW';
-        } else {
-            $localeCode = 'en-US';
+            return 'zh-CN';
         }
-        return $localeCode;
+        if ($country == 'TW') {
+            return 'zh-TW';
+        }
+        return 'en-US';
     }
 }

@@ -7,8 +7,8 @@ namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -37,7 +37,7 @@ class UpdateOrderWithPaypalExpressData
 
 
     public function update(
-        TransactionResponse $response,
+        ClientResponseInterface $response,
         OrderEntity $order,
         SalesChannelContext $saleChannelContext
     ) {
@@ -135,6 +135,8 @@ class UpdateOrderWithPaypalExpressData
         )->getEntities();
 
         if ($addresses !== null) {
+
+            /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
             foreach ($addresses as $address) {
                 $customFields = $address->getCustomFields();
                 if ($customFields != null && isset($customFields['buckarooAddress'])) {

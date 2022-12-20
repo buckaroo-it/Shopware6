@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
@@ -7,6 +9,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Handlers\AsyncPaymentHandler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -15,6 +18,8 @@ use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 
 class PaypalPaymentHandler extends AsyncPaymentHandler
 {
+
+    protected string $paymentClass = Paypal::class;
 
     /**
      * @var \Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData
@@ -27,59 +32,49 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
     public function __construct(
         AsyncPaymentService $asyncPaymentService,
         UpdateOrderWithPaypalExpressData $orderUpdater
-        
-        ) {
+
+    ) {
         parent::__construct($asyncPaymentService);
         $this->orderUpdater = $orderUpdater;
     }
 
-
     /**
+     * Get parameters for specific payment method
+     *
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $buckarooKey
-     * @param string $type
-     * @param array $gatewayInfo
-     * @return RedirectResponse
-     * @throws \Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException
+     * @param string $paymentCode
+     *
+     * @return array
      */
-    public function pay(
+    protected function getMethodPayload(
         AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $buckarooKey = null,
-        string $type = null,
-        string $version = null,
-        array $gatewayInfo = []
+        string $paymentCode
+    ): array {
+        if ($dataBag->has('orderId')) {
+            return ['payPalOrderId' => $dataBag->get('orderId')];
+        }
+        return [];
+    }
+
+    protected function handleResponse(
+        ClientResponseInterface $response,
+        AsyncPaymentTransactionStruct $transaction,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
     ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $paymentMethod = new Paypal();
-        return parent::pay(
+        $this->orderUpdater->update($response, $transaction->getOrder(), $salesChannelContext);
+        
+        return parent::handleResponse(
+            $response,
             $transaction,
             $dataBag,
             $salesChannelContext,
-            $paymentMethod->getBuckarooKey(),
-            $paymentMethod->getType(),
-            $paymentMethod->getVersion(),
-            $gatewayInfo
+            $paymentCode
         );
-    }
-    /**
-    * Handle pay response from buckaroo
-    *
-    * @param TransactionResponse $response
-    * @param OrderEntity $order
-    * @param SalesChannelContext $saleChannelContext
-    *
-    * @return void
-    */
-    protected function handlePayResponse(
-        TransactionResponse $response,
-        OrderEntity $order,
-        SalesChannelContext $saleChannelContext
-    ): void
-    {
-        $this->orderUpdater->update($response, $order, $saleChannelContext);
     }
 }

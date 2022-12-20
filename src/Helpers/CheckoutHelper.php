@@ -118,7 +118,7 @@ class CheckoutHelper
         return $this->shopwareVersion;
     }
     
-    public function updateOrderCustomFields(string $orderId, array $customFields): void
+    public function applyFeeToOrder(string $orderId, array $customFields): void
     {
         $order = $this->getOrderById($orderId, false);
         $price = $order->getPrice();
@@ -129,21 +129,23 @@ class CheckoutHelper
             $savedCustomFields = [];
         }
 
-        $buckarooFee = round((float) str_replace(',','.',$customFields['buckarooFee']), 2);
-        $data = [
-            'id'           => $orderId,
-            'customFields' => array_merge($savedCustomFields, $customFields),
-            'price' => new CartPrice(
-                $price->getNetPrice() + $buckarooFee,
-                $price->getTotalPrice() + $buckarooFee,
-                $price->getPositionPrice(),
-                $price->getCalculatedTaxes(),
-                $price->getTaxRules(),
-                $price->getTaxStatus()
-            )
-        ];
-
-        $this->orderRepository->update([$data], Context::createDefaultContext());
+        if(!isset($savedCustomFields['buckarooFee'])) {
+            $buckarooFee = round((float) str_replace(',','.',$customFields['buckarooFee']), 2);
+            $data = [
+                'id'           => $orderId,
+                'customFields' => array_merge($savedCustomFields, $customFields),
+                'price' => new CartPrice(
+                    $price->getNetPrice() + $buckarooFee,
+                    $price->getTotalPrice() + $buckarooFee,
+                    $price->getPositionPrice(),
+                    $price->getCalculatedTaxes(),
+                    $price->getTaxRules(),
+                    $price->getTaxStatus()
+                )
+            ];
+    
+            $this->orderRepository->update([$data], Context::createDefaultContext());
+        }
     }
 
     /**
@@ -295,80 +297,7 @@ class CheckoutHelper
         return $customer->getDefaultShippingAddress();
     }
 
-    /**
-     * @param $street
-     *
-     * @return array
-     */
-    public function formatStreet($street)
-    {
-        $format = [
-            'house_number'    => '',
-            'number_addition' => '',
-            'street'          => $street,
-        ];
-
-        if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
-            // Check if the number is at the beginning of streetname
-            if ('' == $matches[1]) {
-                $format['house_number'] = trim($matches[2]);
-                $format['street']       = trim($matches[3]);
-            } else {
-                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
-                    $format['street']          = trim($matches[1]);
-                    $format['house_number']    = trim($matches[2]);
-                    $format['number_addition'] = trim(str_replace(',', '', $matches[3]));
-                }
-            }
-        }
-        return $format;
-    }
-
     
-
-
-    public function getTransferData($order, $additional, $salesChannelContext, $dataBag)
-    {
-        $address = $this->getBillingAddress($order, $salesChannelContext);
-        $customer = $this->getOrderCustomer($order, $salesChannelContext);
-
-        if ($address === null) {
-            return $additional;
-        }
-
-        $now = new \DateTime();
-        $now->modify('+' . ($this->getSetting('transferDateDue', $salesChannelContext->getSalesChannelId()) > 0 ? $this->getSetting('transferDateDue', $salesChannelContext->getSalesChannelId()) : 7) . ' day');
-        $sendEmail = $this->getSetting('transferSendEmail', $salesChannelContext->getSalesChannelId()) ? 'true' : 'false';
-
-        $services = [
-            [
-                '_'    => $address->getFirstName(),
-                'Name' => 'CustomerFirstName',
-            ],
-            [
-                '_'    => $address->getLastName(),
-                'Name' => 'CustomerLastName',
-            ],
-            [
-                '_'    => $address->getCountry()->getIso(),
-                'Name' => 'CustomerCountry',
-            ],
-            [
-                '_'    => $customer->getEmail(),
-                'Name' => 'CustomerEmail',
-            ],
-            [
-                '_'    => $now->format('Y-m-d'),
-                'Name' => 'DateDue',
-            ],
-            [
-                '_'    => $sendEmail,
-                'Name' => 'SendMail',
-            ],
-        ];
-
-        return array_merge($additional, [$services]);
-    }
 
     /**
      * @param $locale
@@ -470,27 +399,7 @@ class CheckoutHelper
         }
     }
 
-    /**
-     * @param string $name
-     *
-     * @return string
-     */
-    public function getInitials($name)
-    {
-        $initials = '';
-        $nameParts = explode(' ', $name);
-
-        if (empty($nameParts)) {
-            return $initials;
-        }
-
-        foreach ($nameParts as $part) {
-            $initials .= strtoupper(substr($part, 0, 1)) . '.';
-        }
-
-        return $initials;
-    }
-
+    
 
     public function getBuckarooFee($buckarooKey, string $salesChannelId = null)
     {

@@ -17,7 +17,8 @@
 
 
         <service id="Buckaroo\Shopware6\Handlers\AfterPayOld">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
         </service>
         
         <!-- /Entity -->
@@ -70,6 +71,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="state_machine_state.repository" />
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
         </service>
 
@@ -115,6 +117,7 @@
         </service>
 
         <service id="Buckaroo\Shopware6\Service\FormatRequestParamService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\SignatureValidationService">
@@ -126,6 +129,11 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
             <argument type="service" id="Buckaroo\Shopware6\Buckaroo\BkrClient"/>
             <argument type="service" id="translator" />
+        </service>
+
+
+        <service id="Buckaroo\Shopware6\Service\Buckaroo\ClientService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
         </service>
         
         <service id="Buckaroo\Shopware6\Helpers\CheckoutHelper">
@@ -146,7 +154,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\BkrClient"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
