@@ -12,7 +12,8 @@
         "ext-curl": "*",
         "ext-json": "*",
         "ext-pcre": "*",
-        "ext-fileinfo": "*"
+        "ext-fileinfo": "*",
+        "buckaroo/sdk": "^1.2"
     },
     "authors": [{
         "name": "Buckaroo",
