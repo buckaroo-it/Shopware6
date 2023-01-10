@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9a192668e5f4a760764dabb3ed889c1f",
+    "content-hash": "ad23e43230485c8729ab7a29d331ce24",
     "packages": [
         {
             "name": "buckaroo/sdk",
-            "version": "1.2.0",
+            "version": "dev-develop",
             "source": {
                 "type": "git",
                 "url": "https://github.com/buckaroo-it/BuckarooSDK_PHP.git",
-                "reference": "a2951e71798244675a479bdbd997ccc0e4682ca5"
+                "reference": "7d4a5896171e3c8f61e98c3971a29de2bd1a1f1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/buckaroo-it/BuckarooSDK_PHP/zipball/a2951e71798244675a479bdbd997ccc0e4682ca5",
-                "reference": "a2951e71798244675a479bdbd997ccc0e4682ca5",
+                "url": "https://api.github.com/repos/buckaroo-it/BuckarooSDK_PHP/zipball/7d4a5896171e3c8f61e98c3971a29de2bd1a1f1a",
+                "reference": "7d4a5896171e3c8f61e98c3971a29de2bd1a1f1a",
                 "shasum": ""
             },
             "require": {
@@ -56,9 +56,9 @@
             "description": "Buckaroo payment SDK",
             "support": {
                 "issues": "https://github.com/buckaroo-it/BuckarooSDK_PHP/issues",
-                "source": "https://github.com/buckaroo-it/BuckarooSDK_PHP/tree/1.2.0"
+                "source": "https://github.com/buckaroo-it/BuckarooSDK_PHP/tree/develop"
             },
-            "time": "2022-11-30T09:53:45+00:00"
+            "time": "2023-01-03T15:28:29+00:00"
         },
         {
             "name": "composer/ca-bundle",
@@ -894,7 +894,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "buckaroo/sdk": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

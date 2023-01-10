@@ -30,7 +30,7 @@ abstract class HttpClientAbstract implements HttpClientInterface
     /**
      *
      */
-    protected const TIMEOUT = 30;
+    protected const TIMEOUT = 60;
     /**
      *
      */

@@ -92,7 +92,7 @@ class ReplyHandler
             $data = json_decode($data, true);
         }
 
-        if($this->contains('Transaction', $data))
+        if($this->contains('Transaction', $data) && $this->auth_header && $this->uri)
         {
             $this->strategy = new Json($this->config, $data, $this->auth_header, $this->uri);
 
@@ -142,7 +142,7 @@ class ReplyHandler
     {
         if($key)
         {
-            return $this->data[$key] ?? null;
+            return $this->data[$key] ?? $this->data[strtolower($key)] ?? $this->data[strtoupper($key)] ?? null;
         }
 
         return $this->data;

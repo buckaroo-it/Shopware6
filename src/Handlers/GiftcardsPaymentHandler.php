@@ -37,6 +37,23 @@ class GiftcardsPaymentHandler extends AsyncPaymentHandler
         ];
     }
 
+    /**
+     * Get method action for specific payment method
+     *
+     * @param RequestDataBag $dataBag
+     * @param SalesChannelContext $salesChannelContext
+     * @param string $paymentCode
+     *
+     * @return string
+     */
+    protected function getMethodAction(
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): string
+    {
+        return 'payRedirect';
+    }
 
     protected function getAllowedGiftcards(string $salesChannelId)
     {

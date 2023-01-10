@@ -7,13 +7,11 @@
     "minimum-stability": "stable",
     "require": {
         "php": ">=7.1",
-        "shopware/core": "~6.4.0",
-        "shopware/storefront": "~6.4.0",
         "ext-curl": "*",
         "ext-json": "*",
         "ext-pcre": "*",
         "ext-fileinfo": "*",
-        "buckaroo/sdk": "^1.2"
+        "buckaroo/sdk": "dev-develop"
     },
     "authors": [{
         "name": "Buckaroo",

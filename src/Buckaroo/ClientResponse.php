@@ -137,4 +137,9 @@ class ClientResponse implements ClientResponseInterface
     {
         return $this->response->getServiceParameters();
     }
+
+    public function getSomeError(): string
+    {
+        return $this->response->getSomeError();
+    }
 }

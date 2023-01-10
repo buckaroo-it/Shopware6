@@ -10,13 +10,16 @@ class Client
 {
     protected BuckarooClient $client;
 
-    public function __construct(string $websiteKey, string $secretKey, string $mode = 'live')
+    protected string $paymentCode;
+
+    public function __construct(string $websiteKey, string $secretKey, string $paymentCode, string $mode = 'live')
     {
         $this->client = new BuckarooClient(
             $websiteKey,
             $secretKey,
             $mode
         );
+        $this->paymentCode = $paymentCode;
     }
 
     /**
@@ -29,10 +32,10 @@ class Client
      * @return ClientResponseInterface
      * @throws \Exception
      */
-    public function execute(string $paymentCode, array $payload, string $action = 'pay'): ClientResponseInterface
+    public function execute(array $payload, string $action = 'pay'): ClientResponseInterface
     {
         return new ClientResponse(
-            $this->client->method($paymentCode)->$action($payload)
+            $this->client->method($this->paymentCode)->$action($payload)
         );
     }
 }

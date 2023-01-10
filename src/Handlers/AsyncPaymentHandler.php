@@ -66,7 +66,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
             return $this->handleResponse(
                 $client->execute(
-                    $this->getPaymentCode($paymentCode, $salesChannelId),
                     array_merge_recursive(
                         $this->getCommonRequestPayload(
                             $transaction,
@@ -139,11 +138,9 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
            $fee =  $this->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
 
-            if ($fee > 0) {
-                $this->asyncPaymentService
+            $this->asyncPaymentService
                 ->checkoutHelper
                 ->applyFeeToOrder($transaction->getOrder()->getId(), ['buckarooFee' => $fee]);
-            }
 
             if (!$response->isSuccess()) {
                 $this->asyncPaymentService
@@ -210,34 +207,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     ): array
     {
         return [];
-    }
-
-    /**
-     * Get code required for payment
-     *
-     * @param string $paymentCode
-     * @param string $salesChannelId
-     *
-     * @return string
-     */
-    protected function getPaymentCode(string $paymentCode, string $salesChannelId): string
-    {
-        if(
-            $paymentCode === 'afterpay' &&
-            $this->getSetting('afterpayEnabledold', $salesChannelId) === true
-        ) {
-            return 'afterpaydigiaccept';
-        }
-
-        if ($paymentCode === 'klarnain') {
-            return 'klarna';
-        }
-
-        if($paymentCode === 'capayable') {
-            return 'in3';
-        }
-
-        return $paymentCode;
     }
     /**
      * Get parameters common to all payment methods

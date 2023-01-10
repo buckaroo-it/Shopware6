@@ -80,7 +80,7 @@ class TransactionService
     
     public function getCustomFields(OrderEntity $order, Context $context)
     {
-        $transaction = $order->getTransactions()->first();
+        $transaction = $order->getTransactions()->last();
 
         $orderTransaction = $this->getOrderTransactionById(
             $context,
@@ -106,7 +106,7 @@ class TransactionService
      */
     public function isBuckarooPaymentMethod(OrderEntity $order): bool
     {
-        $transaction = $order->getTransactions()->first();
+        $transaction = $order->getTransactions()->last();
 
         if (!$transaction || !$transaction->getPaymentMethod() || !$transaction->getPaymentMethod()->getPlugin()) {
             return false;

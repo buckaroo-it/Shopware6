@@ -78,4 +78,6 @@ interface ClientResponseInterface {
      */
     public function getServiceParameters(): array;
     
+    public function getSomeError(): string;
+    
 }

@@ -123,29 +123,6 @@ class FormatRequestParamService
 
         return $productData;
     }
-
-    public function getProductLineDataCapture($order)
-    {
-        $lines = $this->getOrderLinesArray($order);
-
-        $productData = [];
-        $max = 99;
-        $i = 1;
-
-        foreach ($lines as $item) {
-            $productData[] = $this->getRequestParameterRow($item['sku'], 'ArticleNumber', 'Article', $i);
-            $productData[] = $this->getRequestParameterRow($item['quantity'], 'ArticleQuantity', 'Article', $i);
-
-            $i++;
-
-            if ($i > $max) {
-                break;
-            }
-        }
-
-        return $productData;
-    }
-
     
     /**
      * @param string          $value

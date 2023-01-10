@@ -11,12 +11,12 @@
     ),
     'versions' => array(
         'buckaroo/sdk' => array(
-            'pretty_version' => '1.2.0',
-            'version' => '1.2.0.0',
+            'pretty_version' => 'dev-develop',
+            'version' => 'dev-develop',
             'type' => 'library',
             'install_path' => __DIR__ . '/../buckaroo/sdk',
             'aliases' => array(),
-            'reference' => 'a2951e71798244675a479bdbd997ccc0e4682ca5',
+            'reference' => '7d4a5896171e3c8f61e98c3971a29de2bd1a1f1a',
             'dev_requirement' => false,
         ),
         'buckaroo/shopware6' => array(

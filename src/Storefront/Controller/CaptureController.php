@@ -62,7 +62,8 @@ class CaptureController extends StorefrontController
                     'transactions',
                     'transactions.paymentMethod',
                     'transactions.paymentMethod.plugin',
-                    'salesChannel'
+                    'salesChannel',
+                    'currency'
                 ],
                 $context
             );
@@ -76,7 +77,7 @@ class CaptureController extends StorefrontController
 
         try {
             return new JsonResponse(
-                $this->captureService->captureTransaction($request, $order, $context)
+                $this->captureService->capture($request, $order, $context)
             );
         } catch (\Exception $exception) {
             return new JsonResponse(
