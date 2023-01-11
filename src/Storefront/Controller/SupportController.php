@@ -103,7 +103,7 @@ class SupportController extends StorefrontController
     public function getBuckarooApiTest(Request $request)
     {
         return new JsonResponse(
-            $this->testCredentialsService->getBuckarooApiTest($request)
+            $this->testCredentialsService->execute($request)
         );
     }
 

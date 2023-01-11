@@ -27,7 +27,7 @@ class ClientService
      * @return Client
      * @throws ClientInitException
      */
-    public function get(string $configMethodCode, string $salesChannelId): Client
+    public function get(string $configMethodCode, string $salesChannelId = null): Client
     {
         $mode = $this->settingsService->getEnvironment($configMethodCode, $salesChannelId) == 'live' ? Config::LIVE_MODE : Config::TEST_MODE;
 
@@ -51,7 +51,7 @@ class ClientService
      *
      * @return string
      */
-    protected function getPaymentCode(string $paymentCode, string $salesChannelId): string
+    protected function getPaymentCode(string $paymentCode, string $salesChannelId = null): string
     {
         if(
             $paymentCode === 'afterpay' &&

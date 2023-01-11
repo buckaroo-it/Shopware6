@@ -65,6 +65,7 @@
         <service id="Buckaroo\Shopware6\Service\UrlService">
              <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
              <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface"/>
+             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\StateTransitionService">
@@ -99,7 +100,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
             <argument type="service" id="translator" />
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\BkrClient"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\InvoiceService">
@@ -127,7 +128,7 @@
         <service id="Buckaroo\Shopware6\Service\TestCredentialsService">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\BkrClient"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
             <argument type="service" id="translator" />
         </service>
 
@@ -411,7 +412,7 @@
         
         <service id="Buckaroo\Shopware6\Storefront\Controller\PaylinkController" public="true">
             <argument type="service" id="Buckaroo\Shopware6\Service\PayLinkService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

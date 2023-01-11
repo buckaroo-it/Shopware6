@@ -63,7 +63,8 @@ class PaylinkController extends StorefrontController
                     'transactions',
                     'transactions.paymentMethod',
                     'transactions.paymentMethod.plugin',
-                    'salesChannel'
+                    'salesChannel',
+                    'currency'
                 ],
                 $context
             );
@@ -78,7 +79,7 @@ class PaylinkController extends StorefrontController
 
         try {
             return new JsonResponse(
-                $this->checkoutHelper->createPaylink($request, $order)
+                $this->payLinkService->create($request, $order)
             );
         } catch (\Exception $exception) {
             return new JsonResponse(
