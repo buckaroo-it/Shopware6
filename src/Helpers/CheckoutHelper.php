@@ -166,19 +166,6 @@ class CheckoutHelper
             'updated_at'           => $now,
         ];
     }
-
-    private function getProductsOfOrder(string $orderId): array
-    {
-        $query = $this->connection->createQueryBuilder();
-        $query->select(['referenced_id', 'quantity']);
-        $query->from('order_line_item');
-        $query->andWhere('type = :type');
-        $query->andWhere('order_id = :id');
-        $query->setParameter('id', Uuid::fromHexToBytes($orderId));
-        $query->setParameter('type', LineItem::PRODUCT_LINE_ITEM_TYPE);
-
-        return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
-    }
  
     public function getSettingsValue($value, string $salesChannelId = null){
         return $this->settingsService->getSetting($value, $salesChannelId);
