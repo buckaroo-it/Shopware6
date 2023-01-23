@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Service\OrderService;
 use Buckaroo\Shopware6\Service\RefundService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Storefront\Controller\StorefrontController;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 
 
 /**
@@ -24,12 +25,15 @@ class RefundController extends StorefrontController
 
     private OrderService $orderService;
 
+    protected LoggerInterface $logger;
     public function __construct(
         RefundService $refundService,
-        OrderService $orderService
+        OrderService $orderService,
+        LoggerInterface $logger
     ) {
         $this->refundService = $refundService;
         $this->orderService = $orderService;
+        $this->logger = $logger;
     }
 
     /**
@@ -44,7 +48,6 @@ class RefundController extends StorefrontController
     {
         $orderId = $request->get('transaction');
         $transactionsToRefund = $request->get('transactionsToRefund');
-        $orderItems = $request->get('orderItems');
 
         if (empty($orderId)) {
             return new JsonResponse(
@@ -87,6 +90,7 @@ class RefundController extends StorefrontController
             }
             return new JsonResponse($responses);
         } catch (\Exception $exception) {
+            $this->logger->debug($exception);
             return new JsonResponse(
                 [
                     'status'  => false,

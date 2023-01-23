@@ -402,15 +402,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     }
     protected function getOrderLinesArray(OrderEntity $order, string $paymentCode = null)
     {
-        return $this->asyncPaymentService->formatRequestParamService->getOrderLinesArray($order, $paymentCode);
-    }
-    public function getRequestParameterRow($value, $name, $groupType = null, $groupId = null)
-    {
         return $this->asyncPaymentService
-            ->formatRequestParamService
-            ->getRequestParameterRow($value, $name, $groupType, $groupId);
+        ->formatRequestParamService
+        ->getOrderLinesArray($order, $paymentCode);
     }
-
+ 
     public function getSetting(string $key, string $salesChannelId = null)
     {
         return $this->asyncPaymentService

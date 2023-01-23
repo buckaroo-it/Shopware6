@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Service\OrderService;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,12 +25,16 @@ class CaptureController extends StorefrontController
 
     private OrderService $orderService;
 
+    protected LoggerInterface $logger;
+
     public function __construct(
         CaptureService $captureService,
-        OrderService $orderService
+        OrderService $orderService,
+        LoggerInterface $logger
     ) {
         $this->captureService = $captureService;
         $this->orderService = $orderService;
+        $this->logger = $logger;
     }
 
     /**
@@ -80,6 +85,7 @@ class CaptureController extends StorefrontController
                 $this->captureService->capture($request, $order, $context)
             );
         } catch (\Exception $exception) {
+            $this->logger->debug((string)$exception);
             return new JsonResponse(
                 [
                     'status'  => false,

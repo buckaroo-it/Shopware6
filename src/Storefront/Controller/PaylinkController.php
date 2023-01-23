@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
-use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\OrderService;
+use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\PayLinkService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,12 +26,16 @@ class PaylinkController extends StorefrontController
 
     protected  OrderService $orderService;
 
+    protected LoggerInterface $logger;
+
     public function __construct(
         PayLinkService $payLinkService,
-        OrderService $orderService
+        OrderService $orderService,
+        LoggerInterface $logger
     ) {
         $this->payLinkService = $payLinkService;
         $this->orderService = $orderService;
+        $this->logger = $logger;
     }
 
     /**
@@ -82,6 +87,7 @@ class PaylinkController extends StorefrontController
                 $this->payLinkService->create($request, $order)
             );
         } catch (\Exception $exception) {
+            $this->logger->debug((string)$exception);
             return new JsonResponse(
                 [
                     'status'  => false,

@@ -318,7 +318,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     private function getCustomer(string $customerId, Context $context): CustomerEntity
     {
         $criteria = (new Criteria())->addFilter(new EqualsFilter('id', $customerId));
-        return $this->customerRepository->search($criteria, $context)->first();
+
+        /** @var \Shopware\Core\Checkout\Customer\CustomerEntity */
+        $customer = $this->customerRepository->search($criteria, $context)->first();
+        return $customer;
     }
 
     /**

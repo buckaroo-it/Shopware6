@@ -123,32 +123,7 @@ class FormatRequestParamService
 
         return $productData;
     }
-    
-    /**
-     * @param string          $value
-     * @param string          $name
-     * @param null|string     $groupType
-     * @param null|string|int $groupId
-     *
-     * @return array
-     */
-    public function getRequestParameterRow($value, $name, $groupType = null, $groupId = null)
-    {
-        $row = [
-            '_' => $value,
-            'Name' => $name
-        ];
 
-        if ($groupType !== null) {
-            $row['Group'] = $groupType;
-        }
-
-        if ($groupId !== null) {
-            $row['GroupID'] = $groupId;
-        }
-
-        return $row;
-    }
 
     /**
      * Return a calculated tax struct for a line item.
