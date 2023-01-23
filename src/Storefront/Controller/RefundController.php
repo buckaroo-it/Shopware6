@@ -63,7 +63,8 @@ class RefundController extends StorefrontController
                     'transactions',
                     'transactions.paymentMethod',
                     'transactions.paymentMethod.plugin',
-                    'salesChannel'
+                    'salesChannel',
+                    'currency'
                 ],
                 $context
             );
@@ -77,13 +78,11 @@ class RefundController extends StorefrontController
         try {
             $responses = [];
             foreach ($transactionsToRefund as $item) {
-                $responses[] = $this->refundService->refundTransaction(
+                $responses[] = $this->refundService->refund(
                     $request,
                     $order,
                     $context,
                     $item,
-                    $orderItems,
-                    (float) $request->get('customRefundAmount')
                 );
             }
             return new JsonResponse($responses);

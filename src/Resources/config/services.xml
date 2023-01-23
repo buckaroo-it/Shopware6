@@ -83,7 +83,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
             <argument type="service" id="translator" />
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\BkrClient"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\CaptureService">
