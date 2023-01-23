@@ -84,16 +84,6 @@
         </input-field>
 
         <input-field type="bool">
-            <name>stockReserve</name>
-            <label lang="en-GB">Stock reserve</label>
-            <label lang="de-DE">Aktienreserve</label>
-            <label lang="nl-NL">Stock reserve</label>
-            <helpText lang="de-DE">Aktivieren Sie den Reservebestand, nachdem die Bestellung gebucht wurde.</helpText>
-            <helpText lang="en-GB">Enable reserve stock after order is booked.</helpText>
-            <helpText lang="nl-NL">Schakel reservevoorraad in nadat de bestelling is geboekt.</helpText>
-        </input-field>
-
-        <input-field type="bool">
             <name>sendInvoiceEmail</name>
             <label lang="en-GB">Send transactional invoice email</label>
             <label lang="de-DE">Senden Sie eine Transaktionsrechnungs-E-Mail</label>

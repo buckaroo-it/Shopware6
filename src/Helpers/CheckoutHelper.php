@@ -179,22 +179,6 @@ class CheckoutHelper
 
         return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
     }
-
-    public function stockReserve(OrderEntity $order){
-        $products = $this->getProductsOfOrder($order->getId());
-
-        $query = new RetryableQuery(
-            $this->connection->prepare('UPDATE product SET stock = stock - :quantity WHERE id = :id AND version_id = :version')
-        );
-
-        foreach ($products as $product) {
-            $query->execute([
-                'quantity' => (int) $product['quantity'],
-                'id' => Uuid::fromHexToBytes($product['referenced_id']),
-                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            ]);
-        }
-    }
  
     public function getSettingsValue($value, string $salesChannelId = null){
         return $this->settingsService->getSetting($value, $salesChannelId);
