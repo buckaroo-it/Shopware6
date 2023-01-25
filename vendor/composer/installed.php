@@ -16,7 +16,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../buckaroo/sdk',
             'aliases' => array(),
-            'reference' => '7d4a5896171e3c8f61e98c3971a29de2bd1a1f1a',
+            'reference' => 'f8bed79ae1c99738d9ebf0dd09cba04c61fdc09f',
             'dev_requirement' => false,
         ),
         'buckaroo/shopware6' => array(
@@ -29,12 +29,12 @@
             'dev_requirement' => false,
         ),
         'composer/ca-bundle' => array(
-            'pretty_version' => '1.3.4',
-            'version' => '1.3.4.0',
+            'pretty_version' => '1.3.5',
+            'version' => '1.3.5.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/./ca-bundle',
             'aliases' => array(),
-            'reference' => '69098eca243998b53eed7a48d82dedd28b447cd5',
+            'reference' => '74780ccf8c19d6acb8d65c5f39cd72110e132bbd',
             'dev_requirement' => false,
         ),
         'guzzlehttp/guzzle' => array(
