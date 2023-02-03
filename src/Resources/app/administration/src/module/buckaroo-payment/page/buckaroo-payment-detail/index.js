@@ -187,6 +187,7 @@ Component.register('buckaroo-payment-detail', {
 
             this.BuckarooPaymentService.getBuckarooTransaction(orderId)
                 .then((response) => {
+                    this.$emit('loading-change', false);
                     response.orderItems.forEach((element) => {
                         that.orderItems.push({
                             id: element.id,

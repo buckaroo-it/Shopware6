@@ -9,7 +9,7 @@ class BuckarooPaymentSettingsService extends ApiService {
 
     getSupportVersion()
     {
-        const apiRoute = `_action / ${this.getApiBasePath()} / version`;
+        const apiRoute = `_action/${this.getApiBasePath()}/version`;
 
         return this.httpClient.post(
             apiRoute,
@@ -25,7 +25,7 @@ class BuckarooPaymentSettingsService extends ApiService {
 
     getTaxes()
     {
-        const apiRoute = `_action / ${this.getApiBasePath()} / taxes`;
+        const apiRoute = `_action/${this.getApiBasePath()}/taxes`;
 
         return this.httpClient.post(
             apiRoute,
@@ -41,7 +41,7 @@ class BuckarooPaymentSettingsService extends ApiService {
 
     getApiTest(websiteKeyId, secretKeyId, currentSalesChannelId)
     {
-        const apiRoute = `_action / ${this.getApiBasePath()} / getBuckarooApiTest`;
+        const apiRoute = `_action/${this.getApiBasePath()}/getBuckarooApiTest`;
 
         return this.httpClient.post(
             apiRoute,
