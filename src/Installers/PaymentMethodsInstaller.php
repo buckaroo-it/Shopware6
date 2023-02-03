@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Installers;
 
-use Buckaroo\Shopware6\BuckarooPayments;
-use Buckaroo\Shopware6\Helpers\GatewayHelper;
-use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Plugin\Context\ActivateContext;
-use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
-use Shopware\Core\Framework\Plugin\Context\InstallContext;
-use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Buckaroo\Shopware6\BuckarooPayments;
+use Shopware\Core\Content\Media\MediaEntity;
+use Buckaroo\Shopware6\Helpers\GatewayHelper;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
+use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Framework\Plugin\Context\ActivateContext;
+use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
+use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator;
 
 class PaymentMethodsInstaller implements InstallerInterface
 {
@@ -32,7 +33,7 @@ class PaymentMethodsInstaller implements InstallerInterface
     public $pluginIdProvider;
     /** @var EntityRepositoryInterface */
     public $paymentMethodRepository;
-    /** @var EntityRepositoryInterface */
+    /** @var MediaRepositoryDecorator */
     public $mediaRepository;
     /** @var SystemConfigService */
     private $systemConfigService;
@@ -51,7 +52,7 @@ class PaymentMethodsInstaller implements InstallerInterface
         $paymentMethodRepository = $this->getDependency($container, 'payment_method.repository');
         $this->paymentMethodRepository = $paymentMethodRepository;
 
-        /** @var EntityRepository */
+        /** @var MediaRepositoryDecorator */
         $mediaRepository = $this->getDependency($container, 'media.repository');
         $this->mediaRepository = $mediaRepository;
 
