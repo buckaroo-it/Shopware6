@@ -1,85 +1,82 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Helpers;
 
-use Shopware\Core\Defaults;
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\SettingsService;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
- 
+
 class CheckoutHelper
 {
+    private string $shopwareVersion;
 
-    /** * @var string */
-    private $shopwareVersion;
-    /** @var SettingsService $settingsService */
-    private $settingsService;
-    /** @var EntityRepositoryInterface $orderRepository */
-    private $orderRepository;
-    /** @var BuckarooTransactionEntityRepository */
-    private $buckarooTransactionEntityRepository;
-    /** @var Connection */
-    private $connection;
-    /** @var DocumentService */
-    protected $documentService;
+    private SettingsService $settingsService;
+
+    private EntityRepository $orderRepository;
+
+    private BuckarooTransactionEntityRepository $buckarooTransactionEntityRepository;
+
+    protected DocumentService $documentService;
 
     protected Session $session;
-    /**
-     * CheckoutHelper constructor.
-     * @param string $shopwareVersion
-     */
+
     public function __construct(
         string $shopwareVersion,
         SettingsService $settingsService,
-        EntityRepositoryInterface $orderRepository,
+        EntityRepository $orderRepository,
         BuckarooTransactionEntityRepository $buckarooTransactionEntityRepository,
-        Session $session,
-        Connection $connection
+        Session $session
     ) {
         $this->shopwareVersion                     = $shopwareVersion;
         $this->settingsService                     = $settingsService;
         $this->orderRepository                     = $orderRepository;
         $this->buckarooTransactionEntityRepository = $buckarooTransactionEntityRepository;
         $this->session = $session;
-        $this->connection = $connection;
-
-
     }
-    
+
     public function getSession(): Session
     {
         return $this->session;
     }
-    
-    public function getShopwareVersion()
+
+    public function getShopwareVersion(): string
     {
         return $this->shopwareVersion;
     }
-    
-    public function applyFeeToOrder(string $orderId, array $customFields): void
+    /**
+     *
+     * @param string $orderId
+     * @param array<mixed> $customFields
+     * @param Context $context
+     *
+     * @return void
+     */
+    public function applyFeeToOrder(string $orderId, array $customFields, Context $context): void
     {
-        $order = $this->getOrderById($orderId, false);
+        $order = $this->getOrderById($orderId, $context);
+        if ($order === null) {
+            throw new \Exception("A valid order is required", 1);
+        }
+
         $price = $order->getPrice();
 
         $savedCustomFields = $order->getCustomFields();
 
-        if($savedCustomFields === null) {
+        if ($savedCustomFields === null) {
             $savedCustomFields = [];
         }
 
-        if(!isset($savedCustomFields['buckarooFee'])) {
-            $buckarooFee = round((float) str_replace(',','.',$customFields['buckarooFee']), 2);
+        if (!isset($savedCustomFields['buckarooFee']) && is_scalar($customFields['buckarooFee'])) {
+            $buckarooFee = round((float) str_replace(',', '.', (string)$customFields['buckarooFee']), 2);
             $data = [
                 'id'           => $orderId,
                 'customFields' => array_merge($savedCustomFields, $customFields),
@@ -92,24 +89,30 @@ class CheckoutHelper
                     $price->getTaxStatus()
                 )
             ];
-    
+
             $this->orderRepository->update([$data], Context::createDefaultContext());
         }
     }
 
     /**
-     * Append additional data to order custom fields 
+     * Append additional data to order custom fields
      *
      * @param string $orderId
-     * @param array $customFields
+     * @param array<mixed> $customFields
+     * @param Context|null $context
      *
      * @return void
      */
-    public function appendCustomFields(string $orderId, array $customFields) {
-        $order = $this->getOrderById($orderId, false);
+    public function appendCustomFields(string $orderId, array $customFields, Context $context = null)
+    {
+        $order = $this->getOrderById($orderId, $context);
+        if ($order === null) {
+            throw new \Exception("A valid order is required", 1);
+        }
+
         $savedCustomFields = $order->getCustomFields();
 
-        if($savedCustomFields === null) {
+        if ($savedCustomFields === null) {
             $savedCustomFields = [];
         }
         $this->orderRepository->update(
@@ -117,13 +120,13 @@ class CheckoutHelper
             Context::createDefaultContext()
         );
     }
-  
 
- 
 
-    public function getOrderById($orderId, $context):  ? OrderEntity
+
+
+    public function getOrderById(string $orderId, Context $context = null): ?OrderEntity
     {
-        $context       = $context ? $context : Context::createDefaultContext();
+        $context       = $context !== null ? $context : Context::createDefaultContext();
         $orderCriteria = new Criteria([$orderId]);
         $orderCriteria->addAssociation('orderCustomer.salutation');
         $orderCriteria->addAssociation('stateMachineState');
@@ -137,11 +140,17 @@ class CheckoutHelper
     }
 
 
-    public function saveBuckarooTransaction(Request $request, Context $context)
+    public function saveBuckarooTransaction(Request $request): ?string
     {
         return $this->buckarooTransactionEntityRepository->save(null, $this->pusToArray($request), []);
     }
 
+    /**
+     *
+     * @param Request $request
+     *
+     * @return array<mixed>
+     */
     public function pusToArray(Request $request): array
     {
         $now  = new \DateTime();
@@ -166,12 +175,25 @@ class CheckoutHelper
             'updated_at'           => $now,
         ];
     }
- 
-    public function getSettingsValue($value, string $salesChannelId = null){
+
+    /**
+     * @param string $value
+     * @param string|null $salesChannelId
+     *
+     * @return mixed
+     */
+    public function getSettingsValue(string $value, string $salesChannelId = null)
+    {
         return $this->settingsService->getSetting($value, $salesChannelId);
     }
 
-    public function areEqualAmounts($amount1, $amount2)
+    /**
+     * @param mixed $amount1
+     * @param mixed $amount2
+     *
+     * @return boolean
+     */
+    public function areEqualAmounts($amount1, $amount2): bool
     {
         if ($amount2 == 0) {
             return $amount1 == $amount2;

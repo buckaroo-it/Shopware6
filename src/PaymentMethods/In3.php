@@ -1,4 +1,6 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
@@ -49,7 +51,7 @@ class In3 extends AbstractPayment
      *
      * @return string|null
      */
-    public function getTemplate():  ? string
+    public function getTemplate(): ?string
     {
         return null;
     }
@@ -59,7 +61,7 @@ class In3 extends AbstractPayment
      *
      * @return string
      */
-    public function getMedia() : string
+    public function getMedia(): string
     {
         return __DIR__ . '/../Resources/views/storefront/buckaroo/logo/in3.png';
     }
@@ -67,7 +69,7 @@ class In3 extends AbstractPayment
     /**
      * {@inheritDoc}
      *
-     * @return array
+     * @return array<mixed>
      */
     public function getTranslations(): array
     {
@@ -82,5 +84,4 @@ class In3 extends AbstractPayment
             ],
         ];
     }
-
 }

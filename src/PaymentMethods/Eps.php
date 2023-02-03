@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
@@ -67,7 +69,7 @@ class Eps extends AbstractPayment
     /**
      * {@inheritDoc}
      *
-     * @return array
+     * @return array<mixed>
      */
     public function getTranslations(): array
     {
@@ -82,5 +84,4 @@ class Eps extends AbstractPayment
             ],
         ];
     }
-
 }

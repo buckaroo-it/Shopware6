@@ -29,14 +29,14 @@ class ClientService
      */
     public function get(string $configMethodCode, string $salesChannelId = null): Client
     {
-        $mode = $this->settingsService->getEnvironment($configMethodCode, $salesChannelId) == 'live' ? Config::LIVE_MODE : Config::TEST_MODE;
+        $mode = $this->settingsService->getEnvironment($configMethodCode, $salesChannelId);
 
         try {
             return new Client(
-                $this->settingsService->getSetting('websiteKey', $salesChannelId),
-                $this->settingsService->getSetting('secretKey', $salesChannelId),
+                $this->settingsService->getSettingAsString('websiteKey', $salesChannelId),
+                $this->settingsService->getSettingAsString('secretKey', $salesChannelId),
                 $this->getPaymentCode($configMethodCode, $salesChannelId),
-                $mode
+                $mode  == 'live' ? Config::LIVE_MODE : Config::TEST_MODE
             );
         } catch (\Throwable $th) {
             throw new ClientInitException("Cannot initiate buckaroo sdk client", 0, $th);
@@ -53,7 +53,7 @@ class ClientService
      */
     protected function getPaymentCode(string $paymentCode, string $salesChannelId = null): string
     {
-        if(
+        if (
             $paymentCode === 'afterpay' &&
             $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true
         ) {
@@ -64,11 +64,11 @@ class ClientService
             return 'klarna';
         }
 
-        if($paymentCode === 'capayable') {
+        if ($paymentCode === 'capayable') {
             return 'in3';
         }
 
-        if($paymentCode === 'giftcards') {
+        if ($paymentCode === 'giftcards') {
             return 'giftcard';
         }
 

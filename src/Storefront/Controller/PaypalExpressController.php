@@ -55,7 +55,7 @@ class PaypalExpressController extends AbstractPaymentController
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *
-     * @return RedirectResponse
+     * @return JsonResponse
      */
     public function create(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
@@ -89,7 +89,7 @@ class PaypalExpressController extends AbstractPaymentController
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *
-     * @return RedirectResponse
+     * @return JsonResponse
      */
     public function pay(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
@@ -103,7 +103,7 @@ class PaypalExpressController extends AbstractPaymentController
 
         try {
             $redirectPath = $this->placeOrder(
-                $this->createOrder($salesChannelContext, $request->request->get('cartToken')),
+                $this->createOrder($salesChannelContext, (string)$request->request->get('cartToken')),
                 $salesChannelContext,
                 new RequestDataBag([
                     "orderId" => $request->request->get('orderId')
@@ -126,14 +126,14 @@ class PaypalExpressController extends AbstractPaymentController
      /**
      * Create order from cart
      *
-     * @param Request $request
      * @param SalesChannelContext $salesChannelContext
+     * @param string|null $cartToken
      *
      * @return \Shopware\Core\Checkout\Order\OrderEntity
      */
-    protected function createOrder(SalesChannelContext $salesChannelContext, $cartToken = null)
+    protected function createOrder(SalesChannelContext $salesChannelContext, string $cartToken = null): OrderEntity
     {
-        
+
         if (!is_string($cartToken)) {
             $cartToken = $salesChannelContext->getToken();
         }
@@ -158,9 +158,9 @@ class PaypalExpressController extends AbstractPaymentController
      * @param Cart $cart
      * @param SalesChannelContext $salesChannelContext
      *
-     * @return * @return RedirectResponse
+     * @return array<mixed>
      */
-    protected function getCartBreakdown(Cart $cart, SalesChannelContext $salesChannelContext)
+    protected function getCartBreakdown(Cart $cart, SalesChannelContext $salesChannelContext): array
     {
         $currency = $salesChannelContext->getCurrency()->getIsoCode();
         $price = $cart->getPrice();
@@ -202,7 +202,7 @@ class PaypalExpressController extends AbstractPaymentController
      */
     protected function getCustomerData(Request $request)
     {
-        if (!($request->request->has('customer') && is_array($request->request->get('customer')))) {
+        if (!$request->request->has('customer')) {
             throw new InvalidParameterException("Invalid payment request", 1);
         }
 

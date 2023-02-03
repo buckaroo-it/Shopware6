@@ -6,45 +6,41 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\In3;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class In3PaymentHandler extends AsyncPaymentHandler
 {
-
     protected string $paymentClass = In3::class;
 
 
     /**
      * Get parameters for specific payment method
      *
-     * @param AsyncPaymentTransactionStruct $transaction
+     * @param OrderEntity $order
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
      * @param string $paymentCode
      *
-     * @return array
+     * @return array<mixed>
      */
     protected function getMethodPayload(
-        AsyncPaymentTransactionStruct $transaction,
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        $order = $transaction->getOrder();
-
         return array_merge(
             [
                 'invoiceDate'  => date('Y-m-d'),
                 'customerType' => $dataBag->get('buckaroo_capayablein3_orderAs', 'Debtor'),
-                'email'        =>  $order->getOrderCustomer()->getEmail(),
+                'email'        =>  $this->asyncPaymentService->getCustomer($order)->getEmail(),
                 'phone'        => [
                     'mobile' => $dataBag->get('buckaroo_in3_phone')
                 ],
             ],
             $this->getCustomer($dataBag, $order),
-            $this->getAddress($dataBag, $order),
+            $this->getAddress($order),
             $this->getCompany($dataBag),
             $this->getArticles($order)
         );
@@ -63,8 +59,7 @@ class In3PaymentHandler extends AsyncPaymentHandler
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
-    ): string
-    {
+    ): string {
         return 'payInInstallments';
     }
 
@@ -74,13 +69,13 @@ class In3PaymentHandler extends AsyncPaymentHandler
      * @param RequestDataBag $dataBag
      * @param OrderEntity $order
      *
-     * @return array
+     * @return array<mixed>
      */
     private function getCustomer(RequestDataBag $dataBag, OrderEntity $order): array
     {
 
-        $address = $order->getBillingAddress();
-        $customer = $order->getOrderCustomer();
+        $address = $this->asyncPaymentService->getBillingAddress($order);
+        $customer = $this->asyncPaymentService->getCustomer($order);
 
         return [
             'customer' => [
@@ -97,15 +92,14 @@ class In3PaymentHandler extends AsyncPaymentHandler
     /**
      * Get billing address data
      *
-     * @param RequestDataBag $dataBag
      * @param OrderEntity $order
      *
-     * @return array
+     * @return array<mixed>
      */
-    private function getAddress(RequestDataBag $dataBag, OrderEntity $order): array
+    private function getAddress(OrderEntity $order): array
     {
 
-        $address = $order->getBillingAddress();
+        $address = $this->asyncPaymentService->getBillingAddress($order);
         $streetData  = $this->formatRequestParamService->formatStreet($address->getStreet());
 
         $data = [
@@ -114,7 +108,7 @@ class In3PaymentHandler extends AsyncPaymentHandler
                 'houseNumber' => $streetData['house_number'] ?? $address->getAdditionalAddressLine1(),
                 'zipcode'     => $address->getZipCode(),
                 'city'        => $address->getCity(),
-                'country'     => $address->getCountry()->getIso()
+                'country'     => $this->asyncPaymentService->getCountry($address)->getIso()
             ]
         ];
 
@@ -130,7 +124,7 @@ class In3PaymentHandler extends AsyncPaymentHandler
      *
      * @param RequestDataBag $dataBag
      *
-     * @return array
+     * @return array<mixed>
      */
     private function getCompany(RequestDataBag $dataBag): array
     {
@@ -156,7 +150,7 @@ class In3PaymentHandler extends AsyncPaymentHandler
      *
      * @param OrderEntity $order
      *
-     * @return array
+     * @return array<mixed>
      */
     private function getArticles(OrderEntity $order): array
     {
@@ -172,15 +166,14 @@ class In3PaymentHandler extends AsyncPaymentHandler
      *
      * @return string
      */
-    private function getInitials($name)
+    private function getInitials(string $name): string
     {
         $initials = '';
-        $nameParts = explode(' ', $name);
 
-        if (empty($nameParts)) {
-            return $initials;
+        if (strlen(trim($name)) === 0) {
+            return '';
         }
-
+        $nameParts = explode(' ', $name);
         foreach ($nameParts as $part) {
             $initials .= strtoupper(substr($part, 0, 1)) . '.';
         }

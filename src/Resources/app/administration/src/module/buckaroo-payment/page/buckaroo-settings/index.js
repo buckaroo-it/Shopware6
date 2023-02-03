@@ -84,7 +84,7 @@ Component.register('buckaroo-settings', {
     },
 
     computed: {
-        credentialsMissing: function() {
+        credentialsMissing: function () {
             return !this.websiteKeyIdFilled || !this.secretKeyIdFilled;
         }
     },
@@ -104,24 +104,24 @@ Component.register('buckaroo-settings', {
             this.BuckarooPaymentSettingsService.getApiTest(websiteKeyId, secretKeyId, currentSalesChannelId)
                 .then((result) => {
 
-                    if(result.status == 'success'){
+                    if (result.status == 'success') {
                         this.createNotificationSuccess({
                             title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
                             message: that.$tc(result.message)
                         });
-                    }else{
+                    } else {
                         this.createNotificationError({
                             title: that.$tc('buckaroo-payment.settingsForm.titleError'),
                             message: that.$tc(result.message)
-                        });  
+                        });
                     }
 
                 });
         },
-        
+
         getCardConfig(element, card) {
             card.elements.forEach(el => {
-                if(el.name == element.name){
+                if (el.name == element.name) {
                     return el.config;
                 }
             });
@@ -129,18 +129,18 @@ Component.register('buckaroo-settings', {
         },
 
         showLabel(element, card) {
-            if(element.type == 'single-select'){
+            if (element.type == 'single-select') {
                 return true;
             }
-            if(element.type == 'multi-select'){
+            if (element.type == 'multi-select') {
                 return true;
             }
             return false;
         },
 
         showHelpText(element, card) {
-            if(this.showLabel(element, card)){
-                if(this.getCardInfo(element, card, 'helpText')){
+            if (this.showLabel(element, card)) {
+                if (this.getCardInfo(element, card, 'helpText')) {
                     return true;
                 }
             }
@@ -149,21 +149,21 @@ Component.register('buckaroo-settings', {
 
         showButtonAfter(element, config) {
             let name = 'advancedConfiguration';
-            if(config["BuckarooPayments.config.advancedConfiguration"] != undefined && config["BuckarooPayments.config.advancedConfiguration"]){
+            if (config["BuckarooPayments.config.advancedConfiguration"] != undefined && config["BuckarooPayments.config.advancedConfiguration"]) {
                 name = 'orderStatus'
             }
-            if(element.name.includes(name)){
+            if (element.name.includes(name)) {
                 return true;
             }
             return false;
         },
-        
+
         getLocale(config) {
             let adminLocale = window.localStorage.getItem('sw-admin-locale');
             if (adminLocale == null) {
                 adminLocale = 'en-GB';
             }
-            if(config[adminLocale] != undefined){
+            if (config[adminLocale] != undefined) {
                 return config[adminLocale];
             }
             return config['en-GB'];
@@ -172,8 +172,8 @@ Component.register('buckaroo-settings', {
         getCardInfo(element, card, type) {
             let text = '';
             card.elements.forEach(el => {
-                if(el.name == element.name){
-                    if(el.config != undefined){
+                if (el.name == element.name) {
+                    if (el.config != undefined) {
                         switch (type) {
                             case 'label':
                                 text = (el.config.label != undefined) ? this.getLocale(el.config.label) : '';
@@ -269,69 +269,70 @@ Component.register('buckaroo-settings', {
             }
 
             if (id in this.collapsibleAdvancedState) {
-                if(config["BuckarooPayments.config.advancedConfiguration"] != undefined && config["BuckarooPayments.config.advancedConfiguration"]){
+                if (config["BuckarooPayments.config.advancedConfiguration"] != undefined && config["BuckarooPayments.config.advancedConfiguration"]) {
                     return true;
                 }
             }
 
             let fid = id;
-            id = id.split(/([A-Z][a-z]+)/).filter(function(e){return e});
+            id = id.split(/([A-Z][a-z]+)/).filter(function (e) {
+                return e});
             id.pop();
             id = id.join("");
 
-            if(config["BuckarooPayments.config."+id+"Enabled"] != undefined && config["BuckarooPayments.config."+id+"Enabled"]){
+        if (config["BuckarooPayments.config." + id + "Enabled"] != undefined && config["BuckarooPayments.config." + id + "Enabled"]) {
+            return true;
+        }
+
+        if (fid == 'allowedcreditcard') {
+            if (config["BuckarooPayments.config.creditcardEnabled"] != undefined && config["BuckarooPayments.config.creditcardEnabled"]) {
                 return true;
             }
-            
-            if(fid == 'allowedcreditcard'){
-                if(config["BuckarooPayments.config.creditcardEnabled"] != undefined && config["BuckarooPayments.config.creditcardEnabled"]){
-                    return true;
-                }
+        }
+
+        if (fid == 'allowedcreditcards') {
+            if (config["BuckarooPayments.config.creditcardsEnabled"] != undefined && config["BuckarooPayments.config.creditcardsEnabled"]) {
+                return true;
             }
+        }
 
-            if(fid == 'allowedcreditcards'){
-                if(config["BuckarooPayments.config.creditcardsEnabled"] != undefined && config["BuckarooPayments.config.creditcardsEnabled"]){
-                    return true;
-                }
+        if (fid == 'allowedgiftcards') {
+            if (config["BuckarooPayments.config.giftcardsEnabled"] != undefined && config["BuckarooPayments.config.giftcardsEnabled"]) {
+                return true;
             }
+        }
 
-            if(fid == 'allowedgiftcards'){
-                if(config["BuckarooPayments.config.giftcardsEnabled"] != undefined && config["BuckarooPayments.config.giftcardsEnabled"]){
-                    return true;
-                }
+        if ((fid == 'applepayShowProduct') || (fid == 'applepayShowCart')) {
+            if (config["BuckarooPayments.config.applepayEnabled"] != undefined && config["BuckarooPayments.config.applepayEnabled"]) {
+                return true;
             }
+        }
 
-            if((fid == 'applepayShowProduct') || (fid == 'applepayShowCart')) {
-                if(config["BuckarooPayments.config.applepayEnabled"] != undefined && config["BuckarooPayments.config.applepayEnabled"]){
-                    return true;
-                }
+        if ((fid == 'idealRenderMode')) {
+            if (config["BuckarooPayments.config.idealRenderMode"] != undefined && config["BuckarooPayments.config.idealEnabled"]) {
+                return true;
             }
+        }
 
-            if((fid == 'idealRenderMode')) {
-                if(config["BuckarooPayments.config.idealRenderMode"] != undefined && config["BuckarooPayments.config.idealEnabled"]){
-                    return true;
-                }
+        if ((fid == 'transferSendEmail') || (fid == 'transferDateDue')) {
+            if (config["BuckarooPayments.config.transferEnabled"] != undefined && config["BuckarooPayments.config.transferEnabled"]) {
+                return true;
             }
+        }
 
-            if((fid == 'transferSendEmail') || (fid == 'transferDateDue')) {
-                if(config["BuckarooPayments.config.transferEnabled"] != undefined && config["BuckarooPayments.config.transferEnabled"]){
-                    return true;
-                }
+
+        if ((fid == 'afterpayCustomerType')) {
+            if (config["BuckarooPayments.config.afterpayEnabled"] != undefined && config["BuckarooPayments.config.afterpayEnabled"]) {
+                return true;
             }
+        }
 
 
-            if((fid == 'afterpayCustomerType')) {
-                if(config["BuckarooPayments.config.afterpayEnabled"] != undefined && config["BuckarooPayments.config.afterpayEnabled"]){
-                    return true;
-                }
+        if ((fid == 'afterpayB2bMinAmount') || (fid == 'afterpayB2bMaxAmount')) {
+            if (config["BuckarooPayments.config.afterpayEnabled"] && config["BuckarooPayments.config.afterpayCustomerType"] != undefined && config["BuckarooPayments.config.afterpayCustomerType"] != 'b2c') {
+                return true;
             }
-
-
-            if((fid == 'afterpayB2bMinAmount') || (fid == 'afterpayB2bMaxAmount')) {
-                if(config["BuckarooPayments.config.afterpayEnabled"] && config["BuckarooPayments.config.afterpayCustomerType"] != undefined && config["BuckarooPayments.config.afterpayCustomerType"] != 'b2c'){
-                    return true;
-                }
-            }
+        }
 
             return false;
         },

@@ -18,7 +18,6 @@ use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 
 class PaypalPaymentHandler extends AsyncPaymentHandler
 {
-
     protected string $paymentClass = Paypal::class;
 
     /**
@@ -32,7 +31,6 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
     public function __construct(
         AsyncPaymentService $asyncPaymentService,
         UpdateOrderWithPaypalExpressData $orderUpdater
-
     ) {
         parent::__construct($asyncPaymentService);
         $this->orderUpdater = $orderUpdater;
@@ -41,15 +39,15 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
     /**
      * Get parameters for specific payment method
      *
-     * @param AsyncPaymentTransactionStruct $transaction
+     * @param OrderEntity $order
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
      * @param string $paymentCode
      *
-     * @return array
+     * @return array<mixed>
      */
     protected function getMethodPayload(
-        AsyncPaymentTransactionStruct $transaction,
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
@@ -68,7 +66,7 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
         string $paymentCode
     ): RedirectResponse {
         $this->orderUpdater->update($response, $transaction->getOrder(), $salesChannelContext);
-        
+
         return parent::handleResponse(
             $response,
             $transaction,

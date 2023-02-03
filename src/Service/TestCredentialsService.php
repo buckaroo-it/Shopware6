@@ -33,19 +33,41 @@ class TestCredentialsService
         $this->clientService = $clientService;
         $this->translator = $translator;
     }
-
-    public function execute(Request $request)
+    /**
+     *
+     * @param Request $request
+     *
+     * @return array<mixed>
+     */
+    public function execute(Request $request): array
     {
         $salesChannelId = $request->get('saleChannelId');
 
+        if (!(is_string($salesChannelId) || is_null($salesChannelId))) {
+            return [
+                'status' => 'error',
+                'message' => $this->translator->trans("buckaroo-payment.test_api.connection_failed"),
+            ];
+        }
+
+        $websiteKeyId = $request->get('websiteKeyId');
+        $secretKeyId = $request->get('secretKeyId');
+
+        if (!is_scalar($websiteKeyId) || !is_scalar($secretKeyId)) {
+            return [
+                'status' => 'error',
+                'message' => $this->translator->trans("buckaroo-payment.test_api.connection_failed"),
+            ];
+        }
+
         $this->settingsService->setSetting(
             'websiteKey',
-            (string)$request->get('websiteKeyId'),
+            (string)$websiteKeyId,
             $salesChannelId
         );
         $this->settingsService->setSetting(
             'secretKey',
-            (string)$request->get('secretKeyId'),
+            (string)$secretKeyId,
             $salesChannelId
         );
 
@@ -68,9 +90,6 @@ class TestCredentialsService
                 'message' => $this->translator->trans("buckaroo-payment.test_api.connection_failed"),
             ];
         }
-
-     
-           
     }
     /**
      * Get buckaroo client
@@ -91,9 +110,9 @@ class TestCredentialsService
      *
      * @param Request $request
      *
-     * @return void
+     * @return array<mixed>
      */
-    private function getIp(Request $request)
+    private function getIp(Request $request): array
     {
         $remoteIp = $request->getClientIp();
 

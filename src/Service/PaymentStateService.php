@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Framework\Context;
@@ -22,15 +21,14 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 
 class PaymentStateService
 {
-
     protected TranslatorInterface $translator;
 
-    protected  OrderTransactionStateHandler $transactionStateHandler;
+    protected OrderTransactionStateHandler $transactionStateHandler;
 
     protected StateMachineRegistry $stateMachineRegistry;
 
     protected CsrfTokenManagerInterface $csrfTokenManager;
-    
+
     public function __construct(
         OrderTransactionStateHandler $transactionStateHandler,
         StateMachineRegistry $stateMachineRegistry,
@@ -47,8 +45,7 @@ class PaymentStateService
         AsyncPaymentTransactionStruct $transaction,
         Request $request,
         SalesChannelContext $salesChannelContext
-    )
-    {
+    ): void {
         $transactionId = $transaction->getOrderTransaction()->getId();
         $context = $salesChannelContext->getContext();
 
@@ -68,7 +65,7 @@ class PaymentStateService
             $context
         );
 
-        if(
+        if (
             $this->isPendingPaymentRequest($request) &&
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_DO_PAY)
         ) {
@@ -78,8 +75,8 @@ class PaymentStateService
                 $context
             );
         }
-      
-        if(
+
+        if (
             $this->isFailedPaymentRequest($request) &&
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)
         ) {
@@ -90,24 +87,36 @@ class PaymentStateService
                 )
             );
         }
-
     }
 
-    public function getPaymentCsrf()
+    public function getPaymentCsrf(): string
     {
         return $this->csrfTokenManager->getToken('payment.finalize.transaction')->getValue();
     }
-    
-    private function canTransition($availableTransitions, $transition) {
+
+    /**
+     * @param array<mixed> $availableTransitions
+     * @param string $transition
+     *
+     * @return boolean
+     */
+    private function canTransition(array $availableTransitions, string $transition): bool
+    {
         return in_array($transition, $availableTransitions);
     }
 
+    /**
+     * @param string $transactionId
+     * @param Context $context
+     *
+     * @return array<mixed>
+     */
     private function getAvailableTransitions(string $transactionId, Context $context): array
     {
         $availableTransitions = $this->stateMachineRegistry->getAvailableTransitions(
             OrderTransactionDefinition::ENTITY_NAME,
             $transactionId,
-            'stateId', 
+            'stateId',
             $context
         );
 
@@ -116,39 +125,52 @@ class PaymentStateService
         }, $availableTransitions);
     }
 
-    private function isPayPalPending(Request $request) {
-        return $request->get('brq_payment_method') === 'paypal' && 
-        $request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING;
+    private function isPayPalPending(Request $request): bool
+    {
+        return $request->get('brq_payment_method') === 'paypal' &&
+            $request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING;
     }
 
-    private function isPendingPaymentRequest(Request $request) {
+    private function isPendingPaymentRequest(Request $request): bool
+    {
         return $request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING;
     }
-    
-    private function isFailedPaymentRequest(Request $request) {
-        return in_array(
-            (string)$request->get('brq_statuscode'),
-            [
-                ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
-                ResponseStatus::BUCKAROO_STATUSCODE_REJECTED,
-                ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE
-            ]
-        );
+
+    private function isFailedPaymentRequest(Request $request): bool
+    {
+        return
+            is_string($request->get('brq_statuscode')) &&
+            in_array(
+                $request->get('brq_statuscode'),
+                [
+                    ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
+                    ResponseStatus::BUCKAROO_STATUSCODE_REJECTED,
+                    ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE
+                ]
+            );
     }
 
-    private function isCanceledPaymentRequest(Request $request) {
+    private function isCanceledPaymentRequest(Request $request): bool
+    {
         return $request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
     }
 
-    private function getStatusMessageByStatusCode($statusCode)
+    /**
+     * @param mixed $statusCode
+     * @return string
+     */
+    private function getStatusMessageByStatusCode($statusCode): string
     {
+        if (!is_string($statusCode)) {
+            return '';
+        }
+
         $statusCodeAddErrorMessage = [];
-        $statusCodeAddErrorMessage[ResponseStatus::BUCKAROO_STATUSCODE_FAILED] = 
-        $this->translator->trans('buckaroo.messages.statuscode_failed');
+        $statusCodeAddErrorMessage[ResponseStatus::BUCKAROO_STATUSCODE_FAILED] =
+            $this->translator->trans('buckaroo.messages.statuscode_failed');
         $statusCodeAddErrorMessage[ResponseStatus::BUCKAROO_STATUSCODE_REJECTED] =
             $this->translator->trans('buckaroo.messages.statuscode_failed');
 
         return isset($statusCodeAddErrorMessage[$statusCode]) ? $statusCodeAddErrorMessage[$statusCode] : '';
     }
-
 }

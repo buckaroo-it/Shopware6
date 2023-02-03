@@ -5,15 +5,16 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
-
 
 class FormatRequestParamService
 {
     protected SettingsService $settingsService;
-    
-    public function __construct(SettingsService $settingsService) {
+
+    public function __construct(SettingsService $settingsService)
+    {
         $this->settingsService = $settingsService;
     }
 
@@ -21,7 +22,7 @@ class FormatRequestParamService
      * Return an array of order lines.
      *
      * @param OrderEntity $order
-     * @return array
+     * @return array<array>
      */
     public function getOrderLinesArray(OrderEntity $order, string $paymentCode = null)
     {
@@ -58,7 +59,7 @@ class FormatRequestParamService
 
             $type      = 'Article';
             $unitPrice = $this->getPriceArray($currencyCode, $item->getUnitPrice());
-            $vatAmount = $this->getPriceArray($currencyCode, $vatAmount);
+            $vatAmount = $this->getPriceArray($currencyCode, (float)$vatAmount);
             if ($unitPrice['value'] < 0) {
                 $type               = 'Discount';
                 $vatAmount['value'] = 0;
@@ -99,7 +100,12 @@ class FormatRequestParamService
         return $lines;
     }
 
-    public function getProductLineData($order)
+    /**
+     * @param OrderEntity $order
+     *
+     * @return array<mixed>
+     */
+    public function getProductLineData(OrderEntity $order): array
     {
         $lines = $this->getOrderLinesArray($order);
 
@@ -131,7 +137,7 @@ class FormatRequestParamService
      * @param CalculatedTaxCollection $taxCollection
      * @return CalculatedTax|null
      */
-    protected function getLineItemTax(CalculatedTaxCollection $taxCollection)
+    protected function getLineItemTax(CalculatedTaxCollection $taxCollection): ?CalculatedTax
     {
         $tax = null;
 
@@ -148,7 +154,7 @@ class FormatRequestParamService
      * @param string $currency
      * @param float $price
      * @param int $decimals
-     * @return array
+     * @return array<mixed>
      */
     protected function getPriceArray(string $currency, float $price, int $decimals = 2): array
     {
@@ -162,7 +168,7 @@ class FormatRequestParamService
      * Return an array of shipping data.
      *
      * @param OrderEntity $order
-     * @return array
+     * @return array<mixed>
      */
     protected function getShippingItemArray(OrderEntity $order): array
     {
@@ -170,9 +176,6 @@ class FormatRequestParamService
         $line     = [];
         $shipping = $order->getShippingCosts();
 
-        if ($shipping === null) {
-            return $line;
-        }
 
         // Get currency code
         $currency     = $order->getCurrency();
@@ -202,7 +205,7 @@ class FormatRequestParamService
             'unitPrice'   => $this->getPriceArray($currencyCode, $shipping->getUnitPrice()),
             'totalAmount' => $this->getPriceArray($currencyCode, $shipping->getTotalPrice()),
             'vatRate'     => number_format($vatRate, 2, '.', ''),
-            'vatAmount'   => $this->getPriceArray($currencyCode, $vatAmount),
+            'vatAmount'   => $this->getPriceArray($currencyCode, (float)$vatAmount),
             'sku'         => 'Shipping',
             'imageUrl'    => null,
             'productUrl'  => null,
@@ -211,7 +214,15 @@ class FormatRequestParamService
         return $line;
     }
 
-    protected function getBuckarooFeeArray(OrderEntity $order, $paymentCode = null)
+    /**
+     * Get buckaroo fee from
+     *
+     * @param OrderEntity $order
+     * @param string|null $paymentCode
+     *
+     * @return array<mixed>
+     */
+    protected function getBuckarooFeeArray(OrderEntity $order, string $paymentCode = null): array
     {
         // Variables
         $line     = [];
@@ -219,15 +230,19 @@ class FormatRequestParamService
 
         $buckarooFee = null;
 
-        if ($customFields !== null && isset($customFields['buckarooFee'])) {
+        if (
+            $customFields !== null &&
+            isset($customFields['buckarooFee']) &&
+            is_scalar($customFields['buckarooFee'])
+        ) {
             $buckarooFee = round((float)str_replace(',', '.', (string)$customFields['buckarooFee']), 2);
         }
 
-        if($buckarooFee === null && $paymentCode !== null) {
+        if ($buckarooFee === null && $paymentCode !== null) {
             $buckarooFee = $this->settingsService->getBuckarooFee($paymentCode, $order->getSalesChannelId());
         }
-   
-        if($buckarooFee <= 0)  {
+
+        if ($buckarooFee <= 0) {
             return $line;
         }
 
@@ -235,7 +250,7 @@ class FormatRequestParamService
         $currency     = $order->getCurrency();
         $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
 
-        
+
         // Build the order line array
         $line = [
             'id'          => 'buckarooFee',
@@ -254,6 +269,12 @@ class FormatRequestParamService
         return $line;
     }
 
+    /**
+     * @param OrderAddressEntity $address
+     * @param array<mixed> $parts
+     *
+     * @return string
+     */
     public function getStreet(OrderAddressEntity $address, array $parts): string
     {
         if (!empty($parts['house_number'])) {
@@ -262,27 +283,39 @@ class FormatRequestParamService
         return (string)$address->getStreet();
     }
 
+    /**
+     * @param OrderAddressEntity $address
+     * @param array<mixed> $parts
+     *
+     * @return string
+     */
     public function getHouseNumber(OrderAddressEntity $address, array $parts): string
     {
-        if (!empty($parts['house_number'])) {
-            return $parts['house_number'];
+        if (!empty($parts['house_number']) && is_scalar($parts['house_number'])) {
+            return (string)$parts['house_number'];
         }
         return (string)$address->getAdditionalAddressLine1();
     }
 
+    /**
+     * @param OrderAddressEntity $address
+     * @param array<mixed> $parts
+     *
+     * @return string
+     */
     public function getAdditionalHouseNumber(OrderAddressEntity $address, array $parts): string
     {
-        if (!empty($parts['number_addition'])) {
-            return $parts['number_addition'];
+        if (!empty($parts['number_addition']) && is_scalar($parts['number_addition'])) {
+            return (string)$parts['number_addition'];
         }
         return (string)$address->getAdditionalAddressLine2();
     }
     /**
-     * @param $street
+     * @param string $street
      *
-     * @return array
+     * @return array<mixed>
      */
-    public function formatStreet($street)
+    public function formatStreet(string $street): array
     {
         $format = [
             'house_number'    => '',
@@ -296,11 +329,9 @@ class FormatRequestParamService
                 $format['house_number'] = trim($matches[2]);
                 $format['street']       = trim($matches[3]);
             } else {
-                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
-                    $format['street']          = trim($matches[1]);
-                    $format['house_number']    = trim($matches[2]);
-                    $format['number_addition'] = trim(str_replace(',', '', $matches[3]));
-                }
+                $format['street']          = trim($matches[1]);
+                $format['house_number']    = trim($matches[2]);
+                $format['number_addition'] = trim(str_replace(',', '', $matches[3]));
             }
         }
         return $format;

@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Framework\Context;
@@ -17,13 +16,13 @@ use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
+use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class InvoiceService
 {
-
     protected SettingsService $settingsService;
 
     protected EntityRepositoryInterface $documentRepository;
@@ -47,7 +46,7 @@ class InvoiceService
         $this->mailService = $mailService;
         $this->mailTemplateRepository = $mailTemplateRepository;
     }
-    public function isInvoiced($orderId, $context)
+    public function isInvoiced(string $orderId, Context $context): bool
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
@@ -57,11 +56,19 @@ class InvoiceService
 
         return $this->documentRepository->search($criteria, $context)->first() !== null;
     }
+
+    /**
+     * @param mixed $brqTransactionType
+     * @param mixed $serviceName
+     * @param string|null $salesChannelId
+     *
+     * @return boolean
+     */
     public function isCreateInvoiceAfterShipment(
         $brqTransactionType = false,
         $serviceName = false,
         string $salesChannelId = null
-    ) {
+    ): bool {
         if ($brqTransactionType) {
             if (
                 ResponseStatus::BUCKAROO_BILLINK_CAPTURE_TYPE_ACCEPT == $brqTransactionType &&
@@ -86,7 +93,7 @@ class InvoiceService
         Context $context,
         string $invoiceNumber,
         string $salesChannelId = null
-    ) {
+    ): DocumentIdStruct {
         $documentConfiguration = new DocumentConfiguration();
         $documentConfiguration->setDocumentNumber($invoiceNumber);
         $invoice = $this->documentService->create(
@@ -100,7 +107,7 @@ class InvoiceService
         if ($this->settingsService->getSetting('sendInvoiceEmail', $salesChannelId)) {
             $documentIds = [$invoice->getId()];
             $technicalName = 'order_transaction.state.paid';
-            $mailTemplate = $this->getMailTemplate($context, $technicalName, $order);
+            $mailTemplate = $this->getMailTemplate($context, $technicalName);
 
             if ($mailTemplate !== null) {
                 $context = Context::createDefaultContext();
@@ -184,7 +191,12 @@ class InvoiceService
         }
     }
 
+
     /**
+     * @param string $documentId
+     * @param Context $context
+     *
+     * @return array<mixed>
      * @throws InvalidDocumentException
      */
     private function getDocument(string $documentId, Context $context): array

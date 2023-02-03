@@ -1,4 +1,6 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
@@ -6,8 +8,7 @@ use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 
 class AfterPay extends AbstractPayment
 {
-
-    protected $buckarooKey = 'afterpay';
+    protected string $buckarooKey = 'afterpay';
     /*
      * @return string
      */
@@ -60,7 +61,7 @@ class AfterPay extends AbstractPayment
      *
      * @return string
      */
-    public function getMedia() : string
+    public function getMedia(): string
     {
         return __DIR__ . '/../Resources/views/storefront/buckaroo/logo/afterpay.png';
     }
@@ -68,7 +69,7 @@ class AfterPay extends AbstractPayment
     /**
      * {@inheritDoc}
      *
-     * @return array
+     * @return array<mixed>
      */
     public function getTranslations(): array
     {
@@ -88,5 +89,4 @@ class AfterPay extends AbstractPayment
     {
         return false;
     }
-
 }

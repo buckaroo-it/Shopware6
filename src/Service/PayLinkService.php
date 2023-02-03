@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-
 use Buckaroo\Shopware6\Buckaroo\Client;
 use Buckaroo\Shopware6\Service\UrlService;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -41,19 +40,23 @@ class PayLinkService
         $this->translator = $translator;
         $this->clientService = $clientService;
     }
-
-
+    /**
+     * @param Request $request
+     * @param OrderEntity $order
+     *
+     * @return array<mixed>|null
+     */
     public function create(
         Request $request,
         OrderEntity $order
-    ) {
+    ): ?array {
         if (!$this->transactionService->isBuckarooPaymentMethod($order)) {
             return null;
         }
 
         $validationErrors = $this->validate($order);
 
-        if($validationErrors !== null) {
+        if ($validationErrors !== null) {
             return $validationErrors;
         }
 
@@ -72,20 +75,17 @@ class PayLinkService
      * Handle response from payment engine
      *
      * @param ClientResponseInterface $response
-     * @param OrderEntity $order
      *
-     * @return array
+     * @return array<mixed>
      */
     private function handleResponse(
         ClientResponseInterface $response
-    ): array
-    {
+    ): array {
         if ($response->isSuccess() || $response->isAwaitingConsumer()) {
             $parameters = $response->getServiceParameters();
 
-            if (isset($parameters['paylink'])) {
-
-                $payLink = $parameters['paylink'];
+            if (isset($parameters['paylink']) && is_string($parameters['paylink'])) {
+                $payLink = (string)$parameters['paylink'];
 
                 return [
                     'status' => true,
@@ -103,28 +103,48 @@ class PayLinkService
             'code'    => $response->getStatusCode(),
         ];
     }
-    
+
      /**
      * Get request payload
      *
-     * @param AsyncPaymentTransactionStruct $transaction
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
+     * @param Request $request
+     * @param OrderEntity $order
      *
-     * @return array
+     * @return array<mixed>
      */
     private function getRequestPayload(
         Request $request,
         OrderEntity $order
-    ): array
-    {
+    ): array {
         $customer = $order->getOrderCustomer();
         $salesChannelId = $order->getSalesChannelId();
 
-        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity */
-        $transaction = $order->getTransactions()->last();
-        
+        if ($customer === null) {
+            throw new \UnexpectedValueException("Cannot find customer on order", 1);
+        }
+
+        $transactions = $order->getTransactions();
+        if ($transactions === null) {
+            throw new \UnexpectedValueException("Cannot find last transaction on order", 1);
+        }
+
+        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity|null */
+        $transaction = $transactions->last();
+
+        if ($transaction === null) {
+            throw new \UnexpectedValueException("Cannot find last transaction on order", 1);
+        }
+
+        $currency = $order->getCurrency();
+        if ($currency === null) {
+            throw new \UnexpectedValueException("Cannot find currency on order", 1);
+        }
+
+        $salutation = $customer->getSalutation();
+        if ($salutation === null) {
+            throw new \UnexpectedValueException("Cannot find salutation on customer", 1);
+        }
+
         $returnUrl = $this->urlService->generateReturnUrl(
             $transaction,
             $this->getExpireDays($salesChannelId) * 24 * 60
@@ -134,13 +154,13 @@ class PayLinkService
             'order'                  => $order->getOrderNumber(),
             'invoice'                => $order->getOrderNumber(),
             'amountDebit'            => $order->getAmountTotal(),
-            'currency'               => $order->getCurrency()->getIsoCode(),
+            'currency'               => $currency->getIsoCode(),
             'pushURL'                => $this->urlService->getReturnUrl('buckaroo.payment.push'),
             'clientIP'               => $this->getIp($request),
             'returnURL'              => $returnUrl,
             'cancelURL'              => sprintf('%s&cancel=1', $returnUrl),
             'additionalParameters'   => [
-                'orderTransactionId' => $order->getTransactions()->last()->getId(),
+                'orderTransactionId' => $transaction->getId(),
                 'orderId' => $order->getId(),
                 'fromPayPerEmail' => 1,
                 'fromPayLink' => 1
@@ -150,7 +170,7 @@ class PayLinkService
             'merchantSendsEmail'    => true,
             'paymentMethodsAllowed' => $this->getPayPerEmailPaymentMethodsAllowed($salesChannelId),
             'customer'              => [
-                'gender'        => $customer->getSalutation()->getSalutationKey() == 'mr' ? 1 : 2,
+                'gender'        => $salutation->getSalutationKey() == 'mr' ? 1 : 2,
                 'firstName'     => $customer->getFirstName(),
                 'lastName'      => $customer->getLastName()
             ],
@@ -163,7 +183,7 @@ class PayLinkService
      *
      * @param OrderEntity $order
      *
-     * @return array|null
+     * @return array<mixed>|null
      */
     private function validate(OrderEntity $order): ?array
     {
@@ -196,9 +216,9 @@ class PayLinkService
      *
      * @param Request $request
      *
-     * @return void
+     * @return array<mixed>
      */
-    private function getIp(Request $request)
+    private function getIp(Request $request): array
     {
         $remoteIp = $request->getClientIp();
 
@@ -230,14 +250,14 @@ class PayLinkService
      *
      * @param string|null $salesChannelId
      *
-     * @return void
+     * @return mixed
      */
     private function getExpirationDate(string $salesChannelId = null)
     {
         $payperemailExpireDays = $this->getExpireDays($salesChannelId);
 
         if ($payperemailExpireDays !== null) {
-           return date('Y-m-d', time() + intval($payperemailExpireDays) * 86400);
+            return date('Y-m-d', time() + intval($payperemailExpireDays) * 86400);
         }
         return '';
     }
@@ -249,22 +269,19 @@ class PayLinkService
      *
      * @return string
      */
-    private function getPayPerEmailPaymentMethodsAllowed(string $salesChannelId = null): string
+    public function getPayPerEmailPaymentMethodsAllowed(string $salesChannelId = null): string
     {
-        $methods = [];
-
         $payperemailAllowed = $this->settingsService->getSetting('payperemailAllowed', $salesChannelId);
 
         if (is_array($payperemailAllowed)) {
-
-            if(in_array('giftcard', $payperemailAllowed)) {
+            if (in_array('giftcard', $payperemailAllowed)) {
                 $allowedgiftcards = $this->settingsService->getSetting('allowedgiftcards', $salesChannelId);
-                if(is_array($allowedgiftcards)) {
+                if (is_array($allowedgiftcards)) {
                     $payperemailAllowed = array_merge($payperemailAllowed, $allowedgiftcards);
                 }
             }
+            return join(',', $payperemailAllowed);
         }
-
-        return join(',', $payperemailAllowed);
+        return '';
     }
 }

@@ -1,4 +1,6 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
@@ -57,7 +59,7 @@ class KlarnaKp extends AbstractPayment
      *
      * @return string
      */
-    public function getMedia() : string
+    public function getMedia(): string
     {
         return __DIR__ . '/../Resources/views/storefront/buckaroo/logo/klarna.png';
     }
@@ -65,7 +67,7 @@ class KlarnaKp extends AbstractPayment
     /**
      * {@inheritDoc}
      *
-     * @return array
+     * @return array<mixed>
      */
     public function getTranslations(): array
     {
@@ -85,5 +87,4 @@ class KlarnaKp extends AbstractPayment
     {
         return true;
     }
-
 }

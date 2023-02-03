@@ -18,7 +18,6 @@ use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 
 class CaptureService
 {
-
     protected TransactionService $transactionService;
 
     protected TranslatorInterface $translator;
@@ -28,7 +27,7 @@ class CaptureService
     protected InvoiceService $invoiceService;
 
     protected FormatRequestParamService $formatRequestParamService;
-    
+
     protected ClientService $clientService;
 
     public function __construct(
@@ -47,6 +46,13 @@ class CaptureService
         $this->clientService = $clientService;
     }
 
+    private function getValidCustomField(array $customFields, string $name): string
+    {
+        if (!isset($customFields[$name]) || !is_string($customFields[$name])) {
+            throw new \UnexpectedValueException("Cannot find field `{$name}` on order", 1);
+        }
+        return $customFields[$name];
+    }
     /**
      * Do a buckaroo capture request
      *
@@ -54,23 +60,24 @@ class CaptureService
      * @param OrderEntity $order
      * @param Context $context
      *
-     * @return array|null
+     * @return array<mixed>|null
      */
     public function capture(
         Request $request,
         OrderEntity $order,
         Context $context
-    ): ?array
-    {
+    ): ?array {
         if (!$this->transactionService->isBuckarooPaymentMethod($order)) {
             return null;
         }
 
         $customFields = $this->transactionService->getCustomFields($order, $context);
-        $paymentCode = $customFields['serviceName'];
+
+        $paymentCode = $this->getValidCustomField($customFields, 'serviceName');
+
         $validationErrors = $this->validate($order, $customFields);
 
-        if($validationErrors !== null) {
+        if ($validationErrors !== null) {
             return $validationErrors;
         }
 
@@ -85,7 +92,7 @@ class CaptureService
                     $this->getCommonRequestPayload(
                         $request,
                         $order,
-                        $customFields['originalTransactionKey']
+                        $this->getValidCustomField($customFields, 'originalTransactionKey')
                     ),
                     $this->getMethodPayload(
                         $order,
@@ -109,15 +116,14 @@ class CaptureService
      * @param Context $context
      * @param string $paymentCode
      *
-     * @return array
+     * @return array<mixed>
      */
     private function handleResponse(
         ClientResponseInterface $response,
         OrderEntity $order,
         Context $context,
         string $paymentCode
-    ): array
-    {
+    ): array {
         if ($response->isSuccess()) {
             if (
                 !$this->invoiceService->isInvoiced($order->getId(), $context) &&
@@ -130,13 +136,16 @@ class CaptureService
                 $this->invoiceService->generateInvoice($order, $context, $order->getId());
             }
 
+
+
+
             return [
                 'status' => true,
                 'message' => $this->translator->trans("buckaroo-payment.capture.captured_amount"),
                 'amount' => sprintf(
                     " %s %s",
                     $order->getAmountTotal(),
-                    $order->getCurrency()->getIsoCode()
+                    $this->getCurrencyIso($order)
                 )
             ];
         }
@@ -147,45 +156,65 @@ class CaptureService
             'code'    => $response->getStatusCode(),
         ];
     }
-    
+
+    private function getCurrencyIso(OrderEntity $order): string
+    {
+        $currency = $order->getCurrency();
+        if ($currency !== null) {
+            return $currency->getIsoCode();
+        }
+        return 'EUR';
+    }
+
      /**
      * Get parameters common to all payment methods
      *
-     * @param AsyncPaymentTransactionStruct $transaction
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
+     * @param Request $request
+     * @param OrderEntity $order
+     * @param string $transactionKey
      *
-     * @return array
+     * @return array<mixed>
      */
     private function getCommonRequestPayload(
         Request $request,
         OrderEntity $order,
         string $transactionKey
-    ): array
-    {
+    ): array {
         return [
             'order'                  => $order->getOrderNumber(),
             'invoice'                => $order->getOrderNumber(),
             'amountDebit'            => $order->getAmountTotal(),
-            'currency'               => $order->getCurrency()->getIsoCode(),
+            'currency'               => $this->getCurrencyIso($order),
             'pushURL'                => $this->urlService->getReturnUrl('buckaroo.payment.push'),
             'clientIP'               => $this->getIp($request),
             'originalTransactionKey' => $transactionKey,
             'additionalParameters'   => [
-                'orderTransactionId' => $order->getTransactions()->last()->getId(),
+                'orderTransactionId' => $this->getLastTransactionId($order),
                 'orderId' => $order->getId(),
             ],
         ];
+    }
+
+    private function getLastTransactionId(OrderEntity $order): string
+    {
+        $transactions = $order->getTransactions();
+        if ($transactions === null) {
+            throw new \UnexpectedValueException("Cannot find last transaction on order", 1);
+        }
+        $transaction = $transactions->last();
+        if ($transaction === null) {
+            throw new \UnexpectedValueException("Cannot find last transaction on order", 1);
+        }
+        return $transaction->getId();
     }
 
     /**
      * Get method specific payloads
      *
      * @param OrderEntity $order
-     * @param array $customFields
+     * @param array<mixed> $customFields
      *
-     * @return array
+     * @return array<mixed>
      */
     private function getMethodPayload(
         OrderEntity $order,
@@ -194,10 +223,10 @@ class CaptureService
         $paymentCode = $customFields['serviceName'];
 
         $data = [];
-        if (in_array($paymentCode, ['Billink', 'klarnakp'])) {
+        if (in_array($paymentCode, ['Billink', 'klarnakp']) && is_string($paymentCode)) {
             $data = array_merge($data, $this->getArticles($order, $paymentCode));
         }
-        if($paymentCode === 'klarnakp') {
+        if ($paymentCode === 'klarnakp') {
             $data = array_merge($data, ['reservationNumber' => $customFields['reservationNumber']]);
         }
 
@@ -208,9 +237,9 @@ class CaptureService
      * Validate request and return any errors
      *
      * @param OrderEntity $order
-     * @param array $customFields
+     * @param array<mixed> $customFields
      *
-     * @return array|null
+     * @return array<mixed>|null
      */
     private function validate(OrderEntity $order, array $customFields): ?array
     {
@@ -236,7 +265,7 @@ class CaptureService
             ];
         }
 
-        if(!isset($customFields['originalTransactionKey'])) {
+        if (!isset($customFields['originalTransactionKey'])) {
             return [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.capture.general_capture_error")
@@ -265,9 +294,9 @@ class CaptureService
      *
      * @param Request $request
      *
-     * @return void
+     * @return array<mixed>
      */
-    private function getIp(Request $request)
+    private function getIp(Request $request): array
     {
         $remoteIp = $request->getClientIp();
 
@@ -283,7 +312,7 @@ class CaptureService
      * @param OrderEntity $order
      * @param string $paymentCode
      *
-     * @return array
+     * @return array<mixed>
      */
     private function getArticles(OrderEntity $order, string $paymentCode): array
     {

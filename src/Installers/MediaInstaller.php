@@ -1,34 +1,37 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Installers;
 
+use Exception;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Content\Media\MediaEntity;
+use Buckaroo\Shopware6\Helpers\GatewayHelper;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
-use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Plugin\Context\ActivateContext;
-use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
-use Shopware\Core\Framework\Plugin\Context\InstallContext;
-use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-
-use Buckaroo\Shopware6\Helpers\GatewayHelper;
+use Shopware\Core\Framework\Plugin\Context\InstallContext;
+use Shopware\Core\Framework\Plugin\Context\ActivateContext;
+use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
-use Exception;
+use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class MediaInstaller implements InstallerInterface
 {
-    const BUCKAROO_FOLDER  = 'Buckaroo';
-    /** @var EntityRepositoryInterface */
-    private $mediaRepository;
-    private $mediaFolderRepository;
-    /** @var FileSaver */
-    private $fileSaver;
+    public const BUCKAROO_FOLDER  = 'Buckaroo';
+
+    private EntityRepository $mediaRepository;
+
+    private EntityRepository $mediaFolderRepository;
+
+    private FileSaver $fileSaver;
 
     /**
      * MediaInstaller constructor.
@@ -36,9 +39,32 @@ class MediaInstaller implements InstallerInterface
      */
     public function __construct(ContainerInterface $container)
     {
-        $this->mediaRepository = $container->get('media.repository');
-        $this->mediaFolderRepository = $container->get('media_folder.repository');
-        $this->fileSaver = $container->get(FileSaver::class);
+        /** @var EntityRepository */
+        $mediaRepository = $this->getDependency($container, 'media.repository');
+        $this->mediaRepository = $mediaRepository;
+
+        /** @var EntityRepository */
+        $mediaFolderRepository = $this->getDependency($container, 'media_folder.repository');
+        $this->mediaFolderRepository = $mediaFolderRepository;
+
+        /** @var FileSaver */
+        $fileSaver = $this->getDependency($container, FileSaver::class);
+        $this->fileSaver = $fileSaver;
+    }
+
+    /**
+     * @param ContainerInterface $container
+     * @param string $name
+     * @return mixed
+     */
+    private function getDependency(ContainerInterface $container, string $name)
+    {
+        $repository =  $container->get($name);
+
+        if ($repository === null) {
+            throw new Exception("Repository {$repository} not found");
+        }
+        return $repository;
     }
 
     /**
@@ -97,7 +123,7 @@ class MediaInstaller implements InstallerInterface
             return;
         }
 
-        if(!$mediaFolderId = $this->getMediaFolderIdByName(self::BUCKAROO_FOLDER, $context)){
+        if (!$mediaFolderId = $this->getMediaFolderIdByName(self::BUCKAROO_FOLDER, $context)) {
             $mediaFolderId = $this->createMediaFolderIdByName(self::BUCKAROO_FOLDER, $context);
         }
 
@@ -129,10 +155,9 @@ class MediaInstaller implements InstallerInterface
             return;
         }
 
-        if($mediaId = $this->getMediaId($paymentMethod, $context)){
+        if ($mediaId = $this->getMediaId($paymentMethod, $context)) {
             $this->mediaRepository->delete([['id' => $mediaId]], $context);
         }
-
     }
 
     /**
@@ -141,11 +166,15 @@ class MediaInstaller implements InstallerInterface
      */
     private function createMediaFile(string $filePath): MediaFile
     {
+        $mime = mime_content_type($filePath);
+        /** @var string */
+        $path = pathinfo($filePath, PATHINFO_EXTENSION);
+
         return new MediaFile(
             $filePath,
-            mime_content_type($filePath),
-            pathinfo($filePath, PATHINFO_EXTENSION),
-            filesize($filePath)
+            (string)$mime,
+            $path,
+            (int)filesize($filePath)
         );
     }
 
@@ -155,7 +184,7 @@ class MediaInstaller implements InstallerInterface
      * @return bool
      * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
-    private function hasMediaAlreadyInstalled(PaymentMethodInterface $paymentMethod, Context $context) : bool
+    private function hasMediaAlreadyInstalled(PaymentMethodInterface $paymentMethod, Context $context): bool
     {
         $criteria = (new Criteria())->addFilter(
             new EqualsFilter(
@@ -164,13 +193,13 @@ class MediaInstaller implements InstallerInterface
             )
         );
 
-        /** @var MediaEntity $media */
+        /** @var MediaEntity|null $media */
         $media = $this->mediaRepository->search($criteria, $context)->first();
 
-        return $media ? true : false;
+        return $media !== null;
     }
 
-    private function getMediaId(PaymentMethodInterface $paymentMethod, Context $context) : ?string
+    private function getMediaId(PaymentMethodInterface $paymentMethod, Context $context): ?string
     {
         $criteria = (new Criteria())->addFilter(
             new EqualsFilter(
@@ -179,10 +208,10 @@ class MediaInstaller implements InstallerInterface
             )
         );
 
-        /** @var MediaEntity $media */
+        /** @var MediaEntity|null $media */
         $media = $this->mediaRepository->search($criteria, $context)->first();
 
-        if (!$media) {
+        if ($media === null) {
             return null;
         }
 
@@ -230,7 +259,7 @@ class MediaInstaller implements InstallerInterface
 
     private function removeMediaFolderIdByName(string $folder, Context $context): void
     {
-        if($mediaFolderId = $this->getMediaFolderIdByName($folder, $context)){
+        if ($mediaFolderId = $this->getMediaFolderIdByName($folder, $context)) {
             $this->mediaFolderRepository->delete([['id' => $mediaFolderId]], $context);
         }
     }

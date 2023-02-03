@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -11,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
 class ContextService
 {
-
     /**
      * @var EntityRepository
      */
@@ -23,7 +21,7 @@ class ContextService
         $this->countryRepository = $countryRepository;
     }
     /**
-     * Get store name 
+     * Get store name
      * @return string|null
      */
     public function getStoreName(SalesChannelContext $salesChannelContext): ?string
@@ -45,6 +43,7 @@ class ContextService
         if ($country !== null) {
             return $country->getIso();
         }
+        return null;
     }
 
     /**

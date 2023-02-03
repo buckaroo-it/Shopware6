@@ -1,4 +1,6 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
@@ -17,7 +19,7 @@ abstract class AbstractPayment implements PaymentMethodInterface
      *
      * @return string|null
      */
-    public function getTemplate():  ? string
+    public function getTemplate(): ?string
     {
         return null;
     }
@@ -41,5 +43,4 @@ abstract class AbstractPayment implements PaymentMethodInterface
     {
         return false;
     }
-
 }

@@ -2,12 +2,14 @@ const { Application } = Shopware;
 const ApiService = Shopware.Classes.ApiService;
 
 class BuckarooPaymentService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'buckaroo') {
+    constructor(httpClient, loginService, apiEndpoint = 'buckaroo')
+    {
         super(httpClient, loginService, apiEndpoint);
     }
 
-    getBuckarooTransaction(transaction) {
-        const apiRoute = `_action/${this.getApiBasePath()}/getBuckarooTransaction`;
+    getBuckarooTransaction(transaction)
+    {
+        const apiRoute = `_action / ${this.getApiBasePath()} / getBuckarooTransaction`;
 
         return this.httpClient.post(
             apiRoute,
@@ -22,8 +24,9 @@ class BuckarooPaymentService extends ApiService {
         });
     }
 
-    refundPayment(transaction, transactionsToRefund, orderItems, customRefundAmount) {
-        const apiRoute = `_action/${this.getApiBasePath()}/refund`;
+    refundPayment(transaction, transactionsToRefund, orderItems, customRefundAmount)
+    {
+        const apiRoute = `_action / ${this.getApiBasePath()} / refund`;
 
         return this.httpClient.post(
             apiRoute,
@@ -41,8 +44,9 @@ class BuckarooPaymentService extends ApiService {
         });
     }
 
-    captureOrder(transaction, transactionsToRefund, orderItems) {
-        const apiRoute = `_action/${this.getApiBasePath()}/capture`;
+    captureOrder(transaction, transactionsToRefund, orderItems)
+    {
+        const apiRoute = `_action / ${this.getApiBasePath()} / capture`;
 
         return this.httpClient.post(
             apiRoute,
@@ -57,8 +61,9 @@ class BuckarooPaymentService extends ApiService {
         });
     }
 
-    createPaylink(transaction, transactionsToRefund, orderItems) {
-        const apiRoute = `_action/${this.getApiBasePath()}/paylink`;
+    createPaylink(transaction, transactionsToRefund, orderItems)
+    {
+        const apiRoute = `_action / ${this.getApiBasePath()} / paylink`;
 
         return this.httpClient.post(
             apiRoute,

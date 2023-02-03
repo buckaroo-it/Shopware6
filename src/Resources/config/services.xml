@@ -12,7 +12,6 @@
 
         <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository">
             <argument type="service" id="buckaroo_transaction.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
 
@@ -115,7 +114,6 @@
             <argument type="service" id="order.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
             <argument type="service" id="session"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\AsyncPaymentService">

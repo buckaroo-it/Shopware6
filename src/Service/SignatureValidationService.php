@@ -2,20 +2,19 @@
 
 declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\Service;
 
 use Symfony\Component\HttpFoundation\Request;
 
-
 class SignatureValidationService
 {
     protected SettingsService $settingsService;
-    
-    public function __construct(SettingsService $settingsService) {
+
+    public function __construct(SettingsService $settingsService)
+    {
         $this->settingsService = $settingsService;
     }
-    
+
     /**
      * Generate/calculate the signature with the buckaroo config value and check if thats equal to the signature
      * received from the push
@@ -38,8 +37,12 @@ class SignatureValidationService
 
         return true;
     }
-
-    public function calculatePushHash($postData)
+    /**
+     * @param array<mixed> $postData
+     *
+     * @return string
+     */
+    public function calculatePushHash(array $postData): string
     {
         $copyData = $postData;
         unset($copyData['brq_signature']);
@@ -50,8 +53,10 @@ class SignatureValidationService
 
         $calculatedString = Date("YmdHi");
         foreach ($sortableArray as $brq_key => $value) {
-            $value = $this->decodePushValue($brq_key, $value);
-            $calculatedString .= $brq_key . '=' . $value;
+            if (is_scalar($value)) {
+                $value = $this->decodePushValue($brq_key, (string)$value);
+                $calculatedString .= $brq_key . '=' . $value;
+            }
         }
 
         return SHA1($calculatedString);
@@ -60,11 +65,11 @@ class SignatureValidationService
     /**
      * Determines the signature using array sorting and the SHA1 hash algorithm
      *
-     * @param $postData
+     * @param array<mixed> $postData
      *
      * @return string
      */
-    protected function calculateSignature($postData, string $salesChannelId = null)
+    protected function calculateSignature(array $postData, string $salesChannelId = null): string
     {
         $copyData = $postData;
         unset($copyData['brq_signature']);
@@ -74,9 +79,10 @@ class SignatureValidationService
         $signatureString = '';
 
         foreach ($sortableArray as $brq_key => $value) {
-            $value = $this->decodePushValue($brq_key, $value);
-
-            $signatureString .= $brq_key . '=' . $value;
+            if (is_scalar($value)) {
+                $value = $this->decodePushValue($brq_key, (string)$value);
+                $signatureString .= $brq_key . '=' . $value;
+            }
         }
 
         $signatureString .= $this->settingsService->getSetting('secretKey', $salesChannelId);
@@ -86,7 +92,7 @@ class SignatureValidationService
         return $signature;
     }
 
-    
+
 
     /**
      * @param string $brq_key
@@ -143,11 +149,11 @@ class SignatureValidationService
     /**
      * Sort the array so that the signature can be calculated identical to the way buckaroo does.
      *
-     * @param $arrayToUse
+     * @param array<mixed> $arrayToUse
      *
-     * @return array $sortableArray
+     * @return array<mixed> $sortableArray
      */
-    protected function buckarooArraySort($arrayToUse)
+    protected function buckarooArraySort(array $arrayToUse): array
     {
         $arrayToSort   = [];
         $originalArray = [];

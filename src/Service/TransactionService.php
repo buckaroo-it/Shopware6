@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Framework\Context;
+use Buckaroo\Shopware6\BuckarooPayments;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -13,7 +14,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 
 class TransactionService
 {
-
     /** @var EntityRepository $transactionRepository */
     private $transactionRepository;
 
@@ -22,7 +22,14 @@ class TransactionService
     ) {
         $this->transactionRepository = $transactionRepository;
     }
-
+    /**
+     *
+     * @param string $orderTransactionId
+     * @param Context $context
+     * @param array<mixed> $data
+     *
+     * @return void
+     */
     public function saveTransactionData(string $orderTransactionId, Context $context, array $data): void
     {
         $orderTransaction = $this->getOrderTransactionById(
@@ -30,13 +37,22 @@ class TransactionService
             $orderTransactionId
         );
 
+        if ($orderTransaction === null) {
+            throw new \InvalidArgumentException('Order transaction not found.');
+        }
+
         $customFields = $orderTransaction->getCustomFields() ?? [];
         $customFields = array_merge($customFields, $data);
 
         $this->updateTransactionCustomFields($orderTransactionId, $customFields);
     }
-
-
+    /**
+     *
+     * @param string $orderTransactionId
+     * @param array<mixed> $customFields
+     *
+     * @return void
+     */
     public function updateTransactionCustomFields(string $orderTransactionId, array $customFields): void
     {
         $data = [
@@ -46,6 +62,13 @@ class TransactionService
 
         $this->transactionRepository->update([$data], Context::createDefaultContext());
     }
+
+    /**
+     * @param Context $context
+     * @param string $orderTransactionId
+     *
+     * @return OrderTransactionEntity|null
+     */
     public function getOrderTransactionById(Context $context, string $orderTransactionId): ?OrderTransactionEntity
     {
         $criteria = new Criteria();
@@ -55,43 +78,57 @@ class TransactionService
         return $this->transactionRepository->search($criteria, $context)->first();
     }
 
-    public function getRefundTransactionInvoceId($invoiceIncrementId, $orderTransactionId, $customFields)
-    {
-        $refundIncrementInvoceId = $customFields['refundIncrementInvoceId'] ?? 0;
-        $refundIncrementInvoceId++;
-        $customFields['refundIncrementInvoceId'] = $refundIncrementInvoceId;
-        $this->updateTransactionCustomFields($orderTransactionId, $customFields);
-        return $invoiceIncrementId . '_R' . ($refundIncrementInvoceId > 1 ? $refundIncrementInvoceId : '');
-    }
-
     /**
      * @param string $transactionId
      * @param Context $context
-     * @return OrderTransactionEntity
-     * @throws InconsistentCriteriaIdsException
      */
-    public function getOrderTransaction(string $transactionId, Context $context): OrderTransactionEntity
+    public function getOrderTransaction(string $transactionId, Context $context): ?OrderTransactionEntity
     {
         $criteria = new Criteria([$transactionId]);
-        /** @var OrderTransactionEntity $transaction */
-        return $this->transactionRepository->search($criteria, $context)
-            ->get($transactionId);
+        return $this->transactionRepository->search($criteria, $context)->first();
     }
-    
-    public function getCustomFields(OrderEntity $order, Context $context)
+
+    /**
+     *
+     * @param OrderEntity $order
+     * @param Context $context
+     *
+     * @return array<mixed>
+     */
+    public function getCustomFields(OrderEntity $order, Context $context): array
     {
-        $transaction = $order->getTransactions()->last();
+        $transactions = $order->getTransactions();
+
+        if ($transactions === null) {
+            throw new \InvalidArgumentException('Order transaction not found.');
+        }
+
+        $transaction = $transactions->last();
+        if ($transaction === null) {
+            throw new \InvalidArgumentException('Order transaction not found.');
+        }
 
         $orderTransaction = $this->getOrderTransactionById(
             $context,
             $transaction->getId()
         );
+
+        if ($orderTransaction === null) {
+            throw new \InvalidArgumentException('Order transaction not found.');
+        }
+
         $customField = $orderTransaction->getCustomFields() ?? [];
 
-        $method_path                = str_replace('Handlers', 'PaymentMethods', str_replace('PaymentHandler', '', $transaction->getPaymentMethod()->getHandlerIdentifier()));
-        $paymentMethod              = new $method_path;
+        $method_path = str_replace(
+            'Handlers',
+            'PaymentMethods',
+            str_replace('PaymentHandler', '', $transaction->getPaymentMethod()->getHandlerIdentifier())
+        );
+
+        /** @var \Buckaroo\Shopware6\PaymentMethods\AbstractPayment */
+        $paymentMethod              = new $method_path();
         $customField['canRefund']   = $paymentMethod->canRefund() ? 1 : 0;
-        $customField['canCapture']   = $paymentMethod->canCapture() ? 1 : 0;
+        $customField['canCapture']  = $paymentMethod->canCapture() ? 1 : 0;
         $customField['serviceName'] = $paymentMethod->getBuckarooKey();
         $customField['version']     = $paymentMethod->getVersion();
 
@@ -106,18 +143,33 @@ class TransactionService
      */
     public function isBuckarooPaymentMethod(OrderEntity $order): bool
     {
-        $transaction = $order->getTransactions()->last();
+        $transactions = $order->getTransactions();
 
-        if (!$transaction || !$transaction->getPaymentMethod() || !$transaction->getPaymentMethod()->getPlugin()) {
+        if ($transactions === null) {
+            throw new \InvalidArgumentException('Order transaction not found.');
+        }
+
+        /** @var OrderTransactionEntity|null */
+        $transaction = $transactions->last();
+        if ($transaction === null) {
             return false;
         }
 
-        $plugin = $transaction->getPaymentMethod()->getPlugin();
+        /** @var \Shopware\Core\Checkout\Payment\PaymentMethodEntity|null */
+        $paymentMethod = $transaction->getPaymentMethod();
+        if ($paymentMethod === null) {
+            return false;
+        }
+
+        /** @var \Shopware\Core\Framework\Plugin\PluginEntity|null */
+        $plugin = $paymentMethod->getPlugin();
+        if ($plugin === null) {
+            return false;
+        }
 
         $baseClassArr         = explode('\\', $plugin->getBaseClass());
         $buckarooPaymentClass = explode('\\', BuckarooPayments::class);
 
         return end($baseClassArr) === end($buckarooPaymentClass);
     }
-
 }

@@ -17,9 +17,8 @@ use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
-class PaymentServiceDecorator 
+class PaymentServiceDecorator
 {
-
     private OrderConverter $orderConverter;
 
     private TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2;

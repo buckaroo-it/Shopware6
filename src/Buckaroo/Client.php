@@ -25,9 +25,8 @@ class Client
     /**
      * Execute buckaroo request
      *
-     * @param string $paymentCode
+     * @param array<mixed> $payload
      * @param string $action
-     * @param array $payload
      *
      * @return ClientResponseInterface
      * @throws \Exception

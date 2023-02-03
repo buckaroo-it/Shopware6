@@ -12,19 +12,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
-
 abstract class AbstractPaymentController extends StorefrontController
 {
-
     /**
      * @var \Buckaroo\Shopware6\Service\CartService
      */
@@ -39,7 +39,7 @@ abstract class AbstractPaymentController extends StorefrontController
      * @var \Buckaroo\Shopware6\Service\OrderService
      */
     protected $orderService;
-    
+
     /**
      * @var \Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository
      */
@@ -49,7 +49,7 @@ abstract class AbstractPaymentController extends StorefrontController
      * @var \Buckaroo\Shopware6\Service\SettingsService
      */
     protected SettingsService $settingsService;
-    
+
     public function __construct(
         CartService $cartService,
         CustomerService $customerService,
@@ -63,15 +63,15 @@ abstract class AbstractPaymentController extends StorefrontController
         $this->settingsService = $settingsService;
         $this->paymentMethodRepository = $paymentMethodRepository;
     }
-    
-    protected function formatNumber(float $number)
+
+    protected function formatNumber(float $number): string
     {
         return number_format($number, 2);
     }
     /**
      * Return json response with data
      *
-     * @param array $data
+     * @param array<mixed> $data
      * @param boolean $error
      *
      * @return JsonResponse
@@ -87,8 +87,16 @@ abstract class AbstractPaymentController extends StorefrontController
         return new JsonResponse($data);
     }
 
-    protected function loginCustomer(DataBag $customerData, SalesChannelContext $salesChannelContext)
-    {
+    /**
+     * @param DataBag $customerData
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return CustomerEntity
+     */
+    protected function loginCustomer(
+        DataBag $customerData,
+        SalesChannelContext $salesChannelContext
+    ): CustomerEntity {
         return $this->customerService
             ->setSaleChannelContext($salesChannelContext)
             ->get($customerData);
@@ -109,10 +117,16 @@ abstract class AbstractPaymentController extends StorefrontController
             return $this->createCart($request, $salesChannelContext);
         }
 
-        return $this->getCartByToken(
+        $cart = $this->getCartByToken(
             $salesChannelContext->getToken(),
             $salesChannelContext
         );
+
+        if ($cart === null) {
+            throw new \Exception("Cannot retrieve cart by token", 1);
+        }
+
+        return $cart;
     }
 
     /**
@@ -154,7 +168,7 @@ abstract class AbstractPaymentController extends StorefrontController
      *
      * @param DataBag $formData
      *
-     * @return array
+     * @return array<mixed>
      */
     protected function getProductData(DataBag $formData)
     {
@@ -179,11 +193,14 @@ abstract class AbstractPaymentController extends StorefrontController
             throw new InvalidParameterException("Invalid product parameters", 1);
         }
 
-
+        $quantity = $productData['quantity'];
+        if (!is_scalar($quantity)) {
+            throw new InvalidParameterException("Invalid quantity", 1);
+        }
 
         return [
             "id" => $productData['id'],
-            "quantity" => (int)$productData['quantity'],
+            "quantity" => (int)$quantity,
             "referencedId" => $productData['referencedId'],
             "removable" => (bool)$productData['removable'],
             "stackable" => (bool)$productData['stackable'],
@@ -209,13 +226,16 @@ abstract class AbstractPaymentController extends StorefrontController
     /**
      * Get cart by token
      *
-     * @param string $token
+     * @param mixed $token
      * @param SalesChannelContext $salesChannelContext
      *
      * @return Cart|null
      */
-    protected function getCartByToken(string $token, SalesChannelContext $salesChannelContext)
+    protected function getCartByToken($token, SalesChannelContext $salesChannelContext)
     {
+        if (!is_string($token)) {
+            throw new \InvalidArgumentException('Cart token must be a string');
+        }
         return $this->cartService
             ->setSaleChannelContext($salesChannelContext)
             ->load($token);
@@ -227,20 +247,20 @@ abstract class AbstractPaymentController extends StorefrontController
      *
      * @param OrderEntity $orderEntity
      * @param SalesChannelContext $salesChannelContext
-     * @param DataBag $data
+     * @param RequestDataBag $data
      *
      * @return string|null
      */
     protected function placeOrder(
         OrderEntity $orderEntity,
         SalesChannelContext $salesChannelContext,
-        DataBag $data
+        RequestDataBag $data
     ) {
         return $this->orderService
             ->setSaleChannelContext($salesChannelContext)
             ->place($orderEntity, $data);
     }
-    
+
     /**
      * Get absolute url to the finish page after payment
      *
@@ -248,26 +268,32 @@ abstract class AbstractPaymentController extends StorefrontController
      *
      * @return string|null
      */
-    protected function getFinishPage($redirectPath)
+    protected function getFinishPage($redirectPath): ?string
     {
         if (is_string($redirectPath)) {
-            return $this->generateUrl('frontend.home.page',  [], UrlGeneratorInterface::ABSOLUTE_URL) . ltrim($redirectPath, "/");
+            return $this->generateUrl('frontend.home.page', [], UrlGeneratorInterface::ABSOLUTE_URL) .
+                ltrim($redirectPath, "/");
         }
+        return null;
     }
     /**
      * Get payment fee
      *
      * @param SalesChannelContext $salesChannelContext
+     * @param string $feeName
      *
      * @return float
      */
-    public function getFee(SalesChannelContext $salesChannelContext, $feeName)
+    public function getFee(SalesChannelContext $salesChannelContext, string $feeName): float
     {
         $fee = $this->settingsService->getSetting($feeName, $salesChannelContext->getSalesChannelId());
-        return round(str_replace(',', '.', $fee), 2);
+        if (is_scalar($fee)) {
+            return round((float)str_replace(',', '.', (string)$fee), 2);
+        }
+        return 0;
     }
 
-        /**
+    /**
      * Set paypal as payment method
      *
      * @param SalesChannelContext $salesChannelContext
@@ -275,7 +301,7 @@ abstract class AbstractPaymentController extends StorefrontController
      *
      * @return void
      */
-    protected function overrideChannelPaymentMethod(SalesChannelContext $salesChannelContext, string $handler)
+    protected function overrideChannelPaymentMethod(SalesChannelContext $salesChannelContext, string $handler): void
     {
         $paymentMethod = $this->getValidPaymentMethod($salesChannelContext, $handler);
 
@@ -292,14 +318,14 @@ abstract class AbstractPaymentController extends StorefrontController
      *
      * @param SalesChannelContext $salesChannelContext
      * @param string $handler
-     * 
+     *
      * @return \Shopware\Core\Checkout\Payment\PaymentMethodEntity|null
      */
     public function getValidPaymentMethod(SalesChannelContext $salesChannelContext, string $handler)
     {
         $criteria = (new Criteria())
             ->setLimit(1)
-            ->addFilter(new EqualsFilter('handlerIdentifier', "Buckaroo\Shopware6\Handlers\\".$handler));
+            ->addFilter(new EqualsFilter('handlerIdentifier', "Buckaroo\Shopware6\Handlers\\" . $handler));
 
         return $this->paymentMethodRepository->search(
             $criteria,
@@ -307,5 +333,4 @@ abstract class AbstractPaymentController extends StorefrontController
         )
             ->first();
     }
-    
 }

@@ -11,12 +11,10 @@ use Buckaroo\Resources\Constants\RecipientCategory;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
 class AfterPayPaymentHandler extends AsyncPaymentHandler
 {
-
     protected string $paymentClass = AfterPay::class;
 
 
@@ -43,23 +41,21 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
     /**
      * Get parameters for specific payment method
      *
-     * @param AsyncPaymentTransactionStruct $transaction
+     * @param OrderEntity $order
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
      * @param string $paymentCode
      *
-     * @return array
+     * @return array<mixed>
      */
     protected function getMethodPayload(
-        AsyncPaymentTransactionStruct $transaction,
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        $order = $transaction->getOrder();
-
         if ($this->getSetting('afterpayEnabledold') === true) {
-           return $this->afterPayOld->buildPayParameters(
+            return $this->afterPayOld->buildPayParameters(
                 $order,
                 $salesChannelContext,
                 $dataBag,
@@ -74,14 +70,21 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         );
     }
 
-
+    /**
+     *
+     * @param OrderEntity $order
+     * @param RequestDataBag $dataBag
+     * @param string $salesChannelContextId
+     *
+     * @return array<mixed>
+     */
     protected function getBillingData(
         OrderEntity $order,
         RequestDataBag $dataBag,
         string $salesChannelContextId
     ): array {
-        $address = $order->getBillingAddress();
-        $customer = $order->getOrderCustomer();
+        $address = $this->asyncPaymentService->getBillingAddress($order);
+        $customer = $this->asyncPaymentService->getCustomer($order);
 
         $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
 
@@ -96,10 +99,14 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                 'address' => [
                     'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
                     'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
-                    'houseNumberAdditional' => $this->formatRequestParamService->getAdditionalHouseNumber($address, $streetParts),
+                    'houseNumberAdditional' => $this->formatRequestParamService
+                        ->getAdditionalHouseNumber(
+                            $address,
+                            $streetParts
+                        ),
                     'zipcode'               =>  $address->getZipcode(),
                     'city'                  =>  $address->getCity(),
-                    'country'               =>  $address->getCountry()->getIso()
+                    'country'               =>  $this->asyncPaymentService->getCountry($address)->getIso()
                 ],
                 'phone' => [
                     'mobile'        => $this->getPhone($dataBag, $address),
@@ -112,19 +119,21 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
             $this->getCompany($address, $dataBag, $salesChannelContextId),
             $this->getBirthDayData($address, $dataBag)
         );
-
     }
 
+    /**
+     * @param OrderEntity $order
+     * @param RequestDataBag $dataBag
+     * @param string $salesChannelContextId
+     *
+     * @return array<mixed>
+     */
     protected function getShippingData(
         OrderEntity $order,
         RequestDataBag $dataBag,
         string $salesChannelContextId
     ): array {
-        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity|null */
-        $address = $order->getDeliveries()->getShippingAddress()->first();
-        if ($address === null) {
-            $address = $order->getBillingAddress();
-        }
+        $address = $this->asyncPaymentService->getShippingAddress($order);
 
         $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
         $data = [
@@ -138,10 +147,14 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                 'address' => [
                     'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
                     'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
-                    'houseNumberAdditional' => $this->formatRequestParamService->getAdditionalHouseNumber($address, $streetParts),
+                    'houseNumberAdditional' => $this->formatRequestParamService
+                        ->getAdditionalHouseNumber(
+                            $address,
+                            $streetParts
+                        ),
                     'zipcode'               =>  $address->getZipcode(),
                     'city'                  =>  $address->getCity(),
-                    'country'               =>  $address->getCountry()->getIso()
+                    'country'               => $this->asyncPaymentService->getCountry($address)->getIso()
                 ],
             ],
         ];
@@ -152,9 +165,12 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         );
     }
 
-    
-
-   
+    /**
+     * @param OrderEntity $order
+     * @param string $paymentCode
+     *
+     * @return array<mixed>
+     */
     private function getArticles(OrderEntity $order, string $paymentCode): array
     {
         $lines = $this->getOrderLinesArray($order, $paymentCode);
@@ -162,6 +178,9 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         $articles = [];
 
         foreach ($lines as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
             $articles[] = [
                 'identifier'        => $item['sku'],
                 'description'       => $item['name'],
@@ -175,20 +194,25 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         ];
     }
 
-    
+    /**
+     * @param OrderAddressEntity $address
+     * @param RequestDataBag $dataBag
+     * @param string $salesChannelContextId
+     * @param string $type
+     *
+     * @return array<mixed>
+     */
     protected function getCompany(
         OrderAddressEntity $address,
         RequestDataBag $dataBag,
         string $salesChannelContextId,
         string $type = 'billing'
-        ): array
-    {
+    ): array {
         if (
             $this->isCustomerB2B($salesChannelContextId) &&
-            $address->getCountry()->getIso() === 'NL' &&
+            $this->asyncPaymentService->getCountry($address)->getIso() === 'NL' &&
             !$this->isCompanyEmpty($address->getCompany())
         ) {
-
             return [
                 $type => [
                     'recipient'        => [
@@ -201,13 +225,19 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         return [];
     }
 
+    /**
+     * @param OrderAddressEntity $address
+     * @param RequestDataBag $dataBag
+     * @param string $type
+     *
+     * @return array<mixed>
+     */
     protected function getBirthDayData(
         OrderAddressEntity $address,
         RequestDataBag $dataBag,
         string $type = 'billing'
-    ): array
-    {
-        if (in_array($address->getCountry()->getIso(), ['NL', 'BE'])) {
+    ): array {
+        if (in_array($this->asyncPaymentService->getCountry($address)->getIso(), ['NL', 'BE'])) {
             return [
                 $type => [
                     'recipient' => [
@@ -221,7 +251,11 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
 
     private function getPhone(RequestDataBag $dataBag, OrderAddressEntity $address): string
     {
-        return (string)$dataBag->get('buckaroo_afterpay_phone', $address->getPhoneNumber());
+        $phone = $dataBag->get('buckaroo_afterpay_phone', $address->getPhoneNumber());
+        if (is_scalar($phone)) {
+            return (string)$phone;
+        }
+        return '';
     }
 
     /**
@@ -254,7 +288,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
     {
         if (
             $this->isCustomerB2B($salesChannelContextId) &&
-            $address->getCountry()->getIso() === 'NL' &&
+            $this->asyncPaymentService->getCountry($address)->getIso() === 'NL' &&
             !$this->isCompanyEmpty($address->getCompany())
         ) {
             return RecipientCategory::COMPANY;
@@ -267,23 +301,31 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
      *
      * @param RequestDataBag $dataBag
      *
-     * @return null|string|bool
+     * @return null|string
      */
     private function getBirthDate(RequestDataBag $dataBag)
     {
-        if ($dataBag->has('buckaroo_afterpay_DoB')) {
-            return @date(
-                "d-m-Y",
-                strtotime($dataBag->get('buckaroo_afterpay_DoB'))
-            );
+        if (!$dataBag->has('buckaroo_afterpay_DoB')) {
+            return null;
         }
+
+        $dateString = $dataBag->get('buckaroo_afterpay_DoB');
+        if (!is_scalar($dateString)) {
+            return null;
+        }
+        $date = strtotime((string)$dateString);
+        if ($date === false) {
+            return null;
+        }
+
+        return @date("d-m-Y", $date);
     }
 
-    public function isCustomerB2B($salesChannelId = null)
+    public function isCustomerB2B(string $salesChannelId = null): bool
     {
         return $this->getSetting('afterpayCustomerType', $salesChannelId) !== self::CUSTOMER_TYPE_B2C;
     }
-   
+
     /**
      * Check if company is empty
      *
@@ -291,7 +333,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
      *
      * @return boolean
      */
-    public function isCompanyEmpty(string $company = null)
+    public function isCompanyEmpty(string $company = null): bool
     {
         return null === $company || strlen(trim($company)) === 0;
     }

@@ -1,4 +1,6 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Installers;
 
@@ -19,7 +21,6 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
 
 class PaymentMethodsInstaller implements InstallerInterface
 {
@@ -42,10 +43,36 @@ class PaymentMethodsInstaller implements InstallerInterface
      */
     public function __construct(ContainerInterface $container)
     {
-        $this->pluginIdProvider = $container->get(PluginIdProvider::class);
-        $this->paymentMethodRepository = $container->get('payment_method.repository');
-        $this->mediaRepository = $container->get('media.repository');
-        $this->systemConfigService = $container->get(SystemConfigService::class);
+        /** @var PluginIdProvider */
+        $pluginIdProvider = $this->getDependency($container, PluginIdProvider::class);
+        $this->pluginIdProvider = $pluginIdProvider;
+
+        /** @var EntityRepository */
+        $paymentMethodRepository = $this->getDependency($container, 'payment_method.repository');
+        $this->paymentMethodRepository = $paymentMethodRepository;
+
+        /** @var EntityRepository */
+        $mediaRepository = $this->getDependency($container, 'media.repository');
+        $this->mediaRepository = $mediaRepository;
+
+        /** @var SystemConfigService */
+        $systemConfigService = $this->getDependency($container, SystemConfigService::class);
+        $this->systemConfigService = $systemConfigService;
+    }
+
+    /**
+     * @param ContainerInterface $container
+     * @param string $name
+     * @return mixed
+     */
+    private function getDependency(ContainerInterface $container, string $name)
+    {
+        $repository =  $container->get($name);
+
+        if ($repository === null) {
+            throw new \UnexpectedValueException("Repository {$repository} not found");
+        }
+        return $repository;
     }
 
     /**
@@ -144,7 +171,7 @@ class PaymentMethodsInstaller implements InstallerInterface
             return null;
         }
 
-        return $paymentIds->getIds()[0];
+        return $paymentIds->firstId();
     }
 
     /**
@@ -184,10 +211,10 @@ class PaymentMethodsInstaller implements InstallerInterface
             )
         );
 
-        /** @var MediaEntity $media */
+        /** @var MediaEntity|null $media */
         $media = $this->mediaRepository->search($criteria, $context)->first();
 
-        if (!$media) {
+        if ($media === null) {
             return null;
         }
 
@@ -215,7 +242,10 @@ class PaymentMethodsInstaller implements InstallerInterface
                 mkdir($root . '.well-known', 0775, true);
             }
 
-            copy(__DIR__ . '/../Resources/views/storefront/_resources/apple-developer-merchantid-domain-association', $root . '/.well-known/apple-developer-merchantid-domain-association');
+            copy(
+                __DIR__ . '/../Resources/views/storefront/_resources/apple-developer-merchantid-domain-association',
+                $root . '/.well-known/apple-developer-merchantid-domain-association'
+            );
         }
     }
 
@@ -225,37 +255,58 @@ class PaymentMethodsInstaller implements InstallerInterface
         $this->copyAppleDomainAssociationFile();
     }
 
-    private function setBuckarooPaymentSettingsValue($key, $value, $label = '')
+    /**
+     *
+     * @param string $key
+     * @param mixed $value
+     * @param string $label
+     *
+     * @return void
+     */
+    private function setBuckarooPaymentSettingsValue(string $key, $value, string $label = ''): void
     {
         $domain = 'BuckarooPayments.config.';
         $configKey = $domain . $key . $label;
         $currentValue = $this->systemConfigService->get($configKey);
 
         if ($currentValue !== null) {
-            return false;
+            return;
         }
-        $this->systemConfigService->set($configKey, $value);
+        if (is_scalar($value) || is_array($value) || is_null($value)) {
+            $this->systemConfigService->set($configKey, $value);
+        }
     }
 
-    private function setDefaultValues()
+    private function setDefaultValues(): void
     {
         foreach (GatewayHelper::GATEWAYS as $gateway) {
             $paymentMethod = new $gateway();
-            $this->setBuckarooPaymentSettingsValue($paymentMethod->getBuckarooKey(), 'test', 'Environment');
-            $this->setBuckarooPaymentSettingsValue($paymentMethod->getBuckarooKey(), $paymentMethod->getName(), 'Label');
+
+            $this->setBuckarooPaymentSettingsValue(
+                $paymentMethod->getBuckarooKey(),
+                'test',
+                'Environment'
+            );
+
+            $this->setBuckarooPaymentSettingsValue(
+                $paymentMethod->getBuckarooKey(),
+                $paymentMethod->getName(),
+                'Label'
+            );
         }
 
         foreach (
             [
-                ['paymentSuccesStatus'=>'paid'],
-                ['orderStatus'=>'open'],
-                ['klarnaBusiness'=>'B2C'],
-                ['BillinkMode'=>'pay'], 
-                ['transferSendEmail'=> 1], 
-                ['transferDateDue'=> 7],
+                ['paymentSuccesStatus' => 'paid'],
+                ['orderStatus' => 'open'],
+                ['klarnaBusiness' => 'B2C'],
+                ['BillinkMode' => 'pay'],
+                ['transferSendEmail' => 1],
+                ['transferDateDue' => 7],
                 ['payperemailEnabledfrontend' => true]
-            ] as $key => $value) {
-            $this->setBuckarooPaymentSettingsValue($key, $value);
+            ] as $key => $value
+        ) {
+            $this->setBuckarooPaymentSettingsValue((string)$key, $value);
         }
     }
 }

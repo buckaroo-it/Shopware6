@@ -26,10 +26,9 @@ class UrlService
         $this->settingsService = $settingsService;
         $this->router = $router;
         $this->tokenFactory = $tokenFactory;
-
     }
 
-    public function getReturnUrl($route): string
+    public function getReturnUrl(string $route): string
     {
         return $this->getSaleBaseUrl() . $this->router->generate(
             $route,
@@ -38,7 +37,7 @@ class UrlService
         );
     }
 
-    public function getSaleBaseUrl()
+    public function getSaleBaseUrl(): string
     {
         $checkoutConfirmUrl = $this->router->generate(
             'frontend.checkout.confirm.page',
@@ -47,13 +46,18 @@ class UrlService
         );
         return str_replace('/checkout/confirm', '', $checkoutConfirmUrl);
     }
-
-    public function forwardToRoute($path, $parameters = [])
+    /**
+     * @param string $path
+     * @param array<mixed> $parameters
+     *
+     * @return string
+     */
+    public function forwardToRoute(string $path, array $parameters = []): string
     {
         return $this->router->generate($path, $parameters);
     }
 
-    public function getRestoreUrl()
+    public function getRestoreUrl(): string
     {
         return $this->router->generate(
             'frontend.action.buckaroo.redirect',
@@ -64,7 +68,7 @@ class UrlService
 
 
     /**
-     * Generate return url with access token 
+     * Generate return url with access token
      *
      * @param OrderTransactionEntity $transaction
      * @param integer $paymentFinalizeTransactionTime minutes
@@ -73,8 +77,15 @@ class UrlService
      */
     public function generateReturnUrl(OrderTransactionEntity $transaction, int $paymentFinalizeTransactionTime): string
     {
-        $finishUrl = $this->router->generate('frontend.checkout.finish.page', ['orderId' => $transaction->getOrderId()]);
-        $errorUrl = $this->router->generate('frontend.account.edit-order.page', ['orderId' => $transaction->getOrderId()]);
+        $finishUrl = $this->router->generate(
+            'frontend.checkout.finish.page',
+            ['orderId' => $transaction->getOrderId()]
+        );
+
+        $errorUrl = $this->router->generate(
+            'frontend.account.edit-order.page',
+            ['orderId' => $transaction->getOrderId()]
+        );
 
         $tokenStruct = new TokenStruct(
             null,
@@ -91,6 +102,11 @@ class UrlService
         return $this->assembleReturnUrl($token);
     }
 
+    /**
+     * @param string $token
+     *
+     * @return string
+     */
     private function assembleReturnUrl(string $token): string
     {
         $parameter = ['_sw_payment_token' => $token];

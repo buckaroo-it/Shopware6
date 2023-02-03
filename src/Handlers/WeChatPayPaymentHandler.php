@@ -4,45 +4,42 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\WeChatPay;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class WeChatPayPaymentHandler extends AsyncPaymentHandler
 {
-
     protected string $paymentClass = WeChatPay::class;
 
     /**
      * Get parameters for specific payment method
      *
-     * @param AsyncPaymentTransactionStruct $transaction
+     * @param OrderEntity $order
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
      * @param string $paymentCode
      *
-     * @return array
+     * @return array<mixed>
      */
     protected function getMethodPayload(
-        AsyncPaymentTransactionStruct $transaction,
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
         return [
             'locale' => $this->getLocaleCode(
-                $transaction->getOrder()
-                    ->getBillingAddress()
-                    ->getCountry()
-                    ->getIso()
+                $this->asyncPaymentService->getCountry(
+                    $this->asyncPaymentService->getBillingAddress($order)
+                )->getIso()
             ),
         ];
     }
 
 
-    private function getLocaleCode($country)
+    private function getLocaleCode(string $country = null): string
     {
         if ($country == 'CN') {
             return 'zh-CN';
