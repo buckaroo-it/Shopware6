@@ -204,7 +204,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if ($customer === null) {
             throw new \InvalidArgumentException('Cannot find customer');
         }
-        $buckarooKey = isset($event->getSalesChannelContext()->getPaymentMethod()->getTranslated()['customFields']['buckaroo_key']) ? $event->getSalesChannelContext()->getPaymentMethod()->getTranslated()['customFields']['buckaroo_key'] : null;
+        $buckarooKey = isset($event->getSalesChannelContext()->getPaymentMethod()->getTranslated()['customFields']['buckaroo_key']) ? $event->getSalesChannelContext()->getPaymentMethod()->getTranslated()['customFields']['buckaroo_key'] : '';
         $currency = $this->getCurrency($event);
 
         if ($lastCreditcard = $request->get('creditcard')) {
