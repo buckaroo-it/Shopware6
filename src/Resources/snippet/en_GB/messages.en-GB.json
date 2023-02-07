@@ -8,6 +8,7 @@
     },
     "messages": {
       "statuscode_failed": "Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.",
+      "billinkRejectedMessage": "Unfortunately, it is currently not possible for you to use Billink, Please select another payment method or contact Billink.",
       "statuscode_cancelled_by_user": "According to our system, you have canceled the payment. If this is not the case, please contact us.",
       "return791": "Your order has been successfully placed but payment has not yet been received. Your order will be processed as soon as payment has been received.",
       "userCanceled": "According to our system, you have canceled the payment. If this is not the case, please contact us.",
