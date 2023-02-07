@@ -49,7 +49,6 @@ Component.register('buckaroo-settings', {
                 'payconiqEnabled': true,
                 'applepayEnabled': true,
                 'giftcardsEnabled': true,
-                'RequestToPayEnabled': true,
                 'capayableEnabled': true,
                 'epsEnabled': true,
                 'Przelewy24Enabled': true,
