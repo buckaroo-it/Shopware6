@@ -53,8 +53,7 @@ class ClientService
      */
     protected function getPaymentCode(string $paymentCode, string $salesChannelId = null): string
     {
-        if (
-            $paymentCode === 'afterpay' &&
+        if ($paymentCode === 'afterpay' &&
             $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true
         ) {
             return 'afterpaydigiaccept';

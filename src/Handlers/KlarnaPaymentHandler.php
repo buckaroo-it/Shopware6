@@ -175,8 +175,7 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
      */
     private function getCategory(OrderAddressEntity $address): string
     {
-        if (
-            $address->getCompany() !== null &&
+        if ($address->getCompany() !== null &&
             !empty(trim($address->getCompany()))
         ) {
             return 'B2B';

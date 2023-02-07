@@ -160,8 +160,7 @@ class RefundService
             if (count($orderItems)) {
                 $orderItemsRefunded = [];
                 foreach ($orderItems as $value) {
-                    if (
-                        is_array($value) &&
+                    if (is_array($value) &&
                         isset($value['id']) &&
                         isset($value['quantity']) &&
                         is_string($value['id']) &&
@@ -396,8 +395,7 @@ class RefundService
         string $paymentCode
     ): float {
         $amount = 0;
-        if (
-            is_scalar($customRefundAmount) &&
+        if (is_scalar($customRefundAmount) &&
             (float)$customRefundAmount > 0 &&
             !in_array($paymentCode, ['afterpay', 'Billink', 'klarnakp'])
         ) {
@@ -435,8 +433,7 @@ class RefundService
         $customFields['originalTransactionKey'] = $transaction['transactions'];
 
         $paymentCode = $customFields['serviceName'];
-        if (
-            in_array($customFields['serviceName'], ['creditcard', 'creditcards', 'giftcards'])
+        if (in_array($customFields['serviceName'], ['creditcard', 'creditcards', 'giftcards'])
         ) {
             $paymentCode = $customFields['brqPaymentMethod'];
         }

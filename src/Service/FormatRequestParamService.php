@@ -42,8 +42,7 @@ class FormatRequestParamService
             // Get tax
             $itemTax = null;
 
-            if (
-                $item->getPrice() !== null &&
+            if ($item->getPrice() !== null &&
                 $item->getPrice()->getCalculatedTaxes() !== null
             ) {
                 $itemTax = $this->getLineItemTax($item->getPrice()->getCalculatedTaxes());
@@ -230,8 +229,7 @@ class FormatRequestParamService
 
         $buckarooFee = null;
 
-        if (
-            $customFields !== null &&
+        if ($customFields !== null &&
             isset($customFields['buckarooFee']) &&
             is_scalar($customFields['buckarooFee'])
         ) {

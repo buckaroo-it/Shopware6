@@ -134,8 +134,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             return new RedirectResponse($response->getRedirectUrl());
         }
 
-        if (
-            $response->isSuccess() ||
+        if ($response->isSuccess() ||
             $response->isAwaitingConsumer() ||
             $response->isPendingProcessing() ||
             $response->isWaitingOnUserInput()
@@ -391,8 +390,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     {
         if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
             $finishUrl = (string)$dataBag->get('finishUrl');
-            if (
-                strpos($finishUrl, 'http://') === 0 ||
+            if (strpos($finishUrl, 'http://') === 0 ||
                 strpos($finishUrl, 'https://') === 0
             ) {
                 return $finishUrl;
@@ -405,12 +403,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 "/"
             ) . (string)$finishUrl;
         }
-        if (
-            version_compare(
-                $this->asyncPaymentService->checkoutHelper->getShopwareVersion(),
-                '6.4.2.0',
-                '<'
-            )
+        if (version_compare(
+            $this->asyncPaymentService->checkoutHelper->getShopwareVersion(),
+            '6.4.2.0',
+            '<'
+        )
             && strpos("buckaroo", $transaction->getReturnUrl()) === false
         ) {
             return str_replace("/payment", "/buckaroo/payment", $transaction->getReturnUrl());

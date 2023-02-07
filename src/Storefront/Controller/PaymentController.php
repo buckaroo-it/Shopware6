@@ -53,6 +53,7 @@ class PaymentController extends AbstractController
 
     /**
      * @RouteScope(scopes={"storefront"})
+     * phpcs:ignore Generic.Files.LineLength.TooLong
      * @Route("/buckaroo/payment/finalize-transaction", defaults={"auth_required"=false, "csrf_protected"=false}, options={"seo"="false"}, name="buckaroo.payment.finalize.transaction", methods={"GET", "POST"})
      */
     public function finalizeTransaction(Request $request): Response

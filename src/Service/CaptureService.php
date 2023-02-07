@@ -125,8 +125,7 @@ class CaptureService
         string $paymentCode
     ): array {
         if ($response->isSuccess()) {
-            if (
-                !$this->invoiceService->isInvoiced($order->getId(), $context) &&
+            if (!$this->invoiceService->isInvoiced($order->getId(), $context) &&
                 !$this->invoiceService->isCreateInvoiceAfterShipment(
                     false,
                     $paymentCode,

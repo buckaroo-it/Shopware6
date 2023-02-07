@@ -296,8 +296,7 @@ class PaymentMethodsInstaller implements InstallerInterface
             );
         }
 
-        foreach (
-            [
+        foreach ([
                 ['paymentSuccesStatus' => 'paid'],
                 ['orderStatus' => 'open'],
                 ['klarnaBusiness' => 'B2C'],

@@ -233,8 +233,7 @@ class AfterPayOld
      */
     private function getItemVatCategory(array $item): int
     {
-        if (
-            !isset($item['taxId']) ||
+        if (!isset($item['taxId']) ||
             !is_string($item['taxId'])
         ) {
             return 4;

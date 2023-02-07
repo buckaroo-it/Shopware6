@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Buckaroo Wordpress WooCommerce" 
+xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
+    <description>Rules for Buckaroo Payments Shopware 6.</description>
+
+    <arg name="colors"/>
+    <arg name="report" value="code"/>
+
+    <rule ref="PSR2"/>
+
+    <!-- Exclude the Composer Vendor directory. -->
+    <exclude-pattern>./vendor/*</exclude-pattern>
+
+    <!-- Exclude Javascript files. -->
+    <exclude-pattern>*.js</exclude-pattern>
+
+        <!-- Exclude Css files. -->
+    <exclude-pattern>*.css</exclude-pattern>
+
+    <!-- Only 3 indentation level per function/method -->
+    <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
+        <exclude-pattern>*/custom/plugins/BuckarooPayments/src/BuckarooPayments.php</exclude-pattern>
+    </rule>
+
+</ruleset>

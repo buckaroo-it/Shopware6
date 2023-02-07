@@ -54,11 +54,10 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): string {
-        if (
-            $this->getSetting(
-                'BillinkMode',
-                $salesChannelContext->getSalesChannelId()
-            ) == 'authorize'
+        if ($this->getSetting(
+            'BillinkMode',
+            $salesChannelContext->getSalesChannelId()
+        ) == 'authorize'
         ) {
             return 'authorize';
         }
@@ -160,8 +159,7 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
     protected function getVatNumber(RequestDataBag $dataBag): array
     {
         $vatNumber = $dataBag->get('buckaroo_VATNumber');
-        if (
-            is_string($vatNumber) &&
+        if (is_string($vatNumber) &&
             !empty(trim($vatNumber))
         ) {
             return ['vATNumber' => $vatNumber];
@@ -178,8 +176,7 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
      */
     protected function getCoc(RequestDataBag $dataBag): array
     {
-        if (
-            $dataBag->has('buckaroo_ChamberOfCommerce') &&
+        if ($dataBag->has('buckaroo_ChamberOfCommerce') &&
             is_string($dataBag->get('buckaroo_ChamberOfCommerce'))
         ) {
             return [
@@ -240,8 +237,7 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
      */
     private function getCareOf(OrderAddressEntity $address): string
     {
-        if (
-            $address->getCompany() !== null &&
+        if ($address->getCompany() !== null &&
             !empty(trim($address->getCompany()))
         ) {
             return $address->getCompany();
@@ -259,8 +255,7 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
      */
     private function getCategory(OrderAddressEntity $address): string
     {
-        if (
-            $address->getCompany() !== null &&
+        if ($address->getCompany() !== null &&
             !empty(trim($address->getCompany()))
         ) {
             return 'B2B';

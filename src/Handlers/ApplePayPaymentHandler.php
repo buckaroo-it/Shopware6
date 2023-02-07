@@ -75,8 +75,7 @@ class ApplePayPaymentHandler extends AsyncPaymentHandler
         if (!is_object($data)) {
             return '';
         }
-        if (
-            !empty($data->billingContact) &&
+        if (!empty($data->billingContact) &&
             !empty($data->billingContact->givenName) &&
             !empty($data->billingContact->familyName)
         ) {

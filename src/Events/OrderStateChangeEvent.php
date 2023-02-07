@@ -72,8 +72,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $customFields = $this->transactionService->getCustomFields($order, $context);
         $salesChannelId =  $event->getSalesChannelId();
 
-        if (
-            isset($customFields['brqPaymentMethod']) &&
+        if (isset($customFields['brqPaymentMethod']) &&
             $customFields['brqPaymentMethod'] == 'Billink' &&
             $this->settingsService->getSetting('BillinkMode', $salesChannelId) == 'authorize' &&
             $this->settingsService->getSetting('BillinkCreateInvoiceAfterShipment', $salesChannelId)

@@ -68,6 +68,7 @@ class ApplePayController extends AbstractPaymentController
         );
     }
     /**
+     * phpcs:ignore Generic.Files.LineLength.TooLong
      * @Route("/buckaroo/apple/cart/get", name="frontend.action.buckaroo.appleGetCart", options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
@@ -98,6 +99,7 @@ class ApplePayController extends AbstractPaymentController
     }
 
     /**
+     * phpcs:ignore Generic.Files.LineLength.TooLong
      * @Route("/buckaroo/apple/cart/update", name="frontend.action.buckaroo.appleUpdateCart", options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
@@ -160,6 +162,7 @@ class ApplePayController extends AbstractPaymentController
     }
 
     /**
+     * phpcs:ignore Generic.Files.LineLength.TooLong
      * @Route("/buckaroo/apple/order/create", name="frontend.action.buckaroo.appleCreateOrder", options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext

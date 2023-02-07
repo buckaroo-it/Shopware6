@@ -199,8 +199,7 @@ class StateTransitionService
             }
 
             $actionStatusTransition = $this->getTransitionFromActionName($transitionAction, $context);
-            if (
-                $actionStatusTransition !== null &&
+            if ($actionStatusTransition !== null &&
                 $transaction->getStateId() == $actionStatusTransition->getId()
             ) {
                 return true;
@@ -263,8 +262,7 @@ class StateTransitionService
 
             $stateMachine = $order->getStateMachineState();
 
-            if (
-                $stateMachine !== null &&
+            if ($stateMachine !== null &&
                 $stateMachine->getTechnicalName() == $stateName
             ) {
                 return true;

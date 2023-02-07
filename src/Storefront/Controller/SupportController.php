@@ -76,6 +76,7 @@ class SupportController extends StorefrontController
 
 
     /**
+     * phpcs:ignore Generic.Files.LineLength.TooLong
      * @Route("/api/_action/buckaroo/getBuckarooTransaction", name="api.action.buckaroo.support.version", methods={"POST"})
      * @param Request $request
      * @param Context $context

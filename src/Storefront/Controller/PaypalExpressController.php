@@ -51,6 +51,7 @@ class PaypalExpressController extends AbstractPaymentController
         );
     }
     /**
+     * phpcs:ignore Generic.Files.LineLength.TooLong
      * @Route("buckaroo/paypal/create", name="frontend.action.buckaroo.paypalExpressCreate",  options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
@@ -85,6 +86,7 @@ class PaypalExpressController extends AbstractPaymentController
 
 
     /**
+     * phpcs:ignore Generic.Files.LineLength.TooLong
      * @Route("buckaroo/paypal/pay", name="frontend.action.buckaroo.paypalExpressPay",  options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext

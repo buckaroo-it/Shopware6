@@ -30,8 +30,7 @@ class SepaDirectDebitPaymentHandler extends AsyncPaymentHandler
         string $paymentCode
     ): array {
 
-        if (
-            $dataBag->has('buckarooSepaDirectDebitIBAN') &&
+        if ($dataBag->has('buckarooSepaDirectDebitIBAN') &&
             $dataBag->has('buckarooSepaDirectDebitCustomer')
         ) {
             return [

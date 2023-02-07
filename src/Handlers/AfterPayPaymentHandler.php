@@ -208,8 +208,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         string $salesChannelContextId,
         string $type = 'billing'
     ): array {
-        if (
-            $this->isCustomerB2B($salesChannelContextId) &&
+        if ($this->isCustomerB2B($salesChannelContextId) &&
             $this->asyncPaymentService->getCountry($address)->getIso() === 'NL' &&
             !$this->isCompanyEmpty($address->getCompany())
         ) {
@@ -267,8 +266,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
      */
     private function getCareOf(OrderAddressEntity $address): string
     {
-        if (
-            $address->getCompany() !== null &&
+        if ($address->getCompany() !== null &&
             !empty(trim($address->getCompany()))
         ) {
             return $address->getCompany();
@@ -286,8 +284,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
      */
     private function getCategory(OrderAddressEntity $address, string $salesChannelContextId): string
     {
-        if (
-            $this->isCustomerB2B($salesChannelContextId) &&
+        if ($this->isCustomerB2B($salesChannelContextId) &&
             $this->asyncPaymentService->getCountry($address)->getIso() === 'NL' &&
             !$this->isCompanyEmpty($address->getCompany())
         ) {

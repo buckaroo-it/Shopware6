@@ -128,11 +128,10 @@ class In3PaymentHandler extends AsyncPaymentHandler
      */
     private function getCompany(RequestDataBag $dataBag): array
     {
-        if (
-            in_array(
-                $dataBag->get('buckaroo_capayablein3_orderAs'),
-                ['SoleProprietor', 'Company']
-            )
+        if (in_array(
+            $dataBag->get('buckaroo_capayablein3_orderAs'),
+            ['SoleProprietor', 'Company']
+        )
         ) {
             return [
                 'company' => [

@@ -60,8 +60,7 @@ class GiftcardsPaymentHandler extends AsyncPaymentHandler
             ->settingsService
             ->getSetting('allowedgiftcards', $salesChannelId);
 
-        if (
-            is_array($allowedgiftcards) &&
+        if (is_array($allowedgiftcards) &&
             count($allowedgiftcards)
         ) {
             return implode(",", $allowedgiftcards);

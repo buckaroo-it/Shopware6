@@ -49,8 +49,7 @@ class PaymentStateService
         $transactionId = $transaction->getOrderTransaction()->getId();
         $context = $salesChannelContext->getContext();
 
-        if (
-            $request->query->getBoolean('cancel') ||
+        if ($request->query->getBoolean('cancel') ||
             $this->isPayPalPending($request) ||
             $this->isCanceledPaymentRequest($request)
         ) {
@@ -65,8 +64,7 @@ class PaymentStateService
             $context
         );
 
-        if (
-            $this->isPendingPaymentRequest($request) &&
+        if ($this->isPendingPaymentRequest($request) &&
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_DO_PAY)
         ) {
             $this->transactionStateHandler->process($transactionId, $context);
@@ -76,8 +74,7 @@ class PaymentStateService
             );
         }
 
-        if (
-            $this->isFailedPaymentRequest($request) &&
+        if ($this->isFailedPaymentRequest($request) &&
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)
         ) {
             throw new PaymentFailedException(
