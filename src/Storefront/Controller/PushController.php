@@ -286,6 +286,10 @@ class PushController extends StorefrontController
         if ($statusMessage == 'Failed' && in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_FAILED])) {
             $messages[] = ['type' => 'danger', 'text' => $this->trans('buckaroo.messages.incorrectPin')];
         }
+        
+        if ($request->request->get('brq_payment_method') == 'billink' && in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_REJECTED])) {
+            $messages[] = ['type' => 'danger', 'text' => $this->trans('buckaroo.messages.billinkRejectedMessage')];
+        }
 
         if (empty($messages)) {
             $statusMessage = $this->checkoutHelper->getStatusMessageByStatusCode($status);
