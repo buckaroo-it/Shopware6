@@ -1,0 +1,33 @@
+name: Module tests
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup php
+        uses: nanasess/setup-php@v3.3.2
+        with:
+          php-version: 7.4
+      - uses: actions/checkout@v3
+      - name: Update composer lock
+        run: composer update
+      - name: Validate composer json
+        run: composer validate
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+      - name: Run PHPCS
+        run: composer run phpcs
+
+      - name: Run PHPSTAN
+        run: composer run phpstan

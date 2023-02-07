@@ -19,7 +19,7 @@ xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_C
 
     <!-- Only 3 indentation level per function/method -->
     <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
-        <exclude-pattern>*/custom/plugins/BuckarooPayments/src/BuckarooPayments.php</exclude-pattern>
+        <exclude-pattern>*/src/BuckarooPayments.php</exclude-pattern>
     </rule>
 
 </ruleset>
