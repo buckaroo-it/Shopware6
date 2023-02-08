@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefi
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class PaymentStateService
 {
@@ -29,16 +30,20 @@ class PaymentStateService
 
     protected CsrfTokenManagerInterface $csrfTokenManager;
 
+    protected Session $session;
+
     public function __construct(
         OrderTransactionStateHandler $transactionStateHandler,
         StateMachineRegistry $stateMachineRegistry,
         CsrfTokenManagerInterface $csrfTokenManager,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        Session $session
     ) {
         $this->transactionStateHandler = $transactionStateHandler;
         $this->stateMachineRegistry = $stateMachineRegistry;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->translator = $translator;
+        $this->session = $session;
     }
 
     public function finalizePayment(
@@ -46,6 +51,7 @@ class PaymentStateService
         Request $request,
         SalesChannelContext $salesChannelContext
     ): void {
+
         $transactionId = $transaction->getOrderTransaction()->getId();
         $context = $salesChannelContext->getContext();
 
@@ -55,7 +61,7 @@ class PaymentStateService
         ) {
             throw new CustomerCanceledAsyncPaymentException(
                 $transactionId,
-                $this->translator->trans('buckaroo.messages.userCanceled')
+                $this->translator->trans('buckaroo.userCanceled')
             );
         }
 
@@ -77,12 +83,9 @@ class PaymentStateService
         if ($this->isFailedPaymentRequest($request) &&
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)
         ) {
-            throw new PaymentFailedException(
-                $transactionId,
-                $this->getStatusMessageByStatusCode(
-                    $request->get('brq_statuscode')
-                )
-            );
+            $message = $this->getStatusMessageByStatusCode($request);
+            $this->session->getFlashBag()->add("danger", $message);
+            throw new PaymentFailedException($transactionId, $message);
         }
     }
 
@@ -153,20 +156,28 @@ class PaymentStateService
     }
 
     /**
-     * @param mixed $statusCode
+     * @param Request $request
      * @return string
      */
-    private function getStatusMessageByStatusCode($statusCode): string
+    private function getStatusMessageByStatusCode(Request $request): string
     {
+        $statusCode = $request->get('brq_statuscode');
         if (!is_string($statusCode)) {
             return '';
         }
 
+        if (
+            $request->get('brq_payment_method') === 'Billink' && 
+            $statusCode === ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
+        ) {
+            return $this->translator->trans('buckaroo.billinkRejectedMessage');
+        }
+
         $statusCodeAddErrorMessage = [];
         $statusCodeAddErrorMessage[ResponseStatus::BUCKAROO_STATUSCODE_FAILED] =
-            $this->translator->trans('buckaroo.messages.statuscode_failed');
+            $this->translator->trans('buckaroo.statuscode_failed');
         $statusCodeAddErrorMessage[ResponseStatus::BUCKAROO_STATUSCODE_REJECTED] =
-            $this->translator->trans('buckaroo.messages.statuscode_failed');
+            $this->translator->trans('buckaroo.statuscode_failed');
 
         return isset($statusCodeAddErrorMessage[$statusCode]) ? $statusCodeAddErrorMessage[$statusCode] : '';
     }

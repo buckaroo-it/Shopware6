@@ -151,6 +151,7 @@
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Symfony\Component\Security\Csrf\CsrfTokenManagerInterface"/>
             <argument type="service" id="translator" />
+            <argument type="service" id="session"/>
         </service>
         <service id="Buckaroo\Shopware6\Handlers\AsyncPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
@@ -239,12 +240,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
         </service>
-        
-        <service id="Buckaroo\Shopware6\Handlers\RtpPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method.async" />
-        </service>
-
+       
         <service id="Buckaroo\Shopware6\Handlers\In3PaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />

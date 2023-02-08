@@ -175,7 +175,10 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         }
 
         return new RedirectResponse(
-            sprintf('%s&brq_statuscode=' . $response->getStatusCode(), $returnUrl)
+            sprintf(
+                "%s&brq_payment_method={$paymentCode}&brq_statuscode=" . $response->getStatusCode(),
+                $returnUrl
+            )
         );
     }
 
