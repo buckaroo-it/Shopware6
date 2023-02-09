@@ -19,17 +19,18 @@ use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderRepositoryDecorator;
 
 class MediaInstaller implements InstallerInterface
 {
     public const BUCKAROO_FOLDER  = 'Buckaroo';
 
-    private MediaRepositoryDecorator $mediaRepository;
+    /** @var EntityRepository */
+    private $mediaRepository;
 
-    private MediaFolderRepositoryDecorator $mediaFolderRepository;
+    /** @var EntityRepository */
+    private $mediaFolderRepository;
 
     private FileSaver $fileSaver;
 
@@ -39,11 +40,11 @@ class MediaInstaller implements InstallerInterface
      */
     public function __construct(ContainerInterface $container)
     {
-        /** @var MediaRepositoryDecorator */
+        /** @var EntityRepository */
         $mediaRepository = $this->getDependency($container, 'media.repository');
         $this->mediaRepository = $mediaRepository;
 
-        /** @var MediaFolderRepositoryDecorator */
+        /** @var EntityRepository */
         $mediaFolderRepository = $this->getDependency($container, 'media_folder.repository');
         $this->mediaFolderRepository = $mediaFolderRepository;
 
