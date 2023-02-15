@@ -100,6 +100,20 @@ class SupportController extends StorefrontController
         return new JsonResponse($res);
     }
 
+    /**
+     * @Route("/api/_action/buckaroo/getBuckarooPaymentMethods", name="api.action.buckaroo.paymentmethods", methods={"POST","GET"})
+     * @param Request $request
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return RedirectResponse
+     */
+    public function getBuckarooPaymentMethods(Request $request): JsonResponse
+    {
+        return new JsonResponse([
+            'paymentMethods'      => ['afterpay', 'Alipay', 'applepay', 'bancontactmrcash', 'belfius', 'Billink', 'creditcard', 'creditcards', 'eps', 'giftcards', 'ideal', 'idealprocessing', 'capayable', 'KBCPaymentButton', 'klarna', 'klarnakp', 'klarnain', 'Przelewy24', 'payconiq', 'paypal', 'payperemail', 'sepadirectdebit', 'sofortueberweisung', 'transfer', 'Trustly', 'visa', 'WeChatPay']
+        ]);
+    }
+
     private function getPhpVersionArray()
     {
         $version = false;

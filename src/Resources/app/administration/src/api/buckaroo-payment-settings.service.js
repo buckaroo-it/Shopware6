@@ -53,6 +53,21 @@ class BuckarooPaymentSettingsService extends ApiService {
             return ApiService.handleResponse(response);
         });
     }
+
+    getPaymentMethods() {
+        const apiRoute = `_action/${this.getApiBasePath()}/getBuckarooPaymentMethods`;
+
+        return this.httpClient.post(
+            apiRoute,
+            {
+            },
+            {
+                headers: this.getBasicHeaders()
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
 }
 
 Application.addServiceProvider('BuckarooPaymentSettingsService', (container) => {

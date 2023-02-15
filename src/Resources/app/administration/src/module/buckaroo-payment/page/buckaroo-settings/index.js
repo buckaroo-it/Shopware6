@@ -26,6 +26,7 @@ Component.register('buckaroo-settings', {
             isSupportModalOpen: false,
             isSupportMessageModalOpen: false,
             isPhpVersionSupport: false,
+            paymentMethods: {},
             collapsibleState: {
                 'websiteKey': true,
                 'secretKey': true,
@@ -83,6 +84,11 @@ Component.register('buckaroo-settings', {
         .then((result) => {
             that.phpversion = result.phpversion;
             that.isPhpVersionSupport = result.isPhpVersionSupport;
+        });
+
+        this.BuckarooPaymentSettingsService.getPaymentMethods()
+        .then((result) => {
+            that.paymentMethods = result.paymentMethods;
         });
     },
 
@@ -221,6 +227,18 @@ Component.register('buckaroo-settings', {
             return ((this.getConfigValue('secretKey').length < 5) || (this.getConfigValue('secretKey').length > 50)) ? false : true ;
         },
 
+        validateBuckarooFee()
+        {
+            var result = true;
+            this.paymentMethods.forEach(el => {
+                if(this.getConfigValue(el+'Fee') !== undefined && this.getConfigValue(el+'Fee').toString().length > 6)
+                {
+                    result = false;
+                }
+            });
+            return result;            
+        },
+
         getConfigValue(field) {
             const defaultConfig = this.$refs.systemConfig.actualConfigData.null;
             const salesChannelId = this.$refs.systemConfig.currentSalesChannelId;
@@ -251,6 +269,11 @@ Component.register('buckaroo-settings', {
             }
 
             if (!this.validateSecretKey()) {
+                this.showValidationErrors = true;
+                return;
+            }
+
+            if(!this.validateBuckarooFee()) {
                 this.showValidationErrors = true;
                 return;
             }
