@@ -327,8 +327,6 @@ class PushController extends StorefrontController
         return $this->json(['status' => $status, 'message' => $this->trans($message)]);
     }
 
-
-
     private function checkDuplicatePush(
         OrderEntity $order,
         string $orderTransactionId,

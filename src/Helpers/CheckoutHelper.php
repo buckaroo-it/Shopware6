@@ -139,7 +139,6 @@ class CheckoutHelper
         return $this->orderRepository->search($orderCriteria, $context)->first();
     }
 
-
     public function saveBuckarooTransaction(Request $request): ?string
     {
         return $this->buckarooTransactionEntityRepository->save(null, $this->pusToArray($request), []);
