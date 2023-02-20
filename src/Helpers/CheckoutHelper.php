@@ -576,6 +576,10 @@ class CheckoutHelper
             // Get tax
             $itemTax = null;
 
+            if($item->getType() === 'customized-products') {
+                continue;
+            }
+            
             if ($item->getPrice() !== null &&
                 $item->getPrice()->getCalculatedTaxes() !== null) {
                 $itemTax = $this->getLineItemTax($item->getPrice()->getCalculatedTaxes());
@@ -689,7 +693,7 @@ class CheckoutHelper
         // Get currency code
         $currency     = $order->getCurrency();
         $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
-        $buckarooFee = round(str_replace(',','.',(float) $customFields['buckarooFee']), 2);
+        $buckarooFee = round((float)str_replace(',','.',(float) $customFields['buckarooFee']), 2);
 
         // Build the order line array
         $line = [
@@ -1966,7 +1970,7 @@ class CheckoutHelper
     public function getBuckarooFee($buckarooKey, string $salesChannelId = null)
     {
         if($buckarooFee = $this->getSetting($buckarooKey, $salesChannelId)){
-            return round(str_replace(',','.',$buckarooFee), 2);
+            return round((float)str_replace(',','.',$buckarooFee), 2);
         }
         return false;
     }
