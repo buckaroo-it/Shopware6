@@ -42,50 +42,61 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     /**
      * @var array<mixed>
      */
-    protected array $issuers = [
+    protected array $issuers =[
         [
             'name' => 'ABN AMRO',
             'code' => 'ABNANL2A',
+            'imgName' => 'abnamro'
         ],
         [
             'name' => 'ASN Bank',
             'code' => 'ASNBNL21',
+            'imgName' => 'asnbank'
         ],
         [
             'name' => 'Bunq Bank',
             'code' => 'BUNQNL2A',
+            'imgName' => 'bunq'
         ],
         [
             'name' => 'ING',
             'code' => 'INGBNL2A',
+            'imgName' => 'ing'
         ],
         [
             'name' => 'Knab Bank',
             'code' => 'KNABNL2H',
+            'imgName' => 'knab'
         ],
         [
             'name' => 'Rabobank',
             'code' => 'RABONL2U',
+            'imgName' => 'rabobank'
         ],
         [
             'name' => 'RegioBank',
             'code' => 'RBRBNL21',
+            'imgName' => 'regiobank'
         ],
         [
             'name' => 'SNS Bank',
             'code' => 'SNSBNL2A',
+            'imgName' => 'sns'
         ],
         [
             'name' => 'Triodos Bank',
             'code' => 'TRIONL2U',
+            'imgName' => 'triodos'
         ],
         [
             'name' => 'Van Lanschot',
             'code' => 'FVLBNL22',
+            'imgName' => 'vanlanschot'
         ],
         [
             'name' => 'Revolut',
             'code' => 'REVOLT21',
+            'imgName' => 'revolut'
         ],
     ];
 

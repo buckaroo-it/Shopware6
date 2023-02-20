@@ -61,7 +61,7 @@ class Ideal extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/ideal.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/ideal.svg';
     }
 
     /**

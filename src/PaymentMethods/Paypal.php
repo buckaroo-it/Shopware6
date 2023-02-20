@@ -43,7 +43,7 @@ class Paypal extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/paypal.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/paypal.svg';
     }
 
     /**

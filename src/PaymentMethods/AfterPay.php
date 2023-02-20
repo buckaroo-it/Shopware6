@@ -63,7 +63,7 @@ class AfterPay extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__ . '/../Resources/views/storefront/buckaroo/logo/afterpay.png';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/afterpay.svg';
     }
 
     /**

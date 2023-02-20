@@ -43,7 +43,7 @@ class ApplePay extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/applepay.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/applepay.svg';
     }
 
     /**

@@ -43,7 +43,7 @@ class Payconiq extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/payconiq.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/payconiq.svg';
     }
 
     /**

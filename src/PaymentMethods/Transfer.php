@@ -51,7 +51,7 @@ class Transfer extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/transfer.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/sepa-credittransfer.svg';
     }
 
     /**

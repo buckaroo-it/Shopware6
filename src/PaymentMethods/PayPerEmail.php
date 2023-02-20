@@ -43,7 +43,7 @@ class PayPerEmail extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/payperemail.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/payperemail.svg';
     }
 
     /**

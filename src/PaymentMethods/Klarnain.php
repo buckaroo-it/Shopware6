@@ -61,7 +61,7 @@ class Klarnain extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__ . '/../Resources/views/storefront/buckaroo/logo/klarna.png';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/klarna.svg';
     }
 
     /**
