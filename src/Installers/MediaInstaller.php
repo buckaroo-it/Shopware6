@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class MediaInstaller implements InstallerInterface
@@ -236,7 +237,7 @@ class MediaInstaller implements InstallerInterface
         return md5($paymentMethod->getName());
     }
 
-    public function update($updateContext): void
+    public function update(UpdateContext $updateContext): void
     {
         foreach (GatewayHelper::GATEWAYS as $gateway) {
             $gatewayObject = new $gateway();
