@@ -92,9 +92,6 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
             return [];
         }
 
-        /** @var \Shopware\Core\Checkout\Customer\CustomerEntity */
-        $customer =  $this->checkoutHelper->getOrderCustomer($order, $salesChannelContext);
-
         /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity|null */
         $shippingAddress = $order->getDeliveries()->getShippingAddress()->first();
 
