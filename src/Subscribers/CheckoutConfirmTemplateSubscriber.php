@@ -26,6 +26,7 @@ use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
@@ -321,8 +322,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'afterpay_customer_type'   => $this->settingsService->getSetting('afterpayCustomerType', $salesChannelId),
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
-            'applePayMerchantId'         => $this->getAppleMerchantId($salesChannelId),
-            'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId)
+            'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
+            'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
+            'canShowPhone'          => $this->canShowPhone($customer)
         ]);
 
         $event->getPage()->addExtension(
@@ -603,5 +605,36 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     private function isCompanyEmpty(string $company = null)
     {
         return null === $company || strlen(trim($company)) === 0;
+    }
+
+    /**
+     * Can display phone number if required
+     *
+     * @param CustomerEntity $customer
+     *
+     * @return boolean
+     */
+    private function canShowPhone(CustomerEntity $customer) : bool
+    {
+        $billingAddress = $customer->getActiveBillingAddress();
+        $shippingAddress = $customer->getActiveShippingAddress();
+
+        return $this->isPhoneEmpty($billingAddress) || $this->isPhoneEmpty($shippingAddress);
+    }
+
+    /**
+     * Check if phone number is empty
+     *
+     * @param CustomerAddressEntity|null $address
+     *
+     * @return boolean
+     */
+    private function isPhoneEmpty(CustomerAddressEntity $address = null): bool
+    {
+        if($address === null) {
+            return true;
+        }
+
+        return $address->getPhoneNumber() === null || strlen(trim($address->getPhoneNumber())) === 0;
     }
 }
