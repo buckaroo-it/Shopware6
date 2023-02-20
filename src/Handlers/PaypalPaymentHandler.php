@@ -60,6 +60,12 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
     ): RedirectResponse {
         $dataBag = $this->getRequestBag($dataBag);
         $paymentMethod = new Paypal();
+
+        $gatewayInfo['additional'][] = $this->getSellerProtectionData(
+            $transaction->getOrder(),
+            $salesChannelContext,
+            $dataBag
+        );
         return parent::pay(
             $transaction,
             $dataBag,
@@ -70,6 +76,53 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
             $gatewayInfo
         );
     }
+    private function getSellerProtectionData(
+        OrderEntity $order,
+        SalesChannelContext $salesChannelContext,
+        RequestDataBag $dataBag
+    ): array
+    {
+        $isSellerProtectionEnabled = $this->checkoutHelper
+        ->getSetting(
+            'paypalSellerprotection',
+            $salesChannelContext->getSalesChannelId()
+        );
+
+        if($isSellerProtectionEnabled !== true || $dataBag->has('orderId')) {
+            return [];
+        }
+
+        /** @var \Shopware\Core\Checkout\Customer\CustomerEntity */
+        $customer =  $this->checkoutHelper->getOrderCustomer($order, $salesChannelContext);
+
+        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity|null */
+        $shippingAddress = $order->getDeliveries()->getShippingAddress()->first();
+
+        if ($shippingAddress === null) {
+            /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity|null */
+            $shippingAddress = $this->checkoutHelper->getShippingAddress($order, $salesChannelContext);
+        }
+
+        $country = $this->checkoutHelper->getCountryCode($shippingAddress);
+
+        $countryState = '';
+        if ($shippingAddress->getCountryState() !== null) {
+            $countryState = $shippingAddress->getCountryState()->getName();
+        }
+
+        return [
+            $this->setParameter('Name', $shippingAddress->getFirstName()." ".$shippingAddress->getLastName()),
+            $this->setParameter('Street1', $shippingAddress->getStreet()),
+            $this->setParameter('CityName', $shippingAddress->getCity()),
+            $this->setParameter('StateOrProvince', (string)$countryState),
+            $this->setParameter('PostalCode', $shippingAddress->getZipcode()),
+            $this->setParameter('Country', $country),
+            $this->setParameter('AddressOverride', 'TRUE'),
+        ];
+
+        return [];
+    }
+
     /**
     * Handle pay response from buckaroo
     *
@@ -86,5 +139,23 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
     ): void
     {
         $this->orderUpdater->update($response, $order, $saleChannelContext);
+    }
+
+    /**
+     * Format data as a array of parameters
+     *
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return array
+     */
+    protected function setParameter(
+        string $name,
+        $value
+    ): array {
+        return [
+            "_" => $value,
+            "Name" => $name,
+        ];
     }
 }

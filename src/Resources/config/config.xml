@@ -722,6 +722,14 @@
             <label lang="nl-NL">Buckaroo Vergoeding</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
         </input-field>
+
+        <input-field type="bool">
+            <name>paypalSellerprotection</name>
+            <label lang="en-GB">Enabled Seller Protection</label>
+            <label lang="nl-NL">Ingeschakeld Seller Protection</label>
+            <label lang="de-DE">Aktiviert Seller Protection</label>
+        </input-field>
+
         <input-field type="multi-select">
             <name>paypalExpresslocation</name>
             <label lang="en-GB">Display Paypal Express button:</label>
