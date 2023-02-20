@@ -189,6 +189,7 @@
                                             required="required">
                                     </div>
                                 {% endif %}
+                                {% if page.extensions.buckaroo.canShowPhone %}
                                 <div class="form-group">
                                     <label class="form-label" for="buckarooAfterpayPhone">
                                         {{ "buckaroo.checkout.Phone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
@@ -208,6 +209,7 @@
                                         {{ "buckaroo.checkout.buckarooMobilePhoneError"|trans|sw_sanitize }}
                                     </label>
                                 </div>
+                                {% endif %}
 
                                 <div class="form-group">
                                     <label class="label" for="buckaroo_afterpay_DoB">{{ "buckaroo.checkout.buckarooAfterpayDoBTitle"|trans }}:</label>
