@@ -24,6 +24,8 @@ jobs:
             cd Media
             cp -R "Payment methods/SVG/." ${{ github.workspace }}/src/Resources/views/storefront/buckaroo/payments/
             cp "Payment methods/SVG/creditcards.svg" ${{ github.workspace }}/src/Resources/public/storefront/buckaroo/creditcards.svg
+            rm ${{ github.workspace }}/src/Resources/views/storefront/buckaroo/payments/creditclick.svg
+            rm ${{ github.workspace }}/src/Resources/views/storefront/buckaroo/payments/tinka.svg
       - name: Copy creditcards icons
         run: |
             cd Media
@@ -33,6 +35,7 @@ jobs:
         run: |
             cd Media
             cp -R "iDEAL bank issuers/SVG/." ${{ github.workspace }}/src/Resources/public/storefront/buckaroo/issuers/
+            rm -f ${{ github.workspace }}/src/Resources/public/storefront/buckaroo/issuers/handelsbanken.svg
       - name: Cleanup
         run: |
             rm -rd Media
