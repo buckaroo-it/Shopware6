@@ -50,7 +50,6 @@ class BuckarooPayments extends Plugin
     public function activate(ActivateContext $activateContext): void
     {
         (new PaymentMethodsInstaller($this->container))->activate($activateContext);
-        (new MediaInstaller($this->container))->update($activateContext);
         parent::activate($activateContext);
     }
 
