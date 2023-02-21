@@ -147,8 +147,20 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $request->setAdditionalParameter('fromPayPerEmail', 1);
         }
 
-        if ($buckarooKey == 'paypal' && $dataBag->has('orderId')) {
-            $request->setServiceParameter('PayPalOrderId', $dataBag->get('orderId'));
+        if ($buckarooKey == 'paypal') {
+            if($dataBag->has('orderId')) {
+                $request->setServiceParameter('PayPalOrderId', $dataBag->get('orderId'));
+            }
+
+            $isSellerProtectionEnabled = $this->checkoutHelper
+            ->getSetting(
+                'paypalSellerprotection',
+                $salesChannelContext->getSalesChannelId()
+            );
+            
+            if ($isSellerProtectionEnabled === true && !$dataBag->has('orderId')) {
+                $request->setServiceAction("Pay,ExtraInfo");
+            }
         }
 
         if ($buckarooKey == 'giftcards') {
