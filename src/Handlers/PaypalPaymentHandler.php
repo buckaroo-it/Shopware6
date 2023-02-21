@@ -55,8 +55,33 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
         if ($dataBag->has('orderId')) {
             return ['payPalOrderId' => $dataBag->get('orderId')];
         }
+
+        if($this->isSellerProtection($salesChannelContext)) {
+            return $this->getSellerProtectionData($order);
+        }
         return [];
     }
+
+    /**
+     * Get method action for specific payment method
+     *
+     * @param RequestDataBag $dataBag
+     * @param SalesChannelContext $salesChannelContext
+     * @param string $paymentCode
+     *
+     * @return string
+     */
+    protected function getMethodAction(
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): string {
+        if ($this->isSellerProtection($salesChannelContext) && !$dataBag->has('orderId')) {
+            return 'extraInfo';
+        }
+        return 'pay';
+    }
+    
 
     protected function handleResponse(
         ClientResponseInterface $response,
@@ -75,4 +100,54 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
             $paymentCode
         );
     }
+
+    /**
+     * Get seller protection data
+     *
+     * @param OrderEntity $order
+     *
+     * @return array
+     */
+    private function getSellerProtectionData(OrderEntity $order): array
+    {
+        $address = $this->asyncPaymentService->getBillingAddress($order);
+
+        $countryState = '';
+
+        $countryStateEntity =$address->getCountryState();
+        if( $countryStateEntity !== null) {
+            $countryState =  $countryStateEntity->getName();
+        }
+
+        return [
+            'customer' => [
+                'name' => $address->getFirstName()." ".$address->getLastName(),
+            ],
+            'address' => [
+                'street'  =>  $address->getStreet(),
+                'zipcode' =>  $address->getZipcode(),
+                'city'    =>  $address->getCity(),
+                'state'   =>  $countryState,
+                'country' =>  $this->asyncPaymentService->getCountry($address)->getIso()
+            ],
+            'phone' => [
+                'mobile' =>  (string)$address->getPhoneNumber(),
+            ]
+        ];
+    }
+
+    /**
+     * Check if seller protection is enabled
+     *
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return bool
+     */
+    private function isSellerProtection(SalesChannelContext $salesChannelContext): bool
+    {
+        return $this->getSetting(
+            'paypalSellerprotection',
+            $salesChannelContext->getSalesChannelId()
+        ) === true;
+    }   
 }

@@ -165,3 +165,12 @@ BP 2106 issue with redirect
 BP-2114 Afterpay (old) name mapping incorrect
 BP-2128 Dutch translation improvements
 BP-1982 Add a notification payment methods are in test mode
+# 1.7.0
+Add support for Shopware 6 version 6.4.19.0
+BP-2179 Fix custom products for Klarna
+BP-2106 Fix a issue with redirect URL's
+BP-2181 Fix uncaught PHP Exception TypeError for payment fee configuration
+BP-2291 Remove Request to Pay method
+BP-2241 Change the Billink rejected (690) message (more consumer friendly)
+BP-2322 Added validation on the 'Buckaroo Fee' input field
+BP-2331 Solve frontend issue on the checkout page
