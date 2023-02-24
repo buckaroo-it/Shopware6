@@ -43,7 +43,7 @@ class Eps extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/eps.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/eps.svg';
     }
 
     /**

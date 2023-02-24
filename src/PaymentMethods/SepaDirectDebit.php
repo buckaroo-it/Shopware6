@@ -43,7 +43,7 @@ class SepaDirectDebit extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/sepadirectdebit.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/sepa-directdebit.svg';
     }
 
     /**

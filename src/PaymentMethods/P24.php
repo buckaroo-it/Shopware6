@@ -43,7 +43,7 @@ class P24 extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/p24.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/przelewy24.svg';
     }
 
     /**

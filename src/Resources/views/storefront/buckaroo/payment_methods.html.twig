@@ -39,7 +39,7 @@
                                             value="{{ issuer.code }}"
                                             class="custom-control-input bank-method-input">
                                             <label class="custom-control-label bank-method-label" for="bankMethod{{ issuer.code }}">
-                                                <img src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/logo/#{issuer.code}.png")}}" class="bank-method-image" width=20  alt="{{ issuer.name }}" title="{{ issuer.name }}">
+                                                <img src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/issuers/#{issuer.imgName}.svg")}}" class="bank-method-image" width="25"  alt="{{ issuer.name }}" title="{{ issuer.name }}">
                                                 <strong>{{ issuer.name }}</strong>
                                             </label>
                                         </div>
@@ -72,13 +72,13 @@
                                         <div class="form-group col-md-12">
                                             <label class="form-label" for="creditcards_issuer">{{ "buckaroo.checkout.creditcards.card" | trans }}:</label>
                                             <select name="creditcards_issuer" id="creditcards_issuer" form="confirmOrderForm" required="required" class="form-control">
-                                                <option value="" data-logo="{{ asset("bundles/buckaroopayments/storefront/buckaroo/logo/creditcards.png") }}">{{ "buckaroo.checkout.selectCreditCard"|trans }}</option>
+                                                <option value="" data-logo="{{ asset("bundles/buckaroopayments/storefront/buckaroo/creditcards.svg") }}">{{ "buckaroo.checkout.selectCreditCard"|trans }}</option>
                                                     {% for creditcard in page.extensions.buckaroo.creditcards %}
-                                                        <option data-logo="{{ asset("bundles/buckaroopayments/storefront/buckaroo/logo/#{creditcard.code}.png")}}" value="{{ creditcard.code }}">{{ creditcard.name }}</option>
+                                                        <option data-logo="{{ asset("bundles/buckaroopayments/storefront/buckaroo/creditcards/#{creditcard.code}.svg")}}" value="{{ creditcard.code }}">{{ creditcard.name }}</option>
                                                     {% endfor %}
                                             </select>  
                                             <div class="card_kind">
-                                                <img id="card_kind_img" src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/logo/creditcards.png") }}">
+                                                <img id="card_kind_img" src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/creditcards.svg") }}">
                                             </div>
                                         </div>
 

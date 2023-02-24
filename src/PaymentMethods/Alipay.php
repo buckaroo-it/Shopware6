@@ -43,7 +43,7 @@ class Alipay extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/alipay.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/alipay.svg';
     }
 
     /**

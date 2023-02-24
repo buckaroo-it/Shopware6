@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class MediaInstaller implements InstallerInterface
@@ -34,6 +35,9 @@ class MediaInstaller implements InstallerInterface
 
     private FileSaver $fileSaver;
 
+    /** @var EntityRepositoryInterface */
+    public $paymentMethodRepository;
+    
     /**
      * MediaInstaller constructor.
      * @param ContainerInterface $container
@@ -51,6 +55,10 @@ class MediaInstaller implements InstallerInterface
         /** @var FileSaver */
         $fileSaver = $this->getDependency($container, FileSaver::class);
         $this->fileSaver = $fileSaver;
+
+        /** @var EntityRepository */
+        $paymentMethodRepository = $this->getDependency($container, 'payment_method.repository');
+        $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
     /**
@@ -114,14 +122,14 @@ class MediaInstaller implements InstallerInterface
      * @throws \Shopware\Core\Content\Media\Exception\MediaNotFoundException
      * @SuppressWarnings(PHPMD.StaticAccess)
      */
-    private function addMedia(PaymentMethodInterface $paymentMethod, Context $context): void
+    private function addMedia(PaymentMethodInterface $paymentMethod, Context $context): ?string
     {
         if (!$paymentMethod->getMedia()) {
-            return;
+            return null;
         }
 
         if ($this->hasMediaAlreadyInstalled($paymentMethod, $context)) {
-            return;
+            return null;
         }
 
         if (!$mediaFolderId = $this->getMediaFolderIdByName(self::BUCKAROO_FOLDER, $context)) {
@@ -148,6 +156,7 @@ class MediaInstaller implements InstallerInterface
             $mediaId,
             $context
         );
+        return $mediaId;
     }
 
     private function removeMedia(PaymentMethodInterface $paymentMethod, Context $context): void
@@ -230,6 +239,41 @@ class MediaInstaller implements InstallerInterface
 
     public function update(UpdateContext $updateContext): void
     {
+        foreach (GatewayHelper::GATEWAYS as $gateway) {
+            $gatewayObject = new $gateway();
+            $this->removeMedia($gatewayObject, $updateContext->getContext());
+            $mediaId = $this->addMedia($gatewayObject, $updateContext->getContext());
+            $this->updateMediaOnPaymentMethod($gatewayObject, $updateContext->getContext(), $mediaId);
+        }
+    }
+
+    private function updateMediaOnPaymentMethod(
+        PaymentMethodInterface $paymentMethod,
+        Context $context,
+        string $mediaId = null
+    ): void
+    {
+        if($mediaId === null) {
+            return;
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('handlerIdentifier', $paymentMethod->getPaymentHandler()));
+       
+        $paymentMethodHandlerId = $this->paymentMethodRepository
+        ->searchIds($criteria, $context)
+        ->firstId();
+        if($paymentMethodHandlerId !== null) {
+            $this->paymentMethodRepository->update(
+                [
+                    [
+                        'id' => $paymentMethodHandlerId,
+                        'mediaId' => $mediaId
+                    ]
+                ],
+                $context
+            );
+        }
     }
 
     private function getMediaFolderIdByName(string $folder, Context $context): ?string

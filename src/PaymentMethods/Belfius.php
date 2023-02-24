@@ -61,7 +61,7 @@ class Belfius extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/belfius.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/belfius.svg';
     }
 
     /**

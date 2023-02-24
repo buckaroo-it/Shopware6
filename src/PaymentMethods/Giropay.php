@@ -51,7 +51,7 @@ class Giropay extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/giropay.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/giropay.svg';
     }
 
     /**

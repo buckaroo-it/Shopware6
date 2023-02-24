@@ -53,7 +53,7 @@ class Billink extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__ . '/../Resources/views/storefront/buckaroo/logo/Billink.png';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/billink.svg';
     }
 
     /**

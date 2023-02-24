@@ -43,7 +43,7 @@ class WeChatPay extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/WeChatPay.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/wechatpay.svg';
     }
 
     /**

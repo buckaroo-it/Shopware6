@@ -78,6 +78,7 @@ class BuckarooPayments extends Plugin
     public function update(UpdateContext $updateContext): void
     {
         (new PaymentMethodsInstaller($this->container))->update($updateContext);
+        (new MediaInstaller($this->container))->update($updateContext);
         parent::update($updateContext);
     }
 

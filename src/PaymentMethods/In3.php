@@ -63,7 +63,7 @@ class In3 extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__ . '/../Resources/views/storefront/buckaroo/logo/in3.png';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/in3.svg';
     }
 
     /**
