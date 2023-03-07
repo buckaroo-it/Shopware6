@@ -22,8 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
-use InvalidArgumentException;
-use ProxyManager\Factory\RemoteObject\Adapter\JsonRpc;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Symfony\Component\HttpFoundation\JsonResponse;
