@@ -10,7 +10,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Buckaroo\Shopware6\Service\Exceptions\PaymentFailedException;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
@@ -27,17 +26,13 @@ class PaymentStateService
 
     protected StateMachineRegistry $stateMachineRegistry;
 
-    protected CsrfTokenManagerInterface $csrfTokenManager;
-
     public function __construct(
         OrderTransactionStateHandler $transactionStateHandler,
         StateMachineRegistry $stateMachineRegistry,
-        CsrfTokenManagerInterface $csrfTokenManager,
         TranslatorInterface $translator
     ) {
         $this->transactionStateHandler = $transactionStateHandler;
         $this->stateMachineRegistry = $stateMachineRegistry;
-        $this->csrfTokenManager = $csrfTokenManager;
         $this->translator = $translator;
     }
 
@@ -90,11 +85,6 @@ class PaymentStateService
             }
             throw new PaymentFailedException($transactionId, $message);
         }
-    }
-
-    public function getPaymentCsrf(): string
-    {
-        return $this->csrfTokenManager->getToken('payment.finalize.transaction')->getValue();
     }
 
     /**

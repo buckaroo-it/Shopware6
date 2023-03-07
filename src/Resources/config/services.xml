@@ -149,7 +149,6 @@
         <service id="Buckaroo\Shopware6\Service\PaymentStateService">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
-            <argument type="service" id="Symfony\Component\Security\Csrf\CsrfTokenManagerInterface"/>
             <argument type="service" id="translator" />
         </service>
         <service id="Buckaroo\Shopware6\Handlers\AsyncPaymentHandler">
