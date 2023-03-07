@@ -7,41 +7,41 @@ namespace Buckaroo\Shopware6\Service;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\ParameterBag;
-use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
-use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class InvoiceService
 {
     protected SettingsService $settingsService;
 
-    protected EntityRepositoryInterface $documentRepository;
+    protected EntityRepository $documentRepository;
 
-    protected DocumentService $documentService;
+    protected DocumentGenerator $documentGenerator;
 
     protected AbstractMailService $mailService;
 
-    protected EntityRepositoryInterface $mailTemplateRepository;
+    protected EntityRepository $mailTemplateRepository;
 
     public function __construct(
         SettingsService $settingsService,
-        DocumentService $documentService,
-        EntityRepositoryInterface $documentRepository,
+        DocumentGenerator $documentGenerator,
+        EntityRepository $documentRepository,
         AbstractMailService $mailService,
-        EntityRepositoryInterface $mailTemplateRepository
+        EntityRepository $mailTemplateRepository
     ) {
         $this->settingsService = $settingsService;
-        $this->documentService = $documentService;
+        $this->documentGenerator = $documentGenerator;
         $this->documentRepository = $documentRepository;
         $this->mailService = $mailService;
         $this->mailTemplateRepository = $mailTemplateRepository;
@@ -70,13 +70,15 @@ class InvoiceService
         string $salesChannelId = null
     ): bool {
         if ($brqTransactionType) {
-            if (ResponseStatus::BUCKAROO_BILLINK_CAPTURE_TYPE_ACCEPT == $brqTransactionType &&
+            if (
+                ResponseStatus::BUCKAROO_BILLINK_CAPTURE_TYPE_ACCEPT == $brqTransactionType &&
                 $this->settingsService->getSetting('BillinkCreateInvoiceAfterShipment', $salesChannelId)
             ) {
                 return true;
             }
         } else {
-            if ($serviceName == 'Billink' &&
+            if (
+                $serviceName == 'Billink' &&
                 $this->settingsService->getSetting('BillinkMode', $salesChannelId) == 'authorize' &&
                 $this->settingsService->getSetting('BillinkCreateInvoiceAfterShipment', $salesChannelId)
             ) {
@@ -91,18 +93,19 @@ class InvoiceService
         Context $context,
         string $invoiceNumber,
         string $salesChannelId = null
-    ): DocumentIdStruct {
-        $documentConfiguration = new DocumentConfiguration();
-        $documentConfiguration->setDocumentNumber($invoiceNumber);
-        $invoice = $this->documentService->create(
-            $order->getId(),
-            InvoiceGenerator::INVOICE,
-            FileTypes::PDF,
-            $documentConfiguration,
-            $context
-        );
+    ): ?DocumentIdStruct {
 
-        if ($this->settingsService->getSetting('sendInvoiceEmail', $salesChannelId)) {
+        $operation = new DocumentGenerateOperation($order->getId(), FileTypes::PDF);
+
+        /** @var DocumentIdStruct|null */
+        $invoice = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$order->getId() => $operation],
+            $context
+        )->getSuccess()->first();
+
+
+        if ($this->settingsService->getSetting('sendInvoiceEmail', $salesChannelId) && $invoice !== null) {
             $documentIds = [$invoice->getId()];
             $technicalName = 'order_transaction.state.paid';
             $mailTemplate = $this->getMailTemplate($context, $technicalName);
@@ -199,23 +202,15 @@ class InvoiceService
      */
     private function getDocument(string $documentId, Context $context): array
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $documentId));
-        $criteria->addAssociation('documentMediaFile');
-        $criteria->addAssociation('documentType');
+        $document = $this->documentGenerator->readDocument($documentId, $context);
 
-        /** @var DocumentEntity|null $documentEntity */
-        $documentEntity = $this->documentRepository->search($criteria, $context)->get($documentId);
-
-        if ($documentEntity === null) {
+        if ($document === null) {
             throw new InvalidDocumentException($documentId);
         }
 
-        $document = $this->documentService->getDocument($documentEntity, $context);
-
         return [
-            'content' => $document->getFileBlob(),
-            'fileName' => $document->getFilename(),
+            'content' => $document->getContent(),
+            'fileName' => $document->getName(),
             'mimeType' => $document->getContentType(),
         ];
     }
