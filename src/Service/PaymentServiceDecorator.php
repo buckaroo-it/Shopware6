@@ -14,7 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class PaymentServiceDecorator
@@ -23,12 +23,12 @@ class PaymentServiceDecorator
 
     private TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     public function __construct(
         OrderConverter $orderConverter,
         TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2,
-        EntityRepositoryInterface $orderRepository
+        EntityRepository $orderRepository
     ) {
         $this->orderConverter = $orderConverter;
         $this->tokenFactoryInterfaceV2 = $tokenFactoryInterfaceV2;

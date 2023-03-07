@@ -7,7 +7,7 @@ namespace Buckaroo\Shopware6\Entity\Transaction;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -17,15 +17,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
  */
 class BuckarooTransactionEntityRepository
 {
-    /** * @var EntityRepositoryInterface */
-    private EntityRepositoryInterface $baseRepository;
+    /** * @var EntityRepository */
+    private EntityRepository $baseRepository;
 
     /**
      * BuckarooTransactionEntityRepository constructor.
      *
-     * @param EntityRepositoryInterface $baseRepository
+     * @param EntityRepository $baseRepository
      */
-    public function __construct(EntityRepositoryInterface $baseRepository)
+    public function __construct(EntityRepository $baseRepository)
     {
         $this->baseRepository = $baseRepository;
     }

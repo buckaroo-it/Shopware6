@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class MediaInstaller implements InstallerInterface
@@ -35,7 +34,7 @@ class MediaInstaller implements InstallerInterface
 
     private FileSaver $fileSaver;
 
-    /** @var EntityRepositoryInterface */
+    /** @var EntityRepository */
     public $paymentMethodRepository;
     
     /**
