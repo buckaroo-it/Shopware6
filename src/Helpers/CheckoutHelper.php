@@ -8,12 +8,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\SettingsService;
-use Shopware\Core\Checkout\Document\DocumentService;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CheckoutHelper
 {
@@ -25,27 +25,25 @@ class CheckoutHelper
 
     private BuckarooTransactionEntityRepository $buckarooTransactionEntityRepository;
 
-    protected DocumentService $documentService;
-
-    protected Session $session;
+    protected RequestStack $requestStack;
 
     public function __construct(
         string $shopwareVersion,
         SettingsService $settingsService,
         EntityRepository $orderRepository,
         BuckarooTransactionEntityRepository $buckarooTransactionEntityRepository,
-        Session $session
+        RequestStack $requestStack
     ) {
         $this->shopwareVersion                     = $shopwareVersion;
         $this->settingsService                     = $settingsService;
         $this->orderRepository                     = $orderRepository;
         $this->buckarooTransactionEntityRepository = $buckarooTransactionEntityRepository;
-        $this->session = $session;
+        $this->requestStack = $requestStack;
     }
 
-    public function getSession(): Session
+    public function getSession(): SessionInterface
     {
-        return $this->session;
+        return $this->requestStack->getSession();
     }
 
     public function getShopwareVersion(): string

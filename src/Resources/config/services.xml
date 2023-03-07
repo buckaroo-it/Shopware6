@@ -113,7 +113,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="order.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
-            <argument type="service" id="session"/>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\AsyncPaymentService">
@@ -151,7 +151,6 @@
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Symfony\Component\Security\Csrf\CsrfTokenManagerInterface"/>
             <argument type="service" id="translator" />
-            <argument type="service" id="session"/>
         </service>
         <service id="Buckaroo\Shopware6\Handlers\AsyncPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
@@ -360,7 +359,6 @@
         </service>
 
          <service id="Buckaroo\Shopware6\Storefront\Controller\CartController" public="true">
-            <argument type="service" id="session"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -439,7 +437,6 @@
             <argument type="service" id="sales_channel.payment_method.repository"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
-            <argument type="service" id="session"/>
             <argument type="service" id="translator" />
             <tag name="kernel.event_subscriber"/>
         </service>

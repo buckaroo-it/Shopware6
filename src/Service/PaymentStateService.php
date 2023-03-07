@@ -18,7 +18,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefi
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
-use Symfony\Component\HttpFoundation\Session\Session;
 
 class PaymentStateService
 {
@@ -30,20 +29,16 @@ class PaymentStateService
 
     protected CsrfTokenManagerInterface $csrfTokenManager;
 
-    protected Session $session;
-
     public function __construct(
         OrderTransactionStateHandler $transactionStateHandler,
         StateMachineRegistry $stateMachineRegistry,
         CsrfTokenManagerInterface $csrfTokenManager,
-        TranslatorInterface $translator,
-        Session $session
+        TranslatorInterface $translator
     ) {
         $this->transactionStateHandler = $transactionStateHandler;
         $this->stateMachineRegistry = $stateMachineRegistry;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->translator = $translator;
-        $this->session = $session;
     }
 
     public function finalizePayment(
@@ -55,7 +50,8 @@ class PaymentStateService
         $transactionId = $transaction->getOrderTransaction()->getId();
         $context = $salesChannelContext->getContext();
 
-        if ($request->query->getBoolean('cancel') ||
+        if (
+            $request->query->getBoolean('cancel') ||
             $this->isPayPalPending($request) ||
             $this->isCanceledPaymentRequest($request)
         ) {
@@ -70,7 +66,8 @@ class PaymentStateService
             $context
         );
 
-        if ($this->isPendingPaymentRequest($request) &&
+        if (
+            $this->isPendingPaymentRequest($request) &&
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_DO_PAY)
         ) {
             $this->transactionStateHandler->process($transactionId, $context);
@@ -80,11 +77,17 @@ class PaymentStateService
             );
         }
 
-        if ($this->isFailedPaymentRequest($request) &&
+        $session = $request->getSession();
+
+        if (
+            $this->isFailedPaymentRequest($request) &&
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)
         ) {
             $message = $this->getStatusMessageByStatusCode($request);
-            $this->session->getFlashBag()->add("danger", $message);
+
+            if (method_exists($session, 'getFlashBag')) {
+                $session->getFlashBag()->add("danger", $message);
+            }
             throw new PaymentFailedException($transactionId, $message);
         }
     }
@@ -167,7 +170,7 @@ class PaymentStateService
         }
 
         if (
-            $request->get('brq_payment_method') === 'Billink' && 
+            $request->get('brq_payment_method') === 'Billink' &&
             $statusCode === ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
         ) {
             return $this->translator->trans('buckaroo.billinkRejectedMessage');

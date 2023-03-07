@@ -10,7 +10,6 @@ use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -120,7 +119,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
     protected SettingsService $settingsService;
     protected UrlService $urlService;
-    protected Session $session;
     protected TranslatorInterface $translator;
 
     public function __construct(
@@ -128,14 +126,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         SalesChannelRepository $paymentMethodRepository,
         SettingsService $settingsService,
         UrlService $urlService,
-        Session $session,
         TranslatorInterface $translator
     ) {
         $this->customerRepository      = $customerRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->settingsService = $settingsService;
         $this->urlService = $urlService;
-        $this->session = $session;
         $this->translator = $translator;
     }
 
@@ -535,11 +531,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if ($stateMachine === null) {
             return;
         }
+        $session = $event->getRequest()->getSession();
 
         if (strpos($paymentMethod->getHandlerIdentifier(), 'Buckaroo\Shopware6\Handlers') !== false &&
-            $stateMachine->getTechnicalName() === 'in_progress'
+            $stateMachine->getTechnicalName() === 'in_progress' &&
+            method_exists($session, 'getFlashBag')
         ) {
-            $this->session->getFlashBag()->add('success', $this->translator->trans('buckaroo.messages.return791'));
+            $session->getFlashBag()->add('success', $this->translator->trans('buckaroo.messages.return791'));
         }
     }
 
