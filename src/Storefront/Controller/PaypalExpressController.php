@@ -15,16 +15,12 @@ use Buckaroo\Shopware6\Service\SettingsService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 
-/**
- * @RouteScope(scopes={"storefront"})
- */
 class PaypalExpressController extends AbstractPaymentController
 {
     /**
@@ -51,13 +47,12 @@ class PaypalExpressController extends AbstractPaymentController
         );
     }
     /**
-     * phpcs:ignore Generic.Files.LineLength.TooLong
-     * @Route("buckaroo/paypal/create", name="frontend.action.buckaroo.paypalExpressCreate",  options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *
      * @return JsonResponse
      */
+    #[Route(path: "buckaroo/paypal/create", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest"=> true], options: ["seo" => false], name: "frontend.action.buckaroo.paypalExpressCreate", methods:["POST"])]
     public function create(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
 
@@ -86,13 +81,12 @@ class PaypalExpressController extends AbstractPaymentController
 
 
     /**
-     * phpcs:ignore Generic.Files.LineLength.TooLong
-     * @Route("buckaroo/paypal/pay", name="frontend.action.buckaroo.paypalExpressPay",  options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *
      * @return JsonResponse
      */
+    #[Route(path: "buckaroo/paypal/pay", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest"=> true], options: ["seo" => false], name: "frontend.action.buckaroo.paypalExpressPay", methods:["POST"])]
     public function pay(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $this->overrideChannelPaymentMethod($salesChannelContext, 'PaypalPaymentHandler');

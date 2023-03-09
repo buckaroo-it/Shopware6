@@ -406,15 +406,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 "/"
             ) . (string)$finishUrl;
         }
-        if (version_compare(
-            $this->asyncPaymentService->checkoutHelper->getShopwareVersion(),
-            '6.4.2.0',
-            '<'
-        )
-            && strpos("buckaroo", $transaction->getReturnUrl()) === false
-        ) {
-            return str_replace("/payment", "/buckaroo/payment", $transaction->getReturnUrl());
-        }
 
         return $transaction->getReturnUrl();
     }

@@ -132,7 +132,7 @@ class CaptureService
                     $order->getSalesChannelId()
                 )
             ) {
-                $this->invoiceService->generateInvoice($order, $context, $order->getId());
+                $this->invoiceService->generateInvoice($order, $context);
             }
 
 

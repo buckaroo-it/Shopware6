@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 
 /**
  */
@@ -36,13 +35,12 @@ class CaptureController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"api"})
-     * @Route("/api/_action/buckaroo/capture", name="api.action.buckaroo.capture", methods={"POST"})
      * @param Request $request
      * @param Context $context
      *
      * @return JsonResponse
      */
+    #[Route(path: "/api/_action/buckaroo/capture", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.capture", methods:["POST"])]
     public function captureBuckaroo(Request $request, Context $context): JsonResponse
     {
 

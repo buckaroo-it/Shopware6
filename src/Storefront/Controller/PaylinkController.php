@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 
 /**
  */
@@ -36,13 +35,12 @@ class PaylinkController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"api"})
-     * @Route("/api/_action/buckaroo/paylink", name="api.action.buckaroo.paylink", methods={"POST"})
      * @param Request $request
      * @param Context $context
      *
      * @return JsonResponse
      */
+    #[Route(path: "/api/_action/buckaroo/paylink", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.paylink", methods:["POST"])]
     public function paylinkBuckaroo(Request $request, Context $context): JsonResponse
     {
 

@@ -17,7 +17,6 @@ use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Storefront\Controller\StorefrontController;
 use Buckaroo\Shopware6\Service\SignatureValidationService;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
@@ -25,9 +24,6 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 
-/**
- * @RouteScope(scopes={"storefront"})
- */
 class PushController extends StorefrontController
 {
     private LoggerInterface $logger;
@@ -60,14 +56,12 @@ class PushController extends StorefrontController
 
 
     /**
-     * @RouteScope(scopes={"storefront"})
-     * @Route("/buckaroo/push", name="buckaroo.payment.push", defaults={"csrf_protected"=false}, methods={"POST"})
-     *
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *
      * @return JsonResponse
      */
+    #[Route(path: "/buckaroo/push", defaults: ['_routeScope' => ['storefront']], options: ["seo" => false], name: "buckaroo.payment.push", methods:["POST"])]
     public function pushBuckaroo(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $this->logger->info(__METHOD__ . "|1|", [$_POST]);
@@ -257,7 +251,6 @@ class PushController extends StorefrontController
                         $this->invoiceService->generateInvoice(
                             $order,
                             $context,
-                            $brqInvoicenumber,
                             $salesChannelId
                         );
                     }

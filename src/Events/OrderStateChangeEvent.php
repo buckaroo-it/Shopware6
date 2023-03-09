@@ -78,7 +78,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             $this->settingsService->getSetting('BillinkCreateInvoiceAfterShipment', $salesChannelId)
         ) {
             $brqInvoicenumber = $customFields['brqInvoicenumber'] ?? $order->getOrderNumber();
-            $this->invoiceService->generateInvoice($eventOrder, $context, $brqInvoicenumber, $salesChannelId);
+            $this->invoiceService->generateInvoice($eventOrder, $context, $salesChannelId);
         }
 
         return true;
