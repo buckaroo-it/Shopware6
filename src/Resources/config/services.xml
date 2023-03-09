@@ -125,6 +125,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\PaymentStateService"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Events\OrderStateChangeEvent">

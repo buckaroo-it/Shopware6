@@ -14,6 +14,8 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Buckaroo\Shopware6\Service\PaymentStateService;
 use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
 use Buckaroo\Shopware6\Service\StateTransitionService;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 
@@ -37,6 +39,9 @@ class AsyncPaymentService
     public FormatRequestParamService $formatRequestParamService;
 
     public PaymentStateService $paymentStateService;
+
+    protected EventDispatcherInterface $eventDispatcher;
+
     /**
      * Buckaroo constructor.
      */
@@ -48,7 +53,8 @@ class AsyncPaymentService
         CheckoutHelper $checkoutHelper,
         LoggerInterface $logger,
         FormatRequestParamService $formatRequestParamService,
-        PaymentStateService $paymentStateService
+        PaymentStateService $paymentStateService,
+        EventDispatcherInterface $eventDispatcher
     ) {
 
         $this->settingsService = $settingsService;
@@ -59,6 +65,7 @@ class AsyncPaymentService
         $this->logger = $logger;
         $this->formatRequestParamService = $formatRequestParamService;
         $this->paymentStateService = $paymentStateService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -138,5 +145,10 @@ class AsyncPaymentService
             throw new \InvalidArgumentException('Billing address cannot be null');
         }
         return $address;
+    }
+    
+    public function dispatchEvent(ShopwareSalesChannelEvent $event)
+    {
+        return $this->eventDispatcher->dispatch($event);
     }
 }

@@ -5,12 +5,20 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Buckaroo;
 
 use Buckaroo\BuckarooClient;
+use Buckaroo\Shopware6\Buckaroo\PayloadFragmentInterface;
 
 class Client
 {
     protected BuckarooClient $client;
 
     protected string $paymentCode;
+
+    /**
+     * Additional services
+     *
+     * @var array
+     */
+    protected array $services;
 
     public function __construct(string $websiteKey, string $secretKey, string $paymentCode, string $mode = 'live')
     {
@@ -33,8 +41,43 @@ class Client
      */
     public function execute(array $payload, string $action = 'pay'): ClientResponseInterface
     {
+        $request =  $this->client->method($this->paymentCode);
+
+        if(count($this->services)) {
+            foreach($this->services as $service) {
+                $request->combine($service);
+            }
+        }
         return new ClientResponse(
-            $this->client->method($this->paymentCode)->$action($payload)
+           $request->$action($payload)
         );
+    }
+
+    /**
+     * Add additional services to the request
+     */
+    public function addService($service)
+    {
+        $this->services[] = $service;
+    }
+
+    /**
+     * Get additonal services
+     */
+    public function getServices(): array
+    {
+        return  $this->services;
+    }
+
+    /**
+     * Build a service object
+     */
+    public function build(string $action, array $payload, string $method = null)
+    {
+        if($method === null) {
+            $method = $this->paymentCode;
+        }
+
+        return $this->client->method($method)->manually()->$action($payload);
     }
 }
