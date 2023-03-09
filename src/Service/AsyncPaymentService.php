@@ -147,7 +147,7 @@ class AsyncPaymentService
         return $address;
     }
     
-    public function dispatchEvent(ShopwareSalesChannelEvent $event)
+    public function dispatchEvent(ShopwareSalesChannelEvent $event): object
     {
         return $this->eventDispatcher->dispatch($event);
     }

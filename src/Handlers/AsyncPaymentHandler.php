@@ -446,7 +446,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         AsyncPaymentTransactionStruct $transaction,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
-    ) {
+    ): void {
         $fee =  $this->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
 
         $this->asyncPaymentService

@@ -18,7 +18,7 @@ class Client
      *
      * @var array
      */
-    protected array $services;
+    protected array $services = [];
 
     public function __construct(string $websiteKey, string $secretKey, string $paymentCode, string $mode = 'live')
     {
@@ -55,8 +55,11 @@ class Client
 
     /**
      * Add additional services to the request
+     * 
+     * @param mixed $service
+     * @return void
      */
-    public function addService($service)
+    public function addService($service): void
     {
         $this->services[] = $service;
     }
@@ -71,6 +74,11 @@ class Client
 
     /**
      * Build a service object
+     * @param string $action
+     * @param array $payload
+     * @param string|null $method
+     * 
+     * @return mixed
      */
     public function build(string $action, array $payload, string $method = null)
     {

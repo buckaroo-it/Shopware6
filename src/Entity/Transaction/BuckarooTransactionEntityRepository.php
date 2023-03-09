@@ -150,7 +150,9 @@ class BuckarooTransactionEntityRepository
         $ids = $id ? [$id] : [];
         $criteria = new Criteria($ids);
         foreach ($additionalConditions as $key => $value) {
-            $criteria->addFilter(new EqualsFilter($key, $value));
+            if(is_scalar($value)) {
+                $criteria->addFilter(new EqualsFilter($key, $value));
+            }
         }
 
         foreach ($sorting as $field => $direction) {
