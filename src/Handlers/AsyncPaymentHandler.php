@@ -124,7 +124,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 ],
                 $salesChannelContext->getContext()
             );
-
+        $this->setFeeOnOrder($transaction, $salesChannelContext, $paymentCode);
         if ($response->hasRedirect()) {
             $this->asyncPaymentService
                 ->checkoutHelper
@@ -134,20 +134,12 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             return new RedirectResponse($response->getRedirectUrl());
         }
 
-        if ($response->isSuccess() ||
+        if (
+            $response->isSuccess() ||
             $response->isAwaitingConsumer() ||
             $response->isPendingProcessing() ||
             $response->isWaitingOnUserInput()
         ) {
-            $fee =  $this->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
-
-            $this->asyncPaymentService
-                ->checkoutHelper
-                ->applyFeeToOrder(
-                    $transaction->getOrder()->getId(),
-                    ['buckarooFee' => $fee],
-                    $salesChannelContext->getContext()
-                );
 
             if (!$response->isSuccess()) {
                 $this->asyncPaymentService
@@ -393,7 +385,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     {
         if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
             $finishUrl = (string)$dataBag->get('finishUrl');
-            if (strpos($finishUrl, 'http://') === 0 ||
+            if (
+                strpos($finishUrl, 'http://') === 0 ||
                 strpos($finishUrl, 'https://') === 0
             ) {
                 return $finishUrl;
@@ -437,5 +430,21 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         return $this->asyncPaymentService
             ->settingsService
             ->getSetting($key, $salesChannelId);
+    }
+
+    private function setFeeOnOrder(
+        AsyncPaymentTransactionStruct $transaction,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ) {
+        $fee =  $this->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
+
+        $this->asyncPaymentService
+            ->checkoutHelper
+            ->applyFeeToOrder(
+                $transaction->getOrder()->getId(),
+                $fee,
+                $salesChannelContext->getContext()
+            );
     }
 }
