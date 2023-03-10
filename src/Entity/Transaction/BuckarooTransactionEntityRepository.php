@@ -147,7 +147,7 @@ class BuckarooTransactionEntityRepository
         int $limit = 100,
         int $offset = 0
     ): Criteria {
-        $ids = $id ? [$id] : [];
+        $ids = $id ? [$id] : null;
         $criteria = new Criteria($ids);
         foreach ($additionalConditions as $key => $value) {
             if(is_scalar($value)) {
