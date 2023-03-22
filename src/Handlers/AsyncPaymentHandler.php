@@ -68,6 +68,29 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $client = $this->getClient(
                 $paymentCode,
                 $salesChannelId
+            )
+            ->setPayload(
+                array_merge_recursive(
+                    $this->getCommonRequestPayload(
+                        $transaction,
+                        $dataBag,
+                        $salesChannelContext,
+                        $paymentCode
+                    ),
+                    $this->getMethodPayload(
+                        $order,
+                        $dataBag,
+                        $salesChannelContext,
+                        $paymentCode
+                    )
+                )
+            )
+            ->setAction(
+                $this->getMethodAction(
+                    $dataBag,
+                    $salesChannelContext,
+                    $paymentCode
+                )
             );
 
             $this->asyncPaymentService->dispatchEvent(
@@ -80,27 +103,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
 
             return $this->handleResponse(
-                $client->execute(
-                    array_merge_recursive(
-                        $this->getCommonRequestPayload(
-                            $transaction,
-                            $dataBag,
-                            $salesChannelContext,
-                            $paymentCode
-                        ),
-                        $this->getMethodPayload(
-                            $order,
-                            $dataBag,
-                            $salesChannelContext,
-                            $paymentCode
-                        )
-                    ),
-                    $this->getMethodAction(
-                        $dataBag,
-                        $salesChannelContext,
-                        $paymentCode
-                    )
-                ),
+                $client->execute(),
                 $transaction,
                 $dataBag,
                 $salesChannelContext,

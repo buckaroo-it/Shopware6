@@ -13,6 +13,10 @@ class Client
 
     protected string $paymentCode;
 
+    protected array $payload = [];
+
+    protected string $action = 'pay';
+
     /**
      * Additional services
      *
@@ -20,8 +24,12 @@ class Client
      */
     protected array $services = [];
 
-    public function __construct(string $websiteKey, string $secretKey, string $paymentCode, string $mode = 'live')
-    {
+    public function __construct(
+        string $websiteKey,
+        string $secretKey,
+        string $paymentCode,
+        string $mode = 'live'
+    ) {
         $this->client = new BuckarooClient(
             $websiteKey,
             $secretKey,
@@ -33,23 +41,20 @@ class Client
     /**
      * Execute buckaroo request
      *
-     * @param array<mixed> $payload
-     * @param string $action
-     *
      * @return ClientResponseInterface
      * @throws \Exception
      */
-    public function execute(array $payload, string $action = 'pay'): ClientResponseInterface
+    public function execute(): ClientResponseInterface
     {
-        $request =  $this->client->method($this->paymentCode);
+        $request = $this->client->method($this->paymentCode);
 
-        if(count($this->services)) {
-            foreach($this->services as $service) {
+        if (count($this->services)) {
+            foreach ($this->services as $service) {
                 $request->combine($service);
             }
         }
         return new ClientResponse(
-           $request->$action($payload)
+            $request->{$this->action}($this->payload)
         );
     }
 
@@ -57,11 +62,12 @@ class Client
      * Add additional services to the request
      * 
      * @param mixed $service
-     * @return void
+     * @return self
      */
-    public function addService($service): void
+    public function addService($service): self
     {
         $this->services[] = $service;
+        return $this;
     }
 
     /**
@@ -69,7 +75,7 @@ class Client
      */
     public function getServices(): array
     {
-        return  $this->services;
+        return $this->services;
     }
 
     /**
@@ -82,10 +88,52 @@ class Client
      */
     public function build(string $action, array $payload, string $method = null)
     {
-        if($method === null) {
+        if ($method === null) {
             $method = $this->paymentCode;
         }
 
         return $this->client->method($method)->manually()->$action($payload);
+    }
+
+    /**
+     * Get main payload
+     * 
+     * @return array
+     */
+    public function getPayload(): array
+    {
+        return $this->payload;
+    }
+
+    /**
+     * Set main payload
+     *
+     * @param array<mixed> $payload
+     *
+     * @return self
+     */
+    public function setPayload(array $payload): self
+    {
+        $this->payload = $payload;
+        return $this;
+    }
+
+    /**
+     * Set main action
+     * 
+     * @return self
+     */
+    public function setAction(string $action): self
+    {
+        $this->action = $action;
+        return $this;
+    }
+
+    /**
+     * Get main action
+     */
+    public function getAction(): string
+    {
+        return $this->action;
     }
 }
