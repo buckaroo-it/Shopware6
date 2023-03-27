@@ -314,6 +314,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\InvoiceService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

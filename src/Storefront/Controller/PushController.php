@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Buckaroo\Shopware6\Events\BeforePushProcessingEvent;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -18,6 +19,7 @@ use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Storefront\Controller\StorefrontController;
 use Buckaroo\Shopware6\Service\SignatureValidationService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
@@ -38,20 +40,24 @@ class PushController extends StorefrontController
 
     protected InvoiceService $invoiceService;
 
+    protected EventDispatcherInterface $eventDispatcher;
+
     public function __construct(
         SignatureValidationService $signatureValidationService,
         TransactionService $transactionService,
         StateTransitionService $stateTransitionService,
         InvoiceService $invoiceService,
         CheckoutHelper $checkoutHelper,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->signatureValidationService = $signatureValidationService;
-        $this->transactionService = $transactionService;
-        $this->stateTransitionService = $stateTransitionService;
-        $this->invoiceService = $invoiceService;
+        $this->transactionService         = $transactionService;
+        $this->stateTransitionService     = $stateTransitionService;
+        $this->invoiceService        = $invoiceService;
         $this->checkoutHelper        = $checkoutHelper;
         $this->logger                = $logger;
+        $this->eventDispatcher       = $eventDispatcher;
     }
 
 
@@ -64,6 +70,13 @@ class PushController extends StorefrontController
     #[Route(path: "/buckaroo/push", defaults: ['_routeScope' => ['storefront']], options: ["seo" => false], name: "buckaroo.payment.push", methods:["POST"])]
     public function pushBuckaroo(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
+        $this->eventDispatcher->dispatch(
+          new BeforePushProcessingEvent(
+            $request,
+            $salesChannelContext,
+          )  
+        );
+        
         $this->logger->info(__METHOD__ . "|1|", [$_POST]);
 
         $status             = (string)$request->request->get('brq_statuscode');
