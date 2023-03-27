@@ -63,10 +63,14 @@ class PayLinkService
         $client = $this->getClientService(
             'payperemail',
             $order->getSalesChannelId()
-        );
+        )
+            ->setAction('paymentInvitation')
+            ->setPayload(
+                $this->getRequestPayload($request, $order)
+            );
 
         return $this->handleResponse(
-            $client->execute($this->getRequestPayload($request, $order), 'paymentInvitation'),
+            $client->execute()
         );
     }
 
@@ -104,7 +108,7 @@ class PayLinkService
         ];
     }
 
-     /**
+    /**
      * Get request payload
      *
      * @param Request $request

@@ -87,11 +87,6 @@ class RefundService
             return $validationErrors;
         }
 
-        $client = $this->getClient(
-            $paymentCode,
-            $order->getSalesChannelId()
-        );
-
         $amount = $this->determineAmount(
             $orderItems,
             $request->get('customRefundAmount'),
@@ -99,8 +94,12 @@ class RefundService
             $paymentCode
         );
 
-        return $this->handleResponse(
-            $client->execute(
+        $client = $this->getClient(
+            $paymentCode,
+            $order->getSalesChannelId()
+        )
+            ->setAction('refund')
+            ->setPayload(
                 array_merge_recursive(
                     $this->getCommonRequestPayload(
                         $request,
@@ -112,9 +111,12 @@ class RefundService
                         $amount,
                         $paymentCode
                     )
-                ),
-                'refund'
-            ),
+                )
+            );
+
+
+        return $this->handleResponse(
+            $client->execute(),
             $order,
             $context,
             $orderItems,
@@ -160,7 +162,8 @@ class RefundService
             if (count($orderItems)) {
                 $orderItemsRefunded = [];
                 foreach ($orderItems as $value) {
-                    if (is_array($value) &&
+                    if (
+                        is_array($value) &&
                         isset($value['id']) &&
                         isset($value['quantity']) &&
                         is_string($value['id']) &&
@@ -395,7 +398,8 @@ class RefundService
         string $paymentCode
     ): float {
         $amount = 0;
-        if (is_scalar($customRefundAmount) &&
+        if (
+            is_scalar($customRefundAmount) &&
             (float)$customRefundAmount > 0 &&
             !in_array($paymentCode, ['afterpay', 'Billink', 'klarnakp'])
         ) {
@@ -433,8 +437,7 @@ class RefundService
         $customFields['originalTransactionKey'] = $transaction['transactions'];
 
         $paymentCode = $customFields['serviceName'];
-        if (in_array($customFields['serviceName'], ['creditcard', 'creditcards', 'giftcards'])
-        ) {
+        if (in_array($customFields['serviceName'], ['creditcard', 'creditcards', 'giftcards'])) {
             $paymentCode = $customFields['brqPaymentMethod'];
         }
 

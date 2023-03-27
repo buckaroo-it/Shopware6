@@ -84,10 +84,9 @@ class CaptureService
         $client = $this->getClient(
             $paymentCode,
             $order->getSalesChannelId()
-        );
-
-        return $this->handleResponse(
-            $client->execute(
+        )
+            ->setAction('capture')
+            ->setPayload(
                 array_merge_recursive(
                     $this->getCommonRequestPayload(
                         $request,
@@ -99,8 +98,11 @@ class CaptureService
                         $customFields
                     )
                 ),
-                'capture'
-            ),
+
+            );
+
+        return $this->handleResponse(
+            $client->execute(),
             $order,
             $context,
             $paymentCode
@@ -125,7 +127,8 @@ class CaptureService
         string $paymentCode
     ): array {
         if ($response->isSuccess()) {
-            if (!$this->invoiceService->isInvoiced($order->getId(), $context) &&
+            if (
+                !$this->invoiceService->isInvoiced($order->getId(), $context) &&
                 !$this->invoiceService->isCreateInvoiceAfterShipment(
                     false,
                     $paymentCode,
@@ -165,7 +168,7 @@ class CaptureService
         return 'EUR';
     }
 
-     /**
+    /**
      * Get parameters common to all payment methods
      *
      * @param Request $request
