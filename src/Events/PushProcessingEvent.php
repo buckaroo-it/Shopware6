@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 
-class BeforePushProcessingEvent implements ShopwareSalesChannelEvent
+class PushProcessingEvent implements ShopwareSalesChannelEvent
 {
 
     protected SalesChannelContext $salesChannelContext;
