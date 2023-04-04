@@ -81,6 +81,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'name' => 'Revolut',
             'code' => 'REVOLT21',
         ],
+        [
+            'name' => 'YourSafe',
+            'code' => 'BITSNL2A',
+        ],
     ];
 
     protected $availableCreditcards = [
