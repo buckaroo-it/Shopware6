@@ -1096,6 +1096,20 @@ class CheckoutHelper
         $customFields['serviceName']            = $item['transaction_method'];
         $customFields['originalTransactionKey'] = $item['transactions'];
 
+        $cardTypes = [
+            'mastercard',
+            'visa',
+            'amex',
+            'vpay',
+            'maestro',
+            'visaelectron',
+            'cartebleuevisa',
+            'cartebancaire',
+            'dankort',
+            'nexi',
+            'postepay'
+        ];
+
         $serviceName = (in_array($customFields['serviceName'], ['creditcard','creditcards', 'giftcards'])) ? $customFields['brqPaymentMethod'] : $customFields['serviceName'];
 
         $amount = 0;
@@ -1140,6 +1154,10 @@ class CheckoutHelper
         $request->setCurrency($currency);
         $request->setOriginalTransactionKey($customFields['originalTransactionKey']);
         $request->setServiceVersion($customFields['version']);
+
+        if (in_array($customFields['serviceName'], $cardTypes)) {
+            $customFields['serviceName'] = 'creditcard';
+        }
 
         if ($customFields['serviceName'] == 'afterpaydigiaccept') {
             $this->setRefundRequestArticlesForAfterpayOld($request, $amount);
