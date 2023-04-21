@@ -96,6 +96,19 @@ class Client
     }
 
     /**
+     * Set payment code
+     *
+     * @param string $paymentCode
+     *
+     * @return self
+     */
+    public function setPaymentCode(string $paymentCode): self
+    {
+        $this->paymentCode = $paymentCode;
+        return $this;
+    }
+
+    /**
      * Get main payload
      * 
      * @return array
