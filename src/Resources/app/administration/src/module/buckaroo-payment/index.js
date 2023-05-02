@@ -41,6 +41,7 @@ Module.register('buckaroo-payment', {
         next(currentRoute);
     },
 
+    routes: {
         index: {
             component: 'buckaroo-settings',
             path: 'index',

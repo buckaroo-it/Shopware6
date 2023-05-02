@@ -79,5 +79,9 @@ class SettingsService
         return 0;
     }
 
+    public function getEnabled($method = '', $salesChannelId = null)
+    {
+        return $this->getSetting($method . 'Enabled', $salesChannelId);
+    }
 
 }

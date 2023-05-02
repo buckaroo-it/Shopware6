@@ -78,4 +78,13 @@ class UrlService
     {
         return $this->router->generate($path, $parameters);
     }
+
+    public function getRestoreUrl()
+    {
+        return $this->router->generate(
+            'frontend.action.buckaroo.redirect',
+            [],
+            UrlGeneratorInterface::ABSOLUTE_PATH
+        );
+    }
 }

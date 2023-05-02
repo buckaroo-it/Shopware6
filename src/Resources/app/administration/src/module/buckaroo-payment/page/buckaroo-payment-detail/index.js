@@ -168,14 +168,19 @@ Component.register('buckaroo-payment-detail', {
             this.orderId = orderId;
             orderCriteria.addAssociation('transactions.paymentMethod')
                          .addAssociation('transactions');
+
+            orderCriteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
+
             orderRepository.get(orderId, Context.api, orderCriteria).then((order) => {
                 if(order.customFields != undefined && order.customFields.buckarooFee != undefined){
                     this.buckarooFee = order.customFields.buckarooFee;
                 }
 
-                that.isCapturePossible = order.transactions && order.transactions.last().paymentMethod && order.transactions.last().paymentMethod.customFields &&
-                    order.transactions.last().paymentMethod.customFields.buckaroo_key &&
-                    ['klarnakp', 'billink'].includes(order.transactions.last().paymentMethod.customFields.buckaroo_key.toLowerCase());
+                that.isCapturePossible = order.transactions &&
+                order.transactions.last().paymentMethod &&
+                order.transactions.last().paymentMethod.customFields &&
+                order.transactions.last().paymentMethod.customFields.buckaroo_key &&
+                ['klarnakp', 'billink'].includes(order.transactions.last().paymentMethod.customFields.buckaroo_key.toLowerCase());
 
                 that.isPaylinkVisible = that.isPaylinkAvailable = this.getConfigValue('paylinkEnabled') && order.stateMachineState && order.stateMachineState.technicalName && order.stateMachineState.technicalName == 'open' && order.transactions && order.transactions.last().stateMachineState.technicalName == 'open';
             });
@@ -242,12 +247,12 @@ Component.register('buckaroo-payment-detail', {
                         if(response[key].status){
                             this.createNotificationSuccess({
                                 title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                                message: response[key].message
+                                message: that.$tc(response[key].message) + response[key].amount
                             });
                         }else{
                             this.createNotificationError({
                                 title: that.$tc('buckaroo-payment.settingsForm.titleError'),
-                                message: response[key].message
+                                message: that.$tc(response[key].message)
                             });
                         }
 
@@ -269,16 +274,16 @@ Component.register('buckaroo-payment-detail', {
             this.BuckarooPaymentService.createPaylink(transaction, this.transactionsToRefund, this.orderItems)
                 .then((response) => {
                     if(response.status){
-                        that.paylinkMessage = response.message;
+                        that.paylinkMessage = that.$tc(response.message) + response.paylinkhref;
                         that.paylink = response.paylink;
                         this.createNotificationSuccess({
                             title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                            message: response.message
+                            message: that.paylinkMessage
                         });
                     }else{
                         this.createNotificationError({
                             title: that.$tc('buckaroo-payment.settingsForm.titleError'),
-                            message: response.message
+                            message: that.$tc(response.message)
                         });
                     }
                     that.isPaylinkAvailable = true;
@@ -304,12 +309,12 @@ Component.register('buckaroo-payment-detail', {
                     if(response.status){
                         this.createNotificationSuccess({
                             title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                            message: response.message
+                            message: that.$tc(response.message) + response.amount
                         });
                     }else{
                         this.createNotificationError({
                             title: that.$tc('buckaroo-payment.settingsForm.titleError'),
-                            message: response.message
+                            message: that.$tc(response.message)
                         });
                     }
                     that.isCapturePossible = true;
@@ -317,7 +322,7 @@ Component.register('buckaroo-payment-detail', {
                 .catch((errorResponse) => {
                     this.createNotificationError({
                         title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                        message: errorResponse.response.data.message
+                        message: that.$tc(errorResponse.response.data.message)
                     });
                     that.isCapturePossible = true;
                 });

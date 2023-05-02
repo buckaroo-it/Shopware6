@@ -104,27 +104,6 @@
         </input-field>
 
         <input-field type="single-select">
-            <name>pendingPaymentStatus</name>
-            <label>Pending payment status</label>
-            <label lang="de-DE">Ausstehender Zahlungsstatus</label>
-            <label lang="nl-NL">In afwachting van betalingsstatus</label>
-            <helpText>This status will be given to orders pending payment.</helpText>
-            <helpText lang="de-DE">Dieser Status wird für Bestellungen bis zur Zahlung vergeben.</helpText>
-            <helpText lang="nl-NL">Deze status wordt gegeven aan bestellingen die in afwachting zijn van betaling.</helpText>
-            <defaultValue>open</defaultValue>
-            <options>
-                <option>
-                    <id>open</id>
-                    <name>Open</name>
-                </option>
-                <option>
-                    <id>process</id>
-                    <name>In progress</name>
-                </option>
-            </options>
-        </input-field>
-
-        <input-field type="single-select">
             <name>paymentSuccesStatus</name>
             <label lang="en-GB">Payment success status</label>
             <label lang="de-DE">Status des Zahlungserfolgs</label>
@@ -141,30 +120,6 @@
             </options>
         </input-field>
 
-        <input-field type="single-select">
-            <name>paymentFailedStatus</name>
-            <label lang="en-GB">Payment failed status</label>
-            <label lang="de-DE">Zahlungsstatus</label>
-            <label lang="nl-NL">Status betaling mislukt</label>
-            <helpText lang="en-GB">This status will be given to unsuccessful orders.</helpText>
-            <helpText lang="nl-NL">Deze status wordt gegeven aan niet-succesvolle bestellingen.</helpText>
-            <helpText lang="de-DE">Dieser Status wird für nicht erfolgreiche Bestellungen vergeben.</helpText>
-            <defaultValue>cancelled</defaultValue>
-            <options>
-                <option>
-                    <id>cancelled</id>
-                    <name>Cancelled</name>
-                </option>
-                <option>
-                    <id>fail</id>
-                    <name>Failed</name>
-                </option>
-                <option>
-                    <id>open</id>
-                    <name>Open</name>
-                </option>
-            </options>
-        </input-field>
 
         <input-field type="single-select">
             <name>orderStatus</name>

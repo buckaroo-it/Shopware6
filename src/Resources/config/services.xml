@@ -150,6 +150,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\PaymentStateService"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Events\OrderStateChangeEvent">
@@ -164,6 +165,18 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Service\PaymentServiceDecorator">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
+            <argument type="service" id="order.repository"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\PaymentStateService">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Symfony\Component\Security\Csrf\CsrfTokenManagerInterface"/>
+            <argument type="service" id="translator" />
+        </service>
         <service id="Buckaroo\Shopware6\Handlers\AsyncPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
@@ -382,7 +395,7 @@
 
         <service id="Buckaroo\Shopware6\Storefront\Controller\CaptureController" public="true">
             <argument type="service" id="Buckaroo\Shopware6\Service\CaptureService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -408,6 +421,13 @@
             </call>
         </service>
 
+         <service id="Buckaroo\Shopware6\Storefront\Controller\CartController" public="true">
+            <argument type="service" id="session"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Buckaroo\Shopware6\Storefront\Controller\ApplePayController" public="true">
             <argument type="service" id="Buckaroo\Shopware6\Service\CartService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
@@ -422,6 +442,19 @@
                 <argument type="service" id="service_container"/>
             </call>
         </service>
+
+        <!-- Required for payments on shopware older than v6.4.2.0 -->
+        <service id="Buckaroo\Shopware6\Storefront\Controller\PaymentController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
 
         <!-- /Controllers -->
 
@@ -464,10 +497,12 @@
 
 
         <service id="Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber" >
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="sales_channel.payment_method.repository"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
+            <argument type="service" id="session"/>
+            <argument type="service" id="translator" />
             <tag name="kernel.event_subscriber"/>
         </service>
 

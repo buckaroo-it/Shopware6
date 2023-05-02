@@ -186,13 +186,8 @@ class RefundService
 
             return [
                 'status' => true,
-                'message' => $this->translator->trans(
-                    "buckaroo-payment.refund.refunded_amount",
-                    [
-                        "%amount%" => $amount,
-                        "%currency%" => $currency
-                    ]
-                )
+                'message' => $this->translator->trans("buckaroo-payment.refund.refunded_amount"),
+                'amount' => sprintf(" %s %s",$amount, $currency)
             ];
         }
 
