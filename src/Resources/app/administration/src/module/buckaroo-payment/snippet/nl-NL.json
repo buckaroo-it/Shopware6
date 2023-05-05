@@ -1,81 +1,110 @@
 {
-  "buckaroo-payment": {
-    "fee": "Buckaroo Vergoeding",
-    "order": {
-      "refundDescription": "Terugbetaling voor bestelling #orderNumber"
-    },
-    "general": {
-      "title": "Buckaroo",
-      "description": "Buckaroo Payment"
-    },
-    "settingsForm": {
-      "save": "Opslaan",
-      "titleSuccess": "Succes",
-      "titleError": "Fout"
-    },
-    "supportModal": {
-      "menuButton": "Ondersteuning van de versie",
-      "title": "Ondersteuning van de versie",
-      "support": {
-        "description": "Voordat u contact opneemt met Buckaroo technische ondersteuning, kunt u uw (Merchant) sleutel, geheime sleutel, certificaat en certificaat duimafdruk ophalen.",
-        "label1": "Buckaroo Payment Plaza:",
-        "label2": "Telefoon:",
-        "label3": "E-mail:",
-        "label4": "Website:",
-        "your_version": "Uw PHP versie:",
-        "version": "Verenigbaarheid van versie",
-        "information": "Informatie"
-      }
-    },
-    "tabs": {
-      "title": "Buckaroo Payment",
-      "overview": "Overzicht"
-    },
-    "paymentDetail": {
-      "refundTitle": "Refund",
-      "transactionsTitle": "Transacties",
-      "amountTitle": "Bedrag",
-      "amountTotalTitle": "Algemeen totaal",
-      "amountRefundTotalTitle": "Eindtotaal totaal",
-      "amountCustomRefundTitle": "Aangepast bedrag terugbetalen",
-      "buttonTitle": "Restitutie",
-      "successTitle": "Succes",
-      "successMessage": "Buckaroo-succes terugbetaald ",
-      "errorTitle": "Fout",
-      "payTitle": "Capture betaling",
-      "payDescription": "Capture en maak factuur voor order",
-      "payButton": "Capture betaling"
-    },
-    "orderItems": {
-        "title": "Te restitueren items",
-        "types": {
-          "id": "id",
-          "name": "Titel",
-          "quantity": "Aantal terugbetalen",
-          "totalAmount": "Subtotaal"
-      }
-    },
-    "transactionsToRefund": {
-        "title": "Totalen terugbetalen"
-    },
-    "transactionHistory": {
-        "types": {
-          "id": "id",
-          "created_at": "Datum / tijd",
-          "total": "Total",
-          "shipping_costs": "Verzendkosten",
-          "total_excluding_vat": "Totaal exclusief VAT",
-          "total_including_vat": "Totaal inclusief VAT",
-          "vat": "VAT",
-          "transaction_key": "Transactiesleutel",
-          "transaction_method": "Betaalmethode",
-          "statuscode": "Toestand"
-      }
-    },
-    "messageNotValid": "Dit veld is niet geldig.",
-    "messageNotBlank": "Dit veld mag niet leeg zijn.",
-    "button": {
-      "labelTestApi": "Test verbinding"
+    "buckaroo-payment": {
+        "fee": "Buckaroo Vergoeding",
+        "order": {
+            "refundDescription": "Terugbetaling voor bestelling #orderNumber"
+        },
+        "general": {
+            "title": "Buckaroo",
+            "description": "Buckaroo Payment"
+        },
+        "settingsForm": {
+            "save": "Opslaan",
+            "titleSuccess": "Succes",
+            "titleError": "Fout"
+        },
+        "supportModal": {
+            "menuButton": "Ondersteuning van de versie",
+            "title": "Ondersteuning van de versie",
+            "support": {
+                "description": "Voordat u contact opneemt met Buckaroo technische ondersteuning, kunt u uw (Merchant) sleutel, geheime sleutel, certificaat en certificaat duimafdruk ophalen.",
+                "label1": "Buckaroo Payment Plaza:",
+                "label2": "Telefoon:",
+                "label3": "E-mail:",
+                "label4": "Website:",
+                "your_version": "Uw PHP versie:",
+                "version": "Verenigbaarheid van versie",
+                "information": "Informatie"
+            }
+        },
+        "tabs": {
+            "title": "Buckaroo Payment",
+            "overview": "Overzicht"
+        },
+        "paymentDetail": {
+            "refundTitle": "Refund",
+            "transactionsTitle": "Transacties",
+            "amountTitle": "Bedrag",
+            "amountTotalTitle": "Algemeen totaal",
+            "amountRefundTotalTitle": "Eindtotaal totaal",
+            "amountCustomRefundTitle": "Aangepast bedrag terugbetalen",
+            "buttonTitle": "Restitutie",
+            "successTitle": "Succes",
+            "successMessage": "Buckaroo-succes terugbetaald ",
+            "errorTitle": "Fout",
+            "payTitle": "Capture betaling",
+            "payDescription": "Capture en maak factuur voor order",
+            "payButton": "Capture betaling"
+        },
+        "orderItems": {
+            "title": "Te restitueren items",
+            "types": {
+                "id": "id",
+                "name": "Titel",
+                "quantity": "Aantal terugbetalen",
+                "totalAmount": "Subtotaal"
+            }
+        },
+        "transactionsToRefund": {
+            "title": "Totalen terugbetalen"
+        },
+        "transactionHistory": {
+            "types": {
+                "id": "id",
+                "created_at": "Datum / tijd",
+                "total": "Total",
+                "shipping_costs": "Verzendkosten",
+                "total_excluding_vat": "Totaal exclusief VAT",
+                "total_including_vat": "Totaal inclusief VAT",
+                "vat": "VAT",
+                "transaction_key": "Transactiesleutel",
+                "transaction_method": "Betaalmethode",
+                "statuscode": "Toestand"
+            }
+        },
+        "messageNotValid": "Dit veld is niet geldig.",
+        "messageNotBlank": "Dit veld mag niet leeg zijn.",
+        "button": {
+            "labelTestApi": "Test verbinding"
+        },
+        "paymentInTestMode": "The payment for this order was made in test mode",
+        "refund": {
+            "not_supported": "Refund is not supported",
+            "already_refunded": "This order is already refunded",
+            "refunded_amount": "Buckaroo success refunded"
+        },
+        "capture": {
+            "invalid_amount": "Amount is not valid",
+            "capture_not_supported": "Capture is not supported",
+            "already_captured": "This order is already captured",
+            "captured_amount": "Successfully captured amount",
+            "general_capture_error": "Unfortunately an error occurred while processing your capture. Please try again."
+        },
+        "test_api": {
+            "connection_ready": "Connection ready",
+            "connection_failed": "Connection failed"
+        },
+        "paylink": {
+            "invalid_amount": "Amount is not valid",
+            "pay_link": "Your Paylink:"
+
+        },
+        "button_payment": {
+            "missing_order_id": "Paypal express order id is required",
+            "unknown_error": "Unknown buckaroo error occurred"
+        },
+        "missing_order_id": "Missing order orderId",
+        "missing_transaction": "Order transaction not found",
+        "general_request_error": "Unfortunately an error occurred while processing your request. Please try again."
     }
-  }
 }

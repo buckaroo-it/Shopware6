@@ -52,15 +52,6 @@ class Creditcard extends AbstractPayment
         return CreditcardPaymentHandler::class;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return string|null
-     */
-    public function getTemplate(): ?string
-    {
-        return '@BuckarooPayments/storefront/buckaroo/creditcards/creditcards.html.twig';
-    }
 
     /**
      * {@inheritDoc}

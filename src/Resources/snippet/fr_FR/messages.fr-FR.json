@@ -52,10 +52,15 @@
       "salutation": "Salutation",
       "mr": "M.",
       "mrs": "Mme.",
+      "gender": "Gender",
+      "male": "He/him",
+      "female": "She/her",
+      "they": "They/them",
+      "unknown": "I prefer not to say",
       "buckarooAfterpayDoBTitle": "Date de naissance",
       "buckarooAfterpayDoBTitleSup": "(DD/MM/YYYY)",
       "buckarooAfterpayTermsConditionTitle": "Termes et conditions",
-      "buckarooAfterpayTermsCondition": "Oui, j'accepte les conditions générales d'utilisation d'Afterpay.",
+      "buckarooAfterpayTermsCondition": "Oui, j'accepte les conditions générales d'utilisation d'Riverty | AfterPay.",
       "buckarooBillinkTermsCondition": "Accepter les conditions d'utilisation",
       "buckarooKlarnakpDoBTitle": "Date de naissance",
       "buckarooKlarnakpDoBTitleSup": "(DD/MM/YYYY)",
@@ -76,9 +81,9 @@
     }
   },
   "bkr-applepay": {
-    "Subtotal": "Subtotal",
+    "Subtotal": "Sous-total",
     "Deliverycosts" : "Coûts de livraison",
     "Discount" : "Remise",
-    "BuckarooFee": "Buckaroo Fee"
+    "BuckarooFee": "Buckaroo Frais"
   }
 }

@@ -38,27 +38,22 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
 
         //when all validators are valid submit the form
         Promise.all([validator.general, validator.credicard]).then(function([generalValid, creditValid]) {
+            if(document.forms['confirmOrderForm'] === undefined || !document.forms['confirmOrderForm'].reportValidity()) {
+                return;
+            }
             let valid = generalValid && creditValid;
             if (!valid) {
                 document.getElementById("changePaymentForm").scrollIntoView();
-            }
-            if(document.forms['confirmOrderForm'] !== undefined && valid) {
-                if(document.forms['confirmOrderForm'].reportValidity()) {
+            } else {
                     if(buckaroo_back_link !== undefined) {
                         window.history.pushState(
                             null, null, buckaroo_back_link
                         );
                     }
 
-                    if (window.isApplePay && window.buckaroo.submit !== true) {
-                        var child = document.querySelector('.apple-pay-button');
-                        if (child) {
-                            child.click();
-                        }
-                    } else {
+                    if (!window.isApplePay) {
                         document.forms['confirmOrderForm'].submit();
                     }
-                }
             }
         })
 

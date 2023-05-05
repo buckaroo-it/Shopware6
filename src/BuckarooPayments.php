@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class BuckarooPayments extends Plugin
 {
@@ -26,9 +25,6 @@ class BuckarooPayments extends Plugin
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/Resources/config'));
         $loader->load('services.xml');
-
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/Resources/config/packages'));
-        $loader->load('framework.yaml');
     }
 
     /**
