@@ -67,10 +67,7 @@ Component.register('buckaroo-settings', {
                 'paylinkEnabled': true,
                 'stockReserve': true,
                 'sendInvoiceEmail': true,
-                'showPaymentMethodsList': true,
-                'pendingPaymentStatus': true,
                 'paymentSuccesStatus': true,
-                'paymentFailedStatus': true,
                 'orderStatus': true,
             }
         };
@@ -111,12 +108,12 @@ Component.register('buckaroo-settings', {
                     if(result.status == 'success'){
                         this.createNotificationSuccess({
                             title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                            message: result.message
+                            message: that.$tc(result.message)
                         });
                     }else{
                         this.createNotificationError({
                             title: that.$tc('buckaroo-payment.settingsForm.titleError'),
-                            message: result.message
+                            message: that.$tc(result.message)
                         });  
                     }
 

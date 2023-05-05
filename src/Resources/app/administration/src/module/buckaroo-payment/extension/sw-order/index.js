@@ -8,7 +8,8 @@ Component.override('sw-order-detail', {
 
     data() {
         return {
-            isBuckarooPayment: false
+            isBuckarooPayment: false,
+            isPaymentInTestMode: false
         };
     },
 
@@ -36,14 +37,17 @@ Component.override('sw-order-detail', {
                 orderCriteria.addAssociation('transactions');
 
                 orderRepository.get(this.orderId, Context.api, orderCriteria).then((order) => {
+
+                    this.setPaymentInTestMode(order);
+
                     if (order.transactions.length <= 0 ||
-                        !order.transactions[0].paymentMethodId
+                        !order.transactions.last().paymentMethodId
                     ) {
                         this.setIsBuckarooPayment(null);
                         return;
                     }
 
-                    const paymentMethodId = order.transactions[0].paymentMethodId;
+                    const paymentMethodId = order.transactions.last().paymentMethodId;
 
                     if (paymentMethodId !== undefined && paymentMethodId !== null) {
                         this.setIsBuckarooPayment(paymentMethodId);
@@ -55,6 +59,11 @@ Component.override('sw-order-detail', {
     },
 
     methods: {
+        setPaymentInTestMode(order) {
+            if (order.customFields && order.customFields.buckaroo_payment_in_test_mode) {
+                this.isPaymentInTestMode = order.customFields.buckaroo_payment_in_test_mode === true;
+            }
+        },
         setIsBuckarooPayment(paymentMethodId) {
             if (!paymentMethodId) {
                 return;

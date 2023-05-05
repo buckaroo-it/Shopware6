@@ -21,6 +21,21 @@ class BuckarooPaymentSettingsService extends ApiService {
         });
     }
 
+    getTaxes() {
+        const apiRoute = `_action/${this.getApiBasePath()}/taxes`;
+
+        return this.httpClient.post(
+            apiRoute,
+            {
+            },
+            {
+                headers: this.getBasicHeaders()
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
+
     getApiTest(websiteKeyId, secretKeyId, currentSalesChannelId) {
         const apiRoute = `_action/${this.getApiBasePath()}/getBuckarooApiTest`;
 

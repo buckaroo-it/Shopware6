@@ -99,7 +99,7 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
 
     public function getArticleData($order, $additional, &$latestKey)
     {
-        $lines = $this->checkoutHelper->getOrderLinesArray($order);
+        $lines = $this->getOrderLinesArray($order);
         foreach ($lines as $key => $item) {
             $additional[] = [
                 [
@@ -154,12 +154,12 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
         $birthDayStamp = $birthDayStamp->format('d/m/Y');
 
         $address->setPhoneNumber($dataBag->get('buckaroo_klarna_phone'));
-        $salutation = $this->checkoutHelper->getGenderFromSalutation($customer, 1);
+        $gender = $dataBag->get('buckaroo_klarna_gender');
 
         $shippingAddress->setPhoneNumber($dataBag->get('buckaroo_klarna_phone'));
         $shippingStreetFormat = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
 
-        $category    = $this->helper->getSettingsValue($paymentMethod->getBuckarooKey() . 'Business', $salesChannelContext->getSalesChannelId()) ?? 'B2C';
+        $category    = $this->settingsService->getSetting($paymentMethod->getBuckarooKey() . 'Business', $salesChannelContext->getSalesChannelId()) ?? 'B2C';
         $billingData = [
             [
                 '_'       => $category,
@@ -250,7 +250,7 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
         }
 
         $billingData[] = [
-            '_'       => $salutation,
+            '_'       => $gender,
             'Name'    => 'Gender',
             'Group'   => 'BillingCustomer',
             'GroupID' => '',
@@ -353,7 +353,7 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
         }
 
         $shippingData[] = [
-            '_'       => $salutation,
+            '_'       => $gender,
             'Name'    => 'Gender',
             'Group'   => 'ShippingCustomer',
             'GroupID' => '',

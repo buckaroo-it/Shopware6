@@ -1,81 +1,110 @@
 {
-  "buckaroo-payment": {
-    "fee": "Buckaroo Gebühr",
-    "order": {
-      "refundDescription": "Erstattung für Bestellung #orderNumber"
-    },
-    "general": {
-      "title": "Buckaroo",
-      "description": "Buckaroo Payment"
-    },
-    "settingsForm": {
-      "save": "Speichern",
-      "titleSuccess": "Erfolg",
-      "titleError": "Fehler"
-    },
-    "supportModal": {
-      "menuButton": "Version & Support",
-      "title": "Version & Support",
-      "support": {
-        "description": "Bevor Sie den technischen Support von Buckaroo kontaktieren, rufen Sie bitte Ihren (Merchant) Schlüssel, Geheimschlüssel, Zertifikat und Zertifikat-Daumenabdruck auf.",
-        "label1": "Buckaroo Payment Plaza:",
-        "label2": "Telefon:",
-        "label3": "E-mail:",
-        "label4": "Webseite:",
-        "your_version": "Ihre PHP Version:",
-        "version": "Kompatibilität der Version",
-        "information": "Information"
-      }
-    },
-    "tabs": {
-      "title": "Buckaroo Payment",
-      "overview": "Overview"
-    },
-    "paymentDetail": {
-      "refundTitle": "Rückerstattung",
-      "transactionsTitle": "Transaktionen",
-      "amountTitle": "Amount",
-      "amountTotalTitle": "Gesamtsumme",
-      "amountRefundTotalTitle": "Rückerstattung Gesamtsumme",
-      "amountCustomRefundTitle": "Benutzerdefinierten betrag erstatten",
-      "buttonTitle": "Rückerstattung",
-      "successTitle": "Erfolg",
-      "successMessage": "Buckaroo-Erfolg erstattet ",
-      "errorTitle": "Fehler",
-      "payTitle": "Zahlung erfassen",
-      "payDescription": "Erfassen und erstellen sie eine rechnung für die bestellung",
-      "payButton": "Zahlung erfassen"
-    },
-    "orderItems": {
-        "title": "Zu erstattende Gegenstände",
-        "types": {
-          "id": "id",
-          "name": "Titel",
-          "quantity": "Menge zur Rückerstattung",
-          "totalAmount": "Zwischensumme"
-      }
-    },
-    "transactionsToRefund": {
-        "title": "Rückerstattungssummen"
-    },
-    "transactionHistory": {
-        "types": {
-          "id": "id",
-          "created_at": "Datum / Uhrzeit",
-          "total": "Total",
-          "shipping_costs": "Versandkosten",
-          "total_excluding_vat": "Total ohne Mehrwertsteuer",
-          "total_including_vat": "Total einschließlich Mehrwertsteuer",
-          "vat": "Mehrwertsteuer",
-          "transaction_key": "Transaktionsschlüssel",
-          "transaction_method": "Zahlungsmethode",
-          "statuscode": "Status"
-      }
-    },
-    "messageNotValid": "Dieses Feld ist ungültig.",
-    "messageNotBlank": "Dieses Feld darf nicht leer sein.",
-    "button": {
-      "labelTestApi": "Testverbindung"
+    "buckaroo-payment": {
+        "fee": "Buckaroo Gebühr",
+        "order": {
+            "refundDescription": "Erstattung für Bestellung #orderNumber"
+        },
+        "general": {
+            "title": "Buckaroo",
+            "description": "Buckaroo Payment"
+        },
+        "settingsForm": {
+            "save": "Speichern",
+            "titleSuccess": "Erfolg",
+            "titleError": "Fehler"
+        },
+        "supportModal": {
+            "menuButton": "Version & Support",
+            "title": "Version & Support",
+            "support": {
+                "description": "Bevor Sie den technischen Support von Buckaroo kontaktieren, rufen Sie bitte Ihren (Merchant) Schlüssel, Geheimschlüssel, Zertifikat und Zertifikat-Daumenabdruck auf.",
+                "label1": "Buckaroo Payment Plaza:",
+                "label2": "Telefon:",
+                "label3": "E-mail:",
+                "label4": "Webseite:",
+                "your_version": "Ihre PHP Version:",
+                "version": "Kompatibilität der Version",
+                "information": "Information"
+            }
+        },
+        "tabs": {
+            "title": "Buckaroo Payment",
+            "overview": "Overview"
+        },
+        "paymentDetail": {
+            "refundTitle": "Rückerstattung",
+            "transactionsTitle": "Transaktionen",
+            "amountTitle": "Amount",
+            "amountTotalTitle": "Gesamtsumme",
+            "amountRefundTotalTitle": "Rückerstattung Gesamtsumme",
+            "amountCustomRefundTitle": "Benutzerdefinierten betrag erstatten",
+            "buttonTitle": "Rückerstattung",
+            "successTitle": "Erfolg",
+            "successMessage": "Buckaroo-Erfolg erstattet ",
+            "errorTitle": "Fehler",
+            "payTitle": "Zahlung erfassen",
+            "payDescription": "Erfassen und erstellen sie eine rechnung für die bestellung",
+            "payButton": "Zahlung erfassen"
+        },
+        "orderItems": {
+            "title": "Zu erstattende Gegenstände",
+            "types": {
+                "id": "id",
+                "name": "Titel",
+                "quantity": "Menge zur Rückerstattung",
+                "totalAmount": "Zwischensumme"
+            }
+        },
+        "transactionsToRefund": {
+            "title": "Rückerstattungssummen"
+        },
+        "transactionHistory": {
+            "types": {
+                "id": "id",
+                "created_at": "Datum / Uhrzeit",
+                "total": "Total",
+                "shipping_costs": "Versandkosten",
+                "total_excluding_vat": "Total ohne Mehrwertsteuer",
+                "total_including_vat": "Total einschließlich Mehrwertsteuer",
+                "vat": "Mehrwertsteuer",
+                "transaction_key": "Transaktionsschlüssel",
+                "transaction_method": "Zahlungsmethode",
+                "statuscode": "Status"
+            }
+        },
+        "messageNotValid": "Dieses Feld ist ungültig.",
+        "messageNotBlank": "Dieses Feld darf nicht leer sein.",
+        "button": {
+            "labelTestApi": "Testverbindung"
+        },
+        "paymentInTestMode": "The payment for this order was made in test mode",
+        "refund": {
+            "not_supported": "Refund is not supported",
+            "already_refunded": "This order is already refunded",
+            "refunded_amount": "Buckaroo success refunded"
+        },
+        "capture": {
+            "invalid_amount": "Amount is not valid",
+            "capture_not_supported": "Capture is not supported",
+            "already_captured": "This order is already captured",
+            "captured_amount": "Successfully captured amount",
+            "general_capture_error": "Unfortunately an error occurred while processing your capture. Please try again."
+        },
+        "test_api": {
+            "connection_ready": "Connection ready",
+            "connection_failed": "Connection failed"
+        },
+        "paylink": {
+            "invalid_amount": "Amount is not valid",
+            "pay_link": "Your Paylink:"
+
+        },
+        "button_payment": {
+            "missing_order_id": "Paypal express order id is required",
+            "unknown_error": "Unknown buckaroo error occurred"
+        },
+        "missing_order_id": "Missing order orderId",
+        "missing_transaction": "Order transaction not found",
+        "general_request_error": "Unfortunately an error occurred while processing your request. Please try again."
     }
-  }
 }

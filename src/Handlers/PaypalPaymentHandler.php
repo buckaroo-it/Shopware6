@@ -3,13 +3,37 @@
 namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Paypal;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Buckaroo\Shopware6\Service\AsyncPaymentService;
+use Buckaroo\Shopware6\Handlers\AsyncPaymentHandler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData;
+use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 
 class PaypalPaymentHandler extends AsyncPaymentHandler
 {
+
+    /**
+     * @var \Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData
+     */
+    protected $orderUpdater;
+
+    /**
+     * Buckaroo constructor.
+     */
+    public function __construct(
+        AsyncPaymentService $asyncPaymentService,
+        UpdateOrderWithPaypalExpressData $orderUpdater
+        
+        ) {
+        parent::__construct($asyncPaymentService);
+        $this->orderUpdater = $orderUpdater;
+    }
+
+
     /**
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
@@ -40,5 +64,22 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
             $paymentMethod->getVersion(),
             $gatewayInfo
         );
+    }
+    /**
+    * Handle pay response from buckaroo
+    *
+    * @param TransactionResponse $response
+    * @param OrderEntity $order
+    * @param SalesChannelContext $saleChannelContext
+    *
+    * @return void
+    */
+    protected function handlePayResponse(
+        TransactionResponse $response,
+        OrderEntity $order,
+        SalesChannelContext $saleChannelContext
+    ): void
+    {
+        $this->orderUpdater->update($response, $order, $saleChannelContext);
     }
 }

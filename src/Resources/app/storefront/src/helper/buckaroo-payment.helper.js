@@ -166,10 +166,24 @@ export default class BuckarooPaymentHelper extends Plugin {
     _isRadioOrCeckbox(element) {
         return element.type == 'radio' || element.type == 'checkbox';
     }
+
+    radioGroupHasRequired(element) {
+        let radioElements =  element.querySelectorAll('input[type="radio"]');
+        if(radioElements) {
+            return [...radioElements].filter(function(radioElement) {
+                return radioElement.checked;
+            }).length > 0;
+        }
+        return false;
+    }
+    isRadioGroup(element) {
+        return element.classList.contains('radio-group-required');
+    }
     _handleRequired() {
         let requiredElements = document.getElementById('changePaymentForm').querySelectorAll("[required]");
         if(requiredElements && requiredElements.length) {
             requiredElements.forEach((element) => {
+                
                 let parent = element.parentElement;
                 if (element.type === 'radio') {
                     parent = parent.parentElement;
@@ -177,18 +191,24 @@ export default class BuckarooPaymentHelper extends Plugin {
                 if (parent) {
                    let previousMessage = parent.querySelector('[class="buckaroo-required"]');
 
+                 
+                   if(this.isRadioGroup(element) && this.radioGroupHasRequired(element)) {
+                        if(previousMessage) {
+                            previousMessage.remove()
+                        }
+                    } else
                    if (this._isRadioOrCeckbox(element) && element.checked)  {
                     if(previousMessage) {
                         previousMessage.remove()
                     }
                    } else
-                   if(!this._isRadioOrCeckbox(element) && element.value.length > 0 ) {
+                   if(!this._isRadioOrCeckbox(element) && !this.isRadioGroup(element) && element.value.length > 0 ) {
                     if(previousMessage) {
                         previousMessage.remove()
                     }
 
                    } else if (previousMessage === null) {
-                        previousMessage  = this._createMessageElement(element.id);
+                        previousMessage  = this._createMessageElement(element);
                         let otherMessages = parent.querySelector('[id$="Error"]');
                         if(otherMessages === null) {
                             parent.append(previousMessage);
@@ -199,17 +219,27 @@ export default class BuckarooPaymentHelper extends Plugin {
         }
     }
     _createMessageElement(forElement) {
+        let textMessage = buckaroo_required_message;
+        let attributeTextMessage = forElement.getAttribute('required-message');
+        if (attributeTextMessage != null && attributeTextMessage.length) {
+            textMessage = attributeTextMessage;
+        }
         let messageElement = document.createElement("label");
-        messageElement.setAttribute('for', forElement);
+        messageElement.setAttribute('for', forElement.id);
         messageElement.classList.add('buckaroo-required');
         messageElement.style.color = 'red';
         messageElement.style.width = '100%';
-        messageElement.innerHTML = buckaroo_required_message;
+        messageElement.innerHTML = textMessage;
         return messageElement;
     }
     _validateOnSubmit() {
         let valid = true;
         this._handleRequired();
+
+        let radioGroups = document.querySelectorAll('.radio-group-required');
+        for (const radioGroup of radioGroups) {
+            valid = valid && this.radioGroupHasRequired(radioGroup);
+        }
         for (const fieldId of this.buckarooMobileInputs) {
             const field = document.getElementById(fieldId);
             if (field) {

@@ -140,3 +140,28 @@ BP-1441 Option in plugin config to set SendMail and DueDate parameters for Trans
 BP-1508 Update README file
 [#57] Fix | Use sales channel URL instead of base url (Thank you @MelvinAchterhuis !)
 BP-1462 Apple Pay shows a error in the checkout "errorOccurred"  
+
+# 1.4.0
+BP-1981 Add a option to switch on payperemail (in the backend only)
+BP-1896 Change gender selection for BNPL methods
+BP-1878 Update contribution guidelines
+BP-1480 "Please enter a valid value" error message improvement for iDEAL
+BP-1466 Add Support for Afterpay B2B
+BP-212 Add a PayPal Express button
+
+# 1.5.0
+Add support for Shopware 6 version 6.4.16.0
+[#74] Update README.md versions change and extra notice.
+BP-1471 Remove 'Handelsbanken'
+BP-2004 Add payment method AfterPay (old) -> Digiaccept
+BP-1869 Rebranding Afterpay 
+BP-2057 Fix issue with the mailer function when installing the PostNL plugin (Thank you @daniel-memo-ict !)
+# 1.5.1
+[#82] Fix Afterpay old transaction only in test mode
+# 1.6.0
+Add support for Shopware 6 version 6.4.17.2
+BP-2112 Fix Klarna gender values
+BP 2106 issue with redirect
+BP-2114 Afterpay (old) name mapping incorrect
+BP-2128 Dutch translation improvements
+BP-1982 Add a notification payment methods are in test mode

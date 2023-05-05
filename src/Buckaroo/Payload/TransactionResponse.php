@@ -391,4 +391,8 @@ class TransactionResponse extends Response
         return $this->data['CustomerName'];
     }
 
+    public function isTestMode(): bool
+    {
+        return isset($this->data['IsTest']) && $this->data['IsTest'] === true;
+    }
 }

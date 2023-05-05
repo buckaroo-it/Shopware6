@@ -6,6 +6,7 @@ use Buckaroo\Shopware6\Buckaroo\HmacHeader;
 use Buckaroo\Shopware6\Buckaroo\Payload\Request;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Buckaroo\Shopware6\Buckaroo\Payload\Response;
 
 class BkrClient
 {
@@ -28,7 +29,7 @@ class BkrClient
     protected $software;
 
     /**
-     * @var Buckaroo\Shopware6\Buckaroo\CultureHeader
+     * @var \Buckaroo\Shopware6\Buckaroo\CultureHeader
      */
     protected $culture;
 
@@ -71,8 +72,9 @@ class BkrClient
         return $curl;
     }
 
-    protected function getHeaders($curl, $url, $data, $method, $locale)
+    protected function getHeaders($url, $data, $method, $locale)
     {
+        $this->logger->info(__METHOD__ . "|1|", [$this->culture->getHeader($locale),$locale]);
         return [
             'Content-Type: application/json; charset=utf-8',
             'Accept: application/json',
@@ -82,7 +84,13 @@ class BkrClient
         ];
     }
 
-    protected function call($url, $method = self::METHOD_GET, Request $data = null, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response', $locale = '')
+    protected function call(
+        string $url,
+        string $method = self::METHOD_GET,
+        Request $data = null,
+        string $responseClass = Response::class,
+        string $locale = ''
+    )
     {
         $this->logger->info(__METHOD__ . "|1|", [$url, $method, $data]);
 
@@ -104,12 +112,8 @@ class BkrClient
 
         curl_setopt($curl, CURLOPT_TIMEOUT, 60);
 
-        //ZAK
-        //curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-        //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-
         // all headers have to be set at once
-        $headers = $this->getHeaders($curl, $url, $json, $method, $locale);
+        $headers = $this->getHeaders($url, $json, $method, $locale);
         $headers = array_merge($headers, $data->getHeaders());
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
@@ -151,12 +155,38 @@ class BkrClient
         return $response;
     }
 
-    public function get($url, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response')
+    /**
+     * Do a get request
+     *
+     * @param string $url
+     * @param string $responseClass
+     *
+     * @return mixed
+     */
+    public function get(
+        string $url,
+        string $responseClass = Response::class
+    )
     {
         return $this->call($url, self::METHOD_GET, null, $responseClass);
     }
 
-    public function post($url, Request $data = null, $responseClass = 'Buckaroo\Shopware6\Buckaroo\Payload\Response',$locale='')
+    /**
+     * Do a post request
+     *
+     * @param string $url
+     * @param Request|null $data
+     * @param string $locale
+     * @param string $responseClass
+     *
+     * @return mixed
+     */
+    public function post(
+        string $url,
+        Request $data = null,
+        string $responseClass = Response::class,
+        string $locale=''
+    )
     {
         return $this->call($url, self::METHOD_POST, $data, $responseClass, $locale);
     }
