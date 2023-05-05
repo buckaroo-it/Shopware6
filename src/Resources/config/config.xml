@@ -126,29 +126,6 @@
         </input-field>
 
         <input-field type="single-select">
-            <name>pendingPaymentStatus</name>
-            <label>Pending payment status</label>
-            <label lang="de-DE">Ausstehender Zahlungsstatus</label>
-            <label lang="nl-NL">In afwachting van betalingsstatus</label>
-			<label lang="fr-FR">Statut de paiement en attente</label>
-            <helpText>This status will be given to orders pending payment.</helpText>
-            <helpText lang="de-DE">Dieser Status wird für Bestellungen bis zur Zahlung vergeben.</helpText>
-            <helpText lang="nl-NL">Deze status wordt gegeven aan bestellingen die in afwachting zijn van betaling.</helpText>
-			<helpText lang="fr-FR">Ce statut est attribué aux commandes en attente de paiement.</helpText>
-            <defaultValue>open</defaultValue>
-            <options>
-                <option>
-                    <id>open</id>
-                    <name>Open</name>
-                </option>
-                <option>
-                    <id>process</id>
-                    <name>In progress</name>
-                </option>
-            </options>
-        </input-field>
-
-        <input-field type="single-select">
             <name>paymentSuccesStatus</name>
             <label lang="en-GB">Payment success status</label>
             <label lang="de-DE">Status des Zahlungserfolgs</label>
@@ -167,32 +144,6 @@
             </options>
         </input-field>
 
-        <input-field type="single-select">
-            <name>paymentFailedStatus</name>
-            <label lang="en-GB">Payment failed status</label>
-            <label lang="de-DE">Zahlungsstatus</label>
-            <label lang="nl-NL">Status betaling mislukt</label>
-			<label lang="fr-FR">État d'échec du paiement</label>
-            <helpText lang="en-GB">This status will be given to unsuccessful orders.</helpText>
-            <helpText lang="nl-NL">Deze status wordt gegeven aan niet-succesvolle bestellingen.</helpText>
-            <helpText lang="de-DE">Dieser Status wird für nicht erfolgreiche Bestellungen vergeben.</helpText>
-			<helpText lang="fr-FR">Ce statut sera attribué aux commandes non abouties.</helpText>
-            <defaultValue>cancelled</defaultValue>
-            <options>
-                <option>
-                    <id>cancelled</id>
-                    <name>Cancelled</name>
-                </option>
-                <option>
-                    <id>fail</id>
-                    <name>Failed</name>
-                </option>
-                <option>
-                    <id>open</id>
-                    <name>Open</name>
-                </option>
-            </options>
-        </input-field>
 
         <input-field type="single-select">
             <name>orderStatus</name>
@@ -630,7 +581,7 @@
     </card>
 
     <card>
-        <title>AfterPay</title>
+        <title>Riverty | AfterPay</title>
 
         <input-field type="bool">
             <name>afterpayEnabled</name>
@@ -659,17 +610,23 @@
             </options>
         </input-field>
 
+        <input-field type="bool">
+            <name>afterpayEnabledold</name>
+            <label lang="en-GB">Enabled Riverty | AfterPay Old</label>
+            <label lang="nl-NL">Ingeschakeld Riverty | AfterPay Old</label>
+            <label lang="de-DE">Aktiviert Riverty | AfterPay Old</label>
+            <label lang="de-DE">false</label>
+        </input-field>
+
+        <component name="buckaroo-afterpay-old-tax">
+            <name>afterpayOldtax</name>
+        </component>
+
         <input-field>
             <name>afterpayLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
-			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
-			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
-			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>	
-            <defaultValue>AfterPay</defaultValue>
+            <label lang="en-GB">Frontend label</label>
+            <helpText>Determines the frontend label shown.</helpText>
+            <defaultValue>Riverty | AfterPay</defaultValue>
         </input-field>
 
         <input-field>
@@ -678,6 +635,30 @@
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
 			<label lang="fr-FR">Frais de buckaroo</label>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>afterpayCustomerType</name>
+            <label lang="en-GB">Riverty | AfterPay customer type:</label>
+            <label lang="de-DE">Riverty | AfterPay customer type:</label>
+            <label lang="nl-NL">Riverty | AfterPay customer type:</label>
+            <helpText lang="en-GB">This setting determines whether you accept Riverty | AfterPay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.</helpText>
+            <helpText lang="de-DE">Deze instelling bepaalt of je Riverty | AfterPay-betalingen accepteert voor B2C, B2B of beide klanttypes. Wanneer B2B word geselecteerd wordt deze methode enkel getoond wanneer er een bedrijfsnaam is ingevuld in het checkout proces.</helpText>
+            <defaultValue>both</defaultValue>
+            <options>
+                <option>
+                    <id>b2b</id>
+                    <name>B2B (Business-to-Business)</name>
+                </option>
+                <option>
+                    <id>b2c</id>
+                    <name>B2C (Business-to-consumer) </name>
+                </option>
+                <option>
+                    <id>both</id>
+                    <name>Both</name>
+                </option>
+            </options>
         </input-field>
     </card>
 
@@ -782,6 +763,37 @@
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
 			<label lang="fr-FR">Frais de buckaroo</label>
+        </input-field>
+        <input-field type="multi-select">
+            <name>paypalExpresslocation</name>
+            <label lang="en-GB">Display Paypal Express button:</label>
+            <label lang="nl-NL">Paypal Express-knop weergeven:</label>
+            <label lang="de-DE">Zeigen Sie die Paypal Express-Schaltfläche an:</label>
+            <defaultValue>["none"]</defaultValue>
+            <options>
+                <option>
+                    <id>none</id>
+                    <name>None</name>
+                </option>
+                <option>
+                    <id>product</id>
+                    <name>Product page</name>
+                </option>
+                <option>
+                    <id>cart</id>
+                    <name>Cart page</name>
+                </option>
+                <option>
+                    <id>checkout</id>
+                    <name>Checkout page</name>
+                </option>
+            </options>
+        </input-field>
+         <input-field>
+            <name>paypalExpressmerchantid</name>
+            <label lang="en-GB">Paypal express merchant id</label>
+            <label lang="nl-NL">Paypal express merchant id</label>
+            <label lang="de-DE">Paypal express merchant id</label>
         </input-field>
     </card>
 
@@ -2058,10 +2070,9 @@
 
         <input-field type="bool">
             <name>BillinkCreateInvoiceAfterShipment</name>
-            <label lang="en-GB">BillinkCreateInvoiceAfterShipment</label>
-            <label lang="de-DE">BillinkCreateInvoiceAfterShipment</label>
-            <label lang="nl-NL">BillinkCreateInvoiceAfterShipment</label>
-			<label lang="fr-FR">BillinkCreateInvoiceAfterShipment (Billink Créer une facture après l\'expédition)</label>
+            <label lang="en-GB">Create invoice after shipment</label>
+            <label lang="de-DE">Rechnung nach Versand erstellen</label>
+            <label lang="nl-NL">Factuur maken na verzending</label>
         </input-field>
 
         <input-field>
@@ -2317,6 +2328,13 @@
                     <name>Tinka</name>
                 </option>
             </options>
+        </input-field>
+        <input-field type="bool">
+            <name>payperemailEnabledfrontend</name>
+            <label lang="en-GB">Enabled frontend</label>
+            <label lang="nl-NL">Ingeschakeld frontend</label>
+            <label lang="de-DE">Aktiviert frontend</label>
+            <defaultValue>1</defaultValue>
         </input-field>
     </card>
 </config>

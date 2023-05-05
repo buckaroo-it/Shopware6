@@ -98,7 +98,7 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
     
     public function getArticleData($order, $additional, &$latestKey)
     {
-        $lines = $this->checkoutHelper->getOrderLinesArray($order);
+        $lines = $this->getOrderLinesArray($order);
         foreach ($lines as $key => $item) {
             $additional[] = [
                 [
@@ -159,8 +159,8 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
             $address->setPhoneNumber($phone);
         }
 
-        $salutation = $this->checkoutHelper->getGenderFromSalutation($customer,1);
-        
+        $salutation = $dataBag->get('buckaroo_billink_gender');
+      
         if($phone = $dataBag->get('buckaroo_billink_phone')){
             $shippingAddress->setPhoneNumber($phone);
         }

@@ -1,37 +1,51 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
-use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Shopware\Core\Framework\Context;
+use Symfony\Component\HttpFoundation\Request;
+use Buckaroo\Shopware6\Service\BuckarooTransactionService;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Buckaroo\Shopware6\Service\TestCredentialsService;
+use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Controller\StorefrontController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
 /**
  * @RouteScope(scopes={"api"})
  */
 class SupportController extends StorefrontController
 {
-    protected $checkoutHelper;
-    
+    /**
+     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     */
+    protected $taxRepository;
+
+    protected TestCredentialsService $testCredentialsService;
+
+    protected BuckarooTransactionService $buckarooTransactionService;
+
     public function __construct(
-        CheckoutHelper $checkoutHelper
+        TestCredentialsService $testCredentialsService,
+        BuckarooTransactionService $buckarooTransactionService,
+        EntityRepository $taxRepository
     ) {
-        $this->checkoutHelper = $checkoutHelper;
+        $this->testCredentialsService = $testCredentialsService;
+        $this->buckarooTransactionService = $buckarooTransactionService;
+        $this->taxRepository = $taxRepository;
     }
 
     /**
      * @Route("/api/_action/buckaroo/version", name="api.action.buckaroo.version", methods={"POST","GET"})
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
      *
      * @return RedirectResponse
      */
-    public function versionSupportBuckaroo(Request $request): JsonResponse
+    public function versionSupportBuckaroo(): JsonResponse
     {
         $phpVersion = $this->getPhpVersionArray();
         return new JsonResponse([
@@ -40,18 +54,43 @@ class SupportController extends StorefrontController
         ]);
     }
 
+
+    /**
+     * @Route("/api/_action/buckaroo/taxes", name="api.action.buckaroo.tax", methods={"POST"})
+     * @param Request $request
+     * @param Context $context
+     *
+     * @return RedirectResponse
+     */
+    public function getTaxes(Request $request, Context $context): JsonResponse
+    {
+        $taxes = $this->taxRepository->search(
+            new Criteria(),
+            $context
+        )->getEntities();
+        return new JsonResponse([
+            'error' => false,
+            'taxes' => $taxes
+        ]);
+    }
+
+
     /**
      * @Route("/api/_action/buckaroo/getBuckarooTransaction", name="api.action.buckaroo.support.version", methods={"POST"})
      * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
+     * @param Context $context
      *
      * @return JsonResponse
      */
-    public function getBuckarooTransaction(Request $request)
+    public function getBuckarooTransaction(Request $request, Context $context)
     {
-        $orderId = $request->get('transaction');
-        $items   = $this->checkoutHelper->getBuckarooTransactionsByOrderId($orderId);
-        return new JsonResponse($items);
+        return new JsonResponse(
+            $this->buckarooTransactionService
+                ->getBuckarooTransactionsByOrderId(
+                    $request->get('transaction'),
+                    $context
+                )
+        );
     }
 
     /**
@@ -63,11 +102,9 @@ class SupportController extends StorefrontController
      */
     public function getBuckarooApiTest(Request $request)
     {
-        $websiteKeyId = $request->get('websiteKeyId');
-        $secretKeyId = $request->get('secretKeyId');
-        $saleChannelId = $request->get('saleChannelId');
-        $res = $this->checkoutHelper->getBuckarooApiTest($websiteKeyId, $secretKeyId, $saleChannelId);
-        return new JsonResponse($res);
+        return new JsonResponse(
+            $this->testCredentialsService->getBuckarooApiTest($request)
+        );
     }
 
     private function getPhpVersionArray()

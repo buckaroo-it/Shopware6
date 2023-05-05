@@ -1,20 +1,41 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Buckaroo\Shopware6\Handlers\AfterPayOld;
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
+use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 
 class AfterPayPaymentHandler extends AsyncPaymentHandler
 {
 
+
     public const CUSTOMER_TYPE_B2C = 'b2c';
     public const CUSTOMER_TYPE_B2B = 'b2b';
     public const CUSTOMER_TYPE_BOTH = 'both';
+
+    /**
+     * @var \Buckaroo\Shopware6\Handlers\AfterPayOld
+     */
+    protected $afterPayOld;
+
+    /**
+     * Buckaroo constructor.
+     */
+    public function __construct(
+        AsyncPaymentService $asyncPaymentService,
+        AfterPayOld $afterPayOld
+    ) {
+        parent::__construct($asyncPaymentService);
+        $this->afterPayOld = $afterPayOld;
+    }
+
     /**
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
@@ -40,11 +61,21 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         $latestKey  = 1;
         $order      = $transaction->getOrder();
 
-        $additional = $this->getArticleData($order, $additional, $latestKey);
-        $additional = $this->getBuckarooFee($order, $additional, $latestKey, $salesChannelContext->getSalesChannelId());
-        $additional = $this->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag);
-
         $paymentMethod = new AfterPay();
+
+        if ($this->checkoutHelper->getSettingsValue('afterpayEnabledold') === true) {
+            $paymentMethod->setBuckarooKey('afterpaydigiaccept');
+            $additional = $this->afterPayOld->buildPayParameters(
+                $order,
+                $salesChannelContext,
+                $dataBag
+            );
+        } else {
+            $additional = $this->getArticleData($order, $additional, $latestKey);
+            $additional = $this->getBuckarooFee($order, $additional, $latestKey, $salesChannelContext->getSalesChannelId());
+            $additional = $this->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag);
+        }
+
         $gatewayInfo   = [
             'additional' => $additional,
         ];
@@ -63,7 +94,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
     public function getBuckarooFee($order, $additional, &$latestKey, $salesChannelId)
     {
         $buckarooFee = $this->checkoutHelper->getBuckarooFee('afterpayFee', $salesChannelId);
-        if (false !== $buckarooFee && (double)$buckarooFee > 0) {
+        if (false !== $buckarooFee && (float)$buckarooFee > 0) {
             $additional[] = [
                 [
                     '_'       => 'buckarooFee',
@@ -100,10 +131,10 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         }
         return $additional;
     }
-    
+
     public function getArticleData($order, $additional, &$latestKey)
     {
-        $lines = $this->checkoutHelper->getOrderLinesArray($order);
+        $lines = $this->getOrderLinesArray($order);
         foreach ($lines as $key => $item) {
             $additional[] = [
                 [
@@ -156,18 +187,16 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         $streetFormat  = $this->checkoutHelper->formatStreet($address->getStreet());
         $birthDayStamp = $dataBag->get('buckaroo_afterpay_DoB');
         $address->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
-        $salutation = $this->checkoutHelper->getSalutation($customer);
-        
+
         $shippingAddress->setPhoneNumber($dataBag->get('buckaroo_afterpay_phone'));
         $shippingStreetFormat  = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
-        
+
 
         $category    = 'Person';
 
         if (
-            $this->isOnlyCustomerB2B($salesChannelContext->getSalesChannelId()) && 
-            (
-                $this->isCompanyEmpty($address->getCompany()) &&
+            $this->isOnlyCustomerB2B($salesChannelContext->getSalesChannelId()) &&
+            ($this->isCompanyEmpty($address->getCompany()) &&
                 $this->isCompanyEmpty($shippingAddress->getCompany())
             )
         ) {
@@ -254,13 +283,13 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ];
-        }elseif(!empty($address->getAdditionalAddressLine1())){
+        } elseif (!empty($address->getAdditionalAddressLine1())) {
             $billingData[] = [
                 '_'       => $address->getAdditionalAddressLine1(),
                 'Name'    => 'StreetNumber',
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
-            ]; 
+            ];
         }
 
         if (!empty($streetFormat['number_addition'])) {
@@ -270,22 +299,16 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
             ];
-        }elseif(!empty($address->getAdditionalAddressLine2())){
+        } elseif (!empty($address->getAdditionalAddressLine2())) {
             $billingData[] = [
                 '_'       => $address->getAdditionalAddressLine2(),
                 'Name'    => 'StreetNumberAdditional',
                 'Group'   => 'BillingCustomer',
                 'GroupID' => '',
-            ]; 
+            ];
         }
 
-        if (in_array($this->checkoutHelper->getCountryCode($address),['NL','BE'])) {
-            $billingData[] = [
-                '_'       => $salutation,
-                'Name'    => 'Salutation',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ];
+        if (in_array($this->checkoutHelper->getCountryCode($address), ['NL', 'BE'])) {
 
             $billingData[] = [
                 '_'       => $birthDayStamp,
@@ -300,7 +323,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
             $this->checkoutHelper->getCountryCode($address) === 'NL' &&
             !$this->isCompanyEmpty($address->getCompany())
         ) {
-            $billingData = array_merge($billingData,[
+            $billingData = array_merge($billingData, [
                 [
                     '_'    => $address->getCompany(),
                     'Name' => 'CompanyName',
@@ -394,7 +417,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                 'Group'   => 'ShippingCustomer',
                 'GroupID' => '',
             ];
-        }elseif (!empty($shippingAddress->getAdditionalAddressLine1())) {
+        } elseif (!empty($shippingAddress->getAdditionalAddressLine1())) {
             $shippingData[] = [
                 '_'       => $shippingAddress->getAdditionalAddressLine1(),
                 'Name'    => 'StreetNumber',
@@ -410,7 +433,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                 'Group'   => 'ShippingCustomer',
                 'GroupID' => '',
             ];
-        }elseif(!empty($shippingAddress->getAdditionalAddressLine2())){
+        } elseif (!empty($shippingAddress->getAdditionalAddressLine2())) {
             $shippingData[] = [
                 '_'       => $shippingAddress->getAdditionalAddressLine2(),
                 'Name'    => 'StreetNumberAdditional',
@@ -419,13 +442,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
             ];
         }
 
-        if (in_array($this->checkoutHelper->getCountryCode($shippingAddress),['NL','BE'])) {
-            $shippingData[] = [
-                '_'       => $salutation,
-                'Name'    => 'Salutation',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ];
+        if (in_array($this->checkoutHelper->getCountryCode($shippingAddress), ['NL', 'BE'])) {
 
             $shippingData[] = [
                 '_'       => $birthDayStamp,
@@ -440,7 +457,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
             $this->checkoutHelper->getCountryCode($shippingAddress) === 'NL' &&
             !$this->isCompanyEmpty($shippingAddress->getCompany())
         ) {
-            $shippingData = array_merge($shippingData,[
+            $shippingData = array_merge($shippingData, [
                 [
                     '_'    => $shippingAddress->getCompany(),
                     'Name' => 'CompanyName',
@@ -458,8 +475,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
 
         $latestKey++;
 
-        return array_merge($additional, [$billingData,$shippingData]);
-
+        return array_merge($additional, [$billingData, $shippingData]);
     }
     public function isCustomerB2B($salesChannelId = null)
     {

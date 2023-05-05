@@ -1,49 +1,37 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Buckaroo\Shopware6\Buckaroo\Payload\DataRequest;
-use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
-use Buckaroo\Shopware6\Helpers\CheckoutHelper;
-use Buckaroo\Shopware6\Helpers\Helper;
 use Exception;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\Request;
-use Psr\Log\LoggerInterface;
+use Buckaroo\Shopware6\Service\AsyncPaymentService;
+use Buckaroo\Shopware6\Buckaroo\Payload\DataRequest;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
+use Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse;
+use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Shopware\Core\Checkout\Checkout;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
+use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 
 class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
-    /** @var Helper $helper */
-    public $helper;
-    /** @var CheckoutHelper $checkoutHelper */
-    public $checkoutHelper;
+    protected AsyncPaymentService $asyncPaymentService;
 
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+    protected CheckoutHelper $checkoutHelper;
 
-    /**
-     * Buckaroo constructor.
-     * @param Helper $helper
-     * @param CheckoutHelper $checkoutHelper
-     */
-    public function __construct(
-        Helper $helper,
-        CheckoutHelper $checkoutHelper,
-        LoggerInterface $logger
-    ) {
-
-        $this->helper         = $helper;
-        $this->checkoutHelper = $checkoutHelper;
-        $this->logger = $logger;
+    public function __construct(AsyncPaymentService $asyncPaymentService)
+    {
+        $this->asyncPaymentService = $asyncPaymentService;
+        $this->checkoutHelper = $asyncPaymentService->checkoutHelper;
     }
 
     /**
@@ -66,9 +54,10 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         string $version = null,
         array $gatewayInfo = []
     ): RedirectResponse {
-        $this->logger->info(__METHOD__ . "|1|", [$_POST]);
+        $this->asyncPaymentService->logger->info(__METHOD__ . "|1|", [$_POST]);
 
-        $bkrClient = $this->helper->initializeBkr($salesChannelContext->getSalesChannelId());
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
+        $this->asyncPaymentService->client->setSalesChannelId($salesChannelId);
 
         $order = $transaction->getOrder();
 
@@ -77,18 +66,19 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         } else {
             $request = new TransactionRequest;
         }
-
-        $finalizePage = ($dataBag->has('finishUrl')) ? $dataBag->get('finishUrl') : $this->checkoutHelper->getReturnUrl('buckaroo.payment.finalize');
+        $request->setClientIPAndAgent(Request::createFromGlobals());
+        $finalizePage = $this->getReturnUrl($transaction, $dataBag);
 
         if ($buckarooKey != 'RequestToPay') {
             $request->setDescription(
-                $this->checkoutHelper->getParsedLabel($order, $salesChannelContext->getSalesChannelId(), 'transactionLabel')
+                $this->asyncPaymentService->settingsService->getParsedLabel($order, $salesChannelId, 'transactionLabel')
             );
         }
 
+        $cancelUrl = sprintf('%s&cancel=1', $finalizePage);
         $request->setReturnURL($finalizePage);
-        $request->setReturnURLCancel(sprintf('%s?cancel=1', $finalizePage));
-        $request->setPushURL($this->checkoutHelper->getReturnUrl('buckaroo.payment.push'));
+        $request->setReturnURLCancel($cancelUrl);
+        $request->setPushURL($this->asyncPaymentService->urlService->getReturnUrl('buckaroo.payment.push'));
 
         $request->setAdditionalParameter('orderTransactionId', $transaction->getOrderTransaction()->getId());
         $request->setAdditionalParameter('orderId', $order->getId());
@@ -97,12 +87,16 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         $request->setInvoice($order->getOrderNumber());
         $request->setOrder($order->getOrderNumber());
-        $this->checkoutHelper->getSession()->set('buckaroo_order_number', $order->getId());
+        $this->asyncPaymentService->checkoutHelper->getSession()->set('buckaroo_order_number', $order->getId());
         $request->setCurrency($salesChannelContext->getCurrency()->getIsoCode());
         $request->setAmountDebit($order->getAmountTotal());
 
-        if($buckarooFee = $this->checkoutHelper->getBuckarooFee($buckarooKey.'Fee', $salesChannelContext->getSalesChannelId())) {
-            $this->checkoutHelper->updateOrderCustomFields($order->getId(),['buckarooFee' => $buckarooFee]);
+        $configKey = $buckarooKey;
+        if ($buckarooKey === 'afterpaydigiaccept') {
+            $configKey = 'afterpay';
+        }
+        if ($buckarooFee = $this->asyncPaymentService->checkoutHelper->getBuckarooFee($configKey . 'Fee', $salesChannelId)) {
+            $this->asyncPaymentService->checkoutHelper->updateOrderCustomFields($order->getId(), ['buckarooFee' => $buckarooFee]);
             $request->setAmountDebit($order->getAmountTotal() + $buckarooFee);
         }
 
@@ -110,7 +104,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $request->setServiceVersion($version);
         $request->setServiceAction('Pay');
 
-        $this->payBefore($dataBag, $request, $salesChannelContext->getSalesChannelId());
+        $this->payBefore($dataBag, $request, $salesChannelId);
 
         if ($buckarooKey == 'applepay') {
             $this->payApplePay($dataBag, $request);
@@ -142,10 +136,14 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $request->setAdditionalParameter('fromPayPerEmail', 1);
         }
 
+        if ($buckarooKey == 'paypal' && $dataBag->has('orderId')) {
+            $request->setServiceParameter('PayPalOrderId', $dataBag->get('orderId'));
+        }
+
         if ($buckarooKey == 'giftcards') {
             $list = 'ideal';
             $request->removeServices();
-            if($allowedgiftcards = $this->helper->getSettingsValue('allowedgiftcards', $salesChannelContext->getSalesChannelId())){
+            if ($allowedgiftcards = $this->asyncPaymentService->settingsService->getSetting('allowedgiftcards', $salesChannelId)) {
                 foreach ($allowedgiftcards as $key => $value) {
                     $list .= ',' . $value;
                 }
@@ -157,19 +155,25 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         if (!empty($gatewayInfo['additional']) && ($additional = $gatewayInfo['additional'])) {
             foreach ($additional as $item) {
                 foreach ($item as $value) {
-                    $request->setServiceParameter($value['Name'], $value['_'], isset($value['Group'])?$value['Group']:null, isset($value['GroupID'])?$value['GroupID']:null);
+                    $request->setServiceParameter($value['Name'], $value['_'], isset($value['Group']) ? $value['Group'] : null, isset($value['GroupID']) ? $value['GroupID'] : null);
                 }
             }
         }
 
         try {
             if ($buckarooKey == 'klarnakp') {
-                $url = $this->checkoutHelper->getDataRequestUrl($buckarooKey, $salesChannelContext->getSalesChannelId());
+                $url = $this->asyncPaymentService->urlService->getDataRequestUrl($buckarooKey, $salesChannelId);
             } else {
-                $url = $this->checkoutHelper->getTransactionUrl($buckarooKey, $salesChannelContext->getSalesChannelId());
+                $url = $this->asyncPaymentService->urlService->getTransactionUrl($configKey, $salesChannelId);
             }
-            $locale = $this->checkoutHelper->getSalesChannelLocaleCode($salesChannelContext);
-            $response = $bkrClient->post($url, $request, 'Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse',$locale);
+            $locale = $this->asyncPaymentService->checkoutHelper->getSalesChannelLocaleCode($salesChannelContext);
+            $response = $this->asyncPaymentService->client->post(
+                $url,
+                $request,
+                TransactionResponse::class,
+                $locale
+            );
+            $this->handlePayResponse($response, $order, $salesChannelContext);
         } catch (Exception $exception) {
             throw new AsyncPaymentProcessException(
                 $transaction->getOrderTransaction()->getId(),
@@ -177,32 +181,37 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         }
 
-        if($this->helper->getSettingsValue('stockReserve', $salesChannelContext->getSalesChannelId()) && !$response->isCanceled()){
-            $this->checkoutHelper->stockReserve($order);
+        if ($this->asyncPaymentService->settingsService->getSetting('stockReserve', $salesChannelId) && !$response->isCanceled()) {
+            $this->asyncPaymentService->checkoutHelper->stockReserve($order);
         }
 
-        $pendingPaymentStatus = ($this->helper->getSettingsValue('pendingPaymentStatus',$salesChannelContext->getSalesChannelId()) && !$response->isCanceled()) ? $this->helper->getSettingsValue('pendingPaymentStatus', $salesChannelContext->getSalesChannelId()) : 'open';
-
         $context = $salesChannelContext->getContext();
+
+        $this->asyncPaymentService->checkoutHelper->appendCustomFields(
+            $order->getId(),
+            [
+                'buckaroo_payment_in_test_mode' => $response->isTestMode(),
+                'buckaroo_cancel_url' => $cancelUrl
+            ]
+        );
         if ($response->hasRedirect()) {
-            if($response->isAwaitingConsumer() || $response->isPendingProcessing() || $response->isWaitingOnUserInput()){
-                $this->checkoutHelper->transitionPaymentState($pendingPaymentStatus, $transaction->getOrderTransaction()->getId(), $context);
-            }
+            $this->asyncPaymentService->checkoutHelper
+            ->getSession()
+            ->set('buckaroo_latest_order', $transaction->getOrder()->getId());
+
             return new RedirectResponse($response->getRedirectUrl());
         } elseif ($response->isSuccess() || $response->isAwaitingConsumer() || $response->isPendingProcessing() || $response->isWaitingOnUserInput()) {
-            if(!$response->isSuccess()){
-                $this->checkoutHelper->transitionPaymentState($pendingPaymentStatus, $transaction->getOrderTransaction()->getId(), $context);
+            if (!$response->isSuccess()) {
+                $this->asyncPaymentService->stateTransitionService->transitionPaymentState('pending', $transaction->getOrderTransaction()->getId(), $context);
             }
-            return new RedirectResponse($this->checkoutHelper->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $order->getId()]));
+            return new RedirectResponse($this->asyncPaymentService->urlService->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $order->getId()]));
         } elseif ($response->isCanceled()) {
             throw new CustomerCanceledAsyncPaymentException(
-                $transaction->getOrderTransaction()->getId(),
-                ''
+                $transaction->getOrderTransaction()->getId()
             );
         }
 
-        return new RedirectResponse($finalizePage . '?orderId=' . $order->getId() . '&error=' . base64_encode($response->getSubCodeMessage()));
-
+        return new RedirectResponse(sprintf('%s&brq_statuscode='.$response->getStatusCode(), $finalizePage));
     }
 
     protected function payBefore(
@@ -210,7 +219,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         \Buckaroo\Shopware6\Buckaroo\Payload\Request $request,
         $salesChannelId
     ): void {
-        $this->logger->info(__METHOD__ . "|1|");
+        $this->asyncPaymentService->logger->info(__METHOD__ . "|1|");
     }
 
     /**
@@ -220,16 +229,16 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      * @throws AsyncPaymentFinalizeException
      * @throws CustomerCanceledAsyncPaymentException
      */
-    /**
-     *
-     * @Route("/example/route", name="example.route", defaults={"csrf_protected"=false}, methods={"POST"})
-     */
     public function finalize(
         AsyncPaymentTransactionStruct $transaction,
         Request $request,
         SalesChannelContext $salesChannelContext
     ): void {
-
+        $this->asyncPaymentService->paymentStateService->finalizePayment(
+            $transaction,
+            $request,
+            $salesChannelContext
+        );
     }
 
     private function payApplePay(RequestDataBag $dataBag, $request)
@@ -243,7 +252,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 !empty($applePayInfo->token)
             ) {
                 if (!empty($applePayInfo->billingContact->givenName) && !empty($applePayInfo->billingContact->familyName)) {
-                    $request->setServiceParameter('CustomerCardName',
+                    $request->setServiceParameter(
+                        'CustomerCardName',
                         $applePayInfo->billingContact->givenName . ' ' . $applePayInfo->billingContact->familyName
                     );
                 }
@@ -262,10 +272,10 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      */
     protected function getRequestBag(RequestDataBag $currentBag)
     {
-        if($this->isUpdateOrder($currentBag)) {
+        if ($this->isUpdateOrder($currentBag)) {
             $request = new Request($_GET, $_POST);
             return new RequestDataBag(
-                    $request->request->all()
+                $request->request->all()
             );
         }
         return $currentBag;
@@ -280,5 +290,65 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     protected function isUpdateOrder(RequestDataBag $bag)
     {
         return $bag->has('errorUrl') && strstr($bag->get('errorUrl'), '/account/order/edit/') !== false;
+    }
+
+    /**
+     * Handle pay response from buckaroo
+     *
+     * @param TransactionResponse $response
+     * @param OrderEntity $order
+     * @param SalesChannelContext $saleChannelContext
+     *
+     * @return void
+     */
+    protected function handlePayResponse(
+        TransactionResponse $response,
+        OrderEntity $order,
+        SalesChannelContext $saleChannelContext
+    ): void {
+        return;
+    }
+
+    /**
+     * Get full return url
+     *
+     * @param DataBag $dataBag
+     * @param AsyncPaymentTransactionStruct $transaction
+     *
+     * @return string
+     */
+    protected function getReturnUrl(AsyncPaymentTransactionStruct $transaction, $dataBag)
+    {
+        if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
+            if (
+                strpos($dataBag->get('finishUrl'), 'http://') === 0 ||
+                strpos($dataBag->get('finishUrl'), 'https://') === 0
+            ) {
+                return $dataBag->get('finishUrl');
+            }
+            return rtrim($this->asyncPaymentService->urlService->forwardToRoute('frontend.home.page', []), "/") . (string)$dataBag->get('finishUrl');
+        }
+        if (
+            version_compare(
+                $this->asyncPaymentService->checkoutHelper->getShopwareVersion(),
+                '6.4.2.0',
+                '<'
+            )
+            && strpos("buckaroo", $transaction->getReturnUrl()) === false
+        ) {
+            return str_replace("/payment", "/buckaroo/payment", $transaction->getReturnUrl());
+        }
+
+        return $transaction->getReturnUrl();
+    }
+    protected function getOrderLinesArray(OrderEntity $order)
+    {
+        return $this->asyncPaymentService->formatRequestParamService->getOrderLinesArray($order);
+    }
+    public function getRequestParameterRow($value, $name, $groupType = null, $groupId = null)
+    {
+        return $this->asyncPaymentService
+            ->formatRequestParamService
+            ->getRequestParameterRow($value, $name, $groupType, $groupId);
     }
 }

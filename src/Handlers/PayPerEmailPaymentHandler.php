@@ -2,14 +2,31 @@
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Buckaroo\Shopware6\Service\PayLinkService;
 use Buckaroo\Shopware6\PaymentMethods\PayPerEmail;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 
 class PayPerEmailPaymentHandler extends AsyncPaymentHandler
 {
+
+    protected PayLinkService $payLinkService;
+    
+     /**
+     * Buckaroo constructor.
+     */
+    public function __construct(
+        AsyncPaymentService $asyncPaymentService,
+        PayLinkService $payLinkService
+    ) {
+        parent::__construct($asyncPaymentService);
+        $this->payLinkService = $payLinkService;
+    }
+
+    
     /**
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
@@ -35,7 +52,7 @@ class PayPerEmailPaymentHandler extends AsyncPaymentHandler
         $gatewayInfo['additional'][] = [
             [
                 'Name' => 'CustomerGender',
-                '_' => $dataBag->get('buckaroo_payperemail_CustomerGender'),
+                '_' => $dataBag->get('buckaroo_payperemail_gender'),
             ],
             [
                 'Name' => 'CustomerEmail',
@@ -50,7 +67,7 @@ class PayPerEmailPaymentHandler extends AsyncPaymentHandler
                 '_' => $dataBag->get('buckaroo_payperemail_CustomerLastName'),
             ],
             [
-                '_'    => $this->checkoutHelper->getPayPerEmailPaymentMethodsAllowed($this->salesChannelContext->getSalesChannelId()),
+                '_'    => $this->payLinkService->getPayPerEmailPaymentMethodsAllowed($this->salesChannelContext->getSalesChannelId()),
                 'Name' => 'PaymentMethodsAllowed',
             ],
         ];

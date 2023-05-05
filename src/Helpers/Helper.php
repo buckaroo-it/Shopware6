@@ -39,9 +39,10 @@ class Helper
         return $this->settingsService->getSetting($method . 'Enabled', $salesChannelId);
     }
 
+    /** @deprecated Use Buckaroo\Shopware6\Service\SettingsService::getEnvironment */
     public function getEnvironment($method = '', $salesChannelId = null)
     {
-        return $this->settingsService->getSetting($method . 'Environment', $salesChannelId);
+        return $this->settingsService->getEnvironment($method, $salesChannelId);
     }
 
     public function getSettingsValue($name, $salesChannelId = null)
@@ -49,12 +50,12 @@ class Helper
         return $this->settingsService->getSetting($name, $salesChannelId);
     }
 
-    public function getGlobals(): Request
-    {
-        return new Request($_GET, $_POST, array(), $_COOKIE, $_FILES, $_SERVER);
-    }
     public function getShopName(string $salesChannelId = null)
     {
         return $this->settingsService->getShopName($salesChannelId);
+    }
+    public function getParsedLabel(\Shopware\Core\Checkout\Order\OrderEntity $order, string $salesChannelId, string $label)
+    {
+        return $this->settingsService->getParsedLabel($order, $salesChannelId, $label);
     }
 }
