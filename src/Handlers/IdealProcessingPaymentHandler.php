@@ -1,34 +1,34 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\IdealProcessing;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class IdealProcessingPaymentHandler extends AsyncPaymentHandler
 {
-
     protected string $paymentClass = IdealProcessing::class;
-    
+
     /**
      * Get parameters for specific payment method
      *
-     * @param AsyncPaymentTransactionStruct $transaction
+     * @param OrderEntity $order
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
      * @param string $paymentCode
      *
-     * @return array
+     * @return array<mixed>
      */
     protected function getMethodPayload(
-        AsyncPaymentTransactionStruct $transaction,
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
-    ): array
-    {
+    ): array {
         return [
             'issuer' => $dataBag->get('bankMethodId')
         ];

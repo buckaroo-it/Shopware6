@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Entity\Transaction;
 
@@ -14,27 +16,40 @@ class BuckarooTransactionEntity extends Entity
 {
     use EntityIdTrait;
 
-    private $refundedItems;
+    private string $refundedItems;
 
-    public function getRefundedItems()
+    /**
+     * @return array<mixed>
+     */
+    public function getRefundedItems(): array
     {
         $refundedItems = json_decode($this->refundedItems, true);
-        return $refundedItems ?: [];
+        if (is_array($refundedItems)) {
+            return $refundedItems;
+        }
+        return [];
     }
 
     /**
-     * @param array $refundedItems
+     * @param array<mixed> $refundedItems
+     *
+     * @return self
      */
-    public function setRefundedItems(array $refundedItems = [])
+    public function setRefundedItems(array $refundedItems = []): self
     {
-        $this->refundedItems = json_encode($refundedItems);
+        $refundedItems = json_encode($refundedItems);
+        if ($refundedItems !== false) {
+            $this->refundedItems = $refundedItems;
+        }
         return $this;
     }
 
     /**
-     * @param array $refundedItems
+     * @param array<mixed> $refundedItems
+     *
+     * @return self
      */
-    public function addRefundedItems(array $refundedItems = [])
+    public function addRefundedItems(array $refundedItems = []): self
     {
         $this->setRefundedItems(array_merge($this->getRefundedItems(), $refundedItems));
         return $this;

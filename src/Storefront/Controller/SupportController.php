@@ -11,14 +11,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Buckaroo\Shopware6\Service\TestCredentialsService;
 use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
-/**
- * @RouteScope(scopes={"api"})
- */
 class SupportController extends StorefrontController
 {
     /**
@@ -41,10 +36,9 @@ class SupportController extends StorefrontController
     }
 
     /**
-     * @Route("/api/_action/buckaroo/version", name="api.action.buckaroo.version", methods={"POST","GET"})
-     *
-     * @return RedirectResponse
+     * @return JsonResponse
      */
+    #[Route(path: "/api/_action/buckaroo/version", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.version", methods:["POST", "GET"])]
     public function versionSupportBuckaroo(): JsonResponse
     {
         $phpVersion = $this->getPhpVersionArray();
@@ -56,12 +50,12 @@ class SupportController extends StorefrontController
 
 
     /**
-     * @Route("/api/_action/buckaroo/taxes", name="api.action.buckaroo.tax", methods={"POST"})
      * @param Request $request
      * @param Context $context
      *
-     * @return RedirectResponse
+     * @return JsonResponse
      */
+    #[Route(path: "/api/_action/buckaroo/taxes", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.tax", methods:["POST"])]
     public function getTaxes(Request $request, Context $context): JsonResponse
     {
         $taxes = $this->taxRepository->search(
@@ -76,40 +70,47 @@ class SupportController extends StorefrontController
 
 
     /**
-     * @Route("/api/_action/buckaroo/getBuckarooTransaction", name="api.action.buckaroo.support.version", methods={"POST"})
      * @param Request $request
      * @param Context $context
      *
      * @return JsonResponse
      */
+    #[Route(path: "/api/_action/buckaroo/getBuckarooTransaction", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.support.version", methods:["POST"])]
     public function getBuckarooTransaction(Request $request, Context $context)
     {
+        $orderId = $request->get('transaction');
+        if (!is_string($orderId)) {
+            throw new \InvalidArgumentException('Order id must be a string');
+        }
+
         return new JsonResponse(
             $this->buckarooTransactionService
                 ->getBuckarooTransactionsByOrderId(
-                    $request->get('transaction'),
+                    $orderId,
                     $context
                 )
         );
     }
 
     /**
-     * @Route("/api/_action/buckaroo/getBuckarooApiTest", name="api.action.buckaroo.support.apitest", methods={"POST"})
      * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
      *
      * @return JsonResponse
      */
-    public function getBuckarooApiTest(Request $request)
+    #[Route(path: "/api/_action/buckaroo/getBuckarooApiTest", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.support.apitest", methods:["POST"])]
+    public function getBuckarooApiTest(Request $request): JsonResponse
     {
         return new JsonResponse(
             $this->testCredentialsService->execute($request)
         );
     }
 
-    private function getPhpVersionArray()
+    /**
+     * @return array<mixed>
+     */
+    private function getPhpVersionArray(): array
     {
-        $version = false;
+        $version = [];
         if (defined('PHP_VERSION')) {
             $version = explode('.', PHP_VERSION);
         } elseif (function_exists('phpversion')) {

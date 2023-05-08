@@ -29,14 +29,14 @@ class ClientService
      */
     public function get(string $configMethodCode, string $salesChannelId = null): Client
     {
-        $mode = $this->settingsService->getEnvironment($configMethodCode, $salesChannelId) == 'live' ? Config::LIVE_MODE : Config::TEST_MODE;
+        $mode = $this->settingsService->getEnvironment($configMethodCode, $salesChannelId);
 
         try {
             return new Client(
-                $this->settingsService->getSetting('websiteKey', $salesChannelId),
-                $this->settingsService->getSetting('secretKey', $salesChannelId),
+                $this->settingsService->getSettingAsString('websiteKey', $salesChannelId),
+                $this->settingsService->getSettingAsString('secretKey', $salesChannelId),
                 $this->getPaymentCode($configMethodCode, $salesChannelId),
-                $mode
+                $mode  == 'live' ? Config::LIVE_MODE : Config::TEST_MODE
             );
         } catch (\Throwable $th) {
             throw new ClientInitException("Cannot initiate buckaroo sdk client", 0, $th);
@@ -46,32 +46,29 @@ class ClientService
         /**
      * Get code required for payment
      *
-     * @param string $paymentCode
+     * @param string $configCode
      * @param string $salesChannelId
      *
      * @return string
      */
-    protected function getPaymentCode(string $paymentCode, string $salesChannelId = null): string
+    protected function getPaymentCode(string $configCode, string $salesChannelId = null): string
     {
-        if(
-            $paymentCode === 'afterpay' &&
+        if ($configCode === 'afterpay' &&
             $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true
         ) {
             return 'afterpaydigiaccept';
         }
 
-        if ($paymentCode === 'klarnain') {
-            return 'klarna';
+        $mappings = [
+            'klarnain' => 'klarna',
+            'capayable' => 'in3',
+            'giftcards' => 'giftcard',
+            'creditcards' => 'creditcard',
+        ];
+        if(isset($mappings[$configCode])) {
+            return $mappings[$configCode];
         }
 
-        if($paymentCode === 'capayable') {
-            return 'in3';
-        }
-
-        if($paymentCode === 'giftcards') {
-            return 'giftcard';
-        }
-
-        return $paymentCode;
+        return $configCode;
     }
 }

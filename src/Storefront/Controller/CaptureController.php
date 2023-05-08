@@ -12,10 +12,7 @@ use Buckaroo\Shopware6\Service\CaptureService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  */
@@ -38,19 +35,18 @@ class CaptureController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"api"})
-     * @Route("/api/_action/buckaroo/capture", name="api.action.buckaroo.capture", methods={"POST"})
      * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
+     * @param Context $context
      *
-     * @return RedirectResponse
+     * @return JsonResponse
      */
+    #[Route(path: "/api/_action/buckaroo/capture", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.capture", methods:["POST"])]
     public function captureBuckaroo(Request $request, Context $context): JsonResponse
     {
 
         $orderId = $request->get('transaction');
 
-        if (empty($orderId)) {
+        if (empty($orderId) || !is_string($orderId)) {
             return new JsonResponse(
                 ['status' => false, 'message' => $this->trans("buckaroo-payment.missing_order_id")],
                 Response::HTTP_NOT_FOUND
@@ -95,15 +91,5 @@ class CaptureController extends StorefrontController
                 Response::HTTP_BAD_REQUEST
             );
         }
-
-
-        return new JsonResponse(
-            [
-                'status'  => false,
-                'message' => $this->trans("buckaroo-payment.capture.general_capture_error"),
-                'code'    => 0,
-            ],
-            Response::HTTP_BAD_REQUEST
-        );
     }
 }

@@ -1,5 +1,6 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
@@ -15,36 +16,39 @@ use Shopware\Core\Checkout\Cart\Event\AfterLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class CartService {
-
+class CartService
+{
     /**
      * @var CartCalculator
      */
-    private $cartCalculator;
+    private CartCalculator $cartCalculator;
 
     /**
      * @var CartPersister
      */
-    private $cartPersister;
+    private CartPersister $cartPersister;
 
     /**
      * @var LineItemFactoryRegistry
      */
-    private $lineItemFactory;
+    private LineItemFactoryRegistry $lineItemFactory;
 
 
      /**
      * @var EventDispatcherInterface
      */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    protected $items = [];
+    /**
+     * @var array<\Shopware\Core\Checkout\Cart\LineItem\LineItem>
+     */
+    protected array $items = [];
 
     /**
      *
      * @var SalesChannelContext
      */
-    protected $salesChannelContext;
+    protected SalesChannelContext $salesChannelContext;
 
     /**
      * @internal
@@ -59,10 +63,9 @@ class CartService {
         $this->cartPersister = $cartPersister;
         $this->lineItemFactory = $lineItemFactory;
         $this->eventDispatcher = $eventDispatcher;
-        
     }
 
-    public function load(string $token)
+    public function load(string $token): Cart
     {
         $this->validateSaleChannelContext();
         return $this->cartPersister->load($token, $this->salesChannelContext);
@@ -75,17 +78,24 @@ class CartService {
      *
      * @return self
      */
-    public function setSaleChannelContext(SalesChannelContext $salesChannelContext)
+    public function setSaleChannelContext(SalesChannelContext $salesChannelContext): self
     {
         $this->salesChannelContext = $salesChannelContext;
         return $this;
     }
-    public function addItem(array $item)
+
+    /**
+     *
+     * @param array<mixed> $item
+     *
+     * @return self
+     */
+    public function addItem(array $item): self
     {
         try {
             $this->items[] =  $this->lineItemFactory->create($item, $this->salesChannelContext);
         } catch (\Throwable $th) {
-            throw new CreateCartException('Cannot add item to card',1 , $th);
+            throw new CreateCartException('Cannot add item to card', 1, $th);
         }
         return $this;
     }
@@ -95,13 +105,13 @@ class CartService {
      *
      * @return void
      */
-    private function validateSaleChannelContext()
+    private function validateSaleChannelContext(): void
     {
         if (!$this->salesChannelContext instanceof SalesChannelContext) {
             throw new CreateCartException('SaleChannelContext is required');
         }
     }
-    public function build()
+    public function build(): Cart
     {
         $this->validateSaleChannelContext();
 
@@ -110,7 +120,6 @@ class CartService {
         }
 
         $cart = new Cart(
-            'buckaroo-cart',
             Uuid::randomHex()
         );
 

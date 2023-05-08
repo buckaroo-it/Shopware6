@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Entity\Transaction;
 
 use Buckaroo\Shopware6\Migration\Migration1590572335BuckarooTransaction;
-
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -81,7 +82,7 @@ class BuckarooTransactionEntityDefinition extends EntityDefinition
     /**
      * Do not add timestamps as default fields
      *
-     * @return array
+     * @return array<mixed>
      */
     protected function defaultFields(): array
     {

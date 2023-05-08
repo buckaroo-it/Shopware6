@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
@@ -41,7 +43,7 @@ class SepaDirectDebit extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/sepadirectdebit.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/sepa-directdebit.svg';
     }
 
     /**
@@ -57,7 +59,7 @@ class SepaDirectDebit extends AbstractPayment
     /**
      * {@inheritDoc}
      *
-     * @return array
+     * @return array<mixed>
      */
     public function getTranslations(): array
     {
@@ -72,5 +74,4 @@ class SepaDirectDebit extends AbstractPayment
             ],
         ];
     }
-
 }

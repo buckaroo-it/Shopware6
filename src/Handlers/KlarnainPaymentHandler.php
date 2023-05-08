@@ -1,4 +1,6 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
@@ -20,11 +22,11 @@ class KlarnainPaymentHandler extends KlarnaPaymentHandler
     *
     * @return string
     */
-   protected function getMethodAction(
-       RequestDataBag $dataBag,
-       SalesChannelContext $salesChannelContext,
-       string $paymentCode
-   ): string {
-       return 'payInInstallments';
-   }
+    protected function getMethodAction(
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): string {
+        return 'payInInstallments';
+    }
 }

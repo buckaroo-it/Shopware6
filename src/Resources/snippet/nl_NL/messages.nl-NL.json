@@ -9,6 +9,7 @@
     "messages": {
       "statuscode_failed": "Helaas is er een fout opgetreden tijdens het verwerken van uw betaling. Probeer het opnieuw. Als deze fout zich blijft voordoen, kies dan een andere betaalmethode.",
       "statuscode_cancelled_by_user": "Volgens ons systeem heb je de betaling geannuleerd. Mocht dit niet het geval zijn, neem dan contact met ons op.",
+      "billinkRejectedMessage":"Helaas is het op dit moment voor jou niet mogelijk om gebruik te maken van Billink, selecteer een andere betaalmethode of neem contact op met Billink.",
       "return791": "Je order is succesvol geplaatst maar de betaling is nog niet ontvangen. Zodra de betaling is ontvangen word je bestelling verwerkt. ",
       "userCanceled": "Volgens ons systeem heb je de betaling geannuleerd. Mocht dit niet het geval zijn, neem dan contact met ons op.",
       "incorrectPin": "Kaartnummer of pincode is onjuist",

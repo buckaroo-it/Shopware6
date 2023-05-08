@@ -1,38 +1,37 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\Trustly;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class TrustlyPaymentHandler extends AsyncPaymentHandler
 {
-
     protected string $paymentClass = Trustly::class;
-    
+
     /**
      * Get parameters for specific payment method
      *
-     * @param AsyncPaymentTransactionStruct $transaction
+     * @param OrderEntity $order
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
      * @param string $paymentCode
      *
-     * @return array
+     * @return array<mixed>
      */
     protected function getMethodPayload(
-        AsyncPaymentTransactionStruct $transaction,
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        $order = $transaction->getOrder();
-        $address = $order->getBillingAddress();
+        $address = $this->asyncPaymentService->getBillingAddress($order);
         return [
-            'country' => $address->getCountry()->getIso(),
+            'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
             'customer'      => [
                 'firstName' => $address->getFirstName(),
                 'lastName' => $address->getLastName()

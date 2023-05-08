@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -13,10 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
-
 class UpdateOrderWithPaypalExpressData
 {
-
     /**
      * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
      */
@@ -40,8 +37,7 @@ class UpdateOrderWithPaypalExpressData
         ClientResponseInterface $response,
         OrderEntity $order,
         SalesChannelContext $saleChannelContext
-    ) {
-
+    ): void {
         $paypalData = new DataBag($response->getServiceParameters());
         if (!$paypalData->has('payeremail')) {
             return;
@@ -99,9 +95,8 @@ class UpdateOrderWithPaypalExpressData
             ]],
             $salesChannelContext->getContext()
         );
-        
     }
-    
+
     /**
      * Update paypal express order with first name, last name & address
      *
@@ -116,7 +111,7 @@ class UpdateOrderWithPaypalExpressData
         OrderEntity $order,
         SalesChannelContext $salesChannelContext
     ) {
-        
+
 
         if ($this->orderAddressRepository === null) {
             return;
@@ -136,8 +131,8 @@ class UpdateOrderWithPaypalExpressData
 
         if ($addresses !== null) {
 
-            /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
             foreach ($addresses as $address) {
+                /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity $address */
                 $customFields = $address->getCustomFields();
                 if ($customFields != null && isset($customFields['buckarooAddress'])) {
                     $this->updateAddress(
@@ -149,8 +144,11 @@ class UpdateOrderWithPaypalExpressData
             }
         }
     }
-    private function updateAddress(string $addressId, DataBag $data, SalesChannelContext $salesChannelContext)
-    {
+    private function updateAddress(
+        string $addressId,
+        DataBag $data,
+        SalesChannelContext $salesChannelContext
+    ): void {
         $this->orderAddressRepository->update(
             [[
                 'id' => $addressId,

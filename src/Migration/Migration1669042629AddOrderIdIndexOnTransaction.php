@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1669042629AddOrderIdIndexOnTransaction extends MigrationStep
 {
-
     public const INDEX_NAME = 'order_id_index';
 
     public function getCreationTimestamp(): int
@@ -20,7 +19,8 @@ class Migration1669042629AddOrderIdIndexOnTransaction extends MigrationStep
     public function update(Connection $connection): void
     {
             $this->silentlyExecuteStatement(
-                'ALTER TABLE ' . Migration1590572335BuckarooTransaction::TABLE . ' ADD INDEX ' . self::INDEX_NAME . ' (order_id)',
+                'ALTER TABLE ' . Migration1590572335BuckarooTransaction::TABLE . ' ADD INDEX ' .
+                self::INDEX_NAME . ' (order_id)',
                 $connection
             );
     }
@@ -32,8 +32,9 @@ class Migration1669042629AddOrderIdIndexOnTransaction extends MigrationStep
             $connection
         );
     }
-    
-    private function silentlyExecuteStatement($sql, $connection) {
+
+    private function silentlyExecuteStatement(string $sql, Connection $connection): void
+    {
         try {
             $connection->executeStatement($sql);
         } catch (\Throwable $th) {

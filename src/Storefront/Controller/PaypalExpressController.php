@@ -15,16 +15,12 @@ use Buckaroo\Shopware6\Service\SettingsService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 
-/**
- * @RouteScope(scopes={"storefront"})
- */
 class PaypalExpressController extends AbstractPaymentController
 {
     /**
@@ -51,12 +47,12 @@ class PaypalExpressController extends AbstractPaymentController
         );
     }
     /**
-     * @Route("buckaroo/paypal/create", name="frontend.action.buckaroo.paypalExpressCreate",  options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *
-     * @return RedirectResponse
+     * @return JsonResponse
      */
+    #[Route(path: "buckaroo/paypal/create", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest"=> true], options: ["seo" => false], name: "frontend.action.buckaroo.paypalExpressCreate", methods:["POST"])]
     public function create(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
 
@@ -85,12 +81,12 @@ class PaypalExpressController extends AbstractPaymentController
 
 
     /**
-     * @Route("buckaroo/paypal/pay", name="frontend.action.buckaroo.paypalExpressPay",  options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *
-     * @return RedirectResponse
+     * @return JsonResponse
      */
+    #[Route(path: "buckaroo/paypal/pay", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest"=> true], options: ["seo" => false], name: "frontend.action.buckaroo.paypalExpressPay", methods:["POST"])]
     public function pay(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $this->overrideChannelPaymentMethod($salesChannelContext, 'PaypalPaymentHandler');
@@ -103,7 +99,7 @@ class PaypalExpressController extends AbstractPaymentController
 
         try {
             $redirectPath = $this->placeOrder(
-                $this->createOrder($salesChannelContext, $request->request->get('cartToken')),
+                $this->createOrder($salesChannelContext, (string)$request->request->get('cartToken')),
                 $salesChannelContext,
                 new RequestDataBag([
                     "orderId" => $request->request->get('orderId')
@@ -126,14 +122,14 @@ class PaypalExpressController extends AbstractPaymentController
      /**
      * Create order from cart
      *
-     * @param Request $request
      * @param SalesChannelContext $salesChannelContext
+     * @param string|null $cartToken
      *
      * @return \Shopware\Core\Checkout\Order\OrderEntity
      */
-    protected function createOrder(SalesChannelContext $salesChannelContext, $cartToken = null)
+    protected function createOrder(SalesChannelContext $salesChannelContext, string $cartToken = null): OrderEntity
     {
-        
+
         if (!is_string($cartToken)) {
             $cartToken = $salesChannelContext->getToken();
         }
@@ -158,9 +154,9 @@ class PaypalExpressController extends AbstractPaymentController
      * @param Cart $cart
      * @param SalesChannelContext $salesChannelContext
      *
-     * @return * @return RedirectResponse
+     * @return array<mixed>
      */
-    protected function getCartBreakdown(Cart $cart, SalesChannelContext $salesChannelContext)
+    protected function getCartBreakdown(Cart $cart, SalesChannelContext $salesChannelContext): array
     {
         $currency = $salesChannelContext->getCurrency()->getIsoCode();
         $price = $cart->getPrice();
@@ -202,7 +198,7 @@ class PaypalExpressController extends AbstractPaymentController
      */
     protected function getCustomerData(Request $request)
     {
-        if (!($request->request->has('customer') && is_array($request->request->get('customer')))) {
+        if (!$request->request->has('customer')) {
             throw new InvalidParameterException("Invalid payment request", 1);
         }
 

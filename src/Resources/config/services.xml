@@ -12,7 +12,6 @@
 
         <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository">
             <argument type="service" id="buckaroo_transaction.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
 
@@ -77,7 +76,7 @@
 
         <service id="Buckaroo\Shopware6\Service\InvoiceService">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
             <argument type="service" id="document.repository"/>
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
             <argument type="service" id="mail_template.repository"/>
@@ -114,8 +113,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="order.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
-            <argument type="service" id="session"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\AsyncPaymentService">
@@ -127,6 +125,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\PaymentStateService"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Events\OrderStateChangeEvent">
@@ -151,7 +150,6 @@
         <service id="Buckaroo\Shopware6\Service\PaymentStateService">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
-            <argument type="service" id="Symfony\Component\Security\Csrf\CsrfTokenManagerInterface"/>
             <argument type="service" id="translator" />
         </service>
         <service id="Buckaroo\Shopware6\Handlers\AsyncPaymentHandler">
@@ -159,11 +157,6 @@
             <tag name="shopware.payment.method.async" />
         </service>
         <!-- Payment methods -->
-        
-        <service id="Buckaroo\Shopware6\Handlers\VisaPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method.async" />
-        </service>
 
         <service id="Buckaroo\Shopware6\Handlers\IdealPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
@@ -241,12 +234,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
         </service>
-        
-        <service id="Buckaroo\Shopware6\Handlers\RtpPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method.async" />
-        </service>
-
+       
         <service id="Buckaroo\Shopware6\Handlers\In3PaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
@@ -326,6 +314,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\InvoiceService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -371,7 +360,6 @@
         </service>
 
          <service id="Buckaroo\Shopware6\Storefront\Controller\CartController" public="true">
-            <argument type="service" id="session"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -450,7 +438,6 @@
             <argument type="service" id="sales_channel.payment_method.repository"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
-            <argument type="service" id="session"/>
             <argument type="service" id="translator" />
             <tag name="kernel.event_subscriber"/>
         </service>

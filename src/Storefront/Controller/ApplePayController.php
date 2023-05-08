@@ -15,7 +15,6 @@ use Buckaroo\Shopware6\Service\SettingsService;
 use Symfony\Component\Routing\Annotation\Route;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,15 +22,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
-
-/**
- * @RouteScope(scopes={"storefront"})
- */
 class ApplePayController extends AbstractPaymentController
 {
-
-
     protected ContextService $contextService;
 
     protected LoggerInterface $logger;
@@ -67,11 +62,11 @@ class ApplePayController extends AbstractPaymentController
         );
     }
     /**
-     * @Route("/buckaroo/apple/cart/get", name="frontend.action.buckaroo.appleGetCart", options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      */
-    public function getAppleCart(Request $request, SalesChannelContext $salesChannelContext)
+    #[Route(path: '/buckaroo/apple/cart/get', name: 'frontend.action.buckaroo.appleGetCart', options:['seo' =>false], methods:['POST'], defaults:['XmlHttpRequest' => true, '_routeScope' => ['storefront']])]
+    public function getAppleCart(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
 
         try {
@@ -97,11 +92,11 @@ class ApplePayController extends AbstractPaymentController
     }
 
     /**
-     * @Route("/buckaroo/apple/cart/update", name="frontend.action.buckaroo.appleUpdateCart", options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      */
-    public function updateCart(Request $request, SalesChannelContext $salesChannelContext)
+    #[Route("/buckaroo/apple/cart/update", name:"frontend.action.buckaroo.appleUpdateCart", options:["seo"=>false], methods:["POST"], defaults:["XmlHttpRequest"=>true])]
+    public function updateCart(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         if (!$request->request->has('cartToken')) {
             return $this->response(
@@ -118,6 +113,14 @@ class ApplePayController extends AbstractPaymentController
                 $salesChannelContext
             );
 
+            if ($cart === null) {
+                return $this->response(
+                    ["message" => $this->trans("buckaroo-payment.button_payment.unknown_error")],
+                    true
+                );
+            }
+
+
             if ($request->request->has('shippingMethod')) {
                 $cart = $this->updateCartWithSelectedShipping(
                     $cart,
@@ -128,7 +131,7 @@ class ApplePayController extends AbstractPaymentController
 
             if ($request->request->has('shippingContact')) {
                 $this->loginCustomer(
-                    $this->getCustomerData($request->request->get('shippingContact')),
+                    $this->getCustomerData((array)$request->request->get('shippingContact')),
                     $salesChannelContext
                 );
                 $cart = $this->cartService->calculateCart($cart, $salesChannelContext);
@@ -151,11 +154,11 @@ class ApplePayController extends AbstractPaymentController
     }
 
     /**
-     * @Route("/buckaroo/apple/order/create", name="frontend.action.buckaroo.appleCreateOrder", options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      */
-    public function createAppleOrder(Request $request, SalesChannelContext $salesChannelContext)
+    #[Route("/buckaroo/apple/order/create", name:"frontend.action.buckaroo.appleCreateOrder", options:["seo" => false], methods:["POST"], defaults:["XmlHttpRequest"=>true])]
+    public function createAppleOrder(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
 
         $this->overrideChannelPaymentMethod($salesChannelContext, 'ApplePayPaymentHandler');
@@ -211,7 +214,7 @@ class ApplePayController extends AbstractPaymentController
                 $request->request->get('payment')
             );
 
-            if($updatedCart !== null) {
+            if ($updatedCart !== null) {
                 $cart = $updatedCart;
             }
         }
@@ -227,18 +230,29 @@ class ApplePayController extends AbstractPaymentController
     }
 
 
-    protected function updateCartWithSelectedShipping(Cart $cart, string $shippingMethodId, SalesChannelContext $salesChannelContext)
-    {
+    /**
+     * @param Cart $cart
+     * @param mixed $shippingMethodId
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return Cart
+     */
+    protected function updateCartWithSelectedShipping(
+        Cart $cart,
+        $shippingMethodId,
+        SalesChannelContext $salesChannelContext
+    ): Cart {
+        if (!is_string($shippingMethodId)) {
+            throw new \InvalidArgumentException('Shipping method id must be a string');
+        }
+
         $shippingMethod = $this->getShippingMethodById(
             $shippingMethodId,
             $salesChannelContext
         );
 
         if ($shippingMethod === null) {
-            return $this->response(
-                ["message" => $this->trans("buckaroo-payment.button_payment.unknown_error")],
-                true
-            );
+            throw new \Exception($this->trans("buckaroo-payment.button_payment.unknown_error"));
         }
 
         return $this->calculateCartShippingAmountForShippingMethod(
@@ -248,28 +262,42 @@ class ApplePayController extends AbstractPaymentController
         );
     }
 
-    protected function updateCartBillingAddress(Cart $cart, SalesChannelContext $salesChannelContext, $paymentData)
-    {
+    /**
+     *
+     * @param Cart $cart
+     * @param SalesChannelContext $salesChannelContext
+     * @param mixed $paymentData
+     *
+     * @return Cart|null
+     */
+    protected function updateCartBillingAddress(
+        Cart $cart,
+        SalesChannelContext $salesChannelContext,
+        $paymentData
+    ): ?Cart {
         if (is_string($paymentData)) {
             $paymentData = json_decode($paymentData, true);
         }
 
         if (!is_array($paymentData) || !isset($paymentData['billingContact'])) {
-            return;
+            return null;
+        }
+
+        $customer = $salesChannelContext->getCustomer();
+        if ($customer === null) {
+            throw new \InvalidArgumentException('Customer cannot be null');
         }
 
         $address = $this->customerService
         ->setSaleChannelContext($salesChannelContext)
         ->createAddress(
             $this->getCustomerData($paymentData['billingContact']),
-            $salesChannelContext->getCustomer()
+            $customer
         );
 
 
         if ($address !== null) {
-            $salesChannelContext
-                ->getCustomer()
-                ->setActiveBillingAddress($address);
+            $customer->setActiveBillingAddress($address);
             return $this->cartService->calculateCart($cart, $salesChannelContext);
         }
         return $cart;
@@ -278,7 +306,7 @@ class ApplePayController extends AbstractPaymentController
      * Get cart line items from
      *
      * @param Cart $cart
-     * @return array
+     * @return array<mixed>
      */
     public function getLineItems(Cart $cart, float $fee)
     {
@@ -305,9 +333,9 @@ class ApplePayController extends AbstractPaymentController
      * Get cart total;
      *
      * @param Cart $cart
-     * @return void
+     * @return array<mixed>
      */
-    public function getTotal(Cart $cart, float $fee)
+    public function getTotal(Cart $cart, float $fee): array
     {
         return  [
             'label' => $this->trans('checkout.summaryTotalPrice'),
@@ -317,7 +345,14 @@ class ApplePayController extends AbstractPaymentController
             'type' => 'final'
         ];
     }
-    public function getFormatedShippingMethods(Cart $cart, SalesChannelContext $salesChannelContext)
+
+    /**
+     * @param Cart $cart
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return array<mixed>
+     */
+    public function getFormatedShippingMethods(Cart $cart, SalesChannelContext $salesChannelContext): array
     {
         $shippingMethodsCollection = $this->getShippingMethods($salesChannelContext);
         $shippingMethods = [];
@@ -349,11 +384,18 @@ class ApplePayController extends AbstractPaymentController
         return $shippingMethods;
     }
 
+    /**
+     * @param Cart $cart
+     * @param SalesChannelContext $salesChannelContext
+     * @param ShippingMethodEntity $shippingMethod
+     *
+     * @return Cart
+     */
     public function calculateCartShippingAmountForShippingMethod(
         Cart $cart,
         SalesChannelContext $salesChannelContext,
         ShippingMethodEntity $shippingMethod
-    ) {
+    ): Cart {
         $salesChannelContext->assign([
             'shippingMethod' => $shippingMethod
         ]);
@@ -362,7 +404,12 @@ class ApplePayController extends AbstractPaymentController
     }
 
 
-    protected function getShippingMethods(SalesChannelContext $salesChannelContext)
+    /**
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return ShippingMethodCollection
+     */
+    protected function getShippingMethods(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
 
         $request = new Request();
@@ -395,7 +442,7 @@ class ApplePayController extends AbstractPaymentController
     /**
      * Get customer data from request
      *
-     * @param array $contactData
+     * @param array<mixed> $contactData
      *
      * @return DataBag
      */

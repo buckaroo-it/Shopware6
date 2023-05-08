@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
-
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 
 class CustomerService
 {
@@ -71,9 +70,9 @@ class CustomerService
      *
      * @param DataBag $addressData
      *
-     * @return void
+     * @return CustomerEntity
      */
-    public function get(DataBag $addressData)
+    public function get(DataBag $addressData): CustomerEntity
     {
         $this->validateSaleChannelContext();
 
@@ -104,7 +103,7 @@ class CustomerService
      *
      * @return \Shopware\Core\Checkout\Customer\CustomerEntity
      */
-    protected function create(DataBag $data)
+    protected function create(DataBag $data): CustomerEntity
     {
         $this->validateSaleChannelContext();
         $customerId = Uuid::randomHex();
@@ -147,19 +146,24 @@ class CustomerService
      *
      * @return void
      */
-    protected function loginCreatedCustomer(CustomerEntity $customer)
+    protected function loginCreatedCustomer(CustomerEntity $customer): void
     {
-        $context = $this->restorer->restore($customer->getId(), $this->salesChannelContext);
+        $context = $this->restorer->restoreByCustomer($customer->getId(), $this->salesChannelContext->getContext());
         $this->eventDispatcher->dispatch(
             new CustomerLoginEvent($context, $customer, $context->getToken())
         );
     }
 
-    public function createAddress(DataBag $data, CustomerEntity $customer)
+    public function createAddress(DataBag $data, CustomerEntity $customer): ?CustomerAddressEntity
     {
+        $salutationId = $customer->getSalutationId();
+        if ($salutationId === null) {
+            throw new \UnexpectedValueException('Cannot find validation id');
+        }
+
         return $this->customerAddressService
             ->setSaleChannelContext($this->salesChannelContext)
-            ->create($data, $customer->getId(), $customer->getSalutationId());
+            ->create($data, $customer->getId(), $salutationId);
     }
     /**
      * Get customer from database based on id
@@ -168,7 +172,7 @@ class CustomerService
      *
      * @return \Shopware\Core\Checkout\Customer\CustomerEntity
      */
-    public function getCustomerById(string $customerId)
+    public function getCustomerById(string $customerId): CustomerEntity
     {
 
         $criteria = (new Criteria([$customerId]))
@@ -179,6 +183,7 @@ class CustomerService
         ->addAssociation('defaultShippingAddress.countryState')
         ->addAssociation('defaultShippingAddress.salutation');
 
+        /** @var \Shopware\Core\Checkout\Customer\CustomerEntity|null $customer */
         $customer = $this->customerRepository->search(
             $criteria,
             $this->salesChannelContext->getContext()
@@ -188,15 +193,19 @@ class CustomerService
         if ($customer === null) {
             throw new CreateCustomerException('Cannot create customer');
         }
-        
-        /**
-         * Update context with the new customer an shipping location
-         */
-        $this->salesChannelContext->assign([
-            'customer' => $customer,
-            'shippingLocation' => ShippingLocation::createFromAddress($customer->getActiveShippingAddress())
-        ]);
-        
+
+        $activeShippingAddress = $customer->getActiveShippingAddress();
+
+        if ($activeShippingAddress !== null) {
+            /**
+             * Update context with the new customer an shipping location
+             */
+            $this->salesChannelContext->assign([
+                'customer' => $customer,
+                'shippingLocation' => ShippingLocation::createFromAddress($activeShippingAddress)
+            ]);
+        }
+
         return $customer;
     }
     /**
@@ -204,14 +213,14 @@ class CustomerService
      *
      * @return string
      */
-    protected function getSalutationId()
+    protected function getSalutationId(): string
     {
         $salutation = $this->salutationRepository->search(
             (new Criteria())->setLimit(1),
             $this->salesChannelContext->getContext()
         )->first();
 
-        /** @var \Shopware\Core\System\Salutation\SalutationEntity */
+        /** @var \Shopware\Core\System\Salutation\SalutationEntity|null $salutation */
         if ($salutation === null) {
             throw new CreateCustomerException('Cannot find salutation');
         }
@@ -226,10 +235,14 @@ class CustomerService
      * @param string $customerId
      * @param string $addressId
      *
-     * @return void
+     * @return array<mixed>
      */
-    protected function getAddressData(DataBag $data, string $customerId, string $addressId, string $salutationId)
-    {
+    protected function getAddressData(
+        DataBag $data,
+        string $customerId,
+        string $addressId,
+        string $salutationId
+    ): array {
         return $this->customerAddressService
             ->setSaleChannelContext($this->salesChannelContext)
             ->formatedAddressData($data, $customerId, $addressId, $salutationId);
@@ -242,7 +255,7 @@ class CustomerService
      *
      * @return self
      */
-    public function setSaleChannelContext(SalesChannelContext $salesChannelContext)
+    public function setSaleChannelContext(SalesChannelContext $salesChannelContext): self
     {
         $this->salesChannelContext = $salesChannelContext;
         return $this;
@@ -252,7 +265,7 @@ class CustomerService
      *
      * @return void
      */
-    private function validateSaleChannelContext()
+    private function validateSaleChannelContext(): void
     {
         if (!$this->salesChannelContext instanceof SalesChannelContext) {
             throw new CreateCartException('SaleChannelContext is required');

@@ -1,4 +1,6 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Events;
 
@@ -50,7 +52,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         ];
     }
 
-    public function onOrderDeliveryStateShipped(OrderStateMachineStateChangeEvent $event)
+    public function onOrderDeliveryStateShipped(OrderStateMachineStateChangeEvent $event): bool
     {
         $context = $event->getContext();
         $eventOrder = $event->getOrder();
@@ -62,20 +64,23 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             ],
             $context
         );
+
+        if ($order === null) {
+            $this->logger->debug("Cannot find order entity");
+            return false;
+        }
         $customFields = $this->transactionService->getCustomFields($order, $context);
         $salesChannelId =  $event->getSalesChannelId();
 
-        if(
-            isset($customFields['brqPaymentMethod']) &&
+        if (isset($customFields['brqPaymentMethod']) &&
             $customFields['brqPaymentMethod'] == 'Billink' &&
             $this->settingsService->getSetting('BillinkMode', $salesChannelId) == 'authorize' &&
             $this->settingsService->getSetting('BillinkCreateInvoiceAfterShipment', $salesChannelId)
         ) {
             $brqInvoicenumber = $customFields['brqInvoicenumber'] ?? $order->getOrderNumber();
-            $this->invoiceService->generateInvoice($eventOrder, $context, $brqInvoicenumber,  $salesChannelId);
+            $this->invoiceService->generateInvoice($eventOrder, $context, $salesChannelId);
         }
 
         return true;
     }
-
 }

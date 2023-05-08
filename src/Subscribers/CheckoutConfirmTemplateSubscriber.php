@@ -1,15 +1,15 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
 use Shopware\Core\Framework\Context;
-use Buckaroo\Shopware6\Helpers\Helper;
 use Buckaroo\Shopware6\Service\UrlService;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -18,78 +18,92 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 {
-
-    private $customerRepository;
+    private EntityRepository $customerRepository;
     /** @var CheckoutHelper $checkoutHelper */
-    public $checkoutHelper;
+    public CheckoutHelper $checkoutHelper;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SalesChannelRepository
      */
-    private $paymentMethodRepository;
+    private SalesChannelRepository $paymentMethodRepository;
 
     /**
-     * @var array
+     * @var array<mixed>
      */
-    protected $issuers = [
+    protected array $issuers =[
         [
             'name' => 'ABN AMRO',
             'code' => 'ABNANL2A',
+            'imgName' => 'abnamro'
         ],
         [
             'name' => 'ASN Bank',
             'code' => 'ASNBNL21',
+            'imgName' => 'asnbank'
         ],
         [
             'name' => 'Bunq Bank',
             'code' => 'BUNQNL2A',
+            'imgName' => 'bunq'
         ],
         [
             'name' => 'ING',
             'code' => 'INGBNL2A',
+            'imgName' => 'ing'
         ],
         [
             'name' => 'Knab Bank',
             'code' => 'KNABNL2H',
+            'imgName' => 'knab'
         ],
         [
             'name' => 'Rabobank',
             'code' => 'RABONL2U',
+            'imgName' => 'rabobank'
         ],
         [
             'name' => 'RegioBank',
             'code' => 'RBRBNL21',
+            'imgName' => 'regiobank'
         ],
         [
             'name' => 'SNS Bank',
             'code' => 'SNSBNL2A',
+            'imgName' => 'sns'
         ],
         [
             'name' => 'Triodos Bank',
             'code' => 'TRIONL2U',
+            'imgName' => 'triodos'
         ],
         [
             'name' => 'Van Lanschot',
             'code' => 'FVLBNL22',
+            'imgName' => 'vanlanschot'
         ],
         [
             'name' => 'Revolut',
             'code' => 'REVOLT21',
+            'imgName' => 'revolut'
         ],
     ];
 
-    protected $availableCreditcards = [
+    /**
+     * @var array<mixed>
+     */
+    protected array $availableCreditcards = [
         'mastercard'     => 'MasterCard',
         'visa'           => 'Visa',
         'amex'           => 'American Express',
@@ -103,34 +117,26 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         'postepay'       => 'PostePay',
     ];
 
-    protected  SettingsService $settingsService;
+    protected SettingsService $settingsService;
     protected UrlService $urlService;
-    protected Session $session;
     protected TranslatorInterface $translator;
-    /**
-     * CheckoutConfirmTemplateSubscriber constructor.
-     * @param Helper $helper
-     * @param EntityRepositoryInterface $customerRepository
-     * @param SalesChannelRepositoryInterface $paymentMethodRepository
-     */
+
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
-        SalesChannelRepositoryInterface $paymentMethodRepository,
+        EntityRepository $customerRepository,
+        SalesChannelRepository $paymentMethodRepository,
         SettingsService $settingsService,
         UrlService $urlService,
-        Session $session,
         TranslatorInterface $translator
     ) {
         $this->customerRepository      = $customerRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->settingsService = $settingsService;
         $this->urlService = $urlService;
-        $this->session = $session;
         $this->translator = $translator;
     }
 
     /**
-     * @return array
+     * @return array<mixed>
      */
     public static function getSubscribedEvents(): array
     {
@@ -151,13 +157,27 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $paymentMethods = $event->getPage()->getPaymentMethods();
         foreach ($paymentMethods as $paymentMethod) {
-            if(!isset($paymentMethod->getTranslated()['customFields']['buckaroo_key'])){continue;} 
-            if($buckarooKey = $paymentMethod->getTranslated()['customFields']['buckaroo_key']) {
-                if(!$this->settingsService->getEnabled($buckarooKey, $event->getSalesChannelContext()->getSalesChannelId())){
+            if (!isset($paymentMethod->getTranslated()['customFields']['buckaroo_key'])) {
+                continue;
+            }
+            if ($buckarooKey = $paymentMethod->getTranslated()['customFields']['buckaroo_key']) {
+                if (!$this->settingsService->getEnabled(
+                    $buckarooKey,
+                    $event->getSalesChannelContext()->getSalesChannelId()
+                )
+                ) {
                     $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
                 }
 
-                if ($buckarooKey === 'payperemail' && $this->isPayPermMailDisabledInFrontend($event->getSalesChannelContext()->getSalesChannelId())) {
+                if ($buckarooKey === 'payperemail' &&
+                    $this->isPayPermMailDisabledInFrontend(
+                        $event->getSalesChannelContext()->getSalesChannelId()
+                    )
+                ) {
+                    $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
+                }
+
+                if ($buckarooKey === 'afterpay' && !$this->canShowAfterpay($event)) {
                     $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
                 }
 
@@ -169,7 +189,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $event->getPage()->setPaymentMethods($paymentMethods);
     }
 
-    public function isPayPermMailDisabledInFrontend($salesChannelId)
+    public function isPayPermMailDisabledInFrontend(string $salesChannelId = null): bool
     {
         return $this->settingsService->getSetting('payperemailEnabledfrontend', $salesChannelId) === false;
     }
@@ -184,10 +204,19 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $this->hideNotEnabledPaymentMethods($event);
 
-        $context = $event->getContext();
         $request  = $event->getRequest();
         $customer = $event->getSalesChannelContext()->getCustomer();
-        $buckarooKey = isset($event->getSalesChannelContext()->getPaymentMethod()->getTranslated()['customFields']['buckaroo_key']) ? $event->getSalesChannelContext()->getPaymentMethod()->getTranslated()['customFields']['buckaroo_key'] : null;
+
+        if ($customer === null) {
+            throw new \InvalidArgumentException('Cannot find customer');
+        }
+
+        $paymentMethodTranslation = $event->getSalesChannelContext()->getPaymentMethod()->getTranslated();
+        $buckarooKey = '';
+        if (isset($paymentMethodTranslation['customFields']['buckaroo_key'])) {
+            $buckarooKey = $paymentMethodTranslation['customFields']['buckaroo_key'];
+        }
+
         $currency = $this->getCurrency($event);
 
         if ($lastCreditcard = $request->get('creditcard')) {
@@ -205,24 +234,33 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct             = new BuckarooStruct();
         $issuers            = $this->issuers;
-        $idealRenderMode    = $this->getIdealRenderMode($salesChannelId); 
+        $idealRenderMode    = $this->getIdealRenderMode($salesChannelId);
         $lastUsedCreditcard = 'visa';
-        if($customFields = $customer->getCustomFields()){
-            if (isset($customFields['last_used_creditcard'])) {
-                $lastUsedCreditcard = $customFields['last_used_creditcard'];
+        if ($customFields = $customer->getCustomFields()) {
+            if (isset($customFields['last_used_creditcard']) &&
+                is_string($customFields['last_used_creditcard'])
+            ) {
+                $lastUsedCreditcard = (string)$customFields['last_used_creditcard'];
             }
         }
-        
+
         $creditcard = [];
         $allowedcreditcard = $this->settingsService->getSetting('allowedcreditcard', $salesChannelId);
-        if (!empty($allowedcreditcard)){
+        if (!empty($allowedcreditcard) && is_array($allowedcreditcard)) {
             foreach ($allowedcreditcard as $value) {
+                $label  = null;
+                if (isset($this->availableCreditcards[$value]) &&
+                    is_string($this->availableCreditcards[$value])
+                ) {
+                    $label = (string)$this->availableCreditcards[$value];
+                }
+
                 $creditcard[] = [
                     'name' => $this->getBuckarooFeeLabel(
                         'allowedcreditcard',
                         $currency,
                         $salesChannelId,
-                        $this->availableCreditcards[$value],
+                        $label,
                     ),
                     'code' => $value,
                 ];
@@ -231,14 +269,22 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $creditcards = [];
         $allowedcreditcards = $this->settingsService->getSetting('allowedcreditcards', $salesChannelId);
-        if (!empty($allowedcreditcards)){
+        if (!empty($allowedcreditcards) && is_array($allowedcreditcards)) {
             foreach ($allowedcreditcards as $value) {
+                $label  = null;
+
+                if (isset($this->availableCreditcards[$value]) &&
+                    is_string($this->availableCreditcards[$value])
+                ) {
+                    $label = (string)$this->availableCreditcards[$value];
+                }
+
                 $creditcards[] = [
                     'name' => $this->getBuckarooFeeLabel(
                         'allowedcreditcards',
                         $currency,
                         $salesChannelId,
-                        $this->availableCreditcards[$value],
+                        $label,
                     ),
                     'code' => $value,
                 ];
@@ -250,11 +296,17 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             ->addAssociation('media');
         $paymentLabels = [];
         /** @var PaymentMethodCollection $paymentMethods */
-        $paymentMethods = $this->paymentMethodRepository->search($criteria, $event->getSalesChannelContext())->getEntities();
-        foreach ($paymentMethods as $key => $paymentMethod) {
+        $paymentMethods = $this->paymentMethodRepository
+            ->search(
+                $criteria,
+                $event->getSalesChannelContext()
+            )
+            ->getEntities();
+
+        foreach ($paymentMethods as $paymentMethod) {
             $method = $paymentMethod->getTranslated();
             if (!empty($method['customFields']['buckaroo_key'])) {
-                $buckaroo_key = $method['customFields']['buckaroo_key'];
+                $buckaroo_key = (string)$method['customFields']['buckaroo_key'];
                 $paymentLabels[$buckaroo_key] = $this->getBuckarooFeeLabel(
                     $buckaroo_key,
                     $currency,
@@ -276,13 +328,14 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'payment_labels'           => $paymentLabels,
             'payment_media'            => $lastUsedCreditcard . '.png',
             'buckarooFee'              => $this->settingsService->getBuckarooFee($buckarooKey, $salesChannelId),
-            'BillinkBusiness'          => $customer->getActiveBillingAddress() && $customer->getActiveBillingAddress()->getCompany() ? 'B2B' : 'B2C',
+            'BillinkBusiness'          => $this->getBillinkPaymentType($customer),
             'backLink'                 => $backUrl,
             'afterpay_customer_type'   => $this->settingsService->getSetting('afterpayCustomerType', $salesChannelId),
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
-            'applePayMerchantId'         => $this->getAppleMerchantId($salesChannelId),
-            'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId)
+            'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
+            'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
+            'canShowPhone'          => $this->canShowPhone($customer)
         ]);
 
         $event->getPage()->addExtension(
@@ -291,7 +344,17 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         );
     }
 
-    public function addBuckarooToCart(CheckoutCartPageLoadedEvent $event)
+    private function getBillinkPaymentType(CustomerEntity $customer): string
+    {
+        $billingAddress = $customer->getActiveBillingAddress();
+
+        if ($billingAddress !== null && $billingAddress->getCompany() !== null) {
+            return 'B2B';
+        }
+        return 'B2C';
+    }
+
+    public function addBuckarooToCart(CheckoutCartPageLoadedEvent $event): void
     {
         $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
         $struct             = new BuckarooStruct();
@@ -325,31 +388,39 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array $issuers
+     * @param array<mixed> $issuers
      * @param string|null $lastUsedIssuer
-     * @param name
+     * @param string $name
      * @return string
      */
-    private function getPaymentMethodName(array $issuers,  ? string $lastUsedIssuer, $name = '') : string
+    private function getPaymentMethodName(array $issuers, ?string $lastUsedIssuer, string $name = ''): string
     {
         foreach ($issuers as $issuer) {
-            if ($issuer['code'] === $lastUsedIssuer) {
+            if (is_array($issuer) &&
+                isset($issuer['code']) &&
+                isset($issuer['name']) &&
+                $issuer['code'] === $lastUsedIssuer
+            ) {
                 $issuerName = $issuer['name'];
-                return $name == '' ? $issuerName : $name . ' (' . $issuerName . ')';
+                if (is_string($issuerName)) {
+                    return $name == '' ? $issuerName : $name . ' (' . $issuerName . ')';
+                }
             }
         }
         return $name;
     }
 
-    private function removePaymentMethod(PaymentMethodCollection $paymentMethods, string $paymentMethodId): PaymentMethodCollection
-    {
+    private function removePaymentMethod(
+        PaymentMethodCollection $paymentMethods,
+        string $paymentMethodId
+    ): PaymentMethodCollection {
         return $paymentMethods->filter(
             static function (PaymentMethodEntity $paymentMethod) use ($paymentMethodId) {
                 return $paymentMethod->getId() !== $paymentMethodId;
             }
         );
     }
-    public function addBuckarooToProductPage($event)
+    public function addBuckarooToProductPage(ProductPageLoadedEvent $event): void
     {
         $struct = new BuckarooStruct();
 
@@ -367,46 +438,66 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             $struct
         );
     }
-    protected function showPaypalExpress(string $salesChannelId, $page = 'product')
+    protected function showPaypalExpress(string $salesChannelId, string $page = 'product'): bool
     {
         $locations = $this->settingsService->getSetting('paypalExpresslocation', $salesChannelId);
-        return is_array($locations) && in_array($page, $locations) && $this->getPaypalExpressMerchantId($salesChannelId) != null;
+        return is_array($locations) &&
+            in_array($page, $locations) &&
+            $this->getPaypalExpressMerchantId($salesChannelId) != null;
     }
-    protected function getPaypalExpressMerchantId(string $salesChannelId)
+    protected function getPaypalExpressMerchantId(string $salesChannelId): ?string
     {
-       return $this->settingsService->getSetting('paypalExpressmerchantid', $salesChannelId);
+        $merchantId =  $this->settingsService->getSetting('paypalExpressmerchantid', $salesChannelId);
+        if ($merchantId !== null && is_scalar($merchantId)) {
+            return (string)$merchantId;
+        }
+        return null;
     }
-    protected function getAppleMerchantId(string $salesChannelId)
+    protected function getAppleMerchantId(string $salesChannelId): ?string
     {
-        return $this->settingsService->getSetting('guid', $salesChannelId);
+        $merchantId =  $this->settingsService->getSetting('guid', $salesChannelId);
+        if ($merchantId !== null && is_scalar($merchantId)) {
+            return (string)$merchantId;
+        }
+        return null;
     }
-    protected function getIdealRenderMode(string $salesChannelId = null)
+    protected function getIdealRenderMode(string $salesChannelId = null): int
     {
-        return $this->settingsService->getSetting('idealRenderMode', $salesChannelId);
+        $mode = $this->settingsService->getSetting('idealRenderMode', $salesChannelId);
+
+        if ($mode !== null && is_scalar($mode)) {
+            return (int)$mode;
+        }
+
+        return 0;
     }
-    
+
     protected function getBuckarooFeeLabel(
         string $buckarooKey,
         CurrencyEntity $currency,
         string $salesChannelId = null,
         string $label = null
-    ): string
-    {
-        if($label === null) {
-            $label = $this->settingsService->getSetting($buckarooKey . 'Label', $salesChannelId);
+    ): string {
+        if ($label === null) {
+            $label = $this->settingsService->getSettingAsString($buckarooKey . 'Label', $salesChannelId);
         }
 
-        if($buckarooFee = $this->settingsService->getSetting($buckarooKey.'Fee', $salesChannelId)) {
+        if ($buckarooFee = (string)$this->settingsService->getBuckarooFee($buckarooKey, $salesChannelId)) {
             $label .= ' +' . $currency->getSymbol() . $buckarooFee;
         }
         return $label;
     }
 
+    /**
+     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
+     *
+     * @return CurrencyEntity
+     */
     public function getCurrency($event): CurrencyEntity
     {
-        if($event instanceof AccountEditOrderPageLoadedEvent) {
+        if ($event instanceof AccountEditOrderPageLoadedEvent) {
             $currency = $event->getPage()->getOrder()->getCurrency();
-            if($currency !== null) {
+            if ($currency !== null) {
                 return $currency;
             }
         }
@@ -420,25 +511,44 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public function addInProgress(CheckoutFinishPageLoadedEvent $event)
+    public function addInProgress(CheckoutFinishPageLoadedEvent $event): void
     {
-        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity */
-        $transaction = $event->getPage()->getOrder()->getTransactions()->last();
-        if(
-            $transaction !== null &&
-            $transaction->getPaymentMethod() !== null &&
-            strpos($transaction->getPaymentMethod()->getHandlerIdentifier(), 'Buckaroo\Shopware6\Handlers') !== false &&
-            $transaction->getStateMachineState() !== null &&
-            $transaction->getStateMachineState()->getTechnicalName() === 'in_progress'
+        $transactions =  $transactions = $event->getPage()->getOrder()->getTransactions();
+
+        if ($transactions === null) {
+            return;
+        }
+
+        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity|null */
+        $transaction = $transactions->last();
+
+        if ($transaction === null) {
+            return;
+        }
+
+        $paymentMethod = $transaction->getPaymentMethod();
+        if ($paymentMethod === null) {
+            return;
+        }
+
+        $stateMachine = $transaction->getStateMachineState();
+        if ($stateMachine === null) {
+            return;
+        }
+        $session = $event->getRequest()->getSession();
+
+        if (strpos($paymentMethod->getHandlerIdentifier(), 'Buckaroo\Shopware6\Handlers') !== false &&
+            $stateMachine->getTechnicalName() === 'in_progress' &&
+            method_exists($session, 'getFlashBag')
         ) {
-            $this->session->getFlashBag()->add('success', $this->translator->trans('buckaroo.messages.return791'));
+            $session->getFlashBag()->add('success', $this->translator->trans('buckaroo.messages.return791'));
         }
     }
 
     /**
-     * Check if we can display afterpay when b2b is enabled 
+     * Check if we can display afterpay when b2b is enabled
      *
-     * @param AccountEditOrderPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
+     * @param AccountEditOrderPageLoadedEvent|AccountPaymentMethodPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
      *
      * @return boolean
      */
@@ -450,43 +560,46 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $isStrictB2B = $this->settingsService->getSetting(
             'afterpayCustomerType',
             $event->getSalesChannelContext()->getSalesChannelId()
-            ) === AfterPayPaymentHandler::CUSTOMER_TYPE_B2B;
+        ) === AfterPayPaymentHandler::CUSTOMER_TYPE_B2B;
 
 
-        if($event instanceof AccountEditOrderPageLoadedEvent) {
+        if ($event instanceof AccountEditOrderPageLoadedEvent) {
             $order = $event->getPage()->getOrder();
 
-            $billingAddress =$order->getBillingAddress();
-            if($billingAddress !== null) {
+            $billingAddress = $order->getBillingAddress();
+            if ($billingAddress !== null) {
                 $billingCompany = $billingAddress->getCompany();
             }
 
-            if($order->getDeliveries() !== null) {
+            if ($order->getDeliveries() !== null) {
                 /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
                 $shippingAddress = $order->getDeliveries()->getShippingAddress()->first();
-                if($shippingAddress !== null) {
+                if ($shippingAddress !== null) {
                     $shippingCompany = $shippingAddress->getCompany();
                 }
             }
         }
 
-        if($event instanceof CheckoutConfirmPageLoadedEvent) {
+        if ($event instanceof CheckoutConfirmPageLoadedEvent) {
             $customer = $event->getSalesChannelContext()->getCustomer();
+
+            if ($customer === null) {
+                return false;
+            }
 
             $billingAddress = $customer->getDefaultBillingAddress();
 
-            if($billingAddress !== null) {
+            if ($billingAddress !== null) {
                 $billingCompany = $billingAddress->getCompany();
             }
 
             /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
             $shippingAddress = $customer->getDefaultShippingAddress();
-            if($shippingAddress !== null) {
+            if ($shippingAddress !== null) {
                 $shippingCompany = $shippingAddress->getCompany();
             }
         }
-        if(
-            $isStrictB2B &&
+        if ($isStrictB2B &&
             $this->isCompanyEmpty($billingCompany) &&
             $this->isCompanyEmpty($shippingCompany)
         ) {
@@ -495,7 +608,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         return true;
     }
-     /**
+    /**
      * Check if company is empty
      *
      * @param string $company
@@ -505,5 +618,36 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     private function isCompanyEmpty(string $company = null)
     {
         return null === $company || strlen(trim($company)) === 0;
+    }
+
+    /**
+     * Can display phone number if required
+     *
+     * @param CustomerEntity $customer
+     *
+     * @return boolean
+     */
+    private function canShowPhone(CustomerEntity $customer) : bool
+    {
+        $billingAddress = $customer->getActiveBillingAddress();
+        $shippingAddress = $customer->getActiveShippingAddress();
+
+        return $this->isPhoneEmpty($billingAddress) || $this->isPhoneEmpty($shippingAddress);
+    }
+
+    /**
+     * Check if phone number is empty
+     *
+     * @param CustomerAddressEntity|null $address
+     *
+     * @return boolean
+     */
+    private function isPhoneEmpty(CustomerAddressEntity $address = null): bool
+    {
+        if($address === null) {
+            return true;
+        }
+
+        return $address->getPhoneNumber() === null || strlen(trim($address->getPhoneNumber())) === 0;
     }
 }

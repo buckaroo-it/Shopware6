@@ -90,7 +90,6 @@ class ClientResponse implements ClientResponseInterface
         return is_array($reqAction) &&
             !empty($reqAction['RedirectURL']) &&
             !empty($reqAction['Name']) &&
-            !empty($reqAction['Name']) &&
             $reqAction['Name'] == 'Redirect';
     }
 
@@ -100,7 +99,7 @@ class ClientResponse implements ClientResponseInterface
     public function getRedirectUrl(): string
     {
         $reqAction = $this->get('RequiredAction');
-        if ($this->hasRedirect()) {
+        if ($this->hasRedirect() && is_array($reqAction)) {
             return $reqAction['RedirectURL'];
         }
 
@@ -129,10 +128,14 @@ class ClientResponse implements ClientResponseInterface
     public function get(string $key)
     {
         $data = $this->response->data();
-        if (isset($data[$key])) {
+        if (is_array($data) && isset($data[$key])) {
             return $data[$key];
         }
     }
+
+    /**
+     * @return array<mixed>
+     */
     public function getServiceParameters(): array
     {
         return $this->response->getServiceParameters();

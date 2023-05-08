@@ -12,13 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 
 
-/**
- */
 class RefundController extends StorefrontController
 {
     private RefundService $refundService;
@@ -37,19 +33,18 @@ class RefundController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"api"})
-     * @Route("/api/_action/buckaroo/refund", name="api.action.buckaroo.refund", methods={"POST"})
      * @param Request $request
      * @param Context $context
      *
-     * @return RedirectResponse
+     * @return JsonResponse
      */
+    #[Route(path: "/api/_action/buckaroo/refund", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.refund", methods:["POST"])]
     public function refundBuckaroo(Request $request, Context $context): JsonResponse
     {
         $orderId = $request->get('transaction');
         $transactionsToRefund = $request->get('transactionsToRefund');
 
-        if (empty($orderId)) {
+        if (empty($orderId) || !is_string($orderId)) {
             return new JsonResponse(
                 ['status' => false, 'message' => $this->trans("buckaroo-payment.missing_order_id")],
                 Response::HTTP_NOT_FOUND
@@ -80,17 +75,22 @@ class RefundController extends StorefrontController
         }
         try {
             $responses = [];
-            foreach ($transactionsToRefund as $item) {
-                $responses[] = $this->refundService->refund(
-                    $request,
-                    $order,
-                    $context,
-                    $item,
-                );
+
+            if (is_array($transactionsToRefund)) {
+                foreach ($transactionsToRefund as $item) {
+                    if (is_array($item)) {
+                        $responses[] = $this->refundService->refund(
+                            $request,
+                            $order,
+                            $context,
+                            $item,
+                        );
+                    }
+                }
             }
             return new JsonResponse($responses);
         } catch (\Exception $exception) {
-            $this->logger->debug($exception);
+            $this->logger->debug((string)$exception);
             return new JsonResponse(
                 [
                     'status'  => false,
@@ -100,14 +100,5 @@ class RefundController extends StorefrontController
                 Response::HTTP_BAD_REQUEST
             );
         }
-
-        return new JsonResponse(
-            [
-                'status'  => false,
-                'message' =>  $this->trans("buckaroo-payment.general_request_error"),
-                'code'    => 0,
-            ],
-            Response::HTTP_BAD_REQUEST
-        );
     }
 }

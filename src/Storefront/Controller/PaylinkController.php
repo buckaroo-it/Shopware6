@@ -12,19 +12,15 @@ use Buckaroo\Shopware6\Service\PayLinkService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  */
 class PaylinkController extends StorefrontController
 {
-
     protected PayLinkService $payLinkService;
 
-    protected  OrderService $orderService;
+    protected OrderService $orderService;
 
     protected LoggerInterface $logger;
 
@@ -39,19 +35,18 @@ class PaylinkController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"api"})
-     * @Route("/api/_action/buckaroo/paylink", name="api.action.buckaroo.paylink", methods={"POST"})
      * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
+     * @param Context $context
      *
-     * @return RedirectResponse
+     * @return JsonResponse
      */
+    #[Route(path: "/api/_action/buckaroo/paylink", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.paylink", methods:["POST"])]
     public function paylinkBuckaroo(Request $request, Context $context): JsonResponse
     {
 
         $orderId = $request->get('transaction');
 
-        if (empty($orderId)) {
+        if (empty($orderId) || !is_string($orderId)) {
             return new JsonResponse(
                 ['status' => false, 'message' => $this->trans("buckaroo-payment.missing_order_id")],
                 Response::HTTP_NOT_FOUND
@@ -97,14 +92,5 @@ class PaylinkController extends StorefrontController
                 Response::HTTP_BAD_REQUEST
             );
         }
-
-        return new JsonResponse(
-            [
-                'status'  => false,
-                'message' => $this->trans("buckaroo-payment.general_request_error"),
-                'code'    => 0,
-            ],
-            Response::HTTP_BAD_REQUEST
-        );
     }
 }

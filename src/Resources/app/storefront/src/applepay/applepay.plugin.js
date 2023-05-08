@@ -77,7 +77,6 @@ export default class ApplePayPlugin extends Plugin {
       this.httpClient.post(
         `${this.url}/apple/cart/get`,
         JSON.stringify({
-          _csrf_token: this.options.csrf.get,
           form: formData,
           page: this.options.page,
         }),
@@ -142,7 +141,6 @@ export default class ApplePayPlugin extends Plugin {
       this.httpClient.post(
         `${this.url}/apple/order/create`,
         JSON.stringify({
-          _csrf_token: this.options.csrf.create,
           payment: JSON.stringify(payment),
           cartToken: this.cartToken,
           page: this.options.page
@@ -201,7 +199,7 @@ export default class ApplePayPlugin extends Plugin {
     return new Promise((resolve) => {
       this.httpClient.post(
         `${this.url}/apple/cart/update`,
-        JSON.stringify({ _csrf_token: this.options.csrf.update, ...request }),
+        JSON.stringify(request),
         (response) => {
           const resp = JSON.parse(response);
 

@@ -10,7 +10,6 @@ use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
 
 class BuckarooTransactionService
 {
-
     protected OrderService $orderService;
 
     protected FormatRequestParamService $formatRequestParamService;
@@ -26,7 +25,15 @@ class BuckarooTransactionService
         $this->formatRequestParamService = $formatRequestParamService;
         $this->buckarooTransactionEntityRepository = $buckarooTransactionEntityRepository;
     }
-    public function getBuckarooTransactionsByOrderId($orderId, Context $context)
+
+    /**
+     *
+     * @param string $orderId
+     * @param Context $context
+     *
+     * @return array<mixed>
+     */
+    public function getBuckarooTransactionsByOrderId(string $orderId, Context $context): array
     {
         $transactionsToRefund = [];
         $order = $this->orderService
@@ -44,11 +51,19 @@ class BuckarooTransactionService
                 $context
             );
 
-        $vat   = $order->get("price")->getTaxRules()->first()->getTaxRate();
+        if ($order === null) {
+            throw new \Exception("Cannot find order with id " . $orderId, 1);
+        }
+
+        $taxRules = $order->getPrice()->getTaxRules();
+        $vat = $taxRules->first();
+        if ($vat !== null) {
+            $vat = $vat->getTaxRate();
+        }
 
         $vat_show  = null;
         $ii = 0;
-        foreach ($order->get("price")->getTaxRules()->getElements() as $taxRate) {
+        foreach ($taxRules->getElements() as $taxRate) {
             $vat_show .= ($ii > 0 ? "/" : "") . "plus " . $taxRate->getTaxRate() . "% VAT";
             $ii++;
         }
@@ -62,9 +77,11 @@ class BuckarooTransactionService
 
         $collection = $this->buckarooTransactionEntityRepository->findByOrderId($orderId, ['created_at' => 'DESC']);
         foreach ($collection as $buckarooTransactionEntity) {
-            if ($refunded_items = $buckarooTransactionEntity->get("refunded_items")) {
-                $orderRefundedItems[] = json_decode($refunded_items);
+            $refunded_items = $buckarooTransactionEntity->get("refunded_items");
+            if (is_scalar($refunded_items)) {
+                $orderRefundedItems[] = json_decode((string)$refunded_items, true);
             }
+
             if (!$buckarooTransactionEntity->get("transaction_method")) {
                 continue;
             }
@@ -73,7 +90,27 @@ class BuckarooTransactionService
                 continue;
             }
             array_push($transactionsToRefund, $transactions);
-            $amount                  = $buckarooTransactionEntity->get("amount_credit") ? '-' . $buckarooTransactionEntity->get("amount_credit") : $buckarooTransactionEntity->get("amount");
+
+            $amount = 0;
+            
+            if (
+                is_scalar($buckarooTransactionEntity->get("amount"))
+            ) {
+                $amount = (float)$buckarooTransactionEntity->get("amount");
+            }
+            
+            if (
+                is_scalar($buckarooTransactionEntity->get("amount_credit"))
+            ) {
+                $amount-=(float)$buckarooTransactionEntity->get("amount_credit");
+            }
+
+            $createdAt = $buckarooTransactionEntity->get("created_at");
+            $formatedCreatedAt = '';
+            if ($createdAt instanceof \DateTime) {
+                $formatedCreatedAt = $createdAt->format('Y-m-d H:i:s');
+            }
+
             $items['transactions'][] = (object) [
                 'id'                  => $buckarooTransactionEntity->get("id"),
                 'transaction'         => $buckarooTransactionEntity->get("transactions"),
@@ -83,10 +120,12 @@ class BuckarooTransactionService
                 'vat'                 => $vat_show,
                 'total_excluding_vat' => $vat ? round(($amount - (($amount / 100) * $vat)), 2) : $amount,
                 'transaction_method'  => $buckarooTransactionEntity->get("transaction_method"),
-                'created_at'          => $buckarooTransactionEntity->get("created_at")->format('Y-m-d H:i:s'),
+                'created_at'          => $formatedCreatedAt,
             ];
 
-            if ($buckarooTransactionEntity->get("amount") && $buckarooTransactionEntity->get("statuscode") == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
+            if ($buckarooTransactionEntity->get("amount") &&
+                $buckarooTransactionEntity->get("statuscode") == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS
+            ) {
                 $items['transactionsToRefund'][] = (object) [
                     'id'                 => $buckarooTransactionEntity->get("id"),
                     'transactions'       => $transactions,
@@ -97,12 +136,19 @@ class BuckarooTransactionService
             }
         }
 
-        foreach ($orderRefundedItems as $key => $value) {
+        foreach ($orderRefundedItems as $value) {
+            if (!is_array($value)) {
+                continue;
+            }
             foreach ($value as $key3 => $quantity) {
+                if (!is_scalar($quantity)) {
+                    continue;
+                }
                 foreach ($items['orderItems'] as $key2 => $value2) {
                     if (isset($value2['id']) && $key3 == $value2['id']) {
+                        $totalAmount = (float)$value2['totalAmount']['value'] - ((float)$value2['unitPrice']['value'] * (int)$quantity); //phpcs:ignore Generic.Files.LineLength.TooLong
                         $items['orderItems'][$key2]['quantity'] = (int)$value2['quantity'] - (int)$quantity;
-                        $items['orderItems'][$key2]['totalAmount']['value'] = ((float)$value2['totalAmount']['value'] - ((float)$value2['unitPrice']['value'] * (int)$quantity));
+                        $items['orderItems'][$key2]['totalAmount']['value'] = $totalAmount;
                         if ($items['orderItems'][$key2]['quantity'] < 0) {
                             $items['orderItems'][$key2]['quantity'] = 0;
                         }

@@ -71,7 +71,7 @@ Component.override('sw-order-detail', {
             const paymentMethodRepository = this.repositoryFactory.create('payment_method');
             paymentMethodRepository.get(paymentMethodId, Context.api).then(
                 (paymentMethod) => {
-                    this.isBuckarooPayment = paymentMethod.formattedHandlerIdentifier.indexOf('buckaroo') >= 0;
+                this.isBuckarooPayment = paymentMethod.formattedHandlerIdentifier.indexOf('buckaroo') >= 0;
                 }
             );
         }

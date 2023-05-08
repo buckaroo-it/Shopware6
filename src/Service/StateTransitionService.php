@@ -21,7 +21,6 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 
 class StateTransitionService
 {
-
     protected TransactionService $transactionService;
 
     protected OrderTransactionStateHandler $orderTransactionStateHandler;
@@ -29,11 +28,12 @@ class StateTransitionService
     protected StateMachineStateEntity $stateMachineStateEntity;
 
     protected StateMachineRegistry $stateMachineRegistry;
-    
     /**
      * @var LoggerInterface
      */
     protected $logger;
+
+    protected EntityRepository $stateMachineRepository;
 
     public function __construct(
         TransactionService $transactionService,
@@ -53,12 +53,6 @@ class StateTransitionService
      * @param string $status
      * @param string $orderTransactionId
      * @param Context $context
-     * @throws IllegalTransitionException
-     * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
-     * @throws StateMachineNotFoundException
-     * @throws StateMachineStateNotFoundException
      */
     public function transitionPaymentState(string $status, string $orderTransactionId, Context $context): void
     {
@@ -98,10 +92,8 @@ class StateTransitionService
             case 'completed':
             case 'paid':
                 return StateMachineTransitionActions::ACTION_PAID;
-                break;
             case 'pay_partially':
                 return StateMachineTransitionActions::ACTION_PAID_PARTIALLY;
-                break;
             case 'declined':
             case 'cancelled':
             case 'void':
@@ -109,7 +101,6 @@ class StateTransitionService
                 return StateMachineTransitionActions::ACTION_CANCEL;
             case 'fail':
                 return StateMachineTransitionActions::ACTION_FAIL;
-                break;
             case 'refunded':
                 return StateMachineTransitionActions::ACTION_REFUND;
             case 'partial_refunded':
@@ -128,13 +119,18 @@ class StateTransitionService
      * @param string $orderTransactionId
      * @param Context $context
      * @return bool
-     * @throws InconsistentCriteriaIdsException
      */
     public function isSameState(string $actionName, string $orderTransactionId, Context $context): bool
     {
-        $transaction    = $this->transactionService->getOrderTransaction($orderTransactionId, $context);
+        $transaction = $this->transactionService->getOrderTransaction($orderTransactionId, $context);
         $stateName = $this->getOrderTransactionStatesNameFromAction($actionName);
-        return $transaction->getStateMachineState()->getTechnicalName() == $stateName;
+
+        if ($transaction === null) {
+            return false;
+        }
+
+        $stateMachine = $transaction->getStateMachineState();
+        return $stateMachine !== null && $stateMachine->getTechnicalName() == $stateName;
     }
 
 
@@ -160,7 +156,7 @@ class StateTransitionService
      * @param string $actionName
      * @return string
      */
-    public function getOrderTransactionStatesNameFromAction(string $actionName)
+    public function getOrderTransactionStatesNameFromAction(string $actionName): ?string
     {
         switch ($actionName) {
             case StateMachineTransitionActions::ACTION_PAID:
@@ -174,19 +170,37 @@ class StateTransitionService
             case StateMachineTransitionActions::ACTION_REFUND_PARTIALLY:
                 return OrderTransactionStates::STATE_PARTIALLY_REFUNDED;
         }
-        return false;
+        return null;
     }
+    /**
+     *
+     * @param array<mixed> $statuses
+     * @param string $orderTransactionId
+     * @param Context $context
+     *
+     * @return boolean
+     */
     public function isTransitionPaymentState(array $statuses, string $orderTransactionId, Context $context): bool
     {
-        foreach($statuses as $status){
+        foreach ($statuses as $status) {
+            if (!is_string($status)) {
+                continue;
+            }
             $transitionAction = $this->getCorrectTransitionAction($status);
 
             if ($transitionAction === null) {
                 continue;
             }
-            $transaction    = $this->transactionService->getOrderTransaction($orderTransactionId, $context);
-            $actionStatusTransition   = $this->getTransitionFromActionName($transitionAction, $context);
-            if($transaction->getStateId() == $actionStatusTransition->getId()) {
+            $transaction = $this->transactionService->getOrderTransaction($orderTransactionId, $context);
+
+            if ($transaction === null) {
+                continue;
+            }
+
+            $actionStatusTransition = $this->getTransitionFromActionName($transitionAction, $context);
+            if ($actionStatusTransition !== null &&
+                $transaction->getStateId() == $actionStatusTransition->getId()
+            ) {
                 return true;
             }
         }
@@ -196,7 +210,6 @@ class StateTransitionService
      * @param string $actionName
      * @param Context $context
      * @return StateMachineStateEntity|null
-     * @throws InconsistentCriteriaIdsException
      */
     public function getTransitionFromActionName(string $actionName, Context $context): ?StateMachineStateEntity
     {
@@ -205,14 +218,14 @@ class StateTransitionService
         $criteria->addFilter(new EqualsFilter('technicalName', $stateName));
         return $this->stateMachineRepository->search($criteria, $context)->first();
     }
-    
-    public function changeOrderStatus(OrderEntity $order, Context $context, $transitionName): void
+
+    public function changeOrderStatus(OrderEntity $order, Context $context, string $transitionName): void
     {
-        if($this->isOrderState($order, [$transitionName], $context)){
+        if ($this->isOrderState($order, [$transitionName])) {
             return;
         }
 
-        if (isset($transitionName)) {
+        if (!empty($transitionName)) {
             try {
                 $this->stateMachineRegistry->transition(
                     new Transition(
@@ -230,18 +243,30 @@ class StateTransitionService
 
         return;
     }
-
-    
-    public function isOrderState(OrderEntity $order, array $statuses, Context $context): bool
+    /**
+     *
+     * @param OrderEntity $order
+     * @param array<mixed> $statuses
+     *
+     * @return boolean
+     */
+    public function isOrderState(OrderEntity $order, array $statuses): bool
     {
-        foreach($statuses as $status){
+        foreach ($statuses as $status) {
+            if (!is_string($status)) {
+                continue;
+            }
+
             $stateName = $this->getOrderTransactionStatesNameFromAction($status);
-            if($order->getStateMachineState()->getTechnicalName() == $stateName){
+
+            $stateMachine = $order->getStateMachineState();
+
+            if ($stateMachine !== null &&
+                $stateMachine->getTechnicalName() == $stateName
+            ) {
                 return true;
             }
         }
         return false;
     }
-
-
 }
