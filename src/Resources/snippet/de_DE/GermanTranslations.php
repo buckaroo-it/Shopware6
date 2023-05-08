@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Resources\snippet\de_DE;
 
-use Shopware\Core\System\Snippet\Files\SnippetFileInterface;
+use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 
-class GermanTranslations implements SnippetFileInterface
+class GermanTranslations extends AbstractSnippetFile
 {
     /**
      * @return string
@@ -46,5 +46,10 @@ class GermanTranslations implements SnippetFileInterface
     public function isBase(): bool
     {
         return false;
+    }
+
+    public function getTechnicalName(): string
+    {
+        return $this->getName();
     }
 }

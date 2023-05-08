@@ -50,7 +50,8 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
             if (!valid) {
                 document.getElementById("changePaymentForm").scrollIntoView();
             } else {
-                if (window.uckaroo_back_link !== undefined) {
+
+                if (window.buckaroo_back_link !== undefined) {
                     window.history.pushState(
                         null,
                         null,

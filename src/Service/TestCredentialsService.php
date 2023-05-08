@@ -74,12 +74,12 @@ class TestCredentialsService
         $client = $this->getClientService(
             'ideal',
             $salesChannelId
-        );
+        )->setPayload([
+            'clientIP' => $this->getIp($request),
+        ]);
 
         try {
-            $client->execute([
-                'clientIP' => $this->getIp($request),
-            ]);
+            $client->execute();
             return [
                 'status' => 'success',
                 'message' => $this->translator->trans("buckaroo-payment.test_api.connection_ready"),

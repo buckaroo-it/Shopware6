@@ -46,31 +46,29 @@ class ClientService
         /**
      * Get code required for payment
      *
-     * @param string $paymentCode
+     * @param string $configCode
      * @param string $salesChannelId
      *
      * @return string
      */
-    protected function getPaymentCode(string $paymentCode, string $salesChannelId = null): string
+    protected function getPaymentCode(string $configCode, string $salesChannelId = null): string
     {
-        if ($paymentCode === 'afterpay' &&
+        if ($configCode === 'afterpay' &&
             $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true
         ) {
             return 'afterpaydigiaccept';
         }
 
-        if ($paymentCode === 'klarnain') {
-            return 'klarna';
+        $mappings = [
+            'klarnain' => 'klarna',
+            'capayable' => 'in3',
+            'giftcards' => 'giftcard',
+            'creditcards' => 'creditcard',
+        ];
+        if(isset($mappings[$configCode])) {
+            return $mappings[$configCode];
         }
 
-        if ($paymentCode === 'capayable') {
-            return 'in3';
-        }
-
-        if ($paymentCode === 'giftcards') {
-            return 'giftcard';
-        }
-
-        return $paymentCode;
+        return $configCode;
     }
 }

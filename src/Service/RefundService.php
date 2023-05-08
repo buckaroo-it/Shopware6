@@ -80,41 +80,56 @@ class RefundService
 
 
         $customFields = $this->transactionService->getCustomFields($order, $context);
-        $paymentCode = $this->getPaymentCode($order, $context, $transaction);
+        $configCode = $this->getConfigCode($customFields);
         $validationErrors = $this->validate($order, $customFields);
 
         if ($validationErrors !== null) {
             return $validationErrors;
         }
 
-        $client = $this->getClient(
-            $paymentCode,
-            $order->getSalesChannelId()
-        );
-
         $amount = $this->determineAmount(
             $orderItems,
             $request->get('customRefundAmount'),
             $transaction['amount'],
-            $paymentCode
+            $configCode
         );
 
-        return $this->handleResponse(
-            $client->execute(
+        if($amount <= 0) {
+            return [];
+        }
+
+        $client = $this->getClient(
+            $configCode,
+            $order->getSalesChannelId()
+        )
+            ->setAction('refund')
+            ->setPayload(
                 array_merge_recursive(
                     $this->getCommonRequestPayload(
                         $request,
                         $order,
-                        $customFields['originalTransactionKey'],
+                        $transaction['transactions'],
                         $amount
                     ),
                     $this->getMethodPayload(
                         $amount,
-                        $paymentCode
+                        $configCode,
+                        $transaction
                     )
-                ),
-                'refund'
-            ),
+                )
+            );
+
+        if(
+            $configCode === 'giftcards' &&
+            isset($transaction['transaction_method']) &&
+            is_string($transaction['transaction_method'])
+        ) {
+            $client->setPaymentCode($transaction['transaction_method']);
+        }
+
+
+        return $this->handleResponse(
+            $client->execute(),
             $order,
             $context,
             $orderItems,
@@ -160,7 +175,8 @@ class RefundService
             if (count($orderItems)) {
                 $orderItemsRefunded = [];
                 foreach ($orderItems as $value) {
-                    if (is_array($value) &&
+                    if (
+                        is_array($value) &&
                         isset($value['id']) &&
                         isset($value['quantity']) &&
                         is_string($value['id']) &&
@@ -199,10 +215,19 @@ class RefundService
                     }
                 }
 
+                $amountCredit = 0;
+                $transaction = $this->buckarooTransactionEntityRepository->getById($transactionId);
+                if ($transaction!== null && $transaction->get('amount_credit') !== null) {
+                    $amountCredit = (float)$transaction->get('amount_credit');
+                }
+
                 $this->buckarooTransactionEntityRepository
                     ->save(
                         $transactionId,
-                        ['refunded_items' => json_encode($orderItemsRefunded)],
+                        [
+                            'refunded_items' => json_encode($orderItemsRefunded),
+                            'amount_credit' => (string)($amountCredit + $amount)
+                        ],
                     );
             }
 
@@ -274,6 +299,7 @@ class RefundService
             'amountCredit'           => $amount,
             'currency'               => $this->getCurrencyIso($order),
             'pushURL'                => $this->urlService->getReturnUrl('buckaroo.payment.push'),
+            'pushURLFailure'         => $this->urlService->getReturnUrl('buckaroo.payment.push'),
             'clientIP'               => $this->getIp($request),
             'originalTransactionKey' => (string)$transactionKey,
             'additionalParameters'   => [
@@ -287,24 +313,41 @@ class RefundService
      * Get method specific payloads
      *
      * @param float $amount
-     * @param string $paymentCode
+     * @param string $configCode
+     * @param  array $customFields
      *
      * @return array<mixed>
      */
     private function getMethodPayload(
         float $amount,
-        string $paymentCode
+        string $configCode,
+        array $transaction
     ): array {
-        if (in_array($paymentCode, ["afterpay", "Billink", "klarnakp"])) {
-            return $this->getRefundArticleData($amount);
-        }
-        if ($paymentCode == 'afterpaydigiaccept') {
+        if (
+            $configCode === "afterpay" &&
+            $this->settingsService->getSetting('afterpayEnabledold') === true
+        ) {
             return $this->getRefundRequestArticlesForAfterpayOld($amount);
         }
 
+        if (in_array($configCode, ["afterpay", "Billink", "klarnakp"])) {
+            return $this->getRefundArticleData($amount);
+        }
+        
+        if(
+            in_array($configCode, ['creditcards', 'giftcards']) &&
+            isset($transaction['transaction_method']) &&
+            is_string($transaction['transaction_method'])
+        ) {
+            return [
+                "name" => $transaction['transaction_method'],
+                "version" => 2
+            ];
+        }
 
         return [];
     }
+    
 
     /**
      * Validate request and return any errors
@@ -395,7 +438,8 @@ class RefundService
         string $paymentCode
     ): float {
         $amount = 0;
-        if (is_scalar($customRefundAmount) &&
+        if (
+            is_scalar($customRefundAmount) &&
             (float)$customRefundAmount > 0 &&
             !in_array($paymentCode, ['afterpay', 'Billink', 'klarnakp'])
         ) {
@@ -408,6 +452,10 @@ class RefundService
                     }
                 }
             }
+
+            if (is_scalar($transactionAmount) && $amount > (float)$transactionAmount) {
+                $amount = (float)$transactionAmount; 
+            }
         }
 
         if ($amount <= 0 && is_scalar($transactionAmount)) {
@@ -417,31 +465,17 @@ class RefundService
     }
 
     /**
-     * @param OrderEntity $order
-     * @param Context $context
-     * @param array<mixed> $transaction
+     * @param array<mixed> $customFields
      *
      * @return string
      */
-    public function getPaymentCode(
-        OrderEntity $order,
-        Context $context,
-        array $transaction
+    public function getConfigCode(
+        array $customFields
     ): string {
-        $customFields = $this->transactionService->getCustomFields($order, $context);
-        $customFields['serviceName']            = $transaction['transaction_method'];
-        $customFields['originalTransactionKey'] = $transaction['transactions'];
-
-        $paymentCode = $customFields['serviceName'];
-        if (in_array($customFields['serviceName'], ['creditcard', 'creditcards', 'giftcards'])
-        ) {
-            $paymentCode = $customFields['brqPaymentMethod'];
-        }
-
-        if (!is_string($paymentCode)) {
+        if (!is_string($customFields['serviceName'])) {
             throw new \InvalidArgumentException('Service name is not a string');
         }
-        return $paymentCode;
+        return $customFields['serviceName'];
     }
 
     /**

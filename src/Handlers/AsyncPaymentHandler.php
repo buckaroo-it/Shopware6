@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
+use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
@@ -67,30 +68,42 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $client = $this->getClient(
                 $paymentCode,
                 $salesChannelId
-            );
-
-            return $this->handleResponse(
-                $client->execute(
-                    array_merge_recursive(
-                        $this->getCommonRequestPayload(
-                            $transaction,
-                            $dataBag,
-                            $salesChannelContext,
-                            $paymentCode
-                        ),
-                        $this->getMethodPayload(
-                            $order,
-                            $dataBag,
-                            $salesChannelContext,
-                            $paymentCode
-                        )
+            )
+            ->setPayload(
+                array_merge_recursive(
+                    $this->getCommonRequestPayload(
+                        $transaction,
+                        $dataBag,
+                        $salesChannelContext,
+                        $paymentCode
                     ),
-                    $this->getMethodAction(
+                    $this->getMethodPayload(
+                        $order,
                         $dataBag,
                         $salesChannelContext,
                         $paymentCode
                     )
-                ),
+                )
+            )
+            ->setAction(
+                $this->getMethodAction(
+                    $dataBag,
+                    $salesChannelContext,
+                    $paymentCode
+                )
+            );
+
+            $this->asyncPaymentService->dispatchEvent(
+                new BeforePaymentRequestEvent(
+                    $transaction,
+                    $dataBag,
+                    $salesChannelContext,
+                    $client
+                )
+            );
+
+            return $this->handleResponse(
+                $client->execute(),
                 $transaction,
                 $dataBag,
                 $salesChannelContext,
@@ -436,7 +449,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         AsyncPaymentTransactionStruct $transaction,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
-    ) {
+    ): void {
         $fee =  $this->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
 
         $this->asyncPaymentService

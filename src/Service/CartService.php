@@ -120,7 +120,6 @@ class CartService
         }
 
         $cart = new Cart(
-            'buckaroo-cart',
             Uuid::randomHex()
         );
 

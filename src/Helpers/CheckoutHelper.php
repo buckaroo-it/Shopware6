@@ -53,7 +53,7 @@ class CheckoutHelper
     /**
      *
      * @param string $orderId
-     * @param array<mixed> $customFields
+     * @param float $fee
      * @param Context $context
      *
      * @return void
