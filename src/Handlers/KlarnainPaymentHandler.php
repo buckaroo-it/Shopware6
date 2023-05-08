@@ -3,55 +3,28 @@
 namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Klarnain;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Buckaroo\Shopware6\Handlers\KlarnaPaymentHandler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class KlarnainPaymentHandler extends KlarnaPaymentHandler
 {
+    protected string $paymentClass = Klarnain::class;
 
     /**
-     * @param AsyncPaymentTransactionStruct $transaction
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string|null $buckarooKey
-     * @param string $type
-     * @param array $gatewayInfo
-     * @return RedirectResponse
-     * @throws \Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException
-     */
-    public function pay(
-        AsyncPaymentTransactionStruct $transaction,
-        RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $buckarooKey = null,
-        string $type = null,
-        string $version = null,
-        array $gatewayInfo = []
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-
-        $additional = [];
-        $latestKey  = 1;
-        $order      = $transaction->getOrder();
-
-        $paymentMethod = new Klarnain();
-        $additional    = $this->getArticleTotalData($order, $additional, $latestKey, $paymentMethod->getBuckarooKey(), $salesChannelContext->getSalesChannelId());
-        $additional = $this->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag, $paymentMethod);
-
-        $gatewayInfo = [
-            'additional' => $additional,
-        ];
-
-        return AsyncPaymentHandler::pay(
-            $transaction,
-            $dataBag,
-            $salesChannelContext,
-            $paymentMethod->getBuckarooKey(),
-            $paymentMethod->getType(),
-            $paymentMethod->getVersion(),
-            $gatewayInfo
-        );
-    }
+    * Get method action for specific payment method
+    *
+    * @param RequestDataBag $dataBag
+    * @param SalesChannelContext $salesChannelContext
+    * @param string $paymentCode
+    *
+    * @return string
+    */
+   protected function getMethodAction(
+       RequestDataBag $dataBag,
+       SalesChannelContext $salesChannelContext,
+       string $paymentCode
+   ): string {
+       return 'payInInstallments';
+   }
 }

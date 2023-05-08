@@ -10,57 +10,36 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class P24PaymentHandler extends AsyncPaymentHandler
 {
+
+    protected string $paymentClass = P24::class;
+
+
     /**
+     * Get parameters for specific payment method
+     *
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $buckarooKey
-     * @param string $type
-     * @param array $gatewayInfo
-     * @return RedirectResponse
-     * @throws \Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException
+     * @param string $paymentCode
+     *
+     * @return array
      */
-    public function pay(
+    protected function getMethodPayload(
         AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $buckarooKey = null,
-        string $type = null,
-        string $version = null,
-        array $gatewayInfo = []
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $paymentMethod = new P24();
+        string $paymentCode
+    ): array {
 
         $order = $transaction->getOrder();
-        $address  = $this->checkoutHelper->getBillingAddress($order, $salesChannelContext);
-        $customer = $this->checkoutHelper->getOrderCustomer($order, $salesChannelContext);
-        $additional = [
-            [
-                'Name' => 'CustomerEmail',
-                '_' => $customer->getEmail(),
-            ],
-            [
-                'Name' => 'CustomerFirstName',
-                '_' => $address->getFirstName(),
-            ],
-            [
-                'Name' => 'CustomerLastName',
-                '_' => $address->getLastName(),
+        $address  = $order->getBillingAddress();
+
+        return [
+            'email'    => $order->getOrderCustomer()->getEmail(),
+            'customer' => [
+                'firstName' => $address->getFirstName(),
+                'lastName'  => $address->getLastName(),
             ]
         ];
-        $gatewayInfo   = [
-            'additional' => [$additional],
-        ];
-
-        return parent::pay(
-            $transaction,
-            $dataBag,
-            $salesChannelContext,
-            $paymentMethod->getBuckarooKey(),
-            $paymentMethod->getType(),
-            $paymentMethod->getVersion(),
-            $gatewayInfo
-        );
     }
 }

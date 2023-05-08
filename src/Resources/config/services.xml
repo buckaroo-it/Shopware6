@@ -17,39 +17,12 @@
 
 
         <service id="Buckaroo\Shopware6\Handlers\AfterPayOld">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
         </service>
         
         <!-- /Entity -->
 
-        <service id="Buckaroo\Shopware6\Helpers\Config">
-            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
-        </service>
-
-        <service id="Buckaroo\Shopware6\Buckaroo\HmacHeader">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Config"/>
-        </service>
-
-        <service id="Buckaroo\Shopware6\Helpers\PluginInfo"/>
-        <service id="Buckaroo\Shopware6\Buckaroo\CultureHeader"/>
-        
-        <service id="Buckaroo\Shopware6\Buckaroo\SoftwareHeader">
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\PluginInfo"/>
-            <argument>%kernel.shopware_version%</argument>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService" />
-        </service>
-
-        <service id="Buckaroo\Shopware6\Buckaroo\BkrClient">
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\HmacHeader"/>
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\SoftwareHeader"/>
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\CultureHeader"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
-        </service>
-        
-        <service id="Buckaroo\Shopware6\Helpers\Helper">
-            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\BkrClient"/>
-        </service>
 
         <service id="Buckaroo\Shopware6\Helpers\Logger" class="Monolog\Logger">
             <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
@@ -64,12 +37,14 @@
         <service id="Buckaroo\Shopware6\Service\UrlService">
              <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
              <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface"/>
+             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\StateTransitionService">
             <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="state_machine_state.repository" />
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
         </service>
 
@@ -80,7 +55,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
             <argument type="service" id="translator" />
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\BkrClient"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\CaptureService">
@@ -89,7 +64,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\InvoiceService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
             <argument type="service" id="translator" />
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\BkrClient"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\PayLinkService">
@@ -97,7 +72,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
             <argument type="service" id="translator" />
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\BkrClient"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\InvoiceService">
@@ -115,6 +90,7 @@
         </service>
 
         <service id="Buckaroo\Shopware6\Service\FormatRequestParamService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\SignatureValidationService">
@@ -124,29 +100,29 @@
         <service id="Buckaroo\Shopware6\Service\TestCredentialsService">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\BkrClient"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
             <argument type="service" id="translator" />
+        </service>
+
+
+        <service id="Buckaroo\Shopware6\Service\Buckaroo\ClientService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
         </service>
         
         <service id="Buckaroo\Shopware6\Helpers\CheckoutHelper">
             <argument>%kernel.shopware_version%</argument>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService" />
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="order.repository" />
-            <argument type="service" id="translator" />
             <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="currency.repository" />
             <argument type="service" id="session"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
-            <argument type="service" id="language.repository" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\AsyncPaymentService">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\BkrClient"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
@@ -157,6 +133,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\InvoiceService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -337,7 +314,6 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\TestCredentialsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\BuckarooTransactionService"/>
             <argument type="service" id="tax.repository"/>
-            
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -349,37 +325,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\InvoiceService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="order.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
-        <service id="Buckaroo\Shopware6\Storefront\Controller\BuckarooController" public="true">
-            <argument type="service" id="country.repository" />
-            <argument type="service" id="language.repository" />
-            <argument type="service" id="locale.repository" />
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Config"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="order.repository" />
-            <argument type="service" id="shipping_method.repository" />
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator" />
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator" />
-            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
-            <argument type="service" id="order_customer.repository" />
-            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventDispatcher"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
-            <argument type="service" id="customer.repository" />
-            <argument type="service" id="salutation.repository" />
-            <argument type="service" id="customer_address.repository" />
-            <argument type="service" id="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader" />
-            <argument type="service" id="payment_method.repository" />
-            <argument type="service" id="order_transaction.repository" />
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <argument type="service" id="order_address.repository" />
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -388,6 +334,7 @@
         <service id="Buckaroo\Shopware6\Storefront\Controller\RefundController" public="true">
             <argument type="service" id="Buckaroo\Shopware6\Service\RefundService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -396,6 +343,7 @@
         <service id="Buckaroo\Shopware6\Storefront\Controller\CaptureController" public="true">
             <argument type="service" id="Buckaroo\Shopware6\Service\CaptureService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -403,6 +351,7 @@
         
         <service id="Buckaroo\Shopware6\Storefront\Controller\PaylinkController" public="true">
             <argument type="service" id="Buckaroo\Shopware6\Service\PayLinkService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

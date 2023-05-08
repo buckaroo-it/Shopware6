@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
@@ -10,38 +12,31 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class RtpPaymentHandler extends AsyncPaymentHandler
 {
+
+    protected string $paymentClass = Rtp::class;
+
     /**
+     * Get parameters for specific payment method
+     *
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $buckarooKey
-     * @param string $type
-     * @param array $gatewayInfo
-     * @return RedirectResponse
-     * @throws \Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException
+     * @param string $paymentCode
+     *
+     * @return array
      */
-    public function pay(
+    protected function getMethodPayload(
         AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $buckarooKey = null,
-        string $type = null,
-        string $version = null,
-        array $gatewayInfo = []
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $order = $transaction->getOrder();
-        $address = $this->checkoutHelper->getBillingAddress($order, $salesChannelContext);
-        $gatewayInfo['additional'][] = [['Name' => 'DebtorName', '_' => $address->getFirstName() . ' ' . $address->getLastName()]];
-        $paymentMethod = new Rtp();
-        return parent::pay(
-            $transaction,
-            $dataBag,
-            $salesChannelContext,
-            $paymentMethod->getBuckarooKey(),
-            $paymentMethod->getType(),
-            $paymentMethod->getVersion(),
-            $gatewayInfo
-        );
+        string $paymentCode
+    ): array {
+
+        $address  = $transaction->getOrder()->getBillingAddress();
+        return [
+            'customer' => [
+                'name' => $address->getFirstName() . ' ' . $address->getLastName()
+            ]
+        ];
     }
 }

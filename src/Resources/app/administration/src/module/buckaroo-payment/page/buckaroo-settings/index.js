@@ -65,7 +65,6 @@ Component.register('buckaroo-settings', {
             },
             collapsibleAdvancedState: {
                 'paylinkEnabled': true,
-                'stockReserve': true,
                 'sendInvoiceEmail': true,
                 'paymentSuccesStatus': true,
                 'orderStatus': true,

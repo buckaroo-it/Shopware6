@@ -15,11 +15,8 @@ use Buckaroo\Shopware6\Service\SignatureValidationService;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -33,8 +30,6 @@ class PushController extends StorefrontController
     private LoggerInterface $logger;
 
     private CheckoutHelper $checkoutHelper;
-
-    private EntityRepository $orderRepository;
 
     protected SignatureValidationService $signatureValidationService;
 
@@ -50,7 +45,6 @@ class PushController extends StorefrontController
         StateTransitionService $stateTransitionService,
         InvoiceService $invoiceService,
         CheckoutHelper $checkoutHelper,
-        EntityRepository $orderRepository,
         LoggerInterface $logger
     ) {
         $this->signatureValidationService = $signatureValidationService;
@@ -58,7 +52,6 @@ class PushController extends StorefrontController
         $this->stateTransitionService = $stateTransitionService;
         $this->invoiceService = $invoiceService;
         $this->checkoutHelper        = $checkoutHelper;
-        $this->orderRepository       = $orderRepository;
         $this->logger                = $logger;
     }
 
@@ -262,92 +255,6 @@ class PushController extends StorefrontController
         return $this->json(['status' => $status, 'message' => $this->trans($message)]);
     }
 
-    /**
-     * @Route("/buckaroo/finalize", name="buckaroo.payment.finalize", defaults={"csrf_protected"=false}, methods={"POST","GET"})
-     *
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return RedirectResponse
-     * @deprecated 2.0.0
-     */
-    public function finalizeBuckaroo(Request $request, SalesChannelContext $salesChannelContext)
-    {
-        if ($request->query->getBoolean('back_return')) {
-            $status = 890;
-            $statusMessage = 'The transaction was cancelled by the user.';
-            $orderId = $this->get('session')->get('buckaroo_order_number');
-            if ($token = $request->query->get('ADD_sw-context-token')) {
-                $this->get('session')->set('sw-context-token', $token);
-            }
-        } else {
-            $status = $request->request->get('brq_statuscode');
-            $statusMessage = $request->request->get('brq_statusmessage');
-            $orderId       = $request->request->get('ADD_orderId');
-        }
-
-        if (
-            !empty($request->request->get('brq_payment_method'))
-            && ($request->request->get('brq_payment_method') == 'paypal')
-            && ($status == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
-        ) {
-            $status = ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
-            $request->query->set('cancel', 1);
-        }
-
-        if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING])) {
-            return $this->renderStorefront('@Storefront/storefront/buckaroo/page/finalize/_page2.html.twig', [
-                'messages' => [['type' => 'success', 'text' => $this->trans('buckaroo.messages.return791')]],
-            ]);
-        }
-
-        if (in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS, ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS])) {
-            if ($token = $request->request->get('ADD_sw-context-token')) {
-                $this->get('session')->set('sw-context-token', $token);
-            }
-
-            return new RedirectResponse($this->generateUrl('frontend.checkout.finish.page', ['orderId' => $request->request->get('ADD_orderId')]));
-        }
-
-        if ($request->query->getBoolean('cancel')) {
-            $messages[] = ['type' => 'warning', 'text' => $this->trans('buckaroo.messages.userCanceled')];
-        }
-
-        if ($error = $request->query->filter('error')) {
-            $messages[] = ['type' => 'danger', 'text' => base64_decode($error)];
-        }
-
-        if ($statusMessage == 'Failed' && in_array($status, [ResponseStatus::BUCKAROO_STATUSCODE_FAILED])) {
-            $messages[] = ['type' => 'danger', 'text' => $this->trans('buckaroo.messages.incorrectPin')];
-        }
-
-        if (empty($messages)) {
-            $statusMessage = $this->checkoutHelper->getStatusMessageByStatusCode($status);
-            $messages[] = ['type' => 'danger', 'text' => $statusMessage ? $statusMessage : $this->trans('errorOccurred')];
-        }
-
-        if (!$orderId && $orderId = $request->query->filter('orderId')) {}
-
-        $lineItems = [];
-        if ($orderId) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('id', $orderId))
-                ->addAssociation('lineItems')
-                ->addAssociation('lineItems.cover');
-            /** @var OrderEntity|null $order */
-            $order     = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
-            $lineItems = $order->getNestedLineItems();
-
-            foreach ($messages as $message) {
-                $this->addFlash($message['type'], $message['text']);
-            }
-
-        }
-        return $this->renderStorefront('@Storefront/storefront/buckaroo/page/finalize/_page.html.twig', [
-            'messages'     => $messages,
-            'orderDetails' => $lineItems,
-        ]);
-    }
     public function checkDuplicatePush($order, $orderTransactionId, $context){
         $rand = range(0,6,2); shuffle($rand);
         usleep(array_shift($rand) * 1000000);

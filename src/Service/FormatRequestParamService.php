@@ -6,17 +6,24 @@ namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
 
 class FormatRequestParamService
 {
+    protected SettingsService $settingsService;
+    
+    public function __construct(SettingsService $settingsService) {
+        $this->settingsService = $settingsService;
+    }
+
     /**
      * Return an array of order lines.
      *
      * @param OrderEntity $order
      * @return array
      */
-    public function getOrderLinesArray(OrderEntity $order)
+    public function getOrderLinesArray(OrderEntity $order, string $paymentCode = null)
     {
         // Variables
         $lines     = [];
@@ -58,6 +65,13 @@ class FormatRequestParamService
                 $vatRate            = 0.0;
             }
 
+            $taxId = null;
+            $itemPayload = $item->getPayload();
+            if ($itemPayload !== null && !isset($itemPayload['taxId'])) {
+                $taxId = $itemPayload['taxId'];
+            }
+
+
             // Build the order lines array
             $lines[] = [
                 'id'          => $item->getId(),
@@ -71,13 +85,15 @@ class FormatRequestParamService
                 'sku'         => $item->getId(),
                 'imageUrl'    => null,
                 'productUrl'  => null,
+                'taxId'       => $taxId
             ];
         }
 
         $lines[] = $this->getShippingItemArray($order);
 
-        if ($this->getBuckarooFeeArray($order)) {
-            $lines[] = $this->getBuckarooFeeArray($order);
+        $fee = $this->getBuckarooFeeArray($order, $paymentCode);
+        if (count($fee)) {
+            $lines[] = $fee;
         }
 
         return $lines;
@@ -92,11 +108,12 @@ class FormatRequestParamService
         $i = 1;
 
         foreach ($lines as $item) {
-            $productData[] = $this->getRequestParameterRow($item['sku'], 'Code', 'ProductLine', $i);
-            $productData[] = $this->getRequestParameterRow($item['name'], 'Name', 'ProductLine', $i);
-            $productData[] = $this->getRequestParameterRow($item['quantity'], 'Quantity', 'ProductLine', $i);
-            $productData[] = $this->getRequestParameterRow($item['unitPrice']['value'], 'Price', 'ProductLine', $i);
-
+            $productData[] = [
+                'identifier'        => $item['sku'],
+                'description'       => $item['name'],
+                'quantity'          => $item['quantity'],
+                'price'             => $item['unitPrice']['value']
+            ];
             $i++;
 
             if ($i > $max) {
@@ -107,54 +124,6 @@ class FormatRequestParamService
         return $productData;
     }
 
-    public function getProductLineDataCapture($order)
-    {
-        $lines = $this->getOrderLinesArray($order);
-
-        $productData = [];
-        $max = 99;
-        $i = 1;
-
-        foreach ($lines as $item) {
-            $productData[] = $this->getRequestParameterRow($item['sku'], 'ArticleNumber', 'Article', $i);
-            $productData[] = $this->getRequestParameterRow($item['quantity'], 'ArticleQuantity', 'Article', $i);
-
-            $i++;
-
-            if ($i > $max) {
-                break;
-            }
-        }
-
-        return $productData;
-    }
-
-    
-    /**
-     * @param string          $value
-     * @param string          $name
-     * @param null|string     $groupType
-     * @param null|string|int $groupId
-     *
-     * @return array
-     */
-    public function getRequestParameterRow($value, $name, $groupType = null, $groupId = null)
-    {
-        $row = [
-            '_' => $value,
-            'Name' => $name
-        ];
-
-        if ($groupType !== null) {
-            $row['Group'] = $groupType;
-        }
-
-        if ($groupId !== null) {
-            $row['GroupID'] = $groupId;
-        }
-
-        return $row;
-    }
 
     /**
      * Return a calculated tax struct for a line item.
@@ -242,21 +211,31 @@ class FormatRequestParamService
         return $line;
     }
 
-    protected function getBuckarooFeeArray(OrderEntity $order)
+    protected function getBuckarooFeeArray(OrderEntity $order, $paymentCode = null)
     {
         // Variables
         $line     = [];
         $customFields = $order->getCustomFields();
 
-        if ($customFields === null || !isset($customFields['buckarooFee'])) {
-            return false;
+        $buckarooFee = null;
+
+        if ($customFields !== null && isset($customFields['buckarooFee'])) {
+            $buckarooFee = round((float)str_replace(',', '.', (string)$customFields['buckarooFee']), 2);
+        }
+
+        if($buckarooFee === null && $paymentCode !== null) {
+            $buckarooFee = $this->settingsService->getBuckarooFee($paymentCode, $order->getSalesChannelId());
+        }
+   
+        if($buckarooFee <= 0)  {
+            return $line;
         }
 
         // Get currency code
         $currency     = $order->getCurrency();
         $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
-        $buckarooFee = round((float)str_replace(',', '.', (string)$customFields['buckarooFee']), 2);
 
+        
         // Build the order line array
         $line = [
             'id'          => 'buckarooFee',
@@ -273,5 +252,57 @@ class FormatRequestParamService
         ];
 
         return $line;
+    }
+
+    public function getStreet(OrderAddressEntity $address, array $parts): string
+    {
+        if (!empty($parts['house_number'])) {
+            return $parts['street'];
+        }
+        return (string)$address->getStreet();
+    }
+
+    public function getHouseNumber(OrderAddressEntity $address, array $parts): string
+    {
+        if (!empty($parts['house_number'])) {
+            return $parts['house_number'];
+        }
+        return (string)$address->getAdditionalAddressLine1();
+    }
+
+    public function getAdditionalHouseNumber(OrderAddressEntity $address, array $parts): string
+    {
+        if (!empty($parts['number_addition'])) {
+            return $parts['number_addition'];
+        }
+        return (string)$address->getAdditionalAddressLine2();
+    }
+    /**
+     * @param $street
+     *
+     * @return array
+     */
+    public function formatStreet($street)
+    {
+        $format = [
+            'house_number'    => '',
+            'number_addition' => '',
+            'street'          => $street,
+        ];
+
+        if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
+            // Check if the number is at the beginning of streetname
+            if ('' == $matches[1]) {
+                $format['house_number'] = trim($matches[2]);
+                $format['street']       = trim($matches[3]);
+            } else {
+                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
+                    $format['street']          = trim($matches[1]);
+                    $format['house_number']    = trim($matches[2]);
+                    $format['number_addition'] = trim(str_replace(',', '', $matches[3]));
+                }
+            }
+        }
+        return $format;
     }
 }

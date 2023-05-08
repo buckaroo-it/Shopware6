@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
@@ -27,6 +28,8 @@ class StateTransitionService
 
     protected StateMachineStateEntity $stateMachineStateEntity;
 
+    protected StateMachineRegistry $stateMachineRegistry;
+    
     /**
      * @var LoggerInterface
      */
@@ -36,11 +39,13 @@ class StateTransitionService
         TransactionService $transactionService,
         OrderTransactionStateHandler $orderTransactionStateHandler,
         EntityRepository $stateMachineRepository,
+        StateMachineRegistry $stateMachineRegistry,
         LoggerInterface $logger
     ) {
         $this->transactionService = $transactionService;
         $this->orderTransactionStateHandler = $orderTransactionStateHandler;
         $this->stateMachineRepository = $stateMachineRepository;
+        $this->stateMachineRegistry = $stateMachineRegistry;
         $this->logger = $logger;
     }
 

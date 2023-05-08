@@ -3,416 +3,172 @@
 namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Klarna;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
 class KlarnaPaymentHandler extends AsyncPaymentHandler
 {
-    /**
+
+    protected string $paymentClass = Klarna::class;
+    
+     /**
+     * Get parameters for specific payment method
+     *
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $buckarooKey
-     * @param string $type
-     * @param array $gatewayInfo
-     * @return RedirectResponse
-     * @throws \Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException
+     * @param string $paymentCode
+     *
+     * @return array
      */
-    public function pay(
+    protected function getMethodPayload(
         AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $buckarooKey = null,
-        string $type = null,
-        string $version = null,
-        array $gatewayInfo = []
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-
-        $additional = [];
-        $latestKey  = 1;
-        $order      = $transaction->getOrder();
-
-        $paymentMethod = new Klarna();
-        $additional    = $this->getArticleTotalData($order, $additional, $latestKey, $paymentMethod->getBuckarooKey(),  $salesChannelContext->getSalesChannelId());
-        // $additional = $this->getArticleData($order, $additional, $latestKey);
-        // $additional = $this->getBuckarooFee($order, $additional, $latestKey, $salesChannelContext->getSalesChannelId());
-        $additional = $this->getAddressArray($order, $additional, $latestKey, $salesChannelContext, $dataBag, $paymentMethod);
-
-        $gatewayInfo = [
-            'additional' => $additional,
-        ];
-
-        return parent::pay(
-            $transaction,
-            $dataBag,
-            $salesChannelContext,
-            $paymentMethod->getBuckarooKey(),
-            $paymentMethod->getType(),
-            $paymentMethod->getVersion(),
-            $gatewayInfo
+        string $paymentCode
+    ): array {
+        $order = $transaction->getOrder();
+        return array_merge_recursive(
+            $this->getBillingData($order, $dataBag),
+            $this->getShippingData($order, $dataBag),
+            $this->getArticles($order, $paymentCode)
         );
     }
 
-    public function getBuckarooFee($order, $additional, &$latestKey, $salesChannelId)
-    {
-        $buckarooFee = $this->checkoutHelper->getBuckarooFee('klarnaFee', $salesChannelId);
-        if (false !== $buckarooFee && (double) $buckarooFee > 0) {
-            $additional[] = [
-                [
-                    '_'       => 'buckarooFee',
-                    'Name'    => 'Description',
-                    'GroupID' => $latestKey,
-                    'Group'   => 'Article',
+    protected function getBillingData(
+        OrderEntity $order,
+        RequestDataBag $dataBag
+    ): array {
+        $address = $order->getBillingAddress();
+        $customer = $order->getOrderCustomer();
+
+        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
+
+        return [
+            'billing' => [
+                'recipient' => [
+                    'category'              =>  $this->getCategory($address),
+                    'firstName'             =>  $address->getFirstName(),
+                    'lastName'              =>  $address->getLastName(),
+                    'birthDate'             =>  $this->getBirthDate($dataBag),
+                    'gender'                =>  $dataBag->get('buckaroo_klarna_gender', 'male')
                 ],
-                [
-                    '_'       => 'buckarooFee',
-                    'Name'    => 'Identifier',
-                    'Group'   => 'Article',
-                    'GroupID' => $latestKey,
+                'address' => [
+                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'houseNumberAdditional' => $this->formatRequestParamService->getAdditionalHouseNumber($address, $streetParts),
+                    'zipcode'               =>  $address->getZipcode(),
+                    'city'                  =>  $address->getCity(),
+                    'country'               =>  $address->getCountry()->getIso()
                 ],
-                [
-                    '_'       => 1,
-                    'Name'    => 'Quantity',
-                    'GroupID' => $latestKey,
-                    'Group'   => 'Article',
+                'phone' => [
+                    'mobile'        => $this->getPhone($dataBag, $address),
                 ],
-                [
-                    '_'       => round($buckarooFee, 2),
-                    'Name'    => 'GrossUnitPrice',
-                    'GroupID' => $latestKey,
-                    'Group'   => 'Article',
-                ],
-                [
-                    '_'       => 0,
-                    'Name'    => 'VatPercentage',
-                    'GroupID' => $latestKey,
-                    'Group'   => 'Article',
-                ],
-            ];
-            $latestKey++;
-        }
-        return $additional;
+                'email'         => $customer->getEmail()
+            ]
+        ];
+
+
     }
 
-    public function getArticleData($order, $additional, &$latestKey)
-    {
-        $lines = $this->getOrderLinesArray($order);
-        foreach ($lines as $key => $item) {
-            $additional[] = [
-                [
-                    '_'       => $item['name'],
-                    'Name'    => 'Description',
-                    'GroupID' => $latestKey,
-                    'Group'   => 'Article',
-                ],
-                [
-                    '_'       => $item['sku'],
-                    'Name'    => 'Identifier',
-                    'Group'   => 'Article',
-                    'GroupID' => $latestKey,
-                ],
-                [
-                    '_'       => $item['quantity'],
-                    'Name'    => 'Quantity',
-                    'GroupID' => $latestKey,
-                    'Group'   => 'Article',
-                ],
-                [
-                    '_'       => $item['unitPrice']['value'],
-                    'Name'    => 'GrossUnitPrice',
-                    'GroupID' => $latestKey,
-                    'Group'   => 'Article',
-                ],
-                [
-                    '_'       => $item['vatRate'],
-                    'Name'    => 'VatPercentage',
-                    'GroupID' => $latestKey,
-                    'Group'   => 'Article',
-                ],
-            ];
-            $latestKey++;
-        }
-
-        return $additional;
-    }
-
-    public function getAddressArray($order, $additional, &$latestKey, $salesChannelContext, $dataBag, $paymentMethod)
-    {
-        $address         = $this->checkoutHelper->getBillingAddress($order, $salesChannelContext);
-        $customer        = $this->checkoutHelper->getOrderCustomer($order, $salesChannelContext);
-        $shippingAddress = $this->checkoutHelper->getShippingAddress($order, $salesChannelContext);
-
+    protected function getShippingData(
+        OrderEntity $order,
+        RequestDataBag $dataBag
+    ): array {
+        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity|null */
+        $address = $order->getDeliveries()->getShippingAddress()->first();
         if ($address === null) {
-            return $additional;
+            $address = $order->getBillingAddress();
         }
 
-        $streetFormat  = $this->checkoutHelper->formatStreet($address->getStreet());
-        $birthDayStamp = \DateTime::createFromFormat('Y-m-d', $dataBag->get('buckaroo_klarna_DoB'));
-        $birthDayStamp = $birthDayStamp->format('d/m/Y');
-
-        $address->setPhoneNumber($dataBag->get('buckaroo_klarna_phone'));
-        $gender = $dataBag->get('buckaroo_klarna_gender');
-
-        $shippingAddress->setPhoneNumber($dataBag->get('buckaroo_klarna_phone'));
-        $shippingStreetFormat = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
-
-        $category    = $this->settingsService->getSetting($paymentMethod->getBuckarooKey() . 'Business', $salesChannelContext->getSalesChannelId()) ?? 'B2C';
-        $billingData = [
-            [
-                '_'       => $category,
-                'Name'    => 'Category',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $address->getFirstName(),
-                'Name'    => 'FirstName',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $address->getLastName(),
-                'Name'    => 'LastName',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => (!empty($streetFormat['house_number']) ? $streetFormat['street'] : $address->getStreet()),
-                'Name'    => 'Street',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $address->getZipCode(),
-                'Name'    => 'PostalCode',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $address->getCity(),
-                'Name'    => 'City',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $this->checkoutHelper->getCountryCode($address),
-                'Name'    => 'Country',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $address->getPhoneNumber(),
-                'Name'    => 'Phone',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $customer->getEmail(),
-                'Name'    => 'Email',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
+        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
+        return [
+            'shipping' => [
+                'recipient' => [
+                    'category'              =>  $this->getCategory($address),
+                    'firstName'             =>  $address->getFirstName(),
+                    'lastName'              =>  $address->getLastName(),
+                    'birthDate'             =>  $this->getBirthDate($dataBag),
+                    'gender'                =>  $dataBag->get('buckaroo_klarna_gender', 'male')
+                ],
+                'address' => [
+                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'houseNumberAdditional' => $this->formatRequestParamService->getAdditionalHouseNumber($address, $streetParts),
+                    'zipcode'               =>  $address->getZipcode(),
+                    'city'                  =>  $address->getCity(),
+                    'country'               =>  $address->getCountry()->getIso()
+                ],
+                'email'         => $order->getOrderCustomer()->getEmail()
             ],
         ];
-
-        if (!empty($streetFormat['house_number'])) {
-            $billingData[] = [
-                '_'       => $streetFormat['house_number'],
-                'Name'    => 'StreetNumber',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ];
-        }elseif(!empty($address->getAdditionalAddressLine1())){
-            $billingData[] = [
-                '_'       => $address->getAdditionalAddressLine1(),
-                'Name'    => 'StreetNumber',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ]; 
-        }
-
-        if (!empty($streetFormat['number_addition'])) {
-            $billingData[] = [
-                '_'       => $streetFormat['number_addition'],
-                'Name'    => 'StreetNumberAdditional',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ];
-        }elseif(!empty($address->getAdditionalAddressLine2())){
-            $billingData[] = [
-                '_'       => $address->getAdditionalAddressLine2(),
-                'Name'    => 'StreetNumberAdditional',
-                'Group'   => 'BillingCustomer',
-                'GroupID' => '',
-            ]; 
-        }
-
-        $billingData[] = [
-            '_'       => $gender,
-            'Name'    => 'Gender',
-            'Group'   => 'BillingCustomer',
-            'GroupID' => '',
-        ];
-
-        $billingData[] = [
-            '_'       => $birthDayStamp,
-            'Name'    => 'BirthDate',
-            'Group'   => 'BillingCustomer',
-            'GroupID' => '',
-        ];
-
-        $shippingData = [
-            [
-                '_'       => $category,
-                'Name'    => 'Category',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $shippingAddress->getFirstName(),
-                'Name'    => 'FirstName',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $shippingAddress->getLastName(),
-                'Name'    => 'LastName',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => (!empty($shippingStreetFormat['house_number']) ? $shippingStreetFormat['street'] : $shippingAddress->getStreet()),
-                'Name'    => 'Street',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $shippingAddress->getZipCode(),
-                'Name'    => 'PostalCode',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $shippingAddress->getCity(),
-                'Name'    => 'City',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $this->checkoutHelper->getCountryCode($shippingAddress),
-                'Name'    => 'Country',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $shippingAddress->getPhoneNumber(),
-                'Name'    => 'Phone',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'       => $customer->getEmail(),
-                'Name'    => 'Email',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ],
-        ];
-
-        if (!empty($shippingStreetFormat['house_number'])) {
-            $shippingData[] = [
-                '_'       => $shippingStreetFormat['house_number'],
-                'Name'    => 'StreetNumber',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ];
-        }elseif (!empty($shippingAddress->getAdditionalAddressLine1())) {
-            $shippingData[] = [
-                '_'       => $shippingAddress->getAdditionalAddressLine1(),
-                'Name'    => 'StreetNumber',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ];
-        }
-
-        if (!empty($shippingStreetFormat['number_addition'])) {
-            $shippingData[] = [
-                '_'       => $shippingStreetFormat['number_addition'],
-                'Name'    => 'StreetNumberAdditional',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ];
-        }elseif(!empty($shippingAddress->getAdditionalAddressLine2())){
-            $shippingData[] = [
-                '_'       => $shippingAddress->getAdditionalAddressLine2(),
-                'Name'    => 'StreetNumberAdditional',
-                'Group'   => 'ShippingCustomer',
-                'GroupID' => '',
-            ];
-        }
-
-        $shippingData[] = [
-            '_'       => $gender,
-            'Name'    => 'Gender',
-            'Group'   => 'ShippingCustomer',
-            'GroupID' => '',
-        ];
-
-        $shippingData[] = [
-            '_'       => $birthDayStamp,
-            'Name'    => 'BirthDate',
-            'Group'   => 'ShippingCustomer',
-            'GroupID' => '',
-        ];
-
-        $latestKey++;
-
-        return array_merge($additional, [$billingData, $shippingData]);
-
     }
 
-    public function getArticleTotalData($order, $additional, &$latestKey, $buckarooKey, $salesChannelId)
+    private function getPhone(RequestDataBag $dataBag, OrderAddressEntity $address): string
     {
-        $total   = $order->getAmountTotal();
-        if ($buckarooFee = $this->checkoutHelper->getBuckarooFee($buckarooKey . 'Fee', $salesChannelId)) {
-            $total += $buckarooFee;
-        }
-
-        $additional[] = [
-            [
-                '_'       => 'Total product',
-                'Name'    => 'Description',
-                'GroupID' => $latestKey,
-                'Group'   => 'Article',
-            ],
-            [
-                '_'       => 0,
-                'Name'    => 'Identifier',
-                'Group'   => 'Article',
-                'GroupID' => $latestKey,
-            ],
-            [
-                '_'       => 1,
-                'Name'    => 'Quantity',
-                'GroupID' => $latestKey,
-                'Group'   => 'Article',
-            ],
-            [
-                '_'       => $total,
-                'Name'    => 'GrossUnitPrice',
-                'GroupID' => $latestKey,
-                'Group'   => 'Article',
-            ],
-            [
-                '_'       => 10,
-                'Name'    => 'VatPercentage',
-                'GroupID' => $latestKey,
-                'Group'   => 'Article',
-            ],
-        ];
-        $latestKey++;
-
-        return $additional;
+        return (string)$dataBag->get('buckaroo_klarna_phone', $address->getPhoneNumber());
     }
+
+    private function getArticles(OrderEntity $order, string $paymentCode): array
+    {
+        $lines = $this->getOrderLinesArray($order, $paymentCode);
+
+        $articles = [];
+
+        foreach ($lines as $item) {
+            $articles[] = [
+                'identifier'        => $item['sku'],
+                'description'       => $item['name'],
+                'quantity'          => $item['quantity'],
+                'price'             => $item['unitPrice']['value'],
+                'vatPercentage'     => $item['vatRate'],
+            ];
+        }
+        return [
+            'articles' => $articles
+        ];
+    }
+
+    
+
+    /**
+     * Get type of request b2b or b2c
+     *
+     * @param OrderAddressEntity $address
+     *
+     * @return string
+     */
+    private function getCategory(OrderAddressEntity $address): string
+    {
+        if (
+            $address->getCompany() !== null &&
+            !empty(trim($address->getCompany()))
+        ) {
+            return 'B2B';
+        }
+        return 'B2C';
+    }
+
+
+    /**
+     * Get birth date
+     *
+     * @param RequestDataBag $dataBag
+     *
+     * @return null|string|bool
+     */
+    private function getBirthDate(RequestDataBag $dataBag)
+    {
+        if ($dataBag->has('buckaroo_klarna_DoB')) {
+            return @date(
+                'd/m/Y',
+                strtotime($dataBag->get('buckaroo_klarna_DoB'))
+            );
+        }
+    }
+
+
 }

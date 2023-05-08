@@ -130,7 +130,8 @@ class PaymentStateService
             (string)$request->get('brq_statuscode'),
             [
                 ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
-                ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
+                ResponseStatus::BUCKAROO_STATUSCODE_REJECTED,
+                ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE
             ]
         );
     }

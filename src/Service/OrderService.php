@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -17,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 class OrderService {
 
@@ -131,6 +132,11 @@ class OrderService {
         $criteria = (new Criteria([$orderId]))
             ->addAssociations($associations)
         ;
+
+        if(in_array('transactions', $associations)) {
+            $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        }
+        
         return $this->orderRepository->search(
             $criteria,
             $context

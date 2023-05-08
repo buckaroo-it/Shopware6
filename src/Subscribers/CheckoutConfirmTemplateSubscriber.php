@@ -9,6 +9,9 @@ use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -23,8 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 {
@@ -159,6 +160,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 if ($buckarooKey === 'payperemail' && $this->isPayPermMailDisabledInFrontend($event->getSalesChannelContext()->getSalesChannelId())) {
                     $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
                 }
+
+                if ($buckarooKey === 'afterpay' && !$this->canShowAfterpay($event)) {
+                    $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
+                }
             }
         }
         $event->getPage()->setPaymentMethods($paymentMethods);
@@ -270,7 +275,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'last_used_creditcard'     => $lastUsedCreditcard,
             'payment_labels'           => $paymentLabels,
             'payment_media'            => $lastUsedCreditcard . '.png',
-            'buckarooFee'              => $this->settingsService->getBuckarooFee($buckarooKey . 'Fee', $salesChannelId),
+            'buckarooFee'              => $this->settingsService->getBuckarooFee($buckarooKey, $salesChannelId),
             'BillinkBusiness'          => $customer->getActiveBillingAddress() && $customer->getActiveBillingAddress()->getCompany() ? 'B2B' : 'B2C',
             'backLink'                 => $backUrl,
             'afterpay_customer_type'   => $this->settingsService->getSetting('afterpayCustomerType', $salesChannelId),
@@ -313,7 +318,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     private function getCustomer(string $customerId, Context $context): CustomerEntity
     {
         $criteria = (new Criteria())->addFilter(new EqualsFilter('id', $customerId));
-        return $this->customerRepository->search($criteria, $context)->first();
+
+        /** @var \Shopware\Core\Checkout\Customer\CustomerEntity */
+        $customer = $this->customerRepository->search($criteria, $context)->first();
+        return $customer;
     }
 
     /**
@@ -425,5 +433,77 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         ) {
             $this->session->getFlashBag()->add('success', $this->translator->trans('buckaroo.messages.return791'));
         }
+    }
+
+    /**
+     * Check if we can display afterpay when b2b is enabled 
+     *
+     * @param AccountEditOrderPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
+     *
+     * @return boolean
+     */
+    protected function canShowAfterpay($event): bool
+    {
+        $shippingCompany = null;
+        $billingCompany = null;
+
+        $isStrictB2B = $this->settingsService->getSetting(
+            'afterpayCustomerType',
+            $event->getSalesChannelContext()->getSalesChannelId()
+            ) === AfterPayPaymentHandler::CUSTOMER_TYPE_B2B;
+
+
+        if($event instanceof AccountEditOrderPageLoadedEvent) {
+            $order = $event->getPage()->getOrder();
+
+            $billingAddress =$order->getBillingAddress();
+            if($billingAddress !== null) {
+                $billingCompany = $billingAddress->getCompany();
+            }
+
+            if($order->getDeliveries() !== null) {
+                /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
+                $shippingAddress = $order->getDeliveries()->getShippingAddress()->first();
+                if($shippingAddress !== null) {
+                    $shippingCompany = $shippingAddress->getCompany();
+                }
+            }
+        }
+
+        if($event instanceof CheckoutConfirmPageLoadedEvent) {
+            $customer = $event->getSalesChannelContext()->getCustomer();
+
+            $billingAddress = $customer->getDefaultBillingAddress();
+
+            if($billingAddress !== null) {
+                $billingCompany = $billingAddress->getCompany();
+            }
+
+            /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
+            $shippingAddress = $customer->getDefaultShippingAddress();
+            if($shippingAddress !== null) {
+                $shippingCompany = $shippingAddress->getCompany();
+            }
+        }
+        if(
+            $isStrictB2B &&
+            $this->isCompanyEmpty($billingCompany) &&
+            $this->isCompanyEmpty($shippingCompany)
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+     /**
+     * Check if company is empty
+     *
+     * @param string $company
+     *
+     * @return boolean
+     */
+    private function isCompanyEmpty(string $company = null)
+    {
+        return null === $company || strlen(trim($company)) === 0;
     }
 }
