@@ -217,9 +217,10 @@ class RefundService
 
                 $amountCredit = 0;
                 $transaction = $this->buckarooTransactionEntityRepository->getById($transactionId);
-                if ($transaction!== null && $transaction->get('amount_credit') !== null) {
+                if ($transaction!== null && is_scalar($transaction->get('amount_credit'))) {
                     $amountCredit = (float)$transaction->get('amount_credit');
                 }
+                
 
                 $this->buckarooTransactionEntityRepository
                     ->save(
@@ -314,7 +315,7 @@ class RefundService
      *
      * @param float $amount
      * @param string $configCode
-     * @param  array $customFields
+     * @param array $transaction
      *
      * @return array<mixed>
      */

@@ -91,9 +91,16 @@ class BuckarooTransactionService
             }
             array_push($transactionsToRefund, $transactions);
 
-            $amount = (float)$buckarooTransactionEntity->get("amount");
+            $amount = 0;
+            
             if (
-                $buckarooTransactionEntity->get("amount_credit") !== null
+                is_scalar($buckarooTransactionEntity->get("amount"))
+            ) {
+                $amount = (float)$buckarooTransactionEntity->get("amount");
+            }
+            
+            if (
+                is_scalar($buckarooTransactionEntity->get("amount_credit"))
             ) {
                 $amount-=(float)$buckarooTransactionEntity->get("amount_credit");
             }

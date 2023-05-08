@@ -192,11 +192,6 @@ class AfterPayOld
     
     private function getPhone(RequestDataBag $dataBag, OrderAddressEntity $address): string
     {
-        return (string)$dataBag->get('buckaroo_afterpay_phone', $address->getPhoneNumber());
-    }
-
-    private function getPhone(RequestDataBag $dataBag, OrderAddressEntity $address): string
-    {
         $phone = $dataBag->get('buckaroo_afterpay_phone', $address->getPhoneNumber());
         if (is_scalar($phone)) {
             return (string)$phone;

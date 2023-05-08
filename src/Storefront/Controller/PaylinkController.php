@@ -24,8 +24,6 @@ class PaylinkController extends StorefrontController
 
     protected LoggerInterface $logger;
 
-    protected LoggerInterface $logger;
-
     public function __construct(
         PayLinkService $payLinkService,
         OrderService $orderService,

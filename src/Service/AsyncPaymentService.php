@@ -8,7 +8,6 @@ use Psr\Log\LoggerInterface;
 use Buckaroo\Shopware6\Service\UrlService;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
-use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;

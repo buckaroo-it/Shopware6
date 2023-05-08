@@ -131,7 +131,6 @@ class UpdateOrderWithPaypalExpressData
 
         if ($addresses !== null) {
 
-            /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
             foreach ($addresses as $address) {
                 /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity $address */
                 $customFields = $address->getCustomFields();
