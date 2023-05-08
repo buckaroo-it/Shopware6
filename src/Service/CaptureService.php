@@ -27,7 +27,7 @@ class CaptureService
     protected InvoiceService $invoiceService;
 
     protected FormatRequestParamService $formatRequestParamService;
-
+    
     protected ClientService $clientService;
 
     public function __construct(
@@ -72,6 +72,8 @@ class CaptureService
         }
 
         $customFields = $this->transactionService->getCustomFields($order, $context);
+        $paymentCode = $customFields['serviceName'];
+        $validationErrors = $this->validate($order, $customFields);
 
         $paymentCode = $this->getValidCustomField($customFields, 'serviceName');
 

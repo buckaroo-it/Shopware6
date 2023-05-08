@@ -90,6 +90,9 @@ class TestCredentialsService
                 'message' => $this->translator->trans("buckaroo-payment.test_api.connection_failed"),
             ];
         }
+
+     
+           
     }
     /**
      * Get buckaroo client

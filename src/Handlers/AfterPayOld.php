@@ -189,6 +189,11 @@ class AfterPayOld
             'articles' => $articles
         ];
     }
+    
+    private function getPhone(RequestDataBag $dataBag, OrderAddressEntity $address): string
+    {
+        return (string)$dataBag->get('buckaroo_afterpay_phone', $address->getPhoneNumber());
+    }
 
     private function getPhone(RequestDataBag $dataBag, OrderAddressEntity $address): string
     {

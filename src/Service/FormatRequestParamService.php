@@ -248,7 +248,7 @@ class FormatRequestParamService
         $currency     = $order->getCurrency();
         $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
 
-
+        
         // Build the order line array
         $line = [
             'id'          => 'buckarooFee',

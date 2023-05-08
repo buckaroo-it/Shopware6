@@ -28,7 +28,6 @@ class StateTransitionService
     protected StateMachineStateEntity $stateMachineStateEntity;
 
     protected StateMachineRegistry $stateMachineRegistry;
-
     /**
      * @var LoggerInterface
      */

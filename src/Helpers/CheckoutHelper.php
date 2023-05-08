@@ -93,7 +93,6 @@ class CheckoutHelper
                     $price->getTaxStatus()
                 )
             ];
-
             $this->orderRepository->update([$data], Context::createDefaultContext());
         }
     }

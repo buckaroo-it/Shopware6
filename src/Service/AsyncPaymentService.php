@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Buckaroo\Shopware6\Service\UrlService;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -22,7 +23,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 class AsyncPaymentService
 {
     public ClientService $clientService;
-
+    
     public SettingsService $settingsService;
 
     public UrlService $urlService;
@@ -35,7 +36,7 @@ class AsyncPaymentService
      * @var LoggerInterface
      */
     public $logger;
-
+    
     public FormatRequestParamService $formatRequestParamService;
 
     public PaymentStateService $paymentStateService;

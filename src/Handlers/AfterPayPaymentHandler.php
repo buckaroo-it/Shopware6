@@ -17,6 +17,8 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
 {
     protected string $paymentClass = AfterPay::class;
 
+    protected string $paymentClass = AfterPay::class;
+
 
     public const CUSTOMER_TYPE_B2C = 'b2c';
     public const CUSTOMER_TYPE_B2B = 'b2b';

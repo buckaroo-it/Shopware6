@@ -10,12 +10,10 @@ interface ClientResponseInterface
      * @return bool
      */
     public function isSuccess(): bool;
-
     /**
      * @return bool
      */
     public function isFailed(): bool;
-
     /**
      * @return bool
      */
@@ -30,17 +28,14 @@ interface ClientResponseInterface
      * @return bool
      */
     public function isPendingProcessing(): bool;
-
     /**
      * @return bool
      */
     public function isWaitingOnUserInput(): bool;
-
     /**
      * @return bool
      */
     public function isRejected(): bool;
-
     /**
      * @return bool
      */

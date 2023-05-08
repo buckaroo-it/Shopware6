@@ -11,7 +11,6 @@ use Buckaroo\Shopware6\Handlers\AsyncPaymentHandler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Buckaroo\Shopware6\Buckaroo\Payload\TransactionResponse;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;

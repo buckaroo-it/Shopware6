@@ -7,6 +7,7 @@ namespace Buckaroo\Shopware6\Handlers;
 use Buckaroo\Shopware6\Buckaroo\Client;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\Request;
+use Buckaroo\Resources\Constants\IPProtocolVersion;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\PaymentMethods\AbstractPayment;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -40,7 +41,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $this->formatRequestParamService = $this->asyncPaymentService->formatRequestParamService;
     }
 
-
     /**
      * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
@@ -61,6 +61,12 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $salesChannelId  = $salesChannelContext->getSalesChannelId();
         $paymentCode = $paymentClass->getBuckarooKey();
 
+        $dataBag = $this->getRequestBag($dataBag);
+        $transactionId = $transaction->getOrderTransaction()->getId();
+        $paymentClass = $this->getPayment($transactionId);
+        $salesChannelId  = $salesChannelContext->getSalesChannelId();
+        $paymentCode = $paymentClass->getBuckarooKey();
+        
         try {
             $order = $transaction->getOrder();
             $this->validateOrder($order);

@@ -60,7 +60,6 @@ class PushController extends StorefrontController
         $this->eventDispatcher       = $eventDispatcher;
     }
 
-
     /**
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
