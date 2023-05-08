@@ -12,7 +12,6 @@ use Buckaroo\Shopware6\Service\TransactionService;
 use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
-use Buckaroo\Shopware6\Buckaroo\Payload\TransactionRequest;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 
 class PayLinkService

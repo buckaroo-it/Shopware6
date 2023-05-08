@@ -42,8 +42,8 @@
       "buckarooIBANPlaceholder": "Voer hier uw bankrekeningnummer in ...",
       "buckarooGiropayBic": "BIC-nummer",
       "buckarooGiropayBicPlaceholder": "Voer hier uw BIC-nummer in ...",
-      "Phone": "Telefoon",
-      "PhonePlaceholder": "Voer hier uw telefoonnummer in ...",
+      "Phone": "Mobiel",
+      "PhonePlaceholder": "Voer hier uw mobiele telefoonnummer in ...",
       "buckarooMobilePhoneError": "Voer een geldig telefoonnummer.",
       "buckarooDoBError": "Voer alstublieft een geldige geboortedatum in",
       "buckarooError": "Vul alstublieft een geldige waarde in",
@@ -86,6 +86,6 @@
     "Subtotal": "Subtotaal",
     "Deliverycosts" : "Bezorgkosten",
     "Discount" : "Korting",
-    "BuckarooFee": "Buckaroo Transactiekosten"
+    "BuckarooFee": "Buckaroo Betaaltoeslag"
   }
 }
