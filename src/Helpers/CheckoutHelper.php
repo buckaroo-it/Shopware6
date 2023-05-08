@@ -1093,7 +1093,7 @@ class CheckoutHelper
         }
 
         $customFields = $this->getCustomFields($order, $context);
-        $customFields['serviceName']            = $item['transaction_method'];
+        //$customFields['serviceName']            = $item['transaction_method'];
         $customFields['originalTransactionKey'] = $item['transactions'];
 
         $serviceName = (in_array($customFields['serviceName'], ['creditcard','creditcards', 'giftcards'])) ? $customFields['brqPaymentMethod'] : $customFields['serviceName'];
