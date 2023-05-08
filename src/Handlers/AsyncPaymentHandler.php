@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
+use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
@@ -67,30 +68,42 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $client = $this->getClient(
                 $paymentCode,
                 $salesChannelId
-            );
-
-            return $this->handleResponse(
-                $client->execute(
-                    array_merge_recursive(
-                        $this->getCommonRequestPayload(
-                            $transaction,
-                            $dataBag,
-                            $salesChannelContext,
-                            $paymentCode
-                        ),
-                        $this->getMethodPayload(
-                            $order,
-                            $dataBag,
-                            $salesChannelContext,
-                            $paymentCode
-                        )
+            )
+            ->setPayload(
+                array_merge_recursive(
+                    $this->getCommonRequestPayload(
+                        $transaction,
+                        $dataBag,
+                        $salesChannelContext,
+                        $paymentCode
                     ),
-                    $this->getMethodAction(
+                    $this->getMethodPayload(
+                        $order,
                         $dataBag,
                         $salesChannelContext,
                         $paymentCode
                     )
-                ),
+                )
+            )
+            ->setAction(
+                $this->getMethodAction(
+                    $dataBag,
+                    $salesChannelContext,
+                    $paymentCode
+                )
+            );
+
+            $this->asyncPaymentService->dispatchEvent(
+                new BeforePaymentRequestEvent(
+                    $transaction,
+                    $dataBag,
+                    $salesChannelContext,
+                    $client
+                )
+            );
+
+            return $this->handleResponse(
+                $client->execute(),
                 $transaction,
                 $dataBag,
                 $salesChannelContext,
@@ -124,7 +137,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 ],
                 $salesChannelContext->getContext()
             );
-
+        $this->setFeeOnOrder($transaction, $salesChannelContext, $paymentCode);
         if ($response->hasRedirect()) {
             $this->asyncPaymentService
                 ->checkoutHelper
@@ -134,20 +147,12 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             return new RedirectResponse($response->getRedirectUrl());
         }
 
-        if ($response->isSuccess() ||
+        if (
+            $response->isSuccess() ||
             $response->isAwaitingConsumer() ||
             $response->isPendingProcessing() ||
             $response->isWaitingOnUserInput()
         ) {
-            $fee =  $this->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
-
-            $this->asyncPaymentService
-                ->checkoutHelper
-                ->applyFeeToOrder(
-                    $transaction->getOrder()->getId(),
-                    ['buckarooFee' => $fee],
-                    $salesChannelContext->getContext()
-                );
 
             if (!$response->isSuccess()) {
                 $this->asyncPaymentService
@@ -393,7 +398,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     {
         if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
             $finishUrl = (string)$dataBag->get('finishUrl');
-            if (strpos($finishUrl, 'http://') === 0 ||
+            if (
+                strpos($finishUrl, 'http://') === 0 ||
                 strpos($finishUrl, 'https://') === 0
             ) {
                 return $finishUrl;
@@ -405,15 +411,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                     ->forwardToRoute('frontend.home.page', []),
                 "/"
             ) . (string)$finishUrl;
-        }
-        if (version_compare(
-            $this->asyncPaymentService->checkoutHelper->getShopwareVersion(),
-            '6.4.2.0',
-            '<'
-        )
-            && strpos("buckaroo", $transaction->getReturnUrl()) === false
-        ) {
-            return str_replace("/payment", "/buckaroo/payment", $transaction->getReturnUrl());
         }
 
         return $transaction->getReturnUrl();
@@ -446,5 +443,21 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         return $this->asyncPaymentService
             ->settingsService
             ->getSetting($key, $salesChannelId);
+    }
+
+    private function setFeeOnOrder(
+        AsyncPaymentTransactionStruct $transaction,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): void {
+        $fee =  $this->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
+
+        $this->asyncPaymentService
+            ->checkoutHelper
+            ->applyFeeToOrder(
+                $transaction->getOrder()->getId(),
+                $fee,
+                $salesChannelContext->getContext()
+            );
     }
 }

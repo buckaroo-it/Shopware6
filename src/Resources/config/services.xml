@@ -125,6 +125,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\PaymentStateService"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Events\OrderStateChangeEvent">
@@ -313,6 +314,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\InvoiceService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -377,19 +379,6 @@
                 <argument type="service" id="service_container"/>
             </call>
         </service>
-
-        <!-- Required for payments on shopware older than v6.4.2.0 -->
-        <service id="Buckaroo\Shopware6\Storefront\Controller\PaymentController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
 
         <!-- /Controllers -->
 

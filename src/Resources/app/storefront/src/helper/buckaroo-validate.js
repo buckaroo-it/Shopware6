@@ -14,6 +14,7 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
     _registerCheckoutSubmitButton()
     {
         const confirmOrderForm = document.getElementById('confirmOrderForm')
+        console.log(confirmOrderForm);
         if (confirmOrderForm) {
             const submitButton = confirmOrderForm.querySelector('[type="submit"]');
             submitButton.addEventListener('click', this._handleCheckoutSubmit.bind(this));
@@ -49,7 +50,8 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
             if (!valid) {
                 document.getElementById("changePaymentForm").scrollIntoView();
             } else {
-                if (buckaroo_back_link !== undefined) {
+
+                if (window.buckaroo_back_link !== undefined) {
                     window.history.pushState(
                         null,
                         null,

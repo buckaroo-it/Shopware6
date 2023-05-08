@@ -53,12 +53,12 @@ class CheckoutHelper
     /**
      *
      * @param string $orderId
-     * @param array<mixed> $customFields
+     * @param float $fee
      * @param Context $context
      *
      * @return void
      */
-    public function applyFeeToOrder(string $orderId, array $customFields, Context $context): void
+    public function applyFeeToOrder(string $orderId, float $fee, Context $context): void
     {
         $order = $this->getOrderById($orderId, $context);
         if ($order === null) {
@@ -73,11 +73,17 @@ class CheckoutHelper
             $savedCustomFields = [];
         }
 
-        if (!isset($savedCustomFields['buckarooFee']) && is_scalar($customFields['buckarooFee'])) {
-            $buckarooFee = round((float) str_replace(',', '.', (string)$customFields['buckarooFee']), 2);
+        $buckarooFee = $fee;
+
+        if (isset($savedCustomFields['buckarooFee'])) {
+            $buckarooFee = $buckarooFee - $savedCustomFields['buckarooFee'];
+        }
+        $savedCustomFields['buckarooFee'] = $fee;
+
+        if ($buckarooFee !== 0) {
             $data = [
                 'id'           => $orderId,
-                'customFields' => array_merge($savedCustomFields, $customFields),
+                'customFields' => array_merge($savedCustomFields, $savedCustomFields),
                 'price' => new CartPrice(
                     $price->getNetPrice() + $buckarooFee,
                     $price->getTotalPrice() + $buckarooFee,

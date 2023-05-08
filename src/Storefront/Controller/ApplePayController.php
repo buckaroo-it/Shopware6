@@ -15,7 +15,6 @@ use Buckaroo\Shopware6\Service\SettingsService;
 use Symfony\Component\Routing\Annotation\Route;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,9 +25,6 @@ use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-/**
- * @RouteScope(scopes={"storefront"})
- */
 class ApplePayController extends AbstractPaymentController
 {
     protected ContextService $contextService;
@@ -66,11 +62,10 @@ class ApplePayController extends AbstractPaymentController
         );
     }
     /**
-     * phpcs:ignore Generic.Files.LineLength.TooLong
-     * @Route("/buckaroo/apple/cart/get", name="frontend.action.buckaroo.appleGetCart", options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      */
+    #[Route(path: '/buckaroo/apple/cart/get', name: 'frontend.action.buckaroo.appleGetCart', options:['seo' =>false], methods:['POST'], defaults:['XmlHttpRequest' => true, '_routeScope' => ['storefront']])]
     public function getAppleCart(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
 
@@ -97,11 +92,10 @@ class ApplePayController extends AbstractPaymentController
     }
 
     /**
-     * phpcs:ignore Generic.Files.LineLength.TooLong
-     * @Route("/buckaroo/apple/cart/update", name="frontend.action.buckaroo.appleUpdateCart", options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      */
+    #[Route("/buckaroo/apple/cart/update", name:"frontend.action.buckaroo.appleUpdateCart", options:["seo"=>false], methods:["POST"], defaults:["XmlHttpRequest"=>true])]
     public function updateCart(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         if (!$request->request->has('cartToken')) {
@@ -160,11 +154,10 @@ class ApplePayController extends AbstractPaymentController
     }
 
     /**
-     * phpcs:ignore Generic.Files.LineLength.TooLong
-     * @Route("/buckaroo/apple/order/create", name="frontend.action.buckaroo.appleCreateOrder", options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      */
+    #[Route("/buckaroo/apple/order/create", name:"frontend.action.buckaroo.appleCreateOrder", options:["seo" => false], methods:["POST"], defaults:["XmlHttpRequest"=>true])]
     public function createAppleOrder(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
 

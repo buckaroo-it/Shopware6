@@ -20,7 +20,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator;
 
 class PaymentMethodsInstaller implements InstallerInterface
 {
@@ -32,7 +31,7 @@ class PaymentMethodsInstaller implements InstallerInterface
     public $pluginIdProvider;
     /** @var EntityRepository */
     public $paymentMethodRepository;
-    /** @var MediaRepositoryDecorator */
+    /** @var EntityRepository */
     public $mediaRepository;
     /** @var SystemConfigService */
     private $systemConfigService;
@@ -51,7 +50,7 @@ class PaymentMethodsInstaller implements InstallerInterface
         $paymentMethodRepository = $this->getDependency($container, 'payment_method.repository');
         $this->paymentMethodRepository = $paymentMethodRepository;
 
-        /** @var MediaRepositoryDecorator */
+        /** @var EntityRepository */
         $mediaRepository = $this->getDependency($container, 'media.repository');
         $this->mediaRepository = $mediaRepository;
 

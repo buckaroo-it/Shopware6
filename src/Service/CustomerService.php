@@ -148,7 +148,7 @@ class CustomerService
      */
     protected function loginCreatedCustomer(CustomerEntity $customer): void
     {
-        $context = $this->restorer->restore($customer->getId(), $this->salesChannelContext);
+        $context = $this->restorer->restoreByCustomer($customer->getId(), $this->salesChannelContext->getContext());
         $this->eventDispatcher->dispatch(
             new CustomerLoginEvent($context, $customer, $context->getToken())
         );

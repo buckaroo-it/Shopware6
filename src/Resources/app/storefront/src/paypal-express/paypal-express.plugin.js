@@ -115,7 +115,6 @@ export default class PaypalExpressPlugin extends Plugin {
 
         let data = {
             orderId,
-            _csrf_token: this.options.csrf.pay
         };
 
         if (this.cartToken) {
@@ -123,7 +122,7 @@ export default class PaypalExpressPlugin extends Plugin {
         }
         return new Promise((resolve) => {
             this.httpClient.post(
-                `${this.url} / paypal / pay`,
+                `${this.url}/paypal/pay`,
                 JSON.stringify(data),
                 (response) => {
                     this.result = JSON.parse(response);
@@ -148,9 +147,8 @@ export default class PaypalExpressPlugin extends Plugin {
         }
         return new Promise((resolve) => {
             this.httpClient.post(
-                `${this.url} / paypal / create`,
+                `${this.url}/paypal/create`,
                 JSON.stringify({
-                    _csrf_token: this.options.csrf.create,
                     form: formData,
                     customer: data,
                     page: this.options.page
@@ -173,18 +171,17 @@ export default class PaypalExpressPlugin extends Plugin {
             message = this.options.i18n.cannot_create_payment;
         }
         const content = `
-        < div role = "alert" class = "alert alert-warning alert-has-icon buckaroo-paypal-express-error" >
-            < span class = "icon icon-warning" >
-                < svg xmlns = "http://www.w3.org/2000/svg" xmlns:xlink = "http://www.w3.org/1999/xlink" width = "24" height = "24" viewBox = "0 0 24 24" > < defs > < path d = "m13.7744 1.4124 9.7058 18.6649c.5096.98.1283 2.1875-.8517 2.6971a2 2 0 0 1-.9227.2256H2.2942c-1.1045 0-2-.8954-2-2a2 2 0 0 1 .2256-.9227l9.7058-18.665c.5096-.98 1.7171-1.3613 2.6971-.8517a2 2 0 0 1 .8517.8518zM2.2942 21h19.4116L12 2.335 2.2942 21zM12 17c.5523 0 1 .4477 1 1s-.4477 1-1 1-1-.4477-1-1 .4477-1 1-1zm1-2c0 .5523-.4477 1-1 1s-1-.4477-1-1v-5c0-.5523.4477-1 1-1s1 .4477 1 1v5z" id = "icons-default-warning" > < / path > < / defs > < use xlink:href = "#icons-default-warning" fill = "#758CA3" fill - rule = "evenodd" > < / use > < / svg >
-            <  / span >
-            < div class = "alert-content-container" >
-                < div class = "alert-content" >
+        <div role="alert" class="alert alert-warning alert-has-icon buckaroo-paypal-express-error">
+            <span class="icon icon-warning">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24"><defs><path d="m13.7744 1.4124 9.7058 18.6649c.5096.98.1283 2.1875-.8517 2.6971a2 2 0 0 1-.9227.2256H2.2942c-1.1045 0-2-.8954-2-2a2 2 0 0 1 .2256-.9227l9.7058-18.665c.5096-.98 1.7171-1.3613 2.6971-.8517a2 2 0 0 1 .8517.8518zM2.2942 21h19.4116L12 2.335 2.2942 21zM12 17c.5523 0 1 .4477 1 1s-.4477 1-1 1-1-.4477-1-1 .4477-1 1-1zm1-2c0 .5523-.4477 1-1 1s-1-.4477-1-1v-5c0-.5523.4477-1 1-1s1 .4477 1 1v5z" id="icons-default-warning"></path></defs><use xlink:href="#icons-default-warning" fill="#758CA3" fill-rule="evenodd"></use></svg>
+            </span>                                    
+            <div class="alert-content-container"> 
+                <div class="alert-content">
                     ${message}
-                <  / div >
-
-            <  / div >
-        <  / div >
-
+                </div>
+                
+            </div>
+        </div>
         `;
         $('.flashbags').first().prepend(content);
         setTimeout(function () {

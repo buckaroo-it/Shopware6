@@ -1,12 +1,14 @@
 {% sw_extends '@Storefront/storefront/page/checkout/summary/summary-total.html.twig' %}
 
 {% block page_checkout_summary_total_value %}
-    {% if page.extensions.buckaroo.buckarooFee > 0 %}
-        <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total">
-            {{ (summary.price.totalPrice + page.extensions.buckaroo.buckarooFee)|currency }}
-            {% if page.cart.price.taxStatus == "gross" %}{{ "general.star"|trans|sw_sanitize|trim }}{% endif %}
-        </dd>
-    {% else %}
-        {{ parent() }}
+
+    {% if page.extensions.buckaroo !== null %}
+        {% set buckarooFee = page.extensions.buckaroo.buckarooFee - page.order.customFields.buckarooFee  %}
     {% endif %}
+    
+    <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total">
+        {{ (summary.price.totalPrice + buckarooFee)|currency }}
+        {% if page.cart.price.taxStatus == "gross" %}{{ "general.star"|trans|sw_sanitize|trim }}{% endif %}
+    </dd>
+
 {% endblock %}

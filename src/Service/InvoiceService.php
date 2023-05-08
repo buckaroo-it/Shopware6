@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -52,7 +51,7 @@ class InvoiceService
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
         $criteria->addAssociation('documentMediaFile');
         $criteria->addAssociation('documentType');
-        $criteria->addFilter(new EqualsFilter('documentType.technicalName', InvoiceGenerator::INVOICE));
+        $criteria->addFilter(new EqualsFilter('documentType.technicalName', InvoiceRenderer::TYPE));
 
         return $this->documentRepository->search($criteria, $context)->first() !== null;
     }
@@ -91,7 +90,6 @@ class InvoiceService
     public function generateInvoice(
         OrderEntity $order,
         Context $context,
-        string $invoiceNumber,
         string $salesChannelId = null
     ): ?DocumentIdStruct {
 

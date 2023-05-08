@@ -11,10 +11,6 @@
                 i18n: {
                     cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
                     cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
-                },
-                csrf: {
-                    create: sw_csrf("frontend.action.buckaroo.paypalExpressCreate", {"mode": "token"}),
-                    pay: sw_csrf("frontend.action.buckaroo.paypalExpressPay", {"mode": "token"})
                 }
             } %}
 
@@ -33,11 +29,6 @@
                 i18n: {
                     cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
                     cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
-                },
-                csrf: {
-                    get: sw_csrf("frontend.action.buckaroo.appleGetCart", {"mode": "token"}),
-                    update: sw_csrf("frontend.action.buckaroo.appleUpdateCart", {"mode": "token"}),
-                    create: sw_csrf("frontend.action.buckaroo.appleCreateOrder", {"mode": "token"})
                 }
             } %}
             <div data-bk-applepay data-buckaroo-apple-pay-plugin-options='{{ applePayConfig|json_encode }}'></div>

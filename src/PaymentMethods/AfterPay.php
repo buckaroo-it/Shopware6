@@ -14,16 +14,7 @@ class AfterPay extends AbstractPayment
      */
     public function getBuckarooKey(): string
     {
-        return $this->buckarooKey;
-    }
-
-     /*
-     * @return string
-     */
-    public function setBuckarooKey(string $buckarooKey = 'afterpay'): string
-    {
-        $this->buckarooKey = $buckarooKey;
-        return $this->buckarooKey;
+        return 'afterpay';
     }
 
     /**

@@ -6,16 +6,12 @@ namespace Buckaroo\Shopware6\Storefront\Controller;
 
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\Routing\Annotation\Route;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class CartController extends StorefrontController
 {
-     /**
-     * @RouteScope(scopes={"storefront"})
-     * @Route("/buckaroo/redirect", name="frontend.action.buckaroo.redirect", options={"seo"="false"}, methods={"GET"})
-     */
+    #[Route(path: "/buckaroo/redirect", defaults: ['_routeScope' => ['storefront']], name: "frontend.action.buckaroo.redirect", options: ["seo"=> false], methods:["GET"])]
     public function redirectOnBackButtonToEditOrder(Request $request): RedirectResponse
     {
         $session = $request->getSession();
