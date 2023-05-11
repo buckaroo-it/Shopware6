@@ -205,7 +205,6 @@
 			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
 			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (frontend-label).</helpText>
 			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (étiquette frontale).</helpText>
-			 lang="en-GB">
             <defaultValue>Buckaroo Creditcard and Debit Card</defaultValue>
         </input-field>
 
