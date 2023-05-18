@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\PaymentMethods\AbstractPayment;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Buckaroo\Shopware6\Events\AfterPaymentRequestEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
@@ -53,12 +54,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext
     ): RedirectResponse {
-
-        $dataBag = $this->getRequestBag($dataBag);
-        $transactionId = $transaction->getOrderTransaction()->getId();
-        $paymentClass = $this->getPayment($transactionId);
-        $salesChannelId  = $salesChannelContext->getSalesChannelId();
-        $paymentCode = $paymentClass->getBuckarooKey();
 
         $dataBag = $this->getRequestBag($dataBag);
         $transactionId = $transaction->getOrderTransaction()->getId();
@@ -131,6 +126,16 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): RedirectResponse {
+        $this->asyncPaymentService->dispatchEvent(
+            new AfterPaymentRequestEvent(
+                $transaction,
+                $dataBag,
+                $salesChannelContext,
+                $response,
+                $paymentCode
+            )
+        );
+        
         $returnUrl = $this->getReturnUrl($transaction, $dataBag);
 
         $this->asyncPaymentService
