@@ -1,7 +1,12 @@
 {% sw_extends '@Storefront/storefront/component/payment/payment-method.html.twig' %}
 {% block component_payment_method_field %}
 {% if payment.translated.customFields.is_buckaroo %}
-<div class="payment-method">
+<div class="payment-method {% if payment.translated.customFields.buckaroo_key === 'applepay' %}bk-applepay{% endif %}">
+
+        {% if payment.translated.customFields.buckaroo_key === 'applepay' %}
+            <input type="hidden" id="bk-apple-merchant-id" value="{{page.extensions.buckaroo.applePayMerchantId}}">
+        {% endif %}
+        
         <div class="payment-form-group form-group mb-0">
             {% block component_payment_method_control %}
                 <div class="custom-control custom-radio payment-method-radio">
