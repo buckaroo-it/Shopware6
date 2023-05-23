@@ -66,24 +66,16 @@ class PaymentStateService
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_DO_PAY)
         ) {
             $this->transactionStateHandler->process($transactionId, $context);
-            $availableTransitions = $this->getAvailableTransitions(
-                $transactionId,
-                $context
-            );
         }
-
-        $session = $request->getSession();
 
         if (
             $this->isFailedPaymentRequest($request) &&
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)
         ) {
             $message = $this->getStatusMessageByStatusCode($request);
-
-            if (method_exists($session, 'getFlashBag')) {
-                $session->getFlashBag()->add("danger", $message);
-            }
-            throw new PaymentFailedException($transactionId, $message);
+            $exception = new PaymentFailedException($transactionId, $message);
+            $exception->setPaymentStatusCode($this->getPaymentStatusCode($request));
+            throw $exception;
         }
     }
 
@@ -148,14 +140,23 @@ class PaymentStateService
         return $request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
     }
 
+    private function getPaymentStatusCode(Request $request): ?string
+    {
+        $statusCode = $request->get('brq_statuscode');
+        if (is_string($statusCode)) {
+            return $statusCode;
+        }
+        return null;
+    }
+
     /**
      * @param Request $request
      * @return string
      */
     private function getStatusMessageByStatusCode(Request $request): string
     {
-        $statusCode = $request->get('brq_statuscode');
-        if (!is_string($statusCode)) {
+        $statusCode = $this->getPaymentStatusCode($request);
+        if ($statusCode === null) {
             return '';
         }
 
