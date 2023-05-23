@@ -6,15 +6,36 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
     {
         try {
             this._registerCheckoutSubmitButton();
+            this._toggleApplePay();
         } catch (e) {
             // do nothing
             console.log('init error', e);
         }
     }
+    /**
+     * Show apple pay method if available
+     */
+    _toggleApplePay() {
+        const method = document.querySelector('.payment-method.bk-applepay');
+        if (method) {
+            const checkPaySupport = async function (merchantIdentifier) {
+                if (!('ApplePaySession' in window)) return false;
+                if (ApplePaySession === undefined) return false;
+                return await ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
+            };
+            const toggle = async function () {
+                const merchantIdentifier = document.getElementById('bk-apple-merchant-id');
+                if(merchantIdentifier && merchantIdentifier.value.length > 0) {
+                    const isSupported = await checkPaySupport(merchantIdentifier);
+                    method.style.display = isSupported ? 'block' : 'none';
+                }
+            };
+            toggle().catch();
+        }
+    }
     _registerCheckoutSubmitButton()
     {
         const confirmOrderForm = document.getElementById('confirmOrderForm')
-        console.log(confirmOrderForm);
         if (confirmOrderForm) {
             const submitButton = confirmOrderForm.querySelector('[type="submit"]');
             submitButton.addEventListener('click', this._handleCheckoutSubmit.bind(this));
