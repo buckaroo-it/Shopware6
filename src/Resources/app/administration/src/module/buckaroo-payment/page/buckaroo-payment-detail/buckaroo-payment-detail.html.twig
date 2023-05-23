@@ -57,7 +57,6 @@
                     :showSelection="false">
 
                         <template #column-transaction_method="{ item }">
-                            <img :src="'buckaroopayments/storefront/buckaroo/payments/'+item.transaction_method + '.svg' | asset" class="transaction-method-logo" width=20  :title="item.transaction_method">
                                 <span v-if="item.transaction_method == 'KbcPaymentButton'">
                                     Kbc
                                 </span>
@@ -121,7 +120,6 @@
                 :showSelection="false">
 
                     <template #column-transaction_method="{ item }">
-                        <img :src="'buckaroopayments/storefront/buckaroo/payments/'+item.transaction_method + '.svg' | asset" class="transaction-method-logo" width=20  :title="item.transaction_method">
                             <span v-if="item.transaction_method == 'KbcPaymentButton'">
                                 Kbc
                             </span>

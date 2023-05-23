@@ -336,7 +336,7 @@ class RefundService
         }
         
         if(
-            in_array($configCode, ['creditcards', 'giftcards']) &&
+            in_array($configCode, ['creditcard', 'creditcards', 'giftcards']) &&
             isset($transaction['transaction_method']) &&
             is_string($transaction['transaction_method'])
         ) {
