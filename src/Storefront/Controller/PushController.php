@@ -81,15 +81,27 @@ class PushController extends StorefrontController
         $context            = $salesChannelContext->getContext();
         $brqAmount          = (float)$request->request->get('brq_amount');
         $brqOrderId         = (string)$request->request->get('ADD_orderId');
+        if ($request->request->has('brq_AdditionalParameters_orderId')) {
+            $brqOrderId = (string)$request->request->get('brq_AdditionalParameters_orderId');
+        }
+
         $brqAmountCredit    = (float)$request->request->get('brq_amount_credit', 0);
         $brqInvoicenumber   = (string)$request->request->get('brq_invoicenumber');
         $orderTransactionId = (string)$request->request->get('ADD_orderTransactionId');
+        if ($request->request->has('brq_AdditionalParameters_orderTransactionId')) {
+            $orderTransactionId = (string)$request->request->get('brq_AdditionalParameters_orderTransactionId');
+        }
+
         $brqTransactionType = (string)$request->request->get('brq_transaction_type');
         $paymentMethod      = (string)$request->request->get('brq_primary_service');
         $mutationType       = (string)$request->request->get('brq_mutationtype');
         $brqPaymentMethod   = (string)$request->request->get('brq_transaction_method');
         $originalTransactionKey   = (string)$request->request->get('brq_transactions');
         $salesChannelId     =  $salesChannelContext->getSalesChannelId();
+
+        if (empty($brqOrderId) || empty($orderTransactionId)) {
+            return $this->response($event, 'buckaroo.messages.paymentError', false);
+        }
 
         if (!$this->signatureValidationService->validateSignature(
             $request,
