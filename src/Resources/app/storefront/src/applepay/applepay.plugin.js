@@ -223,7 +223,6 @@ export default class ApplePayPlugin extends Plugin {
    * @returns Promise
    */
   checkIsAvailable() {
-    return Promise.resolve(true);
     return ApplePay.checkPaySupport(this.options.merchantId);
   }
 
