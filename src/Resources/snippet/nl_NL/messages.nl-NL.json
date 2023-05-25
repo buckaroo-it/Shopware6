@@ -1,5 +1,9 @@
 {
   "buckaroo": {
+    "button_payment": {
+      "missing_order_id": "Paypal express order id is required",
+      "unknown_error": "Unknown buckaroo error occurred"
+    },
     "title": "Buckaroo",
     "fee": "Buckaroo Betaaltoeslag",
     "order": {

@@ -85,7 +85,7 @@ class ApplePayController extends AbstractPaymentController
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
             return $this->response(
-                ["message" => $this->trans("buckaroo-payment.button_payment.unknown_error")],
+                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                 true
             );
         }
@@ -100,7 +100,7 @@ class ApplePayController extends AbstractPaymentController
     {
         if (!$request->request->has('cartToken')) {
             return $this->response(
-                ["message" => $this->trans("buckaroo-payment.button_payment.unknown_error")],
+                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                 true
             );
         }
@@ -115,7 +115,7 @@ class ApplePayController extends AbstractPaymentController
 
             if ($cart === null) {
                 return $this->response(
-                    ["message" => $this->trans("buckaroo-payment.button_payment.unknown_error")],
+                    ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                     true
                 );
             }
@@ -147,7 +147,7 @@ class ApplePayController extends AbstractPaymentController
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
             return $this->response(
-                ["message" => $this->trans("buckaroo-payment.button_payment.unknown_error")],
+                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                 true
             );
         }
@@ -178,7 +178,7 @@ class ApplePayController extends AbstractPaymentController
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
             return $this->response(
-                ["message" => $this->trans("buckaroo-payment.button_payment.unknown_error")],
+                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                 true
             );
         }
@@ -252,7 +252,7 @@ class ApplePayController extends AbstractPaymentController
         );
 
         if ($shippingMethod === null) {
-            throw new \Exception($this->trans("buckaroo-payment.button_payment.unknown_error"));
+            throw new \Exception($this->trans("buckaroo.button_payment.unknown_error"));
         }
 
         return $this->calculateCartShippingAmountForShippingMethod(
