@@ -67,7 +67,7 @@ class PaypalExpressController extends AbstractPaymentController
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
             return $this->response(
-                ["message" => $this->trans("buckaroo-payment.button_payment.unknown_error")],
+                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                 true
             );
         }
@@ -92,7 +92,7 @@ class PaypalExpressController extends AbstractPaymentController
         $this->overrideChannelPaymentMethod($salesChannelContext, 'PaypalPaymentHandler');
         if (!$request->request->has('orderId')) {
             return $this->response(
-                ["message" => $this->trans("buckaroo-payment.button_payment.missing_order_id")],
+                ["message" => $this->trans("buckaroo.button_payment.missing_order_id")],
                 true
             );
         }
@@ -113,7 +113,7 @@ class PaypalExpressController extends AbstractPaymentController
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
             return $this->response(
-                ["message" => $this->trans("buckaroo-payment.button_payment.unknown_error")],
+                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                 true
             );
         }

@@ -160,7 +160,7 @@ abstract class AbstractPaymentController extends StorefrontController
         if (!$request->request->has('form')) {
             throw new InvalidParameterException("Invalid payment request, form data is missing", 1);
         }
-        return new DataBag((array)$request->request->get('form'));
+        return new DataBag((array)$request->request->all('form'));
     }
 
     /**
