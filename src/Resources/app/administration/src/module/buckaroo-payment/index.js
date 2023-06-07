@@ -6,7 +6,6 @@ import './extension/sw-order';
 import './extension/sw-settings-index';
 import './extension/sw-order-detail-base';
 import './extension/sw-order-user-card';
-import './extension/sw-context-menu-item';
 import './page/buckaroo-payment-detail';
 
 import nlNL from './snippet/nl-NL.json';
