@@ -22,6 +22,8 @@
                 type: 'danger',
                 content: sesMessage
             } %}
+        {% else %}
+            {{ parent() }}
         {% endif %}
         {% if 'PAYMENT_FAILED_ERROR_' not in page.errorCode %}
             {{ parent() }}
