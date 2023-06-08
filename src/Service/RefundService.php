@@ -94,7 +94,7 @@ class RefundService
             $configCode
         );
 
-        if($amount <= 0) {
+        if ($amount <= 0) {
             return [];
         }
 
@@ -119,7 +119,7 @@ class RefundService
                 )
             );
 
-        if(
+        if (
             $configCode === 'giftcards' &&
             isset($transaction['transaction_method']) &&
             is_string($transaction['transaction_method'])
@@ -217,10 +217,10 @@ class RefundService
 
                 $amountCredit = 0;
                 $transaction = $this->buckarooTransactionEntityRepository->getById($transactionId);
-                if ($transaction!== null && is_scalar($transaction->get('amount_credit'))) {
+                if ($transaction !== null && is_scalar($transaction->get('amount_credit'))) {
                     $amountCredit = (float)$transaction->get('amount_credit');
                 }
-                
+
 
                 $this->buckarooTransactionEntityRepository
                     ->save(
@@ -334,8 +334,8 @@ class RefundService
         if (in_array($configCode, ["afterpay", "Billink", "klarnakp"])) {
             return $this->getRefundArticleData($amount);
         }
-        
-        if(
+
+        if (
             in_array($configCode, ['creditcard', 'creditcards', 'giftcards']) &&
             isset($transaction['transaction_method']) &&
             is_string($transaction['transaction_method'])
@@ -348,7 +348,7 @@ class RefundService
 
         return [];
     }
-    
+
 
     /**
      * Validate request and return any errors
@@ -455,7 +455,7 @@ class RefundService
             }
 
             if (is_scalar($transactionAmount) && $amount > (float)$transactionAmount) {
-                $amount = (float)$transactionAmount; 
+                $amount = (float)$transactionAmount;
             }
         }
 
@@ -488,11 +488,14 @@ class RefundService
     {
 
         return [
-            'identifier'        => 1,
-            'description'       => 'Refund',
-            'quantity'          => 1,
-            'price'             =>  round($amount, 2),
-            'vatPercentage'     => 0,
+            'articles' => [[
+                'refundType'        => 'Return',
+                'identifier'        => 1,
+                'description'       => 'Refund',
+                'quantity'          => 1,
+                'price'             =>  round($amount, 2),
+                'vatPercentage'     => 0,
+            ]]
         ];
     }
 
@@ -505,11 +508,13 @@ class RefundService
     {
 
         return [
-            'identifier'        => 1,
-            'description'       => 'Refund',
-            'quantity'          => 1,
-            'price'             =>  round($amount, 2),
-            'vatCategory'       => 0,
+            'articles' => [[
+                'identifier'        => 1,
+                'description'       => 'Refund',
+                'quantity'          => 1,
+                'price'             => round($amount, 2),
+                'vatCategory'       => 4,
+            ]]
         ];
     }
 }

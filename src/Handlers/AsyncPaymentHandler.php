@@ -288,7 +288,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $remoteIp = $request->getClientIp();
 
         return [
-            'address'       =>  $remoteIp,
+            'address'       => $remoteIp,
             'type'          => IPProtocolVersion::getVersion($remoteIp)
         ];
     }
