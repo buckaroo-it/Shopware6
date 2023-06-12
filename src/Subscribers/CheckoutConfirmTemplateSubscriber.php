@@ -101,6 +101,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         [
             'name' => 'YourSafe',
             'code' => 'BITSNL2A',
+            'imgName' => 'yoursafe'
         ],
     ];
 
