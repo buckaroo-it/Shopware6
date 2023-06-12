@@ -5,360 +5,247 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Handlers;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Buckaroo\Shopware6\Helpers\CheckoutHelper;
-use Buckaroo\Shopware6\Helpers\Helpers;
+use Symfony\Component\HttpFoundation\Request;
+use Buckaroo\Shopware6\Service\SettingsService;
+use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
 class AfterPayOld
 {
+    protected SettingsService $settingsService;
 
-    /**
-     * @var \Buckaroo\Shopware6\Helpers\CheckoutHelper
-     */
-    protected $checkoutHelper;
+    protected FormatRequestParamService $formatRequestParamService;
 
-
-    public function __construct(CheckoutHelper $checkoutHelper)
-    {
-        $this->checkoutHelper = $checkoutHelper;
+    public function __construct(
+        SettingsService $settingsService,
+        FormatRequestParamService $formatRequestParamService
+    ) {
+        $this->settingsService = $settingsService;
+        $this->formatRequestParamService = $formatRequestParamService;
     }
 
+    /**
+     *
+     * @param OrderEntity $order
+     * @param SalesChannelContext $salesChannelContext
+     * @param RequestDataBag $dataBag
+     * @param string $paymentCode
+     *
+     * @return array<mixed>
+     */
     public function buildPayParameters(
         OrderEntity $order,
         SalesChannelContext $salesChannelContext,
-        RequestDataBag $request
+        RequestDataBag $dataBag,
+        string $paymentCode
     ): array {
 
-        $allArticles = array_merge(
-            $this->getArticles($order),
-            [$this->getShippingCost($order)],
+        return array_merge_recursive(
+            [
+                'customerIPAddress' => (Request::createFromGlobals())->getClientIp()
+            ],
+            $this->getBillingData($order, $dataBag),
+            $this->getShippingData($order, $dataBag),
+            $this->getArticles($order, $paymentCode)
         );
-
-        $priceRoundingError = $this->getPriceRoundingErrors($order, $allArticles);
-        if ($priceRoundingError > 0) {
-            $allArticles[] = $this->getRoundingErrorArticle($priceRoundingError);
-        }
-
-        return array_merge($allArticles, [
-            array_merge(
-                $this->getFee($salesChannelContext),
-                $this->getBilling($order, $salesChannelContext, $request),
-                $this->getShipping($order, $salesChannelContext, $request)
-            )
-        ]);
     }
 
     /**
-     * Get any rounding errors between the order total and the item total 
-     * if the rounded error is larger then 0.01 we return it
-     * 
      * @param OrderEntity $order
-     * @param array $allArticles
+     * @param RequestDataBag $dataBag
      *
-     * @return float
+     * @return array<mixed>
      */
-    protected function getPriceRoundingErrors(OrderEntity $order, array $allArticles)
-    {
+    protected function getBillingData(
+        OrderEntity $order,
+        RequestDataBag $dataBag
+    ): array {
+        $address = $order->getBillingAddress();
+        $customer = $order->getOrderCustomer();
 
-        $orderTotal = $order->getAmountTotal();
-        $articleTotal = 0;
-        foreach ($allArticles as $article) {
-            $articleTotal += $this->getArticleGroupValueByName($article, 'ArticleQuantity') * $this->getArticleGroupValueByName($article, 'ArticleUnitPrice');
-        }
-        $roundingError = $orderTotal - $articleTotal;
-        if (abs(round($roundingError, 2)) > 0.01) {
-            return $roundingError;
+        if ($address === null || $customer === null) {
+            throw new \InvalidArgumentException('Address and customer cannot be null');
         }
 
-        return 0;
-    }
+        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
 
-    private function getArticleGroupValueByName(array $articleGroup, string $name)
-    {
-        foreach ($articleGroup as $articleElement) {
-            if ($articleElement['Name'] === $name) {
-                return $articleElement['_'];
-            }
+        if ($address->getCountry() === null) {
+            throw new \InvalidArgumentException('Address country cannot be null');
         }
-    }
 
-    /**
-     * Get rounding error article
-     *
-     * @param float $priceRoundingError
-     *
-     * @return array
-     */
-    protected function getRoundingErrorArticle(float $priceRoundingError)
-    {
-
-        $key = 'price_rounding';
         return [
-            $this->setParameter('ArticleId', 'Price rounding', 'Article', $key),
-            $this->setParameter('ArticleDescription', 'Price rounding', 'Article', $key),
-            $this->setParameter('ArticleQuantity', 1, 'Article', $key),
-            $this->setParameter('ArticleUnitPrice', round((float)$priceRoundingError, 2), 'Article', $key),
-            $this->setParameter('ArticleVatCategory', 4, 'Article', $key)
+            'billing' => [
+                'recipient' => [
+                    'firstName'             =>  $address->getFirstName(),
+                    'lastName'              =>  $address->getLastName(),
+                    'birthDate'             => $this->getBirthDate($dataBag),
+                    'initials'              => strtoupper(substr($address->getFirstName(), 0, 1)),
+                    'culture'               => $address->getCountry()->getIso()
+                ],
+                'address' => [
+                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'houseNumberAdditional' => $this->formatRequestParamService
+                        ->getAdditionalHouseNumber(
+                            $address,
+                            $streetParts
+                        ),
+                    'zipcode'               =>  $address->getZipcode(),
+                    'city'                  =>  $address->getCity(),
+                    'country'               =>  $address->getCountry()->getIso()
+                ],
+                'phone' => [
+                    'mobile'        => $this->getPhone($dataBag, $address),
+                ],
+                'email'         => $customer->getEmail()
+            ]
         ];
     }
+
     /**
-     * Get order articles
      *
      * @param OrderEntity $order
+     * @param RequestDataBag $dataBag
      *
-     * @return array
+     * @return array<mixed>
      */
-    protected function getArticles(
-        OrderEntity $order
+    protected function getShippingData(
+        OrderEntity $order,
+        RequestDataBag $dataBag
     ): array {
+        $deliveries = $order->getDeliveries();
 
-        $parameters = [];
-
-        $lineItems = $order->getLineItems();
-
-        if ($lineItems === null) {
-            return [];
+        if ($deliveries === null) {
+            throw new \InvalidArgumentException('Deliveries cannot be null');
         }
 
-        foreach ($lineItems as $key => $lineItem) {
-            $parameters[] = [
-                $this->setParameter('ArticleId', $lineItem->getId(), 'Article', $key),
-                $this->setParameter('ArticleDescription', $lineItem->getLabel(), 'Article', $key),
-                $this->setParameter('ArticleQuantity', $lineItem->getQuantity(), 'Article', $key),
-                $this->setParameter('ArticleUnitPrice', round($lineItem->getUnitPrice(), 2), 'Article', $key),
-                $this->setParameter('ArticleVatCategory', $this->getItemVatCategory($lineItem), 'Article', $key)
+        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity|null */
+        $address = $deliveries->getShippingAddress()->first();
+        if ($address === null) {
+            $address = $order->getBillingAddress();
+        }
+
+        if ($address === null) {
+            throw new \InvalidArgumentException('Address cannot be null');
+        }
+
+        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
+
+        if ($address->getCountry() === null) {
+            throw new \InvalidArgumentException('Address country cannot be null');
+        }
+
+        return [
+            'shipping' => [
+                'recipient' => [
+                    'firstName'             =>  $address->getFirstName(),
+                    'lastName'              =>  $address->getLastName(),
+                    'birthDate'             => $this->getBirthDate($dataBag),
+                    'initials'              => strtoupper(substr($address->getFirstName(), 0, 1))
+                ],
+                'address' => [
+                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'houseNumberAdditional' => $this->formatRequestParamService
+                        ->getAdditionalHouseNumber(
+                            $address,
+                            $streetParts
+                        ),
+                    'zipcode'               =>  $address->getZipcode(),
+                    'city'                  =>  $address->getCity(),
+                    'country'               =>  $address->getCountry()->getIso()
+                ],
+            ],
+        ];
+    }
+
+
+
+    /**
+     *
+     * @param OrderEntity $order
+     * @param string $paymentCode
+     *
+     * @return array<mixed>
+     */
+    private function getArticles(OrderEntity $order, string $paymentCode): array
+    {
+        $lines = $this->formatRequestParamService->getOrderLinesArray($order, $paymentCode);
+
+        $articles = [];
+
+        foreach ($lines as $item) {
+            $articles[] = [
+                'identifier'        => $item['sku'],
+                'description'       => $item['name'],
+                'quantity'          => $item['quantity'],
+                'price'             => $item['unitPrice']['value'],
+                'vatCategory'       => $this->getItemVatCategory($item),
             ];
         }
-
-        return $parameters;
-    }
-
-
-    /**
-     * Get shipping cost as a request article
-     *
-     * @param OrderEntity $order
-     *
-     * @return array
-     */
-    protected function getShippingCost(
-        OrderEntity $order
-    ): array {
-
-        $shippings = $order->getDeliveries()->map(
-            function (OrderDeliveryEntity $orderDelivery) {
-                return $orderDelivery->getShippingCosts()->getTotalPrice();
-            }
-        );
-
-        $shipping = array_sum($shippings);
-        $key = 'shipping';
         return [
-            $this->setParameter('ArticleId', 'Shipping', 'Article', $key),
-            $this->setParameter('ArticleDescription', 'Shipping', 'Article', $key),
-            $this->setParameter('ArticleQuantity', 1, 'Article', $key),
-            $this->setParameter('ArticleUnitPrice', round((float)$shipping, 2), 'Article', $key),
-            $this->setParameter('ArticleVatCategory', 4, 'Article', $key)
+            'articles' => $articles
         ];
+    }
+    
+    private function getPhone(RequestDataBag $dataBag, OrderAddressEntity $address): string
+    {
+        $phone = $dataBag->get('buckaroo_afterpay_phone', $address->getPhoneNumber());
+        if (is_scalar($phone)) {
+            return (string)$phone;
+        }
+        return '';
     }
 
     /**
-     * Get order fee as a request article
+     * Get birth date
      *
-     * @param SalesChannelContext $salesChannelContext
+     * @param RequestDataBag $dataBag
      *
-     * @return array
+     * @return null|string
      */
-    protected function getFee(
-        SalesChannelContext $salesChannelContext
-    ): array {
-        $buckarooFee = $this->checkoutHelper->getBuckarooFee(
-            'afterpayFee',
-            $salesChannelContext->getSalesChannelId()
-        );
-
-        if ((float)$buckarooFee <= 0) {
-            return [];
+    private function getBirthDate(RequestDataBag $dataBag)
+    {
+        if (!$dataBag->has('buckaroo_afterpay_DoB')) {
+            return null;
         }
 
-        $key = 'buckarooFee';
-        return [
-            $this->setParameter('ArticleId', 'buckarooFee', 'Article', $key),
-            $this->setParameter('ArticleDescription', 'buckarooFee', 'Article', $key),
-            $this->setParameter('ArticleQuantity', 1, 'Article', $key),
-            $this->setParameter('ArticleUnitPrice', round((float)$buckarooFee, 2), 'Article', $key),
-            $this->setParameter('ArticleVatCategory', 4, 'Article', $key)
-        ];
-    }
-
-    /**
-     * Get customer billing data
-     *
-     * @param OrderEntity $order
-     * @param SalesChannelContext $salesChannelContext
-     * @param RequestDataBag $request
-     *
-     * @return array
-     */
-    protected function getBilling(
-        OrderEntity $order,
-        SalesChannelContext $salesChannelContext,
-        RequestDataBag $request
-    ): array {
-
-
-        /** @var \Shopware\Core\Checkout\Customer\CustomerEntity */
-        $customer =  $this->checkoutHelper->getOrderCustomer($order, $salesChannelContext);
-
-        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity|null */
-        $billingAddress = $order->getBillingAddress();
-
-        if ($billingAddress === null) {
-            /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity|null */
-            $billingAddress = $this->checkoutHelper->getBillingAddress($order, $salesChannelContext);
+        $dateString = $dataBag->get('buckaroo_afterpay_DoB');
+        if (!is_scalar($dateString)) {
+            return null;
+        }
+        $date = strtotime((string)$dateString);
+        if ($date === false) {
+            return null;
         }
 
-        $country = $this->checkoutHelper->getCountryCode($billingAddress);
-        $streetComponents = $this->checkoutHelper->formatStreet($billingAddress->getStreet());
-
-
-        $parameters = [
-            $this->setParameter('Accept', $request->has('buckaroo_afterpay_TermsCondition') ? 'true' : 'false'),
-            $this->setParameter('BillingFirstName', $billingAddress->getFirstName()),
-            $this->setParameter('BillingInitials', strtoupper(substr($billingAddress->getFirstName(), 0, 1))),
-            $this->setParameter('BillingLastName', $billingAddress->getLastName()),
-            $this->setParameter('BillingBirthDate', $request->get('buckaroo_afterpay_DoB', '01-01-1990')),
-            $this->setParameter('BillingStreet', (!empty($streetComponents['house_number']) ? $streetComponents['street'] : $billingAddress->getStreet())),
-            $this->setParameter('BillingHouseNumber', $streetComponents['house_number']),
-            $this->setParameter('BillingPostalCode', $billingAddress->getZipcode()),
-            $this->setParameter('BillingCity', $billingAddress->getCity()),
-            $this->setParameter('BillingCountry', $country),
-            $this->setParameter('BillingEmail', $customer->getEmail()),
-            $this->setParameter('CustomerIPAddress', Helpers::getRemoteIp()),
-            $this->setParameter(
-                'BillingPhoneNumber',
-                $request->get(
-                    'buckaroo_afterpay_phone',
-                    $billingAddress->getPhoneNumber()
-                )
-            ),
-            $this->setParameter('BillingLanguage', $country),
-        ];
-
-
-        return $parameters;
-    }
-
-    /**
-     * Get customer shipping data
-     *
-     * @param OrderEntity $order
-     * @param SalesChannelContext $salesChannelContext
-     * @param RequestDataBag $request
-     *
-     * @return array
-     */
-    protected function getShipping(
-        OrderEntity $order,
-        SalesChannelContext $salesChannelContext,
-        RequestDataBag $request
-    ): array {
-        /** @var \Shopware\Core\Checkout\Customer\CustomerEntity */
-        $customer =  $this->checkoutHelper->getOrderCustomer($order, $salesChannelContext);
-
-        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity|null */
-        $shippingAddress = $order->getDeliveries()->getShippingAddress()->first();
-
-        if ($shippingAddress === null) {
-            /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity|null */
-            $shippingAddress = $this->checkoutHelper->getShippingAddress($order, $salesChannelContext);
-        }
-
-        $country = $this->checkoutHelper->getCountryCode($shippingAddress);
-        $streetComponents = $this->checkoutHelper->formatStreet($shippingAddress->getStreet());
-
-
-        $parameters = [
-            $this->setParameter('ShippingFirstName', $shippingAddress->getFirstName()),
-            $this->setParameter('ShippingInitials', strtoupper(substr($shippingAddress->getFirstName(), 0, 1))),
-            $this->setParameter('ShippingLastName', $shippingAddress->getLastName()),
-            $this->setParameter('ShippingBirthDate', $request->get('buckaroo_afterpay_DoB', '01-01-1990')),
-            $this->setParameter('ShippingStreet', (!empty($streetComponents['house_number']) ? $streetComponents['street'] : $shippingAddress->getStreet())),
-            $this->setParameter('ShippingHouseNumber', $streetComponents['house_number']),
-            $this->setParameter('ShippingPostalCode', $shippingAddress->getZipcode()),
-            $this->setParameter('ShippingCity', $shippingAddress->getCity()),
-            $this->setParameter('ShippingCountryCode', $country),
-            $this->setParameter('ShippingEmail', $customer->getEmail()),
-            $this->setParameter(
-                'ShippingPhoneNumber',
-                $request->get(
-                    'buckaroo_afterpay_phone',
-                    $shippingAddress->getPhoneNumber()
-                )
-            ),
-            $this->setParameter('ShippingLanguage', $country),
-        ];
-
-
-        return $parameters;
+        return @date("d-m-Y", $date);
     }
 
     /**
      * Get vat category
      *
-     * @param OrderLineItemEntity $orderItem
+     * @param array<mixed> $item
      *
-     * @return void
+     * @return int
      */
-    private function getItemVatCategory(OrderLineItemEntity $orderItem)
+    private function getItemVatCategory(array $item): int
     {
-
-        $itemPayload = $orderItem->getPayload();
-        if ($itemPayload === null || !isset($itemPayload['taxId'])) {
+        if (!isset($item['taxId']) ||
+            !is_string($item['taxId'])
+        ) {
             return 4;
         }
 
-        $taxId = $itemPayload['taxId'];
-
-        
-
-        if(!is_string($taxId)) {
-            return 4;
-        }
-
-        $taxAssociation = $this->checkoutHelper->getSettingsValue('afterpayOldtax');
+        $taxId = $item['taxId'];
+        $taxAssociation = $this->settingsService->getSetting('afterpayOldtax');
 
         if (is_array($taxAssociation) && isset($taxAssociation[$taxId])) {
             return (int)$taxAssociation[$taxId];
         }
 
         return 4;
-    }
-
-    /**
-     * Format data as a array of parameters
-     *
-     * @param string $name
-     * @param mixed $value
-     * @param string $groupType
-     * @param string $groupId
-     *
-     * @return array
-     */
-    protected function setParameter(
-        string $name,
-        $value,
-        string $groupType = '',
-        string $groupId = ''
-    ): array {
-        return [
-            "_" => $value,
-            "Name" => $name,
-            "GroupType" => $groupType,
-            "GroupID" => $groupId
-        ];
     }
 }

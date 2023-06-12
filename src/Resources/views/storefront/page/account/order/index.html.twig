@@ -1,0 +1,31 @@
+{% sw_extends '@Storefront/storefront/page/account/order/index.html.twig' %}
+
+{% block page_checkout_confirm_header %}
+        
+        {% if page.errorCode == 'PAYMENT_FAILED_ERROR_490' %}
+            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                type: 'danger',
+                content: 'buckaroo.statuscode_failed'|trans|sw_sanitize
+            } %}
+        {% elseif page.errorCode == 'PAYMENT_FAILED_ERROR_690' %}
+            {% set lastPaymentTrans = page.order.transactions.last() %}
+            {% set sesMessage = 'buckaroo.statuscode_failed'|trans|sw_sanitize %}
+            {% if (
+                lastPaymentTrans !== null &&
+                lastPaymentTrans.paymentMethod !== null &&
+                lastPaymentTrans.paymentMethod.shortName === 'billink_payment_handler'
+                )
+            %}
+                {% set sesMessage = 'buckaroo.billinkRejectedMessage'|trans|sw_sanitize %}
+            {% endif %}
+            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                type: 'danger',
+                content: sesMessage
+            } %}
+        {% else %}
+            {{ parent() }}
+        {% endif %}
+        {% if 'PAYMENT_FAILED_ERROR_' not in page.errorCode %}
+            {{ parent() }}
+        {% endif %}
+{% endblock %}

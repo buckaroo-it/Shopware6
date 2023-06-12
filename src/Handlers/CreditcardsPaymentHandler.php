@@ -1,45 +1,65 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\Creditcards;
-
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class CreditcardsPaymentHandler extends AsyncPaymentHandler
 {
+    protected string $paymentClass = Creditcards::class;
+
     /**
-     * @param AsyncPaymentTransactionStruct $transaction
+     * Get parameters for specific payment method
+     *
+     * @param OrderEntity $order
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $buckarooKey
-     * @param string $type
-     * @param array $gatewayInfo
-     * @return RedirectResponse
-     * @throws \Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException
+     * @param string $paymentCode
+     *
+     * @return array<mixed>
      */
-    public function pay(
-        AsyncPaymentTransactionStruct $transaction,
+    protected function getMethodPayload(
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $buckarooKey = null,
-        string $type = null,
-        string $version = null,
-        array $gatewayInfo = []
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $paymentMethod = new Creditcards();
-        return parent::pay(
-            $transaction,
-            $dataBag,
-            $salesChannelContext,
-            $paymentMethod->getBuckarooKey(),
-            $paymentMethod->getType(),
-            $paymentMethod->getVersion(),
-            $gatewayInfo
-        );
+        string $paymentCode
+    ): array {
+        if ($this->isEncripted($dataBag)) {
+            return [
+                'name'              => $dataBag->get('creditcards_issuer'),
+                'encryptedCardData' => $dataBag->get('encryptedCardData')
+            ];
+        }
+        return [];
+    }
+
+    /**
+     * Get method action for specific payment method
+     *
+     * @param RequestDataBag $dataBag
+     * @param SalesChannelContext $salesChannelContext
+     * @param string $paymentCode
+     *
+     * @return string
+     */
+    protected function getMethodAction(
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): string {
+        if ($this->isEncripted($dataBag)) {
+            return 'payEncrypted';
+        }
+        return parent::getMethodAction($dataBag, $salesChannelContext, $paymentCode);
+    }
+
+    private function isEncripted(RequestDataBag $dataBag): bool
+    {
+        return $dataBag->has('creditcards_issuer') && $dataBag->has('encryptedCardData');
     }
 }

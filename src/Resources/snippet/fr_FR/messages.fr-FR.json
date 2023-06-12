@@ -1,5 +1,9 @@
 {
   "buckaroo": {
+    "button_payment": {
+      "missing_order_id": "Paypal express order id is required",
+      "unknown_error": "Unknown buckaroo error occurred"
+    },
     "title": "Buckaroo",
     "fee": "Buckaroo Frais",
     "order": {
@@ -81,9 +85,9 @@
     }
   },
   "bkr-applepay": {
-    "Subtotal": "Subtotal",
+    "Subtotal": "Sous-total",
     "Deliverycosts" : "Coûts de livraison",
     "Discount" : "Remise",
-    "BuckarooFee": "Buckaroo Fee"
+    "BuckarooFee": "Buckaroo Frais"
   }
 }

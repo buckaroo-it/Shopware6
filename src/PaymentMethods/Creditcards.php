@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
@@ -59,13 +61,13 @@ class Creditcards extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/creditcards.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/creditcards.svg';
     }
 
     /**
      * {@inheritDoc}
      *
-     * @return array
+     * @return array<mixed>
      */
     public function getTranslations(): array
     {
@@ -90,5 +92,4 @@ class Creditcards extends AbstractPayment
     {
         return 'direct';
     }
-
 }
