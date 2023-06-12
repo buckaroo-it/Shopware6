@@ -1,68 +1,53 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\WeChatPay;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Buckaroo\Shopware6\Handlers\AsyncPaymentHandler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class WeChatPayPaymentHandler extends AsyncPaymentHandler
 {
+    protected string $paymentClass = WeChatPay::class;
+
     /**
-     * @param AsyncPaymentTransactionStruct $transaction
+     * Get parameters for specific payment method
+     *
+     * @param OrderEntity $order
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $buckarooKey
-     * @param string $type
-     * @param array $gatewayInfo
-     * @return RedirectResponse
-     * @throws \Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException
+     * @param string $paymentCode
+     *
+     * @return array<mixed>
      */
-    public function pay(
-        AsyncPaymentTransactionStruct $transaction,
+    protected function getMethodPayload(
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $buckarooKey = null,
-        string $type = null,
-        string $version = null,
-        array $gatewayInfo = []
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $paymentMethod = new WeChatPay();
-
-        $additional = [
-            [
-                'Name' => 'Locale',
-                '_' => $this->getLocaleCode(),
-            ]
+        string $paymentCode
+    ): array {
+        return [
+            'locale' => $this->getLocaleCode(
+                $this->asyncPaymentService->getCountry(
+                    $this->asyncPaymentService->getBillingAddress($order)
+                )->getIso()
+            ),
         ];
-
-        $gatewayInfo   = [
-            'additional' => [$additional],
-        ];
-
-        return parent::pay(
-            $transaction,
-            $dataBag,
-            $salesChannelContext,
-            $paymentMethod->getBuckarooKey(),
-            $paymentMethod->getType(),
-            $paymentMethod->getVersion(),
-            $gatewayInfo
-        );
     }
 
-    private function getLocaleCode($country = false)
+
+    private function getLocaleCode(string $country = null): string
     {
         if ($country == 'CN') {
-            $localeCode = 'zh-CN';
-        } else if ($country == 'TW') {
-            $localeCode = 'zh-TW';
-        } else {
-            $localeCode = 'en-US';
+            return 'zh-CN';
         }
-        return $localeCode;
+        if ($country == 'TW') {
+            return 'zh-TW';
+        }
+        return 'en-US';
     }
 }

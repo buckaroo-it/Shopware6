@@ -1,76 +1,108 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Buckaroo\Shopware6\Service\PayLinkService;
 use Buckaroo\Shopware6\PaymentMethods\PayPerEmail;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class PayPerEmailPaymentHandler extends AsyncPaymentHandler
 {
+    protected string $paymentClass = PayPerEmail::class;
+
+    protected PayLinkService $payLinkService;
+
     /**
-     * @param AsyncPaymentTransactionStruct $transaction
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string|null $buckarooKey
-     * @param string $type
-     * @param array $gatewayInfo
-     * @return RedirectResponse
-     * @throws \Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException
+     * Buckaroo constructor.
      */
-    public function pay(
-        AsyncPaymentTransactionStruct $transaction,
-        RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $buckarooKey = null,
-        string $type = null,
-        string $version = null,
-        array $gatewayInfo = []
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $paymentMethod = new PayPerEmail();
-
-        $gatewayInfo['additional'][] = [
-            [
-                'Name' => 'CustomerGender',
-                '_' => $dataBag->get('buckaroo_payperemail_gender'),
-            ],
-            [
-                'Name' => 'CustomerEmail',
-                '_' => $dataBag->get('buckaroo_payperemail_CustomerEmail'),
-            ],
-            [
-                'Name' => 'CustomerFirstName',
-                '_' => $dataBag->get('buckaroo_payperemail_CustomerFirstName'),
-            ],
-            [
-                'Name' => 'CustomerLastName',
-                '_' => $dataBag->get('buckaroo_payperemail_CustomerLastName'),
-            ],
-            [
-                '_'    => $this->checkoutHelper->getPayPerEmailPaymentMethodsAllowed($this->salesChannelContext->getSalesChannelId()),
-                'Name' => 'PaymentMethodsAllowed',
-            ],
-        ];
-
-        if($payperemailExpireDays = $this->checkoutHelper->getSettingsValue('payperemailExpireDays', $this->salesChannelContext->getSalesChannelId())){
-            $gatewayInfo['additional'][] = [[
-                'Name' => 'ExpirationDate',
-                '_' => date('Y-m-d', time() + $payperemailExpireDays * 86400),
-            ]];
-        }
-
-        return parent::pay(
-            $transaction,
-            $dataBag,
-            $salesChannelContext,
-            $paymentMethod->getBuckarooKey(),
-            $paymentMethod->getType(),
-            $paymentMethod->getVersion(),
-            $gatewayInfo
-        );
+    public function __construct(
+        AsyncPaymentService $asyncPaymentService,
+        PayLinkService $payLinkService
+    ) {
+        parent::__construct($asyncPaymentService);
+        $this->payLinkService = $payLinkService;
     }
 
+    /**
+     * Get parameters for specific payment method
+     *
+     * @param OrderEntity $order
+     * @param RequestDataBag $dataBag
+     * @param SalesChannelContext $salesChannelContext
+     * @param string $paymentCode
+     *
+     * @return array<mixed>
+     */
+    protected function getMethodPayload(
+        OrderEntity $order,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): array {
+        $address  = $this->asyncPaymentService->getBillingAddress($order);
+        $salesChannelContextId =  $salesChannelContext->getSalesChannelId();
+        return [
+            'email' => $dataBag->get(
+                'buckaroo_payperemail_CustomerEmail',
+                $this->asyncPaymentService->getCustomer($order)->getEmail()
+            ),
+            'customer'  => [
+                'firstName'     =>  $dataBag->get(
+                    'buckaroo_payperemail_CustomerFirstName',
+                    $address->getFirstName()
+                ),
+                'lastName'      => $dataBag->get(
+                    'buckaroo_payperemail_CustomerLastName',
+                    $address->getLastName()
+                ),
+                'gender' => $dataBag->get('buckaroo_payperemail_gender'),
+
+            ],
+            'expirationDate'        => $this->getExpirationDate($salesChannelContextId),
+            'paymentMethodsAllowed' => $this->payLinkService
+                ->getPayPerEmailPaymentMethodsAllowed(
+                    $salesChannelContextId
+                ),
+            'additionalParameters' => [
+                'fromPayPerEmail' => 1
+            ]
+
+        ];
+    }
+
+    /**
+     * Get method action for specific payment method
+     *
+     * @param RequestDataBag $dataBag
+     * @param SalesChannelContext $salesChannelContext
+     * @param string $paymentCode
+     *
+     * @return string
+     */
+    protected function getMethodAction(
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): string {
+        return 'paymentInvitation';
+    }
+
+    private function getExpirationDate(string $salesChannelContextId): string
+    {
+        $payperemailExpireDays = $this->getSetting(
+            'payperemailExpireDays',
+            $salesChannelContextId
+        );
+
+        if (!is_scalar($payperemailExpireDays)) {
+            return '';
+        }
+
+        return date('Y-m-d', time() + (int)$payperemailExpireDays * 86400);
+    }
 }

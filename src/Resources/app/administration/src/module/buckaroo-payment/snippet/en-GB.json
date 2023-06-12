@@ -89,6 +89,30 @@
             "zeroTaxes": "Zero VAT",
             "noTaxes": "No VAT tax"
         },
-        "paymentInTestMode": "The payment for this order was made in test mode"
+        "paymentInTestMode": "The payment for this order was made in test mode",
+        "refund": {
+            "not_supported": "Refund is not supported",
+            "already_refunded": "This order is already refunded",
+            "refunded_amount": "Buckaroo success refunded"
+        },
+        "capture": {
+            "invalid_amount": "Amount is not valid",
+            "capture_not_supported": "Capture is not supported",
+            "already_captured": "This order is already captured",
+            "captured_amount": "Successfully captured amount",
+            "general_capture_error": "Unfortunately an error occurred while processing your capture. Please try again."
+        },
+        "test_api": {
+            "connection_ready": "Connection ready",
+            "connection_failed": "Connection failed"
+        },
+        "paylink": {
+            "invalid_amount": "Amount is not valid",
+            "pay_link": "Your Paylink:"
+
+        },
+        "missing_order_id": "Missing order orderId",
+        "missing_transaction": "Order transaction not found",
+        "general_request_error": "Unfortunately an error occurred while processing your request. Please try again."
     }
 }

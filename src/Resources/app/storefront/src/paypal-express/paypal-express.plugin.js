@@ -35,52 +35,25 @@ export default class PaypalExpressPlugin extends Plugin {
         onClickCallback: this.onClickCallback.bind(this),
     }
 
-    loadSdk() {
-        return new Promise((resolve) => {
-            var script = document.createElement("script");
-            script.src = "https://checkout.buckaroo.nl/api/buckaroosdk/script/en-US";
-            // script.src = "https://testcheckout.buckaroo.nl/api/buckaroosdk/script/en-US";
-            script.async = true;
-            document.head.appendChild(script);
-            script.onload = () => {
-                resolve();
-            };
-        })
-    }
-    loadJquery() {
-        return new Promise((resolve) => {
-            var script = document.createElement("script");
-            script.src = "https://code.jquery.com/jquery-3.2.1.min.js";
-            script.async = true;
-            document.head.appendChild(script);
-            script.onload = () => {
-                resolve();
-            };
-        });
-    }
 
     form;
 
-    init() {
-
+    init()
+    {
         if (this.merchantId === null) {
             alert('Merchant id is required');
         }
-
-        this.loadJquery().then(() => {
-            this.loadSdk().then(() => {
-                this.sdk = BuckarooSdk.PayPal;
-                this.sdk.initiate(this.sdkOptions);
-            })
+        document.$emitter.subscribe('buckaroo_scripts_loaded', () => {
+            this.sdk = BuckarooSdk.PayPal;
+            this.sdk.initiate(this.sdkOptions);
         })
-
-
     }
 
     /**
      * Api events
      */
-    onShippingChangeHandler(data, actions) {
+    onShippingChangeHandler(data, actions)
+    {
         let shipping = this.setShipping(data);
         return shipping.then((response) => {
             if (response.error === false) {
@@ -99,10 +72,12 @@ export default class PaypalExpressPlugin extends Plugin {
             }
         })
     }
-    createPaymentHandler(data) {
+    createPaymentHandler(data)
+    {
         return this.createTransaction(data.orderID)
     }
-    onSuccessCallback() {
+    onSuccessCallback()
+    {
         if (this.result.error === true) {
             this.displayErrorMessage(message);
         } else {
@@ -114,29 +89,32 @@ export default class PaypalExpressPlugin extends Plugin {
         }
     }
 
-    onErrorCallback(reason) {
+    onErrorCallback(reason)
+    {
         // custom error behavior
         this.displayErrorMessage(reason);
     }
-    onCancelCallback() {
+    onCancelCallback()
+    {
         this.displayErrorMessage(this.options.i18n.cancel_error_message)
     }
 
-    onClickCallback() {
+    onClickCallback()
+    {
         //reset any previous payment response;
         this.result = null;
     }
 
     /**
      * Create order and do payment
-     * @param {string} orderId 
+     * @param {string} orderId
      * @returns Promise
      */
-    createTransaction(orderId) {
+    createTransaction(orderId)
+    {
 
         let data = {
             orderId,
-            _csrf_token: this.options.csrf.pay
         };
 
         if (this.cartToken) {
@@ -149,17 +127,19 @@ export default class PaypalExpressPlugin extends Plugin {
                 (response) => {
                     this.result = JSON.parse(response);
                     resolve(JSON.parse(response));
-                })
+                }
+            )
         })
     }
 
 
     /**
      * Set shipping on cart and return new total
-     * @param {Object} data 
-     * @returns 
+     * @param {Object} data
+     * @returns
      */
-    setShipping(data) {
+    setShipping(data)
+    {
         let formData = null;
 
         if (this.options.page === 'product') {
@@ -169,11 +149,11 @@ export default class PaypalExpressPlugin extends Plugin {
             this.httpClient.post(
                 `${this.url}/paypal/create`,
                 JSON.stringify({
-                    _csrf_token: this.options.csrf.create,
                     form: formData,
-                    order: data,
+                    customer: data,
                     page: this.options.page
-                }), (response) => {
+                }),
+                (response) => {
                     resolve(JSON.parse(response));
                 }
             )
@@ -182,9 +162,10 @@ export default class PaypalExpressPlugin extends Plugin {
 
     /**
      * Display any validation errors we receive
-     * @param {string} message 
+     * @param {string} message
      */
-    displayErrorMessage(message) {
+    displayErrorMessage(message)
+    {
         $('.buckaroo-paypal-express-error').remove();
         if (typeof message === 'object') {
             message = this.options.i18n.cannot_create_payment;
@@ -201,8 +182,7 @@ export default class PaypalExpressPlugin extends Plugin {
                 
             </div>
         </div>
-
-      `;
+        `;
         $('.flashbags').first().prepend(content);
         setTimeout(function () {
             $('.buckaroo-paypal-express-error').fadeOut(1000);

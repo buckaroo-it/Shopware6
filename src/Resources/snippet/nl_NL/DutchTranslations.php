@@ -1,10 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Resources\snippet\nl_NL;
 
-use Shopware\Core\System\Snippet\Files\SnippetFileInterface;
+use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 
-class DutchTranslations implements SnippetFileInterface
+
+class DutchTranslations extends AbstractSnippetFile
 {
     /**
      * @return string
@@ -44,5 +47,10 @@ class DutchTranslations implements SnippetFileInterface
     public function isBase(): bool
     {
         return false;
+    }
+
+    public function getTechnicalName(): string
+    {
+        return $this->getName();
     }
 }

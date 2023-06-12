@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
@@ -41,7 +43,7 @@ class Bancontact extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/bancontact.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/bancontact.svg';
     }
 
     /**
@@ -57,7 +59,7 @@ class Bancontact extends AbstractPayment
     /**
      * {@inheritDoc}
      *
-     * @return array
+     * @return array<mixed>
      */
     public function getTranslations(): array
     {
@@ -72,5 +74,4 @@ class Bancontact extends AbstractPayment
             ],
         ];
     }
-
 }

@@ -1,8 +1,0 @@
-<label>{{ "buckaroo.checkout.selectCreditCard"|trans }}*:</label>
-{% if page.extensions.buckaroo.creditcard|length > 0 %}
-    <select form="confirmOrderForm" required="required" name="creditcard" class="custom-select" style="max-width: 300px;margin-left: 0.5rem;margin-bottom: 0.5rem;">
-        {% for creditcard in page.extensions.buckaroo.creditcard %}
-            <option {% if page.extensions.buckaroo.last_used_creditcard == creditcard.code %} selected="selected" {% endif %} value="{{ creditcard.code }}">{{ creditcard.name }}</option>
-        {% endfor %}
-    </select>
-{% endif %}

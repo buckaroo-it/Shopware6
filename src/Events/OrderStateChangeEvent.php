@@ -1,45 +1,45 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Events;
 
-use Buckaroo\Shopware6\Helpers\CheckoutHelper;
-use Buckaroo\Shopware6\Helpers\Helper;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Buckaroo\Shopware6\Service\InvoiceService;
+use Buckaroo\Shopware6\Service\OrderService;
+use Buckaroo\Shopware6\Service\SettingsService;
+use Buckaroo\Shopware6\Service\TransactionService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 
 class OrderStateChangeEvent implements EventSubscriberInterface
 {
-    /** @var EntityRepositoryInterface */
-    private $orderRepository;
-    /** @var EntityRepositoryInterface */
-    private $orderDeliveryRepository;
-    /** @var helper */
-    private $helper;
-    /** @var CheckoutHelper */
-    private $checkoutHelper;
+    protected TransactionService $transactionService;
+
+    protected InvoiceService $invoiceService;
+
+    protected SettingsService $settingsService;
+
+    protected OrderService $orderService;
+
     /** @var LoggerInterface */
     protected $logger;
 
     /**
      * OrderDeliveryStateChangeEventTest constructor.
-     * @param EntityRepositoryInterface $orderRepository
-     * @param EntityRepositoryInterface $orderDeliveryRepository
-     * @param helper $helper
      */
     public function __construct(
-        EntityRepositoryInterface $orderRepository,
-        EntityRepositoryInterface $orderDeliveryRepository,
-        Helper $helper,
-        CheckoutHelper $checkoutHelper,
+        TransactionService $transactionService,
+        InvoiceService $invoiceService,
+        SettingsService $settingsService,
+        OrderService $orderService,
         LoggerInterface $logger
     ) {
-        $this->orderRepository         = $orderRepository;
-        $this->orderDeliveryRepository = $orderDeliveryRepository;
-        $this->helper                  = $helper;
-        $this->checkoutHelper          = $checkoutHelper;
-        $this->logger                  = $logger;
+        $this->transactionService = $transactionService;
+        $this->invoiceService = $invoiceService;
+        $this->settingsService = $settingsService;
+        $this->orderService = $orderService;
+        $this->logger = $logger;
     }
 
     /**
@@ -48,40 +48,39 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'state_enter.order_transaction.state.refunded'           => 'onOrderTransactionRefunded',
-            'state_enter.order_transaction.state.refunded_partially' => 'onOrderTransactionRefundedPartially',
             'state_enter.order_delivery.state.shipped' => 'onOrderDeliveryStateShipped',
         ];
     }
 
-    public function onOrderTransactionRefunded(OrderStateMachineStateChangeEvent $event)
-    {
-        return true;
-    }
-
-    public function onOrderTransactionRefundedPartially(OrderStateMachineStateChangeEvent $event)
-    {
-        return true;
-    }
-
-    public function onOrderDeliveryStateShipped(OrderStateMachineStateChangeEvent $event)
+    public function onOrderDeliveryStateShipped(OrderStateMachineStateChangeEvent $event): bool
     {
         $context = $event->getContext();
         $eventOrder = $event->getOrder();
-        $order = $this->checkoutHelper->getOrderById($eventOrder->getId(), $context);
-        $customFields = $this->checkoutHelper->getCustomFields($order, $context);
+        $order = $this->orderService->getOrderById(
+            $eventOrder->getId(),
+            [
+                'transactions',
+                'transactions.paymentMethod'
+            ],
+            $context
+        );
 
-        if(
-            isset($customFields['brqPaymentMethod']) &&
+        if ($order === null) {
+            $this->logger->debug("Cannot find order entity");
+            return false;
+        }
+        $customFields = $this->transactionService->getCustomFields($order, $context);
+        $salesChannelId =  $event->getSalesChannelId();
+
+        if (isset($customFields['brqPaymentMethod']) &&
             $customFields['brqPaymentMethod'] == 'Billink' &&
-            $this->checkoutHelper->getSettingsValue('BillinkMode', $event->getSalesChannelId()) == 'authorize' &&
-            $this->checkoutHelper->getSettingsValue('BillinkCreateInvoiceAfterShipment', $event->getSalesChannelId())
+            $this->settingsService->getSetting('BillinkMode', $salesChannelId) == 'authorize' &&
+            $this->settingsService->getSetting('BillinkCreateInvoiceAfterShipment', $salesChannelId)
         ) {
             $brqInvoicenumber = $customFields['brqInvoicenumber'] ?? $order->getOrderNumber();
-            $this->checkoutHelper->generateInvoice($eventOrder->getId(), $context, $brqInvoicenumber,  $event->getSalesChannelId());
+            $this->invoiceService->generateInvoice($eventOrder, $context, $salesChannelId);
         }
 
         return true;
     }
-
 }

@@ -3,7 +3,6 @@ const { Module } = Shopware;
 import './page/buckaroo-settings';
 
 import './extension/sw-order';
-import './extension/sw-plugin';
 import './extension/sw-settings-index';
 import './extension/sw-order-detail-base';
 import './extension/sw-order-user-card';

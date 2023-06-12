@@ -2,32 +2,32 @@
 
 declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
-use Buckaroo\Shopware6\Service\Exceptions\CreateCustomerAddressException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Buckaroo\Shopware6\Service\Exceptions\CreateCustomerAddressException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 
 class CustomerAddressService
 {
-
     /**
      *
      * @var SalesChannelContext
      */
-    protected $salesChannelContext;
-
+    protected SalesChannelContext $salesChannelContext;
 
     /**
      * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
      */
-    protected $customerAddressRepository;
+    protected EntityRepository $customerAddressRepository;
+
+    protected EntityRepository $countryRepository;
 
     public function __construct(
         EntityRepository $customerAddressRepository,
@@ -45,7 +45,7 @@ class CustomerAddressService
      *
      * @return \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity|null
      */
-    public function create(DataBag $data, string $customerId, string $salutationId)
+    public function create(DataBag $data, string $customerId, string $salutationId): ?CustomerAddressEntity
     {
         $addressId = Uuid::randomHex();
 
@@ -55,36 +55,62 @@ class CustomerAddressService
         );
 
         return $this->customerAddressRepository->search(
-            new Criteria([$addressId]),
+            (new Criteria([$addressId]))->addAssociation('country'),
             $this->salesChannelContext->getContext()
         )->first();
     }
-    public function formatedAddressData(DataBag $data, string $customerId, string $addressId, string $salutationId)
-    {
+
+    /**
+     *
+     * @param DataBag $data
+     * @param string $customerId
+     * @param string $addressId
+     * @param string $salutationId
+     *
+     * @return array<mixed>
+     */
+    public function formatedAddressData(
+        DataBag $data,
+        string $customerId,
+        string $addressId,
+        string $salutationId
+    ): array {
         return [
             'id' => $addressId,
             'customerId' => $customerId,
             'salutationId' => $salutationId,
             'countryId' => $this->getCountryId($data->get('country_code')),
             'firstName' => $data->get('first_name', 'Unknown'),
-            'lastName' => $data->get('last_name', 'Paypal Express'),
+            'lastName' => $data->get('last_name', 'Customer - Buckaroo Payments'),
             'zipcode' => $data->get('postal_code'),
             'city' => $data->get('city'),
-            'street' => 'Unknown',
+            'street' => $data->get('street', 'Unknown'),
             'customFields' => [
-                "paypalAddress" => true
+                "buckarooAddress" => true,
             ]
         ];
     }
 
-    protected function getCountryId(string $iso)
+
+    /**
+     * Get country from iso code
+     *
+     * @param mixed $iso
+     *
+     * @return string
+     */
+    protected function getCountryId($iso): string
     {
+        if (!is_scalar($iso)) {
+            $iso = '';
+        }
+
         $this->validateSaleChannelContext();
         $criteria = (new Criteria())
             ->setLimit(1)
-            ->addFilter(new EqualsFilter('iso', $iso));
+            ->addFilter(new EqualsFilter('iso', (string)$iso));
 
-        /** @var \Shopware\Core\System\Country\CountryEntity */
+        /** @var \Shopware\Core\System\Country\CountryEntity|null */
         $country = $this->countryRepository->search(
             $criteria,
             $this->salesChannelContext->getContext()
