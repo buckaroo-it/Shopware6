@@ -3,6 +3,7 @@
 </p>
 
 # Buckaroo Shopware 6 Payments Plugin
+[![Latest release](https://badgen.net/github/release/buckaroo-it/Shopware_6)](https://github.com/buckaroo-it/Shopware_6/releases)
 
 ### Index
 - [About](#about)
@@ -26,8 +27,8 @@ Start accepting payments within a few minutes.
 
 To use the Buckaroo plugin, please be aware of the following minimum requirements:
 - A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
-- Shopware 6.1 up to 6.4.19.0
-- PHP 7.4 , 8.0 , 8.1
+- Shopware 6.5.0 up to 6.5.1.1
+- PHP 8.1
 
 ### Installation
 

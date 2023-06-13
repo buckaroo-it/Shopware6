@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -10,7 +9,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Buckaroo\Shopware6\Service\CustomerAddressService;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -18,7 +16,8 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 
 class CustomerService
 {
@@ -43,9 +42,9 @@ class CustomerService
     protected $salesChannelContext;
 
     /**
-     * @var \Shopware\Core\System\SalesChannel\Context\CartRestorer
+     * @var \Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer
      */
-    protected CartRestorer $restorer;
+    protected SalesChannelContextRestorer $restorer;
 
     /**
      * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
@@ -56,7 +55,7 @@ class CustomerService
         CustomerAddressService $customerAddressService,
         EntityRepository $customerRepository,
         EntityRepository $salutationRepository,
-        CartRestorer $restorer,
+        SalesChannelContextRestorer $restorer,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->customerAddressService = $customerAddressService;
@@ -69,20 +68,13 @@ class CustomerService
     /**
      * Get or create user with shippinh address
      *
-     * @param DataBag $data
+     * @param DataBag $addressData
      *
-     * @return void
+     * @return CustomerEntity
      */
-    public function get(DataBag $data)
+    public function get(DataBag $addressData): CustomerEntity
     {
         $this->validateSaleChannelContext();
-
-        if (!$data->has('shipping_address')) {
-            throw new CreateCustomerException('Invalid customer address provided');
-        }
-
-        /** @var DataBag */
-        $addressData = $data->get('shipping_address');
 
         $customer = $this->salesChannelContext->getCustomer();
 
@@ -101,7 +93,7 @@ class CustomerService
             return $customer;
         }
 
-        return $this->create($data);
+        return $this->create($addressData);
     }
 
     /**
@@ -111,13 +103,13 @@ class CustomerService
      *
      * @return \Shopware\Core\Checkout\Customer\CustomerEntity
      */
-    protected function create(DataBag $data)
+    protected function create(DataBag $data): CustomerEntity
     {
         $this->validateSaleChannelContext();
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
         $salutationId = $this->getSalutationId();
-        $address = $this->getAddressData($data->get('shipping_address'), $customerId, $addressId, $salutationId);
+        $address = $this->getAddressData($data, $customerId, $addressId, $salutationId);
 
         $customer = [
             'id' => $customerId,
@@ -129,9 +121,9 @@ class CustomerService
             'defaultShippingAddressId' => $addressId,
             'defaultBillingAddressId' => $addressId,
             'salutationId' => $salutationId,
-            'firstName' => 'Unknown',
-            'lastName' => 'Paypal Express',
-            'email' => 'no-replay@example.com',
+            'firstName' => $data->get('first_name', 'Unknown'),
+            'lastName' => $data->get('last_name', 'Customer - Buckaroo Payments'),
+            'email' => $data->get('email', 'no-replay@example.com'),
             'active' => true,
             'guest' =>  true,
             'firstLogin' => new \DateTimeImmutable(),
@@ -154,19 +146,24 @@ class CustomerService
      *
      * @return void
      */
-    protected function loginCreatedCustomer(CustomerEntity $customer)
+    protected function loginCreatedCustomer(CustomerEntity $customer): void
     {
-        $context = $this->restorer->restore($customer->getId(), $this->salesChannelContext);
+        $context = $this->restorer->restoreByCustomer($customer->getId(), $this->salesChannelContext->getContext());
         $this->eventDispatcher->dispatch(
             new CustomerLoginEvent($context, $customer, $context->getToken())
         );
     }
 
-    protected function createAddress(DataBag $data, CustomerEntity $customer)
+    public function createAddress(DataBag $data, CustomerEntity $customer): ?CustomerAddressEntity
     {
+        $salutationId = $customer->getSalutationId();
+        if ($salutationId === null) {
+            throw new \UnexpectedValueException('Cannot find validation id');
+        }
+
         return $this->customerAddressService
             ->setSaleChannelContext($this->salesChannelContext)
-            ->create($data, $customer->getId(), $customer->getSalutationId());
+            ->create($data, $customer->getId(), $salutationId);
     }
     /**
      * Get customer from database based on id
@@ -175,15 +172,18 @@ class CustomerService
      *
      * @return \Shopware\Core\Checkout\Customer\CustomerEntity
      */
-    public function getCustomerById(string $customerId)
+    public function getCustomerById(string $customerId): CustomerEntity
     {
 
         $criteria = (new Criteria([$customerId]))
         ->addAssociation('addresses')
+        ->addAssociation('activeBillingAddress.country')
+        ->addAssociation('defaultBillingAddress.country')
         ->addAssociation('defaultShippingAddress.country')
         ->addAssociation('defaultShippingAddress.countryState')
         ->addAssociation('defaultShippingAddress.salutation');
 
+        /** @var \Shopware\Core\Checkout\Customer\CustomerEntity|null $customer */
         $customer = $this->customerRepository->search(
             $criteria,
             $this->salesChannelContext->getContext()
@@ -193,15 +193,19 @@ class CustomerService
         if ($customer === null) {
             throw new CreateCustomerException('Cannot create customer');
         }
-        
-        /**
-         * Update context with the new customer an shipping location
-         */
-        $this->salesChannelContext->assign([
-            'customer' => $customer,
-            'shippingLocation' => ShippingLocation::createFromAddress($customer->getActiveShippingAddress())
-        ]);
-        
+
+        $activeShippingAddress = $customer->getActiveShippingAddress();
+
+        if ($activeShippingAddress !== null) {
+            /**
+             * Update context with the new customer an shipping location
+             */
+            $this->salesChannelContext->assign([
+                'customer' => $customer,
+                'shippingLocation' => ShippingLocation::createFromAddress($activeShippingAddress)
+            ]);
+        }
+
         return $customer;
     }
     /**
@@ -209,14 +213,14 @@ class CustomerService
      *
      * @return string
      */
-    protected function getSalutationId()
+    protected function getSalutationId(): string
     {
         $salutation = $this->salutationRepository->search(
             (new Criteria())->setLimit(1),
             $this->salesChannelContext->getContext()
         )->first();
 
-        /** @var \Shopware\Core\System\Salutation\SalutationEntity */
+        /** @var \Shopware\Core\System\Salutation\SalutationEntity|null $salutation */
         if ($salutation === null) {
             throw new CreateCustomerException('Cannot find salutation');
         }
@@ -231,10 +235,14 @@ class CustomerService
      * @param string $customerId
      * @param string $addressId
      *
-     * @return void
+     * @return array<mixed>
      */
-    protected function getAddressData(DataBag $data, string $customerId, string $addressId, string $salutationId)
-    {
+    protected function getAddressData(
+        DataBag $data,
+        string $customerId,
+        string $addressId,
+        string $salutationId
+    ): array {
         return $this->customerAddressService
             ->setSaleChannelContext($this->salesChannelContext)
             ->formatedAddressData($data, $customerId, $addressId, $salutationId);
@@ -247,7 +255,7 @@ class CustomerService
      *
      * @return self
      */
-    public function setSaleChannelContext(SalesChannelContext $salesChannelContext)
+    public function setSaleChannelContext(SalesChannelContext $salesChannelContext): self
     {
         $this->salesChannelContext = $salesChannelContext;
         return $this;
@@ -257,7 +265,7 @@ class CustomerService
      *
      * @return void
      */
-    private function validateSaleChannelContext()
+    private function validateSaleChannelContext(): void
     {
         if (!$this->salesChannelContext instanceof SalesChannelContext) {
             throw new CreateCartException('SaleChannelContext is required');

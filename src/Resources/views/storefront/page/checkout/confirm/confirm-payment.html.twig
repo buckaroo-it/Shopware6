@@ -1,147 +1,21 @@
 {% sw_extends '@Storefront/storefront/page/checkout/confirm/confirm-payment.html.twig' %}
 
-{% block page_checkout_confirm_payment_current %}
-    {% if shopware.config.BuckarooPayments.config.showPaymentMethodsList == false %}
-        {{ parent() }}
-    {% endif %}
-{% endblock %}
-
-{% block page_checkout_confirm_payment_modal_toggle %}
-    {% if shopware.config.BuckarooPayments.config.showPaymentMethodsList == false %}
-    <button type="button"
-            class="btn btn-light"
-            data-toggle="modal"
-            data-backdrop="static"
-            {% if page.paymentChangeable is not null and page.paymentChangeable == false %}
-                disabled="disabled"
-            {% endif %}
-            data-target="#confirmPaymentModal">
-
-        {% if paymentMethodInvalid %}
-            {{ "checkout.confirmChoosePayment"|trans|sw_sanitize }}
-        {% else %}
-            {{ "checkout.confirmChangePayment"|trans|sw_sanitize }}
-        {% endif %}
-    </button>
-    {% endif %}
-{% endblock %}
-
-{# @deprecated tag:v6.4.0.0 removed #}
-{% block page_checkout_confirm_payment_modal %}
-    {% if shopware.config.BuckarooPayments.config.showPaymentMethodsList == false %}
-    <div class="modal fade confirm-payment-modal"
-         id="confirmPaymentModal"
-         tabindex="-1"
-         role="dialog">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered"
-             role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="modal-title h5">
-                        {{ "checkout.confirmChangePayment"|trans|sw_sanitize }}
-                    </div>
-                    <button type="button"
-                            class="modal-close close"
-                            data-dismiss="modal"
-                            aria-label="Close">
-                        <span aria-hidden="true">
-                            {% sw_icon 'x' style { 'size': 'sm' } %}
-                        </span>
-                    </button>
-                </div>
-                {% else %}
-                    <div class="mt-4" id="confirmPaymentCollapse">
-                {% endif %}
-
-                {# @deprecated tag:v6.4.0.0 removed #}
-                {% block page_checkout_confirm_payment_modal_body %}
-                    <div class="modal-body">
-
-                        {# @deprecated tag:v6.4.0.0 removed #}
-                        {% block page_checkout_confirm_payment_form %}
-
-                            {# @deprecated tag:v6.4.0.0 removed #}
-                            {% block page_checkout_confirm_payment_form_csrf %}{% endblock %}
-
-                            {# @deprecated tag:v6.4.0.0 removed #}
-                            {% block page_checkout_confirm_payment_form_redirect %}{% endblock %}
-
-                            {# @deprecated tag:v6.4.0.0 removed #}
-                            {% block page_checkout_confirm_payment_form_fields %}{% endblock %}
-
-                            {# @deprecated tag:v6.4.0.0 removed #}
-                            {% block page_checkout_confirm_payment_form_submit %}{% endblock %}
-
-                            {# @deprecated tag:v6.4.0.0 removed #}
-                            {% block page_checkout_confirm_payment_cancel %}{% endblock %}
-                        {% endblock %}
-
-                        {% sw_include '@Storefront/storefront/page/checkout/change-payment-modal.html.twig' with { 'redirect': 'frontend.checkout.confirm.page', 'action':  'frontend.checkout.configure'} %}
-                    </div>
-                {% endblock %}
-    {% if shopware.config.BuckarooPayments.config.showPaymentMethodsList == false %}
-            </div>
-        </div>
-    {% endif %}
-    </div>
-{% endblock %}
-
-{% block page_checkout_confirm_payment_current_image %}
-
-    {% if context.paymentMethod.translated.customFields.buckaroo_key == 'creditcard' %}
-        <img src="{{ page.extensions.buckaroo.media_path }}{{ page.extensions.buckaroo.payment_media }}" class="payment-method-image">
-    {% elseif context.paymentMethod.media %}
-        {% sw_thumbnails 'confirm-payment-current-image-thumbnails' with {
-            media: context.paymentMethod.media,
-            sizes: {
-                'default': '100px'
-            },
-            attributes: {
-                'class': 'payment-method-image',
-                'alt': (context.paymentMethod.media.translated.alt ?: context.paymentMethod.translated.name),
-                'title': (context.paymentMethod.media.translated.title ?: context.paymentMethod.translated.name)
-            }
-        } %}
-    {% endif %}
-
-{% endblock %}
-
-{% block page_checkout_confirm_payment_current_text %}
-    {% include '@BuckarooPayments/storefront/buckaroo/payment_methods.html.twig' %}
-{% endblock %}
 
 {% block page_checkout_confirm_payment_inner %}
     {{ parent() }}
     {% if context.paymentMethod.formattedHandlerIdentifier == 'handler_buckaroo_applepaypaymenthandler' %}
-        <div id="applepay-button-container" class="applepay-button-container" style="display:none;">
-            <div></div>
-        </div>
-        <input type="hidden"
-               form="confirmOrderForm"
-               id="applePayInfo"
-               name="applePayInfo"
-               value="">
-        <script>
-            window.isApplePay = true;
-            if (!window.buckaroo) {
-                window.buckaroo = {
-                    submit: false,
-                    csrf: {
-                        '/Buckaroo/applepayInit': '{{ sw_csrf("frontend.buckaroo.applepayInit", {"mode": "token"}) }}',
-                        '/Buckaroo/applepaySaveOrder': '{{ sw_csrf("frontend.buckaroo.applepaySaveOrder", {"mode": "token"}) }}'
-                    }
-                };
+        {% set applePayConfig = {
+            page: "checkout",
+            merchantId: page.extensions.buckaroo.applePayMerchantId,
+            cultureCode: page.header.activeLanguage.translationCode.code,
+             i18n: {
+                cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
+                cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
             }
-            setTimeout(function() {
-                if (document.getElementById('confirmFormSubmit')) {
-                    document.getElementById('confirmFormSubmit').disabled = true;
-                    document.getElementById('confirmFormSubmit').addEventListener('click', function(e){
-                        e.stopPropagation();
-                    });
-                }
-            }, 200)
-        </script>
-        <script type="module" src="/bundles/buckaroopayments/storefront/buckaroo/js/applepay/index.js"></script>
+        } %}
+
+        <div data-bk-applepay data-buckaroo-apple-pay-plugin-options='{{ applePayConfig|json_encode }}'></div>
+        <div class="bk-apple-pay-button" style="margin-top: 10px;">
     {% endif %}
 
     {% if page.extensions.buckaroo.showPaypalExpress %}
@@ -152,16 +26,13 @@
             i18n: {
                 cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
                 cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
-            },
-             csrf: {
-                create: sw_csrf("frontend.action.buckaroo.paypalExpressCreate", {"mode": "token"}),
-                pay: sw_csrf("frontend.action.buckaroo.paypalExpressPay", {"mode": "token"})
             }
         } %}
 
         <div style="margin-top:15px;" class="bk-paypal-express" data-paypal-express data-paypal-express-plugin-options='{{ paypalExpressOptions|json_encode }}'>
             <div class="buckaroo-paypal-express"></div>
         </div>
+
     {% endif %}
 
 {% endblock %}

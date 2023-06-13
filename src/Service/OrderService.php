@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -16,9 +17,10 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
-class OrderService {
-
+class OrderService
+{
     /**
      * @var SalesChannelContext
      */
@@ -50,7 +52,7 @@ class OrderService {
         EntityRepository $orderRepository,
         EventDispatcherInterface $eventDispatcher,
         PaymentTransactionChainProcessor $paymentProcessor
-        ) {
+    ) {
         $this->orderPersister = $orderPersister;
         $this->orderRepository = $orderRepository;
         $this->eventDispatcher = $eventDispatcher;
@@ -61,11 +63,11 @@ class OrderService {
      * Place request and do payment
      *
      * @param OrderEntity $orderEntity
-     * @param string $paypalOrderId
+     * @param RequestDataBag $data
      *
      * @return string|null
      */
-    public function place(OrderEntity $orderEntity,  string $paypalOrderId)
+    public function place(OrderEntity $orderEntity, RequestDataBag $data)
     {
         $this->validateSaleChannelContext();
         $this->eventDispatcher->dispatch(
@@ -75,7 +77,7 @@ class OrderService {
                 $this->salesChannelContext->getSalesChannel()->getId()
             )
         );
-        return $this->doPayment($orderEntity->getId(), $paypalOrderId);
+        return $this->doPayment($orderEntity->getId(), $data);
     }
 
 
@@ -83,20 +85,19 @@ class OrderService {
      * Do payment request
      *
      * @param string $orderId
-     * @param string $paypalOrderId
+     * @param RequestDataBag $data
      *
      * @return string|null
      */
-    public function doPayment(string $orderId, string $paypalOrderId)
+    public function doPayment(string $orderId, RequestDataBag $data): ?string
     {
-        $dataBag = new RequestDataBag([
-            "orderId" => $paypalOrderId
-        ]);
-        $response = $this->paymentProcessor->process($orderId, $dataBag, $this->salesChannelContext);
+
+        $response = $this->paymentProcessor->process($orderId, $data, $this->salesChannelContext);
 
         if ($response instanceof RedirectResponse) {
             return $response->getTargetUrl();
         }
+        return null;
     }
     /**
      * Create order from cart
@@ -113,22 +114,32 @@ class OrderService {
     }
 
     /**
-     * Get order by id
+     * Get order by id with associations
      *
      * @param string $orderId
+     * @param array<string> $associations
+     * @param Context|null $context
      *
      * @return \Shopware\Core\Checkout\Order\OrderEntity|null
      */
-    public function getOrderById(string $orderId)
+    public function getOrderById(string $orderId, array $associations = ['lineItems'], Context $context = null)
     {
-        $this->validateSaleChannelContext();
+        if ($context === null) {
+            $this->validateSaleChannelContext();
+            $context = $this->salesChannelContext->getContext();
+        }
 
         $criteria = (new Criteria([$orderId]))
-            ->addAssociation('lineItems')
+            ->addAssociations($associations)
         ;
+
+        if (in_array('transactions', $associations)) {
+            $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        }
+
         return $this->orderRepository->search(
             $criteria,
-            $this->salesChannelContext->getContext()
+            $context
         )->first();
     }
     /**

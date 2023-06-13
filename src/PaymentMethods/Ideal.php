@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
@@ -59,13 +61,13 @@ class Ideal extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/logo/ideal.png';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/ideal.svg';
     }
 
     /**
      * {@inheritDoc}
      *
-     * @return array
+     * @return array<mixed>
      */
     public function getTranslations(): array
     {
@@ -90,5 +92,4 @@ class Ideal extends AbstractPayment
     {
         return 'direct';
     }
-
 }

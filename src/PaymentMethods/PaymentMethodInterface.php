@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
@@ -56,7 +58,7 @@ interface PaymentMethodInterface
     /**
      * Get the German and English translations of a payment method
      *
-     * @return array
+     * @return array<mixed>
      */
     public function getTranslations(): array;
 
@@ -66,7 +68,7 @@ interface PaymentMethodInterface
      * @return string
      */
     public function getType(): string;
-    
+
     /**
      * Get the canRefund status
      *

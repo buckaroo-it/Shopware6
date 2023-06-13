@@ -1,4 +1,6 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
@@ -49,15 +51,15 @@ class Billink extends AbstractPayment
      *
      * @return string
      */
-    public function getMedia() : string
+    public function getMedia(): string
     {
-        return __DIR__ . '/../Resources/views/storefront/buckaroo/logo/Billink.png';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/billink.svg';
     }
 
     /**
      * {@inheritDoc}
      *
-     * @return array
+     * @return array<mixed>
      */
     public function getTranslations(): array
     {
@@ -77,5 +79,4 @@ class Billink extends AbstractPayment
     {
         return true;
     }
-
 }

@@ -1,44 +1,86 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\ApplePay;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class ApplePayPaymentHandler extends AsyncPaymentHandler
 {
+    protected string $paymentClass = ApplePay::class;
+
     /**
-     * @param AsyncPaymentTransactionStruct $transaction
+     * Get parameters for specific payment method
+     *
+     * @param OrderEntity $order
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $gateway
-     * @param string $type
-     * @param array $gatewayInfo
-     * @return RedirectResponse
-     * @throws \Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException
+     * @param string $paymentCode
+     *
+     * @return array<mixed>
      */
-    public function pay(
-        AsyncPaymentTransactionStruct $transaction,
+    protected function getMethodPayload(
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $buckarooKey = null,
-        string $type = null,
-        string $version = null,
-        array $gatewayInfo = []
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $paymentMethod = new ApplePay();
-        return parent::pay(
-            $transaction,
-            $dataBag,
-            $salesChannelContext,
-            $paymentMethod->getBuckarooKey(),
-            $paymentMethod->getType(),
-            $paymentMethod->getVersion(),
-            $gatewayInfo
-        );
+        string $paymentCode
+    ): array {
+        $applePayInfo = $dataBag->get('applePayInfo');
+
+        if (!is_string($applePayInfo)) {
+            return [];
+        }
+
+        $data = json_decode($applePayInfo);
+        if ($data === false || !is_object($data)) {
+            return [];
+        }
+
+        return [
+            "customerCardName" => $this->getCustomerName($data),
+            "paymentData" => $this->getPaymentData($data)
+        ];
+    }
+
+    /**
+     * @param mixed $data
+     * @return string
+     */
+    private function getPaymentData($data): string
+    {
+        if (!is_object($data)) {
+            return '';
+        }
+        if (empty($data->token)) {
+            return '';
+        }
+
+        $data = json_encode($data->token);
+        if ($data === false) {
+            return '';
+        }
+        return base64_encode($data);
+    }
+
+    /**
+     * @param mixed $data
+     * @return string
+     */
+    private function getCustomerName($data): string
+    {
+        if (!is_object($data)) {
+            return '';
+        }
+        if (!empty($data->billingContact) &&
+            !empty($data->billingContact->givenName) &&
+            !empty($data->billingContact->familyName)
+        ) {
+            return  $data->billingContact->givenName . ' ' . $data->billingContact->familyName;
+        }
+        return '';
     }
 }

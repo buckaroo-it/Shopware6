@@ -1,53 +1,64 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\Transfer;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class TransferPaymentHandler extends AsyncPaymentHandler
 {
+    protected string $paymentClass = Transfer::class;
+
     /**
-     * @param AsyncPaymentTransactionStruct $transaction
+     * Get parameters for specific payment method
+     *
+     * @param OrderEntity $order
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $buckarooKey
-     * @param string $type
-     * @param array $gatewayInfo
-     * @return RedirectResponse
-     * @throws \Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException
+     * @param string $paymentCode
+     *
+     * @return array<mixed>
      */
-    public function pay(
-        AsyncPaymentTransactionStruct $transaction,
+    protected function getMethodPayload(
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $buckarooKey = null,
-        string $type = null,
-        string $version = null,
-        array $gatewayInfo = []
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $additional = [];
-        $order = $transaction->getOrder();
+        string $paymentCode
+    ): array {
+        $address = $this->asyncPaymentService->getBillingAddress($order);
+        $customer = $this->asyncPaymentService->getCustomer($order);
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
 
-        $additional = $this->checkoutHelper->getTransferData($order, $additional, $salesChannelContext, $dataBag);
-
-        $paymentMethod = new Transfer();
-        $gatewayInfo = [
-            'additional' =>  $additional,
+        return [
+            'email' => $customer->getEmail(),
+            'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
+            'customer'      => [
+                'firstName' => $address->getFirstName(),
+                'lastName' => $address->getLastName()
+            ],
+            'dateDue' => $this->getDateDue($salesChannelId),
+            'sendMail' => $this->canSendEmail($salesChannelId),
         ];
+    }
 
-        return parent::pay(
-            $transaction,
-            $dataBag,
-            $salesChannelContext,
-            $paymentMethod->getBuckarooKey(),
-            $paymentMethod->getType(),
-            $paymentMethod->getVersion(),
-            $gatewayInfo
-        );
+    protected function getDateDue(string $salesChannelId): string
+    {
+        $now = new \DateTime();
+        $days = $this->getSetting('transferDateDue', $salesChannelId);
+
+        if (is_scalar($days) && (int)$days <= 0) {
+            $days = 7;
+        }
+        $now->modify('+' . $days . ' day');
+        return $now->format('Y-m-d');
+    }
+
+    protected function canSendEmail(string $salesChannelId): bool
+    {
+        return $this->getSetting('transferSendEmail', $salesChannelId) == 1;
     }
 }

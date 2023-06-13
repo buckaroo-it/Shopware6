@@ -1,6 +1,13 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6;
+
+if (file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
+    require_once dirname(__DIR__) . '/vendor/autoload.php';
+}
+
 
 use Buckaroo\Shopware6\Installers\MediaInstaller;
 use Buckaroo\Shopware6\Installers\PaymentMethodsInstaller;
@@ -13,7 +20,6 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class BuckarooPayments extends Plugin
 {
@@ -26,9 +32,6 @@ class BuckarooPayments extends Plugin
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/Resources/config'));
         $loader->load('services.xml');
-
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/Resources/config/packages'));
-        $loader->load('framework.yaml');
     }
 
     /**
@@ -68,13 +71,14 @@ class BuckarooPayments extends Plugin
         (new PaymentMethodsInstaller($this->container))->uninstall($uninstallContext);
         parent::uninstall($uninstallContext);
     }
-    
+
     /**
      * @param UpdateContext $updateContext
      */
     public function update(UpdateContext $updateContext): void
     {
         (new PaymentMethodsInstaller($this->container))->update($updateContext);
+        (new MediaInstaller($this->container))->update($updateContext);
         parent::update($updateContext);
     }
 

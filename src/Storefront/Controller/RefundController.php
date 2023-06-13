@@ -1,85 +1,96 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Context;
+use Buckaroo\Shopware6\Service\OrderService;
+use Buckaroo\Shopware6\Service\RefundService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
-use Exception;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-
-use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
-
-/**
- */
 class RefundController extends StorefrontController
 {
-    /** @var LoggerInterface */
-    private $logger;
-    
-    private $transactionRepository;
-    
-    private $checkoutHelper;
-    
-    private $orderRepository;
+    private RefundService $refundService;
 
+    private OrderService $orderService;
+
+    protected LoggerInterface $logger;
     public function __construct(
-        EntityRepositoryInterface $transactionRepository,
-        CheckoutHelper $checkoutHelper,
-        EntityRepositoryInterface $orderRepository
+        RefundService $refundService,
+        OrderService $orderService,
+        LoggerInterface $logger
     ) {
-        $this->transactionRepository = $transactionRepository;
-        $this->checkoutHelper = $checkoutHelper;
-        $this->orderRepository = $orderRepository;
+        $this->refundService = $refundService;
+        $this->orderService = $orderService;
+        $this->logger = $logger;
     }
 
     /**
-     * @RouteScope(scopes={"api"})
-     * @Route("/api/_action/buckaroo/refund", name="api.action.buckaroo.refund", methods={"POST"})
      * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
+     * @param Context $context
      *
-     * @return RedirectResponse
+     * @return JsonResponse
      */
+    #[Route(path: "/api/_action/buckaroo/refund", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.refund", methods:["POST"])]
     public function refundBuckaroo(Request $request, Context $context): JsonResponse
     {
         $orderId = $request->get('transaction');
         $transactionsToRefund = $request->get('transactionsToRefund');
-        $orderItems = $request->get('orderItems');
 
-        if (empty($orderId)) {
-            return new JsonResponse(['status' => false, 'message' => 'Missing order orderId'], Response::HTTP_NOT_FOUND);
+        if (empty($orderId) || !is_string($orderId)) {
+            return new JsonResponse(
+                ['status' => false, 'message' => $this->trans("buckaroo-payment.missing_order_id")],
+                Response::HTTP_NOT_FOUND
+            );
         }
 
-        $order = $this->checkoutHelper->getOrderById($orderId, $context);
+        $order = $this->orderService
+            ->getOrderById(
+                $orderId,
+                [
+                    'orderCustomer.salutation',
+                    'stateMachineState',
+                    'lineItems',
+                    'transactions',
+                    'transactions.paymentMethod',
+                    'transactions.paymentMethod.plugin',
+                    'salesChannel',
+                    'currency'
+                ],
+                $context
+            );
 
         if (null === $order) {
-            return new JsonResponse(['status' => false, 'message' => 'Order transaction not found'], Response::HTTP_NOT_FOUND);
+            return new JsonResponse(
+                ['status' => false, 'message' => $this->trans("buckaroo-payment.missing_transaction")],
+                Response::HTTP_NOT_FOUND
+            );
         }
-        $responses = [];
         try {
-            foreach ($transactionsToRefund as $item) {
-                $responses[] = $this->checkoutHelper->refundTransaction($order, $context, $item, 'refund', $orderItems, (float) $request->get('customRefundAmount'));
+            $responses = [];
+
+            if (is_array($transactionsToRefund)) {
+                foreach ($transactionsToRefund as $item) {
+                    if (is_array($item)) {
+                        $responses[] = $this->refundService->refund(
+                            $request,
+                            $order,
+                            $context,
+                            $item,
+                        );
+                    }
+                }
             }
-        } catch (Exception $exception) {
+            return new JsonResponse($responses);
+        } catch (\Exception $exception) {
+            $this->logger->debug((string)$exception);
             return new JsonResponse(
                 [
                     'status'  => false,
@@ -89,19 +100,5 @@ class RefundController extends StorefrontController
                 Response::HTTP_BAD_REQUEST
             );
         }
-
-        if($responses){
-            return new JsonResponse($responses);
-        }
-
-        return new JsonResponse(
-            [
-                'status'  => false,
-                'message' => 'Unfortunately an error occurred while processing your refund. Please try again.',
-                'code'    => 0,
-            ],
-            Response::HTTP_BAD_REQUEST
-        );
-
     }
 }

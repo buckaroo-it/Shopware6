@@ -2,11 +2,13 @@ const { Application } = Shopware;
 const ApiService = Shopware.Classes.ApiService;
 
 class BuckarooPaymentSettingsService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'buckaroo') {
+    constructor(httpClient, loginService, apiEndpoint = 'buckaroo')
+    {
         super(httpClient, loginService, apiEndpoint);
     }
 
-    getSupportVersion() {
+    getSupportVersion()
+    {
         const apiRoute = `_action/${this.getApiBasePath()}/version`;
 
         return this.httpClient.post(
@@ -21,7 +23,8 @@ class BuckarooPaymentSettingsService extends ApiService {
         });
     }
 
-    getTaxes() {
+    getTaxes()
+    {
         const apiRoute = `_action/${this.getApiBasePath()}/taxes`;
 
         return this.httpClient.post(
@@ -36,7 +39,8 @@ class BuckarooPaymentSettingsService extends ApiService {
         });
     }
 
-    getApiTest(websiteKeyId, secretKeyId, currentSalesChannelId) {
+    getApiTest(websiteKeyId, secretKeyId, currentSalesChannelId)
+    {
         const apiRoute = `_action/${this.getApiBasePath()}/getBuckarooApiTest`;
 
         return this.httpClient.post(

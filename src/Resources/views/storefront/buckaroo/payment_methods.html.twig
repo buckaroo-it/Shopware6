@@ -1,63 +1,51 @@
 {% block buckaroo_payment_methods %}
-
+    <div class="buckaroo-payment-body mb-2 ml-4">
     {% if context.paymentMethod.translated.customFields.buckaroo_key == payment.translated.customFields.buckaroo_key %}
 
         {% if page.extensions.buckaroo.backLink %}
             <script>
-                var buckaroo_back_link = '{{ app.request.get('sw-storefront-url') }}{{ page.extensions.buckaroo.backLink|raw }}';
+                window.buckaroo_back_link = '{{ app.request.get('sw-storefront-url') }}{{ page.extensions.buckaroo.backLink|raw }}';
                 var buckaroo_required_message =' {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}';
             </script>
         {% endif %}
 
         {% block buckaroo_payment_method %}
 
-            {% block buckaroo_payment_method_payment_shipping %}
-                <strong>
-                    {{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}
-                </strong>
-            {% endblock %}
-
-            {% block buckaroo_payment_method_label %}
-                {% if payment.translated.customFields.buckaroo_key != 'creditcard' %}
-                    {{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}
-                {% endif %}
-            {% endblock %}
-
             {% block buckaroo_payment_method_additional %}
 
                 {% if payment.translated.customFields.buckaroo_key == 'ideal' or payment.translated.customFields.buckaroo_key == 'idealprocessing' %}
                     {% block buckaroo_payment_method_ideal %}
                         {% if page.extensions.buckaroo.issuers|length > 0 %}
-                        {% if page.extensions.buckaroo.ideal_render_mode > 0 %}
-                            <div>
-                                <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
-                                <select name="bankMethodId" id="bankMethodId" form="confirmOrderForm" required="required" class="form-control" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
-                                    <option value="">{{ "buckaroo.checkout.selectBankIssuer"|trans }}</option>
-                                        {% for issuer in page.extensions.buckaroo.issuers %}
-                                            <option data-logo="{{ page.extensions.buckaroo.media_path }}{{ issuer.code }}.png" value="{{ issuer.code }}">{{ issuer.name }}</option>
-                                        {% endfor %}
-                                </select>  
-                            </div>
-                            {% else %}
-                            <div>
-                                <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
-                                <div class="radio-group-required" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
-                                {% for issuer in page.extensions.buckaroo.issuers %}
-                                    <div class="custom-control custom-radio bank-control">
-                                        <input type="radio"
-                                        form="confirmOrderForm"
-                                        id="bankMethod{{ issuer.code }}"
-                                        name="bankMethodId"
-                                        value="{{ issuer.code }}"
-                                        class="custom-control-input bank-method-input">
-                                        <label class="custom-control-label bank-method-label" for="bankMethod{{ issuer.code }}">
-                                            <img src="{{ page.extensions.buckaroo.media_path }}{{ issuer.code }}.png" class="bank-method-image" width=20  alt="{{ issuer.name }}" title="{{ issuer.name }}">
-                                            <strong>{{ issuer.name }}</strong>
-                                        </label>
-                                    </div>
-                                {% endfor %}
+                            {% if page.extensions.buckaroo.ideal_render_mode > 0 %}
+                                <div>
+                                    <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
+                                    <select name="bankMethodId" id="bankMethodId" form="confirmOrderForm" required="required" class="form-control" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
+                                        <option value="">{{ "buckaroo.checkout.selectBankIssuer"|trans }}</option>
+                                            {% for issuer in page.extensions.buckaroo.issuers %}
+                                                <option value="{{ issuer.code }}">{{ issuer.name }}</option>
+                                            {% endfor %}
+                                    </select>  
                                 </div>
-                            </div>
+                            {% else %}
+                                <div>
+                                    <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
+                                    <div class="radio-group-required" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
+                                    {% for issuer in page.extensions.buckaroo.issuers %}
+                                        <div class="custom-control custom-radio bank-control">
+                                            <input type="radio"
+                                            form="confirmOrderForm"
+                                            id="bankMethod{{ issuer.code }}"
+                                            name="bankMethodId"
+                                            value="{{ issuer.code }}"
+                                            class="custom-control-input bank-method-input">
+                                            <label class="custom-control-label bank-method-label" for="bankMethod{{ issuer.code }}">
+                                                <img src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/issuers/#{issuer.imgName}.svg")}}" class="bank-method-image" width="25"  alt="{{ issuer.name }}" title="{{ issuer.name }}">
+                                                <strong>{{ issuer.name }}</strong>
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                    </div>
+                                </div>
                             {% endif %}
                         {% endif %}
                     {% endblock %}
@@ -65,7 +53,14 @@
                 {% elseif payment.translated.customFields.buckaroo_key == 'creditcard' %}
                     {% block buckaroo_payment_method_creditcard %}
                         {{ page.extensions.buckaroo.payment_method_name_card }}
-                        {% include '@BuckarooPayments/storefront/buckaroo/creditcards/creditcards.html.twig' %}
+                        <label>{{ "buckaroo.checkout.selectCreditCard"|trans }}*:</label>
+                        {% if page.extensions.buckaroo.creditcard|length > 0 %}
+                            <select form="confirmOrderForm" required="required" name="creditcard" class="custom-select" style="max-width: 300px;margin-left: 0.5rem;margin-bottom: 0.5rem;">
+                                {% for creditcard in page.extensions.buckaroo.creditcard %}
+                                    <option {% if page.extensions.buckaroo.last_used_creditcard == creditcard.code %} selected="selected" {% endif %} value="{{ creditcard.code }}">{{ creditcard.name }}</option>
+                                {% endfor %}
+                            </select>
+                        {% endif %}
                     {% endblock %}
 
                 {% elseif payment.translated.customFields.buckaroo_key == 'creditcards' %}
@@ -77,13 +72,13 @@
                                         <div class="form-group col-md-12">
                                             <label class="form-label" for="creditcards_issuer">{{ "buckaroo.checkout.creditcards.card" | trans }}:</label>
                                             <select name="creditcards_issuer" id="creditcards_issuer" form="confirmOrderForm" required="required" class="form-control">
-                                                <option value="" data-logo="{{ page.extensions.buckaroo.media_path }}creditcards.png">{{ "buckaroo.checkout.selectCreditCard"|trans }}</option>
+                                                <option value="" data-logo="{{ asset("bundles/buckaroopayments/storefront/buckaroo/creditcards.svg") }}">{{ "buckaroo.checkout.selectCreditCard"|trans }}</option>
                                                     {% for creditcard in page.extensions.buckaroo.creditcards %}
-                                                        <option data-logo="{{ page.extensions.buckaroo.media_path }}{{ creditcard.code }}.png" value="{{ creditcard.code }}">{{ creditcard.name }}</option>
+                                                        <option data-logo="{{ asset("bundles/buckaroopayments/storefront/buckaroo/creditcards/#{creditcard.code}.svg")}}" value="{{ creditcard.code }}">{{ creditcard.name }}</option>
                                                     {% endfor %}
                                             </select>  
                                             <div class="card_kind">
-                                                <img id="card_kind_img" src="{{ page.extensions.buckaroo.media_path }}creditcards.png">
+                                                <img id="card_kind_img" src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/creditcards.svg") }}">
                                             </div>
                                         </div>
 
@@ -152,30 +147,30 @@
                         <div class="payment-method-second-col billing-address-form">
                             <fieldset class="fieldset payment">
 
-                                {% if page.extensions.buckaroo.afterpay_customer_type == 'b2b' && 
-                                     context.customer.activeBillingAddress.company|length === 0 &&
-                                     context.customer.activeShippingAddress.company|length === 0
+                                {% if page.extensions.buckaroo.afterpay_customer_type == 'b2b' and 
+                                     context.customer.activeBillingAddress.company|length == 0 and
+                                     context.customer.activeShippingAddress.company|length == 0
                                 %}
                                        <p style="color:red"> {{ "buckaroo.checkout.company_required"|trans|sw_sanitize }}</p>
                                 {% endif %}
 
                                 {% if 
                                     (
-                                        page.extensions.buckaroo.afterpay_customer_type == 'both' &&
+                                        page.extensions.buckaroo.afterpay_customer_type == 'both' and
                                         (
                                             (
-                                            context.customer.activeBillingAddress.country.iso == 'NL' &&
-                                            context.customer.activeBillingAddress.company|length > 0)  ||
+                                            context.customer.activeBillingAddress.country.iso == 'NL' and
+                                            context.customer.activeBillingAddress.company|length > 0)  or
                                             (
-                                            context.customer.activeShippingAddress.country.iso == 'NL' &&
+                                            context.customer.activeShippingAddress.country.iso == 'NL' and
                                             context.customer.activeShippingAddress.company|length > 0
                                             )
                                         )
-                                    ) || 
+                                    ) or 
                                     (
-                                        page.extensions.buckaroo.afterpay_customer_type == 'b2b' &&
+                                        page.extensions.buckaroo.afterpay_customer_type == 'b2b' and
                                         (
-                                            context.customer.activeBillingAddress.country.iso == 'NL' ||
+                                            context.customer.activeBillingAddress.country.iso == 'NL' or
                                             context.customer.activeShippingAddress.country.iso == 'NL'
                                         )
                                     )  %}
@@ -194,6 +189,7 @@
                                             required="required">
                                     </div>
                                 {% endif %}
+                                {% if page.extensions.buckaroo.canShowPhone %}
                                 <div class="form-group">
                                     <label class="form-label" for="buckarooAfterpayPhone">
                                         {{ "buckaroo.checkout.Phone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
@@ -213,6 +209,7 @@
                                         {{ "buckaroo.checkout.buckarooMobilePhoneError"|trans|sw_sanitize }}
                                     </label>
                                 </div>
+                                {% endif %}
 
                                 <div class="form-group">
                                     <label class="label" for="buckaroo_afterpay_DoB">{{ "buckaroo.checkout.buckarooAfterpayDoBTitle"|trans }}:</label>
@@ -681,5 +678,5 @@
         {% endblock %}
     
     {% endif %}
-    <br>
+    </div>
 {% endblock %}

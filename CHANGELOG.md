@@ -174,3 +174,23 @@ BP-2291 Remove Request to Pay method
 BP-2241 Change the Billink rejected (690) message (more consumer friendly)
 BP-2322 Added validation on the 'Buckaroo Fee' input field
 BP-2331 Solve frontend issue on the checkout page
+# 2.0.0
+Compatible from Shopware 6.5.0 up to 6.5.1.1
+BP-1473 Important changes code changes
+BP-1474 Recommanded Changes
+BP-1475 Optional Changes
+BP-1570 Pipeline Changes
+BP-1860 Use the Buckaroo PHP SDK
+BP-2161 Refactor Apple Pay
+BP-2573 Allow invoice pushes that have missing additional parameter orderId
+BP-2164 Solve an issue related to cookie_samesite (use session)
+BP-2341 Update the checkout with the newest payment method logo's
+BP-2342 Make sure phone number is 'pre-filled' when already filled in
+BP-2162 Refactor CheckoutHelper
+BP-2326 Add PayPal Seller Protection
+BP-2386 Add iDEAL issuer "YourSafe"
+BP-2563 Solve an issue with creating refunds with Credit Cards(redirect)
+BP-2562 User is not redirected to Payment section after rejected/failed iDEAL order
+BP-2613 Solve admin and payment process issue/error for specific merchant
+BP-2483 Live credit card transactions are not refundable
+BP-2658 Cannot create a partial refund with Afterpay
