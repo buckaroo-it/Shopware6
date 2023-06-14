@@ -475,6 +475,6 @@ class PaypalExpressController extends StorefrontController
     public function getFee(SalesChannelContext $salesChannelContext)
     {
         $fee = $this->settingsService->getSetting('paypalFee', $salesChannelContext->getSalesChannelId());
-        return round((float)str_replace(',', '.', $fee), 2);
+        return round((float)str_replace(',', '.', (string)$fee), 2);
     }
 }

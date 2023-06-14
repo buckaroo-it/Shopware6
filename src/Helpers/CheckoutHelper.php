@@ -464,7 +464,7 @@ class CheckoutHelper
             $savedCustomFields = [];
         }
 
-        $buckarooFee = round((float) str_replace(',','.',$customFields['buckarooFee']), 2);
+        $buckarooFee = round((float) str_replace(',','.',(string)$customFields['buckarooFee']), 2);
         $data = [
             'id'           => $orderId,
             'customFields' => array_merge($savedCustomFields, $customFields),
@@ -693,7 +693,7 @@ class CheckoutHelper
         // Get currency code
         $currency     = $order->getCurrency();
         $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
-        $buckarooFee = round((float)str_replace(',','.',(float) $customFields['buckarooFee']), 2);
+        $buckarooFee = round((float)str_replace(',','.',(string)$customFields['buckarooFee']), 2);
 
         // Build the order line array
         $line = [
@@ -843,7 +843,7 @@ class CheckoutHelper
                 if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
                     $format['street']          = trim($matches[1]);
                     $format['house_number']    = trim($matches[2]);
-                    $format['number_addition'] = trim(str_replace(',', '', $matches[3]));
+                    $format['number_addition'] = trim(str_replace(',', '', (string)$matches[3]));
                 }
             }
         }
@@ -1970,7 +1970,7 @@ class CheckoutHelper
     public function getBuckarooFee($buckarooKey, string $salesChannelId = null)
     {
         if($buckarooFee = $this->getSetting($buckarooKey, $salesChannelId)){
-            return round((float)str_replace(',','.',$buckarooFee), 2);
+            return round((float)str_replace(',','.',(string)$buckarooFee), 2);
         }
         return false;
     }

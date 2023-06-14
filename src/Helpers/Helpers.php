@@ -208,7 +208,7 @@ class Helpers
      */
     public static function priceToFloat($price)
     {
-        return floatval(str_replace(',', '.', $price));
+        return floatval(str_replace(',', '.', (string)$price));
     }
 
     /**
