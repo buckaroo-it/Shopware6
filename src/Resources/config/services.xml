@@ -175,6 +175,7 @@
         
         <service id="Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
             <tag name="shopware.payment.method.async" />
         </service>
 
@@ -287,6 +288,12 @@
         
         <service id="Buckaroo\Shopware6\Handlers\BelfiusPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\PayByBankPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
             <tag name="shopware.payment.method.async" />
         </service>
         
@@ -434,7 +441,6 @@
 
 
         <service id="Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber" >
-            <argument type="service" id="customer.repository"/>
             <argument type="service" id="sales_channel.payment_method.repository"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>

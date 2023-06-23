@@ -30,6 +30,7 @@ use Buckaroo\Shopware6\PaymentMethods\KlarnaKp;
 use Buckaroo\Shopware6\PaymentMethods\Klarnain;
 use Buckaroo\Shopware6\PaymentMethods\Billink;
 use Buckaroo\Shopware6\PaymentMethods\Belfius;
+use Buckaroo\Shopware6\PaymentMethods\PayByBank;
 use Buckaroo\Shopware6\PaymentMethods\PayPerEmail;
 
 class GatewayHelper
@@ -61,6 +62,7 @@ class GatewayHelper
         Klarnain::class,
         Billink::class,
         Belfius::class,
-        PayPerEmail::class
+        PayPerEmail::class,
+        PayByBank::class
     ];
 }

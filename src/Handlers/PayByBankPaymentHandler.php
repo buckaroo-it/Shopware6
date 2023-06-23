@@ -6,18 +6,19 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\Service\CustomerService;
-use Buckaroo\Shopware6\PaymentMethods\Creditcard;
+use Buckaroo\Shopware6\PaymentMethods\PayByBank;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
+use Buckaroo\Shopware6\Handlers\AsyncPaymentHandler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 
-class CreditcardPaymentHandler extends AsyncPaymentHandler
+class PayByBankPaymentHandler extends AsyncPaymentHandler
 {
-    protected string $paymentClass = Creditcard::class;
+    protected string $paymentClass = PayByBank::class;
 
-    public const ISSUER_LABEL = 'last_used_creditcard';
+    public const ISSUER_LABEL = 'buckaroo_last_used_paybybank_issuer';
 
     protected CustomerService $customerService;
 
@@ -47,7 +48,6 @@ class CreditcardPaymentHandler extends AsyncPaymentHandler
         $this->updateCustomerIssuer($dataBag, $salesChannelContext);
         return parent::pay($transaction, $dataBag, $salesChannelContext);
     }
-
     /**
      * Get parameters for specific payment method
      *
@@ -64,29 +64,26 @@ class CreditcardPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        if ($dataBag->has('creditcard')) {
-            return [
-                'name' => $dataBag->get('creditcard'),
-            ];
-        }
-        return [];
+        return [
+            'issuer' => $dataBag->get('payBybankMethodId')
+        ];
     }
-
     protected function updateCustomerIssuer(
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext
     ): void {
         $customer = $salesChannelContext->getCustomer();
-        $issuer = $dataBag->get('creditcard');
+        $lastPayByBank = $dataBag->get('payBybankMethodId');
+
         if (
             $customer !== null &&
-            $issuer !== null &&
-            $issuer !== $customer->getCustomFieldsValue(self::ISSUER_LABEL)
+            $lastPayByBank !== null &&
+            $lastPayByBank !== $customer->getCustomFieldsValue(self::ISSUER_LABEL)
         ) {
             $this->customerService->updateCustomerData(
                 $customer,
                 $salesChannelContext->getContext(),
-                [self::ISSUER_LABEL => $issuer]
+                [self::ISSUER_LABEL => $lastPayByBank]
             );
         }
     }
