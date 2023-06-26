@@ -26,7 +26,7 @@ xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_C
 
     <!-- Ignore long lines in controller because of route anotations -->
     <rule ref="Generic.Files.LineLength">
-        <exclude-pattern>*/custom/plugins/BuckarooPayments/src/Storefront/Controller</exclude-pattern>
+        <exclude-pattern>*/src/Storefront/Controller</exclude-pattern>
     </rule>
 
 </ruleset>
