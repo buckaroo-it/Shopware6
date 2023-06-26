@@ -163,10 +163,10 @@
     </card>
     
     <card>
-        <title>Credit cards</title>
-        <title lang="nl-NL">Credit cards</title>
-        <title lang="de-DE">Kreditkarten</title>
-		<title lang="fr-FR">Cartes de crédit</title>
+        <title>Cards</title>
+        <title lang="nl-NL">Cards</title>
+        <title lang="de-DE">Karten</title>
+		<title lang="fr-FR">Cartes</title>
         
         <input-field type="bool">
             <name>creditcardEnabled</name>
@@ -220,10 +220,10 @@
 
         <input-field type="multi-select">
             <name>allowedcreditcard</name>
-            <label lang="en-GB">Allowed Creditcards:</label>
-            <label lang="nl-NL">Toegestane creditcards:</label>
-            <label lang="de-DE">Zulässige Kreditkarten:</label>
-			<label lang="fr-FR">Cartes de crédit autorisées:</label>
+            <label lang="en-GB">Allowed Cards:</label>
+            <label lang="nl-NL">Toegestane cards:</label>
+            <label lang="de-DE">Zulässige Karten:</label>
+			<label lang="fr-FR">Cartes autorisées:</label>
             <options>
                 <option>
                     <id>mastercard</id>
@@ -274,11 +274,11 @@
     </card>
 
     <card>
-        <title>Creditcards (Client sided)</title>
-		<title lang="gb-GB">Creditcards (Client sided)</title>
-        <title lang="nl-NL">Credit cards (klantzijde)</title>
-        <title lang="de-DE">Kreditkarten (kundenseitig)</title>
-		<title lang="fr-FR">Cartes de crédit (côté client)</title>
+        <title>Cards (Client sided)</title>
+		<title lang="gb-GB">Cards (Client sided)</title>
+        <title lang="nl-NL">Cards (klantzijde)</title>
+        <title lang="de-DE">Karten (kundenseitig)</title>
+		<title lang="fr-FR">Cartes (côté client)</title>
         
         <input-field type="bool">
             <name>creditcardsEnabled</name>
@@ -336,10 +336,10 @@
 
         <input-field type="multi-select">
             <name>allowedcreditcards</name>
-            <label lang="en-GB">Allowed Creditcards:</label>
-            <label lang="nl-NL">Toegestane creditcards:</label>
-            <label lang="de-DE">Zulässige Kreditkarten:</label>
-			<label lang="fr-FR">Cartes de crédit autorisées:</label>
+            <label lang="en-GB">Allowed Cards:</label>
+            <label lang="nl-NL">Toegestane cards:</label>
+            <label lang="de-DE">Zulässige Karten:</label>
+			<label lang="fr-FR">Cartes autorisées:</label>
             <options>
                 <option>
                     <id>mastercard</id>
