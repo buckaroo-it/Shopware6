@@ -58,5 +58,10 @@
         "phpstan": [
             "vendor/bin/phpstan analyze"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/runtime": true
+        }
     }
 }
