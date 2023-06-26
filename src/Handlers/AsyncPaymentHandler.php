@@ -320,8 +320,12 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      */
     private function getClient(string $paymentCode, string $salesChannelId, DataBag $dataBag): Client
     {
-        //do a ideal payment if the issuer is ING for payByBank
-        if($paymentCode === 'paybybank' && $dataBag->get('payBybankMethodId') === 'INGBNL2A') {
+        //do a ideal payment if the issuer is ING for payByBank on mobile devices
+        if(
+            $paymentCode === 'paybybank' &&
+            $dataBag->get('payBybankMethodId') === 'INGBNL2A' &&
+            $this->asyncPaymentService->isMobile(Request::createFromGlobals())
+            ) {
             $paymentCode = 'ideal';
         }
         return $this->asyncPaymentService
