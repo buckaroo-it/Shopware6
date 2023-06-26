@@ -326,7 +326,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'currency'                 => $currency->getIsoCode(),
             'issuers'                  => $issuers,
             'ideal_render_mode'        => $idealRenderMode,
-            'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
             'creditcard'               => $creditcard,
             'creditcards'              => $creditcards,
             'last_used_creditcard'     => $lastUsedCreditcard,
@@ -390,29 +389,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         /** @var \Shopware\Core\Checkout\Customer\CustomerEntity */
         $customer = $this->customerRepository->search($criteria, $context)->first();
         return $customer;
-    }
-
-    /**
-     * @param array<mixed> $issuers
-     * @param string|null $lastUsedIssuer
-     * @param string $name
-     * @return string
-     */
-    private function getPaymentMethodName(array $issuers, ?string $lastUsedIssuer, string $name = ''): string
-    {
-        foreach ($issuers as $issuer) {
-            if (is_array($issuer) &&
-                isset($issuer['code']) &&
-                isset($issuer['name']) &&
-                $issuer['code'] === $lastUsedIssuer
-            ) {
-                $issuerName = $issuer['name'];
-                if (is_string($issuerName)) {
-                    return $name == '' ? $issuerName : $name . ' (' . $issuerName . ')';
-                }
-            }
-        }
-        return $name;
     }
 
     private function removePaymentMethod(
