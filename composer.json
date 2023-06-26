@@ -11,6 +11,7 @@
         "ext-json": "*",
         "ext-pcre": "*",
         "ext-fileinfo": "*",
+        "shopware/core": "~6.5.0",
         "buckaroo/sdk": "^1.6"
     },
     "authors": [{
@@ -48,8 +49,7 @@
     "require-dev": {
         "squizlabs/php_codesniffer": "*",
         "phpstan/phpstan": "^1.9",
-        "shopware/core": "~6.4.0",
-        "shopware/storefront": "~6.4.0"
+        "shopware/storefront": "~6.5.0"
     },
     "scripts": {
         "phpcs": [
