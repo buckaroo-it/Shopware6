@@ -42,7 +42,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     /**
      * @var array<mixed>
      */
-    protected array $issuers =[
+    protected array $issuers = [
         [
             'name' => 'ABN AMRO',
             'code' => 'ABNANL2A',
@@ -169,12 +169,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 if (!$this->settingsService->getEnabled(
                     $buckarooKey,
                     $event->getSalesChannelContext()->getSalesChannelId()
-                )
-                ) {
+                )) {
                     $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
                 }
 
-                if ($buckarooKey === 'payperemail' &&
+                if (
+                    $buckarooKey === 'payperemail' &&
                     $this->isPayPermMailDisabledInFrontend(
                         $event->getSalesChannelContext()->getSalesChannelId()
                     )
@@ -242,7 +242,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $idealRenderMode    = $this->getIdealRenderMode($salesChannelId);
         $lastUsedCreditcard = 'visa';
         if ($customFields = $customer->getCustomFields()) {
-            if (isset($customFields['last_used_creditcard']) &&
+            if (
+                isset($customFields['last_used_creditcard']) &&
                 is_string($customFields['last_used_creditcard'])
             ) {
                 $lastUsedCreditcard = (string)$customFields['last_used_creditcard'];
@@ -254,7 +255,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if (!empty($allowedcreditcard) && is_array($allowedcreditcard)) {
             foreach ($allowedcreditcard as $value) {
                 $label  = null;
-                if (isset($this->availableCreditcards[$value]) &&
+                if (
+                    isset($this->availableCreditcards[$value]) &&
                     is_string($this->availableCreditcards[$value])
                 ) {
                     $label = (string)$this->availableCreditcards[$value];
@@ -278,7 +280,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             foreach ($allowedcreditcards as $value) {
                 $label  = null;
 
-                if (isset($this->availableCreditcards[$value]) &&
+                if (
+                    isset($this->availableCreditcards[$value]) &&
                     is_string($this->availableCreditcards[$value])
                 ) {
                     $label = (string)$this->availableCreditcards[$value];
@@ -518,7 +521,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
         $session = $event->getRequest()->getSession();
 
-        if (strpos($paymentMethod->getHandlerIdentifier(), 'Buckaroo\Shopware6\Handlers') !== false &&
+        if (
+            strpos($paymentMethod->getHandlerIdentifier(), 'Buckaroo\Shopware6\Handlers') !== false &&
             $stateMachine->getTechnicalName() === 'in_progress' &&
             method_exists($session, 'getFlashBag')
         ) {
@@ -580,7 +584,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $shippingCompany = $shippingAddress->getCompany();
             }
         }
-        if ($isStrictB2B &&
+        if (
+            $isStrictB2B &&
             $this->isCompanyEmpty($billingCompany) &&
             $this->isCompanyEmpty($shippingCompany)
         ) {
@@ -608,7 +613,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      *
      * @return boolean
      */
-    private function canShowPhone(CustomerEntity $customer) : bool
+    private function canShowPhone(CustomerEntity $customer): bool
     {
         $billingAddress = $customer->getActiveBillingAddress();
         $shippingAddress = $customer->getActiveShippingAddress();
@@ -625,7 +630,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      */
     private function isPhoneEmpty(CustomerAddressEntity $address = null): bool
     {
-        if($address === null) {
+        if ($address === null) {
             return true;
         }
 

@@ -60,7 +60,6 @@ class Client
 
     /**
      * Add additional services to the request
-     * 
      * @param mixed $service
      * @return self
      */
@@ -83,7 +82,6 @@ class Client
      * @param string $action
      * @param array $payload
      * @param string|null $method
-     * 
      * @return mixed
      */
     public function build(string $action, array $payload, string $method = null)
@@ -99,7 +97,6 @@ class Client
      * Set payment code
      *
      * @param string $paymentCode
-     *
      * @return self
      */
     public function setPaymentCode(string $paymentCode): self
@@ -110,7 +107,6 @@ class Client
 
     /**
      * Get main payload
-     * 
      * @return array
      */
     public function getPayload(): array
@@ -120,9 +116,7 @@ class Client
 
     /**
      * Set main payload
-     *
      * @param array<mixed> $payload
-     *
      * @return self
      */
     public function setPayload(array $payload): self
@@ -133,7 +127,6 @@ class Client
 
     /**
      * Set main action
-     * 
      * @return self
      */
     public function setAction(string $action): self

@@ -60,7 +60,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $paymentClass = $this->getPayment($transactionId);
         $salesChannelId  = $salesChannelContext->getSalesChannelId();
         $paymentCode = $paymentClass->getBuckarooKey();
-        
+
         try {
             $order = $transaction->getOrder();
             $this->validateOrder($order);
@@ -69,29 +69,29 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 $paymentCode,
                 $salesChannelId
             )
-            ->setPayload(
-                array_merge_recursive(
-                    $this->getCommonRequestPayload(
-                        $transaction,
-                        $dataBag,
-                        $salesChannelContext,
-                        $paymentCode
-                    ),
-                    $this->getMethodPayload(
-                        $order,
+                ->setPayload(
+                    array_merge_recursive(
+                        $this->getCommonRequestPayload(
+                            $transaction,
+                            $dataBag,
+                            $salesChannelContext,
+                            $paymentCode
+                        ),
+                        $this->getMethodPayload(
+                            $order,
+                            $dataBag,
+                            $salesChannelContext,
+                            $paymentCode
+                        )
+                    )
+                )
+                ->setAction(
+                    $this->getMethodAction(
                         $dataBag,
                         $salesChannelContext,
                         $paymentCode
                     )
-                )
-            )
-            ->setAction(
-                $this->getMethodAction(
-                    $dataBag,
-                    $salesChannelContext,
-                    $paymentCode
-                )
-            );
+                );
 
             $this->asyncPaymentService->dispatchEvent(
                 new BeforePaymentRequestEvent(
@@ -135,7 +135,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 $paymentCode
             )
         );
-        
+
         $returnUrl = $this->getReturnUrl($transaction, $dataBag);
 
         $this->asyncPaymentService
@@ -163,7 +163,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $response->isPendingProcessing() ||
             $response->isWaitingOnUserInput()
         ) {
-
             if (!$response->isSuccess()) {
                 $this->asyncPaymentService
                     ->stateTransitionService

@@ -38,7 +38,7 @@ class SupportController extends StorefrontController
     /**
      * @return JsonResponse
      */
-    #[Route(path: "/api/_action/buckaroo/version", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.version", methods:["POST", "GET"])]
+    #[Route(path: "/api/_action/buckaroo/version", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.version", methods: ["POST", "GET"])]
     public function versionSupportBuckaroo(): JsonResponse
     {
         $phpVersion = $this->getPhpVersionArray();
@@ -55,7 +55,7 @@ class SupportController extends StorefrontController
      *
      * @return JsonResponse
      */
-    #[Route(path: "/api/_action/buckaroo/taxes", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.tax", methods:["POST"])]
+    #[Route(path: "/api/_action/buckaroo/taxes", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.tax", methods: ["POST"])]
     public function getTaxes(Request $request, Context $context): JsonResponse
     {
         $taxes = $this->taxRepository->search(
@@ -75,7 +75,7 @@ class SupportController extends StorefrontController
      *
      * @return JsonResponse
      */
-    #[Route(path: "/api/_action/buckaroo/getBuckarooTransaction", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.support.version", methods:["POST"])]
+    #[Route(path: "/api/_action/buckaroo/getBuckarooTransaction", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.support.version", methods: ["POST"])]
     public function getBuckarooTransaction(Request $request, Context $context)
     {
         $orderId = $request->get('transaction');
@@ -97,7 +97,7 @@ class SupportController extends StorefrontController
      *
      * @return JsonResponse
      */
-    #[Route(path: "/api/_action/buckaroo/getBuckarooApiTest", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.support.apitest", methods:["POST"])]
+    #[Route(path: "/api/_action/buckaroo/getBuckarooApiTest", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.support.apitest", methods: ["POST"])]
     public function getBuckarooApiTest(Request $request): JsonResponse
     {
         return new JsonResponse(

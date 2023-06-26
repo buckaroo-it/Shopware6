@@ -6,7 +6,9 @@ xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_C
     <arg name="colors"/>
     <arg name="report" value="code"/>
 
-    <rule ref="PSR2"/>
+    <rule ref="PSR2">
+        <exclude name="PSR2.ControlStructures.ControlStructureSpacing.SpacingAfterOpenBrace"/>
+    </rule>
 
     <!-- Exclude the Composer Vendor directory. -->
     <exclude-pattern>./vendor/*</exclude-pattern>
@@ -20,6 +22,11 @@ xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_C
     <!-- Only 3 indentation level per function/method -->
     <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
         <exclude-pattern>*/src/BuckarooPayments.php</exclude-pattern>
+    </rule>
+
+    <!-- Ignore long lines in controller because of route anotations -->
+    <rule ref="Generic.Files.LineLength">
+        <exclude-pattern>*/custom/plugins/BuckarooPayments/src/Storefront/Controller</exclude-pattern>
     </rule>
 
 </ruleset>
