@@ -31,9 +31,7 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
         window.addEventListener('resize', function() {
             w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 
-            console.log(w);
             if( w < 768 ) {
-                console.log('ghere');
                 payByBankList.style.display = 'none';
                 toggleElements(true, 'flex');
             } else if(payByBankList.style.display == 'none') {
