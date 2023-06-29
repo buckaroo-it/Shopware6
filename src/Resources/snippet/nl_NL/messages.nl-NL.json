@@ -83,7 +83,9 @@
         "year": "Jaar",
         "selectYear": "Selecteer een jaar",
         "securityCode": "CVC/VV"
-      }
+      },
+      "moreBanks": "More banks",
+      "lessBanks": "Less banks"
     }
   },
   "bkr-applepay": {

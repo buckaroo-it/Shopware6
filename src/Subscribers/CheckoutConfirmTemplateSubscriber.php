@@ -13,12 +13,13 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Buckaroo\Shopware6\Handlers\PayByBankPaymentHandler;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
+use Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
@@ -30,7 +31,6 @@ use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoade
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 {
-    private EntityRepository $customerRepository;
     /** @var CheckoutHelper $checkoutHelper */
     public CheckoutHelper $checkoutHelper;
 
@@ -127,13 +127,11 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected TranslatorInterface $translator;
 
     public function __construct(
-        EntityRepository $customerRepository,
         SalesChannelRepository $paymentMethodRepository,
         SettingsService $settingsService,
         UrlService $urlService,
         TranslatorInterface $translator
     ) {
-        $this->customerRepository      = $customerRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->settingsService = $settingsService;
         $this->urlService = $urlService;
@@ -224,29 +222,14 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $currency = $this->getCurrency($event);
 
-        if ($lastCreditcard = $request->get('creditcard')) {
-            $this->customerRepository->upsert(
-                [[
-                    'id'           => $customer->getId(),
-                    'customFields' => [
-                        'last_used_creditcard' => $lastCreditcard,
-                    ],
-                ]],
-                $event->getContext()
-            );
-            $customer = $this->getCustomer($customer->getId(), $event->getContext());
-        }
-
+        
         $struct             = new BuckarooStruct();
         $issuers            = $this->issuers;
         $idealRenderMode    = $this->getIdealRenderMode($salesChannelId);
-        $lastUsedCreditcard = 'visa';
-        if ($customFields = $customer->getCustomFields()) {
-            if (isset($customFields['last_used_creditcard']) &&
-                is_string($customFields['last_used_creditcard'])
-            ) {
-                $lastUsedCreditcard = (string)$customFields['last_used_creditcard'];
-            }
+        $lastUsedCreditcard = $customer->getCustomFieldsValue(CreditcardPaymentHandler::ISSUER_LABEL);
+
+        if (!is_string($lastUsedCreditcard)) {
+            $lastUsedCreditcard = 'visa';
         }
 
         $creditcard = [];
@@ -326,6 +309,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'currency'                 => $currency->getIsoCode(),
             'issuers'                  => $issuers,
             'ideal_render_mode'        => $idealRenderMode,
+            'payByBankMode'            => $this->settingsService->getSetting('paybybankRenderMode', $salesChannelId),
+            'payByBankIssuers'         => $this->getPayByBankIssuers($customer),
             'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
             'creditcard'               => $creditcard,
             'creditcards'              => $creditcards,
@@ -376,20 +361,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             BuckarooStruct::EXTENSION_NAME,
             $struct
         );
-    }
-    /**
-     * @param string $customerId
-     * @param Context $context
-     * @return CustomerEntity
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
-     */
-    private function getCustomer(string $customerId, Context $context): CustomerEntity
-    {
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('id', $customerId));
-
-        /** @var \Shopware\Core\Checkout\Customer\CustomerEntity */
-        $customer = $this->customerRepository->search($criteria, $context)->first();
-        return $customer;
     }
 
     /**
@@ -654,5 +625,27 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
 
         return $address->getPhoneNumber() === null || strlen(trim($address->getPhoneNumber())) === 0;
+    }
+
+    protected function getPayByBankIssuers(CustomerEntity $customer): array
+    {
+        $savedBankIssuer = $customer->getCustomFieldsValue(PayByBankPaymentHandler::ISSUER_LABEL);
+
+
+        $issuers = array_map(function($issuer) use ($savedBankIssuer) {
+            $issuer['selected'] = is_scalar($savedBankIssuer) && isset($issuer['code']) && $issuer['code'] === $savedBankIssuer;
+            return $issuer;
+        }, $this->issuers);
+
+
+        $savedIssuer = array_filter($issuers, function($issuer) use ($savedBankIssuer) {
+            return $issuer['selected'];
+        });
+        $issuers = array_filter($issuers, function($issuer) use ($savedBankIssuer) {
+            return !$issuer['selected'];
+        });
+
+        return array_merge($savedIssuer, $issuers);
+
     }
 }

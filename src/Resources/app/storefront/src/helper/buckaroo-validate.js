@@ -7,9 +7,58 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
         try {
             this._registerCheckoutSubmitButton();
             this._toggleApplePay();
+            this._togglePayByBankList();
         } catch (e) {
             // do nothing
             console.log('init error', e);
+        }
+    }
+    _togglePayByBankList()
+    {
+        const payByBankList = document.querySelector('.bk-toggle-wrap');
+        const toggleElements = function(show, defaultDisplay = 'inline') {
+            let display = 'none';
+            const  elementsToShow = document.querySelectorAll('.bk-paybybank-selector .custom-radio:nth-child(n+6)');
+            if(show) {
+                display = defaultDisplay;
+            }
+
+            elementsToShow.forEach(function(element) {
+                element.style.display = display;
+            })
+        }
+        let w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        window.addEventListener('resize', function() {
+            w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+            if( w < 768 ) {
+                payByBankList.style.display = 'none';
+                toggleElements(true, 'flex');
+            } else if(payByBankList.style.display == 'none') {
+                payByBankList.style.display = 'flex';
+            }
+        })
+
+        if( w >= 768 ) {
+            toggleElements(false);
+        }
+        
+        if (payByBankList) {
+            payByBankList.addEventListener('click', function() {
+                const toggle = payByBankList.querySelector('.bk-toggle');
+                const textElement = payByBankList.querySelector('.bk-toggle-text');
+                const isDown = toggle.classList.contains('bk-toggle-down');
+                toggle.classList.toggle('bk-toggle-down');
+                toggle.classList.toggle('bk-toggle-up');
+                const textLess = textElement.getAttribute('text-less');
+                const textMore = textElement.getAttribute('text-more');
+                if(isDown) {
+                    textElement.textContent = textLess;
+                } else {
+                    textElement.textContent = textMore;
+                }
+                toggleElements(isDown);
+            });
         }
     }
     /**
