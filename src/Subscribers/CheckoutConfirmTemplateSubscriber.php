@@ -42,7 +42,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     /**
      * @var array<mixed>
      */
-    protected array $issuers =[
+    protected array $issuers = [
         [
             'name' => 'ABN AMRO',
             'code' => 'ABNANL2A',
@@ -103,6 +103,50 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'code' => 'BITSNL2A',
             'imgName' => 'yoursafe'
         ],
+    ];
+
+
+    protected array $payByBankIssuers = [
+        [
+            'name' => 'ABN AMRO',
+            'code' => 'ABNANL2A',
+            'imgName' => 'abnamro'
+        ],
+        [
+            'name' => 'ASN Bank',
+            'code' => 'ASNBNL21',
+            'imgName' => 'asnbank'
+        ],
+        [
+            'name' => 'ING',
+            'code' => 'INGBNL2A',
+            'imgName' => 'ing'
+        ],
+        [
+            'name' => 'Knab Bank',
+            'code' => 'KNABNL2H',
+            'imgName' => 'knab'
+        ],
+        [
+            'name' => 'Rabobank',
+            'code' => 'RABONL2U',
+            'imgName' => 'rabobank'
+        ],
+        [
+            'name' => 'RegioBank',
+            'code' => 'RBRBNL21',
+            'imgName' => 'regiobank'
+        ],
+        [
+            'name' => 'SNS Bank',
+            'code' => 'SNSBNL2A',
+            'imgName' => 'sns'
+        ],
+        [
+            'name' => 'N26',
+            'code' => 'NTSBDEB1',
+            'imgName' => 'n26'
+        ]
     ];
 
     /**
@@ -167,12 +211,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 if (!$this->settingsService->getEnabled(
                     $buckarooKey,
                     $event->getSalesChannelContext()->getSalesChannelId()
-                )
-                ) {
+                )) {
                     $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
                 }
 
-                if ($buckarooKey === 'payperemail' &&
+                if (
+                    $buckarooKey === 'payperemail' &&
                     $this->isPayPermMailDisabledInFrontend(
                         $event->getSalesChannelContext()->getSalesChannelId()
                     )
@@ -222,7 +266,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $currency = $this->getCurrency($event);
 
-        
+
         $struct             = new BuckarooStruct();
         $issuers            = $this->issuers;
         $idealRenderMode    = $this->getIdealRenderMode($salesChannelId);
@@ -237,7 +281,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if (!empty($allowedcreditcard) && is_array($allowedcreditcard)) {
             foreach ($allowedcreditcard as $value) {
                 $label  = null;
-                if (isset($this->availableCreditcards[$value]) &&
+                if (
+                    isset($this->availableCreditcards[$value]) &&
                     is_string($this->availableCreditcards[$value])
                 ) {
                     $label = (string)$this->availableCreditcards[$value];
@@ -261,7 +306,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             foreach ($allowedcreditcards as $value) {
                 $label  = null;
 
-                if (isset($this->availableCreditcards[$value]) &&
+                if (
+                    isset($this->availableCreditcards[$value]) &&
                     is_string($this->availableCreditcards[$value])
                 ) {
                     $label = (string)$this->availableCreditcards[$value];
@@ -372,7 +418,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     private function getPaymentMethodName(array $issuers, ?string $lastUsedIssuer, string $name = ''): string
     {
         foreach ($issuers as $issuer) {
-            if (is_array($issuer) &&
+            if (
+                is_array($issuer) &&
                 isset($issuer['code']) &&
                 isset($issuer['name']) &&
                 $issuer['code'] === $lastUsedIssuer
@@ -513,7 +560,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
         $session = $event->getRequest()->getSession();
 
-        if (strpos($paymentMethod->getHandlerIdentifier(), 'Buckaroo\Shopware6\Handlers') !== false &&
+        if (
+            strpos($paymentMethod->getHandlerIdentifier(), 'Buckaroo\Shopware6\Handlers') !== false &&
             $stateMachine->getTechnicalName() === 'in_progress' &&
             method_exists($session, 'getFlashBag')
         ) {
@@ -575,7 +623,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $shippingCompany = $shippingAddress->getCompany();
             }
         }
-        if ($isStrictB2B &&
+        if (
+            $isStrictB2B &&
             $this->isCompanyEmpty($billingCompany) &&
             $this->isCompanyEmpty($shippingCompany)
         ) {
@@ -603,7 +652,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      *
      * @return boolean
      */
-    private function canShowPhone(CustomerEntity $customer) : bool
+    private function canShowPhone(CustomerEntity $customer): bool
     {
         $billingAddress = $customer->getActiveBillingAddress();
         $shippingAddress = $customer->getActiveShippingAddress();
@@ -620,7 +669,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      */
     private function isPhoneEmpty(CustomerAddressEntity $address = null): bool
     {
-        if($address === null) {
+        if ($address === null) {
             return true;
         }
 
@@ -631,21 +680,19 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $savedBankIssuer = $customer->getCustomFieldsValue(PayByBankPaymentHandler::ISSUER_LABEL);
 
-
-        $issuers = array_map(function($issuer) use ($savedBankIssuer) {
+        $issuers = array_map(function ($issuer) use ($savedBankIssuer) {
             $issuer['selected'] = is_scalar($savedBankIssuer) && isset($issuer['code']) && $issuer['code'] === $savedBankIssuer;
             return $issuer;
-        }, $this->issuers);
+        }, $this->payByBankIssuers);
 
 
-        $savedIssuer = array_filter($issuers, function($issuer) use ($savedBankIssuer) {
+        $savedIssuer = array_filter($issuers, function ($issuer) {
             return $issuer['selected'];
         });
-        $issuers = array_filter($issuers, function($issuer) use ($savedBankIssuer) {
+        $issuers = array_filter($issuers, function ($issuer) {
             return !$issuer['selected'];
         });
 
         return array_merge($savedIssuer, $issuers);
-
     }
 }
