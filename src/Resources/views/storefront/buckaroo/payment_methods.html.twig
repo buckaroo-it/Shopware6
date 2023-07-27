@@ -68,7 +68,7 @@
                                     <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
                                     <div class="radio-group-required" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
                                     {% for issuer in page.extensions.buckaroo.payByBankIssuers %}
-                                        <div class="custom-control custom-radio bank-control">
+                                        <div class="custom-control custom-radio bankMethod{{ issuer.code }} bank-control">
                                             <input type="radio"
                                             form="confirmOrderForm"
                                             {% if issuer.selected === true %} checked {% endif %}
