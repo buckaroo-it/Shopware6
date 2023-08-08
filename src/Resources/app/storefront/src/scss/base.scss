@@ -98,3 +98,24 @@
         }
     }
 }
+
+.bk-ideal-qr {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bk-ideal-qr img {
+    max-height: 50vh;
+}
+
+.bk-qr-text {
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 2em;
+}
+
+.bk-qr-cancel {
+    text-align:center;
+    display:block;
+}

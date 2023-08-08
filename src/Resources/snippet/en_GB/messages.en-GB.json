@@ -96,7 +96,9 @@
       "cancelOrderMessage": "You have canceled the payment request",
       "cannotCreatePayment": "Cannot create payment",
       "moreBanks": "More banks",
-      "lessBanks": "Less banks"
+      "lessBanks": "Less banks",
+      "cancel": "Cancel",
+      "scanQr": "Please scan the following qr code"
     }
   },
   "bkr-applepay": {

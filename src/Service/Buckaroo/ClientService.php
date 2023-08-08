@@ -64,6 +64,7 @@ class ClientService
             'capayable' => 'in3',
             'giftcards' => 'giftcard',
             'creditcards' => 'creditcard',
+            'idealqr' => 'ideal_qr'
         ];
         if(isset($mappings[$configCode])) {
             return $mappings[$configCode];

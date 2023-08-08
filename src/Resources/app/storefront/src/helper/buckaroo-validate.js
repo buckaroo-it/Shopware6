@@ -16,6 +16,9 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
     _togglePayByBankList()
     {
         const payByBankList = document.querySelector('.bk-toggle-wrap');
+        if(payByBankList == undefined) {
+            return;
+        }
         const toggleElements = function(show, defaultDisplay = 'inline') {
             let display = 'none';
             const  elementsToShow = document.querySelectorAll('.bk-paybybank-selector .custom-radio:nth-child(n+6)');
