@@ -58,10 +58,9 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
         $fee =  $this->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
 
         $expiration = (new \DateTime())->add(new \DateInterval("PT25M"))->format('Y-m-d H:i:s');
-
         return [
             'imageSize' => '1000',
-            'purchaseId' => mb_substr($order->getOrderNumber(), 0, 35),
+            'purchaseId' => mb_substr((string)$order->getOrderNumber(), 0, 35),
             'isOneOff' => false,
             'amount' => $order->getAmountTotal() + $fee,
             'amountIsChangeable' => false,
@@ -95,7 +94,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
         string $paymentCode
     ): RedirectResponse {
 
-        
+
 
         $redirect = parent::handleResponse(
             $response,
@@ -111,7 +110,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
             isset($serviceParameters['qrimageurl']) &&
             is_string($serviceParameters['qrimageurl'])
         ) {
-           return new RedirectResponse(
+            return new RedirectResponse(
                 $this->getReturnPageUrl(
                     $serviceParameters['qrimageurl'],
                     $response->getTransactionKey(),
@@ -119,18 +118,18 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
                 )
             );
         }
-        
+
         return $redirect;
     }
 
-    private function getReturnPageUrl(string $qrImage, string $transactionKey, string $orderId)
+    private function getReturnPageUrl(string $qrImage, string $transactionKey, string $orderId): string
     {
         return  $this->asyncPaymentService
-        ->urlService
-        ->forwardToRoute('frontend.action.buckaroo.ideal.qr', [
-            'qrImage' => $qrImage,
-            'transactionKey' => $transactionKey,
-            'orderId' => $orderId
-        ]);
+            ->urlService
+            ->forwardToRoute('frontend.action.buckaroo.ideal.qr', [
+                'qrImage' => $qrImage,
+                'transactionKey' => $transactionKey,
+                'orderId' => $orderId
+            ]);
     }
 }
