@@ -34,5 +34,4 @@ class AlipayPaymentHandler extends AsyncPaymentHandler
             'useMobileView' => $this->asyncPaymentService->isMobile(Request::createFromGlobals()) ? 'true' : 'false',
         ];
     }
-    
 }
