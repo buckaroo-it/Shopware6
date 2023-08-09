@@ -55,7 +55,7 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
             return ['payPalOrderId' => $dataBag->get('orderId')];
         }
 
-        if($this->isSellerProtection($salesChannelContext)) {
+        if ($this->isSellerProtection($salesChannelContext)) {
             return $this->getSellerProtectionData($order);
         }
         return [];
@@ -80,7 +80,7 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
         }
         return 'pay';
     }
-    
+
 
     protected function handleResponse(
         ClientResponseInterface $response,
@@ -113,14 +113,14 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
 
         $countryState = '';
 
-        $countryStateEntity =$address->getCountryState();
-        if( $countryStateEntity !== null) {
+        $countryStateEntity = $address->getCountryState();
+        if ($countryStateEntity !== null) {
             $countryState =  $countryStateEntity->getName();
         }
 
         return [
             'customer' => [
-                'name' => $address->getFirstName()." ".$address->getLastName(),
+                'name' => $address->getFirstName() . " " . $address->getLastName(),
             ],
             'address' => [
                 'street'  =>  $address->getStreet(),
@@ -148,5 +148,5 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
             'paypalSellerprotection',
             $salesChannelContext->getSalesChannelId()
         ) === true;
-    }   
+    }
 }

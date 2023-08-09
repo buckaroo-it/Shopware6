@@ -128,7 +128,7 @@ class RefundService
         }
 
         //Override payByBank if transaction was made with ideal
-        if($configCode === 'paybybank' && $transaction['transaction_method'] === 'ideal') {
+        if ($configCode === 'paybybank' && $transaction['transaction_method'] === 'ideal') {
             $client->setPaymentCode($transaction['transaction_method']);
         }
 

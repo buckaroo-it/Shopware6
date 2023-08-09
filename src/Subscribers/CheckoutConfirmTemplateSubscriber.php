@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
-use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Service\UrlService;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\SettingsService;
@@ -681,7 +680,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $savedBankIssuer = $customer->getCustomFieldsValue(PayByBankPaymentHandler::ISSUER_LABEL);
 
         $issuers = array_map(function ($issuer) use ($savedBankIssuer) {
-            $issuer['selected'] = is_scalar($savedBankIssuer) && isset($issuer['code']) && $issuer['code'] === $savedBankIssuer;
+            $issuer['selected'] = is_scalar($savedBankIssuer) &&
+                isset($issuer['code']) &&
+                $issuer['code'] === $savedBankIssuer;
             return $issuer;
         }, $this->payByBankIssuers);
 

@@ -164,10 +164,10 @@
     </card>
     
     <card>
-        <title>Credit cards</title>
-        <title lang="nl-NL">Credit cards</title>
-        <title lang="de-DE">Kreditkarten</title>
-		<title lang="fr-FR">Cartes de crédit</title>
+        <title>Credit and debit card</title>
+        <title lang="nl-NL">Creditcard en debetkaarten</title>
+        <title lang="de-DE">Kartenzahlung</title>
+		<title lang="fr-FR">Cartes de crédit et de débit</title>
         
         <input-field type="bool">
             <name>creditcardEnabled</name>
@@ -221,10 +221,10 @@
 
         <input-field type="multi-select">
             <name>allowedcreditcard</name>
-            <label lang="en-GB">Allowed Creditcards:</label>
-            <label lang="nl-NL">Toegestane creditcards:</label>
-            <label lang="de-DE">Zulässige Kreditkarten:</label>
-			<label lang="fr-FR">Cartes de crédit autorisées:</label>
+            <label lang="en-GB">Allowed Credit and debit cards:</label>
+            <label lang="nl-NL">Toegestane Creditcards en debetkaarten:</label>
+            <label lang="de-DE">Erlaubte Karten:</label>
+			<label lang="fr-FR">Cartes de crédit et cartes de débit autorisées:</label>
             <options>
                 <option>
                     <id>mastercard</id>
@@ -275,11 +275,11 @@
     </card>
 
     <card>
-        <title>Creditcards (Client sided)</title>
-		<title lang="gb-GB">Creditcards (Client sided)</title>
-        <title lang="nl-NL">Credit cards (klantzijde)</title>
-        <title lang="de-DE">Kreditkarten (kundenseitig)</title>
-		<title lang="fr-FR">Cartes de crédit (côté client)</title>
+        <title>Credit and debit card (Client sided)</title>
+		<title lang="gb-GB">Credit and debit card (Client sided)</title>
+        <title lang="nl-NL">Creditcard en debetkaart (Versleuteling aan clientzijde)</title>
+        <title lang="de-DE">Kartenzahlung (Clientseitige Verschlüsselung)</title>
+		<title lang="fr-FR">Cartes de crédit et de débit (Cryptage côté client)</title>
         
         <input-field type="bool">
             <name>creditcardsEnabled</name>
@@ -337,10 +337,10 @@
 
         <input-field type="multi-select">
             <name>allowedcreditcards</name>
-            <label lang="en-GB">Allowed Creditcards:</label>
-            <label lang="nl-NL">Toegestane creditcards:</label>
-            <label lang="de-DE">Zulässige Kreditkarten:</label>
-			<label lang="fr-FR">Cartes de crédit autorisées:</label>
+            <label lang="en-GB">Allowed Credit and debit cards:</label>
+            <label lang="nl-NL">Toegestane Creditcards en debetkaarten:</label>
+            <label lang="de-DE">Erlaubte Karten:</label>
+			<label lang="fr-FR">Cartes de crédit et de débit autorisées:</label>
             <options>
                 <option>
                     <id>mastercard</id>

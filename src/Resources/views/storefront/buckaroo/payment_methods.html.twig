@@ -68,7 +68,7 @@
                                     <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
                                     <div class="radio-group-required" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
                                     {% for issuer in page.extensions.buckaroo.payByBankIssuers %}
-                                        <div class="custom-control custom-radio bank-control">
+                                        <div class="custom-control custom-radio bankMethod{{ issuer.code }} bank-control">
                                             <input type="radio"
                                             form="confirmOrderForm"
                                             {% if issuer.selected === true %} checked {% endif %}
@@ -101,7 +101,6 @@
 
                 {% elseif payment.translated.customFields.buckaroo_key == 'creditcard' %}
                     {% block buckaroo_payment_method_creditcard %}
-                        {{ page.extensions.buckaroo.payment_method_name_card }}
                         <label>{{ "buckaroo.checkout.selectCreditCard"|trans }}*:</label>
                         {% if page.extensions.buckaroo.creditcard|length > 0 %}
                             <select form="confirmOrderForm" required="required" name="creditcard" class="custom-select" style="max-width: 300px;margin-left: 0.5rem;margin-bottom: 0.5rem;">

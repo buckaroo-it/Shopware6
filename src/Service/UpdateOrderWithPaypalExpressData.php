@@ -19,7 +19,7 @@ class UpdateOrderWithPaypalExpressData
      */
     protected $orderAddressRepository;
 
-      /**
+    /**
      * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
      */
     protected $orderCustomerRepository;
@@ -130,7 +130,6 @@ class UpdateOrderWithPaypalExpressData
         )->getEntities();
 
         if ($addresses !== null) {
-
             foreach ($addresses as $address) {
                 /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity $address */
                 $customFields = $address->getCustomFields();

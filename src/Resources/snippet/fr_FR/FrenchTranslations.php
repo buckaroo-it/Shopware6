@@ -6,7 +6,6 @@ namespace Buckaroo\Shopware6\Resources\snippet\fr_FR;
 
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 
-
 class FrenchTranslations extends AbstractSnippetFile
 {
     /**

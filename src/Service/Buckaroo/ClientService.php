@@ -43,7 +43,7 @@ class ClientService
         }
     }
 
-        /**
+    /**
      * Get code required for payment
      *
      * @param string $configCode
@@ -53,7 +53,8 @@ class ClientService
      */
     protected function getPaymentCode(string $configCode, string $salesChannelId = null): string
     {
-        if ($configCode === 'afterpay' &&
+        if (
+            $configCode === 'afterpay' &&
             $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true
         ) {
             return 'afterpaydigiaccept';
@@ -66,7 +67,7 @@ class ClientService
             'creditcards' => 'creditcard',
             'idealqr' => 'ideal_qr'
         ];
-        if(isset($mappings[$configCode])) {
+        if (isset($mappings[$configCode])) {
             return $mappings[$configCode];
         }
 

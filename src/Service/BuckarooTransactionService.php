@@ -92,17 +92,17 @@ class BuckarooTransactionService
             array_push($transactionsToRefund, $transactions);
 
             $amount = 0;
-            
+
             if (
                 is_scalar($buckarooTransactionEntity->get("amount"))
             ) {
                 $amount = (float)$buckarooTransactionEntity->get("amount");
             }
-            
+
             if (
                 is_scalar($buckarooTransactionEntity->get("amount_credit"))
             ) {
-                $amount-=(float)$buckarooTransactionEntity->get("amount_credit");
+                $amount -= (float)$buckarooTransactionEntity->get("amount_credit");
             }
 
             $createdAt = $buckarooTransactionEntity->get("created_at");
@@ -123,7 +123,8 @@ class BuckarooTransactionService
                 'created_at'          => $formatedCreatedAt,
             ];
 
-            if ($buckarooTransactionEntity->get("amount") &&
+            if (
+                $buckarooTransactionEntity->get("amount") &&
                 $buckarooTransactionEntity->get("statuscode") == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS
             ) {
                 $items['transactionsToRefund'][] = (object) [

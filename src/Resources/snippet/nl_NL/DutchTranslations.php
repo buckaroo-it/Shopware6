@@ -6,7 +6,6 @@ namespace Buckaroo\Shopware6\Resources\snippet\nl_NL;
 
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 
-
 class DutchTranslations extends AbstractSnippetFile
 {
     /**
