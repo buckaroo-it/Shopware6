@@ -302,7 +302,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      *
      * @return float
      */
-    private function getFee(string $paymentCode, string $salesChannelId): float
+    protected function getFee(string $paymentCode, string $salesChannelId): float
     {
         return $this->asyncPaymentService
             ->settingsService

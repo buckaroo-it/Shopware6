@@ -17,17 +17,8 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
     {
         localStorage.removeItem('confirmOrderForm.payBybankMethodId');
         const payByBankList = document.querySelector('.bk-toggle-wrap');
-
-        const issuerSelectedRadio = function () {
-
-            let issuerRadio;
-            document.querySelectorAll('.bank-method-input').forEach(element => {
-                if(element.checked === true) {
-                    issuerRadio = element.id;
-                };
-            });
-
-            return issuerRadio;
+        if(payByBankList == undefined) {
+            return;
         }
         const toggleElements = function(show, defaultDisplay = 'inline') {
             let elementsToShow = document.querySelectorAll('.bk-paybybank-selector .custom-radio:nth-child(n+6)');

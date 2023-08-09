@@ -35,6 +35,7 @@ Component.register('buckaroo-settings', {
                 'creditcardEnabled': true,
                 'creditcardsEnabled': true,
                 'idealEnabled': true,
+                'idealqrEnabled': true,
                 'idealprocessingEnabled': true,
                 'belfiusEnabled': true,
                 'bancontactmrcashEnabled': true,

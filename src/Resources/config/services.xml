@@ -163,6 +163,11 @@
             <tag name="shopware.payment.method.async" />
         </service>
 
+        <service id="Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method.async" />
+        </service>
+
         <service id="Buckaroo\Shopware6\Handlers\IdealProcessingPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
@@ -305,6 +310,17 @@
         <!-- /Payment methods -->
 
         <!-- Controllers -->
+
+         <service id="Buckaroo\Shopware6\Storefront\Controller\IdealQrController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <call method="setTwig">
+                <argument type="service" id="twig"/>
+            </call>
+        </service>
+
+
         <service id="Buckaroo\Shopware6\Storefront\Controller\SupportController" public="true">
             <argument type="service" id="Buckaroo\Shopware6\Service\TestCredentialsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\BuckarooTransactionService"/>
