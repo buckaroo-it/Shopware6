@@ -27,7 +27,7 @@ class CaptureService
     protected InvoiceService $invoiceService;
 
     protected FormatRequestParamService $formatRequestParamService;
-    
+
     protected ClientService $clientService;
 
     public function __construct(
@@ -100,7 +100,6 @@ class CaptureService
                         $customFields
                     )
                 ),
-
             );
 
         return $this->handleResponse(

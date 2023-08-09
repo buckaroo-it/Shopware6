@@ -197,6 +197,10 @@ class CheckoutHelper
      */
     public function areEqualAmounts($amount1, $amount2): bool
     {
+        if (!is_scalar($amount1) || !is_scalar($amount2)) {
+            return false;
+        }
+
         if ($amount2 == 0) {
             return $amount1 == $amount2;
         } else {

@@ -31,7 +31,7 @@ class Creditcards extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo Creditcards';
+        return 'Buckaroo Credit and debit card';
     }
 
     /**
@@ -41,7 +41,7 @@ class Creditcards extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with Creditcards';
+        return 'Pay with Credit or debit card';
     }
 
     /**
@@ -74,7 +74,7 @@ class Creditcards extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit Creditcards',
+                'description' => 'Kartenzahlung',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),

@@ -36,7 +36,7 @@ class MediaInstaller implements InstallerInterface
 
     /** @var EntityRepository */
     public $paymentMethodRepository;
-    
+
     /**
      * MediaInstaller constructor.
      * @param ContainerInterface $container
@@ -250,19 +250,18 @@ class MediaInstaller implements InstallerInterface
         PaymentMethodInterface $paymentMethod,
         Context $context,
         string $mediaId = null
-    ): void
-    {
-        if($mediaId === null) {
+    ): void {
+        if ($mediaId === null) {
             return;
         }
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('handlerIdentifier', $paymentMethod->getPaymentHandler()));
-       
+
         $paymentMethodHandlerId = $this->paymentMethodRepository
-        ->searchIds($criteria, $context)
-        ->firstId();
-        if($paymentMethodHandlerId !== null) {
+            ->searchIds($criteria, $context)
+            ->firstId();
+        if ($paymentMethodHandlerId !== null) {
             $this->paymentMethodRepository->update(
                 [
                     [

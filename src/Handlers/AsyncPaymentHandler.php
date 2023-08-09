@@ -60,7 +60,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $paymentClass = $this->getPayment($transactionId);
         $salesChannelId  = $salesChannelContext->getSalesChannelId();
         $paymentCode = $paymentClass->getBuckarooKey();
-        
+
         try {
             $order = $transaction->getOrder();
             $this->validateOrder($order);
@@ -70,29 +70,29 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 $salesChannelId,
                 $dataBag
             )
-            ->setPayload(
-                array_merge_recursive(
-                    $this->getCommonRequestPayload(
-                        $transaction,
-                        $dataBag,
-                        $salesChannelContext,
-                        $paymentCode
-                    ),
-                    $this->getMethodPayload(
-                        $order,
+                ->setPayload(
+                    array_merge_recursive(
+                        $this->getCommonRequestPayload(
+                            $transaction,
+                            $dataBag,
+                            $salesChannelContext,
+                            $paymentCode
+                        ),
+                        $this->getMethodPayload(
+                            $order,
+                            $dataBag,
+                            $salesChannelContext,
+                            $paymentCode
+                        )
+                    )
+                )
+                ->setAction(
+                    $this->getMethodAction(
                         $dataBag,
                         $salesChannelContext,
                         $paymentCode
                     )
-                )
-            )
-            ->setAction(
-                $this->getMethodAction(
-                    $dataBag,
-                    $salesChannelContext,
-                    $paymentCode
-                )
-            );
+                );
 
             $this->asyncPaymentService->dispatchEvent(
                 new BeforePaymentRequestEvent(
@@ -136,7 +136,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 $paymentCode
             )
         );
-        
+
         $returnUrl = $this->getReturnUrl($transaction, $dataBag);
 
         $this->asyncPaymentService
@@ -164,7 +164,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $response->isPendingProcessing() ||
             $response->isWaitingOnUserInput()
         ) {
-
             if (!$response->isSuccess()) {
                 $this->asyncPaymentService
                     ->stateTransitionService
@@ -321,11 +320,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     private function getClient(string $paymentCode, string $salesChannelId, DataBag $dataBag): Client
     {
         //do a ideal payment if the issuer is ING for payByBank on mobile devices
-        if(
+        if (
             $paymentCode === 'paybybank' &&
             $dataBag->get('payBybankMethodId') === 'INGBNL2A' &&
             $this->asyncPaymentService->isMobile(Request::createFromGlobals())
-            ) {
+        ) {
             $paymentCode = 'ideal';
         }
         return $this->asyncPaymentService
