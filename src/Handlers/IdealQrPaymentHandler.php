@@ -59,7 +59,6 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
 
         $expiration = (new \DateTime())->add(new \DateInterval("PT25M"))->format('Y-m-d H:i:s');
 
-        $expiration = (new \DateTime('now', new \DateTimeZone('Europe/Bucharest')))->add(new \DateInterval("PT25M"))->format('Y-m-d H:i:s');
         return [
             'imageSize' => '1000',
             'purchaseId' => mb_substr($order->getOrderNumber(), 0, 35),
