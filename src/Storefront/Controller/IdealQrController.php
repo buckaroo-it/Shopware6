@@ -15,28 +15,28 @@ class IdealQrController extends StorefrontController
         path: "/buckaroo/ideal/qr",
         defaults: ['_routeScope' => ['storefront']],
         name: "frontend.action.buckaroo.ideal.qr",
-        options: ["seo"=> false], methods:["GET"]
+        options: ["seo" => false],
+        methods: ["GET"]
     )]
     public function displayPage(Request $request): Response
     {
-        if(!$request->query->has('qrImage') || !is_string($request->get('qrImage'))) {
+        if (!$request->query->has('qrImage') || !is_string($request->get('qrImage'))) {
             return $this->redirectToRoute('frontend.checkout.cart.page');
         }
 
-        if(!$request->query->has('transactionKey') || !is_string($request->get('transactionKey'))) {
+        if (!$request->query->has('transactionKey') || !is_string($request->get('transactionKey'))) {
             return $this->redirectToRoute('frontend.checkout.cart.page');
         }
 
-        if(!$request->query->has('orderId') || !is_string($request->get('orderId'))) {
+        if (!$request->query->has('orderId') || !is_string($request->get('orderId'))) {
             return $this->redirectToRoute('frontend.checkout.cart.page');
         }
 
         return $this->renderStorefront('@BuckarooPayments/storefront/buckaroo/ideal-qr.html.twig', [
             'qr_image' => urldecode($request->get('qrImage')),
-            'transaction_key' =>$request->get('transactionKey'),
+            'transaction_key' => $request->get('transactionKey'),
             'cancel_url' => $this->getCancelUrl($request->get('orderId'))
         ]);
-
     }
 
     /**
@@ -48,10 +48,10 @@ class IdealQrController extends StorefrontController
      */
     private function getCancelUrl(string $orderId): string
     {
-            return $this->generateUrl(
-                'frontend.account.edit-order.page',
-                ['orderId' => $orderId],
-                0
-            ) . "?error-code=CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT";
+        return $this->generateUrl(
+            'frontend.account.edit-order.page',
+            ['orderId' => $orderId],
+            0
+        ) . "?error-code=CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT";
     }
 }
