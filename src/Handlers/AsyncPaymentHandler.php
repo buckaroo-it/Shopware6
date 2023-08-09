@@ -67,7 +67,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
             $client = $this->getClient(
                 $paymentCode,
-                $salesChannelId
+                $salesChannelId,
+                $dataBag
             )
                 ->setPayload(
                     array_merge_recursive(
@@ -316,8 +317,16 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      *
      * @return Client
      */
-    private function getClient(string $paymentCode, string $salesChannelId): Client
+    private function getClient(string $paymentCode, string $salesChannelId, DataBag $dataBag): Client
     {
+        //do a ideal payment if the issuer is ING for payByBank on mobile devices
+        if(
+            $paymentCode === 'paybybank' &&
+            $dataBag->get('payBybankMethodId') === 'INGBNL2A' &&
+            $this->asyncPaymentService->isMobile(Request::createFromGlobals())
+            ) {
+            $paymentCode = 'ideal';
+        }
         return $this->asyncPaymentService
             ->clientService
             ->get($paymentCode, $salesChannelId);

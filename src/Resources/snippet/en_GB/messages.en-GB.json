@@ -94,7 +94,9 @@
       "buckarooMobileCocError": "CoC-number is required",
       "company_required": "The company name is required for this payment method",
       "cancelOrderMessage": "You have canceled the payment request",
-      "cannotCreatePayment": "Cannot create payment"
+      "cannotCreatePayment": "Cannot create payment",
+      "moreBanks": "More banks",
+      "lessBanks": "Less banks"
     }
   },
   "bkr-applepay": {

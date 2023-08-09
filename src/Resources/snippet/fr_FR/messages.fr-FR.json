@@ -82,7 +82,9 @@
         "selectYear": "Sélectionnez une année",
         "securityCode": "CVC/VV"
       }
-    }
+    },
+    "moreBanks": "More banks",
+    "lessBanks": "Less banks"
   },
   "bkr-applepay": {
     "Subtotal": "Sous-total",

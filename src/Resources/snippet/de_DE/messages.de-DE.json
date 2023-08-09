@@ -80,7 +80,9 @@
       },
       "Coc": "CoC-number:",
       "CocPlaceholder": "CoC-number (HRB/HRA)",
-      "buckarooMobileCocError": "CoC-Nummer (HRB/HRA) ist erforderlich"
+      "buckarooMobileCocError": "CoC-Nummer (HRB/HRA) ist erforderlich",
+      "moreBanks": "More banks",
+      "lessBanks": "Less banks"
     }
   },
   "bkr-applepay": {
