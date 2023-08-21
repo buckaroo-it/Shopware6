@@ -20,6 +20,18 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
         if(payByBankList == undefined) {
             return;
         }
+
+        const issuerSelectedRadio = function () {
+            let issuerRadio;
+            document.querySelectorAll('.bank-method-input').forEach(element => {
+                if(element.checked === true) {
+                    issuerRadio = element.id;
+                };
+            });
+
+            return issuerRadio;
+        }
+
         const toggleElements = function(show, defaultDisplay = 'inline') {
             let elementsToShow = document.querySelectorAll('.bk-paybybank-selector .custom-radio:nth-child(n+6)');
             const selectedRadio = issuerSelectedRadio();

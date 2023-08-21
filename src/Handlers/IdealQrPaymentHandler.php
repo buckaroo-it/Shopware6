@@ -57,11 +57,11 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
 
         $fee =  $this->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
 
-        $expiration = (new \DateTime('now', new \DateTimeZone('Europe/Amsterdam')))->add(new \DateInterval("PT20M"))->format('Y-m-d H:i:s');
+        $expiration = (new \DateTime('now', new \DateTimeZone('Europe/Amsterdam')))->add(new \DateInterval("P1D"))->format('Y-m-d H:i:s');
         return [
             'imageSize' => '1000',
             'purchaseId' => mb_substr((string)$order->getOrderNumber(), 0, 35),
-            'isOneOff' => false,
+            'isOneOff' => true,
             'amount' => $order->getAmountTotal() + $fee,
             'amountIsChangeable' => false,
             'expiration' => $expiration,
