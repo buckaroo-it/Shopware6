@@ -1,6 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 
-export default class BuckarooLoadScrips extends Plugin {
+export default class BuckarooLoadScripts extends Plugin {
 
     loadSdk()
     {

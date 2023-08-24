@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
-use Buckaroo\Shopware6\Events\PushProcessingEvent;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -12,14 +11,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\InvoiceService;
 use Symfony\Component\Routing\Annotation\Route;
+use Buckaroo\Shopware6\Events\PushProcessingEvent;
 use Buckaroo\Shopware6\Service\TransactionService;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Storefront\Controller\StorefrontController;
 use Buckaroo\Shopware6\Service\SignatureValidationService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
@@ -42,6 +44,8 @@ class PushController extends StorefrontController
 
     protected EventDispatcherInterface $eventDispatcher;
 
+    protected IdealQrOrderRepository $idealQrRepository;
+
     public function __construct(
         SignatureValidationService $signatureValidationService,
         TransactionService $transactionService,
@@ -49,7 +53,8 @@ class PushController extends StorefrontController
         InvoiceService $invoiceService,
         CheckoutHelper $checkoutHelper,
         LoggerInterface $logger,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        IdealQrOrderRepository $idealQrRepository
     ) {
         $this->signatureValidationService = $signatureValidationService;
         $this->transactionService         = $transactionService;
@@ -58,6 +63,7 @@ class PushController extends StorefrontController
         $this->checkoutHelper        = $checkoutHelper;
         $this->logger                = $logger;
         $this->eventDispatcher       = $eventDispatcher;
+        $this->idealQrRepository     = $idealQrRepository;
     }
 
     /**
@@ -98,6 +104,17 @@ class PushController extends StorefrontController
         $brqPaymentMethod   = (string)$request->request->get('brq_transaction_method');
         $originalTransactionKey   = (string)$request->request->get('brq_transactions');
         $salesChannelId     =  $salesChannelContext->getSalesChannelId();
+
+        // since the payment engine doesn't support custom parameters for ideal QR
+        // we use the invoice number to retrieve the order id and transaction id
+        // saved in the database
+        if ($this->isIdealQrRequest($request)) {
+            $entity = $this->getIdealQrEntity($request, $salesChannelContext);
+            if ($entity !== null) {
+                $brqOrderId = $entity->getOrderId();
+                $orderTransactionId = $entity->getOrderTransactionId();
+            }
+        }
 
         if (empty($brqOrderId) || empty($orderTransactionId)) {
             return $this->response($event, 'buckaroo.messages.paymentError', false);
@@ -368,5 +385,17 @@ class PushController extends StorefrontController
         }
 
         return true;
+    }
+  
+    protected function isIdealQrRequest(Request $request)
+    {
+        $invoice = $request->request->get('brq_invoicenumber');
+        return is_string($invoice) && strpos($invoice, IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX) !== false;
+    }
+
+    protected function getIdealQrEntity(Request $request, SalesChannelContext $salesChannelContext)
+    {
+        $invoice = str_replace(IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX, "", $request->request->get('brq_invoicenumber'));
+        return $this->idealQrRepository->findByInvoice((int)$invoice, $salesChannelContext);
     }
 }

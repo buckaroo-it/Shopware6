@@ -7,16 +7,17 @@
 {% block page_checkout_container %}
 	{% block buckaroo_qr_display %}
 		{% set conifg = {
-            transactionKey: transaction_key,
+            orderId: orderId,
+			pullUrl: pullUrl
         } %}
 		<div data-ideal-qr data-buckaroo-ideal-qr-plugin-options='{{ conifg|json_encode }}'></div>
 		<div class="bk-ideal-qr">
 			<div class="bk-qr-text">
 				<p>{{"buckaroo.checkout.scanQr"|trans}}</p>
-				<img src="{{ qr_image }}" class="img img-fluid" alt="Ideal QR">
+				<img src="{{ qrImage }}" class="img img-fluid" alt="Ideal QR">
 			</div>
 		</div>
-        <a class="bk-qr-cancel" href="{{cancel_url}}">{{"buckaroo.checkout.cancel"|trans}}</a>
+        <a class="bk-qr-cancel" href="{{cancelUrl}}">{{"buckaroo.checkout.cancel"|trans}}</a>
 	{% endblock %}
 {% endblock %}
 

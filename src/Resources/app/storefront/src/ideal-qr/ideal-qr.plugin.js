@@ -1,40 +1,39 @@
-import Plugin from 'src/plugin-system/plugin.class';
+import Plugin from "src/plugin-system/plugin.class";
+import HttpClient from "src/service/http-client.service";
 
 export default class IdealQrPlugin extends Plugin {
+  static options = {
+    orderId: null,
+    pullUrl: null,
+    interval: 5000,
+  };
 
-    static options = {
-        transactionKey: null
-    }
+  httpClient = new HttpClient();
 
-    init()
-    {
-       this.setupWebSocketChannel(this.options.transactionKey);
-    }
+  init() {
+    this.pullStatus();
+  }
 
-    setupWebSocket(url, onMessageEvent) {
-        const self = this;
-        let socket = new WebSocket(url);
-        socket.onclose = function (e) {
-            setTimeout(function () {
-                self.setupWebSocket(url, onMessageEvent);
-            }, 200);
-        };
-        socket.onerror = function (err) {
-            socket.close();
-        };
-        socket.onmessage = onMessageEvent;
-    };
-    setupWebSocketChannel(transactionKey) {
-        var url = "wss://websocketservice-externalapi.prod.buckaroo.io/IdealQr/" + transactionKey;
-        this.setupWebSocket(url, function (event) {
-            // get response object from event
-            var responseObj = JSON.parse(event.data);
-            switch (responseObj.status) {
-                case "SUCCESS":
-                case "FAILED":
-                    setTimeout(function () { window.location.href = responseObj.redirectUrl; }, 5000);
-                    break;
-            }
-        });
-    }
+  pullStatus() {
+    setInterval(
+        this.singlePullStatus.bind(this),
+        this.options.interval
+    );
+  }
+
+  singlePullStatus() {
+    this.options;
+    this.httpClient.post(
+      this.options.pullUrl,
+      JSON.stringify({
+        orderId: this.options.orderId,
+      }),
+      (response) => {
+        const res = JSON.parse(response);
+        if (res.redirectUrl !== undefined) {
+          window.location.href = res.redirectUrl;
+        }
+      }
+    );
+  }
 }
