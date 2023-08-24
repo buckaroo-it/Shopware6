@@ -7,17 +7,33 @@ namespace Buckaroo\Shopware6\Handlers;
 use Buckaroo\Shopware6\PaymentMethods\Ideal;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\IdealQr;
+use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 
 class IdealQrPaymentHandler extends AsyncPaymentHandler
 {
     protected string $paymentClass = IdealQr::class;
 
+    protected $invoice;
 
+    protected IdealQrOrderRepository $idealQrRepository;
+
+    /**
+     * Buckaroo constructor.
+     */
+    public function __construct(
+        AsyncPaymentService $asyncPaymentService,
+        IdealQrOrderRepository $idealQrRepository
+    ) {
+        parent::__construct($asyncPaymentService);
+        $this->idealQrRepository = $idealQrRepository;
+    }
+    
     /**
      * Override parameters common, remove invoice field
      *
@@ -34,6 +50,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
+        $this->createIdealQrOrder($transaction, $salesChannelContext);
         $payload = parent::getCommonRequestPayload($transaction, $dataBag, $salesChannelContext, $paymentCode);
         unset($payload['invoice']);
         return $payload;
@@ -60,7 +77,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
         $expiration = (new \DateTime('now', new \DateTimeZone('Europe/Amsterdam')))->add(new \DateInterval("P1D"))->format('Y-m-d H:i:s');
         return [
             'imageSize' => '1000',
-            'purchaseId' => mb_substr((string)$order->getOrderNumber(), 0, 35),
+            'purchaseId' => "iQR".$this->invoice,
             'isOneOff' => true,
             'amount' => $order->getAmountTotal() + $fee,
             'amountIsChangeable' => false,
@@ -131,5 +148,15 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
                 'transactionKey' => $transactionKey,
                 'orderId' => $orderId
             ]);
+    }
+
+    private function createIdealQrOrder(
+        AsyncPaymentTransactionStruct $transaction,
+        SalesChannelContext $salesChannelContext
+    ) {
+        $entity = $this->idealQrRepository->create($transaction->getOrderTransaction(), $salesChannelContext);
+        if($entity !== null) {
+            $this->invoice = $entity->getInvoice();
+        }
     }
 }

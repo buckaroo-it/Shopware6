@@ -10,6 +10,14 @@
             <tag name="shopware.entity.definition" entity="buckaroo_transaction" />
         </service>
 
+        <service id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderDefinition">
+            <tag name="shopware.entity.definition" entity="buckaroo_ideal_qr_order" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository">
+            <argument type="service" id="buckaroo_ideal_qr_order.repository"/>
+        </service>
+
         <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository">
             <argument type="service" id="buckaroo_transaction.repository"/>
         </service>
@@ -165,6 +173,7 @@
 
         <service id="Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository"/>
             <tag name="shopware.payment.method.async" />
         </service>
 
@@ -312,6 +321,7 @@
         <!-- Controllers -->
 
          <service id="Buckaroo\Shopware6\Storefront\Controller\IdealQrController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -338,6 +348,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
+            <argument type="service" id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
