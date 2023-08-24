@@ -55,9 +55,16 @@ class IdealQrOrderDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
             (new IntField('invoice', 'invoice'))->addFlags(new WriteProtected(), new ApiAware()),
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new Required(), new ApiAware()),
-            (new FkField('order_transaction_id', 'orderTransactionId', OrderTransactionDefinition::class))->addFlags(new Required(), new ApiAware()),
+            (new FkField('order_transaction_id', 'orderTransactionId', OrderTransactionDefinition::class))
+                ->addFlags(new Required(), new ApiAware()),
             new OneToOneAssociationField('order', 'order_id', 'id', OrderDefinition::class, false),
-            new OneToOneAssociationField('orderTransaction', 'order_transaction_id', 'id', OrderTransactionDefinition::class, false),
+            new OneToOneAssociationField(
+                'orderTransaction',
+                'order_transaction_id',
+                'id',
+                OrderTransactionDefinition::class,
+                false
+            ),
         ]);
     }
 }

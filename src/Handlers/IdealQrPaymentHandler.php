@@ -75,10 +75,11 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
 
         $fee =  $this->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
 
-        $expiration = (new \DateTime('now', new \DateTimeZone('Europe/Amsterdam')))->add(new \DateInterval("P1D"))->format('Y-m-d H:i:s');
+        $expiration = (new \DateTime('now', new \DateTimeZone('Europe/Amsterdam')))
+            ->add(new \DateInterval("P1D"))->format('Y-m-d H:i:s');
         return [
             'imageSize' => '1000',
-            'purchaseId' => self::IDEAL_QR_INVOICE_PREFIX.$this->invoice,
+            'purchaseId' => self::IDEAL_QR_INVOICE_PREFIX . $this->invoice,
             'isOneOff' => true,
             'amount' => $order->getAmountTotal() + $fee,
             'amountIsChangeable' => false,
