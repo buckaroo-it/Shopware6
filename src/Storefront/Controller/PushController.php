@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Buckaroo\Shopware6\Events\PushProcessingEvent;
 use Buckaroo\Shopware6\Service\TransactionService;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Storefront\Controller\StorefrontController;
@@ -389,12 +390,12 @@ class PushController extends StorefrontController
     protected function isIdealQrRequest(Request $request)
     {
         $invoice = $request->request->get('brq_invoicenumber');
-        return is_string($invoice) && strpos($invoice, "iQR") !== false;
+        return is_string($invoice) && strpos($invoice, IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX) !== false;
     }
 
     protected function getIdealQrEntity(Request $request, SalesChannelContext $salesChannelContext)
     {
-        $invoice = str_replace("iQR", "", $request->request->get('brq_invoicenumber'));
+        $invoice = str_replace(IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX, "", $request->request->get('brq_invoicenumber'));
         return $this->idealQrRepository->findByInvoice((int)$invoice, $salesChannelContext);
     }
 }

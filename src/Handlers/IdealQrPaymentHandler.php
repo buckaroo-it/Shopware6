@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Buckaroo\Shopware6\PaymentMethods\Ideal;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\IdealQr;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
@@ -17,6 +16,8 @@ use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 
 class IdealQrPaymentHandler extends AsyncPaymentHandler
 {
+    public const IDEAL_QR_INVOICE_PREFIX = 'iQR';
+
     protected string $paymentClass = IdealQr::class;
 
     protected $invoice;
@@ -33,7 +34,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
         parent::__construct($asyncPaymentService);
         $this->idealQrRepository = $idealQrRepository;
     }
-    
+
     /**
      * Override parameters common, remove invoice field
      *
@@ -77,7 +78,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
         $expiration = (new \DateTime('now', new \DateTimeZone('Europe/Amsterdam')))->add(new \DateInterval("P1D"))->format('Y-m-d H:i:s');
         return [
             'imageSize' => '1000',
-            'purchaseId' => "iQR".$this->invoice,
+            'purchaseId' => self::IDEAL_QR_INVOICE_PREFIX.$this->invoice,
             'isOneOff' => true,
             'amount' => $order->getAmountTotal() + $fee,
             'amountIsChangeable' => false,
@@ -155,7 +156,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext
     ) {
         $entity = $this->idealQrRepository->create($transaction->getOrderTransaction(), $salesChannelContext);
-        if($entity !== null) {
+        if ($entity !== null) {
             $this->invoice = $entity->getInvoice();
         }
     }

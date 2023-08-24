@@ -38,6 +38,7 @@ class IdealQrOrderEntity extends Entity
     {
         $this->orderId = $orderId;
     }
+
     public function getOrderTransaction(): OrderTransactionEntity
     {
         return $this->orderTransaction;
