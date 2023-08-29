@@ -17,7 +17,8 @@ class CartController extends StorefrontController
 {
     protected PayByBankService $payByBankService;
 
-    public function __construct(PayByBankService $payByBankService) {
+    public function __construct(PayByBankService $payByBankService)
+    {
         $this->payByBankService = $payByBankService;
     }
 
@@ -74,7 +75,7 @@ class CartController extends StorefrontController
                 "message" => "No valid issuer provided"
             ]);
         }
-        
+
         return new JsonResponse([
             "error" => false,
             "logo" => $this->payByBankService->getIssuerLogo(
