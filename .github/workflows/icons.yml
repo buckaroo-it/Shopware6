@@ -16,16 +16,15 @@ jobs:
             ls -lah
       - name: Rename all files to lowercase
         run: |
-            cd "${{ github.workspace }}/Media/Payment methods/SVG/"
-            rm -f knaken.svg paylink.svg paybybank.svg pos.svg
+            cd Media
             cp ${{ github.workspace }}/.github/workflows/rename-icons.php ${{ github.workspace }}/Media/rename-icons.php
             php  ./rename-icons.php
       - name: Copy payment method icons
         run: |
-            cd Media
+            cd "${{ github.workspace }}/Media/Payment methods/SVG/"
+            rm -f knaken.svg paylink.svg paybybank.svg pos.svg tinka.svg
             cp -R "Payment methods/SVG/." ${{ github.workspace }}/src/Resources/views/storefront/buckaroo/payments/
             cp "Payment methods/SVG/creditcards.svg" ${{ github.workspace }}/src/Resources/public/storefront/buckaroo/creditcards.svg
-            rm ${{ github.workspace }}/src/Resources/views/storefront/buckaroo/payments/tinka.svg
       - name: Copy creditcards icons
         run: |
             cd Media
