@@ -16,7 +16,8 @@ jobs:
             ls -lah
       - name: Rename all files to lowercase
         run: |
-            cd Media
+            cd "${{ github.workspace }}/Media/Payment methods/SVG/"
+            rm -f knaken.svg paylink.svg paybybank.svg pos.svg
             cp ${{ github.workspace }}/.github/workflows/rename-icons.php ${{ github.workspace }}/Media/rename-icons.php
             php  ./rename-icons.php
       - name: Copy payment method icons
