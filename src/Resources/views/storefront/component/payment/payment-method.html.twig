@@ -9,7 +9,7 @@
         
         <div class="payment-form-group form-group mb-0">
             {% block component_payment_method_control %}
-                <div class="custom-control custom-radio payment-method-radio">
+                <div class="custom-control custom-radio payment-method-radio bk-{{ payment.translated.customFields.buckaroo_key }}">
                     {% block component_payment_method_input %}
                         <input type="radio"
                                id="paymentMethod{{ payment.id }}"

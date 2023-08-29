@@ -394,8 +394,12 @@
         </service>
 
          <service id="Buckaroo\Shopware6\Storefront\Controller\CartController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\PayByBankService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
+            </call>
+            <call method="setTwig">
+                <argument type="service" id="twig"/>
             </call>
         </service>
 
@@ -440,6 +444,11 @@
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Service\PayByBankService">
+            <argument type="service" id="assets.packages"/>
+        </service>
+        
+
         <service id="Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData">
             <argument type="service" id="order_address.repository" />
             <argument type="service" id="order_customer.repository" />
@@ -472,6 +481,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
             <argument type="service" id="translator" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\PayByBankService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
