@@ -1,4 +1,8 @@
 {% block buckaroo_payment_methods %}
+    {% if payment.translated.customFields.buckaroo_key == 'paybybank' && page.extensions.buckaroo.payByBankActiveLogo %}
+        <input type="hidden" class="bk-paybybank-active-logo" value="{{page.extensions.buckaroo.payByBankActiveLogo}}">
+    {% endif %}
+    
     <div class="buckaroo-payment-body mb-2 ml-4">
     {% if context.paymentMethod.translated.customFields.buckaroo_key == payment.translated.customFields.buckaroo_key %}
 

@@ -7,11 +7,21 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
         try {
             this._registerCheckoutSubmitButton();
             this._toggleApplePay();
+            this._getActivePayByBankLogo();
         } catch (e) {
             // do nothing
             console.log('init error', e);
         }
     }
+
+    _getActivePayByBankLogo() {
+        let img = document.querySelector(".bk-paybybank .payment-method-image");
+        let logo = document.querySelector('.bk-paybybank-active-logo');
+        if (img && logo && logo.value && logo.value.length > 0) {
+            img.src = logo.value
+        };
+    }
+
     /**
      * Show apple pay method if available
      */

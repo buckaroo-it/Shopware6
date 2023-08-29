@@ -103,4 +103,23 @@ class PayByBankService
             "/bundles/buckaroopayments/storefront/buckaroo/issuers/{$img}.svg"
         );
     }
+
+    public function getActiveIssuerLogo(CustomerEntity $customer = null): ?string
+    {
+        $issuers = $this->getIssuers($customer);
+        $active = null;
+
+        foreach ($issuers as $issuer) {
+            if ($issuer['selected']) {
+                $active = $issuer;
+                break;
+            }
+        }
+
+        if ($active === null) {
+            return null;
+        }
+
+        return $this->getIssuerLogo($active['code']);
+    }
 }

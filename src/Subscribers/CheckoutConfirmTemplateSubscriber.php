@@ -317,6 +317,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'ideal_render_mode'        => $idealRenderMode,
             'payByBankMode'            => $this->settingsService->getSetting('paybybankRenderMode', $salesChannelId),
             'payByBankIssuers'         => $this->payByBankService->getIssuers($customer),
+            'payByBankActiveLogo'       => $this->payByBankService->getActiveIssuerLogo($customer),
             'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
             'creditcard'               => $creditcard,
             'creditcards'              => $creditcards,

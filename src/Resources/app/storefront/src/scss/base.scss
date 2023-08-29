@@ -38,64 +38,50 @@
     align-items: center;
     cursor: pointer;
 }
-@media screen and (max-width: 768px) {
-    .bk-paybybank-selector {
-        .bank-method-label img {
-            max-width: 25px;
-        }
-        .bank-control {
-            display: flex;
-        }
-        .bank-method-label {
-            flex: 1;
-        }
-    }
+
+.bk-paybybank-toggle-list {
+    display: flex;
+    justify-content: center;
+    height: 20px;
+    margin:10px 0;
 }
-@media screen and (min-width: 768px) {
-    .bk-paybybank-toggle-list {
+
+.bk-toggle-text {
+    margin-left: 10px;
+    font-weight: bold;
+}
+.bk-paybybank-selector {
+    .radio-group-required {
         display: flex;
-        justify-content: center;
-        height: 20px;
-        margin:10px 0;
+        flex-wrap: wrap;
+        margin-top: 10px;
     }
-
-    .bk-toggle-text {
-        margin-left: 10px;
-        font-weight: bold;
+    .bank-control {
+        flex: 20% 0;
+        min-width: 55px;
     }
-    .bk-paybybank-selector {
-        .radio-group-required {
-            display: flex;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-        .bank-control {
-            flex: 20% 0;
-            min-width: 55px;
-        }
-        .bank-method-input:checked + .bank-method-label {
-            background-color: #EDEDED;
-            color: #000;
-            border-radius: 5px;
-        }
-        .bank-method-label {
-            padding-bottom: 5px;
-            cursor: pointer;
+    .bank-method-input:checked + .bank-method-label {
+        background-color: #EDEDED;
+        color: #000;
+        border-radius: 5px;
+    }
+    .bank-method-label {
+        padding-bottom: 5px;
+        cursor: pointer;
+        display: block;
+        strong {
             display: block;
-            strong {
-                display: block;
-                text-align: center;
-                font-size: 12px;
-                flex: 100% 0 0;
-            }
+            text-align: center;
+            font-size: 12px;
+            flex: 100% 0 0;
+        }
 
-            img {
-                padding: 10px 20px;
-            }
+        img {
+            padding: 10px 20px;
         }
-        .bank-method-input {
-            display:none;
-        }
+    }
+    .bank-method-input {
+        display:none;
     }
 }
 
