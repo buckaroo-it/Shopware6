@@ -70,10 +70,7 @@ class PayByBankService
      */
     public function getIssuers(CustomerEntity $customer = null): array
     {
-        $savedBankIssuer = null;
-        if ($customer !== null) {
-            $savedBankIssuer = $customer->getCustomFieldsValue(PayByBankPaymentHandler::ISSUER_LABEL);
-        }
+        $savedBankIssuer = $this->getActiveIssuer($customer);
 
         return array_map(function ($issuer) use ($savedBankIssuer) {
             $issuer['selected'] = is_scalar($savedBankIssuer) &&
@@ -83,6 +80,13 @@ class PayByBankService
         }, $this->payByBankIssuers);
     }
 
+    public function getActiveIssuer(CustomerEntity $customer = null): ?string {
+        if ($customer === null) {
+            return null;
+        }
+        return $customer->getCustomFieldsValue(PayByBankPaymentHandler::ISSUER_LABEL);
+    }
+
     /**
      * Get issuer logo based on code
      *
@@ -90,7 +94,7 @@ class PayByBankService
      *
      * @return string
      */
-    public function getIssuerLogo(string $issuerCode): string
+    protected function getIssuerLogo(string $issuerCode): string
     {
         $img = '';
         foreach ($this->payByBankIssuers as $issuer) {
@@ -104,22 +108,14 @@ class PayByBankService
         );
     }
 
-    public function getActiveIssuerLogo(CustomerEntity $customer = null): ?string
+    public function getIssuerLogos(CustomerEntity $customer = null): array
     {
         $issuers = $this->getIssuers($customer);
-        $active = null;
-
+        $logos = [];
         foreach ($issuers as $issuer) {
-            if ($issuer['selected']) {
-                $active = $issuer;
-                break;
-            }
+            $code = $issuer['code'];
+            $logos[$code] = $this->getIssuerLogo($code);
         }
-
-        if ($active === null) {
-            return null;
-        }
-
-        return $this->getIssuerLogo($active['code']);
+        return $logos;
     }
 }

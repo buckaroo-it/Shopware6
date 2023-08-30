@@ -4,16 +4,34 @@ import Plugin from "src/plugin-system/plugin.class";
 const BK_IS_MOBILE_EVENT_NAME = "bk-is-mobile";
 const BK_SELECTED_ISSUER_EVENT_NAME = "bk-paybybank-selected";
 export default class BuckarooPayByBankSelect extends Plugin {
-  static options = {};
+  static options = {
+    issuerSelected: "",
+  };
 
   httpClient = new HttpClient();
+
+  _issuer;
 
   init() {
     this.listenToIsMobile();
     this.onPageLoad();
     this.listenToResize();
-    this.togglePayByBankList();
     this.listenToIssuerChange();
+    this.emitSavedIssuer();
+    this.togglePayByBankList();
+  }
+
+  emitSavedIssuer() {
+    if (
+      typeof this.options.issuerSelected == "string" &&
+      this.options.issuerSelected.length > 0
+    ) {
+      this._issuer = this.options.issuerSelected;
+      document.$emitter.publish(BK_SELECTED_ISSUER_EVENT_NAME, {
+        code: this.options.issuerSelected,
+        source: "other",
+      });
+    }
   }
 
   onPageLoad() {
@@ -52,29 +70,20 @@ export default class BuckarooPayByBankSelect extends Plugin {
       BK_IS_MOBILE_EVENT_NAME,
       function (event) {
         this.isMobile = event.detail.isMobile;
-        this.getFormElement();
+        this.toggleInputType();
       }.bind(this)
     );
   }
 
-  getFormElement() {
-    this.httpClient.post(
-      `/buckaroo/pybybank`,
-      JSON.stringify({
-        isMobile: this.isMobile,
-      }),
-      this.renderFormElement.bind(this)
-    );
-  }
-  renderFormElement(data) {
-    if (typeof data === "string") {
-      this.el.innerHTML = data;
-    }
-
-    if (this.isMobile === false) {
-      this.toggleElements(false);
-
-      this.setInitialLogo();
+  toggleInputType() {
+    const select = document.querySelector(".bk-paybybank-mobile");
+    const radioGroup = document.querySelector(".bk-paybybank-not-mobile");
+    if (this.isMobile && select && radioGroup) {
+      select.style.display = "block";
+      radioGroup.style.display = "none";
+    } else {
+      select.style.display = "none";
+      radioGroup.style.display = "block";
     }
   }
 
@@ -82,10 +91,9 @@ export default class BuckarooPayByBankSelect extends Plugin {
     let elementsToShow = document.querySelectorAll(
       ".bk-paybybank-selector .custom-radio:nth-child(n+6)"
     );
-    const selectedRadio = this.issuerSelectedRadio();
-    if (selectedRadio !== undefined) {
+    if (this._issuer !== undefined) {
       elementsToShow = document.querySelectorAll(
-        ".bk-paybybank-selector .custom-radio:not(." + selectedRadio + ")"
+        `.bk-paybybank-selector .custom-radio:not(.bankMethod${this._issuer})`
       );
     }
 
@@ -94,20 +102,11 @@ export default class BuckarooPayByBankSelect extends Plugin {
     });
   }
 
-  issuerSelectedRadio() {
-    let issuerRadio;
-    document.querySelectorAll(".bank-method-input").forEach((element) => {
-      if (element.checked === true) {
-        issuerRadio = element.id;
-      }
-    });
-
-    return issuerRadio;
-  }
-
   togglePayByBankList() {
     localStorage.removeItem("confirmOrderForm.payBybankMethodId");
     const self = this;
+    self.toggleElements(false);
+
     this.el.addEventListener("click", function (event) {
       const payByBankList = document.querySelector(".bk-toggle-wrap");
       if (payByBankList === null) {
@@ -132,57 +131,65 @@ export default class BuckarooPayByBankSelect extends Plugin {
   }
 
   listenToIssuerChange() {
-    const wrapper = document.querySelector(".paybybank-main-wrapper");
-    wrapper.addEventListener("change", function (event) {
-      if (event.target.name === "payBybankMethodId") {
-        if (event.target.type === "select-one") {
-          document.$emitter.publish(BK_SELECTED_ISSUER_EVENT_NAME, {
-            code: event.target.value,
-          });
-        } else {
-          const selected = document.querySelector(
-            'input[name="payBybankMethodId"]:checked'
-          );
-          if (selected !== undefined) {
-            document.$emitter.publish(BK_SELECTED_ISSUER_EVENT_NAME, {
-              code: selected.value,
-            });
-          }
-        }
-      }
+    const select = document.querySelector("#payBybankMethod");
+
+    select.addEventListener("change", function (event) {
+      document.$emitter.publish(BK_SELECTED_ISSUER_EVENT_NAME, {
+        code: event.target.value,
+        source: "select",
+      });
+    });
+
+    const radiosInGroup = document.querySelectorAll(
+      ".bk-paybybank-radio input"
+    );
+
+    radiosInGroup.forEach(function (radio) {
+      radio.addEventListener("change", function (event) {
+        document.$emitter.publish(BK_SELECTED_ISSUER_EVENT_NAME, {
+          code: event.target.value,
+          source: "radio",
+        });
+      });
     });
 
     document.$emitter.subscribe(
       BK_SELECTED_ISSUER_EVENT_NAME,
       function (event) {
-        this.setPaymentLogo(event.detail.code);
+        this.updateIssuerInput(event.detail.code);
+        this.syncInputs(event.detail);
       }.bind(this)
     );
   }
 
+  syncInputs(data) {
+    if (["radio", "other"].indexOf(data.source) !== -1) {
+      const select = document.querySelector("#payBybankMethod");
+      select.value = data.code;
+    }
 
-  setInitialLogo() {
-    document.querySelectorAll(".bank-method-input").forEach((element) => {
-        if (element.checked === true) {
-            this.setPaymentLogo(element.value);
+    if (["select", "other"].indexOf(data.source) !== -1) {
+      const radiosInGroup = document.querySelectorAll(".bk-paybybank-radio");
+      radiosInGroup.forEach(function (radioWrap) {
+        const radio = radioWrap.querySelector("input");
+        radioWrap.style.display = "none";
+        if (radio !== null) {
+          radio.checked = false;
+          if (radio.value === data.code) {
+            radio.checked = true;
+            radioWrap.style.display = "block";
+          }
         }
       });
-  }
-  setPaymentLogo(issuer) {
-    this.httpClient.post(
-      `/buckaroo/pybybank/logo`,
-      JSON.stringify({
-        issuer: issuer,
-      }),
-      this.changeLogo.bind(this)
-    );
+    }
   }
 
-  changeLogo(response) {
-    const res = JSON.parse(response);
-    if (res.error !== true && typeof res.logo === 'string') {
-        let img = document.querySelector(".bk-paybybank .payment-method-image");
-        if (img) img.src = res.logo;
+  updateIssuerInput(code) {
+    this._issuer = code;
+    const input = document.querySelector("#payBybankMethodId");
+    if (input === null) {
+      return;
     }
+    input.value = code;
   }
 }
