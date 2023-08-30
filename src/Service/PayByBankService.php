@@ -80,7 +80,8 @@ class PayByBankService
         }, $this->payByBankIssuers);
     }
 
-    public function getActiveIssuer(CustomerEntity $customer = null): ?string {
+    public function getActiveIssuer(CustomerEntity $customer = null): ?string
+    {
         if ($customer === null) {
             return null;
         }
