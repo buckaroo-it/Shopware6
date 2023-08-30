@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
-use Buckaroo\Shopware6\Service\PayByBankService;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -12,12 +11,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CartController extends StorefrontController
 {
-    protected PayByBankService $payByBankService;
-
-    public function __construct(PayByBankService $payByBankService)
-    {
-        $this->payByBankService = $payByBankService;
-    }
 
     #[Route(path: "/buckaroo/redirect", defaults: ['_routeScope' => ['storefront']], name: "frontend.action.buckaroo.redirect", options: ["seo" => false], methods: ["GET"])]
     public function redirectOnBackButtonToEditOrder(Request $request): RedirectResponse
