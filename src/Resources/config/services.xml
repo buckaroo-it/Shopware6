@@ -394,12 +394,8 @@
         </service>
 
          <service id="Buckaroo\Shopware6\Storefront\Controller\CartController" public="true">
-            <argument type="service" id="Buckaroo\Shopware6\Service\PayByBankService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
-            </call>
-            <call method="setTwig">
-                <argument type="service" id="twig"/>
             </call>
         </service>
 
