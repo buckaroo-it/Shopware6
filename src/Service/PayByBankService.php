@@ -85,7 +85,14 @@ class PayByBankService
         if ($customer === null) {
             return null;
         }
-        return $customer->getCustomFieldsValue(PayByBankPaymentHandler::ISSUER_LABEL);
+
+        $issuer = $customer->getCustomFieldsValue(PayByBankPaymentHandler::ISSUER_LABEL);
+
+        if ($issuer === null || !is_scalar($issuer)) {
+            return null;
+        }
+
+        return (string)$issuer;
     }
 
     /**

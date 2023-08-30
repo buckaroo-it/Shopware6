@@ -19,7 +19,7 @@ class IdealQrOrderEntity extends Entity
     protected ?OrderTransactionEntity $orderTransaction;
     protected int $invoice;
 
-    public function getOrder(): OrderEntity
+    public function getOrder(): ?OrderEntity
     {
         return $this->order;
     }
@@ -39,7 +39,7 @@ class IdealQrOrderEntity extends Entity
         $this->orderId = $orderId;
     }
 
-    public function getOrderTransaction(): OrderTransactionEntity
+    public function getOrderTransaction(): ?OrderTransactionEntity
     {
         return $this->orderTransaction;
     }

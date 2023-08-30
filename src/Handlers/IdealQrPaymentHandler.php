@@ -20,7 +20,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
 
     protected string $paymentClass = IdealQr::class;
 
-    protected $invoice;
+    protected int $invoice;
 
     protected IdealQrOrderRepository $idealQrRepository;
 
@@ -155,7 +155,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
     private function createIdealQrOrder(
         AsyncPaymentTransactionStruct $transaction,
         SalesChannelContext $salesChannelContext
-    ) {
+    ): void {
         $entity = $this->idealQrRepository->create($transaction->getOrderTransaction(), $salesChannelContext);
         if ($entity !== null) {
             $this->invoice = $entity->getInvoice();
