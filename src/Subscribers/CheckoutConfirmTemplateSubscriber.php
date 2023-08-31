@@ -103,6 +103,11 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'code' => 'BITSNL2A',
             'imgName' => 'yoursafe'
         ],
+        [
+            'name' => 'N26',
+            'code' => 'NTSBDEB1',
+            'imgName' => 'n26'
+        ]
     ];
 
 
