@@ -29,7 +29,7 @@
                             {% else %}
                                 <div>
                                     <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
-                                    <div class="radio-group-required" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
+                                    <div class="radio-group-required bk-ideal-radio-group" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
                                     {% for issuer in page.extensions.buckaroo.issuers %}
                                         <div class="custom-control custom-radio bank-control">
                                             <input type="radio"
