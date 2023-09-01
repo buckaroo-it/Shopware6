@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Buckaroo;
 
 use Buckaroo\BuckarooClient;
-use Buckaroo\Shopware6\Buckaroo\PayloadFragmentInterface;
 
 class Client
 {

@@ -56,13 +56,23 @@
         </service>
 
         <service id="Buckaroo\Shopware6\Service\RefundService">
-            <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
-            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
+            <argument type="service" id="translator" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\Refund\Builder"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Refund\ResponseHandler"/>
+        </service>
+        
+        <service id="Buckaroo\Shopware6\Service\Refund\Builder">
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\Refund\ResponseHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
             <argument type="service" id="translator" />
-            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\CaptureService">
