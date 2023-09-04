@@ -2,6 +2,12 @@
     "buckaroo": {
         "statuscode_failed": "Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.",
         "userCanceled": "According to our system, you have canceled the payment. If this is not the case, please contact us.",
-        "billinkRejectedMessage": "Unfortunately, it is currently not possible for you to use Billink, Please select another payment method or contact Billink."
+        "billinkRejectedMessage": "Unfortunately, it is currently not possible for you to use Billink, Please select another payment method or contact Billink.",
+        "refund": {
+            "invalid_amount": "Amount is not valid",
+            "not_supported": "Refund is not supported",
+            "already_refunded": "This order is already refunded",
+            "refunded_amount": "Buckaroo successfully refunded %amount% %currency%"
+        }
     }
 }

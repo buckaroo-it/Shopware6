@@ -2,6 +2,13 @@
     "buckaroo": {
         "statuscode_failed": "Helaas is er een fout opgetreden tijdens het verwerken van uw betaling. Probeer het opnieuw. Als deze fout zich blijft voordoen, kies dan een andere betaalmethode.",
         "userCanceled": "Volgens ons systeem heb je de betaling geannuleerd. Mocht dit niet het geval zijn, neem dan contact met ons op.",
-        "billinkRejectedMessage": "Helaas is het op dit moment voor jou niet mogelijk om gebruik te maken van Billink, selecteer een andere betaalmethode of neem contact op met Billink."
+        "billinkRejectedMessage": "Helaas is het op dit moment voor jou niet mogelijk om gebruik te maken van Billink, selecteer een andere betaalmethode of neem contact op met Billink.",
+        "refund": {
+            "general_error": "Unfortunately an error occurred while processing your return. Please try again.",
+            "invalid_amount": "Amount is not valid",
+            "not_supported": "Refund is not supported",
+            "already_refunded": "This order is already refunded",
+            "refunded_amount": "Buckaroo successfully refunded %amount% %currency%"
+        }
     }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Service\Refund;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\Service\TransactionService;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -36,7 +35,7 @@ class ResponseHandler
         $this->stateTransitionService = $stateTransitionService;
         $this->translator = $translator;
     }
-    
+
 
     /**
      * Handle response from payment engine
@@ -127,8 +126,13 @@ class ResponseHandler
 
             return [
                 'status' => true,
-                'message' => $this->translator->trans("buckaroo-payment.refund.refunded_amount"),
-                'amount' => sprintf(" %s %s", $amount, $refundData->getCurrency())
+                'message' => $this->translator->trans(
+                    "buckaroo.refund.refunded_amount",
+                    [
+                        '%amount%' => $amount,
+                        '%currency%' => $refundData->getCurrency()
+                    ]
+                )
             ];
         }
 

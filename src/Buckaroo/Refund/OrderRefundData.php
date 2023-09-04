@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Buckaroo\Refund;
 
-use Buckaroo\Shopware6\Buckaroo\Refund\Order\PaymentRecord;
+use Buckaroo\Shopware6\Buckaroo\Refund\Order\PaymentRecordInterface;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\Buckaroo\Refund\RefundDataInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
@@ -18,11 +18,11 @@ class OrderRefundData implements RefundDataInterface
 
     private float $amount;
 
-    private PaymentRecord $paymentRecord;
+    private PaymentRecordInterface $paymentRecord;
 
     public function __construct(
         OrderEntity $order,
-        PaymentRecord $paymentRecord,
+        PaymentRecordInterface $paymentRecord,
         float $amount
         )
     {
@@ -87,7 +87,7 @@ class OrderRefundData implements RefundDataInterface
         return $this->order;
     }
 
-    public function getPaymentRecord(): PaymentRecord
+    public function getPaymentRecord(): PaymentRecordInterface
     {
         return $this->paymentRecord;
     }

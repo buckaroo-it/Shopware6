@@ -248,12 +248,12 @@ Component.register('buckaroo-payment-detail', {
                         if (response[key].status) {
                             this.createNotificationSuccess({
                                 title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                                message: that.$tc(response[key].message) + response[key].amount
+                                message: response[key].message
                             });
                         } else {
                             this.createNotificationError({
                                 title: that.$tc('buckaroo-payment.settingsForm.titleError'),
-                                message: that.$tc(response[key].message)
+                                message: response[key].message
                             });
                         }
                     }

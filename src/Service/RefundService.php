@@ -11,11 +11,9 @@ use Buckaroo\Shopware6\Service\Refund\Builder;
 use Buckaroo\Shopware6\Service\TransactionService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Buckaroo\Refund\OrderRefundData;
-use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Buckaroo\Shopware6\Buckaroo\Refund\Order\PaymentRecord;
 use Buckaroo\Shopware6\Buckaroo\Refund\RefundDataInterface;
 use Buckaroo\Shopware6\Service\Refund\ResponseHandler;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 
 class RefundService
 {
@@ -132,28 +130,28 @@ class RefundService
         if ($order->getAmountTotal() <= 0) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.capture.invalid_amount")
+                'message' => $this->translator->trans("buckaroo.refund.invalid_amount")
             ];
         }
 
         if ($customFields['canRefund'] == 0) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.refund.not_supported")
+                'message' => $this->translator->trans("buckaroo.refund.not_supported")
             ];
         }
 
         if (!empty($customFields['refunded']) && ($customFields['refunded'] == 1)) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.refund.already_refunded")
+                'message' => $this->translator->trans("buckaroo.refund.already_refunded")
             ];
         }
 
         if (!isset($customFields['originalTransactionKey'])) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.general_error")
+                'message' => $this->translator->trans("buckaroo.refund.general_error")
             ];
         }
         return null;

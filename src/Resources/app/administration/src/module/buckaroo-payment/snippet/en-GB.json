@@ -90,11 +90,6 @@
             "noTaxes": "No VAT tax"
         },
         "paymentInTestMode": "The payment for this order was made in test mode",
-        "refund": {
-            "not_supported": "Refund is not supported",
-            "already_refunded": "This order is already refunded",
-            "refunded_amount": "Buckaroo success refunded"
-        },
         "capture": {
             "invalid_amount": "Amount is not valid",
             "capture_not_supported": "Capture is not supported",
