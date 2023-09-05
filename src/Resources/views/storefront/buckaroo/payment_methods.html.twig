@@ -1,4 +1,12 @@
 {% block buckaroo_payment_methods %}
+    {% if payment.translated.customFields.buckaroo_key == 'paybybank' and page.extensions.buckaroo.payByBankLogos %}
+         {% set payByBankConfig = {
+            issuerSelected: page.extensions.buckaroo.payByBankActiveIssuer,
+            issuerLogos: page.extensions.buckaroo.payByBankLogos
+        } %}
+        <div data-bk-paybybank-logo data-buckaroo-pay-by-bank-logo-options='{{ payByBankConfig|json_encode }}'></div>
+    {% endif %}
+    
     <div class="buckaroo-payment-body mb-2 ml-4">
     {% if context.paymentMethod.translated.customFields.buckaroo_key == payment.translated.customFields.buckaroo_key %}
 
@@ -53,6 +61,7 @@
                     
                     {% block buckaroo_payment_method_paybybank %}
                         {% if page.extensions.buckaroo.payByBankIssuers|length > 0 %}
+                            <div class="paybybank-main-wrapper">
                             {% if page.extensions.buckaroo.payByBankMode > 0 %}
                                 <div>
                                     <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
@@ -64,38 +73,57 @@
                                     </select>  
                                 </div>
                             {% else %}
-                                <div class="bk-paybybank-selector">
-                                    <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
-                                    <div class="radio-group-required" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
-                                    {% for issuer in page.extensions.buckaroo.payByBankIssuers %}
-                                        <div class="custom-control custom-radio bankMethod{{ issuer.code }} bank-control">
-                                            <input type="radio"
-                                            form="confirmOrderForm"
-                                            {% if issuer.selected === true %} checked {% endif %}
-                                            id="bankMethod{{ issuer.code }}"
-                                            name="payBybankMethodId"
-                                            value="{{ issuer.code }}"
-                                            class="custom-control-input bank-method-input">
-                                            <label class="custom-control-label bank-method-label" for="bankMethod{{ issuer.code }}">
-                                                <img src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/issuers/#{issuer.imgName}.svg")}}" wdith="45" class="bank-method-image" alt="{{ issuer.name }}" title="{{ issuer.name }}">
-                                                <strong>{{ issuer.name }}</strong>
-                                            </label>
-                                        </div>
-                                    {% endfor %}
+                                {% set payByBankConfig = {
+                                    issuerSelected: page.extensions.buckaroo.payByBankActiveIssuer,
+                                } %}
+                                <div data-bk-select data-buckaroo-pay-by-bank-select-options='{{ payByBankConfig|json_encode }}'>
+                                    <div class="bk-paybybank-mobile" style="display:none">
+                                        <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
+                                        <select id="payBybankMethod" form="confirmOrderForm" class="form-control" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
+                                            <option value="">{{ "buckaroo.checkout.selectBankIssuer"|trans }}</option>
+                                                {% for issuer in page.extensions.buckaroo.payByBankIssuers %}
+                                                    <option {% if issuer.selected === true %} selected {% endif %} value="{{ issuer.code }}">{{ issuer.name }}</option>
+                                                {% endfor %}
+                                        </select>  
                                     </div>
-                                </div>
-                                <div class="bk-paybybank-toggle-list">
-                                    <div class="bk-toggle-wrap">
-                                        <div class="bk-toggle-text"
-                                        text-less="{{ "buckaroo.checkout.lessBanks"|trans|sw_sanitize }}"
-                                        text-more="{{ "buckaroo.checkout.moreBanks"|trans|sw_sanitize }}"
-                                        >
-                                            {{ "buckaroo.checkout.moreBanks"|trans|sw_sanitize }}
+
+                                    <div class="bk-paybybank-not-mobile">
+                                        <div class="bk-paybybank-selector">
+                                            <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
+                                            <div class="radio-group-required">
+                                            {% for issuer in page.extensions.buckaroo.payByBankIssuers %}
+                                                <div class="custom-control custom-radio bankMethod{{ issuer.code }} bank-control bk-paybybank-radio">
+                                                    <input type="radio"
+                                                    form="confirmOrderForm"
+                                                    {% if issuer.selected === true %} checked {% endif %}
+                                                    id="bankMethod{{ issuer.code }}"
+                                                    name="payBybankMethod"
+                                                    value="{{ issuer.code }}"
+                                                    class="custom-control-input bank-method-input">
+                                                    <label class="custom-control-label bank-method-label" for="bankMethod{{ issuer.code }}">
+                                                        <img src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/issuers/#{issuer.imgName}.svg")}}" wdith="45" class="bank-method-image" alt="{{ issuer.name }}" title="{{ issuer.name }}">
+                                                        <strong>{{ issuer.name }}</strong>
+                                                    </label>
+                                                </div>
+                                            {% endfor %}
+                                            </div>
                                         </div>
-                                        <div class="bk-toggle bk-toggle-down"></div>
+                                        <div class="bk-paybybank-toggle-list">
+                                            <div class="bk-toggle-wrap">
+                                                <div class="bk-toggle-text"
+                                                text-less="{{ "buckaroo.checkout.lessBanks"|trans|sw_sanitize }}"
+                                                text-more="{{ "buckaroo.checkout.moreBanks"|trans|sw_sanitize }}"
+                                                >
+                                                    {{ "buckaroo.checkout.moreBanks"|trans|sw_sanitize }}
+                                                </div>
+                                                <div class="bk-toggle bk-toggle-down"></div>
+                                            </div>
+                                        </div>
                                     </div>
+                                    <input type="hidden" name="payBybankMethodId" id="payBybankMethodId" required="required">
                                 </div>
                             {% endif %}
+                            </div>
                         {% endif %}
                     {% endblock %}
 

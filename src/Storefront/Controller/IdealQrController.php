@@ -92,7 +92,7 @@ class IdealQrController extends StorefrontController
             return new JsonResponse(["error" => true, "message" => "Cannot find order"]);
         }
 
-        $transaction = $order->getTransactions()->last();
+        $transaction = $order->getTransactions()?->last();
 
         if ($transaction === null) {
             return new JsonResponse(["error" => true, "message" => "Cannot find transaction"]);

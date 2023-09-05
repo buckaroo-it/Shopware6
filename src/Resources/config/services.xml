@@ -440,6 +440,11 @@
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Service\PayByBankService">
+            <argument type="service" id="assets.packages"/>
+        </service>
+        
+
         <service id="Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData">
             <argument type="service" id="order_address.repository" />
             <argument type="service" id="order_customer.repository" />
@@ -472,6 +477,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
             <argument type="service" id="translator" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\PayByBankService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

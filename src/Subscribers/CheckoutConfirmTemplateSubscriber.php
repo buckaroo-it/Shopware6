@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Buckaroo\Shopware6\Handlers\PayByBankPaymentHandler;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
 use Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler;
+use Buckaroo\Shopware6\Service\PayByBankService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -110,49 +111,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     ];
 
 
-    protected array $payByBankIssuers = [
-        [
-            'name' => 'ABN AMRO',
-            'code' => 'ABNANL2A',
-            'imgName' => 'abnamro'
-        ],
-        [
-            'name' => 'ASN Bank',
-            'code' => 'ASNBNL21',
-            'imgName' => 'asnbank'
-        ],
-        [
-            'name' => 'ING',
-            'code' => 'INGBNL2A',
-            'imgName' => 'ing'
-        ],
-        [
-            'name' => 'Knab Bank',
-            'code' => 'KNABNL2H',
-            'imgName' => 'knab'
-        ],
-        [
-            'name' => 'Rabobank',
-            'code' => 'RABONL2U',
-            'imgName' => 'rabobank'
-        ],
-        [
-            'name' => 'RegioBank',
-            'code' => 'RBRBNL21',
-            'imgName' => 'regiobank'
-        ],
-        [
-            'name' => 'SNS Bank',
-            'code' => 'SNSBNL2A',
-            'imgName' => 'sns'
-        ],
-        [
-            'name' => 'N26',
-            'code' => 'NTSBDEB1',
-            'imgName' => 'n26'
-        ]
-    ];
-
     /**
      * @var array<mixed>
      */
@@ -173,17 +131,20 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected SettingsService $settingsService;
     protected UrlService $urlService;
     protected TranslatorInterface $translator;
+    protected PayByBankService $payByBankService;
 
     public function __construct(
         SalesChannelRepository $paymentMethodRepository,
         SettingsService $settingsService,
         UrlService $urlService,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        PayByBankService $payByBankService
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->settingsService = $settingsService;
         $this->urlService = $urlService;
         $this->translator = $translator;
+        $this->payByBankService = $payByBankService;
     }
 
     /**
@@ -360,7 +321,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'issuers'                  => $issuers,
             'ideal_render_mode'        => $idealRenderMode,
             'payByBankMode'            => $this->settingsService->getSetting('paybybankRenderMode', $salesChannelId),
-            'payByBankIssuers'         => $this->getPayByBankIssuers($customer),
+            'payByBankIssuers'         => $this->payByBankService->getIssuers($customer),
+            'payByBankLogos'           => $this->payByBankService->getIssuerLogos($customer),
+            'payByBankActiveIssuer'    => $this->payByBankService->getActiveIssuer($customer),
             'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
             'creditcard'               => $creditcard,
             'creditcards'              => $creditcards,
@@ -678,27 +641,5 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
 
         return $address->getPhoneNumber() === null || strlen(trim($address->getPhoneNumber())) === 0;
-    }
-
-    protected function getPayByBankIssuers(CustomerEntity $customer): array
-    {
-        $savedBankIssuer = $customer->getCustomFieldsValue(PayByBankPaymentHandler::ISSUER_LABEL);
-
-        $issuers = array_map(function ($issuer) use ($savedBankIssuer) {
-            $issuer['selected'] = is_scalar($savedBankIssuer) &&
-                isset($issuer['code']) &&
-                $issuer['code'] === $savedBankIssuer;
-            return $issuer;
-        }, $this->payByBankIssuers);
-
-
-        $savedIssuer = array_filter($issuers, function ($issuer) {
-            return $issuer['selected'];
-        });
-        $issuers = array_filter($issuers, function ($issuer) {
-            return !$issuer['selected'];
-        });
-
-        return array_merge($savedIssuer, $issuers);
     }
 }
