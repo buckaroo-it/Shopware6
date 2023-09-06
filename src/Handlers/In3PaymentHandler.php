@@ -4,15 +4,35 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Buckaroo\Shopware6\Handlers\In3V2;
 use Buckaroo\Shopware6\PaymentMethods\In3;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
 class In3PaymentHandler extends AsyncPaymentHandler
 {
     protected string $paymentClass = In3::class;
 
+    public const V2 = 'v2';
+
+    /**
+     * @var \Buckaroo\Shopware6\Handlers\In3V2
+     */
+    protected $in3v2;
+
+    /**
+     * Buckaroo constructor.
+     */
+    public function __construct(
+        AsyncPaymentService $asyncPaymentService,
+        In3V2 $in3v2
+    ) {
+        parent::__construct($asyncPaymentService);
+        $this->in3v2 = $in3v2;
+    }
 
     /**
      * Get parameters for specific payment method
@@ -30,20 +50,27 @@ class In3PaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
+
+        if ($this->isV2()) {
+            return $this->in3v2->getBody($order, $dataBag);
+        }
+
         return array_merge(
-            [
-                'invoiceDate'  => date('Y-m-d'),
-                'customerType' => $dataBag->get('buckaroo_capayablein3_orderAs', 'Debtor'),
-                'email'        =>  $this->asyncPaymentService->getCustomer($order)->getEmail(),
-                'phone'        => [
-                    'mobile' => $dataBag->get('buckaroo_in3_phone')
-                ],
-            ],
-            $this->getCustomer($dataBag, $order),
-            $this->getAddress($order),
-            $this->getCompany($dataBag),
-            $this->getArticles($order)
+            $this->getBilling($dataBag, $order),
+            $this->getShipping($dataBag, $order),
+            $this->getArticles($order),
         );
+    }
+
+
+    /**
+     * Check if is v2
+     *
+     * @return boolean
+     */
+    private function isV2(): bool
+    {
+        return $this->getSetting("capayableVersion") === self::V2;
     }
 
     /**
@@ -60,63 +87,46 @@ class In3PaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): string {
-        return 'payInInstallments';
+
+        if ($this->isV2()) {
+            return 'payInInstallments';
+        }
+
+        return parent::getMethodAction($dataBag, $salesChannelContext, $paymentCode);
     }
 
-    /**
-     * Get customer info
-     *
-     * @param RequestDataBag $dataBag
-     * @param OrderEntity $order
-     *
-     * @return array<mixed>
-     */
-    private function getCustomer(RequestDataBag $dataBag, OrderEntity $order): array
+    private function getBilling(RequestDataBag $dataBag, OrderEntity $order): array
     {
-
         $address = $this->asyncPaymentService->getBillingAddress($order);
         $customer = $this->asyncPaymentService->getCustomer($order);
 
-        return [
-            'customer' => [
-                'initials'              => $this->getInitials($address->getFirstName()),
-                'lastName'              => $address->getLastName(),
-                'email'                 => $customer->getEmail(),
-                'phone'                 => $dataBag->get('buckaroo_in3_phone'),
-                'culture'               => 'nl-NL',
-                'birthDate'             => $dataBag->get('buckaroo_capayablein3_DoB'),
-            ]
-        ];
-    }
-
-    /**
-     * Get billing address data
-     *
-     * @param OrderEntity $order
-     *
-     * @return array<mixed>
-     */
-    private function getAddress(OrderEntity $order): array
-    {
-
-        $address = $this->asyncPaymentService->getBillingAddress($order);
-        $streetData  = $this->formatRequestParamService->formatStreet($address->getStreet());
-
-        $data = [
-            'address' => [
-                'street'      => $streetData['street'],
-                'houseNumber' => $streetData['house_number'] ?? $address->getAdditionalAddressLine1(),
-                'zipcode'     => $address->getZipCode(),
-                'city'        => $address->getCity(),
-                'country'     => $this->asyncPaymentService->getCountry($address)->getIso()
-            ]
+        $recipient = [
+            'category'      => 'B2C',
+            'initials'      => $this->getInitials($address->getFirstName() . " " . $address->getLastName()),
+            'firstName'     => $address->getFirstName(),
+            'lastName'      => $address->getLastName(),
+            'birthDate'     => $dataBag->get('buckaroo_capayablein3_DoB'),
+            'customerNumber' => $customer->getCustomerNumber(),
+            'phone'         => $dataBag->get('buckaroo_in3_phone'),
+            'country'       => $this->asyncPaymentService->getCountry($address)->getIso()
         ];
 
-        if (strlen($streetData['number_addition']) > 0) {
-            $data['houseNumberAdditional'] = $streetData['number_addition'];
+        $company = $this->getCompany($dataBag);
+
+        if (count($company)) {
+            $recipient = array_merge($recipient, $company);
         }
 
-        return $data;
+        return [
+            'billing' => [
+                'recipient' => $recipient,
+                'email' => $customer->getEmail(),
+                'phone' => [
+                    'phone' => $dataBag->get('buckaroo_in3_phone'),
+                ],
+                'address' => $this->getAddress($address)
+            ]
+        ];
     }
 
     /**
@@ -131,17 +141,78 @@ class In3PaymentHandler extends AsyncPaymentHandler
         if (in_array(
             $dataBag->get('buckaroo_capayablein3_orderAs'),
             ['SoleProprietor', 'Company']
-        )
-        ) {
+        )) {
             return [
-                'company' => [
-                    'companyName'       => $dataBag->get('buckaroo_capayablein3_CompanyName'),
-                    'chamberOfCommerce' => $dataBag->get('buckaroo_capayablein3_COCNumber')
-                ]
+                'companyName'       => $dataBag->get('buckaroo_capayablein3_CompanyName'),
+                'chamberOfCommerce' => $dataBag->get('buckaroo_capayablein3_COCNumber')
             ];
         }
 
         return [];
+    }
+
+    /**
+     * Get customer info
+     *
+     * @param RequestDataBag $dataBag
+     * @param OrderEntity $order
+     *
+     * @return array<mixed>
+     */
+    private function getShipping(RequestDataBag $dataBag, OrderEntity $order): array
+    {
+
+        $address = $this->asyncPaymentService->getShippingAddress($order);
+
+        $recipient = [
+            'category'      => 'B2C',
+            'firstName'     => $address->getFirstName(),
+            'lastName'      => $address->getLastName(),
+            'careOf'        => $address->getFirstName() . ' ' . $address->getLastName()
+        ];
+
+        $company = $this->getCompany($dataBag);
+
+        if (count($company)) {
+            $recipient = array_merge(
+                $recipient,
+                $company
+            );
+        }
+
+        return [
+            'shipping' => [
+                'recipient' => $recipient,
+                'address' => $this->getAddress($address)
+            ]
+        ];
+    }
+
+    /**
+     * Get billing address data
+     *
+     * @param OrderAddressEntity $address
+     *
+     * @return array<mixed>
+     */
+    private function getAddress(OrderAddressEntity $address): array
+    {
+
+        $streetData  = $this->formatRequestParamService->formatStreet($address->getStreet());
+
+        $data = [
+            'street'      => $streetData['street'],
+            'houseNumber' => $streetData['house_number'] ?? $address->getAdditionalAddressLine1(),
+            'zipcode'     => $address->getZipCode(),
+            'city'        => $address->getCity(),
+            'country'     => $this->asyncPaymentService->getCountry($address)->getIso()
+        ];
+
+        if (strlen($streetData['number_addition']) > 0) {
+            $data['houseNumberAdditional'] = $streetData['number_addition'];
+        }
+
+        return $data;
     }
 
     /**
@@ -153,10 +224,23 @@ class In3PaymentHandler extends AsyncPaymentHandler
      */
     private function getArticles(OrderEntity $order): array
     {
+        $articles = $this->asyncPaymentService
+            ->formatRequestParamService
+            ->getProductLineData(
+                $order,
+                function ($product, $item) {
+                    return array_merge(
+                        $product,
+                        ["vatPercentage" => is_scalar($item['vatRate']) ? (float)$item['vatRate'] : 0]
+                    );
+                }
+            );
+
+
         return [
-            'articles' => $this->asyncPaymentService
-                ->formatRequestParamService
-                ->getProductLineData($order)
+            'articles' => array_filter($articles, function ($article) {
+                return (float)$article['price'] > 0;
+            })
         ];
     }
 

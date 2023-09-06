@@ -12,9 +12,9 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Buckaroo\Shopware6\Handlers\PayByBankPaymentHandler;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
 use Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler;
+use Buckaroo\Shopware6\Service\In3LogoService;
 use Buckaroo\Shopware6\Service\PayByBankService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
@@ -132,19 +132,22 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected UrlService $urlService;
     protected TranslatorInterface $translator;
     protected PayByBankService $payByBankService;
+    protected In3LogoService $in3LogoService;
 
     public function __construct(
         SalesChannelRepository $paymentMethodRepository,
         SettingsService $settingsService,
         UrlService $urlService,
         TranslatorInterface $translator,
-        PayByBankService $payByBankService
+        PayByBankService $payByBankService,
+        In3LogoService $in3LogoService
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->settingsService = $settingsService;
         $this->urlService = $urlService;
         $this->translator = $translator;
         $this->payByBankService = $payByBankService;
+        $this->in3LogoService = $in3LogoService;
     }
 
     /**
@@ -324,6 +327,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'payByBankIssuers'         => $this->payByBankService->getIssuers($customer),
             'payByBankLogos'           => $this->payByBankService->getIssuerLogos($customer),
             'payByBankActiveIssuer'    => $this->payByBankService->getActiveIssuer($customer),
+            'in3Logo'                  => $this->in3LogoService->getActiveLogo(
+                $this->settingsService->getSetting('capayableLogo', $salesChannelId),
+                $event->getSalesChannelContext()->getContext()
+            ),
             'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
             'creditcard'               => $creditcard,
             'creditcards'              => $creditcards,

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -80,9 +81,11 @@ class MediaInstaller implements InstallerInterface
      */
     public function install(InstallContext $context): void
     {
+        $mediaFolderId = $this->getOrCreateMediaFolder($context->getContext());
         foreach (GatewayHelper::GATEWAYS as $gateway) {
-            $this->addMedia(new $gateway(), $context->getContext());
+            $this->addMedia(new $gateway(), $mediaFolderId, $context->getContext());
         }
+        $this->setupAdditionalMedia($mediaFolderId, $context->getContext());
     }
 
     /**
@@ -112,30 +115,27 @@ class MediaInstaller implements InstallerInterface
         return;
     }
 
-    /**
-     * @param PaymentMethodInterface $paymentMethod
-     * @param Context $context
-     * @throws \Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException
-     * @throws \Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException
-     * @throws \Shopware\Core\Content\Media\Exception\IllegalFileNameException
-     * @throws \Shopware\Core\Content\Media\Exception\MediaNotFoundException
-     * @SuppressWarnings(PHPMD.StaticAccess)
-     */
-    private function addMedia(PaymentMethodInterface $paymentMethod, Context $context): ?string
+    private function setupAdditionalMedia(string $mediaFolderId, Context $context)
     {
-        if (!$paymentMethod->getMedia()) {
-            return null;
-        }
+        $mediaList = [
+            [
+                "path" => __DIR__  . '/../Resources/views/storefront/buckaroo/payments/in3-ideal.svg',
+                "name" => 'buckaroo-in3-ideal'
+            ]
+        ];
 
-        if ($this->hasMediaAlreadyInstalled($paymentMethod, $context)) {
-            return null;
-        }
+        foreach ($mediaList as $media) {
+            if ($mediaId = $this->getMediaId($media['name'], $context)) {
+                $this->mediaRepository->delete([['id' => $mediaId]], $context);
+            }
 
-        if (!$mediaFolderId = $this->getMediaFolderIdByName(self::BUCKAROO_FOLDER, $context)) {
-            $mediaFolderId = $this->createMediaFolderIdByName(self::BUCKAROO_FOLDER, $context);
+            $this->createMediaObject($media['path'], $mediaFolderId, $media['name'], $context);
         }
+    }
 
-        $mediaFile = $this->createMediaFile($paymentMethod->getMedia());
+    private function createMediaObject(string $path, string $mediaFolderId, string $newFileName, Context $context)
+    {
+        $mediaFile = $this->createMediaFile($path);
         $mediaId = Uuid::randomHex();
 
         $this->mediaRepository->create(
@@ -151,11 +151,49 @@ class MediaInstaller implements InstallerInterface
 
         $this->fileSaver->persistFileToMedia(
             $mediaFile,
-            $this->getMediaName($paymentMethod),
+            $newFileName,
             $mediaId,
             $context
         );
+
         return $mediaId;
+    }
+
+
+    private function getOrCreateMediaFolder(Context $context): string
+    {
+        $mediaFolderId = $this->getMediaFolderIdByName(self::BUCKAROO_FOLDER, $context);
+        if ($mediaFolderId === null) {
+            $mediaFolderId = $this->createMediaFolderIdByName(self::BUCKAROO_FOLDER, $context);
+        }
+        return $mediaFolderId;
+    }
+
+    /**
+     * @param PaymentMethodInterface $paymentMethod
+     * @param Context $context
+     * @throws \Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException
+     * @throws \Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException
+     * @throws \Shopware\Core\Content\Media\Exception\IllegalFileNameException
+     * @throws \Shopware\Core\Content\Media\Exception\MediaNotFoundException
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     */
+    private function addMedia(PaymentMethodInterface $paymentMethod, $mediaFolderId, Context $context): ?string
+    {
+        if (!$paymentMethod->getMedia()) {
+            return null;
+        }
+
+        if ($this->hasMediaAlreadyInstalled($this->getMediaName($paymentMethod), $context)) {
+            return null;
+        }
+
+        return $this->createMediaObject(
+            $paymentMethod->getMedia(),
+            $mediaFolderId,
+            $this->getMediaName($paymentMethod),
+            $context
+        );
     }
 
     private function removeMedia(PaymentMethodInterface $paymentMethod, Context $context): void
@@ -164,7 +202,7 @@ class MediaInstaller implements InstallerInterface
             return;
         }
 
-        if ($mediaId = $this->getMediaId($paymentMethod, $context)) {
+        if ($mediaId = $this->getMediaId($this->getMediaName($paymentMethod), $context)) {
             $this->mediaRepository->delete([['id' => $mediaId]], $context);
         }
     }
@@ -188,37 +226,33 @@ class MediaInstaller implements InstallerInterface
     }
 
     /**
-     * @param PaymentMethodInterface $paymentMethod
+     * @param string $mediaName
      * @param Context $context
      * @return bool
      * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
-    private function hasMediaAlreadyInstalled(PaymentMethodInterface $paymentMethod, Context $context): bool
+    private function hasMediaAlreadyInstalled(string $mediaName, Context $context): bool
     {
-        $criteria = (new Criteria())->addFilter(
-            new EqualsFilter(
-                'fileName',
-                $this->getMediaName($paymentMethod)
-            )
-        );
-
-        /** @var MediaEntity|null $media */
-        $media = $this->mediaRepository->search($criteria, $context)->first();
-
-        return $media !== null;
+        return $this->getMediaFromRepo($mediaName, $context) !== null;
     }
 
-    private function getMediaId(PaymentMethodInterface $paymentMethod, Context $context): ?string
+    private function getMediaFromRepo(string $mediaName, Context $context): ?MediaEntity
     {
         $criteria = (new Criteria())->addFilter(
             new EqualsFilter(
                 'fileName',
-                $this->getMediaName($paymentMethod)
+                $mediaName
             )
         );
 
         /** @var MediaEntity|null $media */
-        $media = $this->mediaRepository->search($criteria, $context)->first();
+        return $this->mediaRepository->search($criteria, $context)->first();
+    }
+
+    private function getMediaId(string $mediaName, Context $context): ?string
+    {
+        /** @var MediaEntity|null $media */
+        $media = $this->getMediaFromRepo($mediaName, $context);
 
         if ($media === null) {
             return null;
@@ -238,12 +272,15 @@ class MediaInstaller implements InstallerInterface
 
     public function update(UpdateContext $updateContext): void
     {
+        $context = $updateContext->getContext();
+        $mediaFolderId = $this->getOrCreateMediaFolder($context);
         foreach (GatewayHelper::GATEWAYS as $gateway) {
             $gatewayObject = new $gateway();
-            $this->removeMedia($gatewayObject, $updateContext->getContext());
-            $mediaId = $this->addMedia($gatewayObject, $updateContext->getContext());
-            $this->updateMediaOnPaymentMethod($gatewayObject, $updateContext->getContext(), $mediaId);
+            $this->removeMedia($gatewayObject, $context);
+            $mediaId = $this->addMedia($gatewayObject, $mediaFolderId, $context);
+            $this->updateMediaOnPaymentMethod($gatewayObject, $context, $mediaId);
         }
+        $this->setupAdditionalMedia($mediaFolderId, $context);
     }
 
     private function updateMediaOnPaymentMethod(
@@ -279,18 +316,18 @@ class MediaInstaller implements InstallerInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $folder));
         $criteria->setLimit(1);
-        $defaultFolder = $this->mediaFolderRepository->search($criteria, $context);
-        $defaultFolderId = null;
-        if ($defaultFolder->count() === 1) {
-            $defaultFolderId = $defaultFolder->first()->getId();
-        }
 
-        return $defaultFolderId;
+        /** @var MediaFolderEntity|null */
+        $defaultFolder = $this->mediaFolderRepository->search($criteria, $context)->first();
+        if ($defaultFolder === null) {
+            return null;
+        }
+        return $defaultFolder->getId();
     }
 
     private function createMediaFolderIdByName(string $folder, Context $context): ?string
     {
-        $defaultFolder = $this->mediaFolderRepository->create([
+        $this->mediaFolderRepository->create([
             [
                 'name' => $folder,
                 'useParentConfiguration' => false,

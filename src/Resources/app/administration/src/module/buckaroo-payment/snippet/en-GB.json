@@ -113,6 +113,7 @@
         },
         "missing_order_id": "Missing order orderId",
         "missing_transaction": "Order transaction not found",
-        "general_request_error": "Unfortunately an error occurred while processing your request. Please try again."
+        "general_request_error": "Unfortunately an error occurred while processing your request. Please try again.",
+        "in3LogoLabel":"Payment Logo:"
     }
 }
