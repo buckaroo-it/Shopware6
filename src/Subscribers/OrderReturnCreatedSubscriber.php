@@ -57,11 +57,15 @@ class OrderReturnCreatedSubscriber implements EventSubscriberInterface
 
         $criteria = new Criteria([$event->getOrderReturnId()]);
         $criteria->addAssociation('order');
+        $criteria->addAssociation('order.currency');
+        $criteria->addAssociation('order.transactions');
+        $criteria->addAssociation('order.transactions.paymentMethod');
+        $criteria->addAssociation('order.transactions.paymentMethod.plugin');
         /** @var OrderReturnEntity */
         $orderReturn = $this->orderReturnRepository->search(
             $criteria,
             $event->getContext()
-        );
+        )->first();
 
         if ($orderReturn !== null) {
             $this->createRefund($orderReturn, $event->getContext());

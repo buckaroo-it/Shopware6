@@ -32,7 +32,7 @@ class ReturnPaymentRecord implements PaymentRecordInterface
 
     public function getOriginalTransactionId(): ?string
     {
-        return $this->transactionData->get('order_transaction_id');
+        return $this->transactionData->get('transactions');
     }
 
     public function getPaymentCode(): ?string
