@@ -211,9 +211,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
             }
 
-            if ($buckarooKey === 'afterpay' && !$this->canShowAfterpay($event)) {
-                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
-            }
         }
         $event->getPage()->setPaymentMethods($paymentMethods);
     }
