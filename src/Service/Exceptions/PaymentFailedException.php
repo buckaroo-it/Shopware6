@@ -12,17 +12,17 @@ class PaymentFailedException extends PaymentProcessException
 
 
     public function __construct(
-        private readonly string $orderTransactionId,
+        string $orderTransactionId,
         string $message,
         array $parameters = [],
         ?\Throwable $e = null,
-        string $paymentStatusCode = ''
+        string $paymentStatusCode = null
     ) {
         $this->paymentStatusCode = $paymentStatusCode;
         parent::__construct($orderTransactionId, $message, $parameters, $e);
     }
     public function getErrorCode(): string
     {
-        return 'PAYMENT_FAILED_ERROR_' . $this->paymentStatusCode;
+        return 'PAYMENT_FAILED_ERROR_' . (string)$this->paymentStatusCode;
     }
 }

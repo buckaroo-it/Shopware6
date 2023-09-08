@@ -111,7 +111,7 @@ class SupportController extends StorefrontController
     }
 
     /**
-     * @param Request $request
+     * @param Context $context
      *
      * @return JsonResponse
      */

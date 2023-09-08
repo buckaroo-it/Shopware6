@@ -165,6 +165,20 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         ];
     }
 
+    private function getBuckarooKey(array $translation):?string
+    {
+        if (!isset($translation['customFields']) || is_array($translation['customFields'])) {
+            return null;
+        }
+
+        if (
+            !isset($translation['customFields']['buckaroo_key']) ||
+            !is_string($translation['customFields']['buckaroo_key'])
+        ) {
+            return null;
+        }
+        return $translation['customFields']['buckaroo_key'];
+    }
     /**
      * @param AccountEditOrderPageLoadedEvent|AccountPaymentMethodPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
      */
@@ -172,33 +186,34 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $paymentMethods = $event->getPage()->getPaymentMethods();
         foreach ($paymentMethods as $paymentMethod) {
-            if (!isset($paymentMethod->getTranslated()['customFields']['buckaroo_key'])) {
+
+            $buckarooKey = $this->getBuckarooKey($paymentMethod->getTranslated());
+            if ($buckarooKey === null) {
                 continue;
             }
-            if ($buckarooKey = $paymentMethod->getTranslated()['customFields']['buckaroo_key']) {
-                if (!$this->settingsService->getEnabled(
-                    $buckarooKey,
+
+            if (!$this->settingsService->getEnabled(
+                $buckarooKey,
+                $event->getSalesChannelContext()->getSalesChannelId()
+            )) {
+                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
+            }
+
+            if (
+                $buckarooKey === 'payperemail' &&
+                $this->isPayPermMailDisabledInFrontend(
                     $event->getSalesChannelContext()->getSalesChannelId()
-                )) {
-                    $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
-                }
+                )
+            ) {
+                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
+            }
 
-                if (
-                    $buckarooKey === 'payperemail' &&
-                    $this->isPayPermMailDisabledInFrontend(
-                        $event->getSalesChannelContext()->getSalesChannelId()
-                    )
-                ) {
-                    $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
-                }
+            if ($buckarooKey === 'afterpay' && !$this->canShowAfterpay($event)) {
+                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
+            }
 
-                if ($buckarooKey === 'afterpay' && !$this->canShowAfterpay($event)) {
-                    $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
-                }
-
-                if ($buckarooKey === 'afterpay' && !$this->canShowAfterpay($event)) {
-                    $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
-                }
+            if ($buckarooKey === 'afterpay' && !$this->canShowAfterpay($event)) {
+                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
             }
         }
         $event->getPage()->setPaymentMethods($paymentMethods);
@@ -227,9 +242,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
 
         $paymentMethodTranslation = $event->getSalesChannelContext()->getPaymentMethod()->getTranslated();
-        $buckarooKey = '';
-        if (isset($paymentMethodTranslation['customFields']['buckaroo_key'])) {
-            $buckarooKey = $paymentMethodTranslation['customFields']['buckaroo_key'];
+        $buckarooKey = $this->getBuckarooKey($paymentMethodTranslation);
+        if ($buckarooKey === null) {
+            $buckarooKey = '';
         }
 
         $currency = $this->getCurrency($event);
@@ -306,11 +321,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             ->getEntities();
 
         foreach ($paymentMethods as $paymentMethod) {
-            $method = $paymentMethod->getTranslated();
-            if (!empty($method['customFields']['buckaroo_key'])) {
-                $buckaroo_key = (string)$method['customFields']['buckaroo_key'];
-                $paymentLabels[$buckaroo_key] = $this->getBuckarooFeeLabel(
-                    $buckaroo_key,
+            $buckarooPaymentKey = $this->getBuckarooKey($paymentMethod->getTranslated());
+            if ( $buckarooPaymentKey !== null ) {
+                $paymentLabels[$buckarooPaymentKey] = $this->getBuckarooFeeLabel(
+                    $buckarooPaymentKey,
                     $currency,
                     $salesChannelId
                 );

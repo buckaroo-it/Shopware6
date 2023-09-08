@@ -42,8 +42,11 @@ class MediaInstaller implements InstallerInterface
      * MediaInstaller constructor.
      * @param ContainerInterface $container
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container = null)
     {
+        if ($container === null) {
+            throw new \Exception("Container is null", 1);
+        }
         /** @var EntityRepository */
         $mediaRepository = $this->getDependency($container, 'media.repository');
         $this->mediaRepository = $mediaRepository;
@@ -115,7 +118,7 @@ class MediaInstaller implements InstallerInterface
         return;
     }
 
-    private function setupAdditionalMedia(string $mediaFolderId, Context $context)
+    private function setupAdditionalMedia(string $mediaFolderId, Context $context): void
     {
         $mediaList = [
             [
@@ -133,7 +136,12 @@ class MediaInstaller implements InstallerInterface
         }
     }
 
-    private function createMediaObject(string $path, string $mediaFolderId, string $newFileName, Context $context)
+    private function createMediaObject(
+        string $path,
+        string $mediaFolderId,
+        string $newFileName,
+        Context $context
+    ): string
     {
         $mediaFile = $this->createMediaFile($path);
         $mediaId = Uuid::randomHex();
@@ -166,6 +174,10 @@ class MediaInstaller implements InstallerInterface
         if ($mediaFolderId === null) {
             $mediaFolderId = $this->createMediaFolderIdByName(self::BUCKAROO_FOLDER, $context);
         }
+
+        if ($mediaFolderId === null) {
+            throw new \Exception("Could not create media folder");
+        }
         return $mediaFolderId;
     }
 
@@ -178,7 +190,7 @@ class MediaInstaller implements InstallerInterface
      * @throws \Shopware\Core\Content\Media\Exception\MediaNotFoundException
      * @SuppressWarnings(PHPMD.StaticAccess)
      */
-    private function addMedia(PaymentMethodInterface $paymentMethod, $mediaFolderId, Context $context): ?string
+    private function addMedia(PaymentMethodInterface $paymentMethod, string $mediaFolderId, Context $context): ?string
     {
         if (!$paymentMethod->getMedia()) {
             return null;
@@ -245,7 +257,7 @@ class MediaInstaller implements InstallerInterface
             )
         );
 
-        /** @var MediaEntity|null $media */
+        /** @var MediaEntity|null */
         return $this->mediaRepository->search($criteria, $context)->first();
     }
 
@@ -254,11 +266,7 @@ class MediaInstaller implements InstallerInterface
         /** @var MediaEntity|null $media */
         $media = $this->getMediaFromRepo($mediaName, $context);
 
-        if ($media === null) {
-            return null;
-        }
-
-        return $media->getId();
+        return $media !== null ? $media->getId(): null;
     }
 
     /**

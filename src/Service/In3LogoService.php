@@ -142,7 +142,7 @@ class In3LogoService
     /**
      * Get active media logo
      *
-     * @param string|null $mediaId
+     * @param mixed $mediaId
      * @param Context $context
      *
      * @return MediaEntity|null
@@ -156,6 +156,7 @@ class In3LogoService
             return null;
         }
 
+        /** @var \Shopware\Core\Content\Media\MediaEntity|null */
         return $this->mediaRepository->search(new Criteria([$mediaId]), $context)->first();
     }
 }

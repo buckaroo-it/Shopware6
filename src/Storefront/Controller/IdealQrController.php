@@ -98,7 +98,13 @@ class IdealQrController extends StorefrontController
             return new JsonResponse(["error" => true, "message" => "Cannot find transaction"]);
         }
 
-        $state = $transaction->getStateMachineState()->getTechnicalName();
+        $state ='';
+        
+        if ($transaction->getStateMachineState() !== null)
+        {
+            $state = $transaction->getStateMachineState()->getTechnicalName();
+        }
+        
 
         if (
             in_array(

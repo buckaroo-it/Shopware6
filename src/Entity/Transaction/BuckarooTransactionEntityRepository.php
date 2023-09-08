@@ -74,6 +74,7 @@ class BuckarooTransactionEntityRepository
      */
     public function getById(string $id): ?BuckarooTransactionEntity
     {
+        /** @var BuckarooTransactionEntity|null */
         return $this->baseRepository
             ->search(new Criteria([$id]), Context::createDefaultContext())
             ->first();
@@ -92,6 +93,7 @@ class BuckarooTransactionEntityRepository
         $filter = ['type' => $type];
         $sortBy = ['buckarooTransactionTimestamp' => FieldSorting::DESCENDING];
 
+        /** @var BuckarooTransactionEntity|null */
         return $this->baseRepository
             ->search(
                 $this->buildCriteria(null, $filter, $sortBy),

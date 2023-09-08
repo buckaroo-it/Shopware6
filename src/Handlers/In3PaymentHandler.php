@@ -102,7 +102,7 @@ class In3PaymentHandler extends AsyncPaymentHandler
         $company = $this->getCompany($dataBag);
 
         $recipient = [
-            'category'      => count($company) ? 'B2B':'B2C',
+            'category'      => count($company) ? 'B2B' : 'B2C',
             'initials'      => $this->getInitials($address->getFirstName() . " " . $address->getLastName()),
             'firstName'     => $address->getFirstName(),
             'lastName'      => $address->getLastName(),
@@ -165,7 +165,7 @@ class In3PaymentHandler extends AsyncPaymentHandler
         $company = $this->getCompany($dataBag);
 
         $recipient = [
-            'category'      => count($company) ? 'B2B':'B2C',
+            'category'      => count($company) ? 'B2B' : 'B2C',
             'firstName'     => $address->getFirstName(),
             'lastName'      => $address->getLastName(),
             'careOf'        => $address->getFirstName() . ' ' . $address->getLastName()
@@ -237,7 +237,10 @@ class In3PaymentHandler extends AsyncPaymentHandler
 
         return [
             'articles' => array_filter($articles, function ($article) {
-                return (float)$article['price'] > 0;
+                return is_array($article) &&
+                    isset($article['price']) &&
+                    is_scalar($article['price']) &&
+                    (float)$article['price'] > 0;
             })
         ];
     }

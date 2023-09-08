@@ -433,6 +433,7 @@ class ApplePayController extends AbstractPaymentController
     {
         $criteria = new Criteria([$shippingMethodId]);
 
+        /** @var ShippingMethodEntity|null */
         return $this->shippingMethodRepository->search(
             $criteria,
             $salesChannelContext->getContext()
