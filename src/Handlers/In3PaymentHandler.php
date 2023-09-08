@@ -99,9 +99,10 @@ class In3PaymentHandler extends AsyncPaymentHandler
     {
         $address = $this->asyncPaymentService->getBillingAddress($order);
         $customer = $this->asyncPaymentService->getCustomer($order);
+        $company = $this->getCompany($dataBag);
 
         $recipient = [
-            'category'      => 'B2C',
+            'category'      => count($company) ? 'B2B':'B2C',
             'initials'      => $this->getInitials($address->getFirstName() . " " . $address->getLastName()),
             'firstName'     => $address->getFirstName(),
             'lastName'      => $address->getLastName(),
@@ -110,8 +111,6 @@ class In3PaymentHandler extends AsyncPaymentHandler
             'phone'         => $dataBag->get('buckaroo_in3_phone'),
             'country'       => $this->asyncPaymentService->getCountry($address)->getIso()
         ];
-
-        $company = $this->getCompany($dataBag);
 
         if (count($company)) {
             $recipient = array_merge($recipient, $company);
@@ -163,15 +162,14 @@ class In3PaymentHandler extends AsyncPaymentHandler
     {
 
         $address = $this->asyncPaymentService->getShippingAddress($order);
+        $company = $this->getCompany($dataBag);
 
         $recipient = [
-            'category'      => 'B2C',
+            'category'      => count($company) ? 'B2B':'B2C',
             'firstName'     => $address->getFirstName(),
             'lastName'      => $address->getLastName(),
             'careOf'        => $address->getFirstName() . ' ' . $address->getLastName()
         ];
-
-        $company = $this->getCompany($dataBag);
 
         if (count($company)) {
             $recipient = array_merge(
