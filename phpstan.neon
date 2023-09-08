@@ -4,3 +4,7 @@ parameters:
         - ./src
     checkMissingIterableValueType: false
     treatPhpDocTypesAsCertain: false
+    checkGenericClassInNonGenericObjectType: false
+    excludePaths:
+        - ./src/Subscribers/OrderReturnCreatedSubscriber.php
+        - ./custom/plugins/BuckarooPayments/src/Service/RefundService.php

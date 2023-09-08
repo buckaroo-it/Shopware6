@@ -112,7 +112,7 @@ class Builder
      *
      * @param float $amount
      * @param string $configCode
-     * @param array $transaction
+     * @param string|null $transactionMethod
      *
      * @return array<mixed>
      */

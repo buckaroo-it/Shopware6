@@ -84,7 +84,7 @@ class OrderReturnCreatedSubscriber implements EventSubscriberInterface
             $this->createNotifications($response, $context);
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
-        } 
+        }
     }
 
     private function createNotifications(array $response, Context $context)
@@ -114,6 +114,5 @@ class OrderReturnCreatedSubscriber implements EventSubscriberInterface
                 $context
             );
         }
-       
     }
 }

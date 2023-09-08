@@ -101,7 +101,7 @@ class RefundService
         Context $context,
         array $orderItems,
         string $configCode
-    ) {
+    ): array {
         $client = $this->refundBuilder->build(
             $refundData,
             $request,

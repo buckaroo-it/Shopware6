@@ -21,22 +21,41 @@ class ReturnPaymentRecord implements PaymentRecordInterface
 
     public function getId(): string
     {
+        if (!is_scalar($this->transactionData->get('id'))) {
+            return '';
+        }
         return (string)$this->transactionData->get('id');
     }
 
     public function getAmount(): float
     {
 
+        if (
+            !is_scalar($this->transactionData->get('amount')) ||
+            !is_scalar($this->transactionData->get('amount_credit'))
+        ) {
+            return 0.0;
+        }
         return (float)$this->transactionData->get('amount') - (float)$this->transactionData->get('amount_credit');
     }
 
     public function getOriginalTransactionId(): ?string
     {
+        if (
+            !is_string($this->transactionData->get('transactions'))
+        ) {
+            return null;
+        }
         return $this->transactionData->get('transactions');
     }
 
     public function getPaymentCode(): ?string
     {
+        if (
+            !is_string($this->transactionData->get('transaction_method'))
+        ) {
+            return null;
+        }
         return $this->transactionData->get('transaction_method');
     }
 

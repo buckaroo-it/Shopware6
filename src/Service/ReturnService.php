@@ -47,9 +47,9 @@ class ReturnService
         OrderEntity $order,
         Context $context,
         float $amount = null
-    ) {
+    ): array {
         if ($amount === null) {
-            return;
+            return [];
         }
         $paymentRecords = $this->getPaymentRecords($order->getId());
 

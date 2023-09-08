@@ -24,20 +24,22 @@ class OrderRefundData implements RefundDataInterface
         OrderEntity $order,
         PaymentRecordInterface $paymentRecord,
         float $amount
-        )
-    {
+    ) {
         $this->order = $order;
         $this->amount = $amount;
         $this->paymentRecord = $paymentRecord;
     }
     public function getInvoiceNumber(): string
     {
+        if ($this->order->getOrderNumber() === null) {
+            return '';
+        }
         return $this->order->getOrderNumber();
     }
 
     public function getOrderNumber(): string
     {
-        return $this->order->getOrderNumber();
+        return $this->getInvoiceNumber();
     }
 
     public function getAmount(): float
