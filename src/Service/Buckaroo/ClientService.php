@@ -62,8 +62,7 @@ class ClientService
         }
 
 
-        if 
-        (
+        if (
             $configCode === 'capayable' &&
             $this->settingsService->getSetting("capayableVersion") === In3PaymentHandler::V2
         ) {
