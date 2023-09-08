@@ -141,8 +141,7 @@ class MediaInstaller implements InstallerInterface
         string $mediaFolderId,
         string $newFileName,
         Context $context
-    ): string
-    {
+    ): string {
         $mediaFile = $this->createMediaFile($path);
         $mediaId = Uuid::randomHex();
 
@@ -266,7 +265,7 @@ class MediaInstaller implements InstallerInterface
         /** @var MediaEntity|null $media */
         $media = $this->getMediaFromRepo($mediaName, $context);
 
-        return $media !== null ? $media->getId(): null;
+        return $media !== null ? $media->getId() : null;
     }
 
     /**

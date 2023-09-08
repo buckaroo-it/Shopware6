@@ -165,7 +165,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         ];
     }
 
-    private function getBuckarooKey(array $translation):?string
+    private function getBuckarooKey(array $translation): ?string
     {
         if (!isset($translation['customFields']) || is_array($translation['customFields'])) {
             return null;
@@ -186,7 +186,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $paymentMethods = $event->getPage()->getPaymentMethods();
         foreach ($paymentMethods as $paymentMethod) {
-
             $buckarooKey = $this->getBuckarooKey($paymentMethod->getTranslated());
             if ($buckarooKey === null) {
                 continue;
@@ -322,7 +321,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         foreach ($paymentMethods as $paymentMethod) {
             $buckarooPaymentKey = $this->getBuckarooKey($paymentMethod->getTranslated());
-            if ( $buckarooPaymentKey !== null ) {
+            if ($buckarooPaymentKey !== null) {
                 $paymentLabels[$buckarooPaymentKey] = $this->getBuckarooFeeLabel(
                     $buckarooPaymentKey,
                     $currency,
