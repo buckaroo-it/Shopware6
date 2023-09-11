@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  * @method null|IdealQrOrderEntity  get(string $key)
  * @method null|IdealQrOrderEntity  first()
  * @method null|IdealQrOrderEntity  last()
+ * @extends EntityCollection<IdealQrOrderEntity>
  */
 class IdealQrOrderCollection extends EntityCollection
 {

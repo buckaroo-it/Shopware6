@@ -12,9 +12,10 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Buckaroo\Shopware6\Handlers\PayByBankPaymentHandler;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
 use Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler;
+use Buckaroo\Shopware6\Service\In3LogoService;
+use Buckaroo\Shopware6\Service\PayByBankService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -110,49 +111,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     ];
 
 
-    protected array $payByBankIssuers = [
-        [
-            'name' => 'ABN AMRO',
-            'code' => 'ABNANL2A',
-            'imgName' => 'abnamro'
-        ],
-        [
-            'name' => 'ASN Bank',
-            'code' => 'ASNBNL21',
-            'imgName' => 'asnbank'
-        ],
-        [
-            'name' => 'ING',
-            'code' => 'INGBNL2A',
-            'imgName' => 'ing'
-        ],
-        [
-            'name' => 'Knab Bank',
-            'code' => 'KNABNL2H',
-            'imgName' => 'knab'
-        ],
-        [
-            'name' => 'Rabobank',
-            'code' => 'RABONL2U',
-            'imgName' => 'rabobank'
-        ],
-        [
-            'name' => 'RegioBank',
-            'code' => 'RBRBNL21',
-            'imgName' => 'regiobank'
-        ],
-        [
-            'name' => 'SNS Bank',
-            'code' => 'SNSBNL2A',
-            'imgName' => 'sns'
-        ],
-        [
-            'name' => 'N26',
-            'code' => 'NTSBDEB1',
-            'imgName' => 'n26'
-        ]
-    ];
-
     /**
      * @var array<mixed>
      */
@@ -173,17 +131,23 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected SettingsService $settingsService;
     protected UrlService $urlService;
     protected TranslatorInterface $translator;
+    protected PayByBankService $payByBankService;
+    protected In3LogoService $in3LogoService;
 
     public function __construct(
         SalesChannelRepository $paymentMethodRepository,
         SettingsService $settingsService,
         UrlService $urlService,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        PayByBankService $payByBankService,
+        In3LogoService $in3LogoService
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->settingsService = $settingsService;
         $this->urlService = $urlService;
         $this->translator = $translator;
+        $this->payByBankService = $payByBankService;
+        $this->in3LogoService = $in3LogoService;
     }
 
     /**
@@ -201,6 +165,20 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         ];
     }
 
+    private function getBuckarooKey(array $translation): ?string
+    {
+        if (!isset($translation['customFields']) || is_array($translation['customFields'])) {
+            return null;
+        }
+
+        if (
+            !isset($translation['customFields']['buckaroo_key']) ||
+            !is_string($translation['customFields']['buckaroo_key'])
+        ) {
+            return null;
+        }
+        return $translation['customFields']['buckaroo_key'];
+    }
     /**
      * @param AccountEditOrderPageLoadedEvent|AccountPaymentMethodPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
      */
@@ -208,34 +186,31 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $paymentMethods = $event->getPage()->getPaymentMethods();
         foreach ($paymentMethods as $paymentMethod) {
-            if (!isset($paymentMethod->getTranslated()['customFields']['buckaroo_key'])) {
+            $buckarooKey = $this->getBuckarooKey($paymentMethod->getTranslated());
+            if ($buckarooKey === null) {
                 continue;
             }
-            if ($buckarooKey = $paymentMethod->getTranslated()['customFields']['buckaroo_key']) {
-                if (!$this->settingsService->getEnabled(
-                    $buckarooKey,
-                    $event->getSalesChannelContext()->getSalesChannelId()
-                )) {
-                    $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
-                }
 
-                if (
-                    $buckarooKey === 'payperemail' &&
-                    $this->isPayPermMailDisabledInFrontend(
-                        $event->getSalesChannelContext()->getSalesChannelId()
-                    )
-                ) {
-                    $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
-                }
-
-                if ($buckarooKey === 'afterpay' && !$this->canShowAfterpay($event)) {
-                    $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
-                }
-
-                if ($buckarooKey === 'afterpay' && !$this->canShowAfterpay($event)) {
-                    $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
-                }
+            if (!$this->settingsService->getEnabled(
+                $buckarooKey,
+                $event->getSalesChannelContext()->getSalesChannelId()
+            )) {
+                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
             }
+
+            if (
+                $buckarooKey === 'payperemail' &&
+                $this->isPayPermMailDisabledInFrontend(
+                    $event->getSalesChannelContext()->getSalesChannelId()
+                )
+            ) {
+                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
+            }
+
+            if ($buckarooKey === 'afterpay' && !$this->canShowAfterpay($event)) {
+                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
+            }
+
         }
         $event->getPage()->setPaymentMethods($paymentMethods);
     }
@@ -263,9 +238,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
 
         $paymentMethodTranslation = $event->getSalesChannelContext()->getPaymentMethod()->getTranslated();
-        $buckarooKey = '';
-        if (isset($paymentMethodTranslation['customFields']['buckaroo_key'])) {
-            $buckarooKey = $paymentMethodTranslation['customFields']['buckaroo_key'];
+        $buckarooKey = $this->getBuckarooKey($paymentMethodTranslation);
+        if ($buckarooKey === null) {
+            $buckarooKey = '';
         }
 
         $currency = $this->getCurrency($event);
@@ -342,11 +317,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             ->getEntities();
 
         foreach ($paymentMethods as $paymentMethod) {
-            $method = $paymentMethod->getTranslated();
-            if (!empty($method['customFields']['buckaroo_key'])) {
-                $buckaroo_key = (string)$method['customFields']['buckaroo_key'];
-                $paymentLabels[$buckaroo_key] = $this->getBuckarooFeeLabel(
-                    $buckaroo_key,
+            $buckarooPaymentKey = $this->getBuckarooKey($paymentMethod->getTranslated());
+            if ($buckarooPaymentKey !== null) {
+                $paymentLabels[$buckarooPaymentKey] = $this->getBuckarooFeeLabel(
+                    $buckarooPaymentKey,
                     $currency,
                     $salesChannelId
                 );
@@ -360,7 +334,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'issuers'                  => $issuers,
             'ideal_render_mode'        => $idealRenderMode,
             'payByBankMode'            => $this->settingsService->getSetting('paybybankRenderMode', $salesChannelId),
-            'payByBankIssuers'         => $this->getPayByBankIssuers($customer),
+            'payByBankIssuers'         => $this->payByBankService->getIssuers($customer),
+            'payByBankLogos'           => $this->payByBankService->getIssuerLogos($customer),
+            'payByBankActiveIssuer'    => $this->payByBankService->getActiveIssuer($customer),
+            'in3Logo'                  => $this->in3LogoService->getActiveLogo(
+                $this->settingsService->getSetting('capayableLogo', $salesChannelId),
+                $event->getSalesChannelContext()->getContext()
+            ),
             'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
             'creditcard'               => $creditcard,
             'creditcards'              => $creditcards,
@@ -678,27 +658,5 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
 
         return $address->getPhoneNumber() === null || strlen(trim($address->getPhoneNumber())) === 0;
-    }
-
-    protected function getPayByBankIssuers(CustomerEntity $customer): array
-    {
-        $savedBankIssuer = $customer->getCustomFieldsValue(PayByBankPaymentHandler::ISSUER_LABEL);
-
-        $issuers = array_map(function ($issuer) use ($savedBankIssuer) {
-            $issuer['selected'] = is_scalar($savedBankIssuer) &&
-                isset($issuer['code']) &&
-                $issuer['code'] === $savedBankIssuer;
-            return $issuer;
-        }, $this->payByBankIssuers);
-
-
-        $savedIssuer = array_filter($issuers, function ($issuer) {
-            return $issuer['selected'];
-        });
-        $issuers = array_filter($issuers, function ($issuer) {
-            return !$issuer['selected'];
-        });
-
-        return array_merge($savedIssuer, $issuers);
     }
 }

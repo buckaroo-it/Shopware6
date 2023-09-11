@@ -42,7 +42,7 @@ class IdealQrController extends StorefrontController
         if (!$request->query->has('orderId') || !is_string($request->get('orderId'))) {
             return $this->redirectToRoute('frontend.checkout.cart.page');
         }
-        
+
         return $this->renderStorefront('@BuckarooPayments/storefront/buckaroo/ideal-qr.html.twig', [
             'qrImage' => urldecode($request->get('qrImage')),
             'orderId' => $request->get('orderId'),
@@ -92,13 +92,18 @@ class IdealQrController extends StorefrontController
             return new JsonResponse(["error" => true, "message" => "Cannot find order"]);
         }
 
-        $transaction = $order->getTransactions()->last();
+        $transaction = $order->getTransactions()?->last();
 
         if ($transaction === null) {
             return new JsonResponse(["error" => true, "message" => "Cannot find transaction"]);
         }
 
-        $state = $transaction->getStateMachineState()->getTechnicalName();
+        $state = '';
+
+        if ($transaction->getStateMachineState() !== null) {
+            $state = $transaction->getStateMachineState()->getTechnicalName();
+        }
+
 
         if (
             in_array(

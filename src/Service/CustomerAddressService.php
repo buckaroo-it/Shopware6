@@ -54,6 +54,7 @@ class CustomerAddressService
             $this->salesChannelContext->getContext()
         );
 
+        /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity|null */
         return $this->customerAddressRepository->search(
             (new Criteria([$addressId]))->addAssociation('country'),
             $this->salesChannelContext->getContext()

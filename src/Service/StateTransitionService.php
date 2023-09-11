@@ -216,6 +216,8 @@ class StateTransitionService
         $stateName = $this->getOrderTransactionStatesNameFromAction($actionName);
         $criteria  = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $stateName));
+
+        /** @var \Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity|null */
         return $this->stateMachineRepository->search($criteria, $context)->first();
     }
 

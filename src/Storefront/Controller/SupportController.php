@@ -7,6 +7,7 @@ namespace Buckaroo\Shopware6\Storefront\Controller;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\BuckarooTransactionService;
+use Buckaroo\Shopware6\Service\In3LogoService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Buckaroo\Shopware6\Service\TestCredentialsService;
@@ -25,14 +26,18 @@ class SupportController extends StorefrontController
 
     protected BuckarooTransactionService $buckarooTransactionService;
 
+    protected In3LogoService $in3LogoService;
+
     public function __construct(
         TestCredentialsService $testCredentialsService,
         BuckarooTransactionService $buckarooTransactionService,
-        EntityRepository $taxRepository
+        EntityRepository $taxRepository,
+        In3LogoService $in3LogoService
     ) {
         $this->testCredentialsService = $testCredentialsService;
         $this->buckarooTransactionService = $buckarooTransactionService;
         $this->taxRepository = $taxRepository;
+        $this->in3LogoService = $in3LogoService;
     }
 
     /**
@@ -104,6 +109,25 @@ class SupportController extends StorefrontController
             $this->testCredentialsService->execute($request)
         );
     }
+
+    /**
+     * @param Context $context
+     *
+     * @return JsonResponse
+     */
+    #[Route(
+        path: "/api/_action/buckaroo/in3/logos",
+        defaults: ['_routeScope' => ['api']],
+        name: "api.action.buckaroo.in3.logos",
+        methods: ["POST"]
+    )]
+    public function getIn3Logos(Context $context): JsonResponse
+    {
+        return new JsonResponse(
+            ["logos" => $this->in3LogoService->getLogos($context)]
+        );
+    }
+
 
     /**
      * @return array<mixed>

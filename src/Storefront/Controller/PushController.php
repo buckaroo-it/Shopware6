@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderEntity;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -387,15 +388,19 @@ class PushController extends StorefrontController
         return true;
     }
   
-    protected function isIdealQrRequest(Request $request)
+    protected function isIdealQrRequest(Request $request): bool
     {
         $invoice = $request->request->get('brq_invoicenumber');
         return is_string($invoice) && strpos($invoice, IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX) !== false;
     }
 
-    protected function getIdealQrEntity(Request $request, SalesChannelContext $salesChannelContext)
+    protected function getIdealQrEntity(Request $request, SalesChannelContext $salesChannelContext): ?IdealQrOrderEntity
     {
-        $invoice = str_replace(IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX, "", $request->request->get('brq_invoicenumber'));
+        if (!is_scalar($request->request->get('brq_invoicenumber'))) {
+            return null;
+        }
+
+        $invoice = str_replace(IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX, "", (string)$request->request->get('brq_invoicenumber'));
         return $this->idealQrRepository->findByInvoice((int)$invoice, $salesChannelContext);
     }
 }
