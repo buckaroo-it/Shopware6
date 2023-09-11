@@ -63,7 +63,7 @@ class GiftcardsPaymentHandler extends AsyncPaymentHandler
         if (is_array($allowedgiftcards) &&
             count($allowedgiftcards)
         ) {
-            return implode(",", $allowedgiftcards);
+            return implode(",", $allowedgiftcards).",ideal,bancontactmrcash";
         }
         return 'ideal';
     }
