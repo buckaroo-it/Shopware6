@@ -89,7 +89,7 @@ class OrderReturnCreatedSubscriber implements EventSubscriberInterface
 
     private function createNotifications(array $response, Context $context)
     {
-        foreach ($response as $result) {
+        foreach($response as $result) {
 
             $status = 'danger';
             if (isset($result['status']) && $result['status'] === true) {
