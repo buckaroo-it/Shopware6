@@ -40,8 +40,12 @@ class PaymentMethodsInstaller implements InstallerInterface
      * PaymentMethodsInstaller constructor.
      * @param ContainerInterface $container
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container = null)
     {
+        if ($container === null) {
+            throw new \Exception("Container is null", 1);
+        }
+
         /** @var PluginIdProvider */
         $pluginIdProvider = $this->getDependency($container, PluginIdProvider::class);
         $this->pluginIdProvider = $pluginIdProvider;

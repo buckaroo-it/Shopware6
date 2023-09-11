@@ -104,7 +104,7 @@ class FormatRequestParamService
      *
      * @return array<mixed>
      */
-    public function getProductLineData(OrderEntity $order): array
+    public function getProductLineData(OrderEntity $order, callable $callback = null): array
     {
         $lines = $this->getOrderLinesArray($order);
 
@@ -113,12 +113,21 @@ class FormatRequestParamService
         $i = 1;
 
         foreach ($lines as $item) {
-            $productData[] = [
+            $product = [
                 'identifier'        => $item['sku'],
                 'description'       => $item['name'],
                 'quantity'          => $item['quantity'],
                 'price'             => $item['unitPrice']['value']
             ];
+
+            if (is_callable($callback)) {
+                $product = $callback($product, $item);
+            }
+
+            if (!is_array($product)) {
+                continue;
+            }
+            $productData[] = $product;
             $i++;
 
             if ($i > $max) {

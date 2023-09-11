@@ -34,8 +34,11 @@ class IdealQrOrderRepository
 
         $createdIds = $result->getPrimaryKeys(IdealQrOrderDefinition::ENTITY_NAME);
         $primaryKey = reset($createdIds);
-        $search = $this->entityRepository->search(new Criteria([$primaryKey]), $salesChannelContext->getContext());
-        return $search->getEntities()->first();
+        /** @var IdealQrOrderEntity|null */
+        return $this->entityRepository
+            ->search(new Criteria([$primaryKey]), $salesChannelContext->getContext())
+            ->getEntities()
+            ->first();
     }
 
     public function findByInvoice(
@@ -45,6 +48,7 @@ class IdealQrOrderRepository
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('invoice', $invoice));
 
+        /** @var IdealQrOrderEntity|null */
         return $this->entityRepository
             ->search($criteria, $salesChannelContext->getContext())
             ->first();

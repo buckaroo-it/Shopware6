@@ -23,16 +23,21 @@
                         <label class="custom-control-label payment-method-label"
                                for="paymentMethod{{ payment.id }}">
                             {% block component_payment_method_image %}
-                                {% if payment.media %}
+                                {% set paymentMedia = payment.media %}
+                                {% if (payment.translated.customFields.buckaroo_key === 'capayable' and page.extensions.buckaroo.in3Logo !== null) %}
+                                     {% set paymentMedia = page.extensions.buckaroo.in3Logo %}
+                                {% endif %}
+
+                                {% if paymentMedia %}
                                     {% sw_thumbnails 'payment-method-image-thumbnails' with {
-                                        media: payment.media,
+                                        media: paymentMedia,
                                         sizes: {
                                             'default': '100px'
                                         },
                                         attributes: {
                                             'class': 'payment-method-image',
-                                            'alt': (payment.media.translated.alt ?: payment.translated.name),
-                                            'title': (payment.media.translated.title ?: payment.translated.name)
+                                            'alt': (paymentMedia.translated.alt ?: payment.translated.name),
+                                            'title': (paymentMedia.translated.title ?: payment.translated.name)
                                         }
                                     } %}
                                 {% endif %}

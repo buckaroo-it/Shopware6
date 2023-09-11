@@ -8,18 +8,21 @@ use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 
 class PaymentFailedException extends PaymentProcessException
 {
-    protected ?string $statusCode;
+    protected ?string $paymentStatusCode;
 
+
+    public function __construct(
+        string $orderTransactionId,
+        string $message,
+        array $parameters = [],
+        ?\Throwable $e = null,
+        string $paymentStatusCode = null
+    ) {
+        $this->paymentStatusCode = $paymentStatusCode;
+        parent::__construct($orderTransactionId, $message, $parameters, $e);
+    }
     public function getErrorCode(): string
     {
-        return 'PAYMENT_FAILED_ERROR_' . $this->statusCode;
-    }
-
-    public function setPaymentStatusCode(?string $statusCode): void
-    {
-        if (!is_null($statusCode)) {
-            $this->statusCode = '';
-        }
-        $this->statusCode = $statusCode;
+        return 'PAYMENT_FAILED_ERROR_' . (string)$this->paymentStatusCode;
     }
 }

@@ -82,13 +82,8 @@ class BuckarooPayments extends Plugin
         parent::update($updateContext);
     }
 
-    /**
-     * @return array
-     */
-/*    public function getViewPaths(): array
+    public function executeComposerCommands(): bool
     {
-        $viewPaths = parent::getViewPaths();
-        $viewPaths[] = 'Resources/views/storefront';
-        return $viewPaths;
-    }*/
+        return true;
+    }
 }

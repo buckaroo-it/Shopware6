@@ -75,6 +75,7 @@ class TransactionService
         $filter   = new EqualsFilter('order_transaction.id', $orderTransactionId);
         $criteria->addFilter($filter);
 
+        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity|null */
         return $this->transactionRepository->search($criteria, $context)->first();
     }
 
@@ -85,6 +86,7 @@ class TransactionService
     public function getOrderTransaction(string $transactionId, Context $context): ?OrderTransactionEntity
     {
         $criteria = new Criteria([$transactionId]);
+        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity|null */
         return $this->transactionRepository->search($criteria, $context)->first();
     }
 
@@ -119,10 +121,16 @@ class TransactionService
 
         $customField = $orderTransaction->getCustomFields() ?? [];
 
+        $paymentHandler ='';
+
+        if ($transaction->getPaymentMethod() !== null) {
+            $paymentHandler = $transaction->getPaymentMethod()->getHandlerIdentifier();
+        }
+
         $method_path = str_replace(
             'Handlers',
             'PaymentMethods',
-            str_replace('PaymentHandler', '', $transaction->getPaymentMethod()->getHandlerIdentifier())
+            str_replace('PaymentHandler', '', $paymentHandler)
         );
 
         /** @var \Buckaroo\Shopware6\PaymentMethods\AbstractPayment */

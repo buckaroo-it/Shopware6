@@ -4,3 +4,4 @@ parameters:
         - ./src
     checkMissingIterableValueType: false
     treatPhpDocTypesAsCertain: false
+    checkGenericClassInNonGenericObjectType: false

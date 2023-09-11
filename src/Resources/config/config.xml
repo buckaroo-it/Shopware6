@@ -1779,6 +1779,29 @@
             </options>
         </input-field>
 
+        <input-field type="single-select">
+            <name>capayableVersion</name>
+            <label lang="en-GB">API version:</label>
+            <label lang="de-DE">API version:</label>
+            <label lang="nl-NL">API version:</label>
+			<label lang="fr-FR">API version:</label>
+            <defaultValue>v3</defaultValue>
+            <options>
+                <option>
+                    <id>v3</id>
+                    <name>V3 (In3)</name>
+                </option>
+                <option>
+                    <id>v2</id>
+                    <name>V2 (Capayable/In3)</name>
+                </option>
+            </options>
+        </input-field>
+
+        <component name="buckaroo-in3-logo">
+            <name>capayableLogo</name>
+        </component>
+
         <input-field>
             <name>capayableLabel</name>
             <label lang="en-GB">Frontend label</label>

@@ -7,6 +7,7 @@ namespace Buckaroo\Shopware6\Service;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\System\Country\CountryEntity;
 
 class ContextService
 {
@@ -35,6 +36,7 @@ class ContextService
      */
     public function getCountryCode(SalesChannelContext $salesChannelContext): ?string
     {
+        /** @var \Shopware\Core\System\Country\CountryEntity */
         $country = $this->countryRepository->search(
             new Criteria([$salesChannelContext->getSalesChannel()->getCountryId()]),
             $salesChannelContext->getContext()

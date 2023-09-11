@@ -1,0 +1,20 @@
+.bk-in3-logo {
+    margin:0 5px;
+}
+
+.bk-in3-logos-wrap-inner {
+    border: 1px solid #d1d9e0;
+    border-radius: 5px;
+    padding: 5px;
+    margin:5px 0 10px;
+    label {
+        display: flex;
+        align-items: center;
+        img {
+            max-width: 70px;
+            height: auto;
+            padding:5px 0;
+        }
+    }
+}
+
