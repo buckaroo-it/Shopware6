@@ -1756,10 +1756,6 @@
 			<label lang="fr-FR">Allowed payment methods:</label>
             <options>
                 <option>
-                    <id>alipay</id>
-                    <name>Alipay</name>
-                </option>
-                <option>
                     <id>applepay</id>
                     <name>Apple Pay</name>
                 </option>
@@ -1768,16 +1764,8 @@
                     <name>Bancontact</name>
                 </option>
                 <option>
-                    <id>transfer</id>
-                    <name>Bank Transfer</name>
-                </option>
-                <option>
                     <id>belfius</id>
                     <name>Belfius</name>
-                </option>
-                <option>
-                    <id>billink</id>
-                    <name>Billink</name>
                 </option>
                 <option>
                     <id>eps</id>
@@ -1792,10 +1780,6 @@
                     <name>iDEAL</name>
                 </option>
                 <option>
-                    <id>SepaDirectDebit</id>
-                    <name>SEPA Direct Debit</name>
-                </option>
-                <option>
                     <id>kbcpaymentbutton</id>
                     <name>KBC</name>
                 </option>
@@ -1806,14 +1790,6 @@
                 <option>
                     <id>sofortueberweisung</id>
                     <name>SOFORT</name>
-                </option>
-                <option>
-                    <id>in3</id>
-                    <name>In3</name>
-                </option>
-                <option>
-                    <id>WeChatPay</id>
-                    <name>WeChatPay</name>
                 </option>
                 <option>
                     <id>Przelewy24</id>
