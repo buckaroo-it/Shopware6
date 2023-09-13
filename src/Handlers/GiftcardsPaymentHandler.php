@@ -56,15 +56,42 @@ class GiftcardsPaymentHandler extends AsyncPaymentHandler
 
     protected function getAllowedGiftcards(string $salesChannelId): string
     {
-        $allowedgiftcards = $this->asyncPaymentService
+        $allowedGiftcards = $this->asyncPaymentService
             ->settingsService
             ->getSetting('allowedgiftcards', $salesChannelId);
 
-        if (is_array($allowedgiftcards) &&
-            count($allowedgiftcards)
+        $allowedServices = [];
+
+        if (
+            is_array($allowedGiftcards) &&
+            count($allowedGiftcards)
         ) {
-            return implode(",", $allowedgiftcards).",ideal,bancontactmrcash";
+            $allowedServices = $allowedGiftcards;
         }
-        return 'ideal';
+
+        $allowedMethods = $this->getAllowedMethods($salesChannelId);
+
+        if (count($allowedMethods) === 0) {
+            $allowedMethods = ['ideal']; //defaults to ideal payment method
+        }
+        $allowedServices = array_merge($allowedServices, $allowedMethods);
+
+        return implode(",", $allowedServices);
+    }
+
+    protected function getAllowedMethods(string $salesChannelId): array
+    {
+        $allowedMethods = $this->asyncPaymentService
+            ->settingsService
+            ->getSetting('giftcardsPaymentmethods', $salesChannelId);
+
+        if (
+            !is_array($allowedMethods) ||
+            count($allowedMethods) == 0
+        ) {
+            return [];
+        }
+
+        return $allowedMethods;
     }
 }
