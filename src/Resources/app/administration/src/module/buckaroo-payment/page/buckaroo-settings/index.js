@@ -281,16 +281,15 @@ Component.register('buckaroo-settings', {
             id.pop();
             id = id.join("");
 
-        if (fid === "capayableLogo") {
-            if (
-                config["BuckarooPayments.config.capayableVersion"] === undefined ||
-                config["BuckarooPayments.config.capayableVersion"] ==='v3') {
-                return true;
-            }
-            return false;
-        }
-
         if (config["BuckarooPayments.config." + id + "Enabled"] != undefined && config["BuckarooPayments.config." + id + "Enabled"]) {
+            if (fid === "capayableLogo") {
+                if (
+                    config["BuckarooPayments.config.capayableVersion"] === undefined ||
+                    config["BuckarooPayments.config.capayableVersion"] ==='v3') {
+                    return true;
+                }
+                return false;
+            }
             return true;
         }
 

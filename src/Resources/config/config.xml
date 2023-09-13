@@ -1748,6 +1748,99 @@
                 </option>
             </options>
         </input-field>
+        <input-field type="multi-select">
+            <name>giftcardsPaymentmethods</name>
+            <label lang="en-GB">Allowed payment methods:</label>
+            <label lang="de-DE">Allowed payment methods:</label>
+            <label lang="nl-NL">Allowed payment methods:</label>
+			<label lang="fr-FR">Allowed payment methods:</label>
+            <options>
+                <option>
+                    <id>applepay</id>
+                    <name>Apple Pay</name>
+                </option>
+                <option>
+                    <id>bancontactmrcash</id>
+                    <name>Bancontact</name>
+                </option>
+                <option>
+                    <id>belfius</id>
+                    <name>Belfius</name>
+                </option>
+                <option>
+                    <id>eps</id>
+                    <name>EPS</name>
+                </option>
+                <option>
+                    <id>postepay</id>
+                    <name>PostePay</name>
+                </option>
+                <option>
+                    <id>ideal</id>
+                    <name>iDEAL</name>
+                </option>
+                <option>
+                    <id>kbcpaymentbutton</id>
+                    <name>KBC</name>
+                </option>
+                <option>
+                    <id>paypal</id>
+                    <name>PayPal</name>
+                </option>
+                <option>
+                    <id>sofortueberweisung</id>
+                    <name>SOFORT</name>
+                </option>
+                <option>
+                    <id>Przelewy24</id>
+                    <name>Przelewy24</name>
+                </option>
+                <option>
+                    <id>mastercard</id>
+                    <name>MasterCard</name>
+                </option>
+                <option>
+                    <id>visa</id>
+                    <name>Visa</name>
+                </option>
+                <option>
+                    <id>amex</id>
+                    <name>American Express</name>
+                </option>
+                <option>
+                    <id>vpay</id>
+                    <name>VPay</name>
+                </option>
+                <option>
+                    <id>maestro</id>
+                    <name>Maestro</name>
+                </option>
+                <option>
+                    <id>visaelectron</id>
+                    <name>Visa Electron</name>
+                </option>
+                <option>
+                    <id>cartebleuevisa</id>
+                    <name>Carte Bleue</name>
+                </option>
+                <option>
+                    <id>cartebancaire</id>
+                    <name>Carte Bancaire</name>
+                </option>
+                <option>
+                    <id>dankort</id>
+                    <name>Dankort</name>
+                </option>
+                <option>
+                    <id>nexi</id>
+                    <name>Nexi</name>
+                </option>
+                <option>
+                    <id>postepay</id>
+                    <name>PostePay</name>
+                </option>
+            </options>
+        </input-field>
     </card>
     <card>
     <title>In3</title>
