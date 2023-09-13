@@ -76,9 +76,8 @@ class OrderReturnCreatedSubscriber implements EventSubscriberInterface
     {
         try {
             $response = $this->returnService->refundAll(
-                $orderReturn->getOrder(),
+                $orderReturn,
                 $context,
-                $orderReturn->getAmountTotal()
             );
 
             $this->createNotifications($response, $context);
