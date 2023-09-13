@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Buckaroo;
 
 use Buckaroo\BuckarooClient;
-use Buckaroo\Shopware6\Buckaroo\PayloadFragmentInterface;
 
 class Client
 {
@@ -141,5 +140,15 @@ class Client
     public function getAction(): string
     {
         return $this->action;
+    }
+
+    /**
+     * Get ideal issuers
+     *
+     * @return array
+     */
+    public function getIdealIssuers(): array
+    {
+        return $this->client->method($this->paymentCode)->issuers();
     }
 }
