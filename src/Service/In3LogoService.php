@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Buckaroo\Shopware6\PaymentMethods\In3;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
+use Buckaroo\Shopware6\PaymentMethods\In3;
 use Shopware\Core\Content\Media\MediaEntity;
+use Buckaroo\Shopware6\Handlers\In3PaymentHandler;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -143,15 +144,21 @@ class In3LogoService
      * Get active media logo
      *
      * @param mixed $mediaId
+     * @param mixed $version
      * @param Context $context
      *
      * @return MediaEntity|null
      */
-    public function getActiveLogo($mediaId, Context $context): ?MediaEntity
+    public function getActiveLogo($mediaId, $version, Context $context): ?MediaEntity
     {
+        if ($version === In3PaymentHandler::V2) {
+            return null;
+        }
+
         if (!is_string($mediaId)) {
             return null;
         }
+        
         if ($mediaId === self::DEFAULT_PAYMENT_ICON) {
             return null;
         }
