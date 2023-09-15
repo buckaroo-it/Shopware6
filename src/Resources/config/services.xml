@@ -512,7 +512,7 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Buckaroo\Shopware6\Subscribers\OrderReturnCreatedSubscriber">
+        <service id="Buckaroo\Shopware6\Subscribers\OrderReturnInProgressSubscriber">
             <argument type="service" id="order_return.repository" on-invalid="null"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\ReturnService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>

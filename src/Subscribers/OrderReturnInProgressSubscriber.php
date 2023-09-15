@@ -12,10 +12,11 @@ use Shopware\Administration\Notification\NotificationService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Commercial\ReturnManagement\Event\OrderReturnCreatedEvent;
+use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Shopware\Commercial\ReturnManagement\Entity\OrderReturn\OrderReturnEntity;
+use Shopware\Commercial\ReturnManagement\Entity\OrderReturn\OrderReturnStates;
 
-class OrderReturnCreatedSubscriber implements EventSubscriberInterface
+class OrderReturnInProgressSubscriber implements EventSubscriberInterface
 {
 
     protected ?EntityRepository $orderReturnRepository;
@@ -44,18 +45,24 @@ class OrderReturnCreatedSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            OrderReturnCreatedEvent::class => 'onReturnCreated',
+            'state_machine.order_return.state_changed' => 'onReturnInProgress',
         ];
     }
 
-    public function onReturnCreated(OrderReturnCreatedEvent $event)
+    public function onReturnInProgress(StateMachineStateChangeEvent $event)
     {
+        if (
+            $event->getNextState()->getTechnicalName() !== OrderReturnStates::STATE_IN_PROGRESS ||
+            $event->getPreviousState()->getTechnicalName() !== OrderReturnStates::STATE_OPEN
+        ) {
+            return;
+        }
 
         if ($this->orderReturnRepository === null) {
             return;
         }
 
-        $criteria = new Criteria([$event->getOrderReturnId()]);
+        $criteria = new Criteria([$event->getTransition()->getEntityId()]);
         $criteria->addAssociation('order');
         $criteria->addAssociation('order.currency');
         $criteria->addAssociation('order.transactions');

@@ -60,12 +60,6 @@ class ReturnService
         $order = $orderReturn->getOrder();
         $amount = $orderReturn->getAmountTotal();
 
-        $this->setOrderReturnState(
-            $orderReturn->getId(),
-            OrderReturnStates::STATE_IN_PROGRESS,
-            $context
-        );
-
         if ($amount === null) {
             return [];
         }
