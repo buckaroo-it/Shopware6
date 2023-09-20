@@ -74,7 +74,7 @@ class RefundService
         $validationErrors = $this->validate($order, $customFields);
 
         if ($validationErrors !== null) {
-            return $validationErrors;
+            return [$validationErrors];
         }
 
         $amountRemaining = $this->getMaxAmount(
@@ -90,18 +90,18 @@ class RefundService
                 break;
             }
 
-            if (is_array($item) && isset( $item['amount']) && is_scalar( $item['amount'])) {
+            if (is_array($item) && isset($item['amount']) && is_scalar($item['amount'])) {
                 $amount = $item['amount'];
 
                 $diff = $amountRemaining - $amount;
-                
+
                 if ($diff < 0) {
                     $amount = $amountRemaining;
                     $amountRemaining = 0;
                 } else {
                     $amountRemaining = round($diff, 2);
                 }
-                
+
                 $responses[] = $this->refund(
                     $request,
                     $order,
