@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Storefront\Controller\StorefrontController;
 
+
 class RefundController extends StorefrontController
 {
     private RefundService $refundService;
@@ -37,7 +38,7 @@ class RefundController extends StorefrontController
      *
      * @return JsonResponse
      */
-    #[Route(path: "/api/_action/buckaroo/refund", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.refund", methods: ["POST"])]
+    #[Route(path: "/api/_action/buckaroo/refund", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.refund", methods:["POST"])]
     public function refundBuckaroo(Request $request, Context $context): JsonResponse
     {
         $orderId = $request->get('transaction');
@@ -76,16 +77,12 @@ class RefundController extends StorefrontController
             $responses = [];
 
             if (is_array($transactionsToRefund)) {
-                foreach ($transactionsToRefund as $item) {
-                    if (is_array($item)) {
-                        $responses[] = $this->refundService->refund(
-                            $request,
-                            $order,
-                            $context,
-                            $item,
-                        );
-                    }
-                }
+                $responses = $this->refundService->refundAll(
+                    $request,
+                    $order,
+                    $context,
+                    $transactionsToRefund,
+                );
             }
             return new JsonResponse($responses);
         } catch (\Exception $exception) {
