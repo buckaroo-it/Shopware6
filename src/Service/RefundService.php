@@ -85,7 +85,6 @@ class RefundService
 
         $responses = [];
         foreach ($transactionsToRefund as $item) {
-
             if ($amountRemaining <= 0) {
                 break;
             }
