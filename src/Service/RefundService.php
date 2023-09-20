@@ -57,7 +57,7 @@ class RefundService
         OrderEntity $order,
         Context $context,
         array $transactionsToRefund
-    ) {
+    ): array {
         if (!$this->transactionService->isBuckarooPaymentMethod($order)) {
             return null;
         }
@@ -500,7 +500,10 @@ class RefundService
     ): float {
         $amount = 0;
 
-        if ($this->isCustomRefundAmount($customRefundAmount, $paymentCode)) {
+        if (
+            is_scalar($customRefundAmount) &&
+            $this->isCustomRefundAmount($customRefundAmount, $paymentCode)
+        ) {
             $amount = (float)$customRefundAmount;
         } else {
             if (!empty($orderItems) && is_array($orderItems)) {
