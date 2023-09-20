@@ -59,7 +59,7 @@ class RefundService
         array $transactionsToRefund
     ): array {
         if (!$this->transactionService->isBuckarooPaymentMethod($order)) {
-            return null;
+            return [];
         }
 
         $orderItems = $request->get('orderItems');
