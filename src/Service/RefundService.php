@@ -57,9 +57,9 @@ class RefundService
         OrderEntity $order,
         Context $context,
         array $transactionsToRefund
-    ) {
+    ): array {
         if (!$this->transactionService->isBuckarooPaymentMethod($order)) {
-            return null;
+            return [];
         }
 
         $orderItems = $request->get('orderItems');
@@ -85,13 +85,12 @@ class RefundService
 
         $responses = [];
         foreach ($transactionsToRefund as $item) {
-
             if ($amountRemaining <= 0) {
                 break;
             }
 
             if (is_array($item) && isset($item['amount']) && is_scalar($item['amount'])) {
-                $amount = $item['amount'];
+                $amount = (float)$item['amount'];
 
                 $diff = $amountRemaining - $amount;
 
@@ -100,6 +99,24 @@ class RefundService
                     $amountRemaining = 0;
                 } else {
                     $amountRemaining = round($diff, 2);
+                }
+
+                if ($amount <= 0) {
+                    continue;
+                }
+
+                if (
+                    $configCode === 'giftcards' &&
+                    $amount < (float)$item['amount'] &&
+                    isset($item['transaction_method']) &&
+                    $item['transaction_method'] !== 'fashioncheque'
+                ) {
+                    $requiredAmount = sprintf(" %s %s", (float)$item['amount'], $this->getCurrencyIso($order));
+                    $responses[] = [
+                        'status' => false,
+                        'message' => "Cannot partial refund giftcard, minimum required amount is {$requiredAmount}"
+                    ];
+                    continue;
                 }
 
                 $responses[] = $this->refund(
@@ -124,6 +141,9 @@ class RefundService
      * @param OrderEntity $order
      * @param Context $context
      * @param array<mixed> $transaction
+     * @param float $amount
+     * @param string $configCode
+     * @param array<mixed> $orderItems
      *
      * @return array<mixed>|null
      */
@@ -136,13 +156,6 @@ class RefundService
         string $configCode,
         array $orderItems
     ): ?array {
-
-
-
-        if ($amount <= 0) {
-            return [];
-        }
-
         $client = $this->getClient(
             $configCode,
             $order->getSalesChannelId()
@@ -473,7 +486,7 @@ class RefundService
         ];
     }
 
-    /* *
+    /**
      * @param array<mixed> $orderItems
      * @param mixed $customRefundAmount
      * @param string $paymentCode
@@ -487,7 +500,10 @@ class RefundService
     ): float {
         $amount = 0;
 
-        if ($this->isCustomRefundAmount($customRefundAmount, $paymentCode)) {
+        if (
+            is_scalar($customRefundAmount) &&
+            $this->isCustomRefundAmount($customRefundAmount, $paymentCode)
+        ) {
             $amount = (float)$customRefundAmount;
         } else {
             if (!empty($orderItems) && is_array($orderItems)) {

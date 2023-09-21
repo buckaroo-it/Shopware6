@@ -74,7 +74,6 @@ class RefundController extends StorefrontController
         }
         try {
             $responses = [];
-
             if (is_array($transactionsToRefund)) {
                 $responses = $this->refundService->refundAll(
                     $request,
