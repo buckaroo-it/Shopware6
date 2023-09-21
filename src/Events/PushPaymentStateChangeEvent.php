@@ -15,7 +15,7 @@ class PushPaymentStateChangeEvent implements ShopwareSalesChannelEvent
 
     protected Request $request;
 
-    protected $state;
+    protected string $state;
 
     public function __construct(
         Request $request,

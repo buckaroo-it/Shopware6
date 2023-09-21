@@ -16,7 +16,7 @@ class PushProcessingEvent implements ShopwareSalesChannelEvent
 
     protected Request $request;
 
-    protected $canContinue;
+    protected bool $canContinue;
 
     public function __construct(
         Request $request,

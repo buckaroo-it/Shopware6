@@ -358,7 +358,7 @@ class PushController extends StorefrontController
         string $orderTransactionId,
         SalesChannelContext $salesChannelContext,
         Request $request
-    ) {
+    ): void {
         $this->stateTransitionService->transitionPaymentState(
             $state,
             $orderTransactionId,
