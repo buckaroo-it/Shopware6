@@ -9,23 +9,27 @@ use Symfony\Component\HttpFoundation\Request;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 
-class PushProcessingEvent implements ShopwareSalesChannelEvent
+class PushPaymentStateChangeEvent implements ShopwareSalesChannelEvent
 {
-
     protected SalesChannelContext $salesChannelContext;
 
     protected Request $request;
 
-    protected $canContinue;
+    protected $state;
 
     public function __construct(
         Request $request,
-        SalesChannelContext $context,
-        bool $canContinue = true
+        SalesChannelContext $salesChannelContext,
+        string $state
     ) {
-        $this->salesChannelContext = $context;
         $this->request = $request;
-        $this->canContinue = $canContinue;
+        $this->salesChannelContext = $salesChannelContext;
+        $this->state = $state;
+    }
+
+    public function getRequest(): Request
+    {
+        return $this->request;
     }
 
     public function getSalesChannelContext(): SalesChannelContext
@@ -38,19 +42,8 @@ class PushProcessingEvent implements ShopwareSalesChannelEvent
         return $this->salesChannelContext->getContext();
     }
 
-    public function getRequest(): Request
+    public function getState(): string
     {
-        return $this->request;
-    }
-
-    public function canContinue(): bool
-    {
-        return $this->canContinue;
-    }
-
-    public function setCanContinue(bool $canContinue): self
-    {
-        $this->canContinue = $canContinue;
-        return $this;
+        return $this->state;
     }
 }
