@@ -125,7 +125,7 @@ class PushController extends StorefrontController
             return $this->response('buckaroo.messages.signatureIncorrect', false);
         }
 
-        // Handle event 
+        // Handle event
         $event = new PushProcessingEvent(
             $request,
             $salesChannelContext,
@@ -135,7 +135,7 @@ class PushController extends StorefrontController
         if (!$event->canContinue()) {
             return $this->response('buckaroo.messages.pushInterrupted');
         }
-        // end handle event 
+        // end handle event
 
         //skip mutationType Informational
         if ($mutationType == ResponseStatus::BUCKAROO_MUTATION_TYPE_INFORMATIONAL) {
