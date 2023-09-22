@@ -19,6 +19,7 @@
       "incorrectPin": "Card number or pin is incorrect",
       "errorOccurred": "Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.",
       "paymentUpdated": "Payment state was updated",
+      "pushInterrupted": "Push interrupted by processing event",
       "signatureIncorrect": "Signature from push is incorrect",
       "pushAlreadySend": "Push already send",
       "refundSuccessful": "Refund successful",
