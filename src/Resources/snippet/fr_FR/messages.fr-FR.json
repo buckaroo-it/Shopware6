@@ -18,7 +18,7 @@
       "incorrectPin": "Le numéro de carte ou le code PIN est incorrect",
       "errorOccurred": "Malheureusement, une erreur s'est produite lors du traitement de votre paiement. Veuillez réessayer. Si cette erreur persiste, veuillez choisir un autre mode de paiement.",
       "paymentUpdated": "L'état du paiement a été mis à jour",
-      "pushInterrupted": "Push interrupted by processing event",
+      "pushInterrupted": "PUSH interrompu par un événement de traitement",
       "signatureIncorrect": "La signature du push est incorrecte",
       "pushAlreadySend": "Push déjà envoyé",
       "refundSuccessful": "Remboursement réussi",
