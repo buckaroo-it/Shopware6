@@ -16,13 +16,14 @@ use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 
 class AsyncPaymentService
 {
     public ClientService $clientService;
-    
+
     public SettingsService $settingsService;
 
     public UrlService $urlService;
@@ -35,12 +36,14 @@ class AsyncPaymentService
      * @var LoggerInterface
      */
     public $logger;
-    
+
     public FormatRequestParamService $formatRequestParamService;
 
     public PaymentStateService $paymentStateService;
 
     protected EventDispatcherInterface $eventDispatcher;
+
+    protected CancelPaymentService $cancelPaymentService;
 
     /**
      * Buckaroo constructor.
@@ -54,7 +57,8 @@ class AsyncPaymentService
         LoggerInterface $logger,
         FormatRequestParamService $formatRequestParamService,
         PaymentStateService $paymentStateService,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        CancelPaymentService $cancelPaymentService
     ) {
 
         $this->settingsService = $settingsService;
@@ -66,6 +70,7 @@ class AsyncPaymentService
         $this->formatRequestParamService = $formatRequestParamService;
         $this->paymentStateService = $paymentStateService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->cancelPaymentService = $cancelPaymentService;
     }
 
     /**
@@ -146,9 +151,19 @@ class AsyncPaymentService
         }
         return $address;
     }
-    
+
     public function dispatchEvent(ShopwareSalesChannelEvent $event): object
     {
         return $this->eventDispatcher->dispatch($event);
+    }
+
+
+    public function cancelPreviousPayments(AsyncPaymentTransactionStruct $transaction)
+    {
+        try {
+            $this->cancelPaymentService->cancel($transaction);
+        } catch (\Throwable $th) {
+            $this->logger->error((string)$th);
+        }
     }
 }
