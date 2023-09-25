@@ -112,8 +112,11 @@ class PushController extends StorefrontController
             return $this->response($event, 'buckaroo.messages.signatureIncorrect', false);
         }
 
-        //skip mutationType Informational
-        if ($mutationType == ResponseStatus::BUCKAROO_MUTATION_TYPE_INFORMATIONAL) {
+        //skip mutationType Informational except for group transactions
+        if (
+            $mutationType == ResponseStatus::BUCKAROO_MUTATION_TYPE_INFORMATIONAL &&
+            $brqTransactionType !== "I150"
+        ) {
             $this->logger->info(__METHOD__ . "|5.1|");
             $data = [
                 'originalTransactionKey' => $originalTransactionKey,
@@ -202,6 +205,11 @@ class PushController extends StorefrontController
                 );
 
             return $this->response($event, 'buckaroo.messages.refundSuccessful');
+        }
+
+        //skip any giftcard pushes
+        if ($request->request->has('brq_relatedtransaction_partialpayment')) {
+            return $this->response($event, 'buckaroo.messages.giftcards.skippedPush');
         }
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
