@@ -78,7 +78,13 @@ class IdealIssuerService
             );
         });
 
-        return CacheValueCompressor::uncompress($issuers);
+        $result = CacheValueCompressor::uncompress($issuers);
+
+        if (is_array($result)) {
+            return $result;
+        }
+
+        return [];
     }
 
 

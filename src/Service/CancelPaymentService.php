@@ -50,10 +50,7 @@ class CancelPaymentService
         $transactions = $this->buckarooTransactionEntityRepository->findByOrderId($orderTransaction->getOrderId());
 
         foreach ($transactions as $transaction) {
-            if (
-                $transaction === null ||
-                $transaction->get('statuscode') != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS
-            ) {
+            if ($transaction->get('statuscode') != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
                 continue;
             }
 
@@ -69,6 +66,10 @@ class CancelPaymentService
                 continue;
             }
 
+            $bkTransactionId = $transaction->get('transactions');
+            if (!is_string($bkTransactionId)) {
+                continue;
+            }
 
             $client = $this->getClient(
                 'giftcards',
@@ -78,7 +79,7 @@ class CancelPaymentService
                 ->setPayload(
                     $this->getPayload(
                         $order,
-                        $transaction->get('transactions'),
+                        $bkTransactionId,
                         $orderTransaction->getId(),
                         (float)$amount,
                         $paymentCode
@@ -111,9 +112,15 @@ class CancelPaymentService
             return;
         }
 
+        $transactionId = $transaction->get('id');
+
+        if (!is_scalar($transactionId)) {
+            return;
+        }
+
         $this->buckarooTransactionEntityRepository
             ->save(
-                $transaction->get('id'),
+                (string)$transactionId,
                 [
                     'amount_credit' => (string)((float)$amountCredit + (float)$transactionAmount)
                 ],
@@ -189,8 +196,6 @@ class CancelPaymentService
 
     /**
      * Get client ip
-     *
-     * @param Request $request
      *
      * @return array<mixed>
      */
