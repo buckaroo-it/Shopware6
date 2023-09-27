@@ -95,7 +95,7 @@ class CancelPaymentService
     protected function handleResponse(
         ClientResponseInterface $response,
         BuckarooTransactionEntity $transaction
-    ) {
+    ):void {
         if (!$response->isSuccess()) {
             return;
         }
