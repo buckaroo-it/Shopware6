@@ -52,24 +52,14 @@ class RefundService
         $this->clientService = $clientService;
     }
 
-    /**
-     * Do a buckaroo refund request
-     *
-     * @param Request $request
-     * @param OrderEntity $order
-     * @param Context $context
-     * @param array<mixed> $transaction
-     *
-     * @return array<mixed>|null
-     */
-    public function refund(
+    public function refundAll(
         Request $request,
         OrderEntity $order,
         Context $context,
-        array $transaction
-    ): ?array {
+        array $transactionsToRefund
+    ): array {
         if (!$this->transactionService->isBuckarooPaymentMethod($order)) {
-            return null;
+            return [];
         }
 
         $orderItems = $request->get('orderItems');
@@ -84,20 +74,88 @@ class RefundService
         $validationErrors = $this->validate($order, $customFields);
 
         if ($validationErrors !== null) {
-            return $validationErrors;
+            return [$validationErrors];
         }
 
-        $amount = $this->determineAmount(
+        $amountRemaining = $this->getMaxAmount(
             $orderItems,
             $request->get('customRefundAmount'),
-            $transaction['amount'],
             $configCode
         );
 
-        if ($amount <= 0) {
-            return [];
+        $responses = [];
+        foreach ($transactionsToRefund as $item) {
+            if ($amountRemaining <= 0) {
+                break;
+            }
+
+            if (is_array($item) && isset($item['amount']) && is_scalar($item['amount'])) {
+                $amount = (float)$item['amount'];
+
+                $diff = $amountRemaining - $amount;
+
+                if ($diff < 0) {
+                    $amount = $amountRemaining;
+                    $amountRemaining = 0;
+                } else {
+                    $amountRemaining = round($diff, 2);
+                }
+
+                if ($amount <= 0) {
+                    continue;
+                }
+
+                if (
+                    $configCode === 'giftcards' &&
+                    $amount < (float)$item['amount'] &&
+                    isset($item['transaction_method']) &&
+                    $item['transaction_method'] !== 'fashioncheque'
+                ) {
+                    $requiredAmount = sprintf(" %s %s", (float)$item['amount'], $this->getCurrencyIso($order));
+                    $responses[] = [
+                        'status' => false,
+                        'message' => "Cannot partial refund giftcard, minimum required amount is {$requiredAmount}"
+                    ];
+                    continue;
+                }
+
+                $responses[] = $this->refund(
+                    $request,
+                    $order,
+                    $context,
+                    $item,
+                    $amount,
+                    $configCode,
+                    $orderItems
+                );
+            }
         }
 
+        return $responses;
+    }
+
+    /**
+     * Do a buckaroo refund request
+     *
+     * @param Request $request
+     * @param OrderEntity $order
+     * @param Context $context
+     * @param array<mixed> $transaction
+     * @param float $amount
+     * @param string $configCode
+     * @param array<mixed> $orderItems
+     *
+     * @return array<mixed>|null
+     */
+    public function refund(
+        Request $request,
+        OrderEntity $order,
+        Context $context,
+        array $transaction,
+        float $amount,
+        string $configCode,
+        array $orderItems
+    ): ?array {
         $client = $this->getClient(
             $configCode,
             $order->getSalesChannelId()
@@ -429,25 +487,22 @@ class RefundService
     }
 
     /**
-     *
      * @param array<mixed> $orderItems
      * @param mixed $customRefundAmount
-     * @param mixed $transactionAmount
      * @param string $paymentCode
      *
      * @return float
      */
-    public function determineAmount(
+    public function getMaxAmount(
         array $orderItems,
         $customRefundAmount,
-        $transactionAmount,
         string $paymentCode
     ): float {
         $amount = 0;
+
         if (
             is_scalar($customRefundAmount) &&
-            (float)$customRefundAmount > 0 &&
-            !in_array($paymentCode, ['afterpay', 'Billink', 'klarnakp'])
+            $this->isCustomRefundAmount($customRefundAmount, $paymentCode)
         ) {
             $amount = (float)$customRefundAmount;
         } else {
@@ -458,16 +513,25 @@ class RefundService
                     }
                 }
             }
-
-            if (is_scalar($transactionAmount) && $amount > (float)$transactionAmount) {
-                $amount = (float)$transactionAmount;
-            }
-        }
-
-        if ($amount <= 0 && is_scalar($transactionAmount)) {
-            $amount = (float)$transactionAmount; //backward compatibility only or in case no $orderItems was passed
         }
         return $amount;
+    }
+
+
+
+    /**
+     * Is custom refund amount
+     *
+     * @param mixed $customRefundAmount
+     * @param string $paymentCode
+     *
+     * @return boolean
+     */
+    private function isCustomRefundAmount($customRefundAmount, string $paymentCode)
+    {
+        return is_scalar($customRefundAmount) &&
+            (float)$customRefundAmount > 0 &&
+            !in_array($paymentCode, ['afterpay', 'Billink', 'klarnakp']);
     }
 
     /**

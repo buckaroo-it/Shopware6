@@ -14,6 +14,7 @@
       "incorrectPin": "Kartennummer oder PIN ist falsch",
       "errorOccurred": "Leider ist bei der Verarbeitung Ihrer Zahlung ein Fehler aufgetreten. Bitte versuchen Sie es erneut. Sollte dieser Fehler weiterhin bestehen, wählen Sie bitte eine andere Zahlungsmethode.",
       "paymentUpdated": "Zahlungsstatus wurde aktualisiert",
+      "pushInterrupted": "Push interrupted by processing event",
       "signatureIncorrect": "Signatur von Push ist falsch",
       "pushAlreadySend": "Push bereits senden",
       "refundSuccessful": "Erstattung erfolgreich",

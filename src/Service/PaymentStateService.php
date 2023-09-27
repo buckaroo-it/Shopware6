@@ -47,6 +47,7 @@ class PaymentStateService
 
         if (
             $request->query->getBoolean('cancel') ||
+            $this->isGroupTransactionCancel($request) ||
             $this->isPayPalPending($request) ||
             $this->isCanceledPaymentRequest($request)
         ) {
@@ -80,6 +81,17 @@ class PaymentStateService
                 $this->getPaymentStatusCode($request)
             );
         }
+    }
+
+    /**
+     * Check if its a canceled group transaction
+     *
+     * @param Request $request
+     *
+     * @return boolean
+     */
+    private function isGroupTransactionCancel(Request $request): bool {
+        return $request->query->get('scenario') === 'Cancellation';
     }
 
     /**

@@ -74,18 +74,13 @@ class RefundController extends StorefrontController
         }
         try {
             $responses = [];
-
             if (is_array($transactionsToRefund)) {
-                foreach ($transactionsToRefund as $item) {
-                    if (is_array($item)) {
-                        $responses[] = $this->refundService->refund(
-                            $request,
-                            $order,
-                            $context,
-                            $item,
-                        );
-                    }
-                }
+                $responses = $this->refundService->refundAll(
+                    $request,
+                    $order,
+                    $context,
+                    $transactionsToRefund,
+                );
             }
             return new JsonResponse($responses);
         } catch (\Exception $exception) {

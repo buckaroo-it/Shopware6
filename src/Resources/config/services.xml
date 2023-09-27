@@ -79,6 +79,12 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Service\CancelPaymentService">
+            <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
+        </service>
+
         <service id="Buckaroo\Shopware6\Service\CaptureService">
             <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
@@ -148,6 +154,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\PaymentStateService"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CancelPaymentService"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Events\OrderStateChangeEvent">

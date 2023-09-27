@@ -101,7 +101,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
     private function getBuckarooKey(array $translation): ?string
     {
-        if (!isset($translation['customFields']) || is_array($translation['customFields'])) {
+        if (!isset($translation['customFields']) || !is_array($translation['customFields'])) {
             return null;
         }
 
@@ -271,6 +271,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'payByBankActiveIssuer'    => $this->payByBankService->getActiveIssuer($customer),
             'in3Logo'                  => $this->in3LogoService->getActiveLogo(
                 $this->settingsService->getSetting('capayableLogo', $salesChannelId),
+                $this->settingsService->getSetting('capayableVersion', $salesChannelId),
                 $event->getSalesChannelContext()->getContext()
             ),
             'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
