@@ -181,7 +181,7 @@ class AsyncPaymentService
         ) === 1;
     }
 
-    public function cancelPreviousPayments(AsyncPaymentTransactionStruct $transaction)
+    public function cancelPreviousPayments(AsyncPaymentTransactionStruct $transaction): void
     {
         try {
             $this->cancelPaymentService->cancel($transaction);

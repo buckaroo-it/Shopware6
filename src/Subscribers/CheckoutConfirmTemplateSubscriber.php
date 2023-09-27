@@ -6,16 +6,17 @@ namespace Buckaroo\Shopware6\Subscribers;
 
 use Buckaroo\Shopware6\Service\UrlService;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Buckaroo\Shopware6\Service\In3LogoService;
 use Buckaroo\Shopware6\Service\SettingsService;
+use Buckaroo\Shopware6\Service\PayByBankService;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Buckaroo\Shopware6\Service\IdealIssuerService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
 use Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler;
-use Buckaroo\Shopware6\Service\In3LogoService;
-use Buckaroo\Shopware6\Service\PayByBankService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -39,76 +40,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      */
     private SalesChannelRepository $paymentMethodRepository;
 
-    /**
-     * @var array<mixed>
-     */
-    protected array $issuers = [
-        [
-            'name' => 'ABN AMRO',
-            'code' => 'ABNANL2A',
-            'imgName' => 'abnamro'
-        ],
-        [
-            'name' => 'ASN Bank',
-            'code' => 'ASNBNL21',
-            'imgName' => 'asnbank'
-        ],
-        [
-            'name' => 'Bunq Bank',
-            'code' => 'BUNQNL2A',
-            'imgName' => 'bunq'
-        ],
-        [
-            'name' => 'ING',
-            'code' => 'INGBNL2A',
-            'imgName' => 'ing'
-        ],
-        [
-            'name' => 'Knab Bank',
-            'code' => 'KNABNL2H',
-            'imgName' => 'knab'
-        ],
-        [
-            'name' => 'Rabobank',
-            'code' => 'RABONL2U',
-            'imgName' => 'rabobank'
-        ],
-        [
-            'name' => 'RegioBank',
-            'code' => 'RBRBNL21',
-            'imgName' => 'regiobank'
-        ],
-        [
-            'name' => 'SNS Bank',
-            'code' => 'SNSBNL2A',
-            'imgName' => 'sns'
-        ],
-        [
-            'name' => 'Triodos Bank',
-            'code' => 'TRIONL2U',
-            'imgName' => 'triodos'
-        ],
-        [
-            'name' => 'Van Lanschot',
-            'code' => 'FVLBNL22',
-            'imgName' => 'vanlanschot'
-        ],
-        [
-            'name' => 'Revolut',
-            'code' => 'REVOLT21',
-            'imgName' => 'revolut'
-        ],
-        [
-            'name' => 'YourSafe',
-            'code' => 'BITSNL2A',
-            'imgName' => 'yoursafe'
-        ],
-        [
-            'name' => 'N26',
-            'code' => 'NTSBDEB1',
-            'imgName' => 'n26'
-        ]
-    ];
+    private IdealIssuerService $idealIssuerService;
 
 
     /**
@@ -140,7 +72,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         UrlService $urlService,
         TranslatorInterface $translator,
         PayByBankService $payByBankService,
-        In3LogoService $in3LogoService
+        In3LogoService $in3LogoService,
+        IdealIssuerService $idealIssuerService
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->settingsService = $settingsService;
@@ -148,6 +81,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $this->translator = $translator;
         $this->payByBankService = $payByBankService;
         $this->in3LogoService = $in3LogoService;
+        $this->idealIssuerService = $idealIssuerService;
     }
 
     /**
@@ -246,7 +180,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
 
         $struct             = new BuckarooStruct();
-        $issuers            = $this->issuers;
         $idealRenderMode    = $this->getIdealRenderMode($salesChannelId);
         $lastUsedCreditcard = $customer->getCustomFieldsValue(CreditcardPaymentHandler::ISSUER_LABEL);
 
@@ -330,7 +263,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct->assign([
             'currency'                 => $currency->getIsoCode(),
-            'issuers'                  => $issuers,
+            'issuers'                  => $this->idealIssuerService->get($salesChannelId),
             'ideal_render_mode'        => $idealRenderMode,
             'payByBankMode'            => $this->settingsService->getSetting('paybybankRenderMode', $salesChannelId),
             'payByBankIssuers'         => $this->payByBankService->getIssuers($customer),

@@ -45,6 +45,11 @@
             <argument type="service" id="order_transaction.repository"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Service\IdealIssuerService">
+            <argument type="service" id="cache.object" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
+        </service>
+
          <service id="Buckaroo\Shopware6\Service\In3LogoService">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="payment_method.repository"/>
@@ -496,6 +501,7 @@
             <argument type="service" id="translator" />
             <argument type="service" id="Buckaroo\Shopware6\Service\PayByBankService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\In3LogoService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\IdealIssuerService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

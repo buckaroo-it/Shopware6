@@ -30,7 +30,7 @@
                                     <select name="bankMethodId" id="bankMethodId" form="confirmOrderForm" required="required" class="form-control" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
                                         <option value="">{{ "buckaroo.checkout.selectBankIssuer"|trans }}</option>
                                             {% for issuer in page.extensions.buckaroo.issuers %}
-                                                <option value="{{ issuer.code }}">{{ issuer.name }}</option>
+                                                <option value="{{ issuer.id }}">{{ issuer.name }}</option>
                                             {% endfor %}
                                     </select>  
                                 </div>
@@ -42,9 +42,9 @@
                                         <div class="custom-control custom-radio bank-control">
                                             <input type="radio"
                                             form="confirmOrderForm"
-                                            id="bankMethod{{ issuer.code }}"
+                                            id="bankMethod{{ issuer.id }}"
                                             name="bankMethodId"
-                                            value="{{ issuer.code }}"
+                                            value="{{ issuer.id }}"
                                             class="custom-control-input bank-method-input">
                                             <label class="custom-control-label bank-method-label" for="bankMethod{{ issuer.code }}">
                                                 <img src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/issuers/#{issuer.imgName}.svg")}}" class="bank-method-image" width="25"  alt="{{ issuer.name }}" title="{{ issuer.name }}">

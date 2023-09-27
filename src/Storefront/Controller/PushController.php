@@ -234,7 +234,7 @@ class PushController extends StorefrontController
 
         //skip any giftcard pushes
         if ($request->request->has('brq_relatedtransaction_partialpayment')) {
-            return $this->response($event, 'buckaroo.messages.giftcards.skippedPush');
+            return $this->response('buckaroo.messages.giftcards.skippedPush');
         }
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
