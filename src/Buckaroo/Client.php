@@ -149,7 +149,6 @@ class Client
      */
     public function getIdealIssuers(): array
     {
-         // @phpstan-ignore-line
-        return $this->client->method($this->paymentCode)->issuers();
+        return $this->client->method($this->paymentCode)->issuers(); // @phpstan-ignore-line
     }
 }
