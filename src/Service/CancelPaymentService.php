@@ -138,7 +138,7 @@ class CancelPaymentService
      * @param string $orderTransactionId
      * @param float $amount
      * @param string $transactionKey
-     * 
+     *
      * @return array<mixed>
      */
     private function getPayload(

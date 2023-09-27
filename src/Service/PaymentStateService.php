@@ -90,7 +90,8 @@ class PaymentStateService
      *
      * @return boolean
      */
-    private function isGroupTransactionCancel(Request $request): bool {
+    private function isGroupTransactionCancel(Request $request): bool
+    {
         return $request->query->get('scenario') === 'Cancellation';
     }
 
