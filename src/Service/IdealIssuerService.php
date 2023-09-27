@@ -61,9 +61,10 @@ class IdealIssuerService
         $this->clientService = $clientService;
     }
 
-
     /**
      * Get a list of issuers
+     *
+     * @param string $salesChannelId
      *
      * @return array
      */
@@ -88,16 +89,19 @@ class IdealIssuerService
         return [];
     }
 
-
-
+    /**
+     * Do request to the payment engine
+     *
+     * @param string $salesChannelId
+     *
+     * @return array
+     */
     private function requestIssuers(string $salesChannelId): array
     {
         return $this->clientService
             ->get('ideal', $salesChannelId)
             ->getIdealIssuers();
     }
-
-
 
     /**
      * Add logo to the list of issuer
