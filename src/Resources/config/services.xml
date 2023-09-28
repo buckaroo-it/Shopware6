@@ -134,10 +134,10 @@
 
         <service id="Buckaroo\Shopware6\Service\Buckaroo\ClientService">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument>%kernel.shopware_version%</argument>
         </service>
         
         <service id="Buckaroo\Shopware6\Helpers\CheckoutHelper">
-            <argument>%kernel.shopware_version%</argument>
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="order.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
