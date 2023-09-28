@@ -45,7 +45,7 @@ class Client
                 $shopwareVersion,
                 'Buckaroo',
                 'BuckarooPayments',
-                InstalledVersions::getVersion('buckaroo/shopware6') 
+                InstalledVersions::getVersion('buckaroo/shopware6')
             )
         );
         $this->paymentCode = $paymentCode;
