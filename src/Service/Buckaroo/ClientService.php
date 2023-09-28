@@ -15,12 +15,11 @@ class ClientService
     protected SettingsService $settingsService;
 
     protected string $shopwareVersion;
-    
+
     public function __construct(
         SettingsService $settingsService,
         string $shopwareVersion
-    )
-    {
+    ) {
         $this->settingsService = $settingsService;
         $this->shopwareVersion = $shopwareVersion;
     }
