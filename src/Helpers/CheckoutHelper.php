@@ -17,7 +17,6 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CheckoutHelper
 {
-    private string $shopwareVersion;
 
     private SettingsService $settingsService;
 
@@ -28,13 +27,11 @@ class CheckoutHelper
     protected RequestStack $requestStack;
 
     public function __construct(
-        string $shopwareVersion,
         SettingsService $settingsService,
         EntityRepository $orderRepository,
         BuckarooTransactionEntityRepository $buckarooTransactionEntityRepository,
         RequestStack $requestStack
     ) {
-        $this->shopwareVersion                     = $shopwareVersion;
         $this->settingsService                     = $settingsService;
         $this->orderRepository                     = $orderRepository;
         $this->buckarooTransactionEntityRepository = $buckarooTransactionEntityRepository;
@@ -46,10 +43,6 @@ class CheckoutHelper
         return $this->requestStack->getSession();
     }
 
-    public function getShopwareVersion(): string
-    {
-        return $this->shopwareVersion;
-    }
     /**
      *
      * @param string $orderId

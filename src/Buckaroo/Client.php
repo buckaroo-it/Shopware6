@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Buckaroo;
 
 use Buckaroo\BuckarooClient;
+use Buckaroo\Config\DefaultConfig;
+use Composer\InstalledVersions;
 
 class Client
 {
@@ -27,12 +29,24 @@ class Client
         string $websiteKey,
         string $secretKey,
         string $paymentCode,
-        string $mode = 'live'
+        string $mode = 'live',
+        string $shopwareVersion = 'unknown'
     ) {
         $this->client = new BuckarooClient(
-            $websiteKey,
-            $secretKey,
-            $mode
+            new DefaultConfig(
+                $websiteKey,
+                $secretKey,
+                $mode,
+                null,
+                null,
+                null,
+                null,
+                'Shopware (6)',
+                $shopwareVersion,
+                'Buckaroo',
+                'BuckarooPayments',
+                InstalledVersions::getVersion('buckaroo/shopware6') 
+            )
         );
         $this->paymentCode = $paymentCode;
     }

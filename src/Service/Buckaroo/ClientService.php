@@ -14,9 +14,15 @@ class ClientService
 {
     protected SettingsService $settingsService;
 
-    public function __construct(SettingsService $settingsService)
+    protected string $shopwareVersion;
+    
+    public function __construct(
+        SettingsService $settingsService,
+        string $shopwareVersion
+    )
     {
         $this->settingsService = $settingsService;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     /**
@@ -37,7 +43,8 @@ class ClientService
                 $this->settingsService->getSettingAsString('websiteKey', $salesChannelId),
                 $this->settingsService->getSettingAsString('secretKey', $salesChannelId),
                 $this->getPaymentCode($configMethodCode, $salesChannelId),
-                $mode  == 'live' ? Config::LIVE_MODE : Config::TEST_MODE
+                $mode  == 'live' ? Config::LIVE_MODE : Config::TEST_MODE,
+                $this->shopwareVersion
             );
         } catch (\Throwable $th) {
             throw new ClientInitException("Cannot initiate buckaroo sdk client", 0, $th);
