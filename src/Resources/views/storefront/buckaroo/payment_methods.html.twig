@@ -77,19 +77,11 @@
                                     issuerSelected: page.extensions.buckaroo.payByBankActiveIssuer,
                                 } %}
                                 <div data-bk-select data-buckaroo-pay-by-bank-select-options='{{ payByBankConfig|json_encode }}'>
-                                    <div class="bk-paybybank-mobile" style="display:none">
-                                        <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
-                                        <select id="payBybankMethod" name="payBybankMethodId" form="confirmOrderForm" class="form-control" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
-                                            <option value="">{{ "buckaroo.checkout.selectBankIssuer"|trans }}</option>
-                                                {% for issuer in page.extensions.buckaroo.payByBankIssuers %}
-                                                    <option {% if issuer.selected === true %} selected {% endif %} value="{{ issuer.code }}">{{ issuer.name }}</option>
-                                                {% endfor %}
-                                        </select>  
-                                    </div>
+                                    <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
+                                    
 
                                     <div class="bk-paybybank-not-mobile">
                                         <div class="bk-paybybank-selector">
-                                            <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
                                             <div class="radio-group-required">
                                             {% for issuer in page.extensions.buckaroo.payByBankIssuers %}
                                                 <div class="custom-control custom-radio bankMethod{{ issuer.code }} bank-control bk-paybybank-radio">
@@ -120,6 +112,12 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <select class="bk-paybybank-mobile form-control" style="display:none" id="payBybankMethod" name="payBybankMethodId" form="confirmOrderForm" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
+                                        <option value="">{{ "buckaroo.checkout.selectBankIssuer"|trans }}</option>
+                                            {% for issuer in page.extensions.buckaroo.payByBankIssuers %}
+                                                <option {% if issuer.selected === true %} selected {% endif %} value="{{ issuer.code }}">{{ issuer.name }}</option>
+                                            {% endfor %}
+                                    </select>  
                                 </div>
                             {% endif %}
                             </div>

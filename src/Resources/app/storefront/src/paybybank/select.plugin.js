@@ -90,8 +90,8 @@ export default class BuckarooPayByBankSelect extends Plugin {
     );
 
     setTimeout(() => {
-      const val = localStorage.getItem("confirmOrderForm.payBybankMethodId");
-      if (val instanceof String) {
+      const val = localStorage.getItem("confirmOrderForm.payBybankMethod");
+      if (val !== null) {
         document.$emitter.publish(BK_SELECTED_ISSUER_EVENT_NAME, {
           code: val,
           source: "other",
