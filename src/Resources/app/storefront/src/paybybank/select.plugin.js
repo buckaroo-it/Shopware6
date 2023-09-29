@@ -154,8 +154,8 @@ export default class BuckarooPayByBankSelect extends Plugin {
         code: event.target.value,
         source: "select",
       });
-      setToggleToMore();
-
+              setToggleToMore();
+      
     });
 
     const radiosInGroup = document.querySelectorAll(
@@ -200,8 +200,20 @@ export default class BuckarooPayByBankSelect extends Plugin {
           }
         }
       });
+      if (!data.code || data.code.length === 0) {
+        this.showDefaultsIfEmptyIssuer();
+      }
     }
   }
+
+  showDefaultsIfEmptyIssuer() {
+    document.querySelectorAll(
+      ".bk-paybybank-selector .custom-radio:nth-child(-n+5)"
+    ).forEach(function(element) {
+      element.style.display = "block";
+    });
+  }
+
   toggleElements(show, defaultDisplay = "inline") {
     this._elementsToShow.forEach(function (element) {
       element.style.display = show ? defaultDisplay : "none";
