@@ -79,7 +79,7 @@
                                 <div data-bk-select data-buckaroo-pay-by-bank-select-options='{{ payByBankConfig|json_encode }}'>
                                     <div class="bk-paybybank-mobile" style="display:none">
                                         <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
-                                        <select id="payBybankMethod" form="confirmOrderForm" class="form-control" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
+                                        <select id="payBybankMethod" name="payBybankMethodId" form="confirmOrderForm" class="form-control" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
                                             <option value="">{{ "buckaroo.checkout.selectBankIssuer"|trans }}</option>
                                                 {% for issuer in page.extensions.buckaroo.payByBankIssuers %}
                                                     <option {% if issuer.selected === true %} selected {% endif %} value="{{ issuer.code }}">{{ issuer.name }}</option>
@@ -120,7 +120,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <input type="hidden" name="payBybankMethodId" id="payBybankMethodId" required="required">
                                 </div>
                             {% endif %}
                             </div>
