@@ -16,12 +16,16 @@ class PushProcessingEvent implements ShopwareSalesChannelEvent
 
     protected Request $request;
 
+    protected bool $canContinue;
+
     public function __construct(
         Request $request,
         SalesChannelContext $context,
+        bool $canContinue = true
     ) {
         $this->salesChannelContext = $context;
         $this->request = $request;
+        $this->canContinue = $canContinue;
     }
 
     public function getSalesChannelContext(): SalesChannelContext
@@ -37,5 +41,16 @@ class PushProcessingEvent implements ShopwareSalesChannelEvent
     public function getRequest(): Request
     {
         return $this->request;
+    }
+
+    public function canContinue(): bool
+    {
+        return $this->canContinue;
+    }
+
+    public function setCanContinue(bool $canContinue): self
+    {
+        $this->canContinue = $canContinue;
+        return $this;
     }
 }

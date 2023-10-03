@@ -18,7 +18,7 @@ class Migration1590572335BuckarooTransaction extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->exec('            
+        $connection->executeStatement('            
             CREATE TABLE IF NOT EXISTS `' . self::TABLE . '` (
                 `id` BINARY(16) NOT NULL,
                 

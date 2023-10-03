@@ -40,8 +40,12 @@ class PaymentMethodsInstaller implements InstallerInterface
      * PaymentMethodsInstaller constructor.
      * @param ContainerInterface $container
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container = null)
     {
+        if ($container === null) {
+            throw new \Exception("Container is null", 1);
+        }
+
         /** @var PluginIdProvider */
         $pluginIdProvider = $this->getDependency($container, PluginIdProvider::class);
         $this->pluginIdProvider = $pluginIdProvider;
@@ -116,6 +120,13 @@ class PaymentMethodsInstaller implements InstallerInterface
         }
     }
 
+    public function update(UpdateContext $updateContext): void
+    {
+        $this->addNewPaymentMethods($updateContext->getContext());
+        $this->setDefaultValues();
+        $this->copyAppleDomainAssociationFile();
+    }
+
     /**
      * @param PaymentMethodInterface $paymentMethod
      * @param Context $context
@@ -123,7 +134,15 @@ class PaymentMethodsInstaller implements InstallerInterface
     public function addPaymentMethod(PaymentMethodInterface $paymentMethod, Context $context): void
     {
         $paymentMethodId = $this->getPaymentMethodId($paymentMethod, $context);
+        $this->upsertPaymentMethod($paymentMethod, $context, $paymentMethodId);
+    }
 
+
+    private function upsertPaymentMethod(
+        PaymentMethodInterface $paymentMethod,
+        Context $context,
+        string $paymentMethodId = null
+    ): void {
         $pluginId = $this->pluginIdProvider->getPluginIdByBaseClass(BuckarooPayments::class, $context);
 
         $mediaId = $this->getMediaId($paymentMethod, $context);
@@ -248,12 +267,6 @@ class PaymentMethodsInstaller implements InstallerInterface
         }
     }
 
-    public function update(UpdateContext $updateContext): void
-    {
-        $this->setDefaultValues();
-        $this->copyAppleDomainAssociationFile();
-    }
-
     /**
      *
      * @param string $key
@@ -295,16 +308,34 @@ class PaymentMethodsInstaller implements InstallerInterface
         }
 
         foreach ([
-                ['paymentSuccesStatus' => 'paid'],
-                ['orderStatus' => 'open'],
-                ['klarnaBusiness' => 'B2C'],
-                ['BillinkMode' => 'pay'],
-                ['transferSendEmail' => 1],
-                ['transferDateDue' => 7],
-                ['payperemailEnabledfrontend' => true]
-            ] as $key => $value
-        ) {
+            ['paymentSuccesStatus' => 'paid'],
+            ['orderStatus' => 'open'],
+            ['klarnaBusiness' => 'B2C'],
+            ['BillinkMode' => 'pay'],
+            ['transferSendEmail' => 1],
+            ['transferDateDue' => 7],
+            ['payperemailEnabledfrontend' => true]
+        ] as $key => $value) {
             $this->setBuckarooPaymentSettingsValue((string)$key, $value);
+        }
+    }
+
+    /**
+     * Add new payment methods on update
+     *
+     * @param Context $context
+     *
+     * @return void
+     */
+    private function addNewPaymentMethods(Context $context): void
+    {
+        foreach (GatewayHelper::GATEWAYS as $gateway) {
+            $paymentMethod = new $gateway();
+
+            $paymentMethodId = $this->getPaymentMethodId($paymentMethod, $context);
+            if ($paymentMethodId === null) {
+                $this->upsertPaymentMethod($paymentMethod, $context, $paymentMethodId);
+            }
         }
     }
 }

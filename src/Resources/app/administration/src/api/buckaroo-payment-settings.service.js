@@ -39,6 +39,22 @@ class BuckarooPaymentSettingsService extends ApiService {
         });
     }
 
+    getIn3Icons()
+    {
+        const apiRoute = `_action/${this.getApiBasePath()}/in3/logos`;
+
+        return this.httpClient.post(
+            apiRoute,
+            {
+            },
+            {
+                headers: this.getBasicHeaders()
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
+
     getApiTest(websiteKeyId, secretKeyId, currentSalesChannelId)
     {
         const apiRoute = `_action/${this.getApiBasePath()}/getBuckarooApiTest`;

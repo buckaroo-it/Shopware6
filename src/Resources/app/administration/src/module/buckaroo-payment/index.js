@@ -6,6 +6,7 @@ import './extension/sw-order';
 import './extension/sw-settings-index';
 import './extension/sw-order-detail-base';
 import './extension/sw-order-user-card';
+import './extension/sw-context-menu-item';
 import './page/buckaroo-payment-detail';
 
 import nlNL from './snippet/nl-NL.json';
@@ -15,8 +16,8 @@ import enGB from './snippet/en-GB.json';
 Module.register('buckaroo-payment', {
     type: 'plugin',
     name: 'BuckarooPayment',
-    title: 'buckaroo.general.title',
-    description: 'buckaroo.general.description',
+    title: 'buckaroo-payment.general.title',
+    description: 'buckaroo-payment.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#000000',

@@ -327,6 +327,7 @@ abstract class AbstractPaymentController extends StorefrontController
             ->setLimit(1)
             ->addFilter(new EqualsFilter('handlerIdentifier', "Buckaroo\Shopware6\Handlers\\" . $handler));
 
+        /** @var \Shopware\Core\Checkout\Payment\PaymentMethodEntity|null */
         return $this->paymentMethodRepository->search(
             $criteria,
             $salesChannelContext

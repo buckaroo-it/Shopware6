@@ -52,7 +52,7 @@ class PaypalExpressController extends AbstractPaymentController
      *
      * @return JsonResponse
      */
-    #[Route(path: "buckaroo/paypal/create", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest"=> true], options: ["seo" => false], name: "frontend.action.buckaroo.paypalExpressCreate", methods:["POST"])]
+    #[Route(path: "buckaroo/paypal/create", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest" => true], options: ["seo" => false], name: "frontend.action.buckaroo.paypalExpressCreate", methods: ["POST"])]
     public function create(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
 
@@ -86,7 +86,7 @@ class PaypalExpressController extends AbstractPaymentController
      *
      * @return JsonResponse
      */
-    #[Route(path: "buckaroo/paypal/pay", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest"=> true], options: ["seo" => false], name: "frontend.action.buckaroo.paypalExpressPay", methods:["POST"])]
+    #[Route(path: "buckaroo/paypal/pay", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest" => true], options: ["seo" => false], name: "frontend.action.buckaroo.paypalExpressPay", methods: ["POST"])]
     public function pay(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $this->overrideChannelPaymentMethod($salesChannelContext, 'PaypalPaymentHandler');
@@ -119,7 +119,7 @@ class PaypalExpressController extends AbstractPaymentController
         }
     }
 
-     /**
+    /**
      * Create order from cart
      *
      * @param SalesChannelContext $salesChannelContext

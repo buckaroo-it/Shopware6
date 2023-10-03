@@ -137,6 +137,7 @@ class OrderService
             $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
         }
 
+        /** @var \Shopware\Core\Checkout\Order\OrderEntity|null */
         return $this->orderRepository->search(
             $criteria,
             $context

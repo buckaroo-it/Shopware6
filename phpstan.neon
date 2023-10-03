@@ -3,3 +3,5 @@ parameters:
     paths:
         - ./src
     checkMissingIterableValueType: false
+    treatPhpDocTypesAsCertain: false
+    checkGenericClassInNonGenericObjectType: false

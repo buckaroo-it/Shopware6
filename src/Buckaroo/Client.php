@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Buckaroo;
 
 use Buckaroo\BuckarooClient;
-use Buckaroo\Shopware6\Buckaroo\PayloadFragmentInterface;
+use Buckaroo\Config\DefaultConfig;
+use Composer\InstalledVersions;
 
 class Client
 {
@@ -28,12 +29,24 @@ class Client
         string $websiteKey,
         string $secretKey,
         string $paymentCode,
-        string $mode = 'live'
+        string $mode = 'live',
+        string $shopwareVersion = 'unknown'
     ) {
         $this->client = new BuckarooClient(
-            $websiteKey,
-            $secretKey,
-            $mode
+            new DefaultConfig(
+                $websiteKey,
+                $secretKey,
+                $mode,
+                null,
+                null,
+                null,
+                null,
+                'Shopware (6)',
+                $shopwareVersion,
+                'Buckaroo',
+                'BuckarooPayments',
+                InstalledVersions::getVersion('buckaroo/shopware6')
+            )
         );
         $this->paymentCode = $paymentCode;
     }
@@ -60,7 +73,6 @@ class Client
 
     /**
      * Add additional services to the request
-     * 
      * @param mixed $service
      * @return self
      */
@@ -83,7 +95,6 @@ class Client
      * @param string $action
      * @param array $payload
      * @param string|null $method
-     * 
      * @return mixed
      */
     public function build(string $action, array $payload, string $method = null)
@@ -99,7 +110,6 @@ class Client
      * Set payment code
      *
      * @param string $paymentCode
-     *
      * @return self
      */
     public function setPaymentCode(string $paymentCode): self
@@ -110,7 +120,6 @@ class Client
 
     /**
      * Get main payload
-     * 
      * @return array
      */
     public function getPayload(): array
@@ -120,9 +129,7 @@ class Client
 
     /**
      * Set main payload
-     *
      * @param array<mixed> $payload
-     *
      * @return self
      */
     public function setPayload(array $payload): self
@@ -133,7 +140,6 @@ class Client
 
     /**
      * Set main action
-     * 
      * @return self
      */
     public function setAction(string $action): self
@@ -148,5 +154,15 @@ class Client
     public function getAction(): string
     {
         return $this->action;
+    }
+
+    /**
+     * Get ideal issuers
+     *
+     * @return array
+     */
+    public function getIdealIssuers(): array
+    {
+        return $this->client->method($this->paymentCode)->issuers(); // @phpstan-ignore-line
     }
 }

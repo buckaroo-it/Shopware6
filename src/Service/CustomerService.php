@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Buckaroo\Shopware6\Service\CustomerAddressService;
@@ -176,12 +177,12 @@ class CustomerService
     {
 
         $criteria = (new Criteria([$customerId]))
-        ->addAssociation('addresses')
-        ->addAssociation('activeBillingAddress.country')
-        ->addAssociation('defaultBillingAddress.country')
-        ->addAssociation('defaultShippingAddress.country')
-        ->addAssociation('defaultShippingAddress.countryState')
-        ->addAssociation('defaultShippingAddress.salutation');
+            ->addAssociation('addresses')
+            ->addAssociation('activeBillingAddress.country')
+            ->addAssociation('defaultBillingAddress.country')
+            ->addAssociation('defaultShippingAddress.country')
+            ->addAssociation('defaultShippingAddress.countryState')
+            ->addAssociation('defaultShippingAddress.salutation');
 
         /** @var \Shopware\Core\Checkout\Customer\CustomerEntity|null $customer */
         $customer = $this->customerRepository->search(
@@ -270,5 +271,30 @@ class CustomerService
         if (!$this->salesChannelContext instanceof SalesChannelContext) {
             throw new CreateCartException('SaleChannelContext is required');
         }
+    }
+
+    /**
+     * Update customer entity with custom values
+     *
+     * @param CustomerEntity $customer
+     * @param Context $context
+     * @param array $data
+     *
+     * @return void
+     */
+    public function updateCustomerData(CustomerEntity $customer, Context $context, array $data): void
+    {
+        if (count($data) === 0) {
+            return;
+        }
+        $customer->changeCustomFields($data);
+
+        $this->customerRepository->update(
+            [[
+                'id'           => $customer->getId(),
+                'customFields' => $customer->getCustomFields(),
+            ]],
+            $context
+        );
     }
 }

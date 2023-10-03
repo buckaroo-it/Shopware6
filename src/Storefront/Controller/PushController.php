@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
-use Buckaroo\Shopware6\Events\PushProcessingEvent;
+use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderEntity;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -12,14 +12,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\InvoiceService;
 use Symfony\Component\Routing\Annotation\Route;
+use Buckaroo\Shopware6\Events\PushProcessingEvent;
 use Buckaroo\Shopware6\Service\TransactionService;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Storefront\Controller\StorefrontController;
 use Buckaroo\Shopware6\Service\SignatureValidationService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
+use Buckaroo\Shopware6\Events\PushPaymentStateChangeEvent;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
@@ -42,6 +46,8 @@ class PushController extends StorefrontController
 
     protected EventDispatcherInterface $eventDispatcher;
 
+    protected IdealQrOrderRepository $idealQrRepository;
+
     public function __construct(
         SignatureValidationService $signatureValidationService,
         TransactionService $transactionService,
@@ -49,7 +55,8 @@ class PushController extends StorefrontController
         InvoiceService $invoiceService,
         CheckoutHelper $checkoutHelper,
         LoggerInterface $logger,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        IdealQrOrderRepository $idealQrRepository
     ) {
         $this->signatureValidationService = $signatureValidationService;
         $this->transactionService         = $transactionService;
@@ -58,6 +65,7 @@ class PushController extends StorefrontController
         $this->checkoutHelper        = $checkoutHelper;
         $this->logger                = $logger;
         $this->eventDispatcher       = $eventDispatcher;
+        $this->idealQrRepository     = $idealQrRepository;
     }
 
     /**
@@ -66,15 +74,10 @@ class PushController extends StorefrontController
      *
      * @return JsonResponse
      */
-    #[Route(path: "/buckaroo/push", defaults: ['_routeScope' => ['storefront']], options: ["seo" => false], name: "buckaroo.payment.push", methods:["POST"])]
+    #[Route(path: "/buckaroo/push", defaults: ['_routeScope' => ['storefront']], options: ["seo" => false], name: "buckaroo.payment.push", methods: ["POST"])]
     public function pushBuckaroo(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
-    {   
+    {
 
-        $event = new PushProcessingEvent(
-            $request,
-            $salesChannelContext,
-        );
-        
         $this->logger->info(__METHOD__ . "|1|", [$_POST]);
 
         $status             = (string)$request->request->get('brq_statuscode');
@@ -99,18 +102,40 @@ class PushController extends StorefrontController
         $originalTransactionKey   = (string)$request->request->get('brq_transactions');
         $salesChannelId     =  $salesChannelContext->getSalesChannelId();
 
+        // since the payment engine doesn't support custom parameters for ideal QR
+        // we use the invoice number to retrieve the order id and transaction id
+        // saved in the database
+        if ($this->isIdealQrRequest($request)) {
+            $entity = $this->getIdealQrEntity($request, $salesChannelContext);
+            if ($entity !== null) {
+                $brqOrderId = $entity->getOrderId();
+                $orderTransactionId = $entity->getOrderTransactionId();
+            }
+        }
+
         if (empty($brqOrderId) || empty($orderTransactionId)) {
-            return $this->response($event, 'buckaroo.messages.paymentError', false);
+            return $this->response('buckaroo.messages.paymentError', false);
         }
 
         if (!$this->signatureValidationService->validateSignature(
             $request,
             $salesChannelId
-        )
-        ) {
+        )) {
             $this->logger->info(__METHOD__ . "|5|");
-            return $this->response($event, 'buckaroo.messages.signatureIncorrect', false);
+            return $this->response('buckaroo.messages.signatureIncorrect', false);
         }
+
+        // Handle event
+        $event = new PushProcessingEvent(
+            $request,
+            $salesChannelContext,
+        );
+        $this->eventDispatcher->dispatch($event);
+
+        if (!$event->canContinue()) {
+            return $this->response('buckaroo.messages.pushInterrupted');
+        }
+        // end handle event
 
         //skip mutationType Informational except for group transactions
         if (
@@ -125,10 +150,10 @@ class PushController extends StorefrontController
             ];
             $this->transactionService->saveTransactionData($orderTransactionId, $context, $data);
 
-            return $this->response($event, 'buckaroo.messages.skipInformational');
+            return $this->response('buckaroo.messages.skipInformational');
         }
-
-        if (!empty($request->request->get('brq_transaction_method'))
+        if (
+            !empty($request->request->get('brq_transaction_method'))
             && ($request->request->get('brq_transaction_method') === 'paypal')
             && ($status == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
         ) {
@@ -138,11 +163,11 @@ class PushController extends StorefrontController
         $order = $this->checkoutHelper->getOrderById($brqOrderId, $context);
 
         if ($order === null) {
-            return $this->response($event, 'buckaroo.messages.paymentError', false);
+            return $this->response('buckaroo.messages.paymentError', false);
         }
 
         if (!$this->checkDuplicatePush($order, $orderTransactionId, $context)) {
-            return $this->response($event, 'buckaroo.messages.pushAlreadySend', false);
+            return $this->response('buckaroo.messages.pushAlreadySend', false);
         }
 
         if ($brqTransactionType != ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION) {
@@ -155,19 +180,19 @@ class PushController extends StorefrontController
         //Check if the push is a refund request or cancel authorize
         if ($brqAmountCredit > 0) {
             $this->logger->info(__METHOD__ . "|15|", [$brqAmountCredit]);
-            if ($status != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS &&
+            if (
+                $status != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS &&
                 $brqTransactionType == ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_CANCEL
             ) {
                 $this->logger->info(__METHOD__ . "|20|");
-                return $this->response($event, 'buckaroo.messages.paymentCancelled');
+                return $this->response('buckaroo.messages.paymentCancelled');
             }
 
             $alreadyRefunded = 0;
             if ($orderTransaction = $this->transactionService->getOrderTransactionById(
                 $context,
                 $orderTransactionId
-            )
-            ) {
+            )) {
                 $this->logger->info(__METHOD__ . "|21|");
                 $customFields = $orderTransaction->getCustomFields() ?? [];
                 if (!empty($customFields['alreadyRefunded'])) {
@@ -180,9 +205,9 @@ class PushController extends StorefrontController
                 __METHOD__ . "|23|",
                 [
                     $brqAmountCredit,
-                $alreadyRefunded,
-                $brqAmountCredit + $alreadyRefunded,
-                $totalPrice
+                    $alreadyRefunded,
+                    $brqAmountCredit + $alreadyRefunded,
+                    $totalPrice
                 ]
             );
 
@@ -204,12 +229,12 @@ class PushController extends StorefrontController
                     $context
                 );
 
-            return $this->response($event, 'buckaroo.messages.refundSuccessful');
+            return $this->response('buckaroo.messages.refundSuccessful');
         }
 
         //skip any giftcard pushes
         if ($request->request->has('brq_relatedtransaction_partialpayment')) {
-            return $this->response($event, 'buckaroo.messages.giftcards.skippedPush');
+            return $this->response('buckaroo.messages.giftcards.skippedPush');
         }
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
@@ -224,10 +249,9 @@ class PushController extends StorefrontController
                     ['refunded', 'partial_refunded'],
                     $orderTransactionId,
                     $context
-                )
-                ) {
+                )) {
                     $this->logger->info(__METHOD__ . "|40|");
-                    return $this->response($event, 'buckaroo.messages.paymentUpdatedEarlier');
+                    return $this->response('buckaroo.messages.paymentUpdatedEarlier');
                 }
 
                 $customFields = $this->transactionService->getCustomFields($order, $context);
@@ -242,10 +266,11 @@ class PushController extends StorefrontController
                 }
                 $this->logger->info(__METHOD__ . "|45|", [$paymentState, $brqAmount, $totalPrice]);
 
-                $this->stateTransitionService->transitionPaymentState(
+                $this->setPaymentState(
                     $paymentState,
                     $orderTransactionId,
-                    $context
+                    $salesChannelContext,
+                    $request
                 );
 
                 $paymentMethodCode = $paymentMethod ? $paymentMethod : $request->request->get('brq_transaction_method');
@@ -270,7 +295,8 @@ class PushController extends StorefrontController
                 }
 
                 $this->logger->info(__METHOD__ . "|50.1|");
-                if (!$this->invoiceService->isInvoiced($brqOrderId, $context) &&
+                if (
+                    !$this->invoiceService->isInvoiced($brqOrderId, $context) &&
                     !$this->invoiceService->isCreateInvoiceAfterShipment(
                         $brqTransactionType,
                         false,
@@ -286,55 +312,73 @@ class PushController extends StorefrontController
                         );
                     }
                 }
-            } catch (InconsistentCriteriaIdsException | IllegalTransitionException | StateMachineNotFoundException
-                 | StateMachineStateNotFoundException $exception
+            } catch (
+                InconsistentCriteriaIdsException | IllegalTransitionException | StateMachineNotFoundException
+                | StateMachineStateNotFoundException $exception
             ) {
                 $this->logger->info(__METHOD__ . "|55|");
                 throw new AsyncPaymentFinalizeException($orderTransactionId, $exception->getMessage());
             }
             $this->logger->info(__METHOD__ . "|60|");
-            return $this->response($event, 'buckaroo.messages.paymentUpdated');
+            return $this->response('buckaroo.messages.paymentUpdated');
         }
 
         if (in_array(
             $status,
             [
-                    ResponseStatus::BUCKAROO_STATUSCODE_TECHNICAL_ERROR,
-                    ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE,
-                    ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT,
-                    ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
-                    ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
-                ]
-        )
-        ) {
+                ResponseStatus::BUCKAROO_STATUSCODE_TECHNICAL_ERROR,
+                ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE,
+                ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT,
+                ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
+                ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
+            ]
+        )) {
             if ($this->stateTransitionService->isTransitionPaymentState(
-                ['paid','pay_partially'],
+                ['paid', 'pay_partially'],
                 $orderTransactionId,
                 $context
-            )
-            ) {
-                return $this->response($event, 'buckaroo.messages.skippedPush');
+            )) {
+                return $this->response('buckaroo.messages.skippedPush');
             }
-            $this->stateTransitionService->transitionPaymentState("fail", $orderTransactionId, $context);
+            $this->setPaymentState("fail", $orderTransactionId, $salesChannelContext, $request);
 
-            return $this->response($event, 'buckaroo.messages.orderCancelled');
+            return $this->response('buckaroo.messages.orderCancelled');
         }
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER) {
             if ($this->stateTransitionService->isTransitionPaymentState(
-                ['paid','pay_partially'],
+                ['paid', 'pay_partially'],
                 $orderTransactionId,
                 $context
-            )
-            ) {
-                return $this->response($event, 'buckaroo.messages.skippedPush');
+            )) {
+                return $this->response('buckaroo.messages.skippedPush');
             }
-            $this->stateTransitionService->transitionPaymentState("cancelled", $orderTransactionId, $context);
+            $this->setPaymentState("cancelled", $orderTransactionId, $salesChannelContext, $request);
 
-            return $this->response($event, 'buckaroo.messages.orderCancelled');
+            return $this->response('buckaroo.messages.orderCancelled');
         }
 
-        return $this->response($event, 'buckaroo.messages.paymentError', false);
+        return $this->response('buckaroo.messages.paymentError', false);
+    }
+
+    private function setPaymentState(
+        string $state,
+        string $orderTransactionId,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ): void {
+        $this->stateTransitionService->transitionPaymentState(
+            $state,
+            $orderTransactionId,
+            $salesChannelContext->getContext()
+        );
+        $this->eventDispatcher->dispatch(
+            new PushPaymentStateChangeEvent(
+                $request,
+                $salesChannelContext,
+                $state
+            )
+        );
     }
 
     private function getPaymentSuccessStatus(string $salesChannelId): string
@@ -347,12 +391,9 @@ class PushController extends StorefrontController
     }
 
     private function response(
-        PushProcessingEvent $event,
         string $message,
         bool $status = true
-    ): JsonResponse
-    {
-        $this->eventDispatcher->dispatch($event);
+    ): JsonResponse {
         return $this->json(['status' => $status, 'message' => $this->trans($message)]);
     }
 
@@ -380,5 +421,21 @@ class PushController extends StorefrontController
         }
 
         return true;
+    }
+
+    protected function isIdealQrRequest(Request $request): bool
+    {
+        $invoice = $request->request->get('brq_invoicenumber');
+        return is_string($invoice) && strpos($invoice, IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX) !== false;
+    }
+
+    protected function getIdealQrEntity(Request $request, SalesChannelContext $salesChannelContext): ?IdealQrOrderEntity
+    {
+        if (!is_scalar($request->request->get('brq_invoicenumber'))) {
+            return null;
+        }
+
+        $invoice = str_replace(IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX, "", (string)$request->request->get('brq_invoicenumber'));
+        return $this->idealQrRepository->findByInvoice((int)$invoice, $salesChannelContext);
     }
 }

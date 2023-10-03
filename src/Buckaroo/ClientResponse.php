@@ -145,4 +145,10 @@ class ClientResponse implements ClientResponseInterface
     {
         return $this->response->getSomeError();
     }
+
+
+    public function getTransactionKey(): string
+    {
+        return $this->response->getTransactionKey();
+    }
 }

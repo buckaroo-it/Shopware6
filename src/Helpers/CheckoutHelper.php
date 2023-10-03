@@ -17,7 +17,6 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CheckoutHelper
 {
-    private string $shopwareVersion;
 
     private SettingsService $settingsService;
 
@@ -28,13 +27,11 @@ class CheckoutHelper
     protected RequestStack $requestStack;
 
     public function __construct(
-        string $shopwareVersion,
         SettingsService $settingsService,
         EntityRepository $orderRepository,
         BuckarooTransactionEntityRepository $buckarooTransactionEntityRepository,
         RequestStack $requestStack
     ) {
-        $this->shopwareVersion                     = $shopwareVersion;
         $this->settingsService                     = $settingsService;
         $this->orderRepository                     = $orderRepository;
         $this->buckarooTransactionEntityRepository = $buckarooTransactionEntityRepository;
@@ -46,10 +43,6 @@ class CheckoutHelper
         return $this->requestStack->getSession();
     }
 
-    public function getShopwareVersion(): string
-    {
-        return $this->shopwareVersion;
-    }
     /**
      *
      * @param string $orderId
@@ -139,6 +132,7 @@ class CheckoutHelper
         $orderCriteria->addAssociation('transactions.paymentMethod.plugin');
         $orderCriteria->addAssociation('salesChannel');
 
+        /** @var \Shopware\Core\Checkout\Order\OrderEntity|null */
         return $this->orderRepository->search($orderCriteria, $context)->first();
     }
 
@@ -197,6 +191,10 @@ class CheckoutHelper
      */
     public function areEqualAmounts($amount1, $amount2): bool
     {
+        if (!is_scalar($amount1) || !is_scalar($amount2)) {
+            return false;
+        }
+
         if ($amount2 == 0) {
             return $amount1 == $amount2;
         } else {

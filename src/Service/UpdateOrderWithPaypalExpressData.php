@@ -11,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 
 class UpdateOrderWithPaypalExpressData
 {
@@ -19,7 +20,7 @@ class UpdateOrderWithPaypalExpressData
      */
     protected $orderAddressRepository;
 
-      /**
+    /**
      * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
      */
     protected $orderCustomerRepository;
@@ -79,6 +80,7 @@ class UpdateOrderWithPaypalExpressData
             )
         );
 
+        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity */
         $customer = $this->orderCustomerRepository->search(
             $criteria,
             $salesChannelContext->getContext()
@@ -130,7 +132,6 @@ class UpdateOrderWithPaypalExpressData
         )->getEntities();
 
         if ($addresses !== null) {
-
             foreach ($addresses as $address) {
                 /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity $address */
                 $customFields = $address->getCustomFields();

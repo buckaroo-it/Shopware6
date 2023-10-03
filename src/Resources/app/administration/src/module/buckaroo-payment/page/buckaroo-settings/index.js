@@ -35,6 +35,7 @@ Component.register('buckaroo-settings', {
                 'creditcardEnabled': true,
                 'creditcardsEnabled': true,
                 'idealEnabled': true,
+                'idealqrEnabled': true,
                 'idealprocessingEnabled': true,
                 'belfiusEnabled': true,
                 'bancontactmrcashEnabled': true,
@@ -61,6 +62,7 @@ Component.register('buckaroo-settings', {
                 'advancedConfiguration': true,
                 'BillinkCreateInvoiceAfterShipment': true,
                 'payperemailEnabled': true,
+                'paybybankEnabled': true,
             },
             collapsibleAdvancedState: {
                 'paylinkEnabled': true,
@@ -340,6 +342,7 @@ Component.register('buckaroo-settings', {
                 return true;
             }
         }
+
 
             return false;
         },

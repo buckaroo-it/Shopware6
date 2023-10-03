@@ -14,6 +14,7 @@
       "incorrectPin": "Kartennummer oder PIN ist falsch",
       "errorOccurred": "Leider ist bei der Verarbeitung Ihrer Zahlung ein Fehler aufgetreten. Bitte versuchen Sie es erneut. Sollte dieser Fehler weiterhin bestehen, wählen Sie bitte eine andere Zahlungsmethode.",
       "paymentUpdated": "Zahlungsstatus wurde aktualisiert",
+      "pushInterrupted": "Push interrupted by processing event",
       "signatureIncorrect": "Signatur von Push ist falsch",
       "pushAlreadySend": "Push bereits senden",
       "refundSuccessful": "Erstattung erfolgreich",
@@ -34,7 +35,7 @@
       "oneManBusiness": "Ein-Mann-Geschäft",
       "orderAs": "Bestellen als",
       "selectBankIssuer": "Wählen Sie Ihre Bank",
-      "selectCreditCard": "Wählen Sie Ihre Kreditkarte",
+      "selectCreditCard": "Wählen Sie Ihre Karte",
       "buckarooSepaDirectDebitCustomer": "Bank account holder",
       "buckarooSepaDirectDebitCustomerholder": "Enter your account holder here...",
       "buckarooIBAN": "Kontonummer",
@@ -80,7 +81,9 @@
       },
       "Coc": "CoC-number:",
       "CocPlaceholder": "CoC-number (HRB/HRA)",
-      "buckarooMobileCocError": "CoC-Nummer (HRB/HRA) ist erforderlich"
+      "buckarooMobileCocError": "CoC-Nummer (HRB/HRA) ist erforderlich",
+      "moreBanks": "More banks",
+      "lessBanks": "Less banks"
     }
   },
   "bkr-applepay": {

@@ -73,10 +73,13 @@ class PaymentStateService
             $this->isFailedPaymentRequest($request) &&
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)
         ) {
-            $message = $this->getStatusMessageByStatusCode($request);
-            $exception = new PaymentFailedException($transactionId, $message);
-            $exception->setPaymentStatusCode($this->getPaymentStatusCode($request));
-            throw $exception;
+            throw new PaymentFailedException(
+                $transactionId,
+                $this->getStatusMessageByStatusCode($request),
+                [],
+                null,
+                $this->getPaymentStatusCode($request)
+            );
         }
     }
 
@@ -87,7 +90,8 @@ class PaymentStateService
      *
      * @return boolean
      */
-    private function isGroupTransactionCancel(Request $request): bool {
+    private function isGroupTransactionCancel(Request $request): bool
+    {
         return $request->query->get('scenario') === 'Cancellation';
     }
 

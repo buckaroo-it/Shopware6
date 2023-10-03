@@ -1,0 +1,26 @@
+{% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
+
+{% block base_header %}
+	{% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
+{% endblock %}
+
+{% block page_checkout_container %}
+	{% block buckaroo_qr_display %}
+		{% set conifg = {
+            orderId: orderId,
+			pullUrl: pullUrl
+        } %}
+		<div data-ideal-qr data-buckaroo-ideal-qr-plugin-options='{{ conifg|json_encode }}'></div>
+		<div class="bk-ideal-qr">
+			<div class="bk-qr-text">
+				<p>{{"buckaroo.checkout.scanQr"|trans}}</p>
+				<img src="{{ qrImage }}" class="img img-fluid" alt="Ideal QR">
+			</div>
+		</div>
+        <a class="bk-qr-cancel" href="{{cancelUrl}}">{{"buckaroo.checkout.cancel"|trans}}</a>
+	{% endblock %}
+{% endblock %}
+
+{% block base_footer %}
+	{% sw_include '@Storefront/storefront/layout/footer/footer-minimal.html.twig' %}
+{% endblock %}

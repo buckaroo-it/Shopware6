@@ -115,10 +115,6 @@ class SignatureValidationService
             case 'brq_service_payconiq_qrurl':
             case 'brq_service_masterpass_customerphonenumber':
             case 'brq_service_masterpass_shippingrecipientphonenumber':
-            case 'brq_invoicedate':
-            case 'brq_duedate':
-            case 'brq_previousstepdatetime':
-            case 'brq_eventdatetime':
             case 'brq_service_transfer_accountholdername':
             case 'brq_service_transfer_customeraccountname':
             case 'cust_customerbillingfirstname':

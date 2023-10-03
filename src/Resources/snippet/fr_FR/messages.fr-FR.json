@@ -18,6 +18,7 @@
       "incorrectPin": "Le numéro de carte ou le code PIN est incorrect",
       "errorOccurred": "Malheureusement, une erreur s'est produite lors du traitement de votre paiement. Veuillez réessayer. Si cette erreur persiste, veuillez choisir un autre mode de paiement.",
       "paymentUpdated": "L'état du paiement a été mis à jour",
+      "pushInterrupted": "PUSH interrompu par un événement de traitement",
       "signatureIncorrect": "La signature du push est incorrecte",
       "pushAlreadySend": "Push déjà envoyé",
       "refundSuccessful": "Remboursement réussi",
@@ -38,7 +39,7 @@
       "oneManBusiness": "Entreprise individuelle",
       "orderAs": "Commander comme",
       "selectBankIssuer": "Sélectionnez votre banque",
-      "selectCreditCard": "Sélectionnez votre carte de crédit",
+      "selectCreditCard": "Sélectionnez votre carte de crédit out de débit",
       "buckarooSepaDirectDebitCustomer": "Titulaire du compte en banque",
       "buckarooSepaDirectDebitCustomerholder": "Entrez votre titulaire de compte ici ...",
       "buckarooIBAN": "Numéro de compte bancaire",
@@ -82,7 +83,9 @@
         "selectYear": "Sélectionnez une année",
         "securityCode": "CVC/VV"
       }
-    }
+    },
+    "moreBanks": "More banks",
+    "lessBanks": "Less banks"
   },
   "bkr-applepay": {
     "Subtotal": "Sous-total",
