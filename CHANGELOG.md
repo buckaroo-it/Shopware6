@@ -196,20 +196,18 @@ BP-2483 Live credit card transactions are not refundable
 BP-2658 Cannot create a partial refund with Afterpay
 
 #2.1.0
-
-[14:13] Madalin Ivascu
-
+Compatible from Shopware 6.5.0 up to 6.5.5.2
 BP-2675 Add payment method: PayByBank
-BP-2663 Mask some field input when saved
-BP-2678 rename creditcards into cards
-BP-2795 Support for iDEAL QR in checkout
-BP-2884 Add iDEAL issuer N26 
-BP-2847 Add In3 API V3 selection 
-BP-2904 Pay the remaining group transaction amount with iDEAL, Bancontact
-BP-2944 Cannot partially refund group transactions
-BP-2937 Subscription orders are not visible in the consumer's account
-BP-2907 iDEAL issuer logo and name change "Van Lanschot Kempen"
-BP-2956 Plugin settings page does not have a proper browser title
-BP-2966 Show the correct software/platform version in the software header of the requests
-BP-2841 Fix: PayByBank visual improvements
+BP-2795 Add payment method: iDEAL QR
+BP-2847 Add payment method In3 (V3 API)
+BP-2884 Add iDEAL issuer N26
 BP-2921 Add iDEAL issuer Nationale Nederlanden
+BP-2907 iDEAL issuer logo and name change into "Van Lanschot Kempen"
+BP-2678 Rename Creditcards into Cards
+BP-2904 Pay the remaining group transaction amount with iDEAL, Bancontact and Credit cards
+BP-2966 Show the correct software/platform version in the software header of the requests
+BP-2663 Fix: Mask some field input when saved
+BP-2841 Fix: PayByBank visual improvements
+BP-2944 Fix: Cannot partially refund group transactions
+BP-2937 Fix: Buckaroo Subscription orders are not visible in the consumer's account
+BP-2956 Fix: Plugin settings page does not have a proper browser title
