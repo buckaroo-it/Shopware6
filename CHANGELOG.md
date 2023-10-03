@@ -195,7 +195,7 @@ Compatible from Shopware 6.5.0 up to 6.5.1.1
 - BP-2483 Live credit card transactions are not refundable
 - BP-2658 Cannot create a partial refund with Afterpay
 
-#2.1.0
+# 2.1.0
 Compatible from Shopware 6.5.0 up to 6.5.5.2
 - BP-2675 Add payment method: PayByBank
 - BP-2795 Add payment method: iDEAL QR
