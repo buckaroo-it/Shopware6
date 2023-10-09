@@ -162,7 +162,7 @@ class TransactionService
         /** @var OrderTransactionEntity|null */
         $transaction = $transactions->last();
         if (
-            $transaction === null || 
+            $transaction === null ||
             $transaction->getPaymentMethod() === null ||
             $transaction->getPaymentMethod()->getPlugin()
         ) {

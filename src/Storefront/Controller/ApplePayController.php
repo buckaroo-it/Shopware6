@@ -172,7 +172,8 @@ class ApplePayController extends AbstractPaymentController
     #[Route(
         path: "/buckaroo/apple/order/create",
         name: "frontend.action.buckaroo.appleCreateOrder",
-        options: ["seo" => false], methods: ["POST"],
+        options: ["seo" => false],
+        methods: ["POST"],
         defaults: ["XmlHttpRequest" => true]
     )]
     public function createAppleOrder(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
