@@ -88,30 +88,41 @@ class StateTransitionService
      */
     public function getCorrectTransitionAction(string $status): ?string
     {
+        $state = null;
         switch ($status) {
             case 'completed':
             case 'paid':
-                return StateMachineTransitionActions::ACTION_PAID;
+                $state = StateMachineTransitionActions::ACTION_PAID;
+                break;
             case 'pay_partially':
-                return StateMachineTransitionActions::ACTION_PAID_PARTIALLY;
+                $state = StateMachineTransitionActions::ACTION_PAID_PARTIALLY;
+                break;
             case 'declined':
             case 'cancelled':
             case 'void':
             case 'expired':
-                return StateMachineTransitionActions::ACTION_CANCEL;
+                $state = StateMachineTransitionActions::ACTION_CANCEL;
+                break;
             case 'fail':
-                return StateMachineTransitionActions::ACTION_FAIL;
+                $state = StateMachineTransitionActions::ACTION_FAIL;
+                break;
             case 'refunded':
-                return StateMachineTransitionActions::ACTION_REFUND;
+                $state = StateMachineTransitionActions::ACTION_REFUND;
+                break;
             case 'partial_refunded':
-                return StateMachineTransitionActions::ACTION_REFUND_PARTIALLY;
+                $state = StateMachineTransitionActions::ACTION_REFUND_PARTIALLY;
+                break;
             case 'initialized':
             case 'open':
-                return StateMachineTransitionActions::ACTION_REOPEN;
+                $state = StateMachineTransitionActions::ACTION_REOPEN;
+                break;
             case 'process':
-                return StateMachineTransitionActions::ACTION_PROCESS;
+                $state = StateMachineTransitionActions::ACTION_PROCESS;
+                break;
+            default:
+                $state = null;
         }
-        return null;
+        return $state;
     }
 
     /**
@@ -158,19 +169,27 @@ class StateTransitionService
      */
     public function getOrderTransactionStatesNameFromAction(string $actionName): ?string
     {
+        $state = null;
         switch ($actionName) {
             case StateMachineTransitionActions::ACTION_PAID:
-                return OrderTransactionStates::STATE_PAID;
+                $state = OrderTransactionStates::STATE_PAID;
+                break;
             case StateMachineTransitionActions::ACTION_PAID_PARTIALLY:
-                return OrderTransactionStates::STATE_PARTIALLY_PAID;
+                $state = OrderTransactionStates::STATE_PARTIALLY_PAID;
+                break;
             case StateMachineTransitionActions::ACTION_CANCEL:
-                return OrderTransactionStates::STATE_CANCELLED;
+                $state = OrderTransactionStates::STATE_CANCELLED;
+                break;
             case StateMachineTransitionActions::ACTION_REFUND:
-                return OrderTransactionStates::STATE_REFUNDED;
+                $state = OrderTransactionStates::STATE_REFUNDED;
+                break;
             case StateMachineTransitionActions::ACTION_REFUND_PARTIALLY:
-                return OrderTransactionStates::STATE_PARTIALLY_REFUNDED;
+                $state = OrderTransactionStates::STATE_PARTIALLY_REFUNDED;
+                break;
+            default:
+                $state = null;
         }
-        return null;
+        return $state;
     }
     /**
      *
@@ -198,7 +217,8 @@ class StateTransitionService
             }
 
             $actionStatusTransition = $this->getTransitionFromActionName($transitionAction, $context);
-            if ($actionStatusTransition !== null &&
+            if (
+                $actionStatusTransition !== null &&
                 $transaction->getStateId() == $actionStatusTransition->getId()
             ) {
                 return true;
@@ -242,8 +262,6 @@ class StateTransitionService
                 $this->logger->error($e->getMessage(), [$e]);
             }
         }
-
-        return;
     }
     /**
      *
@@ -263,7 +281,8 @@ class StateTransitionService
 
             $stateMachine = $order->getStateMachineState();
 
-            if ($stateMachine !== null &&
+            if (
+                $stateMachine !== null &&
                 $stateMachine->getTechnicalName() == $stateName
             ) {
                 return true;

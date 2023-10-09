@@ -11,7 +11,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CartController extends StorefrontController
 {
-    #[Route(path: "/buckaroo/redirect", defaults: ['_routeScope' => ['storefront']], name: "frontend.action.buckaroo.redirect", options: ["seo" => false], methods: ["GET"])]
+    #[Route(
+        path: "/buckaroo/redirect",
+        defaults: ['_routeScope' => ['storefront']],
+        name: "frontend.action.buckaroo.redirect",
+        options: ["seo" => false],
+        methods: ["GET"]
+    )]
     public function redirectOnBackButtonToEditOrder(Request $request): RedirectResponse
     {
         $session = $request->getSession();

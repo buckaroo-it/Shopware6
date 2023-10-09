@@ -40,7 +40,12 @@ class CaptureController extends StorefrontController
      *
      * @return JsonResponse
      */
-    #[Route(path: "/api/_action/buckaroo/capture", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.capture", methods: ["POST"])]
+    #[Route(
+        path: "/api/_action/buckaroo/capture",
+        defaults: ['_routeScope' => ['api']],
+        name: "api.action.buckaroo.capture",
+        methods: ["POST"]
+    )]
     public function captureBuckaroo(Request $request, Context $context): JsonResponse
     {
 

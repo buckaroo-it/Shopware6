@@ -219,7 +219,7 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
                 'identifier'        => $item['sku'],
                 'description'       => $item['name'],
                 'quantity'          => $item['quantity'],
-                'price'             => $item['unitPrice']['value'],
+                'price'             => $item['unitPrice'],
                 'vatPercentage'     => $item['vatRate'],
             ];
         }

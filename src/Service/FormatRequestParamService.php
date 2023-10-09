@@ -34,35 +34,23 @@ class FormatRequestParamService
             return $lines;
         }
 
-        // Get currency code
-        $currency     = $order->getCurrency();
-        $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
 
         foreach ($lineItems as $item) {
             // Get tax
             $itemTax = null;
 
-            if ($item->getPrice() !== null &&
+            if (
+                $item->getPrice() !== null &&
                 $item->getPrice()->getCalculatedTaxes() !== null
             ) {
                 $itemTax = $this->getLineItemTax($item->getPrice()->getCalculatedTaxes());
             }
 
             // Get VAT rate and amount
-            $vatRate   = $itemTax !== null ? $itemTax->getTaxRate() : 0.0;
-            $vatAmount = $itemTax !== null ? $itemTax->getTax() : null;
-
-            if ($vatAmount === null && $vatRate > 0) {
-                $vatAmount = $item->getTotalPrice() * ($vatRate / ($vatRate + 100));
-            }
-
-            $type      = 'Article';
-            $unitPrice = $this->getPriceArray($currencyCode, $item->getUnitPrice());
-            $vatAmount = $this->getPriceArray($currencyCode, (float)$vatAmount);
-            if ($unitPrice['value'] < 0) {
-                $type               = 'Discount';
-                $vatAmount['value'] = 0;
-                $vatRate            = 0.0;
+            $vatRate = $itemTax !== null ? $itemTax->getTaxRate() : 0.0;
+           
+            if ($item->getUnitPrice() < 0) {
+                $vatRate = 0.0;
             }
 
             $taxId = null;
@@ -75,16 +63,12 @@ class FormatRequestParamService
             // Build the order lines array
             $lines[] = [
                 'id'          => $item->getId(),
-                'type'        => $type,
                 'name'        => $item->getLabel(),
                 'quantity'    => $item->getQuantity(),
-                'unitPrice'   => $unitPrice,
-                'totalAmount' => $this->getPriceArray($currencyCode, $item->getTotalPrice()),
-                'vatRate'     => number_format($vatRate, 2, '.', ''),
-                'vatAmount'   => $vatAmount,
+                'unitPrice'   => $this->formatAmount($item->getUnitPrice()),
+                'totalAmount' => $this->formatAmount($item->getTotalPrice()),
+                'vatRate'     => $this->formatAmount($vatRate),
                 'sku'         => $item->getId(),
-                'imageUrl'    => null,
-                'productUrl'  => null,
                 'taxId'       => $taxId
             ];
         }
@@ -97,6 +81,11 @@ class FormatRequestParamService
         }
 
         return $lines;
+    }
+
+    private function formatAmount(float $amount): string
+    {
+        return number_format($amount, 2, '.', '');
     }
 
     /**
@@ -117,7 +106,7 @@ class FormatRequestParamService
                 'identifier'        => $item['sku'],
                 'description'       => $item['name'],
                 'quantity'          => $item['quantity'],
-                'price'             => $item['unitPrice']['value']
+                'price'             => $item['unitPrice']
             ];
 
             if (is_callable($callback)) {
@@ -158,21 +147,6 @@ class FormatRequestParamService
     }
 
     /**
-     * Return an array of price data; currency and value.
-     * @param string $currency
-     * @param float $price
-     * @param int $decimals
-     * @return array<mixed>
-     */
-    protected function getPriceArray(string $currency, float $price, int $decimals = 2): array
-    {
-        return [
-            'currency' => $currency,
-            'value'    => number_format($price, $decimals, '.', ''),
-        ];
-    }
-
-    /**
      * Return an array of shipping data.
      *
      * @param OrderEntity $order
@@ -180,14 +154,7 @@ class FormatRequestParamService
      */
     protected function getShippingItemArray(OrderEntity $order): array
     {
-        // Variables
-        $line     = [];
         $shipping = $order->getShippingCosts();
-
-
-        // Get currency code
-        $currency     = $order->getCurrency();
-        $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
 
         // Get shipping tax
         $shippingTax = null;
@@ -198,28 +165,17 @@ class FormatRequestParamService
 
         // Get VAT rate and amount
         $vatRate   = $shippingTax !== null ? $shippingTax->getTaxRate() : 0.0;
-        $vatAmount = $vatAmount = $shippingTax !== null ? $shippingTax->getTax() : null;
-
-        if ($vatAmount === null && $vatRate > 0) {
-            $vatAmount = $shipping->getTotalPrice() * ($vatRate / ($vatRate + 100));
-        }
 
         // Build the order line array
-        $line = [
+        return [
             'id'          => 'shipping',
-            'type'        => 'Shipping',
             'name'        => 'Shipping',
             'quantity'    => $shipping->getQuantity(),
-            'unitPrice'   => $this->getPriceArray($currencyCode, $shipping->getUnitPrice()),
-            'totalAmount' => $this->getPriceArray($currencyCode, $shipping->getTotalPrice()),
-            'vatRate'     => number_format($vatRate, 2, '.', ''),
-            'vatAmount'   => $this->getPriceArray($currencyCode, (float)$vatAmount),
+            'unitPrice'   => $this->formatAmount($shipping->getUnitPrice()),
+            'totalAmount' => $this->formatAmount($shipping->getTotalPrice()),
+            'vatRate'     => $this->formatAmount($vatRate),
             'sku'         => 'Shipping',
-            'imageUrl'    => null,
-            'productUrl'  => null,
         ];
-
-        return $line;
     }
 
     /**
@@ -238,7 +194,8 @@ class FormatRequestParamService
 
         $buckarooFee = null;
 
-        if ($customFields !== null &&
+        if (
+            $customFields !== null &&
             isset($customFields['buckarooFee']) &&
             is_scalar($customFields['buckarooFee'])
         ) {
@@ -253,27 +210,17 @@ class FormatRequestParamService
             return $line;
         }
 
-        // Get currency code
-        $currency     = $order->getCurrency();
-        $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
 
-        
         // Build the order line array
-        $line = [
+        return [
             'id'          => 'buckarooFee',
-            'type'        => 'BuckarooFee',
             'name'        => 'Buckaroo Fee',
             'quantity'    => 1,
-            'unitPrice'   => $this->getPriceArray($currencyCode, $buckarooFee),
-            'totalAmount' => $this->getPriceArray($currencyCode, $buckarooFee),
+            'unitPrice'   => $this->formatAmount($buckarooFee),
+            'totalAmount' => $this->formatAmount($buckarooFee),
             'vatRate'     => 0,
-            'vatAmount'   => $this->getPriceArray($currencyCode, 0),
             'sku'         => 'BuckarooFee',
-            'imageUrl'    => null,
-            'productUrl'  => null,
         ];
-
-        return $line;
     }
 
     /**
@@ -330,7 +277,7 @@ class FormatRequestParamService
             'street'          => $street,
         ];
 
-        if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
+        if (preg_match('#^(.*?)(\d+)(.*)#s', $street, $matches)) {
             // Check if the number is at the beginning of streetname
             if ('' == $matches[1]) {
                 $format['house_number'] = trim($matches[2]);

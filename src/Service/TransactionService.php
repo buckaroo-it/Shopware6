@@ -14,6 +14,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 
 class TransactionService
 {
+    private const ORDER_TRANSACTION_NOT_FOUND = 'Order transaction not found.';
+
     /** @var EntityRepository $transactionRepository */
     private $transactionRepository;
 
@@ -38,7 +40,7 @@ class TransactionService
         );
 
         if ($orderTransaction === null) {
-            throw new \InvalidArgumentException('Order transaction not found.');
+            throw new \InvalidArgumentException(self::ORDER_TRANSACTION_NOT_FOUND);
         }
 
         $customFields = $orderTransaction->getCustomFields() ?? [];
@@ -102,12 +104,12 @@ class TransactionService
         $transactions = $order->getTransactions();
 
         if ($transactions === null) {
-            throw new \InvalidArgumentException('Order transaction not found.');
+            throw new \InvalidArgumentException(self::ORDER_TRANSACTION_NOT_FOUND);
         }
 
         $transaction = $transactions->last();
         if ($transaction === null) {
-            throw new \InvalidArgumentException('Order transaction not found.');
+            throw new \InvalidArgumentException(self::ORDER_TRANSACTION_NOT_FOUND);
         }
 
         $orderTransaction = $this->getOrderTransactionById(
@@ -116,7 +118,7 @@ class TransactionService
         );
 
         if ($orderTransaction === null) {
-            throw new \InvalidArgumentException('Order transaction not found.');
+            throw new \InvalidArgumentException(self::ORDER_TRANSACTION_NOT_FOUND);
         }
 
         $customField = $orderTransaction->getCustomFields() ?? [];
@@ -154,27 +156,22 @@ class TransactionService
         $transactions = $order->getTransactions();
 
         if ($transactions === null) {
-            throw new \InvalidArgumentException('Order transaction not found.');
+            throw new \InvalidArgumentException(self::ORDER_TRANSACTION_NOT_FOUND);
         }
 
         /** @var OrderTransactionEntity|null */
         $transaction = $transactions->last();
-        if ($transaction === null) {
+        if (
+            $transaction === null || 
+            $transaction->getPaymentMethod() === null ||
+            $transaction->getPaymentMethod()->getPlugin()
+        ) {
             return false;
         }
 
-        /** @var \Shopware\Core\Checkout\Payment\PaymentMethodEntity|null */
-        $paymentMethod = $transaction->getPaymentMethod();
-        if ($paymentMethod === null) {
-            return false;
-        }
-
-        /** @var \Shopware\Core\Framework\Plugin\PluginEntity|null */
-        $plugin = $paymentMethod->getPlugin();
-        if ($plugin === null) {
-            return false;
-        }
-
+        /** @var \Shopware\Core\Framework\Plugin\PluginEntity */
+        $plugin = $transaction->getPaymentMethod()->getPlugin();
+   
         $baseClassArr         = explode('\\', $plugin->getBaseClass());
         $buckarooPaymentClass = explode('\\', BuckarooPayments::class);
 

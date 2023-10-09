@@ -74,7 +74,13 @@ class PushController extends StorefrontController
      *
      * @return JsonResponse
      */
-    #[Route(path: "/buckaroo/push", defaults: ['_routeScope' => ['storefront']], options: ["seo" => false], name: "buckaroo.payment.push", methods: ["POST"])]
+    #[Route(
+        path: "/buckaroo/push",
+        defaults: ['_routeScope' => ['storefront']],
+        options: ["seo" => false],
+        name: "buckaroo.payment.push",
+        methods: ["POST"]
+    )]
     public function pushBuckaroo(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
 
@@ -435,7 +441,11 @@ class PushController extends StorefrontController
             return null;
         }
 
-        $invoice = str_replace(IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX, "", (string)$request->request->get('brq_invoicenumber'));
+        $invoice = str_replace(
+            IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX,
+            "",
+            (string)$request->request->get('brq_invoicenumber')
+        );
         return $this->idealQrRepository->findByInvoice((int)$invoice, $salesChannelContext);
     }
 }

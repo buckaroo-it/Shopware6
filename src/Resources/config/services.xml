@@ -36,8 +36,15 @@
 
 
         <service id="Buckaroo\Shopware6\Helpers\Logger" class="Monolog\Logger">
-            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
             <argument type="string">buckaroo_payment</argument>
+            <argument type="collection">
+                <argument type="service" id="Buckaroo\Shopware6\Helpers\RotatingFileHandler"/>
+            </argument>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Helpers\RotatingFileHandler" class="Monolog\Handler\RotatingFileHandler">
+            <argument type="string">%kernel.logs_dir%/buckaroo-%kernel.environment%.log</argument>
+            <argument type="string">14</argument>
         </service>
 
 

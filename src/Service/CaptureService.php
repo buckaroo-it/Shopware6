@@ -72,9 +72,6 @@ class CaptureService
         }
 
         $customFields = $this->transactionService->getCustomFields($order, $context);
-        $paymentCode = $customFields['serviceName'];
-        $validationErrors = $this->validate($order, $customFields);
-
         $paymentCode = $this->getValidCustomField($customFields, 'serviceName');
 
         $validationErrors = $this->validate($order, $customFields);
@@ -246,35 +243,36 @@ class CaptureService
      */
     private function validate(OrderEntity $order, array $customFields): ?array
     {
+        $error = null;
 
         if ($order->getAmountTotal() <= 0) {
-            return [
+            $error = [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.capture.invalid_amount")
             ];
         }
 
         if ($customFields['canCapture'] == 0) {
-            return [
+            $error = [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.capture.capture_not_supported")
             ];
         }
 
         if (!empty($customFields['captured']) && ($customFields['captured'] == 1)) {
-            return [
+            $error = [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.capture.already_captured")
             ];
         }
 
         if (!isset($customFields['originalTransactionKey'])) {
-            return [
+            $error = [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.capture.general_capture_error")
             ];
         }
-        return null;
+        return $error;
     }
 
     /**
@@ -328,7 +326,7 @@ class CaptureService
                 'identifier'        => $item['sku'],
                 'description'       => $item['name'],
                 'quantity'          => $item['quantity'],
-                'price'             => $item['unitPrice']['value'],
+                'price'             => $item['unitPrice'],
                 'vatPercentage'     => $item['vatRate'],
             ];
         }

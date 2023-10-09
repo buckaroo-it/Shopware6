@@ -67,7 +67,7 @@ class CustomerService
     }
 
     /**
-     * Get or create user with shippinh address
+     * Get or create user with shipping address
      *
      * @param DataBag $addressData
      *
@@ -284,7 +284,7 @@ class CustomerService
      */
     public function updateCustomerData(CustomerEntity $customer, Context $context, array $data): void
     {
-        if (count($data) === 0) {
+        if (empty($data)) {
             return;
         }
         $customer->changeCustomFields($data);

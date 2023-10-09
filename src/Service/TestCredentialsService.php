@@ -42,18 +42,17 @@ class TestCredentialsService
     public function execute(Request $request): array
     {
         $salesChannelId = $request->get('saleChannelId');
-
-        if (!(is_string($salesChannelId) || is_null($salesChannelId))) {
-            return [
-                'status' => 'error',
-                'message' => $this->translator->trans("buckaroo-payment.test_api.connection_failed"),
-            ];
-        }
-
         $websiteKeyId = $request->get('websiteKeyId');
         $secretKeyId = $request->get('secretKeyId');
 
-        if (!is_scalar($websiteKeyId) || !is_scalar($secretKeyId)) {
+        if (
+            !(
+                is_string($salesChannelId) ||
+                is_null($salesChannelId)
+            ) ||
+            !is_scalar($websiteKeyId) ||
+            !is_scalar($secretKeyId)
+        ) {
             return [
                 'status' => 'error',
                 'message' => $this->translator->trans("buckaroo-payment.test_api.connection_failed"),

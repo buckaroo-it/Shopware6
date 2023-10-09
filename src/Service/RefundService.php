@@ -423,35 +423,36 @@ class RefundService
      */
     private function validate(OrderEntity $order, array $customFields): ?array
     {
+        $error = null;
 
         if ($order->getAmountTotal() <= 0) {
-            return [
+            $error = [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.capture.invalid_amount")
             ];
         }
 
         if ($customFields['canRefund'] == 0) {
-            return [
+            $error = [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.refund.not_supported")
             ];
         }
 
         if (!empty($customFields['refunded']) && ($customFields['refunded'] == 1)) {
-            return [
+            $error = [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.refund.already_refunded")
             ];
         }
 
         if (!isset($customFields['originalTransactionKey'])) {
-            return [
+            $error = [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.general_error")
             ];
         }
-        return null;
+        return $error;
     }
 
     /**

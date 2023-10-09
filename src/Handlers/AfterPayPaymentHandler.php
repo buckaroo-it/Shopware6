@@ -56,7 +56,6 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         if ($this->getSetting('afterpayEnabledold') === true) {
             return $this->afterPayOld->buildPayParameters(
                 $order,
-                $salesChannelContext,
                 $dataBag,
                 $paymentCode
             );
@@ -184,7 +183,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                 'identifier'        => $item['sku'],
                 'description'       => $item['name'],
                 'quantity'          => $item['quantity'],
-                'price'             => $item['unitPrice']['value'],
+                'price'             => $item['unitPrice'],
                 'vatPercentage'     => $item['vatRate'],
             ];
         }

@@ -151,15 +151,11 @@ class In3LogoService
      */
     public function getActiveLogo($mediaId, $version, Context $context): ?MediaEntity
     {
-        if ($version === In3PaymentHandler::V2) {
-            return null;
-        }
-
-        if (!is_string($mediaId)) {
-            return null;
-        }
-        
-        if ($mediaId === self::DEFAULT_PAYMENT_ICON) {
+        if (
+            $version === In3PaymentHandler::V2 ||
+            !is_string($mediaId) ||
+            $mediaId === self::DEFAULT_PAYMENT_ICON
+        ) {
             return null;
         }
 

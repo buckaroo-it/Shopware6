@@ -194,8 +194,8 @@ Component.register('buckaroo-payment-detail', {
                             name: element.name,
                             quantity: element.quantity,
                             quantityMax: element.quantity,
-                            unitPrice: element.unitPrice.value,
-                            totalAmount: element.totalAmount.value
+                            unitPrice: element.unitPrice,
+                            totalAmount: element.totalAmount
                         });
                     })
                     that.recalculateOrderItems();

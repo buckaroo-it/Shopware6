@@ -95,8 +95,8 @@ class SettingsService
             return $shopName;
         }
 
-        $label = preg_replace('/\{order_number\}/', (string)$order->getOrderNumber(), $label);
-        $label = preg_replace('/\{shop_name\}/', $shopName, (string)$label);
+        $label = str_replace('{order_number}', (string)$order->getOrderNumber(), $label);
+        $label = str_replace('{shop_name}', $shopName, (string)$label);
 
         $products = $order->getLineItems();
 
@@ -105,7 +105,7 @@ class SettingsService
             /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity */
             $firstProduct = $products->first();
             if ($firstProduct !== null) {
-                $label = preg_replace('/\{product_name\}/', $firstProduct->getLabel(), (string)$label);
+                $label = str_replace('{product_name}', $firstProduct->getLabel(), (string)$label);
             }
         }
         if (is_string($label)) {

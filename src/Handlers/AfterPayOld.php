@@ -29,7 +29,6 @@ class AfterPayOld
     /**
      *
      * @param OrderEntity $order
-     * @param SalesChannelContext $salesChannelContext
      * @param RequestDataBag $dataBag
      * @param string $paymentCode
      *
@@ -37,7 +36,6 @@ class AfterPayOld
      */
     public function buildPayParameters(
         OrderEntity $order,
-        SalesChannelContext $salesChannelContext,
         RequestDataBag $dataBag,
         string $paymentCode
     ): array {
@@ -181,7 +179,7 @@ class AfterPayOld
                 'identifier'        => $item['sku'],
                 'description'       => $item['name'],
                 'quantity'          => $item['quantity'],
-                'price'             => $item['unitPrice']['value'],
+                'price'             => $item['unitPrice'],
                 'vatCategory'       => $this->getItemVatCategory($item),
             ];
         }

@@ -147,9 +147,9 @@ class BuckarooTransactionService
                 }
                 foreach ($items['orderItems'] as $key2 => $value2) {
                     if (isset($value2['id']) && $key3 == $value2['id']) {
-                        $totalAmount = (float)$value2['totalAmount']['value'] - ((float)$value2['unitPrice']['value'] * (int)$quantity); //phpcs:ignore Generic.Files.LineLength.TooLong
+                        $totalAmount = (float)$value2['totalAmount'] - ((float)$value2['unitPrice'] * (int)$quantity); //phpcs:ignore Generic.Files.LineLength.TooLong
                         $items['orderItems'][$key2]['quantity'] = (int)$value2['quantity'] - (int)$quantity;
-                        $items['orderItems'][$key2]['totalAmount']['value'] = $totalAmount;
+                        $items['orderItems'][$key2]['totalAmount'] = $totalAmount;
                         if ($items['orderItems'][$key2]['quantity'] < 0) {
                             $items['orderItems'][$key2]['quantity'] = 0;
                         }
