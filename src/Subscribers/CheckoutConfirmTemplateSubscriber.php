@@ -59,7 +59,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $event->getPage()->setPaymentMethods(
             $paymentMethods->filter(function ($paymentMethod) use ($salesChannelId, $event) {
                 $buckarooKey = $this->getBuckarooKey($paymentMethod->getTranslated());
-            
+
                 if ($buckarooKey === 'payperemail') {
                     return $this->isPaymentEnabled($buckarooKey, $salesChannelId) &&
                         !$this->isPayPermMailDisabledInFrontend($salesChannelId);
@@ -117,6 +117,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if ($paymentMethod === null || $stateMachine === null) {
             return;
         }
+
+        /** @var \Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface */
         $session = $event->getRequest()->getSession();
 
         if (
@@ -216,15 +218,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $shippingCompany = $shippingAddress->getCompany();
             }
         }
-        if (
-            $isStrictB2B &&
+        return !($isStrictB2B &&
             $this->isCompanyEmpty($billingCompany) &&
             $this->isCompanyEmpty($shippingCompany)
-        ) {
-            return false;
-        }
-
-        return true;
+        );
     }
 
     /**
