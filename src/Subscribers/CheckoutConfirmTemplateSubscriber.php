@@ -131,6 +131,15 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
 
 
+    /**
+     * Add buckaroo extension to pages
+     *
+     * @param CheckoutCartPageLoadedEvent|AccountEditOrderPageLoadedEvent|ProductPageLoadedEvent|
+     * AccountPaymentMethodPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
+     * @param string $page
+     *
+     * @return void
+     */
     private function addExtension($event, string $page): void
     {
         $event->getPage()->addExtension(

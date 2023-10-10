@@ -57,6 +57,13 @@ class State
         return $this->salesChannelContext;
     }
 
+    /**
+     * Get settings
+     *
+     * @param string $name
+     *
+     * @return mixed|null
+     */
     public function getSetting(string $name)
     {
         return $this->settingsService->getSetting($name, $this->getSalesChannelId());
@@ -67,7 +74,11 @@ class State
         if ($buckarooKey === null) {
             $buckarooKey = $this->getBuckarooKey();
         }
-        
+
+        if ($buckarooKey === null) {
+            return 0;
+        }
+
         return $this->settingsService->getBuckarooFee($buckarooKey, $this->getSalesChannelId());
     }
 

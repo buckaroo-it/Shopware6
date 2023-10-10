@@ -22,12 +22,15 @@ class Afterpay implements ConfigInterface
     /**
      * Can display phone number if required
      *
-     * @param CustomerEntity $customer
+     * @param CustomerEntity|null $customer
      *
      * @return boolean
      */
-    private function canShowPhone(CustomerEntity $customer): bool
+    private function canShowPhone(CustomerEntity $customer = null): bool
     {
+        if ($customer === null) {
+            return true;
+        }
         $billingAddress = $customer->getActiveBillingAddress();
         $shippingAddress = $customer->getActiveShippingAddress();
 
