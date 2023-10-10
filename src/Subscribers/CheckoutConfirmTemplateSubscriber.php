@@ -181,6 +181,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             $event->getSalesChannelContext()->getSalesChannelId()
         ) === AfterPayPaymentHandler::CUSTOMER_TYPE_B2B;
 
+        if (!$isStrictB2B) {
+            return true;
+        }
 
         if ($event instanceof AccountEditOrderPageLoadedEvent) {
             $order = $event->getPage()->getOrder();
@@ -190,12 +193,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $billingCompany = $billingAddress->getCompany();
             }
 
-            if ($order->getDeliveries() !== null) {
-                /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
-                $shippingAddress = $order->getDeliveries()->getShippingAddress()->first();
-                if ($shippingAddress !== null) {
-                    $shippingCompany = $shippingAddress->getCompany();
-                }
+            /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
+            $shippingAddress = $order->getDeliveries()?->getShippingAddress()->first();
+            if ($shippingAddress !== null) {
+                $shippingCompany = $shippingAddress->getCompany();
             }
         }
 
@@ -218,10 +219,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $shippingCompany = $shippingAddress->getCompany();
             }
         }
-        return !($isStrictB2B &&
-            $this->isCompanyEmpty($billingCompany) &&
-            $this->isCompanyEmpty($shippingCompany)
-        );
+        return !($this->isCompanyEmpty($billingCompany) &&
+            $this->isCompanyEmpty($shippingCompany));
     }
 
     /**
