@@ -47,7 +47,6 @@
             <argument type="string">14</argument>
         </service>
 
-
         <service id="Buckaroo\Shopware6\Service\TransactionService">
             <argument type="service" id="order_transaction.repository"/>
         </service>
@@ -502,14 +501,60 @@
 
 
         <service id="Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber" >
-            <argument type="service" id="sales_channel.payment_method.repository"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
             <argument type="service" id="translator" />
-            <argument type="service" id="Buckaroo\Shopware6\Service\PayByBankService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Service\In3LogoService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Service\IdealIssuerService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Config\PageFactory" />
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+
+        <service id="Buckaroo\Shopware6\Service\Config\Common\ApplePay"/>
+        <service id="Buckaroo\Shopware6\Service\Config\Common\PaypalExpress"/>
+
+        <service id="Buckaroo\Shopware6\Service\Config\Payment\Common">
+            <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\Config\Payment\Ideal">
+            <argument type="service" id="Buckaroo\Shopware6\Service\IdealIssuerService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\Config\Payment\PayByBank">
+            <argument type="service" id="Buckaroo\Shopware6\Service\PayByBankService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\Config\Payment\In3">
+            <argument type="service" id="Buckaroo\Shopware6\Service\In3LogoService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\Config\Payment\Afterpay"/>
+        <service id="Buckaroo\Shopware6\Service\Config\Payment\Billink"/>
+        <service id="Buckaroo\Shopware6\Service\Config\Payment\CreditCard"/>
+        <service id="Buckaroo\Shopware6\Service\Config\Payment\CreditCards"/>
+
+        <service id="Buckaroo\Shopware6\Service\Config\CheckoutFactory">
+            <argument type="service" id="Buckaroo\Shopware6\Service\Config\Payment\Common"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="collection">
+                <argument type="service" key="ideal" id="Buckaroo\Shopware6\Service\Config\Payment\Ideal"/>
+                <argument type="service" key="idealprocessing" id="Buckaroo\Shopware6\Service\Config\Payment\Ideal"/>
+                <argument type="service" key="paybybank" id="Buckaroo\Shopware6\Service\Config\Payment\PayByBank"/>
+                <argument type="service" key="capayable" id="Buckaroo\Shopware6\Service\Config\Payment\In3"/>
+                <argument type="service" key="afterpay" id="Buckaroo\Shopware6\Service\Config\Payment\Afterpay"/>
+                <argument type="service" key="Billink" id="Buckaroo\Shopware6\Service\Config\Payment\Billink"/>
+                <argument type="service" key="creditcard" id="Buckaroo\Shopware6\Service\Config\Payment\CreditCard"/>
+                <argument type="service" key="creditcards" id="Buckaroo\Shopware6\Service\Config\Payment\CreditCards"/>
+            </argument>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\Config\PageFactory">
+            <argument type="service" id="Buckaroo\Shopware6\Service\Config\CheckoutFactory"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="collection">
+                <argument type="service" id="Buckaroo\Shopware6\Service\Config\Common\ApplePay"/>
+                <argument type="service" id="Buckaroo\Shopware6\Service\Config\Common\PaypalExpress"/>
+            </argument>
         </service>
 
         <service id="Buckaroo\Shopware6\Resources\snippet\de_DE\GermanTranslations">
