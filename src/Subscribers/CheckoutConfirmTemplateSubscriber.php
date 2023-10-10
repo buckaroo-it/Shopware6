@@ -134,7 +134,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     /**
      * Add buckaroo extension to pages
      *
-     * @param PageLoadedEvent $event
+     * @param \Shopware\Storefront\Page\PageLoadedEvent $event
      * @param string $page
      *
      * @return void
