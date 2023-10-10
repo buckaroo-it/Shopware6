@@ -19,7 +19,7 @@ class CreditCard implements ConfigInterface
         ];
     }
 
-    private function getLastUsedCreditCard(?CustomerEntity $customer = null)
+    private function getLastUsedCreditCard(?CustomerEntity $customer = null): string
     {
         $lastUsedCreditcard = 'visa';
 
@@ -27,7 +27,7 @@ class CreditCard implements ConfigInterface
             $storedUsedCreditcard = $customer->getCustomFieldsValue(CreditcardPaymentHandler::ISSUER_LABEL);
         }
 
-        if (is_string($lastUsedCreditcard)) {
+        if (is_string($storedUsedCreditcard)) {
             $lastUsedCreditcard = $storedUsedCreditcard;
         }
 
