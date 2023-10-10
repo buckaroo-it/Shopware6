@@ -22,7 +22,6 @@ export default class IdealQrPlugin extends Plugin {
   }
 
   singlePullStatus() {
-    this.options;
     this.httpClient.post(
       this.options.pullUrl,
       JSON.stringify({
