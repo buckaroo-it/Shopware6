@@ -22,10 +22,7 @@ class CreditCard implements ConfigInterface
     private function getLastUsedCreditCard(?CustomerEntity $customer = null): string
     {
         $lastUsedCreditcard = 'visa';
-
-        if ($customer !== null) {
-            $storedUsedCreditcard = $customer->getCustomFieldsValue(CreditcardPaymentHandler::ISSUER_LABEL);
-        }
+        $storedUsedCreditcard = $customer?->getCustomFieldsValue(CreditcardPaymentHandler::ISSUER_LABEL);
 
         if (is_string($storedUsedCreditcard)) {
             $lastUsedCreditcard = $storedUsedCreditcard;
