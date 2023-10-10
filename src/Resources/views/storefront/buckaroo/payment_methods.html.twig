@@ -7,7 +7,7 @@
         <div data-bk-paybybank-logo data-buckaroo-pay-by-bank-logo-options='{{ payByBankConfig|json_encode }}'></div>
     {% endif %}
     
-    <div class="buckaroo-payment-body mb-2 ml-4">
+    <div class="buckaroo-payment-body mx-4 mb-4">
     {% if context.paymentMethod.translated.customFields.buckaroo_key == payment.translated.customFields.buckaroo_key %}
 
         {% if page.extensions.buckaroo.backLink %}
@@ -27,7 +27,7 @@
                             {% if page.extensions.buckaroo.ideal_render_mode > 0 %}
                                 <div>
                                     <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
-                                    <select name="bankMethodId" id="bankMethodId" form="confirmOrderForm" required="required" class="form-control" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
+                                    <select name="bankMethodId" id="bankMethodId" form="confirmOrderForm" required="required" class="form-select" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
                                         <option value="">{{ "buckaroo.checkout.selectBankIssuer"|trans }}</option>
                                             {% for issuer in page.extensions.buckaroo.issuers %}
                                                 <option value="{{ issuer.id }}">{{ issuer.name }}</option>
@@ -46,7 +46,7 @@
                                             name="bankMethodId"
                                             value="{{ issuer.id }}"
                                             class="custom-control-input bank-method-input">
-                                            <label class="custom-control-label bank-method-label" for="bankMethod{{ issuer.code }}">
+                                            <label class="custom-control-label bank-method-label" for="bankMethod{{ issuer.id }}">
                                                 <img src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/issuers/#{issuer.imgName}.svg")}}" class="bank-method-image" width="25"  alt="{{ issuer.name }}" title="{{ issuer.name }}">
                                                 <strong>{{ issuer.name }}</strong>
                                             </label>
@@ -128,7 +128,7 @@
                     {% block buckaroo_payment_method_creditcard %}
                         <label>{{ "buckaroo.checkout.selectCreditCard"|trans }}*:</label>
                         {% if page.extensions.buckaroo.creditcard|length > 0 %}
-                            <select form="confirmOrderForm" required="required" name="creditcard" class="custom-select" style="max-width: 300px;margin-left: 0.5rem;margin-bottom: 0.5rem;">
+                            <select form="confirmOrderForm" required="required" name="creditcard" class="form-select">
                                 {% for creditcard in page.extensions.buckaroo.creditcard %}
                                     <option {% if page.extensions.buckaroo.last_used_creditcard == creditcard.code %} selected="selected" {% endif %} value="{{ creditcard.code }}">{{ creditcard.name }}</option>
                                 {% endfor %}
@@ -140,7 +140,7 @@
                     {% block buckaroo_payment_method_creditcards %}
                         {% if page.extensions.buckaroo.creditcards|length > 0 %}
                             <div class="card buckaroo-creditcards">
-                                <fieldset>
+                                <div>
                                     <div class="form-row col-md-12">
                                         <div class="form-group col-md-12">
                                             <label class="form-label" for="creditcards_issuer">{{ "buckaroo.checkout.creditcards.card" | trans }}:</label>
@@ -151,7 +151,7 @@
                                                     {% endfor %}
                                             </select>  
                                             <div class="card_kind">
-                                                <img id="card_kind_img" src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/creditcards.svg") }}">
+                                                <img id="card_kind_img" alt="credicard" src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/creditcards.svg") }}">
                                             </div>
                                         </div>
 
@@ -210,7 +210,7 @@
                                         </div>
 
                                     </div>
-                                </fieldset>
+                                </div>
                             </div>
                         {% endif %}
                     {% endblock %}
@@ -218,7 +218,7 @@
                 {% elseif payment.translated.customFields.buckaroo_key == 'afterpay' %}
                     {% block buckaroo_payment_method_afterpay %}
                         <div class="payment-method-second-col billing-address-form">
-                            <fieldset class="fieldset payment">
+                            <div class="fieldset payment">
 
                                 {% if page.extensions.buckaroo.afterpayCustomerType == 'b2b' and 
                                      context.customer.activeBillingAddress.company|length == 0 and
@@ -309,26 +309,26 @@
                                     <span>
                                         <a target="_blank" href="https://documents.myafterpay.com/consumer-terms-conditions/{% set countryIso = context.customer.activeBillingAddress.country.iso %} {% if countryIso == 'DE' %} de_de {% elseif countryIso == 'AT' %} de_at {% elseif countryIso == 'NL' %} nl_nl {% elseif countryIso == 'BE' %} nl_be {% elseif countryIso == 'FI' %} fi_fi {% else %} en_nl {% endif %}/">{{ "buckaroo.checkout.buckarooAfterpayTermsCondition"|trans }}</a>
                                         {% if countryIso == 'BE' %}
-                                            ({{ "buckaroo.checkout.buckarooAfterpayOrClickHere"|trans }}: <a target="_blank" href="https://documents.myafterpay.com/consumer-terms-conditions/fr_be/">{{ "buckaroo.checkout.buckarooAfterpayTermsAndCondition"|trans }}</a>.)
+                                            ({{ "buckaroo.checkout.buckarooAfterpayOrClickHere"|trans }}: <a target="_blank" href="https://documents.myafterpay.com/consumer-terms-conditions/fr_be/" rel="noopener">{{ "buckaroo.checkout.buckarooAfterpayTermsAndCondition"|trans }}</a>.)
                                         {% endif %}
                                     </span>
                                 </div>
 
-                            </fieldset>
+                            </div>
                         </div>
                     {% endblock %}
 
                 {% elseif payment.translated.customFields.buckaroo_key == 'Billink' %}
                     {% block buckaroo_payment_method_billink %}
                         <div class="payment-method-second-col billing-address-form">
-                            <fieldset class="fieldset payment">
+                            <div class="fieldset payment">
 
                                     <div class="form-row">
                                         <div class="form-group col-md-3 col-sm-6">
                                             <label class="form-label" for="buckaroo_billink_gender">
                                                 {{ "buckaroo.checkout.gender" | trans }}*
                                             </label>
-                                            <select class="custom-select" id="buckaroo_billink_gender" name="buckaroo_billink_gender" required="required" form="confirmOrderForm">
+                                            <select class="form-select" id="buckaroo_billink_gender" name="buckaroo_billink_gender" required="required" form="confirmOrderForm">
                                                 <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="Male">{{ "buckaroo.checkout.male" | trans }}</option>
                                                 <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="Female">{{ "buckaroo.checkout.female" | trans }}</option>
                                                 <option value="Unknown">{{ "buckaroo.checkout.they" | trans }}</option>
@@ -422,18 +422,18 @@
                                     <input id="buckaroo_afterpay_TermsCondition" class="custom-control-input" form="confirmOrderForm" name="buckaroo_afterpay_TermsCondition" required="required" type="checkbox">
                                     <label class="custom-control-label" for="buckaroo_afterpay_TermsCondition"> <span>{{ "buckaroo.checkout.buckarooAfterpayTermsConditionTitle"|trans }}:</span> </label>
                                     <span>
-                                        <a target="_blank" href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf">{{ "buckaroo.checkout.buckarooBillinkTermsCondition"|trans }}</a>
+                                        <a target="_blank" rel="noopener" href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf">{{ "buckaroo.checkout.buckarooBillinkTermsCondition"|trans }}</a>
                                     </span>
                                 </div>
                                 
-                            </fieldset>
+                            </div>
                         </div>
                     {% endblock %}
 
                 {% elseif payment.translated.customFields.buckaroo_key == 'capayable' %}
                     {% block buckaroo_payment_method_capayable %}
                         <div class="payment-method-second-col billing-address-form">
-                            <fieldset class="fieldset payment">
+                            <div class="fieldset payment">
 
                                 <div class="form-group">
                                     <label class="form-label" for="buckarooIn3Phone">
@@ -476,7 +476,7 @@
                                 <div class="field">
                                     <label class="label" for="buckaroo_capayablein3_OrderAs"> <span>{{ "buckaroo.checkout.orderAs"|trans }}:</span> </label>
                                     <div class="control">
-                                        <select id="buckaroo_capayablein3_OrderAs" name="buckaroo_capayablein3_orderAs" form="confirmOrderForm" class="custom-select">
+                                        <select id="buckaroo_capayablein3_OrderAs" name="buckaroo_capayablein3_orderAs" form="confirmOrderForm" class="form-select">
                                             <option value="Debtor">{{ "buckaroo.checkout.private"|trans }}</option>
                                             <option value="Company">{{ "buckaroo.checkout.company"|trans }}</option>
                                             <option value="SoleProprietor">{{ "buckaroo.checkout.oneManBusiness"|trans }}</option>
@@ -511,14 +511,14 @@
                                     </div>
                                 </div>
 
-                            </fieldset>
+                            </div>
                         </div>
                     {% endblock %}
 
                 {% elseif payment.translated.customFields.buckaroo_key == 'giropay' %}
                     {% block buckaroo_payment_method_giropay %}
                         <div class="payment-method-second-col billing-address-form">
-                            <fieldset class="fieldset payment">
+                            <div class="fieldset payment">
 
                                 <div class="form-group">
                                     <label class="form-label" for="buckarooGiropayBic">
@@ -534,14 +534,14 @@
                                            placeholder="{{ "buckaroo.checkout.buckarooGiropayBicPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                            required="required">
                                 </div>
-                            </fieldset>
+                            </div>
                         </div>
                     {% endblock %}
 
                 {% elseif payment.translated.customFields.buckaroo_key == 'sepadirectdebit' %}
                     {% block buckaroo_payment_method_sepadirectdebit %}
                         <div class="payment-method-second-col billing-address-form">
-                            <fieldset class="fieldset payment">
+                            <div class="fieldset payment">
 
                             <div class="form-group">
                                 <label class="form-label" for="buckarooSepaDirectDebitCustomer">
@@ -572,7 +572,7 @@
                                        placeholder="{{ "buckaroo.checkout.buckarooIBANPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                        required="required">
                                 </div>
-                            </fieldset>
+                            </div>
                         </div>
                     {% endblock %}
 
@@ -590,14 +590,14 @@
                 {% elseif payment.translated.customFields.buckaroo_key == 'klarna' or payment.translated.customFields.buckaroo_key == 'klarnain' %}
                     {% block buckaroo_payment_method_klarna %}
                         <div class="payment-method-second-col billing-address-form">
-                            <fieldset class="fieldset payment">
+                            <div class="fieldset payment">
                                 
                                 <div class="form-row">
                                     <div class="form-group col-md-3 col-sm-6">
                                         <label class="form-label" for="buckaroo_klarna_gender">
                                             {{ "buckaroo.checkout.gender" | trans }}*
                                         </label>
-                                        <select class="custom-select" id="buckaroo_klarna_gender" name="buckaroo_klarna_gender" required="required" form="confirmOrderForm">
+                                        <select class="form-select" id="buckaroo_klarna_gender" name="buckaroo_klarna_gender" required="required" form="confirmOrderForm">
                                             <option value="0">{{ "buckaroo.checkout.NotSpecified" | trans }}</option>
                                             <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="male">{{ "buckaroo.checkout.male" | trans }}</option>
                                             <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="female">{{ "buckaroo.checkout.female" | trans }}</option>
@@ -635,14 +635,14 @@
                                     </div>
                                 </div>
 
-                            </fieldset>
+                            </div>
                         </div>
                     {% endblock %}
 
                 {% elseif payment.translated.customFields.buckaroo_key == 'klarnakp' %}
                     {% block buckaroo_payment_method_klarnakp %}
                         <div class="payment-method-second-col billing-address-form">
-                            <fieldset class="fieldset payment">
+                            <div class="fieldset payment">
 
                                 <div class="form-group">
                                     <label class="form-label" for="buckarooKlarnakpPhone">
@@ -674,21 +674,21 @@
                                     </div>
                                 </div>
 
-                            </fieldset>
+                            </div>
                         </div>
                     {% endblock %}
 
                 {% elseif payment.translated.customFields.buckaroo_key == 'payperemail' %}
                     {% block buckaroo_payment_method_payperemail %}
                         <div class="payment-method-second-col billing-address-form">
-                            <fieldset class="fieldset payment">
+                            <div class="fieldset payment">
 
                                 <div class="form-row">
                                     <div class="form-group col-md-3 col-sm-6">
                                         <label class="form-label" for="buckaroo_payperemail_gender">
                                             {{ "buckaroo.checkout.gender" | trans }}*
                                         </label>
-                                        <select class="custom-select" id="buckaroo_payperemail_gender" name="buckaroo_payperemail_gender" required="required" form="confirmOrderForm">
+                                        <select class="form-select" id="buckaroo_payperemail_gender" name="buckaroo_payperemail_gender" required="required" form="confirmOrderForm">
                                             <option value="0">{{ "buckaroo.checkout.NotSpecified" | trans }}</option>
                                             <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="1">{{ "buckaroo.checkout.male" | trans }}</option>
                                             <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="2">{{ "buckaroo.checkout.female" | trans }}</option>
@@ -740,7 +740,7 @@
                                     </div>                
                                 </div>
 
-                            </fieldset>
+                            </div>
                         </div>
                     {% endblock %}
 
