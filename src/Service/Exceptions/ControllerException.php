@@ -1,0 +1,9 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Buckaroo\Shopware6\Service\Exceptions;
+
+class ControllerException extends \Exception
+{
+}

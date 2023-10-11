@@ -67,7 +67,6 @@ Component.register('buckaroo-afterpay-old-tax', {
                         if (this.value[taxId]) {
                             return this.value[taxId];
                         }
-                        return;
                     }
                 }
                 });

@@ -1,8 +1,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 
 export default class BuckarooPaymentCreditcards extends Plugin {
-    init()
-    {
+    init() {
         this._listenToSubmit();
         this._createScript(() => {
             const creditcardsInputs = ['creditcards_issuer', 'creditcards_cardholdername', 'creditcards_cardnumber', 'creditcards_expirationmonth', 'creditcards_expirationyear', 'creditcards_cvc'];
@@ -17,12 +16,10 @@ export default class BuckarooPaymentCreditcards extends Plugin {
                 document.getElementById('card_kind_img').setAttribute('src', field.options[field.selectedIndex].getAttribute('data-logo'));
             }
             this._getEncryptedData();
-            // this._CheckValidate();
         });
     }
 
-    _createScript(callback)
-    {
+    _createScript(callback) {
         const url = 'https://static.buckaroo.nl/script/ClientSideEncryption001.js';
         const script = document.createElement('script');
         script.type = 'text/javascript';
@@ -31,8 +28,7 @@ export default class BuckarooPaymentCreditcards extends Plugin {
         document.head.appendChild(script);
     }
 
-    _getEncryptedData()
-    {
+    _getEncryptedData() {
         const getEncryptedData = function (cardNumber, year, month, cvc, cardholder) {
             window.BuckarooClientSideEncryption.V001.encryptCardData(
                 cardNumber,
@@ -58,22 +54,20 @@ export default class BuckarooPaymentCreditcards extends Plugin {
         }
     }
 
-    _handleInputChanged(event)
-    {
+    _handleInputChanged(event) {
         const fieldId = event.target.id;
         const field = document.getElementById(fieldId);
-        switch (fieldId) {
-            case 'creditcards_issuer':
-                document.getElementById('card_kind_img').setAttribute('src', field.options[field.selectedIndex].getAttribute('data-logo'));
-                break;
-            default:
-                this._CheckValidate();
+        if (fieldId == 'creditcards_issuer') {
+            document.getElementById('card_kind_img').setAttribute('src', field.options[field.selectedIndex].getAttribute('data-logo'));
+        }
+        else {
+
+            this._CheckValidate();
         }
         this._getEncryptedData();
     }
 
-    _handleCheckField(field)
-    {
+    _handleCheckField(field) {
         document.getElementById(field.id + 'Error').style.display = 'none';
         switch (field.id) {
             case 'creditcards_cardnumber':
@@ -111,8 +105,7 @@ export default class BuckarooPaymentCreditcards extends Plugin {
         return true;
     }
 
-    _CheckValidate()
-    {
+    _CheckValidate() {
         let not_valid = false;
         const buckarooInputs = ['creditcards_cardholdername', 'creditcards_cardnumber', 'creditcards_expirationmonth', 'creditcards_expirationyear', 'creditcards_cvc'];
         for (const fieldId of buckarooInputs) {
@@ -126,29 +119,25 @@ export default class BuckarooPaymentCreditcards extends Plugin {
         return this._disableConfirmFormSubmit(not_valid);
     }
 
-    _disableConfirmFormSubmit(disable)
-    {
+    _disableConfirmFormSubmit(disable) {
         const field = document.getElementById('confirmFormSubmit');
         if (field) {
             document.getElementById('confirmFormSubmit').disabled = disable;
         }
         return disable;
     }
-    _registerCheckoutSubmitButton()
-    {
+    _registerCheckoutSubmitButton() {
         const field = document.getElementById('confirmFormSubmit');
         if (field) {
             field.addEventListener('click', this._handleCheckoutSubmit.bind(this));
         }
     }
-    _validateOnSubmit(e)
-    {
+    _validateOnSubmit(e) {
         e.preventDefault();
         let valid = !this._CheckValidate();
-        document.$emitter.publish('buckaroo_payment_validate', {valid, type:'credicard'});
+        document.$emitter.publish('buckaroo_payment_validate', { valid, type: 'credicard' });
     }
-    _listenToSubmit()
-    {
+    _listenToSubmit() {
         document.$emitter.subscribe('buckaroo_payment_submit', this._validateOnSubmit.bind(this))
     }
 }

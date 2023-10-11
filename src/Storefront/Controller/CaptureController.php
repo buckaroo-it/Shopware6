@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Service\OrderService;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\CaptureService;
+use Buckaroo\Shopware6\Service\Exceptions\ControllerException;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,14 +50,33 @@ class CaptureController extends StorefrontController
     )]
     public function captureBuckaroo(Request $request, Context $context): JsonResponse
     {
+        try {
+            return new JsonResponse(
+                $this->captureService->capture(
+                    $request,
+                    $this->getOrder($request, $context),
+                    $context
+                )
+            );
+        } catch (\Exception $exception) {
+            $this->logger->debug((string)$exception);
+            return new JsonResponse(
+                [
+                    'status'  => false,
+                    'message' => $exception->getMessage(),
+                    'code'    => 0,
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+    }
 
+    private function getOrder(Request $request, Context $context): OrderEntity
+    {
         $orderId = $request->get('transaction');
 
         if (empty($orderId) || !is_string($orderId)) {
-            return new JsonResponse(
-                ['status' => false, 'message' => $this->trans("buckaroo-payment.missing_order_id")],
-                Response::HTTP_NOT_FOUND
-            );
+            throw new ControllerException($this->trans("buckaroo-payment.missing_order_id"));
         }
 
         $order = $this->orderService
@@ -75,26 +96,9 @@ class CaptureController extends StorefrontController
             );
 
         if (null === $order) {
-            return new JsonResponse(
-                ['status' => false, 'message' => $this->trans("buckaroo-payment.missing_transaction")],
-                Response::HTTP_NOT_FOUND
-            );
+            throw new ControllerException($this->trans("buckaroo-payment.missing_transaction"));
         }
 
-        try {
-            return new JsonResponse(
-                $this->captureService->capture($request, $order, $context)
-            );
-        } catch (\Exception $exception) {
-            $this->logger->debug((string)$exception);
-            return new JsonResponse(
-                [
-                    'status'  => false,
-                    'message' => $exception->getMessage(),
-                    'code'    => 0,
-                ],
-                Response::HTTP_BAD_REQUEST
-            );
-        }
+        return $order;
     }
 }

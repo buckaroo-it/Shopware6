@@ -5,7 +5,7 @@ export default class BuckarooLoadScripts extends Plugin {
     loadSdk()
     {
         return new Promise((resolve) => {
-            var script = document.createElement("script");
+            let script = document.createElement("script");
             script.src = "https://checkout.buckaroo.nl/api/buckaroosdk/script/en-US";
             // script.src = "https://testcheckout.buckaroo.nl/api/buckaroosdk/script/en-US";
             script.async = true;

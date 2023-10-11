@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Buckaroo\Shopware6\Service\Exceptions\ControllerException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
@@ -149,14 +150,14 @@ class PaypalExpressController extends AbstractPaymentController
         $cart = $this->getCartByToken($cartToken, $salesChannelContext);
 
         if ($cart === null) {
-            throw new \Exception("Cannot find cart", 1);
+            throw new ControllerException("Cannot find cart", 1);
         }
         $order = $this->orderService
             ->setSaleChannelContext($salesChannelContext)
             ->persist($cart);
 
         if ($order === null) {
-            throw new \Exception("Cannot create order", 1);
+            throw new ControllerException("Cannot create order", 1);
         }
         return $order;
     }

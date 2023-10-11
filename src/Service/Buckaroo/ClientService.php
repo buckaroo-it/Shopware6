@@ -70,7 +70,7 @@ class ClientService
 
         if (
             $configCode === 'capayable' &&
-            $this->settingsService->getSetting("capayableVersion") === In3PaymentHandler::V2
+            $this->settingsService->getSetting("capayableVersion", $salesChannelId) === In3PaymentHandler::V2
         ) {
             return 'in3old';
         }
@@ -83,7 +83,7 @@ class ClientService
             'idealqr' => 'ideal_qr'
         ];
         if (isset($mappings[$configCode])) {
-            return $mappings[$configCode];
+            $configCode = $mappings[$configCode];
         }
 
         return $configCode;

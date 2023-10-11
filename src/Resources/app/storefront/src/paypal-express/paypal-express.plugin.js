@@ -38,8 +38,7 @@ export default class PaypalExpressPlugin extends Plugin {
 
     form;
 
-    init()
-    {
+    init() {
         if (this.merchantId === null) {
             alert('Merchant id is required');
         }
@@ -52,8 +51,7 @@ export default class PaypalExpressPlugin extends Plugin {
     /**
      * Api events
      */
-    onShippingChangeHandler(data, actions)
-    {
+    onShippingChangeHandler(data, actions) {
         let shipping = this.setShipping(data);
         return shipping.then((response) => {
             if (response.error === false) {
@@ -72,35 +70,28 @@ export default class PaypalExpressPlugin extends Plugin {
             }
         })
     }
-    createPaymentHandler(data)
-    {
+    createPaymentHandler(data) {
         return this.createTransaction(data.orderID)
     }
-    onSuccessCallback()
-    {
+    onSuccessCallback() {
         if (this.result.error === true) {
             this.displayErrorMessage(message);
+        } else if (this.result.redirect) {
+            window.location = this.result.redirect;
         } else {
-            if (this.result.redirect) {
-                window.location = this.result.redirect;
-            } else {
-                this.displayErrorMessage(this.options.i18n.cannot_create_payment);
-            }
+            this.displayErrorMessage(this.options.i18n.cannot_create_payment);
         }
     }
 
-    onErrorCallback(reason)
-    {
+    onErrorCallback(reason) {
         // custom error behavior
         this.displayErrorMessage(reason);
     }
-    onCancelCallback()
-    {
+    onCancelCallback() {
         this.displayErrorMessage(this.options.i18n.cancel_error_message)
     }
 
-    onClickCallback()
-    {
+    onClickCallback() {
         //reset any previous payment response;
         this.result = null;
     }
@@ -110,8 +101,7 @@ export default class PaypalExpressPlugin extends Plugin {
      * @param {string} orderId
      * @returns Promise
      */
-    createTransaction(orderId)
-    {
+    createTransaction(orderId) {
 
         let data = {
             orderId,
@@ -138,8 +128,7 @@ export default class PaypalExpressPlugin extends Plugin {
      * @param {Object} data
      * @returns
      */
-    setShipping(data)
-    {
+    setShipping(data) {
         let formData = null;
 
         if (this.options.page === 'product') {
@@ -164,8 +153,7 @@ export default class PaypalExpressPlugin extends Plugin {
      * Display any validation errors we receive
      * @param {string} message
      */
-    displayErrorMessage(message)
-    {
+    displayErrorMessage(message) {
         $('.buckaroo-paypal-express-error').remove();
         if (typeof message === 'object') {
             message = this.options.i18n.cannot_create_payment;

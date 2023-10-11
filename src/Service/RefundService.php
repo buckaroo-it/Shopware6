@@ -387,15 +387,17 @@ class RefundService
         string $configCode,
         array $transaction
     ): array {
+        $payload = [];
+
         if (
             $configCode === "afterpay" &&
             $this->settingsService->getSetting('afterpayEnabledold') === true
         ) {
-            return $this->getRefundRequestArticlesForAfterpayOld($amount);
+            $payload = $this->getRefundRequestArticlesForAfterpayOld($amount);
         }
 
         if (in_array($configCode, ["afterpay", "Billink", "klarnakp"])) {
-            return $this->getRefundArticleData($amount);
+            $payload = $this->getRefundArticleData($amount);
         }
 
         if (
@@ -403,13 +405,13 @@ class RefundService
             isset($transaction['transaction_method']) &&
             is_string($transaction['transaction_method'])
         ) {
-            return [
+            $payload = [
                 "name" => $transaction['transaction_method'],
                 "version" => 2
             ];
         }
 
-        return [];
+        return $payload;
     }
 
 

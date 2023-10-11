@@ -128,10 +128,8 @@ class InvoiceService
         $criteria->addFilter(new EqualsFilter('mailTemplateType.technicalName', $technicalName));
         $criteria->setLimit(1);
 
-        /** @var MailTemplateEntity|null $mailTemplate */
-        $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
-
-        return $mailTemplate;
+        /** @var MailTemplateEntity|null */
+        return $this->mailTemplateRepository->search($criteria, $context)->first();
     }
 
     /**
