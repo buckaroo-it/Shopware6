@@ -88,7 +88,7 @@ class PaymentStateService
         }
     }
 
-    private function loginCustomer(?string $customerId, $salesChannelContext): void
+    private function loginCustomer(?string $customerId, SalesChannelContext $salesChannelContext): void
     {
         if ($customerId === null) {
             return;
