@@ -10,6 +10,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Buckaroo\Shopware6\Service\Exceptions\PaymentFailedException;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
@@ -26,14 +27,18 @@ class PaymentStateService
 
     protected StateMachineRegistry $stateMachineRegistry;
 
+    protected AccountService $accountService;
+
     public function __construct(
         OrderTransactionStateHandler $transactionStateHandler,
         StateMachineRegistry $stateMachineRegistry,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        AccountService $accountService
     ) {
         $this->transactionStateHandler = $transactionStateHandler;
         $this->stateMachineRegistry = $stateMachineRegistry;
         $this->translator = $translator;
+        $this->accountService = $accountService;
     }
 
     public function finalizePayment(
@@ -41,7 +46,7 @@ class PaymentStateService
         Request $request,
         SalesChannelContext $salesChannelContext
     ): void {
-
+        $this->loginCustomer($salesChannelContext->getCustomerId(), $salesChannelContext);
         $transactionId = $transaction->getOrderTransaction()->getId();
         $context = $salesChannelContext->getContext();
 
@@ -81,6 +86,15 @@ class PaymentStateService
                 $this->getPaymentStatusCode($request)
             );
         }
+    }
+
+    private function loginCustomer(?string $customerId, SalesChannelContext $salesChannelContext): void
+    {
+        if ($customerId === null) {
+            return;
+        }
+
+        $this->accountService->loginById($customerId, $salesChannelContext);
     }
 
     /**
