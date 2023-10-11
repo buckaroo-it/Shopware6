@@ -62,7 +62,7 @@ class UrlService
         return $this->router->generate(
             'frontend.action.buckaroo.redirect',
             [],
-            UrlGeneratorInterface::ABSOLUTE_PATH
+            UrlGeneratorInterface::ABSOLUTE_URL
         );
     }
 

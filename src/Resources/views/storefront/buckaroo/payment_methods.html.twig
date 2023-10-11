@@ -12,7 +12,7 @@
 
         {% if page.extensions.buckaroo.backLink %}
             <script>
-                window.buckaroo_back_link = '{{ app.request.get('sw-storefront-url') }}{{ page.extensions.buckaroo.backLink|raw }}';
+                window.buckaroo_back_link = '{{ page.extensions.buckaroo.backLink|raw }}';
                 var buckaroo_required_message =' {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}';
             </script>
         {% endif %}
