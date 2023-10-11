@@ -88,8 +88,12 @@ class PaymentStateService
         }
     }
 
-    private function loginCustomer(string $customerId, $salesChannelContext)
+    private function loginCustomer(?string $customerId, $salesChannelContext): void
     {
+        if ($customerId === null) {
+            return;
+        }
+
         $this->accountService->loginById($customerId, $salesChannelContext);
     }
 
