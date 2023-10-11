@@ -60,7 +60,6 @@ Component.register('buckaroo-settings', {
                 'klarnainEnabled': true,
                 'klarnakpEnabled': true,
                 'advancedConfiguration': true,
-                'BillinkCreateInvoiceAfterShipment': true,
                 'payperemailEnabled': true,
                 'paybybankEnabled': true,
             },
@@ -74,7 +73,7 @@ Component.register('buckaroo-settings', {
     },
 
     created() {
-        var that = this;
+        let that = this;
         this.createdComponent();
 
         this.BuckarooPaymentSettingsService.getSupportVersion()
@@ -98,7 +97,7 @@ Component.register('buckaroo-settings', {
 
     methods: {
         sendTestApi() {
-            var that = this,
+            let that = this,
                 websiteKeyId = this.getConfigValue('websiteKey'),
                 secretKeyId = this.getConfigValue('secretKey'),
                 currentSalesChannelId = this.$refs.systemConfig.currentSalesChannelId;
@@ -130,13 +129,7 @@ Component.register('buckaroo-settings', {
         },
 
         showLabel(element, card) {
-            if (element.type == 'single-select') {
-                return true;
-            }
-            if (element.type == 'multi-select') {
-                return true;
-            }
-            return false;
+            return ['single-select', 'multi-select'].indexOf(element.type) !== -1;
         },
 
         showHelpText(element, card) {
@@ -153,10 +146,7 @@ Component.register('buckaroo-settings', {
             if (config["BuckarooPayments.config.advancedConfiguration"] != undefined && config["BuckarooPayments.config.advancedConfiguration"]) {
                 name = 'orderStatus'
             }
-            if (element.name.includes(name)) {
-                return true;
-            }
-            return false;
+            return element.name.includes(name);
         },
 
         getLocale(config) {
@@ -191,7 +181,6 @@ Component.register('buckaroo-settings', {
         },
 
         createdComponent() {
-            var me = this;
         },
 
         saveFinish() {
@@ -212,11 +201,11 @@ Component.register('buckaroo-settings', {
         },
 
         validateWebsiteKey() {
-            return ((this.getConfigValue('websiteKey').length < 10) || (this.getConfigValue('websiteKey').length > 10)) ? false : true ;
+            return (this.getConfigValue('websiteKey').length < 10) || (this.getConfigValue('websiteKey').length > 10);
         },
 
         validateSecretKey() {
-            return ((this.getConfigValue('secretKey').length < 5) || (this.getConfigValue('secretKey').length > 50)) ? false : true ;
+            return (this.getConfigValue('secretKey').length < 5) || (this.getConfigValue('secretKey').length > 50);
         },
 
         getConfigValue(field) {
@@ -264,89 +253,86 @@ Component.register('buckaroo-settings', {
         },
 
         displayField(element, config) {
-            let id = element.name.replace("BuckarooPayments.config.", "");
-            if (id in this.collapsibleState) {
+
+            const conditionalFields = {
+                capayableLogo: [
+                    {key:'capayableVersion',values: [undefined, 'v3']},
+                    {key:'capayableEnabled',values: [true]}
+                ],
+                allowedcreditcard: [
+                    {key:'creditcardEnabled', values: [true]}
+                ],
+                allowedcreditcards: [
+                    {key:'creditcardsEnabled', values: [true]}
+                ],
+                allowedgiftcards: [
+                    {key:'giftcardsEnabled', values: [true]}
+                ],
+                applepayShowProduct:[
+                    {key:'applepayEnabled', values: [true]}
+                ],
+                applepayShowCart:[
+                    {key:'applepayEnabled', values: [true]}
+                ],
+                idealRenderMode:[
+                    {key:'idealEnabled', values: [true]}
+                ],
+                transferSendEmail:[
+                    {key:'transferEnabled', values: [true]}
+                ],
+                transferDateDue:[
+                    {key:'transferEnabled', values: [true]}
+                ],
+                afterpayCustomerType:[
+                    {key:'afterpayEnabled', values: [true]}
+                    ],
+                afterpayB2bMinAmount:[
+                    {key:'afterpayEnabled', values: [true]}
+                    ],
+                afterpayB2bMaxAmount:[
+                    {key:'afterpayEnabled', values: [true]}
+                ],
+                BillinkCreateInvoiceAfterShipment: [
+                    {key:'BillinkEnabled', values: [true]}
+                ]
+            }
+            let configKey = element.name.replace("BuckarooPayments.config.", "");
+            if (configKey in this.collapsibleState) {
                 return true;
             }
 
-            if (id in this.collapsibleAdvancedState) {
-                if (config["BuckarooPayments.config.advancedConfiguration"] != undefined && config["BuckarooPayments.config.advancedConfiguration"]) {
-                    return true;
-                }
+            if (configKey in this.collapsibleAdvancedState) {
+                return config["BuckarooPayments.config.advancedConfiguration"] === true;
             }
 
-            let fid = id;
-            id = id.split(/([A-Z][a-z]+)/).filter(function (e) {
+            let id = configKey.split(/([A-Z][a-z]+)/).filter(function (e) {
                 return e});
             id.pop();
             id = id.join("");
 
-        if (config["BuckarooPayments.config." + id + "Enabled"] != undefined && config["BuckarooPayments.config." + id + "Enabled"]) {
-            if (fid === "capayableLogo") {
-                if (
-                    config["BuckarooPayments.config.capayableVersion"] === undefined ||
-                    config["BuckarooPayments.config.capayableVersion"] ==='v3') {
-                    return true;
-                }
+            
+            if (Object.keys(conditionalFields).indexOf(configKey) !== -1) {
+                return this.canShowConditionalField(conditionalFields[configKey], config);
+            }
+
+            return config["BuckarooPayments.config." + id + "Enabled"] === true;
+        },
+        canShowConditionalField(conditionalFieldMapping, config) {
+            if (!Array.isArray(conditionalFieldMapping)) {
                 return false;
             }
-            return true;
-        }
+            return conditionalFieldMapping
+            .map(function(condition) {
+                if (typeof condition.key === 'string' && Array.isArray(condition.values)) {
+                    return condition.values.indexOf(config["BuckarooPayments.config." + condition.key]) !== -1
+                }
+                return false;
+            })
+            .reduce(function(prev, curr) {
+                return prev && curr;
+            })
 
-        if (fid == 'allowedcreditcard') {
-            if (config["BuckarooPayments.config.creditcardEnabled"] != undefined && config["BuckarooPayments.config.creditcardEnabled"]) {
-                return true;
-            }
-        }
-
-        if (fid == 'allowedcreditcards') {
-            if (config["BuckarooPayments.config.creditcardsEnabled"] != undefined && config["BuckarooPayments.config.creditcardsEnabled"]) {
-                return true;
-            }
-        }
-
-        if (fid == 'allowedgiftcards') {
-            if (config["BuckarooPayments.config.giftcardsEnabled"] != undefined && config["BuckarooPayments.config.giftcardsEnabled"]) {
-                return true;
-            }
-        }
-
-        if ((fid == 'applepayShowProduct') || (fid == 'applepayShowCart')) {
-            if (config["BuckarooPayments.config.applepayEnabled"] != undefined && config["BuckarooPayments.config.applepayEnabled"]) {
-                return true;
-            }
-        }
-
-        if ((fid == 'idealRenderMode')) {
-            if (config["BuckarooPayments.config.idealRenderMode"] != undefined && config["BuckarooPayments.config.idealEnabled"]) {
-                return true;
-            }
-        }
-
-        if ((fid == 'transferSendEmail') || (fid == 'transferDateDue')) {
-            if (config["BuckarooPayments.config.transferEnabled"] != undefined && config["BuckarooPayments.config.transferEnabled"]) {
-                return true;
-            }
-        }
-
-
-        if ((fid == 'afterpayCustomerType')) {
-            if (config["BuckarooPayments.config.afterpayEnabled"] != undefined && config["BuckarooPayments.config.afterpayEnabled"]) {
-                return true;
-            }
-        }
-
-
-        if ((fid == 'afterpayB2bMinAmount') || (fid == 'afterpayB2bMaxAmount')) {
-            if (config["BuckarooPayments.config.afterpayEnabled"] && config["BuckarooPayments.config.afterpayCustomerType"] != undefined && config["BuckarooPayments.config.afterpayCustomerType"] != 'b2c') {
-                return true;
-            }
-        }
-
-
-            return false;
         },
-
         getBind(element, config) {
             if (config !== this.config) {
                 this.onConfigChange(config);
