@@ -11,6 +11,9 @@
 
         <input-field type="password">
             <name>websiteKey</name>
+            <required>true</required>
+            <maxLength>30</maxLength>
+            <minLength>10</minLength>
             <autocomplete>new-password</autocomplete>
             <label lang="en-GB">(Website) key</label>
             <label lang="de-DE">(Website) key</label>
@@ -28,6 +31,9 @@
 
         <input-field type="password">
             <name>secretKey</name>
+            <required>true</required>
+            <maxLength>50</maxLength>
+            <minLength>5</minLength>
             <label lang="en-GB">Secret key</label>
             <label lang="de-DE">Geheimer Schlüssel</label>
             <label lang="nl-NL">Secret key</label>

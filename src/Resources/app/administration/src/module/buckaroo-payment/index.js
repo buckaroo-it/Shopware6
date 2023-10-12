@@ -3,7 +3,6 @@ const { Module } = Shopware;
 import './page/buckaroo-settings';
 
 import './extension/sw-order';
-import './extension/sw-settings-index';
 import './extension/sw-order-detail-base';
 import './extension/sw-order-user-card';
 import './extension/sw-context-menu-item';
@@ -20,8 +19,8 @@ Module.register('buckaroo-payment', {
     description: 'buckaroo-payment.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#000000',
-    icon: 'default-action-settings',
+    color: '#52667a',
+    icon: 'regular-plug',
 
     snippets: {
         'nl-NL': nlNL,
@@ -46,7 +45,7 @@ Module.register('buckaroo-payment', {
             component: 'buckaroo-settings',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.extension.my-extensions.listing.app'
             }
         }
     }

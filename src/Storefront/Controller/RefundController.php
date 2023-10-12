@@ -12,23 +12,22 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Shopware\Storefront\Controller\StorefrontController;
+use Buckaroo\Shopware6\Storefront\Controller\WithOrderController;
 
-class RefundController extends StorefrontController
+class RefundController extends WithOrderController
 {
     private RefundService $refundService;
 
-    private OrderService $orderService;
-
     protected LoggerInterface $logger;
+
     public function __construct(
         RefundService $refundService,
         OrderService $orderService,
         LoggerInterface $logger
     ) {
         $this->refundService = $refundService;
-        $this->orderService = $orderService;
         $this->logger = $logger;
+        parent::__construct($orderService);
     }
 
     /**
@@ -45,39 +44,10 @@ class RefundController extends StorefrontController
     )]
     public function refundBuckaroo(Request $request, Context $context): JsonResponse
     {
-        $orderId = $request->get('transaction');
         $transactionsToRefund = $request->get('transactionsToRefund');
 
-        if (empty($orderId) || !is_string($orderId)) {
-            return new JsonResponse(
-                ['status' => false, 'message' => $this->trans("buckaroo-payment.missing_order_id")],
-                Response::HTTP_NOT_FOUND
-            );
-        }
-
-        $order = $this->orderService
-            ->getOrderById(
-                $orderId,
-                [
-                    'orderCustomer.salutation',
-                    'stateMachineState',
-                    'lineItems',
-                    'transactions',
-                    'transactions.paymentMethod',
-                    'transactions.paymentMethod.plugin',
-                    'salesChannel',
-                    'currency'
-                ],
-                $context
-            );
-
-        if (null === $order) {
-            return new JsonResponse(
-                ['status' => false, 'message' => $this->trans("buckaroo-payment.missing_transaction")],
-                Response::HTTP_NOT_FOUND
-            );
-        }
         try {
+            $order = $this->getOrder($request, $context);
             $responses = [];
             if (is_array($transactionsToRefund)) {
                 $responses = $this->refundService->refundAll(

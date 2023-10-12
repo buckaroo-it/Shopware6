@@ -7,22 +7,18 @@ namespace Buckaroo\Shopware6\Storefront\Controller;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Service\OrderService;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\PayLinkService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Shopware\Storefront\Controller\StorefrontController;
-use Buckaroo\Shopware6\Service\Exceptions\ControllerException;
+use Buckaroo\Shopware6\Storefront\Controller\WithOrderController;
 
 /**
  */
-class PaylinkController extends StorefrontController
+class PaylinkController extends WithOrderController
 {
     protected PayLinkService $payLinkService;
-
-    protected OrderService $orderService;
 
     protected LoggerInterface $logger;
 
@@ -32,8 +28,8 @@ class PaylinkController extends StorefrontController
         LoggerInterface $logger
     ) {
         $this->payLinkService = $payLinkService;
-        $this->orderService = $orderService;
         $this->logger = $logger;
+        parent::__construct($orderService);
     }
 
     /**
@@ -65,36 +61,5 @@ class PaylinkController extends StorefrontController
                 Response::HTTP_BAD_REQUEST
             );
         }
-    }
-
-    private function getOrder(Request $request, Context $context): OrderEntity
-    {
-        $orderId = $request->get('transaction');
-
-        if (empty($orderId) || !is_string($orderId)) {
-            throw new ControllerException($this->trans("buckaroo-payment.missing_order_id"));
-        }
-
-        $order = $this->orderService
-            ->getOrderById(
-                $orderId,
-                [
-                    'orderCustomer.salutation',
-                    'stateMachineState',
-                    'lineItems',
-                    'transactions',
-                    'transactions.paymentMethod',
-                    'transactions.paymentMethod.plugin',
-                    'salesChannel',
-                    'currency'
-                ],
-                $context
-            );
-
-        if (null === $order) {
-            throw new ControllerException($this->trans("buckaroo-payment.missing_transaction"));
-        }
-
-        return $order;
     }
 }

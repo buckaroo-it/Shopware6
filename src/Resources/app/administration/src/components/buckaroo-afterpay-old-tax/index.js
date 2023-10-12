@@ -35,38 +35,38 @@ Component.register('buckaroo-afterpay-old-tax', {
             type: String,
             required: true,
             default: ''
-                },
-                value: {
-                    type: Object,
-                    required: false,
-                    default() {
-                        return {}
-                    }
-                }
-                },
+        },
+        value: {
+            type: Object,
+            required: false,
+            default() {
+                return {}
+            }
+        }
+    },
 
 
-                created() {
-                    this.BuckarooPaymentSettingsService.getTaxes()
-                        .then((result) => {
-                            this.taxes = result.taxes.map((tax) => {
-                                return {
-                                    id: tax.id,
-                                    name: tax.name
-                                };
-                            })
-                        });
+    created() {
+        this.BuckarooPaymentSettingsService.getTaxes()
+            .then((result) => {
+                this.taxes = result.taxes.map((tax) => {
+                    return {
+                        id: tax.id,
+                        name: tax.name
+                    };
+                })
+            });
 
-                },
-                methods: {
-                    setTaxAssociation(taxId, value) {
-                        this.taxAssociation[taxId] = value;
-                        this.$emit('change', {...this.value, ...this.taxAssociation});
-                    },
-                    getSelectValue(taxId) {
-                        if (this.value[taxId]) {
-                            return this.value[taxId];
-                        }
-                    }
-                }
-                });
+    },
+    methods: {
+        setTaxAssociation(taxId, value) {
+            this.taxAssociation[taxId] = value;
+            this.$emit('change', { ...this.value, ...this.taxAssociation });
+        },
+        getSelectValue(taxId) {
+            if (this.value[taxId]) {
+                return this.value[taxId];
+            }
+        }
+    }
+});

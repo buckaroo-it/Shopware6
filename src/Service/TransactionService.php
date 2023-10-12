@@ -153,24 +153,12 @@ class TransactionService
      */
     public function isBuckarooPaymentMethod(OrderEntity $order): bool
     {
-        $transactions = $order->getTransactions();
+        /** @var \Shopware\Core\Framework\Plugin\PluginEntity */
+        $plugin = $order->getTransactions()?->last()?->getPaymentMethod()?->getPlugin();
 
-        if ($transactions === null) {
-            throw new \InvalidArgumentException(self::ORDER_TRANSACTION_NOT_FOUND);
-        }
-
-        /** @var OrderTransactionEntity|null */
-        $transaction = $transactions->last();
-        if (
-            $transaction === null ||
-            $transaction->getPaymentMethod() === null ||
-            $transaction->getPaymentMethod()->getPlugin()
-        ) {
+        if($plugin === null) {
             return false;
         }
-
-        /** @var \Shopware\Core\Framework\Plugin\PluginEntity */
-        $plugin = $transaction->getPaymentMethod()->getPlugin();
    
         $baseClassArr         = explode('\\', $plugin->getBaseClass());
         $buckarooPaymentClass = explode('\\', BuckarooPayments::class);

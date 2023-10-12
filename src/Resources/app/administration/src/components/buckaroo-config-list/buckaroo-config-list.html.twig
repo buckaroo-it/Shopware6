@@ -1,0 +1,11 @@
+{% block sw_system_config_content_card_field %}
+   
+    <template v-if="canShow(element)">
+        {% parent %}
+    </template>
+    <buckaroo-test-credentials
+        v-if="element.name === 'BuckarooPayments.config.orderStatus'" 
+        :config="actualConfigData[currentSalesChannelId]"
+        :currentSalesChannelId="currentSalesChannelId"
+    />
+{% endblock %}

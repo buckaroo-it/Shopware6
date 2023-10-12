@@ -59,7 +59,7 @@ class RefundService
         array $transactionsToRefund
     ): array {
         if (!$this->transactionService->isBuckarooPaymentMethod($order)) {
-            return [];
+            throw new \InvalidArgumentException('Cannot do refunds');
         }
 
         $orderItems = $request->get('orderItems');
