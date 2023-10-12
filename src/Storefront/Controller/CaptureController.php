@@ -66,5 +66,4 @@ class CaptureController extends WithOrderController
             );
         }
     }
-
 }

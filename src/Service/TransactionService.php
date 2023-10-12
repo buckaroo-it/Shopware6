@@ -123,7 +123,7 @@ class TransactionService
 
         $customField = $orderTransaction->getCustomFields() ?? [];
 
-        $paymentHandler ='';
+        $paymentHandler = '';
 
         if ($transaction->getPaymentMethod() !== null) {
             $paymentHandler = $transaction->getPaymentMethod()->getHandlerIdentifier();
@@ -156,10 +156,10 @@ class TransactionService
         /** @var \Shopware\Core\Framework\Plugin\PluginEntity */
         $plugin = $order->getTransactions()?->last()?->getPaymentMethod()?->getPlugin();
 
-        if($plugin === null) {
+        if ($plugin === null) {
             return false;
         }
-   
+
         $baseClassArr         = explode('\\', $plugin->getBaseClass());
         $buckarooPaymentClass = explode('\\', BuckarooPayments::class);
 
