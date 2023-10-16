@@ -1974,6 +1974,114 @@
     </card>
 
     <card>
+    <title>MBPay</title>
+
+        <input-field type="bool">
+            <name>mbpayEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
+        </input-field>
+       
+        <input-field type="single-select">
+            <name>mbpayEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>mbpayLabel</name>
+            <label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
+            <defaultValue>MBPay</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>mbpayFee</name>
+            <min>0</min>
+            <max>1000</max>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
+        </input-field>
+    </card>
+
+    <card>
+    <title>Multibanco</title>
+
+        <input-field type="bool">
+            <name>multibancoEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
+        </input-field>
+       
+        <input-field type="single-select">
+            <name>multibancoEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>multibancoLabel</name>
+            <label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
+            <defaultValue>Multibanco</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>multibancoFee</name>
+            <min>0</min>
+            <max>1000</max>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
+        </input-field>
+    </card>
+    
+    <card>
     <title>Przelewy24</title>
 
         <input-field type="bool">
