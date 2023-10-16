@@ -52,7 +52,7 @@ Component.register('buckaroo-settings', {
                 'giftcardsEnabled': true,
                 'capayableEnabled': true,
                 'epsEnabled': true,
-                'mbpayEnabled': true,
+                'mbwayEnabled': true,
                 'multibancoEnabled': true,
                 'Przelewy24Enabled': true,
                 'AlipayEnabled': true,

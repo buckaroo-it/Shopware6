@@ -1974,10 +1974,10 @@
     </card>
 
     <card>
-    <title>MBPay</title>
+    <title>MBWay</title>
 
         <input-field type="bool">
-            <name>mbpayEnabled</name>
+            <name>mbwayEnabled</name>
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
@@ -1985,7 +1985,7 @@
         </input-field>
        
         <input-field type="single-select">
-            <name>mbpayEnvironment</name>
+            <name>mbwayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live:</label>
             <label lang="nl-NL">Test of Live:</label>
@@ -2004,7 +2004,7 @@
         </input-field>
 
         <input-field>
-            <name>mbpayLabel</name>
+            <name>mbwayLabel</name>
             <label lang="en-GB">Frontend label</label>
 			<label lang="de-DE">Frontend-Label</label>
 			<label lang="nl-NL">Frontend label</label>
@@ -2013,11 +2013,11 @@
 			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
 			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
 			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
-            <defaultValue>MBPay</defaultValue>
+            <defaultValue>MWPay</defaultValue>
         </input-field>
 
         <input-field type="float">
-            <name>mbpayFee</name>
+            <name>mbwayFee</name>
             <min>0</min>
             <max>1000</max>
             <label lang="en-GB">Buckaroo Fee</label>

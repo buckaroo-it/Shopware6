@@ -9,7 +9,7 @@ use Buckaroo\Shopware6\PaymentMethods\In3;
 use Buckaroo\Shopware6\PaymentMethods\Kbc;
 use Buckaroo\Shopware6\PaymentMethods\P24;
 use Buckaroo\Shopware6\PaymentMethods\Ideal;
-use Buckaroo\Shopware6\PaymentMethods\MBPay;
+use Buckaroo\Shopware6\PaymentMethods\MBWay;
 use Buckaroo\Shopware6\PaymentMethods\Alipay;
 use Buckaroo\Shopware6\PaymentMethods\Klarna;
 use Buckaroo\Shopware6\PaymentMethods\Paypal;
@@ -68,7 +68,7 @@ class GatewayHelper
         PayPerEmail::class,
         PayByBank::class,
         IdealQr::class,
-        MBPay::class,
+        MBWay::class,
         Multibanco::class
     ];
 }

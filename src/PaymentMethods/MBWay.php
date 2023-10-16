@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\MBPayPaymentHandler;
+use Buckaroo\Shopware6\Handlers\MBWayPaymentHandler;
 
-class MBPay extends AbstractPayment
+class MBWay extends AbstractPayment
 {
     /*
     * @return string
     */
     public function getBuckarooKey(): string
     {
-        return 'mbpay';
+        return 'mbway';
     }
 
     /**
@@ -43,7 +43,7 @@ class MBPay extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/mbpay.svg';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/mbway.svg';
     }
 
     /**
@@ -53,7 +53,7 @@ class MBPay extends AbstractPayment
      */
     public function getPaymentHandler(): string
     {
-        return MBPayPaymentHandler::class;
+        return MBWayPaymentHandler::class;
     }
 
     /**
