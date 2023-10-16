@@ -25,12 +25,14 @@ class SignatureValidationService
     {
         $postData = $request->request->all();
 
-        if (!isset($postData['brq_signature'])) {
+                if (!isset($postData['brq_signature'])) {
             return false;
         }
 
         $signature = $this->calculateSignature($postData, $salesChannelId);
 
+        dd($postData, $signature ,$postData['brq_signature']);
+        
         if ($signature !== $postData['brq_signature']) {
             return false;
         }
@@ -131,6 +133,11 @@ class SignatureValidationService
             'cust_customershippinghouseadditionalnumber',
             'cust_mailadres',
             'brq_description',
+            'brq_invoicedate',
+            'brq_duedate',
+            'brq_previousstepdatetime',
+            'brq_invoicepaylink',
+            'brq_eventdatetime'
         ];
 
         if (in_array(strtolower($brq_key), $fields)) {
