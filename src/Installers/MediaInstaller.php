@@ -122,8 +122,8 @@ class MediaInstaller implements InstallerInterface
     {
         $mediaList = [
             [
-                "path" => __DIR__  . '/../Resources/views/storefront/buckaroo/payments/in3-ideal.svg',
-                "name" => 'buckaroo-in3-ideal'
+                "path" => __DIR__  . '/../Resources/views/storefront/buckaroo/payments/in3v2.svg',
+                "name" => 'buckaroo-in3-v2'
             ]
         ];
 
