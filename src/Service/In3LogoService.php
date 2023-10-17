@@ -121,7 +121,7 @@ class In3LogoService
             )
         );
 
-        /** @var MediaEntity|null $media */
+        /** @var MediaEntity|null */
         return $this->mediaRepository->search($criteria, $context)->first();
     }
 
