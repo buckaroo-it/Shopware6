@@ -160,9 +160,8 @@ class In3LogoService
         if ($version === In3PaymentHandler::V2) {
             return $this->getIn3V2Media($context);
         }
-       
-        if ($mediaId === self::DEFAULT_PAYMENT_ICON || !is_string($mediaId))
-        {
+
+        if ($mediaId === self::DEFAULT_PAYMENT_ICON || !is_string($mediaId)) {
             return null;
         }
 
