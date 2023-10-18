@@ -31,8 +31,6 @@ class SignatureValidationService
 
         $signature = $this->calculateSignature($postData, $salesChannelId);
 
-        dd($postData, $signature ,$postData['brq_signature']);
-        
         if ($signature !== $postData['brq_signature']) {
             return false;
         }
