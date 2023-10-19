@@ -37,8 +37,9 @@ class Migration1669042629AddOrderIdIndexOnTransaction extends MigrationStep
     {
         try {
             $connection->executeStatement($sql);
-        } catch (\Throwable $th) {
-            //throw $th;
+        } catch (\Throwable $th)
+        {
+            // ignore
         }
     }
 }

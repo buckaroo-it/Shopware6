@@ -23,7 +23,7 @@ class Trustly extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Trustly';
+        return $this->getBuckarooKey();
     }
 
     /**

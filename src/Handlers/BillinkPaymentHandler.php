@@ -283,10 +283,6 @@ class BillinkPaymentHandler extends AsyncPaymentHandler
      */
     private function getBirthDate(RequestDataBag $dataBag)
     {
-        if (!$dataBag->has('buckaroo_billink_DoB')) {
-            return null;
-        }
-
         $dateString = $dataBag->get('buckaroo_billink_DoB');
         if (!is_scalar($dateString)) {
             return null;

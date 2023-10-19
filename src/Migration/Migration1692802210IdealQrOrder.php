@@ -15,7 +15,7 @@ class Migration1692802210IdealQrOrder extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('            
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `' . IdealQrOrderDefinition::ENTITY_NAME . '` (
                 `id` BINARY(16) NOT NULL,
                 `invoice` INT(11) NOT NULL AUTO_INCREMENT,

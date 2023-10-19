@@ -300,10 +300,6 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
      */
     private function getBirthDate(RequestDataBag $dataBag)
     {
-        if (!$dataBag->has('buckaroo_afterpay_DoB')) {
-            return null;
-        }
-
         $dateString = $dataBag->get('buckaroo_afterpay_DoB');
         if (!is_scalar($dateString)) {
             return null;

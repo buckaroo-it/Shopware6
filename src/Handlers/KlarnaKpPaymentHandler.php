@@ -213,10 +213,6 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
      */
     private function getBirthDate(RequestDataBag $dataBag): ?string
     {
-        if (!$dataBag->has('buckaroo_klarnakp_DoB')) {
-            return null;
-        }
-
         $dateString = $dataBag->get('buckaroo_klarnakp_DoB');
         if (!is_scalar($dateString)) {
             return null;

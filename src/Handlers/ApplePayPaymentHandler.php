@@ -52,10 +52,7 @@ class ApplePayPaymentHandler extends AsyncPaymentHandler
      */
     private function getPaymentData($data): string
     {
-        if (!is_object($data)) {
-            return '';
-        }
-        if (empty($data->token)) {
+        if (!is_object($data) || empty($data->token)) {
             return '';
         }
 

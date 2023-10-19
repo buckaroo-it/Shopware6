@@ -23,7 +23,7 @@ class WeChatPay extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'WeChatPay';
+        return $this->getBuckarooKey();
     }
 
     /**
