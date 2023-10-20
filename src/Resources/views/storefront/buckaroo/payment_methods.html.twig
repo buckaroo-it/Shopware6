@@ -514,30 +514,6 @@
                             </fieldset>
                         </div>
                     {% endblock %}
-
-                {% elseif payment.translated.customFields.buckaroo_key == 'giropay' %}
-                    {% block buckaroo_payment_method_giropay %}
-                        <div class="payment-method-second-col billing-address-form">
-                            <fieldset class="fieldset payment">
-
-                                <div class="form-group">
-                                    <label class="form-label" for="buckarooGiropayBic">
-                                        {{ "buckaroo.checkout.buckarooGiropayBic"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
-                                    </label>
-
-                                    <input type="text"
-                                           class="form-control"
-                                           form="confirmOrderForm"
-                                           id="buckarooGiropayBic"
-                                           name="buckarooGiropayBic"
-                                           pattern="([a-zA-Z]{4})([a-zA-Z]{2})(([2-9a-zA-Z]{1})([0-9a-np-zA-NP-Z]{1}))((([0-9a-wy-zA-WY-Z]{1})([0-9a-zA-Z]{2}))|([xX]{3})|)"
-                                           placeholder="{{ "buckaroo.checkout.buckarooGiropayBicPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
-                                           required="required">
-                                </div>
-                            </fieldset>
-                        </div>
-                    {% endblock %}
-
                 {% elseif payment.translated.customFields.buckaroo_key == 'sepadirectdebit' %}
                     {% block buckaroo_payment_method_sepadirectdebit %}
                         <div class="payment-method-second-col billing-address-form">
