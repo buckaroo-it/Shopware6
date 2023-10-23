@@ -139,9 +139,6 @@ class CaptureService
                 $this->invoiceService->generateInvoice($order, $context);
             }
 
-
-
-
             return [
                 'status' => true,
                 'message' => $this->translator->trans("buckaroo-payment.capture.captured_amount"),
@@ -236,6 +233,18 @@ class CaptureService
         return $data;
     }
 
+    private function cannotCapture(OrderEntity $order, array $customFields): bool
+    {
+        $orderCustomFields = $order->getCustomFields();
+        if (
+            isset($orderCustomFields['buckaroo_is_authorize']) &&
+            $orderCustomFields['buckaroo_is_authorize'] === true
+        ) {
+            return false;
+        }
+        return isset($customFields['canCapture']) && $customFields['canCapture'] == 0;
+    }
+
     /**
      * Validate request and return any errors
      *
@@ -254,7 +263,7 @@ class CaptureService
             ];
         }
 
-        if ($customFields['canCapture'] == 0) {
+        if ($this->cannotCapture($order, $customFields)) {
             return [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.capture.capture_not_supported")
