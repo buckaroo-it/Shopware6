@@ -119,6 +119,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     ): bool {
         return isset($customFields['brqPaymentMethod']) &&
             $customFields['brqPaymentMethod'] == 'afterpay' &&
+            !isset($customFields['captured']) &&
             $this->settingsService->getSetting('afterpayCaptureonshippent', $salesChannelId) &&
             isset($orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED]) &&
             $orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED] === true;
