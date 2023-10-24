@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 use Buckaroo\Resources\Constants\RecipientCategory;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
+use Buckaroo\Shopware6\Service\CaptureService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -51,7 +52,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                 ->appendCustomFields(
                     $transaction->getOrder()->getId(),
                     [
-                        'buckaroo_is_authorize' => true,
+                        CaptureService::ORDER_IS_AUTHORIZED => true,
                     ],
                     $salesChannelContext->getContext()
                 );

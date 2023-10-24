@@ -18,6 +18,9 @@ use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 
 class CaptureService
 {
+
+    public const ORDER_IS_AUTHORIZED = 'buckaroo_is_authorize';
+
     protected TransactionService $transactionService;
 
     protected TranslatorInterface $translator;
@@ -72,9 +75,6 @@ class CaptureService
         }
 
         $customFields = $this->transactionService->getCustomFields($order, $context);
-        $paymentCode = $customFields['serviceName'];
-        $validationErrors = $this->validate($order, $customFields);
-
         $paymentCode = $this->getValidCustomField($customFields, 'serviceName');
 
         $validationErrors = $this->validate($order, $customFields);
@@ -137,6 +137,16 @@ class CaptureService
                 )
             ) {
                 $this->invoiceService->generateInvoice($order, $context);
+            }
+
+            $transactionId = $order->getTransactions()?->last()?->getId();
+
+            if ($transactionId !== null) {
+                $this->transactionService->saveTransactionData(
+                    $transactionId,
+                    $context,
+                    ['captured' => 1]
+                );
             }
 
             return [
@@ -237,8 +247,8 @@ class CaptureService
     {
         $orderCustomFields = $order->getCustomFields();
         if (
-            isset($orderCustomFields['buckaroo_is_authorize']) &&
-            $orderCustomFields['buckaroo_is_authorize'] === true
+            isset($orderCustomFields[self::ORDER_IS_AUTHORIZED]) &&
+            $orderCustomFields[self::ORDER_IS_AUTHORIZED] === true
         ) {
             return false;
         }

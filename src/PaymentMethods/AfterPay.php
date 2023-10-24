@@ -8,7 +8,6 @@ use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 
 class AfterPay extends AbstractPayment
 {
-    protected string $buckarooKey = 'afterpay';
     /*
      * @return string
      */

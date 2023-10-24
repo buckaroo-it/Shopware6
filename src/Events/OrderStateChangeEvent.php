@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Events;
 
 use Psr\Log\LoggerInterface;
-use Buckaroo\Shopware6\Service\InvoiceService;
+use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Service\OrderService;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Symfony\Component\HttpFoundation\Request;
+use Buckaroo\Shopware6\Service\CaptureService;
+use Buckaroo\Shopware6\Service\InvoiceService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\TransactionService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -22,6 +26,8 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
     protected OrderService $orderService;
 
+    protected CaptureService $captureService;
+
     /** @var LoggerInterface */
     protected $logger;
 
@@ -33,13 +39,15 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         InvoiceService $invoiceService,
         SettingsService $settingsService,
         OrderService $orderService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        CaptureService $captureService
     ) {
         $this->transactionService = $transactionService;
         $this->invoiceService = $invoiceService;
         $this->settingsService = $settingsService;
         $this->orderService = $orderService;
         $this->logger = $logger;
+        $this->captureService = $captureService;
     }
 
     /**
@@ -60,7 +68,10 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             $eventOrder->getId(),
             [
                 'transactions',
-                'transactions.paymentMethod'
+                'transactions.paymentMethod',
+                'transactions.paymentMethod.plugin',
+                'salesChannel',
+                'currency'
             ],
             $context
         );
@@ -72,15 +83,47 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $customFields = $this->transactionService->getCustomFields($order, $context);
         $salesChannelId =  $event->getSalesChannelId();
 
-        if (isset($customFields['brqPaymentMethod']) &&
+        if (!isset($customFields['brqPaymentMethod'])) {
+            return false;
+        }
+        if (
             $customFields['brqPaymentMethod'] == 'Billink' &&
             $this->settingsService->getSetting('BillinkMode', $salesChannelId) == 'authorize' &&
             $this->settingsService->getSetting('BillinkCreateInvoiceAfterShipment', $salesChannelId)
         ) {
-            $brqInvoicenumber = $customFields['brqInvoicenumber'] ?? $order->getOrderNumber();
             $this->invoiceService->generateInvoice($eventOrder, $context, $salesChannelId);
         }
 
+        if (
+            $this->canCaptureAfterpay(
+                $customFields,
+                $order->getCustomFields(),
+                $salesChannelId
+            )
+        ) {
+            $this->capture($order, $context);
+        }
         return true;
+    }
+
+    private function canCaptureAfterpay(
+        array $customFields,
+        array $orderCustomFields,
+        string $salesChannelId
+    ): bool {
+        return isset($customFields['brqPaymentMethod']) &&
+            $customFields['brqPaymentMethod'] == 'afterpay' &&
+            $this->settingsService->getSetting('afterpayCaptureonshippent', $salesChannelId) &&
+            isset($orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED]) &&
+            $orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED] === true;
+    }
+
+    private function capture(OrderEntity $order, Context $context): void
+    {
+        try {
+            $this->captureService->capture(Request::createFromGlobals(), $order, $context);
+        } catch (\Throwable $th) {
+            $this->logger->error(__METHOD__ . (string)$th);
+        }
     }
 }
