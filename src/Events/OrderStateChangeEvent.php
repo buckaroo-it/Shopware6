@@ -6,6 +6,7 @@ namespace Buckaroo\Shopware6\Events;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Buckaroo\Shopware6\Service\OrderService;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,6 +14,7 @@ use Buckaroo\Shopware6\Service\CaptureService;
 use Buckaroo\Shopware6\Service\InvoiceService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\TransactionService;
+use Shopware\Administration\Notification\NotificationService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 
@@ -28,6 +30,8 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
     protected CaptureService $captureService;
 
+    protected NotificationService $notificationService;
+
     /** @var LoggerInterface */
     protected $logger;
 
@@ -40,7 +44,8 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         SettingsService $settingsService,
         OrderService $orderService,
         LoggerInterface $logger,
-        CaptureService $captureService
+        CaptureService $captureService,
+        NotificationService $notificationService
     ) {
         $this->transactionService = $transactionService;
         $this->invoiceService = $invoiceService;
@@ -48,6 +53,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $this->orderService = $orderService;
         $this->logger = $logger;
         $this->captureService = $captureService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -121,9 +127,45 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     private function capture(OrderEntity $order, Context $context): void
     {
         try {
-            $this->captureService->capture(Request::createFromGlobals(), $order, $context);
+            $this->createNotifications(
+                $this->captureService->capture(
+                    Request::createFromGlobals(),
+                    $order,
+                    $context
+                ),
+                $context
+            );
         } catch (\Throwable $th) {
             $this->logger->error(__METHOD__ . (string)$th);
         }
+    }
+
+    private function createNotifications(?array $result, Context $context): void
+    {
+        if ($result === null) {
+            return;
+        }
+        $status = 'warning';
+        if (isset($result['status']) && $result['status'] === true) {
+            $status = 'success';
+        }
+
+        $message = "A error has occurred while processing the buckaroo capture";
+        if (isset($result['message'])) {
+            $message = $result['message'];
+        }
+
+        $this->notificationService->createNotification(
+            [
+                'id' => Uuid::randomHex(),
+                'status' => $status,
+                'message' => $message,
+                'adminOnly' => true,
+                'requiredPrivileges' => [],
+                'createdByIntegrationId' => null,
+                'createdByUserId' => null,
+            ],
+            $context
+        );
     }
 }

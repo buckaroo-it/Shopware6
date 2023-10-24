@@ -151,11 +151,12 @@ class CaptureService
 
             return [
                 'status' => true,
-                'message' => $this->translator->trans("buckaroo-payment.capture.captured_amount"),
-                'amount' => sprintf(
-                    " %s %s",
-                    $order->getAmountTotal(),
-                    $this->getCurrencyIso($order)
+                'message' => $this->translator->trans(
+                    "buckaroo.capture.captured_amount",
+                    [
+                        '%amount%' => $order->getAmountTotal(),
+                        '%currency%' => $this->getCurrencyIso($order)
+                    ]
                 )
             ];
         }
@@ -269,28 +270,28 @@ class CaptureService
         if ($order->getAmountTotal() <= 0) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.capture.invalid_amount")
+                'message' => $this->translator->trans("buckaroo.capture.invalid_amount")
             ];
         }
 
         if ($this->cannotCapture($order, $customFields)) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.capture.capture_not_supported")
+                'message' => $this->translator->trans("buckaroo.capture.capture_not_supported")
             ];
         }
 
         if (!empty($customFields['captured']) && ($customFields['captured'] == 1)) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.capture.already_captured")
+                'message' => $this->translator->trans("buckaroo.capture.already_captured")
             ];
         }
 
         if (!isset($customFields['originalTransactionKey'])) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.capture.general_capture_error")
+                'message' => $this->translator->trans("buckaroo.capture.general_capture_error")
             ];
         }
         return null;

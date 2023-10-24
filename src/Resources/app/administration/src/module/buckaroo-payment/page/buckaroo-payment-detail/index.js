@@ -313,12 +313,12 @@ Component.register('buckaroo-payment-detail', {
                     if (response.status) {
                         this.createNotificationSuccess({
                             title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                            message: that.$tc(response.message) + response.amount
+                            message: response.message
                         });
                     } else {
                         this.createNotificationError({
                             title: that.$tc('buckaroo-payment.settingsForm.titleError'),
-                            message: that.$tc(response.message)
+                            message: response.message
                         });
                     }
                     that.isCapturePossible = true;
