@@ -114,7 +114,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
     private function canCaptureAfterpay(
         array $customFields,
-        array $orderCustomFields,
+        ?array $orderCustomFields,
         string $salesChannelId
     ): bool {
         return isset($customFields['brqPaymentMethod']) &&
