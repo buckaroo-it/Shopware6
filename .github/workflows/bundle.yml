@@ -1,0 +1,31 @@
+name: Bundle for marketplace
+on:
+  release:
+    types:
+      - created
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate name
+        id: generate-name
+        run: echo "archiveName=BuckarooPayments-${GITHUB_REF#refs/tags/}.zip" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+      - name: Pack for marketplace
+        run: |
+          mkdir -p ~/tmp/BuckarooPayments
+          rsync -r --exclude='.git' --exclude='.git' --exclude='.idea' ${{ github.workspace }}/ ~/tmp/BuckarooPayments/
+          cd ~/tmp
+          find . -type f -exec chmod 644 {} \;
+          find . -type d -exec chmod 755 {} \;
+          zip -r BuckarooPayments.zip BuckarooPayments
+          unzip -l BuckarooPayments.zip
+          mv BuckarooPayments.zip ${{ github.workspace }}/${{ steps.generate-name.outputs.archiveName }}
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@2.7.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ github.workspace }}/${{ steps.generate-name.outputs.archiveName }}
+          asset_name: ${{ steps.generate-name.outputs.archiveName }}
+          tag: ${{ github.ref }}
+          overwrite: true

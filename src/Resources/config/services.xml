@@ -163,6 +163,8 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CaptureService"/>
+            <argument type="service" id="Shopware\Administration\Notification\NotificationService" />
             <tag name="kernel.event_subscriber"/>
         </service>
 

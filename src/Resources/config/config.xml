@@ -712,7 +712,7 @@
             <label lang="de-DE">Aktiviert</label>
 			<label lang="fr-FR">Activé</label>
         </input-field>
-        
+
         <input-field type="single-select">
             <name>afterpayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -732,6 +732,22 @@
             </options>
         </input-field>
 
+        <input-field type="bool">
+            <name>afterpayAuthorize</name>
+            <label lang="en-GB">Enable Autorize-Capture flow</label>
+            <label lang="nl-NL">Ingeschakeld Autorize-Capture flow</label>
+            <label lang="de-DE">Aktiviert Autorize-Capture flow</label>
+			<label lang="fr-FR">Activé Autorize-Capture flow</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>afterpayCaptureonshippent</name>
+            <label lang="en-GB">Enable Automatic capture on shipped</label>
+            <label lang="nl-NL">Ingeschakeld Automatic capture on shipped</label>
+            <label lang="de-DE">Aktiviert Automatic capture on shipped</label>
+			<label lang="fr-FR">Activé Automatic capture on shipped</label>
+        </input-field>
+        
         <input-field type="bool">
             <name>afterpayEnabledold</name>
             <label lang="en-GB">Enabled Riverty | AfterPay Old</label>
