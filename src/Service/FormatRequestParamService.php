@@ -233,7 +233,11 @@ class FormatRequestParamService
     protected function getBuckarooFeeArray(OrderEntity $order, string $paymentCode = null): array
     {
         $line = [];
-        
+
+        if ($paymentCode === null) {
+            return $line;
+        }
+
         $buckarooFee = $this->settingsService->getBuckarooFee($paymentCode, $order->getSalesChannelId());
        
         if ($buckarooFee <= 0) {
