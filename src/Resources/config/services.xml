@@ -13,6 +13,7 @@
         <service id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderDefinition">
             <tag name="shopware.entity.definition" entity="buckaroo_ideal_qr_order" />
         </service>
+        <!-- /Entity -->
 
         <service id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository">
             <argument type="service" id="buckaroo_ideal_qr_order.repository"/>
@@ -22,6 +23,45 @@
             <argument type="service" id="buckaroo_transaction.repository"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Service\Push\TypeFactory">
+            <argument type="collection">
+                <argument key="payment" type="service" id="buckaroo.push.factory.type.payment"/>
+                <argument key="refund" type="service" id="buckaroo.push.factory.type.refund"/>
+            </argument>
+        </service>
+
+        <service id="buckaroo.push.factory.type.payment" class="Buckaroo\Shopware6\Service\Push\MethodFactory">
+            <argument type="collection">
+                <argument key="paypal" type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Payment\Paypal"/>
+                <argument key="klarnaKp" type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Payment\KlarnaKp"/>
+            </argument>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Payment"/>
+        </service>
+
+        <service id="buckaroo.push.factory.type.refund" class="Buckaroo\Shopware6\Service\Push\MethodFactory">
+            <argument type="collection">
+            </argument>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Refund"/>
+        </service>
+
+        <service id="buckaroo.push.factory.type.group" class="Buckaroo\Shopware6\Service\Push\MethodFactory">
+            <argument type="collection">
+            </argument>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Group"/>
+        </service>
+
+        <service id="buckaroo.push.factory.type.giftcard" class="Buckaroo\Shopware6\Service\Push\MethodFactory">
+            <argument type="collection">
+            </argument>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Giftcard"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\Push\Processors\Payment"></service>
+        <service id="Buckaroo\Shopware6\Service\Push\Processors\Refund"></service>
+        <service id="Buckaroo\Shopware6\Service\Push\Processors\Group"></service>
+        <service id="Buckaroo\Shopware6\Service\Push\Processors\Giftcard"></service>
+        <service id="Buckaroo\Shopware6\Service\Push\Processors\Payment\Paypal"></service>
+        <service id="Buckaroo\Shopware6\Service\Push\Processors\Payment\KlarnaKp"></service>
 
         <service id="Buckaroo\Shopware6\Handlers\AfterPayOld">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
@@ -31,9 +71,6 @@
          <service id="Buckaroo\Shopware6\Handlers\In3V2">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
         </service>
-        
-        <!-- /Entity -->
-
 
         <service id="Buckaroo\Shopware6\Helpers\Logger" class="Monolog\Logger">
             <argument type="string">buckaroo_payment</argument>
