@@ -232,23 +232,10 @@ class FormatRequestParamService
      */
     protected function getBuckarooFeeArray(OrderEntity $order, string $paymentCode = null): array
     {
-        // Variables
-        $line     = [];
-        $customFields = $order->getCustomFields();
-
-        $buckarooFee = null;
-
-        if ($customFields !== null &&
-            isset($customFields['buckarooFee']) &&
-            is_scalar($customFields['buckarooFee'])
-        ) {
-            $buckarooFee = round((float)str_replace(',', '.', (string)$customFields['buckarooFee']), 2);
-        }
-
-        if ($buckarooFee === null && $paymentCode !== null) {
-            $buckarooFee = $this->settingsService->getBuckarooFee($paymentCode, $order->getSalesChannelId());
-        }
-
+        $line = [];
+        
+        $buckarooFee = $this->settingsService->getBuckarooFee($paymentCode, $order->getSalesChannelId());
+       
         if ($buckarooFee <= 0) {
             return $line;
         }
