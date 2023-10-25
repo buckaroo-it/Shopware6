@@ -13,9 +13,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 class KlarnaKpPaymentHandler extends AsyncPaymentHandler
 {
     protected string $paymentClass = KlarnaKp::class;
-    public const KLARNAKP_ARTICLE_TYPE_GENERAL = 'General';
-    public const KLARNAKP_ARTICLE_TYPE_HANDLINGFEE = 'HandlingFee';
-    public const KLARNAKP_ARTICLE_TYPE_SHIPMENTFEE = 'ShipmentFee';
+    public const ARTICLE_TYPE_GENERAL = 'General';
+    public const ARTICLE_TYPE_HANDLING_FEE = 'HandlingFee';
+    public const ARTICLE_TYPE_SHIPMENT_FEE = 'ShipmentFee';
 
 
      /**
@@ -169,7 +169,6 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
     private function getArticles(OrderEntity $order, string $paymentCode): array
     {
         $lines = $this->getOrderLinesArray($order, $paymentCode);
-
         $articles = [];
 
         foreach ($lines as $item) {
@@ -198,9 +197,14 @@ class KlarnaKpPaymentHandler extends AsyncPaymentHandler
     private function getArticleType(array $article): string
     {
         if ($article['sku'] === 'Shipping') {
-            return self::KLARNAKP_ARTICLE_TYPE_SHIPMENTFEE;
+            return self::ARTICLE_TYPE_SHIPMENT_FEE;
         }
-        return self::KLARNAKP_ARTICLE_TYPE_GENERAL;
+
+        if ($article['sku'] === 'BuckarooFee') {
+            return self::ARTICLE_TYPE_HANDLING_FEE;
+        }
+
+        return self::ARTICLE_TYPE_GENERAL;
     }
 
 
