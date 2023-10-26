@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Shopware6\Service\Push;
+namespace Buckaroo\Shopware6\Buckaroo\Push;
 
 use Symfony\Component\HttpFoundation\Request as DefaultRequest;
-use Buckaroo\Shopware6\Service\Push\Exceptions\InvalidRequestValue;
 
 class Request
 {

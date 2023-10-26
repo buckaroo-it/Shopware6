@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Shopware6\Service\Push\Processors;
+namespace Buckaroo\Shopware6\Buckaroo\Push\Processors;
 
-use Buckaroo\Shopware6\Service\Push\PaymentStatus;
-use Buckaroo\Shopware6\Service\Push\ProcessingStateInterface;
-use Buckaroo\Shopware6\Service\Push\Processors\StatusProcessorInterface;
-use Buckaroo\Shopware6\Service\Push\Transaction;
-use Buckaroo\Shopware6\Service\Push\TypeFactory;
+use Buckaroo\Shopware6\Buckaroo\Push\RequestType;
+use Buckaroo\Shopware6\Buckaroo\Push\Transaction;
+use Buckaroo\Shopware6\Buckaroo\Push\PaymentStatus;
+use Buckaroo\Shopware6\Buckaroo\Push\ProcessingStateInterface;
+use Buckaroo\Shopware6\Buckaroo\Push\Processors\StatusProcessorInterface;
 
 class Refund extends AbstractProcessor implements StatusProcessorInterface
 {
@@ -31,6 +31,6 @@ class Refund extends AbstractProcessor implements StatusProcessorInterface
 
     private function addTransaction(ProcessingStateInterface $state): void
     {
-        $state->setTransaction(new Transaction($state, TypeFactory::TYPE_REFUND));
+        $state->setTransaction(new Transaction($state, RequestType::REFUND));
     }
 }

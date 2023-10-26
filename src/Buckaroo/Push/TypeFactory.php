@@ -11,15 +11,6 @@ use Buckaroo\Shopware6\Service\Push\Processors\StatusProcessorInterface;
 
 class TypeFactory implements ProcessingFactoryInterface
 {
-    public const TYPE_UNKNOWN = 'unknown';
-    public const TYPE_PAYMENT = 'payment';
-    public const TYPE_REFUND = 'refund';
-    public const TYPE_GROUP = 'group';
-    public const TYPE_GIFTCARD = 'giftcard';
-    public const TYPE_INVOICE = 'invoice';
-    public const TYPE_AUTHORIZE = 'authorize';
-    public const TYPE_CANCEL_AUTHORIZE = 'cancel_authorize';
-
     public const AUTHORIZE_REQUESTS = [
         'I872',
         'V054',
@@ -66,6 +57,7 @@ class TypeFactory implements ProcessingFactoryInterface
 
     private function getType(Request $request): string
     {
+        // todo refactor this
         $type = 'unknown';
         if ($this->isTypePayment($request)) {
             $type = self::TYPE_PAYMENT;

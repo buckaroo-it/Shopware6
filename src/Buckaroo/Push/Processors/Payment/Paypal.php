@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Shopware6\Service\Push\Processors\Payment;
+namespace Buckaroo\Shopware6\Buckaroo\Push\Processors\Payment;
 
 use Buckaroo\Resources\Constants\ResponseStatus;
-use Buckaroo\Shopware6\Service\Push\Processors\Payment;
-use Buckaroo\Shopware6\Service\Push\ProcessingStateInterface;
-use Buckaroo\Shopware6\Service\Push\RequestStatus;
+use Buckaroo\Shopware6\Buckaroo\Push\Processors\Payment;
+use Buckaroo\Shopware6\Buckaroo\Push\ProcessingStateInterface;
+use Buckaroo\Shopware6\Buckaroo\Push\RequestStatus;
 
 class Paypal extends Payment
 {

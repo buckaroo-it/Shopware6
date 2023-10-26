@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Shopware6\Service\Push\Processors;
+namespace Buckaroo\Shopware6\Buckaroo\Push\Processors;
 
-use Buckaroo\Shopware6\Service\Push\RequestStatus;
-use Buckaroo\Shopware6\Service\Push\ProcessingStateInterface;
-use Buckaroo\Shopware6\Service\Push\Processors\StatusProcessorInterface;
+use Buckaroo\Shopware6\Buckaroo\Push\RequestStatus;
+use Buckaroo\Shopware6\Buckaroo\Push\ProcessingStateInterface;
+use Buckaroo\Shopware6\Buckaroo\Push\Processors\StatusProcessorInterface;
 
 abstract class AbstractProcessor implements StatusProcessorInterface
 {

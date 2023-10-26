@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Shopware6\Service\Push\Processors\Payment;
+namespace Buckaroo\Shopware6\Buckaroo\Push\Processors\Payment;
 
-use Buckaroo\Shopware6\Service\Push\Transaction;
-use Buckaroo\Shopware6\Service\Push\TypeFactory;
-use Buckaroo\Shopware6\Service\Push\PaymentStatus;
-use Buckaroo\Shopware6\Service\Push\Processors\Payment;
-use Buckaroo\Shopware6\Service\Push\ProcessingStateInterface;
+use Buckaroo\Shopware6\Buckaroo\Push\RequestType;
+use Buckaroo\Shopware6\Buckaroo\Push\Transaction;
+use Buckaroo\Shopware6\Buckaroo\Push\PaymentStatus;
+use Buckaroo\Shopware6\Buckaroo\Push\Processors\Payment;
+use Buckaroo\Shopware6\Buckaroo\Push\ProcessingStateInterface;
 
 class KlarnaKp extends Payment
 {
@@ -20,7 +20,7 @@ class KlarnaKp extends Payment
         );
 
         if ($state->getRequest()->isDataRequest()) {
-            $state->setTransaction(new Transaction($state), TypeFactory::TYPE_AUTHORIZE);
+            $state->setTransaction(new Transaction($state), RequestType::AUTHORIZE);
             $state->setStatus(PaymentStatus::STATUS_AUTHORIZED);
         }
     }

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Shopware6\Service\Push;
+namespace Buckaroo\Shopware6\Buckaroo\Push;
 
-use Buckaroo\Shopware6\Service\Push\Request;
-use Buckaroo\Shopware6\Service\Push\Transaction;
+use Buckaroo\Shopware6\Buckaroo\Push\Request;
+use Buckaroo\Shopware6\Buckaroo\Push\Transaction;
 
 class ProcessingState implements ProcessingStateInterface
 {

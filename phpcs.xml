@@ -19,14 +19,4 @@ xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_C
         <!-- Exclude Css files. -->
     <exclude-pattern>*.css</exclude-pattern>
 
-    <!-- Only 3 indentation level per function/method -->
-    <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
-        <exclude-pattern>*/src/BuckarooPayments.php</exclude-pattern>
-    </rule>
-
-    <!-- Ignore long lines in controller because of route anotations -->
-    <rule ref="Generic.Files.LineLength">
-        <exclude-pattern>*/src/Storefront/Controller</exclude-pattern>
-    </rule>
-
 </ruleset>

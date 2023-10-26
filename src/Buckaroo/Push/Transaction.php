@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Shopware6\Service\Push;
+namespace Buckaroo\Shopware6\Buckaroo\Push;
 
-use Buckaroo\Shopware6\Service\Push\TypeFactory;
-use Buckaroo\Shopware6\Service\Push\ProcessingStateInterface;
+use Buckaroo\Shopware6\Buckaroo\Push\RequestType;
+use Buckaroo\Shopware6\Buckaroo\Push\ProcessingStateInterface;
 
 class Transaction
 {
@@ -16,7 +16,7 @@ class Transaction
     public function __construct(ProcessingStateInterface $state, string $type = null)
     {
         if ($type === null) {
-            $type = TypeFactory::TYPE_PAYMENT;
+            $type = RequestType::PAYMENT;
         }
         $this->type = $type;
         $this->state = $state;
@@ -46,7 +46,7 @@ class Transaction
 
     private function getAmount(): float
     {
-        if ($this->type === TypeFactory::TYPE_REFUND) {
+        if ($this->type === RequestType::REFUND) {
             return $this->state->getRequest()->getCreditAmount();
         }
         return $this->state->getRequest()->getDebitAmount();

@@ -14,20 +14,43 @@ class EngineResponseEntity extends Entity
     protected ?string $orderTransactionId;
     protected ?OrderTransactionEntity $orderTransaction;
 
+    protected ?string $type;
+    protected ?string $action;
+    protected ?string $status;
+    
     public function getOrderTransaction(): ?OrderTransactionEntity
     {
         return $this->orderTransaction;
     }
+
     public function setOrderTransaction(?OrderTransactionEntity $orderTransaction): void
     {
         $this->orderTransaction = $orderTransaction;
     }
+
     public function getOrderTransactionId(): ?string
     {
         return $this->orderTransactionId;
     }
+
     public function setOrderTransactionId(?string $orderTransactionId): void
     {
         $this->orderTransactionId = $orderTransactionId;
     }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function getAction(): ?string
+    {
+        return $this->action;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
 }

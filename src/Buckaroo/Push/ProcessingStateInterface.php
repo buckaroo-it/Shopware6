@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Shopware6\Service\Push;
+namespace Buckaroo\Shopware6\Buckaroo\Push;
 
-use Buckaroo\Shopware6\Service\Push\Request;
-use Buckaroo\Shopware6\Service\Push\Transaction;
+use Buckaroo\Shopware6\Buckaroo\Push\Request;
+use Buckaroo\Shopware6\Buckaroo\Push\Transaction;
 
 interface ProcessingStateInterface
 {
@@ -13,11 +13,11 @@ interface ProcessingStateInterface
 
     public function setSkipped(bool $skipped = true): void;
 
-    public function setStatus(string $status): void;
+    public function setStatus(?string $status): void;
 
     public function addOrderData(array $data): void;
 
-    public function setTransaction(Transaction $transaction): void;
+    public function setTransaction(?Transaction $transaction): void;
 
     public function getTransaction(): ?Transaction;
 

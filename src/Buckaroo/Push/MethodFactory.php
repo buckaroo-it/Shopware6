@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Shopware6\Service\Push;
+namespace Buckaroo\Shopware6\Buckaroo\Push;
 
-use Buckaroo\Shopware6\Service\Push\Request;
-use Buckaroo\Shopware6\Service\Push\ProcessingFactoryInterface;
-use Buckaroo\Shopware6\Service\Push\Processors\StatusProcessorInterface;
+use Buckaroo\Shopware6\Buckaroo\Push\Request;
+use Buckaroo\Shopware6\Buckaroo\Push\Processors\StatusProcessorInterface;
 
-class MethodFactory implements ProcessingFactoryInterface
+class MethodFactory
 {
     /**
      * @var StatusProcessorInterface[]

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Shopware6\Service\Push\Processors;
+namespace Buckaroo\Shopware6\Buckaroo\Push\Processors;
 
-use Buckaroo\Shopware6\Service\Push\ProcessingStateInterface;
+use Buckaroo\Shopware6\Buckaroo\Push\ProcessingStateInterface;
 
 interface StatusProcessorInterface
 {

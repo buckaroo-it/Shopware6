@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Shopware6\Service\Push\Processors;
+namespace Buckaroo\Shopware6\Buckaroo\Push\Processors;
 
-use Buckaroo\Shopware6\Service\Push\PaymentStatus;
-use Buckaroo\Shopware6\Service\Push\ProcessingStateInterface;
-use Buckaroo\Shopware6\Service\Push\Processors\StatusProcessorInterface;
-use Buckaroo\Shopware6\Service\Push\Transaction;
-use Buckaroo\Shopware6\Service\Push\TypeFactory;
+use Buckaroo\Shopware6\Buckaroo\Push\RequestType;
+use Buckaroo\Shopware6\Buckaroo\Push\Transaction;
+use Buckaroo\Shopware6\Buckaroo\Push\PaymentStatus;
+use Buckaroo\Shopware6\Buckaroo\Push\ProcessingStateInterface;
+use Buckaroo\Shopware6\Buckaroo\Push\Processors\StatusProcessorInterface;
 
 class Payment extends AbstractProcessor implements StatusProcessorInterface
 {
-    public const TYPE = TypeFactory::TYPE_PAYMENT;
+    public const TYPE = RequestType::PAYMENT;
 
     public function onSuccess(ProcessingStateInterface $state): void
     {
