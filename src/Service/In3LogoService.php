@@ -39,7 +39,7 @@ class In3LogoService
      */
     public function getLogos(Context $context): array
     {
-        $v3Logo = $this->getIn3V3Logo($context);
+        $v2Logo = $this->getIn3V2Logo($context);
         $defaultLogo = $this->getDefaultLogo($context);
 
         $data = [];
@@ -48,8 +48,8 @@ class In3LogoService
             $data[] = $defaultLogo;
         }
 
-        if (count($v3Logo)) {
-            $data[] = $v3Logo;
+        if (count($v2Logo)) {
+            $data[] = $v2Logo;
         }
         return $data;
     }
@@ -100,23 +100,29 @@ class In3LogoService
      *
      * @return array
      */
-    private function getIn3V3Logo(Context $context): array
+    private function getIn3V2Logo(Context $context): array
     {
-        $criteria = (new Criteria())->addFilter(
-            new EqualsFilter(
-                'fileName',
-                'buckaroo-in3-ideal'
-            )
-        );
-
         /** @var MediaEntity|null $media */
-        $media = $this->mediaRepository->search($criteria, $context)->first();
+        $media = $this->getIn3V2Media($context);
 
         if ($media === null) {
             return [];
         }
 
         return $this->getFormatedMedia($media);
+    }
+
+    private function getIn3V2Media(Context $context): ?MediaEntity
+    {
+        $criteria = (new Criteria())->addFilter(
+            new EqualsFilter(
+                'fileName',
+                'buckaroo-in3-v2'
+            )
+        );
+
+        /** @var MediaEntity|null */
+        return $this->mediaRepository->search($criteria, $context)->first();
     }
 
     /**
@@ -151,11 +157,11 @@ class In3LogoService
      */
     public function getActiveLogo($mediaId, $version, Context $context): ?MediaEntity
     {
-        if (
-            $version === In3PaymentHandler::V2 ||
-            !is_string($mediaId) ||
-            $mediaId === self::DEFAULT_PAYMENT_ICON
-        ) {
+        if ($version === In3PaymentHandler::V2) {
+            return $this->getIn3V2Media($context);
+        }
+
+        if ($mediaId === self::DEFAULT_PAYMENT_ICON || !is_string($mediaId)) {
             return null;
         }
 

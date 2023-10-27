@@ -44,8 +44,6 @@
       "buckarooSepaDirectDebitCustomerholder": "Entrez votre titulaire de compte ici ...",
       "buckarooIBAN": "Numéro de compte bancaire",
       "buckarooIBANPlaceholder": "Entrez votre numéro de compte bancaire ici ...",
-      "buckarooGiropayBic": "BIC Nombre",
-      "buckarooGiropayBicPlaceholder": "Entrez votre numéro BIC ici ...",
       "Phone": "Mobile",
       "PhonePlaceholder": "Entrez votre mobile ici ...",
       "buckarooMobilePhoneError": "Entrez un numéro de téléphone valide.",

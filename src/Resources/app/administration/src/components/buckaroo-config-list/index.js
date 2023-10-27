@@ -41,6 +41,8 @@ Component.extend("buckaroo-config-list", "sw-system-config", {
                 'advancedConfiguration': true,
                 'payperemailEnabled': true,
                 'paybybankEnabled': true,
+                'mbwayEnabled': true,
+                'multibancoEnabled': true,
             },
             toggleAdvanced: {
                 'sendInvoiceEmail': true,

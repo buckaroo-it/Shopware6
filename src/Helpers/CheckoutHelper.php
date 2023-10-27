@@ -76,7 +76,7 @@ class CheckoutHelper
         if ($buckarooFee !== 0) {
             $data = [
                 'id'           => $orderId,
-                'customFields' => array_merge($savedCustomFields, $savedCustomFields),
+                'customFields' => $savedCustomFields,
                 'price' => new CartPrice(
                     $price->getNetPrice() + $buckarooFee,
                     $price->getTotalPrice() + $buckarooFee,
@@ -86,6 +86,7 @@ class CheckoutHelper
                     $price->getTaxStatus()
                 )
             ];
+
             $this->orderRepository->update([$data], Context::createDefaultContext());
         }
     }

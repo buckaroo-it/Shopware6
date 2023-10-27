@@ -9,8 +9,11 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 use Buckaroo\Resources\Constants\RecipientCategory;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
+use Buckaroo\Shopware6\Service\CaptureService;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
 class AfterPayPaymentHandler extends AsyncPaymentHandler
@@ -35,6 +38,26 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
     ) {
         parent::__construct($asyncPaymentService);
         $this->afterPayOld = $afterPayOld;
+    }
+
+    /** @inheritDoc */
+    public function pay(
+        AsyncPaymentTransactionStruct $transaction,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext
+    ): RedirectResponse {
+        if ($this->isAuthorization($salesChannelContext->getSalesChannelId())) {
+            $this->asyncPaymentService
+                ->checkoutHelper
+                ->appendCustomFields(
+                    $transaction->getOrder()->getId(),
+                    [
+                        CaptureService::ORDER_IS_AUTHORIZED => true,
+                    ],
+                    $salesChannelContext->getContext()
+                );
+        }
+        return parent::pay($transaction, $dataBag, $salesChannelContext);
     }
 
     /**
@@ -66,6 +89,23 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
             $this->getShippingData($order, $dataBag, $salesChannelContext->getSalesChannelId()),
             $this->getArticles($order, $paymentCode)
         );
+    }
+
+    /** @inheritDoc */
+    protected function getMethodAction(
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): string {
+        if ($this->isAuthorization($salesChannelContext->getSalesChannelId())) {
+            return 'Authorize';
+        }
+        return parent::getMethodAction($dataBag, $salesChannelContext, $paymentCode);
+    }
+
+    private function isAuthorization(string $salesChannelContextId): bool
+    {
+        return $this->getSetting('afterpayAuthorize', $salesChannelContextId) === true;
     }
 
     /**
@@ -206,7 +246,8 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         string $salesChannelContextId,
         string $type = 'billing'
     ): array {
-        if ($this->isCustomerB2B($salesChannelContextId) &&
+        if (
+            $this->isCustomerB2B($salesChannelContextId) &&
             $this->asyncPaymentService->getCountry($address)->getIso() === 'NL' &&
             !$this->isCompanyEmpty($address->getCompany())
         ) {
@@ -264,7 +305,8 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
      */
     private function getCareOf(OrderAddressEntity $address): string
     {
-        if ($address->getCompany() !== null &&
+        if (
+            $address->getCompany() !== null &&
             !empty(trim($address->getCompany()))
         ) {
             return $address->getCompany();
@@ -282,7 +324,8 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
      */
     private function getCategory(OrderAddressEntity $address, string $salesChannelContextId): string
     {
-        if ($this->isCustomerB2B($salesChannelContextId) &&
+        if (
+            $this->isCustomerB2B($salesChannelContextId) &&
             $this->asyncPaymentService->getCountry($address)->getIso() === 'NL' &&
             !$this->isCompanyEmpty($address->getCompany())
         ) {

@@ -206,6 +206,8 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CaptureService"/>
+            <argument type="service" id="Shopware\Administration\Notification\NotificationService" />
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -223,6 +225,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="translator" />
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
         </service>
         <service id="Buckaroo\Shopware6\Handlers\AsyncPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
@@ -290,6 +293,16 @@
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\KbcPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\MBWayPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\MultibancoPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
         </service>

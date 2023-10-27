@@ -81,13 +81,6 @@
             "already_refunded": "This order is already refunded",
             "refunded_amount": "Buckaroo success refunded"
         },
-        "capture": {
-            "invalid_amount": "Amount is not valid",
-            "capture_not_supported": "Capture is not supported",
-            "already_captured": "This order is already captured",
-            "captured_amount": "Successfully captured amount",
-            "general_capture_error": "Unfortunately an error occurred while processing your capture. Please try again."
-        },
         "test_api": {
             "connection_ready": "Connection ready",
             "connection_failed": "Connection failed"

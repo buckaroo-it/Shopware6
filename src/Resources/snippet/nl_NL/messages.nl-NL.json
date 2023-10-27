@@ -45,8 +45,6 @@
       "buckarooSepaDirectDebitCustomerholder": "Voer hier uw rekeninghouder in ...",
       "buckarooIBAN": "Bankrekeningnummer",
       "buckarooIBANPlaceholder": "Voer hier uw bankrekeningnummer in ...",
-      "buckarooGiropayBic": "BIC-nummer",
-      "buckarooGiropayBicPlaceholder": "Voer hier uw BIC-nummer in ...",
       "Phone": "Mobiel",
       "PhonePlaceholder": "Voer hier uw mobiele telefoonnummer in ...",
       "buckarooMobilePhoneError": "Voer een geldig telefoonnummer.",

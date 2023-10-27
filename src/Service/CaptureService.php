@@ -19,6 +19,9 @@ use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 
 class CaptureService
 {
+
+    public const ORDER_IS_AUTHORIZED = 'buckaroo_is_authorize';
+
     protected TransactionService $transactionService;
 
     protected TranslatorInterface $translator;
@@ -137,16 +140,24 @@ class CaptureService
                 $this->invoiceService->generateInvoice($order, $context);
             }
 
+            $transactionId = $order->getTransactions()?->last()?->getId();
 
-
+            if ($transactionId !== null) {
+                $this->transactionService->saveTransactionData(
+                    $transactionId,
+                    $context,
+                    ['captured' => 1]
+                );
+            }
 
             return [
                 'status' => true,
-                'message' => $this->translator->trans("buckaroo-payment.capture.captured_amount"),
-                'amount' => sprintf(
-                    " %s %s",
-                    $order->getAmountTotal(),
-                    $this->getCurrencyIso($order)
+                'message' => $this->translator->trans(
+                    "buckaroo.capture.captured_amount",
+                    [
+                        '%amount%' => $order->getAmountTotal(),
+                        '%currency%' => $this->getCurrencyIso($order)
+                    ]
                 )
             ];
         }
@@ -235,6 +246,18 @@ class CaptureService
         return $data;
     }
 
+    private function cannotCapture(OrderEntity $order, array $customFields): bool
+    {
+        $orderCustomFields = $order->getCustomFields();
+        if (
+            isset($orderCustomFields[self::ORDER_IS_AUTHORIZED]) &&
+            $orderCustomFields[self::ORDER_IS_AUTHORIZED] === true
+        ) {
+            return false;
+        }
+        return isset($customFields['canCapture']) && $customFields['canCapture'] == 0;
+    }
+
     /**
      * Validate request and return any errors
      *
@@ -250,28 +273,28 @@ class CaptureService
         if ($order->getAmountTotal() <= 0) {
             $error = [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.capture.invalid_amount")
+                'message' => $this->translator->trans("buckaroo.capture.invalid_amount")
             ];
         }
 
-        if ($customFields['canCapture'] == 0) {
-            $error = [
+        if ($this->cannotCapture($order, $customFields)) {
+            return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.capture.capture_not_supported")
+                'message' => $this->translator->trans("buckaroo.capture.capture_not_supported")
             ];
         }
 
         if (!empty($customFields['captured']) && ($customFields['captured'] == 1)) {
             $error = [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.capture.already_captured")
+                'message' => $this->translator->trans("buckaroo.capture.already_captured")
             ];
         }
 
         if (!isset($customFields['originalTransactionKey'])) {
             $error = [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.capture.general_capture_error")
+                'message' => $this->translator->trans("buckaroo.capture.general_capture_error")
             ];
         }
         return $error;

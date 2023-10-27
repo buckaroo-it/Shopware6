@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
+use Buckaroo\Shopware6\Handlers\MBWayPaymentHandler;
 
-class AfterPay extends AbstractPayment
+class MBWay extends AbstractPayment
 {
     /*
-     * @return string
-     */
+    * @return string
+    */
     public function getBuckarooKey(): string
     {
-        return 'afterpay';
+        return 'mbway';
     }
 
     /**
@@ -23,7 +23,7 @@ class AfterPay extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Riverty | AfterPay';
+        return 'Buckaroo MBWay';
     }
 
     /**
@@ -33,17 +33,7 @@ class AfterPay extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with Riverty | AfterPay';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string
-     */
-    public function getPaymentHandler(): string
-    {
-        return AfterPayPaymentHandler::class;
+        return 'Pay with MBWay';
     }
 
     /**
@@ -53,7 +43,27 @@ class AfterPay extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/afterpay.svg';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/mbway.svg';
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return string
+     */
+    public function getPaymentHandler(): string
+    {
+        return MBWayPaymentHandler::class;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return string|null
+     */
+    public function getTemplate(): ?string
+    {
+        return null;
     }
 
     /**
@@ -66,17 +76,12 @@ class AfterPay extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit Riverty | AfterPay',
+                'description' => 'Bezahlen mit MBWay',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),
                 'description' => $this->getDescription(),
             ],
         ];
-    }
-
-    public function canCapture(): bool
-    {
-        return false;
     }
 }
