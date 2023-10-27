@@ -13,6 +13,7 @@ use Buckaroo\Shopware6\Service\TransactionService;
 use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
+use Buckaroo\Shopware6\Buckaroo\Push\RequestType;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 
@@ -190,7 +191,8 @@ class CaptureService
             'originalTransactionKey' => $transactionKey,
             'additionalParameters'   => [
                 'orderTransactionId' => $this->getLastTransactionId($order),
-                'orderId' => $order->getId(),
+                'orderId' => $order->getId(),//depreciated
+                'type' => RequestType::PAYMENT
             ],
         ];
     }

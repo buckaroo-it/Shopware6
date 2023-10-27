@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Buckaroo\Shopware6\Events\AfterPaymentRequestEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
+use Buckaroo\Shopware6\Buckaroo\Push\PaymentStatus;
+use Buckaroo\Shopware6\Buckaroo\Push\RequestType;
 use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -61,7 +63,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $salesChannelId  = $salesChannelContext->getSalesChannelId();
         $paymentCode = $paymentClass->getBuckarooKey();
         $this->asyncPaymentService->cancelPreviousPayments($transaction);
-        
+
         try {
             $order = $transaction->getOrder();
             $this->validateOrder($order);
@@ -269,8 +271,9 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
             'additionalParameters' => [
                 'orderTransactionId' => $transaction->getOrderTransaction()->getId(),
-                'orderId' => $order->getId(),
-                'sw-context-token' => $salesChannelContext->getToken()
+                'orderId' => $order->getId(), //deprecated
+                'sw-context-token' => $salesChannelContext->getToken(), //deprecated
+                'type' => $this->getPaymentType($paymentCode, $salesChannelId)
             ],
 
             'description' => $this->asyncPaymentService
@@ -278,6 +281,34 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 ->getParsedLabel($order, $salesChannelId, 'transactionLabel'),
             'clientIP' => $this->getIp(),
         ];
+    }
+
+    private function getPaymentType(string $paymentCode, string $salesChannelId): string
+    {
+        $type = RequestType::PAYMENT;
+        if (
+            $paymentCode == 'afterpay' &&
+            $this->getSetting('afterpayAuthorize', $salesChannelId) === true
+        ) {
+            $type = RequestType::AUTHORIZE;
+        }
+
+        if (
+            $paymentCode == 'Billink' &&
+            $this->getSetting('BillinkMode', $salesChannelId) == 'authorize'
+        ) {
+            $type = RequestType::AUTHORIZE;
+        }
+
+        if ($paymentCode === 'giftcards') {
+            $type = RequestType::GROUP;
+        }
+
+        if ($paymentCode === 'klarnakp') {
+            $type = RequestType::AUTHORIZE;
+        }
+
+        return $type;
     }
 
     /**

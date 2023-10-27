@@ -43,6 +43,22 @@ class Request
     }
 
     /**
+     * Get request type
+     *
+     * @return string|null
+     */
+    public function getType(): ?string
+    {
+        return $this->getString(
+            'ADD_type',
+            $this->getString(
+                'brq_AdditionalParameters_type',
+                null
+            )
+        );
+    }
+
+    /**
      * Get transaction type
      *
      * @return string|null

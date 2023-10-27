@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service\Push;
 
-use Buckaroo\Shopware6\Service\Push\Request;
+use Buckaroo\Shopware6\Buckaroo\Push\Request;
 use Buckaroo\Resources\Constants\ResponseStatus;
-use Buckaroo\Shopware6\Service\Push\Processors\StatusProcessorInterface;
-
+use Buckaroo\Shopware6\Buckaroo\Push\RequestType;
+use Buckaroo\Shopware6\Buckaroo\Push\ProcessingFactoryInterface;
+use Buckaroo\Shopware6\Buckaroo\Push\Processors\StatusProcessorInterface;
 
 class TypeFactory implements ProcessingFactoryInterface
 {
@@ -57,42 +58,37 @@ class TypeFactory implements ProcessingFactoryInterface
 
     private function getType(Request $request): string
     {
-        // todo refactor this
         $type = 'unknown';
-        if ($this->isTypePayment($request)) {
-            $type = self::TYPE_PAYMENT;
+        if ($request->getType() == RequestType::PAYMENT) {
+            // accept only payments from sw6
+            $type = RequestType::PAYMENT;
         }
 
         if ($this->isTypeRefund($request)) {
-            $type = self::TYPE_REFUND;
+            $type = RequestType::REFUND;
         }
 
         if ($this->isTypeGroup($request)) {
-            $type = self::TYPE_GROUP;
+            $type = RequestType::GROUP;
         }
 
         if ($this->isTypeGiftCard($request)) {
-            $type = self::TYPE_GIFTCARD;
+            $type = RequestType::GIFTCARD;
         }
 
         if ($this->isTypeInvoice($request)) {
-            $type = self::TYPE_INVOICE;
+            $type = RequestType::INVOICE;
         }
 
         if ($this->isTypeAuthorize($request)) {
-            $type = self::TYPE_AUTHORIZE;
+            $type = RequestType::AUTHORIZE;
         }
 
         if ($this->isTypeCancelAuthorize($request)) {
-            $type = self::TYPE_CANCEL_AUTHORIZE;
+            $type = RequestType::CANCEL_AUTHORIZE;
         }
-        return $type;
-    }
 
-    private function isTypePayment(Request $request): bool
-    {
-        return $request->getServiceCode() !== null &&
-            !$this->isTypeGiftcard($request);
+        return $type;
     }
 
     private function isTypeGiftcard(Request $request): bool

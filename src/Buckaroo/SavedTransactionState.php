@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Buckaroo;
 
 use Buckaroo\Shopware6\Buckaroo\Push\RequestType;
-use Buckaroo\Shopware6\Service\Push\RequestStatus;
+use Buckaroo\Shopware6\Buckaroo\Push\RequestStatus;
 use Buckaroo\Shopware6\Entity\IdealQrOrder\EngineResponseEntity;
 use Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseCollection;
 
@@ -21,56 +21,6 @@ class SavedTransactionState
     public function __construct(EngineResponseCollection $transactions)
     {
         $this->transactions = $transactions;
-    }
-
-    /**
-     * Is a simple payment
-     *
-     * @return boolean
-     */
-    public function isPayment(): bool
-    {
-        return $this->getFirstOfType(RequestType::PAYMENT) !== null;
-    }
-
-    /**
-     * Is a authorization
-     *
-     * @return boolean
-     */
-    public function isAuthorized(): bool
-    {
-        return $this->getFirstOfType(RequestType::AUTHORIZE) !== null;
-    }
-
-    /**
-     * Is group payment
-     *
-     * @return boolean
-     */
-    public function isGroup(): bool
-    {
-        return $this->getFirstOfType(RequestType::GROUP) !== null;
-    }
-
-    /**
-     * Has confirmed refunds
-     *
-     * @return boolean
-     */
-    public function hasRefunds(): bool
-    {
-        return count($this->getRefunds()) > 0;
-    }
-
-    /**
-     * Has confirmed cancellations
-     *
-     * @return boolean
-     */
-    public function hasCancellations(): bool
-    {
-        return count($this->getCancellations()) > 0;
     }
 
     /**
@@ -134,11 +84,6 @@ class SavedTransactionState
                 self::ACTION_CONFIRM
             )
         )->first();
-    }
-
-    private function getFirstOfType(string $type): ?EngineResponseEntity
-    {
-        return $this->getOfType($type)->first();
     }
 
     private function getOfType(string $type): EngineResponseCollection
