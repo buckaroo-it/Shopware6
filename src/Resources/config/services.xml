@@ -13,6 +13,15 @@
         <service id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderDefinition">
             <tag name="shopware.entity.definition" entity="buckaroo_ideal_qr_order" />
         </service>
+
+        <service id="Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseDefinition">
+            <tag name="shopware.entity.definition" entity="buckaroo_engine_response" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Entity\OrderData\OrderDataDefinition">
+            <tag name="shopware.entity.definition" entity="buckaroo_order_transaction_data" />
+        </service>
+
         <!-- /Entity -->
 
         <service id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository">
@@ -21,6 +30,10 @@
 
         <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository">
             <argument type="service" id="buckaroo_transaction.repository"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository">
+            <argument type="service" id="buckaroo_order_transaction_data.repository"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\Push\TypeFactory">
@@ -195,7 +208,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Service\PaymentStateService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderFinalizeService"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\CancelPaymentService"/>
         </service>
@@ -221,12 +234,22 @@
             <argument type="service" id="order.repository"/>
         </service>
 
-        <service id="Buckaroo\Shopware6\Service\PaymentStateService">
-            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+        <service id="Buckaroo\Shopware6\Service\ChangeStateService">
+            <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
-            <argument type="service" id="translator" />
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
         </service>
+
+        <service id="Buckaroo\Shopware6\Service\LockService">
+            <argument type="service" id="Symfony\Component\Lock\LockFactory"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\OrderFinalizeService">
+            <argument type="service" id="Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\ChangeStateService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\LockService"/>
+        </service>
+
         <service id="Buckaroo\Shopware6\Handlers\AsyncPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
@@ -554,6 +577,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="translator" />
             <argument type="service" id="Buckaroo\Shopware6\Service\Config\PageFactory" />
+            <argument type="service" id="Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

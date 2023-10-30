@@ -12,7 +12,7 @@ use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Buckaroo\Shopware6\Service\PaymentStateService;
+use Buckaroo\Shopware6\Service\OrderFinalizeService;
 use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
@@ -40,7 +40,7 @@ class AsyncPaymentService
 
     public FormatRequestParamService $formatRequestParamService;
 
-    public PaymentStateService $paymentStateService;
+    private OrderFinalizeService $orderFinalizeService;
 
     protected EventDispatcherInterface $eventDispatcher;
 
@@ -57,7 +57,7 @@ class AsyncPaymentService
         CheckoutHelper $checkoutHelper,
         LoggerInterface $logger,
         FormatRequestParamService $formatRequestParamService,
-        PaymentStateService $paymentStateService,
+        OrderFinalizeService $orderFinalizeService,
         EventDispatcherInterface $eventDispatcher,
         CancelPaymentService $cancelPaymentService
     ) {
@@ -69,7 +69,7 @@ class AsyncPaymentService
         $this->checkoutHelper = $checkoutHelper;
         $this->logger = $logger;
         $this->formatRequestParamService = $formatRequestParamService;
-        $this->paymentStateService = $paymentStateService;
+        $this->orderFinalizeService = $orderFinalizeService;
         $this->eventDispatcher = $eventDispatcher;
         $this->cancelPaymentService = $cancelPaymentService;
     }
@@ -188,5 +188,10 @@ class AsyncPaymentService
         } catch (\Throwable $th) {
             $this->logger->error((string)$th);
         }
+    }
+    
+    public function getOrderFinalizeService(): OrderFinalizeService
+    {
+        return $this->orderFinalizeService;
     }
 }

@@ -151,4 +151,12 @@ class ClientResponse implements ClientResponseInterface
     {
         return $this->response->getTransactionKey();
     }
+
+    /**
+     * @return string
+     */
+    public function getMethod(): string
+    {
+        return $this->response->getMethod();
+    }
 }

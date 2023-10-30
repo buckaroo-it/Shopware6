@@ -1,28 +1,32 @@
 {% sw_extends '@Storefront/storefront/page/account/order/index.html.twig' %}
 
+
 {% block page_checkout_confirm_header %}
-    {% if page.errorCode == 'PAYMENT_FAILED_ERROR_490' %}
-        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-            type: 'danger',
-            content: 'buckaroo.statuscode_failed'|trans|sw_sanitize
-        } %}
-    {% elseif page.errorCode == 'PAYMENT_FAILED_ERROR_690' %}
-        {% set lastPaymentTrans = page.order.transactions.last() %}
-        {% set sesMessage = 'buckaroo.statuscode_failed'|trans|sw_sanitize %}
-        {% if (
-            lastPaymentTrans !== null &&
-            lastPaymentTrans.paymentMethod !== null &&
-            lastPaymentTrans.paymentMethod.shortName === 'billink_payment_handler'
-            )
-        %}
-            {% set sesMessage = 'buckaroo.billinkRejectedMessage'|trans|sw_sanitize %}
+
+    {% set errorCode = page.extensions.buckaroo.errorCode %}
+    
+    {% if (errorCode is not null) %}
+        {% set sesMessage = 'account.externalPaymentFailure' %}
+        {% if errorCode == 'PAYMENT_FAILED_ERROR_490' %}
+            {% set sesMessage = 'buckaroo.statuscode_failed' %}
+        {% elseif errorCode == 'PAYMENT_FAILED_ERROR_690' %}
+            {% set lastPaymentTrans = page.order.transactions.last() %}
+            {% set sesMessage = 'buckaroo.statuscode_failed' %}
+            {% if (
+                lastPaymentTrans !== null &&
+                lastPaymentTrans.paymentMethod !== null &&
+                lastPaymentTrans.paymentMethod.shortName === 'billink_payment_handler'
+                )
+            %}
+                {% set sesMessage = 'buckaroo.billinkRejectedMessage' %}
+            {% endif %}
+        {% elseif errorCode == 'CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT' %}
+            {% set sesMessage = 'account.externalPaymentCanceled' %}
         {% endif %}
         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
             type: 'danger',
-            content: sesMessage
+            content: sesMessage|trans|sw_sanitize
         } %}
-    {% elseif 'PAYMENT_FAILED_ERROR_' not in page.errorCode %}
-        {{ parent() }}
     {% else %}
         {{ parent() }}
     {% endif %}

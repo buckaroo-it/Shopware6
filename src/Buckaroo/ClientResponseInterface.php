@@ -77,4 +77,10 @@ interface ClientResponseInterface
     public function getSomeError(): string;
 
     public function getTransactionKey(): string;
+
+    /**
+     * @return string
+     */
+    public function getMethod(): string;
+
 }

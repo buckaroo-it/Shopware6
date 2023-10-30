@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Buckaroo\Shopware6\Events\AfterPaymentRequestEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
-use Buckaroo\Shopware6\Buckaroo\Push\PaymentStatus;
 use Buckaroo\Shopware6\Buckaroo\Push\RequestType;
 use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
@@ -186,15 +185,9 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         }
 
-        if ($response->isCanceled()) {
-            throw new CustomerCanceledAsyncPaymentException(
-                $transaction->getOrderTransaction()->getId()
-            );
-        }
-
         return new RedirectResponse(
             sprintf(
-                "%s&brq_payment_method={$paymentCode}&brq_statuscode=" . $response->getStatusCode(),
+                "%s&brq_payment_method={$response->getMethod()}&brq_statuscode=" . $response->getStatusCode(),
                 $returnUrl
             )
         );
@@ -397,11 +390,13 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         Request $request,
         SalesChannelContext $salesChannelContext
     ): void {
-        $this->asyncPaymentService->paymentStateService->finalizePayment(
-            $transaction,
-            $request,
-            $salesChannelContext
-        );
+        $this->asyncPaymentService
+            ->getOrderFinalizeService()
+            ->finalize(
+                $transaction,
+                $request,
+                $salesChannelContext
+            );
     }
 
     /**

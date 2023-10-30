@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
+use Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository;
 use Buckaroo\Shopware6\Service\SettingsService;
+use Buckaroo\Shopware6\Service\Config\PageFactory;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
-use Buckaroo\Shopware6\Service\Config\PageFactory;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -15,6 +16,8 @@ use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
@@ -22,15 +25,18 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected SettingsService $settingsService;
     protected TranslatorInterface $translator;
     protected PageFactory $pageFactory;
+    protected OrderDataRepository $orderDataRepository;
 
     public function __construct(
         SettingsService $settingsService,
         TranslatorInterface $translator,
-        PageFactory $pageFactory
+        PageFactory $pageFactory,
+        OrderDataRepository $orderDataRepository
     ) {
         $this->settingsService = $settingsService;
         $this->translator = $translator;
         $this->pageFactory = $pageFactory;
+        $this->orderDataRepository = $orderDataRepository;
     }
 
     /**
@@ -121,13 +127,34 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         /** @var \Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface */
         $session = $event->getRequest()->getSession();
 
+        if (strpos($paymentMethod->getHandlerIdentifier(), 'Buckaroo\Shopware6\Handlers') === false) {
+            return;
+        }
+
         if (
-            strpos($paymentMethod->getHandlerIdentifier(), 'Buckaroo\Shopware6\Handlers') !== false &&
-            $stateMachine->getTechnicalName() === 'in_progress' &&
+            $stateMachine->getTechnicalName() === OrderTransactionStates::STATE_IN_PROGRESS &&
             method_exists($session, 'getFlashBag')
         ) {
             $session->getFlashBag()->add('success', $this->translator->trans('buckaroo.messages.return791'));
         }
+
+        if (
+            in_array(
+                $stateMachine->getTechnicalName(),
+                [OrderTransactionStates::STATE_CANCELLED, OrderTransactionStates::STATE_FAILED]
+            )
+        ) {
+            $event->getPage()->setPaymentFailed(true);
+        }
+    }
+
+    private function getErrorCode(?string $orderTransactionId, Context $context): ?string
+    {
+        if ($orderTransactionId === null) {
+            return null;
+        }
+
+        return $this->orderDataRepository->getOrderReturnStatus($orderTransactionId, $context);
     }
 
 
@@ -141,10 +168,22 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      */
     private function addExtension($event, string $page): void
     {
-        $event->getPage()->addExtension(
-            BuckarooStruct::EXTENSION_NAME,
-            $this->pageFactory->get($event->getSalesChannelContext(), $page)
-        );
+        $struct = $this->pageFactory->get($event->getSalesChannelContext(), $page);
+
+        if ($event instanceof AccountEditOrderPageLoadedEvent) {
+            /** @var AccountEditOrderPageLoadedEvent $event */
+            $struct->assign(
+                [
+                    "errorCode" => $this->getErrorCode(
+                        $event->getPage()->getOrder()->getTransactions()?->last()?->getId(),
+                        $event->getSalesChannelContext()->getContext()
+                    )
+                ]
+            );
+        }
+
+
+        $event->getPage()->addExtension(BuckarooStruct::EXTENSION_NAME, $struct);
     }
 
     /**

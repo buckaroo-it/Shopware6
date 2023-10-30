@@ -2,22 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Shopware6\Entity\EngineResponse;
+namespace Buckaroo\Shopware6\Entity\OrderData;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
-class EngineResponseEntity extends Entity
+class OrderDataEntity extends Entity
 {
     use EntityIdTrait;
     protected ?string $orderTransactionId;
     protected ?OrderTransactionEntity $orderTransaction;
 
-    protected ?string $type;
-    protected ?string $action;
-    protected ?string $status;
-    
+    protected ?string $name;
+    protected ?string $value;
+
     public function getOrderTransaction(): ?OrderTransactionEntity
     {
         return $this->orderTransaction;
@@ -38,19 +37,13 @@ class EngineResponseEntity extends Entity
         $this->orderTransactionId = $orderTransactionId;
     }
 
-    public function getType(): ?string
+    public function getName(): ?string
     {
-        return $this->type;
+        return $this->name;
     }
 
-    public function getAction(): ?string
+    public function getValue(): ?string
     {
-        return $this->action;
+        return $this->value;
     }
-
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
 }

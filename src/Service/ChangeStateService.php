@@ -32,7 +32,16 @@ class ChangeStateService
     }
 
 
-    public function updatePaymentState(
+    /**
+     * Change state
+     *
+     * @param string $orderTransactionId
+     * @param string $newState
+     * @param Context $context
+     *
+     * @return string
+     */
+    public function setState(
         string $orderTransactionId,
         string $newState,
         Context $context

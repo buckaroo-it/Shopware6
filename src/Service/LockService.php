@@ -7,7 +7,7 @@ namespace Buckaroo\Shopware6\Service;
 use Buckaroo\Shopware6\Buckaroo\Lock;
 use Symfony\Component\Lock\LockFactory;
 
-class LockerService
+class LockService
 {
     public const LOCK_TTL = 300; //seconds
     private LockFactory $lockFactory;
@@ -17,7 +17,7 @@ class LockerService
         $this->lockFactory = $lockFactory;
     }
 
-    public function getLocker(string $orderTransactionId): Lock
+    public function getLock(string $orderTransactionId): Lock
     {
         return new Lock(
             $this->lockFactory->createLock(
