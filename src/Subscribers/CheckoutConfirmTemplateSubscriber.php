@@ -17,6 +17,7 @@ use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
 use Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler;
+use Buckaroo\Shopware6\PaymentMethods\In3;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -420,6 +421,14 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     ): string {
         if ($label === null) {
             $label = $this->settingsService->getSettingAsString($buckarooKey . 'Label', $salesChannelId);
+        }
+
+        if (
+            $buckarooKey === 'capayable' &&
+            $this->settingsService->getSetting('capayableVersion', $salesChannelId) === 'v2' &&
+            $label === In3::DEFAULT_NAME
+        ) {
+            $label = In3::V2_NAME;
         }
 
         if ($buckarooFee = (string)$this->settingsService->getBuckarooFee($buckarooKey, $salesChannelId)) {
