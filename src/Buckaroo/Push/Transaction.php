@@ -44,6 +44,11 @@ class Transaction
         ];
     }
 
+    /**
+     * Get credit or debit amount
+     *
+     * @return float
+     */
     private function getAmount(): float
     {
         if ($this->type === RequestType::REFUND) {

@@ -40,15 +40,24 @@
             <argument type="collection">
                 <argument key="payment" type="service" id="buckaroo.push.factory.type.payment"/>
                 <argument key="refund" type="service" id="buckaroo.push.factory.type.refund"/>
+                <argument key="authorize" type="service" id="buckaroo.push.factory.type.autorize"/>
+                <argument key="group" type="service" id="buckaroo.push.factory.type.group"/>
+                <argument key="giftcard" type="service" id="buckaroo.push.factory.type.giftcard"/>
             </argument>
         </service>
 
         <service id="buckaroo.push.factory.type.payment" class="Buckaroo\Shopware6\Service\Push\MethodFactory">
             <argument type="collection">
                 <argument key="paypal" type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Payment\Paypal"/>
-                <argument key="klarnaKp" type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Payment\KlarnaKp"/>
             </argument>
             <argument type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Payment"/>
+        </service>
+
+        <service id="buckaroo.push.factory.type.autorize" class="Buckaroo\Shopware6\Service\Push\MethodFactory">
+            <argument type="collection">
+                <argument key="klarnaKp" type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Authorize\KlarnaKp"/>
+            </argument>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Authorize"/>
         </service>
 
         <service id="buckaroo.push.factory.type.refund" class="Buckaroo\Shopware6\Service\Push\MethodFactory">

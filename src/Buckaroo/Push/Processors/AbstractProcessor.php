@@ -29,7 +29,7 @@ abstract class AbstractProcessor implements StatusProcessorInterface
         $this->type = $type;
     }
 
-    protected function process(ProcessingStateInterface $state)
+    public function process(ProcessingStateInterface $state): void
     {
         $status = $state->getRequest()->getStatus();
         if (array_key_exists($status, self::ACTIONS)) {

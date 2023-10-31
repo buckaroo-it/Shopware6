@@ -7,10 +7,10 @@ namespace Buckaroo\Shopware6\Buckaroo\Push\Processors\Payment;
 use Buckaroo\Shopware6\Buckaroo\Push\RequestType;
 use Buckaroo\Shopware6\Buckaroo\Push\Transaction;
 use Buckaroo\Shopware6\Buckaroo\Push\PaymentStatus;
-use Buckaroo\Shopware6\Buckaroo\Push\Processors\Payment;
 use Buckaroo\Shopware6\Buckaroo\Push\ProcessingStateInterface;
+use Buckaroo\Shopware6\Buckaroo\Push\Processors\Authorize;
 
-class KlarnaKp extends Payment
+class KlarnaKp extends Authorize
 {
     public function onSuccess(ProcessingStateInterface $state): void
     {
@@ -18,10 +18,5 @@ class KlarnaKp extends Payment
         $state->addOrderData(
             ["klarnaReservationNumber" => $state->getRequest()->getString('brq_SERVICE_klarnakp_ReservationNumber')]
         );
-
-        if ($state->getRequest()->isDataRequest()) {
-            $state->setTransaction(new Transaction($state), RequestType::AUTHORIZE);
-            $state->setStatus(PaymentStatus::STATUS_AUTHORIZED);
-        }
     }
 }

@@ -22,6 +22,14 @@ class MethodFactory
         $this->defaultProcessor = $defaultProcessor;
     }
 
+    /**
+     * Get processor based on payment method (service code)
+     * if no method is found we return a default processor
+     *
+     * @param Request $request
+     *
+     * @return StatusProcessorInterface|null
+     */
     public function get(Request $request): ?StatusProcessorInterface
     {
         $method = $request->getServiceCode();

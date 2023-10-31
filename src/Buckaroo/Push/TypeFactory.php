@@ -45,6 +45,14 @@ class TypeFactory implements ProcessingFactoryInterface
         $this->typeFactories = $typeFactories;
         $this->defaultProcessor = $defaultProcessor;
     }
+
+    /**
+     * Get processor based on type
+     *
+     * @param Request $request
+     *
+     * @return StatusProcessorInterface|null
+     */
     public function get(Request $request): ?StatusProcessorInterface
     {
         $factory = $this->typeFactories[$this->getType($request)];
@@ -56,6 +64,13 @@ class TypeFactory implements ProcessingFactoryInterface
         return $factory->get($request);
     }
 
+    /**
+     * Get response type based
+     *
+     * @param Request $request
+     *
+     * @return string
+     */
     private function getType(Request $request): string
     {
         $type = 'unknown';
