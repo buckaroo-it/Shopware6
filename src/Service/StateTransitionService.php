@@ -110,6 +110,8 @@ class StateTransitionService
                 return StateMachineTransitionActions::ACTION_REOPEN;
             case 'process':
                 return StateMachineTransitionActions::ACTION_PROCESS;
+            case 'authorize':
+               return StateMachineTransitionActions::ACTION_AUTHORIZE;
         }
         return null;
     }
