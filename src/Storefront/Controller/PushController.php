@@ -32,6 +32,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 
 class PushController extends StorefrontController
 {
+
+    public const AUTHORIZE_REQUESTS = [
+        'I872',
+        'V054',
+        'I872',
+        'I876',
+        'I880',
+        'I038',
+        'I072',
+        'I069',
+        'I108'
+    ];
+
     private LoggerInterface $logger;
 
     private CheckoutHelper $checkoutHelper;
@@ -136,6 +149,12 @@ class PushController extends StorefrontController
             return $this->response('buckaroo.messages.pushInterrupted');
         }
         // end handle event
+
+        if (
+            in_array($brqTransactionType, self::AUTHORIZE_REQUESTS)
+        ) {
+            $this->setStatusAuthorized($orderTransactionId, $salesChannelContext, $request);
+        }
 
         //skip mutationType Informational except for group transactions
         if (
@@ -261,7 +280,7 @@ class PushController extends StorefrontController
                 $data                = [];
                 if ($paymentMethod && (strtolower($paymentMethod) == 'klarnakp')) {
                     $this->logger->info(__METHOD__ . "|42|");
-                    $paymentState              = 'do_pay';
+                    $paymentState              = 'authorize';
                     $data['reservationNumber'] = $request->request->get('brq_SERVICE_klarnakp_ReservationNumber');
                 }
                 $this->logger->info(__METHOD__ . "|45|", [$paymentState, $brqAmount, $totalPrice]);
@@ -359,6 +378,21 @@ class PushController extends StorefrontController
         }
 
         return $this->response('buckaroo.messages.paymentError', false);
+    }
+
+    private function setStatusAuthorized(
+        string $orderTransactionId,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
+        if ($this->stateTransitionService->isTransitionPaymentState(
+            ['paid', 'pay_partially'],
+            $orderTransactionId,
+            $salesChannelContext->getContext()
+        )) {
+            return;
+        }
+        $this->setPaymentState("authorize", $orderTransactionId, $salesChannelContext, $request);
     }
 
     private function setPaymentState(
