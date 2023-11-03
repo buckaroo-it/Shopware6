@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Shopware6\Service\Config;
 
+use Buckaroo\Shopware6\PaymentMethods\In3;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -84,7 +85,16 @@ class State
 
     public function getPaymentLabel(string $buckarooKey): string
     {
-        return $this->settingsService->getPaymentLabel($buckarooKey, $this->getSalesChannelId());
+        $label = $this->settingsService->getPaymentLabel($buckarooKey, $this->getSalesChannelId());
+        if (
+            $buckarooKey === 'capayable' &&
+            $this->settingsService->getSetting('capayableVersion', $this->getSalesChannelId()) === 'v2' &&
+            $label === In3::DEFAULT_NAME
+        ) {
+            $label = In3::V2_NAME;
+        }
+
+        return $label;
     }
 
     public function getCustomer(): ?CustomerEntity

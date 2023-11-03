@@ -117,10 +117,9 @@ class StateTransitionService
                 $state = StateMachineTransitionActions::ACTION_REOPEN;
                 break;
             case 'process':
-                $state = StateMachineTransitionActions::ACTION_PROCESS;
-                break;
-            default:
-                $state = null;
+                return StateMachineTransitionActions::ACTION_PROCESS;
+            case 'authorize':
+                return StateMachineTransitionActions::ACTION_AUTHORIZE;
         }
         return $state;
     }

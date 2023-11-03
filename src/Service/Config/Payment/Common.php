@@ -27,9 +27,10 @@ class Common implements ConfigInterface
     public function get(State $state): array
     {
         return [
-            'payment_labels'           => $this->getPaymentLabels($state),
-            'buckarooFee'              => $state->getPaymentFee(),
-            'backLink'                 => $this->urlService->getRestoreUrl(),
+            'payment_labels'              => $this->getPaymentLabels($state),
+            'buckarooFee'                 => $state->getPaymentFee(),
+            'backLink'                    => $this->urlService->getRestoreUrl(),
+            'methodsWithFinancialWarning' => $this->getMethodsWithFinancialWarning($state)
         ];
     }
 
@@ -66,5 +67,27 @@ class Common implements ConfigInterface
             $label .= ' +' . $state->getSalesChannel()->getCurrency()->getSymbol() . $buckarooFee;
         }
         return $label;
+    }
+
+    private function getMethodsWithFinancialWarning(State $state): array
+    {
+        $methods = [
+            'Billink',
+            'klarnakp',
+            'capayable',
+            'afterpay'
+        ];
+
+        $withFinancialWarning = [];
+        foreach ($methods as $method) {
+            if (
+                $state->getSetting(
+                    $method . "Financialwarning",
+                ) !== false
+            ) {
+                $withFinancialWarning[] = $method;
+            }
+        }
+        return $withFinancialWarning;
     }
 }
