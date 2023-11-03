@@ -743,10 +743,10 @@
 
         <input-field type="bool">
             <name>afterpayAuthorize</name>
-            <label lang="en-GB">Enable Autorize-Capture flow</label>
-            <label lang="nl-NL">Ingeschakeld Autorize-Capture flow</label>
-            <label lang="de-DE">Aktiviert Autorize-Capture flow</label>
-			<label lang="fr-FR">Activé Autorize-Capture flow</label>
+            <label lang="en-GB">Enable Authorize-Capture flow</label>
+            <label lang="nl-NL">Ingeschakeld Authorize-Capture flow</label>
+            <label lang="de-DE">Aktiviert Authorize-Capture flow</label>
+			<label lang="fr-FR">Activé Authorize-Capture flow</label>
         </input-field>
 
         <input-field type="bool">
