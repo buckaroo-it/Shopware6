@@ -41,6 +41,7 @@ class Transaction
             "amount" => $this->getAmount(),
             "isTest" => $request->isTest(),
             "createdByEngineAt" => $request->getCreatedAt(),
+            "signature" => $request->getSignature()
         ];
     }
 

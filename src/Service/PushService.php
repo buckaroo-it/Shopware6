@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Buckaroo\Shopware6\Buckaroo\Push\ProcessingState;
-use Buckaroo\Shopware6\Buckaroo\Push\Request;
-use Buckaroo\Shopware6\Buckaroo\Push\Transaction;
-use Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseRepository;
-use Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository;
-use Buckaroo\Shopware6\Service\Push\TypeFactory;
 use Composer\Package\Locker;
+use Shopware\Core\Framework\Context;
+use Buckaroo\Shopware6\Buckaroo\Push\Request;
+use Buckaroo\Shopware6\Service\Push\TypeFactory;
+use Buckaroo\Shopware6\Buckaroo\Push\Transaction;
+use Buckaroo\Shopware6\Buckaroo\Push\ProcessingState;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository;
+use Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseCollection;
+use Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseRepository;
 
 class PushService
 {
@@ -40,20 +42,19 @@ class PushService
         $processor = $this->factory->get($request);
         $state = new ProcessingState($request);
         $processor->process($state);
-
-        if ($state->getTransaction() !== null) {
-            $this->saveEngineResponse($state->getTransaction());
-        }
         $orderTransactionId = $this->getOrderTransactionId($request, $salesChannelContext);
 
         if ($state->isSkipped() || $orderTransactionId === null) {
             return;
         }
 
-        //todo 
-
         $lock = $this->lockService->getLock($orderTransactionId);
         if ($lock->acquire()) {
+
+            $engineResponses = $this->getOrderTransactions($request, $salesChannelContext);
+            $this->saveEngineResponse($state, $engineResponses, $salesChannelContext->getContext());
+
+            $state = $this->determineOrderState($engineResponses);
             $this->changeStateService->setState(
                 $orderTransactionId,
                 $state,
@@ -63,20 +64,64 @@ class PushService
         }
     }
 
-    private function saveEngineResponse(Transaction $transaction): void
-    {
-        $this->engineResponseRepository->save([$transaction->getData()]);
+    /**
+     * Determine the state of the payment to be saved
+     *
+     * @return string|null
+     */
+    private function determineOrderState(EngineResponseCollection $engineResponses) {
+        //todo create push payment state service
     }
 
+    private function canSaveEngineResponse(EngineResponseCollection $engineResponses, string $signature) {
+        $engineResponse = $engineResponses->filter(function ($engineResponse) use ($signature) {
+            return $engineResponse->getSignature() === $signature;
+        });
+        return $engineResponse->count() === 0;
+    }
 
-    private function getOrderTransactionId(Request $request, SalesChannelContext $salesChannelContext): ?string
+    /**
+     * Save engine response if exists and its not duplicate
+     *
+     * @param ProcessingState $state
+     * @param EngineResponseCollection $engineResponses
+     * @param Context $context
+     *
+     * @return void
+     */
+    private function saveEngineResponse(
+        ProcessingState $state,
+        EngineResponseCollection $engineResponses,
+        Context $context
+    ): void
     {
-        $engineResponses = $this->engineResponseRepository->findByData(
+        $transaction = $state->getTransaction();
+        if (
+            $transaction === null ||
+            !$this->canSaveEngineResponse(
+                $engineResponses,
+                $state->getRequest()->getSignature()
+            )
+        ) {
+           return;
+        }
+        $this->engineResponseRepository->upsert([$transaction->getData()], $context);
+    }
+
+    private function getOrderTransactions(Request $request, SalesChannelContext $salesChannelContext): EngineResponseCollection
+    {
+        return $this->engineResponseRepository->findByData(
             $request->getOrderTransactionId(),
             $request->getTransactionKey(),
             $request->getRelatedTransaction(),
             $salesChannelContext->getContext()
         );
+    }
+
+
+    private function getOrderTransactionId(Request $request, SalesChannelContext $salesChannelContext): ?string
+    {
+        $engineResponses = $this->getOrderTransactions($request, $salesChannelContext);
 
         foreach ($engineResponses as $response) {
             if ($response->getOrderTransactionId() !== null) {
@@ -84,6 +129,6 @@ class PushService
             }
         }
 
-        return null;
+        return $request->getTransactionKey();
     }
 }

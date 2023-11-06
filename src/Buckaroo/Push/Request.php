@@ -189,8 +189,13 @@ class Request
         return \DateTime::createFromFormat('Y-m-d H:i:s', $this->getString('brq_timestamp'));
     }
 
-    public function isDataRequest()
+    public function isDataRequest(): bool
     {
         return $this->getString('brq_datarequest') !== null;
+    }
+
+    public function getSignature(): ?string
+    {
+        return $this->getString('brq_signature');
     }
 }

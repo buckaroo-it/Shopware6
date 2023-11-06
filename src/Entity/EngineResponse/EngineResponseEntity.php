@@ -17,7 +17,8 @@ class EngineResponseEntity extends Entity
     protected ?string $type;
     protected ?string $action;
     protected ?string $status;
-    
+    protected ?string $signature;
+
     public function getOrderTransaction(): ?OrderTransactionEntity
     {
         return $this->orderTransaction;
@@ -51,6 +52,11 @@ class EngineResponseEntity extends Entity
     public function getStatus(): ?string
     {
         return $this->status;
+    }
+
+    public function getSignature():?string 
+    {
+        return $this->signature;
     }
 
 }

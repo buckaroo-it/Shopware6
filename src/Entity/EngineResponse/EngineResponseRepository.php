@@ -32,14 +32,21 @@ class EngineResponseRepository
         Context $context
     ): EngineResponseCollection {
         $criteria = new Criteria();
+
+        $orFilters = [
+            new EqualsFilter('transaction', $transactionKey),
+            new EqualsFilter('transaction', $relatedKey),
+            new EqualsFilter('relatedTransaction', $relatedKey),
+            new EqualsFilter('relatedTransaction', $transactionKey),
+        ];
+
+        if ($orderTransactionId !== null) {
+            $orFilters[] = new EqualsFilter('orderTransactionId', $orderTransactionId);
+        }
         $criteria->addFilter(
             new MultiFilter(
                 MultiFilter::CONNECTION_OR,
-                [
-                    new EqualsFilter('transaction', $transactionKey),
-                    new EqualsFilter('relatedTransaction', $relatedKey),
-                    new EqualsFilter('orderTransactionId', $orderTransactionId),
-                ]
+                $orFilters
             )
         );
         /** @var EngineResponseCollection */

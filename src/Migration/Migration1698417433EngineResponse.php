@@ -16,7 +16,7 @@ class Migration1698417433EngineResponse extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeStatement("
-        CREATE TABLE IF NOT EXISTS `' . EngineResponseDefinition::ENTITY_NAME . '` (
+        CREATE TABLE IF NOT EXISTS `" . EngineResponseDefinition::ENTITY_NAME . "` (
             `id` BINARY(16) NOT NULL,
             `order_transaction_id` BINARY(16) NULL,
             `order_transaction_version_id` BINARY(16) NOT NULL,
@@ -28,9 +28,8 @@ class Migration1698417433EngineResponse extends MigrationStep
             `serviceCode` VARCHAR(255) NULL,
             `statusCode` VARCHAR(255) NULL,
             `status` VARCHAR(255) NULL,
-            `action` VARCHAR(255) NULL,
             `isTest` TINYINT(1) NULL DEFAULT '0',
-            `createdByEngineAt` DATETIME(3) NULL,
+            `createdByEngineAt` DATETIME(3) DEFAULT NULL,
             `customData` LONGTEXT NULL,
             `signature` VARCHAR(255) NULL,
             `created_at` DATETIME(3) NOT NULL,
