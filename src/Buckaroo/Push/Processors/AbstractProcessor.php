@@ -11,10 +11,10 @@ use Buckaroo\Shopware6\Buckaroo\Push\Processors\StatusProcessorInterface;
 abstract class AbstractProcessor implements StatusProcessorInterface
 {
     private const ACTIONS = [
-        RequestStatus::STATUS_SUCCESS => "onSuccess",
-        RequestStatus::STATUS_PENDING => "onPending",
-        RequestStatus::STATUS_FAILED => "onFailed",
-        RequestStatus::STATUS_CANCELLED => "onCancel",
+        RequestStatus::SUCCESS => "onSuccess",
+        RequestStatus::PENDING => "onPending",
+        RequestStatus::FAILED => "onFailed",
+        RequestStatus::CANCELLED => "onCancel",
     ];
 
     /**
@@ -32,6 +32,7 @@ abstract class AbstractProcessor implements StatusProcessorInterface
     public function process(ProcessingStateInterface $state): void
     {
         $status = $state->getRequest()->getStatus();
+        $state->setType($this->type);
         if (array_key_exists($status, self::ACTIONS)) {
             $method = self::ACTIONS[$status];
             $this->{$method}($state);
@@ -40,21 +41,25 @@ abstract class AbstractProcessor implements StatusProcessorInterface
 
     public function onSuccess(ProcessingStateInterface $state): void
     {
-         $state->setSkipped();
     }
 
     public function onFailed(ProcessingStateInterface $state): void
     {
-         $state->setSkipped();
     }
 
     public function onCancel(ProcessingStateInterface $state): void
     {
-         $state->setSkipped();
     }
 
     public function onProcessing(ProcessingStateInterface $state): void
     {
-         $state->setSkipped();
+    }
+
+    protected function setStatus(ProcessingStateInterface $state, ?string $status = null): void
+    {
+        if ($status === null) {
+            $status = $state->getRequest()->getStatus();
+        }
+        $state->setStatus($status);
     }
 }

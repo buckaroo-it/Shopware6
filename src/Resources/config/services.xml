@@ -36,7 +36,11 @@
             <argument type="service" id="buckaroo_order_transaction_data.repository"/>
         </service>
 
-        <service id="Buckaroo\Shopware6\Service\Push\TypeFactory">
+         <service id="Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseRepository">
+            <argument type="service" id="buckaroo_engine_response.repository"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Buckaroo\Push\TypeFactory">
             <argument type="collection">
                 <argument key="payment" type="service" id="buckaroo.push.factory.type.payment"/>
                 <argument key="refund" type="service" id="buckaroo.push.factory.type.refund"/>
@@ -46,44 +50,53 @@
             </argument>
         </service>
 
-        <service id="buckaroo.push.factory.type.payment" class="Buckaroo\Shopware6\Service\Push\MethodFactory">
+        <service id="buckaroo.push.factory.type.payment" class="Buckaroo\Shopware6\Buckaroo\Push\MethodFactory">
             <argument type="collection">
-                <argument key="paypal" type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Payment\Paypal"/>
+                <argument key="paypal" type="service" id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Payment\Paypal"/>
             </argument>
-            <argument type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Payment"/>
+            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Payment"/>
         </service>
 
-        <service id="buckaroo.push.factory.type.autorize" class="Buckaroo\Shopware6\Service\Push\MethodFactory">
+        <service id="buckaroo.push.factory.type.autorize" class="Buckaroo\Shopware6\Buckaroo\Push\MethodFactory">
             <argument type="collection">
-                <argument key="klarnaKp" type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Authorize\KlarnaKp"/>
+                <argument key="klarnaKp" type="service" id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Authorize\KlarnaKp"/>
             </argument>
-            <argument type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Authorize"/>
+            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Authorize"/>
         </service>
 
-        <service id="buckaroo.push.factory.type.refund" class="Buckaroo\Shopware6\Service\Push\MethodFactory">
+        <service id="buckaroo.push.factory.type.refund" class="Buckaroo\Shopware6\Buckaroo\Push\MethodFactory">
             <argument type="collection">
             </argument>
-            <argument type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Refund"/>
+            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Refund"/>
         </service>
 
-        <service id="buckaroo.push.factory.type.group" class="Buckaroo\Shopware6\Service\Push\MethodFactory">
+        <service id="buckaroo.push.factory.type.group" class="Buckaroo\Shopware6\Buckaroo\Push\MethodFactory">
             <argument type="collection">
             </argument>
-            <argument type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Group"/>
+            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Group"/>
         </service>
 
-        <service id="buckaroo.push.factory.type.giftcard" class="Buckaroo\Shopware6\Service\Push\MethodFactory">
+        <service id="buckaroo.push.factory.type.giftcard" class="Buckaroo\Shopware6\Buckaroo\Push\MethodFactory">
             <argument type="collection">
             </argument>
-            <argument type="service" id="Buckaroo\Shopware6\Service\Push\Processors\Giftcard"/>
+            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Giftcard"/>
         </service>
 
-        <service id="Buckaroo\Shopware6\Service\Push\Processors\Payment"></service>
-        <service id="Buckaroo\Shopware6\Service\Push\Processors\Refund"></service>
-        <service id="Buckaroo\Shopware6\Service\Push\Processors\Group"></service>
-        <service id="Buckaroo\Shopware6\Service\Push\Processors\Giftcard"></service>
-        <service id="Buckaroo\Shopware6\Service\Push\Processors\Payment\Paypal"></service>
-        <service id="Buckaroo\Shopware6\Service\Push\Processors\Payment\KlarnaKp"></service>
+        <service id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Payment"></service>
+        <service id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Refund"></service>
+        <service id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Group"></service>
+        <service id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Giftcard"></service>
+        <service id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Authorize"></service>
+        <service id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Payment\Paypal"></service>
+        <service id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Authorize\KlarnaKp"></service>
+
+        <service id="Buckaroo\Shopware6\Service\PushService">
+            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\Push\TypeFactory"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\LockService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseRepository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\ChangeStateService"/>
+        </service>
 
         <service id="Buckaroo\Shopware6\Handlers\AfterPayOld">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
@@ -460,6 +473,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
             <argument type="service" id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\PushService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

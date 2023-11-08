@@ -5,19 +5,17 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Buckaroo\Push;
 
 use Buckaroo\Shopware6\Buckaroo\Push\Request;
-use Buckaroo\Shopware6\Buckaroo\Push\Transaction;
+use Buckaroo\Shopware6\Buckaroo\Push\RequestType;
 
 class ProcessingState implements ProcessingStateInterface
 {
     private Request $request;
 
-    private ?string $status = null;
+    private ?string $status = RequestStatus::SKIP;
 
     private array $orderData = [];
 
-    private ?Transaction $transaction = null;
-
-    private bool $isSkipped = true;
+    private string $type;
 
     public function __construct(Request $request)
     {
@@ -42,14 +40,9 @@ class ProcessingState implements ProcessingStateInterface
         );
     }
 
-    public function setSkipped(bool $skipped = true): void
+    public function setType(string $type): void
     {
-        $this->isSkipped = $skipped;
-    }
-
-    public function setTransaction(?Transaction $transaction): void
-    {
-        $this->transaction = $transaction;
+        $this->type = $type;
     }
 
     public function getStatus(): ?string
@@ -62,13 +55,35 @@ class ProcessingState implements ProcessingStateInterface
         return $this->orderData;
     }
 
-    public function getTransaction(): ?Transaction
+    public function getTransactionData(): array
     {
-        return $this->transaction;
+        return [
+            "type" => $this->type,
+            "transaction" => $this->request->getTransactionKey(),
+            "transactionType" => $this->request->getTransactionType(),
+            "relatedTransaction" => $this->request->getRelatedTransaction(),
+            "serviceCode" => $this->request->getServiceCode(),
+            "statusCode" => $this->request->getStatusCode(),
+            "status" => $this->status ?? $this->request->getStatus(),
+            "amount" => $this->getAmount(),
+            "isTest" => $this->request->isTest(),
+            "createdByEngineAt" => $this->request->getCreatedAt(),
+            "signature" => $this->request->getSignature()
+        ];
     }
 
-    public function isSkipped(): bool
+ 
+
+     /**
+     * Get credit or debit amount
+     *
+     * @return float
+     */
+    private function getAmount(): float
     {
-        return $this->isSkipped;
+        if ($this->type === RequestType::REFUND) {
+            return $this->request->getCreditAmount();
+        }
+        return $this->request->getDebitAmount();
     }
 }

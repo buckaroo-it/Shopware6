@@ -8,16 +8,17 @@ use Buckaroo\Resources\Constants\ResponseStatus;
 
 class RequestStatus
 {
-    public const STATUS_SUCCESS = 'success';
-    public const STATUS_PENDING = 'pending';
-    public const STATUS_FAILED = 'failed';
-    public const STATUS_CANCELLED = 'cancelled';
+    public const SUCCESS = 'success';
+    public const PENDING = 'pending';
+    public const FAILED = 'failed';
+    public const CANCELLED = 'cancelled';
+    public const SKIP = 'skip';
 
     public static function fromStatusCode(string $statusCode): string
     {
         $status = null;
         if ($statusCode == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
-            $status = self::STATUS_SUCCESS;
+            $status = self::SUCCESS;
         }
 
         if (in_array(
@@ -30,11 +31,11 @@ class RequestStatus
                 ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
             ]
         )) {
-            $status = self::STATUS_FAILED;
+            $status = self::FAILED;
         }
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER) {
-            $status = self::STATUS_CANCELLED;
+            $status = self::CANCELLED;
         }
 
         if (in_array(
@@ -46,7 +47,7 @@ class RequestStatus
                 ResponseStatus::BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD
             ]
         )) {
-            $status = self::STATUS_PENDING;
+            $status = self::PENDING;
         }
 
         return $status;

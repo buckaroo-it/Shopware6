@@ -15,7 +15,7 @@ class Paypal extends Payment
     {
         if ($state->getRequest()->getStatusCode() === ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
         {
-            $state->setStatus(RequestStatus::STATUS_FAILED);
+            $state->setStatus(RequestStatus::FAILED);
         }
     }
 }

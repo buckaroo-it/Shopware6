@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Composer\Package\Locker;
 use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Buckaroo\Push\Request;
 use Buckaroo\Shopware6\Service\Push\TypeFactory;
-use Buckaroo\Shopware6\Buckaroo\Push\Transaction;
 use Buckaroo\Shopware6\Buckaroo\Push\ProcessingState;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository;
@@ -54,12 +52,12 @@ class PushService
             $engineResponses = $this->getOrderTransactions($request, $salesChannelContext);
             $this->saveEngineResponse($state, $engineResponses, $salesChannelContext->getContext());
 
-            $state = $this->determineOrderState($engineResponses);
-            $this->changeStateService->setState(
-                $orderTransactionId,
-                $state,
-                $salesChannelContext->getContext()
-            );
+            // $state = $this->determineOrderState($engineResponses);
+            // $this->changeStateService->setState(
+            //     $orderTransactionId,
+            //     $state,
+            //     $salesChannelContext->getContext()
+            // );
             $lock->release();
         }
     }

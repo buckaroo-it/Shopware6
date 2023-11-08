@@ -6,7 +6,7 @@ namespace Buckaroo\Shopware6\Buckaroo;
 
 use Buckaroo\Shopware6\Buckaroo\Push\RequestType;
 use Buckaroo\Shopware6\Buckaroo\Push\RequestStatus;
-use Buckaroo\Shopware6\Entity\IdealQrOrder\EngineResponseEntity;
+use Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseEntity;
 use Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseCollection;
 
 class SavedTransactionState
@@ -24,55 +24,46 @@ class SavedTransactionState
     }
 
     /**
-     * Get confirmed refunds
+     * Get successful refunds
      *
      * @return EngineResponseCollection
      */
     public function getRefunds(): EngineResponseCollection
     {
         return $this->getSuccessful(
-            $this->getWithAction(
-                $this->getOfType(RequestType::REFUND),
-                self::ACTION_CONFIRM
-            )
+            $this->getOfType(RequestType::REFUND)
         );
     }
 
     /**
-     * Get confirmed canceled transactions
+     * Get successful canceled transactions
      *
      * @return EngineResponseCollection
      */
     public function getCancellations(): EngineResponseCollection
     {
         return $this->getSuccessful(
-            $this->getWithAction(
-                $this->getOfType(RequestType::CANCEL),
-                self::ACTION_CONFIRM
-            )
+            $this->getOfType(RequestType::CANCEL)
         );
     }
 
     /**
-     * Get confirmed payments
+     * Get successful payments
      *
      * @return EngineResponseCollection
      */
     public function getPayments(): EngineResponseCollection
     {
         return $this->getSuccessful(
-            $this->getWithAction(
-                $this->getOfTypes([
-                    RequestType::PAYMENT,
-                    RequestType::GIFTCARD,
-                ]),
-                self::ACTION_CONFIRM
-            )
+            $this->getOfTypes([
+                RequestType::PAYMENT,
+                RequestType::GIFTCARD,
+            ])
         );
     }
 
     /**
-     * Get confirmed authorization
+     * Get successful authorizations
      *
      * @return EngineResponseEntity|null
      */
@@ -104,23 +95,12 @@ class SavedTransactionState
         );
     }
 
-    private function getWithAction(
-        EngineResponseCollection $transactions,
-        string $action
-    ) {
-        return $transactions->filter(
-            static function (EngineResponseEntity $transaction) use ($action) {
-                return $transaction->getAction() === $action;
-            }
-        );
-    }
-
     private function getSuccessful(
         EngineResponseCollection $transactions,
     ) {
         return $transactions->filter(
             static function (EngineResponseEntity $transaction) {
-                return $transaction->getAction() === RequestStatus::STATUS_SUCCESS;
+                return $transaction->getAction() === RequestStatus::SUCCESS;
             }
         );
     }

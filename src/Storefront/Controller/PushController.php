@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Buckaroo\Shopware6\Buckaroo\Push\Request as PushRequest;
 use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderEntity;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
@@ -24,6 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
 use Buckaroo\Shopware6\Events\PushPaymentStateChangeEvent;
+use Buckaroo\Shopware6\Service\PushService;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
@@ -61,6 +63,8 @@ class PushController extends StorefrontController
 
     protected IdealQrOrderRepository $idealQrRepository;
 
+    protected PushService $pushService;
+
     public function __construct(
         SignatureValidationService $signatureValidationService,
         TransactionService $transactionService,
@@ -69,7 +73,8 @@ class PushController extends StorefrontController
         CheckoutHelper $checkoutHelper,
         LoggerInterface $logger,
         EventDispatcherInterface $eventDispatcher,
-        IdealQrOrderRepository $idealQrRepository
+        IdealQrOrderRepository $idealQrRepository,
+        PushService $pushService
     ) {
         $this->signatureValidationService = $signatureValidationService;
         $this->transactionService         = $transactionService;
@@ -79,6 +84,7 @@ class PushController extends StorefrontController
         $this->logger                = $logger;
         $this->eventDispatcher       = $eventDispatcher;
         $this->idealQrRepository     = $idealQrRepository;
+        $this->pushService           = $pushService;
     }
 
     /**
@@ -96,7 +102,7 @@ class PushController extends StorefrontController
     )]
     public function pushBuckaroo(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
-
+        $this->pushService->process(new PushRequest($request), $salesChannelContext);
         $this->logger->info(__METHOD__ . "|1|", [$_POST]);
 
         $status             = (string)$request->request->get('brq_statuscode');
