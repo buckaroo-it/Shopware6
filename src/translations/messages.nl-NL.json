@@ -3,6 +3,7 @@
         "statuscode_failed": "Helaas is er een fout opgetreden tijdens het verwerken van uw betaling. Probeer het opnieuw. Als deze fout zich blijft voordoen, kies dan een andere betaalmethode.",
         "userCanceled": "Volgens ons systeem heb je de betaling geannuleerd. Mocht dit niet het geval zijn, neem dan contact met ons op.",
         "billinkRejectedMessage": "Helaas is het op dit moment voor jou niet mogelijk om gebruik te maken van Billink, selecteer een andere betaalmethode of neem contact op met Billink.",
+        "afterpayRejectedMessage": "Helaas is het op dit moment voor jou niet mogelijk om gebruik te maken van Riverty, selecteer een andere betaalmethode of neem  contact met Riverty op.",
         "capture": {
             "invalid_amount": "Amount is not valid",
             "capture_not_supported": "Capture is not supported",
