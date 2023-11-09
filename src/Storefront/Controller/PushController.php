@@ -384,7 +384,7 @@ class PushController extends StorefrontController
         string $orderTransactionId,
         SalesChannelContext $salesChannelContext,
         Request $request
-    ) {
+    ): void {
         if ($this->stateTransitionService->isTransitionPaymentState(
             ['paid', 'pay_partially'],
             $orderTransactionId,
