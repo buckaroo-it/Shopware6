@@ -28,7 +28,6 @@ class Migration1698417433EngineResponse extends MigrationStep
             `serviceCode` VARCHAR(255) NULL,
             `statusCode` VARCHAR(255) NULL,
             `status` VARCHAR(255) NULL,
-            `isTest` TINYINT(1) NULL DEFAULT '0',
             `createdByEngineAt` DATETIME(3) DEFAULT NULL,
             `customData` LONGTEXT NULL,
             `signature` VARCHAR(255) NULL,

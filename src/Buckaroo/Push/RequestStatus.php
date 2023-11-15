@@ -14,9 +14,9 @@ class RequestStatus
     public const CANCELLED = 'cancelled';
     public const SKIP = 'skip';
 
-    public static function fromStatusCode(string $statusCode): string
+    public static function fromStatusCode(?string $statusCode = null): string
     {
-        $status = null;
+        $status = 'unknown';
         if ($statusCode == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
             $status = self::SUCCESS;
         }

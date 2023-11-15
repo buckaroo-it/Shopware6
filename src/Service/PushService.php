@@ -6,7 +6,7 @@ namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Buckaroo\Push\Request;
-use Buckaroo\Shopware6\Service\Push\TypeFactory;
+use Buckaroo\Shopware6\Buckaroo\Push\TypeFactory;
 use Buckaroo\Shopware6\Buckaroo\Push\ProcessingState;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository;
@@ -42,7 +42,7 @@ class PushService
         $processor->process($state);
         $orderTransactionId = $this->getOrderTransactionId($request, $salesChannelContext);
 
-        if ($state->isSkipped() || $orderTransactionId === null) {
+        if ($orderTransactionId === null) {
             return;
         }
 
@@ -60,6 +60,8 @@ class PushService
             // );
             $lock->release();
         }
+
+        dd( $this->getOrderTransactions($request, $salesChannelContext));
     }
 
     /**
@@ -93,9 +95,7 @@ class PushService
         Context $context
     ): void
     {
-        $transaction = $state->getTransaction();
         if (
-            $transaction === null ||
             !$this->canSaveEngineResponse(
                 $engineResponses,
                 $state->getRequest()->getSignature()
@@ -103,7 +103,7 @@ class PushService
         ) {
            return;
         }
-        $this->engineResponseRepository->upsert([$transaction->getData()], $context);
+        $this->engineResponseRepository->upsert([$state->getTransactionData()], $context);
     }
 
     private function getOrderTransactions(Request $request, SalesChannelContext $salesChannelContext): EngineResponseCollection

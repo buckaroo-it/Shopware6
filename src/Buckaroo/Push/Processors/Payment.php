@@ -14,7 +14,8 @@ class Payment extends AbstractProcessor implements StatusProcessorInterface
         $state->addOrderData(
             [
                 "serviceCode" => $state->getRequest()->getServiceCode(),
-                "transactionKey" => $state->getRequest()->getTransactionKey()
+                "transactionKey" => $state->getRequest()->getTransactionKey(),
+                "isTest" => $state->getRequest()->isTest(),
             ]
         );
     }

@@ -4,10 +4,32 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Buckaroo\Push;
 
+use Buckaroo\Resources\Constants\ResponseStatus;
 use Symfony\Component\HttpFoundation\Request as DefaultRequest;
 
 class Request
 {
+    public const AUTHORIZE_REQUESTS = [
+        'I872',
+        'V054',
+        'I872',
+        'I876',
+        'I880',
+        'I038',
+        'I072',
+        'I069',
+        'I108'
+    ];
+
+    public const CANCEL_AUTHORIZE_REQUESTS = [
+        'I877',
+        'I881',
+        'I039',
+        'I092'
+    ];
+
+    private const TRANSACTION_TYPE_GROUP = ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION;
+
     private DefaultRequest $request;
 
     public function __construct(DefaultRequest $request)
@@ -45,17 +67,82 @@ class Request
     /**
      * Get request type
      *
-     * @return string|null
+     * @return string
      */
-    public function getType(): ?string
+    public function getType(): string
     {
-        return $this->getString(
+        $addType = $this->getString(
             'ADD_type',
             $this->getString(
                 'brq_AdditionalParameters_type',
                 null
             )
         );
+        $type = RequestType::UNKNOWN;
+
+        if ($addType == RequestType::PAYMENT) {
+            // accept only payments from sw6
+            $type = RequestType::PAYMENT;
+        }
+
+        if ($this->isTypeRefund()) {
+            $type = RequestType::REFUND;
+        }
+
+        if ($this->isTypeGroup()) {
+            $type = RequestType::GROUP;
+        }
+
+        if ($this->isTypeGiftCard()) {
+            $type = RequestType::GIFTCARD;
+        }
+
+        if ($this->isTypeInvoice()) {
+            $type = RequestType::INVOICE;
+        }
+
+        if ($this->isTypeAuthorize()) {
+            $type = RequestType::AUTHORIZE;
+        }
+
+        if ($this->isTypeCancelAuthorize()) {
+            $type = RequestType::CANCEL_AUTHORIZE;
+        }
+        return $type;
+    }
+
+    private function isTypeGiftcard(): bool
+    {
+        return $this->hasString('brq_payment') && $this->hasString('brq_relatedtransaction_partialpayment');
+    }
+
+    private function isTypeRefund(): bool
+    {
+        return $this->getCreditAmount() > 0 &&
+            $this->hasString('brq_relatedtransaction_refund');
+    }
+
+    private function isTypeGroup(): bool
+    {
+        return $this->getTransactionType() === self::TRANSACTION_TYPE_GROUP;
+    }
+
+    private function isTypeInvoice(): bool
+    {
+        return $this->hasString('brq_InvoiceKey');
+    }
+
+    private function isTypeAuthorize(): bool
+    {
+        return ($this->isDataRequest() &&
+            $this->getServiceCode() === 'klarnaKp'
+        ) || in_array($this->getTransactionType(), self::AUTHORIZE_REQUESTS);
+    }
+
+    private function isTypeCancelAuthorize(): bool
+    {
+        return $this->getCreditAmount() > 0 &&
+            in_array($this->getTransactionType(), self::CANCEL_AUTHORIZE_REQUESTS);
     }
 
     /**
@@ -168,7 +255,7 @@ class Request
         return is_string($value) && strlen(trim($value)) > 0;
     }
 
-    public function getRelatedTransaction():? string
+    public function getRelatedTransaction(): ?string
     {
         return $this->getString(
             'brq_relatedtransaction_refund',
@@ -184,9 +271,13 @@ class Request
         return $this->getString('brq_test') === 'true';
     }
 
-    public function getCreatedAt(): \DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return \DateTime::createFromFormat('Y-m-d H:i:s', $this->getString('brq_timestamp'));
+        $dateString = $this->getString('brq_timestamp');
+        if ($dateString === null) {
+            return null;
+        }
+        return \DateTime::createFromFormat('Y-m-d H:i:s', $dateString);
     }
 
     public function isDataRequest(): bool

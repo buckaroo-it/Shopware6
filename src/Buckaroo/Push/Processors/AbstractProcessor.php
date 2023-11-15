@@ -17,22 +17,9 @@ abstract class AbstractProcessor implements StatusProcessorInterface
         RequestStatus::CANCELLED => "onCancel",
     ];
 
-    /**
-     * Processor type
-     *
-     * @var string
-     */
-    private $type = 'unknown';
-
-    public function __construct(string $type)
-    {
-        $this->type = $type;
-    }
-
     public function process(ProcessingStateInterface $state): void
     {
         $status = $state->getRequest()->getStatus();
-        $state->setType($this->type);
         if (array_key_exists($status, self::ACTIONS)) {
             $method = self::ACTIONS[$status];
             $this->{$method}($state);

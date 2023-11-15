@@ -10,13 +10,9 @@ interface ProcessingStateInterface
 {
     public function getRequest(): Request;
 
-    public function setSkipped(bool $skipped = true): void;
-
     public function setStatus(?string $status): void;
 
     public function addOrderData(array $data): void;
-
-    public function setType(string $type): void;
 
     public function getTransactionData(): array;
 

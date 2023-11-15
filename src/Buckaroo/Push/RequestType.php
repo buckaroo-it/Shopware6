@@ -14,4 +14,5 @@ class RequestType
     public const GIFTCARD = 'giftcard';
     public const INVOICE = 'invoice';
     public const CANCEL_AUTHORIZE = 'cancel_authorize';
+    public const UNKNOWN = 'unknown';
 }

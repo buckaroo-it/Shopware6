@@ -11,11 +11,9 @@ class ProcessingState implements ProcessingStateInterface
 {
     private Request $request;
 
-    private ?string $status = RequestStatus::SKIP;
+    private ?string $status;
 
     private array $orderData = [];
-
-    private string $type;
 
     public function __construct(Request $request)
     {
@@ -40,11 +38,6 @@ class ProcessingState implements ProcessingStateInterface
         );
     }
 
-    public function setType(string $type): void
-    {
-        $this->type = $type;
-    }
-
     public function getStatus(): ?string
     {
         return $this->status;
@@ -58,7 +51,8 @@ class ProcessingState implements ProcessingStateInterface
     public function getTransactionData(): array
     {
         return [
-            "type" => $this->type,
+            "type" => $this->request->getType(),
+            "orderTransactionId" => $this->request->getOrderTransactionId(),
             "transaction" => $this->request->getTransactionKey(),
             "transactionType" => $this->request->getTransactionType(),
             "relatedTransaction" => $this->request->getRelatedTransaction(),
@@ -66,7 +60,6 @@ class ProcessingState implements ProcessingStateInterface
             "statusCode" => $this->request->getStatusCode(),
             "status" => $this->status ?? $this->request->getStatus(),
             "amount" => $this->getAmount(),
-            "isTest" => $this->request->isTest(),
             "createdByEngineAt" => $this->request->getCreatedAt(),
             "signature" => $this->request->getSignature()
         ];
@@ -81,7 +74,7 @@ class ProcessingState implements ProcessingStateInterface
      */
     private function getAmount(): float
     {
-        if ($this->type === RequestType::REFUND) {
+        if ($this->request->getType() === RequestType::REFUND) {
             return $this->request->getCreditAmount();
         }
         return $this->request->getDebitAmount();

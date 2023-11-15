@@ -40,7 +40,7 @@
             <argument type="service" id="buckaroo_engine_response.repository"/>
         </service>
 
-        <service id="Buckaroo\Shopware6\Buckaroo\Push\TypeFactory">
+        <service id="buckaroo.push.factory" class="Buckaroo\Shopware6\Buckaroo\Push\TypeFactory">
             <argument type="collection">
                 <argument key="payment" type="service" id="buckaroo.push.factory.type.payment"/>
                 <argument key="refund" type="service" id="buckaroo.push.factory.type.refund"/>
@@ -91,7 +91,7 @@
         <service id="Buckaroo\Shopware6\Buckaroo\Push\Processors\Authorize\KlarnaKp"></service>
 
         <service id="Buckaroo\Shopware6\Service\PushService">
-            <argument type="service" id="Buckaroo\Shopware6\Buckaroo\Push\TypeFactory"/>
+            <argument type="service" id="buckaroo.push.factory"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\LockService"/>
             <argument type="service" id="Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository"/>
             <argument type="service" id="Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseRepository"/>

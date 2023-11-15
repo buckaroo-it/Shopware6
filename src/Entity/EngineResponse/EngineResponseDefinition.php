@@ -68,7 +68,6 @@ class EngineResponseDefinition extends EntityDefinition
             new StringField('statusCode', 'statusCode'),
             new StringField('status', 'status'),
             new StringField('type', 'type'),
-            new BoolField('isTest', 'isTest'),
             new DateTimeField('createdByEngineAt', 'createdByEngineAt'),
             new LongTextField('customData', 'customData'),
             new StringField('signature', 'signature'),
