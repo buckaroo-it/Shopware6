@@ -29,8 +29,17 @@ class IdealProcessingPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
+        
+        if ($this->withoutIssuers($salesChannelContext->getSalesChannelId())) {
+            return [];
+        }
         return [
             'issuer' => $dataBag->get('bankMethodId')
         ];
+    }
+
+    private function withoutIssuers(string $salesChannelId): bool
+    {
+        return $this->getSetting("idealprocessingShowissuers", $salesChannelId) === false;
     }
 }

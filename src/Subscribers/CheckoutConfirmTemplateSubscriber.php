@@ -266,6 +266,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'currency'                 => $currency->getIsoCode(),
             'issuers'                  => $this->idealIssuerService->get($salesChannelId),
             'ideal_render_mode'        => $idealRenderMode,
+            'showIssuers'         => $this->canShowIssuers($salesChannelId, $buckarooKey),
             'payByBankMode'            => $this->settingsService->getSetting('paybybankRenderMode', $salesChannelId),
             'payByBankIssuers'         => $this->payByBankService->getIssuers($customer),
             'payByBankLogos'           => $this->payByBankService->getIssuerLogos($customer),
@@ -297,6 +298,11 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             BuckarooStruct::EXTENSION_NAME,
             $struct
         );
+    }
+
+    private function canShowIssuers(string $salesChannelId, string $key): bool
+    {
+        return $this->settingsService->getSetting($key."Showissuers", $salesChannelId) !== false;
     }
 
     private function getMethodsWithFinancialWarning(string $salesChannelId): array

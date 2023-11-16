@@ -318,7 +318,9 @@ class PaymentMethodsInstaller implements InstallerInterface
             ['BillinkFinancialwarning' => true],
             ['klarnakpFinancialwarning' => true],
             ['capayableFinancialwarning' => true],
-            ['afterpayFinancialwarning' => true]
+            ['afterpayFinancialwarning' => true],
+            ['idealShowissuers' => true],
+            ['idealprocessingShowissuers' => true],
         ] as $key => $value) {
             $this->setBuckarooPaymentSettingsValue((string)$key, $value);
         }
