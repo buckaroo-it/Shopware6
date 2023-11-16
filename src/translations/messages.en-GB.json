@@ -3,6 +3,7 @@
         "statuscode_failed": "Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.",
         "userCanceled": "According to our system, you have canceled the payment. If this is not the case, please contact us.",
         "billinkRejectedMessage": "Unfortunately, it is currently not possible for you to use Billink, Please select another payment method or contact Billink.",
+        "afterpayRejectedMessage": "Unfortunately, it is currently not possible for you to use Riverty, please select another payment method or contact Riverty.",
         "capture": {
             "invalid_amount": "Amount is not valid",
             "capture_not_supported": "Capture is not supported",

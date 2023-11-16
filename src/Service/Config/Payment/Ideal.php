@@ -21,7 +21,8 @@ class Ideal implements ConfigInterface
     {
         return [
             'issuers'                  => $this->idealIssuerService->get($state->getSalesChannelId()),
-            'ideal_render_mode'        => $this->getIdealRenderMode($state)
+            'ideal_render_mode'        => $this->getIdealRenderMode($state),
+            'showIssuers'              => $this->canShowIssuers($state),
         ];
     }
 
@@ -34,5 +35,14 @@ class Ideal implements ConfigInterface
         }
 
         return 0;
+    }
+
+    private function canShowIssuers(State $state): bool
+    {
+        $buckarooKey = $state->getBuckarooKey();
+        if ($buckarooKey === null) {
+            return true;
+        }
+        return $state->getSetting($buckarooKey."Showissuers") !== false;
     }
 }

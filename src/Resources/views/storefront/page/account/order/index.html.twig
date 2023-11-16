@@ -23,9 +23,19 @@
         {% elseif errorCode == 'CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT' %}
             {% set sesMessage = 'account.externalPaymentCanceled' %}
         {% endif %}
+
+        {% if context.paymentMethod.shortName === 'after_pay_payment_handler' %}
+            {% set sesMessage = 'buckaroo.afterpayRejectedMessage' %}
+        {% endif %}
+
         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
             type: 'danger',
             content: sesMessage|trans|sw_sanitize
+        } %}
+    {% elseif page.errorCode === 'CHECKOUT__ASYNC_PAYMENT_PROCESS_INTERRUPTED' and context.paymentMethod.shortName === 'after_pay_payment_handler' %}
+        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+            type: 'danger',
+            content: 'buckaroo.afterpayRejectedMessage'|trans|sw_sanitize
         } %}
     {% else %}
         {{ parent() }}

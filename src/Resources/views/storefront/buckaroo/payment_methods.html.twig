@@ -26,7 +26,7 @@
 
                 {% if buckarooKey == 'ideal' or buckarooKey == 'idealprocessing' %}
                     {% block buckaroo_payment_method_ideal %}
-                        {% if page.extensions.buckaroo.issuers|length > 0 %}
+                        {% if page.extensions.buckaroo.issuers|length > 0 and page.extensions.buckaroo.showIssuers %}
                             {% if page.extensions.buckaroo.ideal_render_mode > 0 %}
                                 <div>
                                     <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
