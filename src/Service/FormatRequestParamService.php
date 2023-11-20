@@ -244,7 +244,7 @@ class FormatRequestParamService
         }
 
        
-        if ($buckarooFee <= 0) {
+        if (!is_float($buckarooFee) || $buckarooFee <= 0) {
             return $line;
         }
 
