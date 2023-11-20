@@ -235,10 +235,14 @@ class FormatRequestParamService
         $line = [];
 
         if ($paymentCode === null) {
-            return $line;
+            $buckarooFee = $order->getCustomFieldsValue('buckarooFee');
+            if ($buckarooFee === null) {
+                return $line;
+            }
+        } else {
+            $buckarooFee = $this->settingsService->getBuckarooFee($paymentCode, $order->getSalesChannelId());
         }
 
-        $buckarooFee = $this->settingsService->getBuckarooFee($paymentCode, $order->getSalesChannelId());
        
         if ($buckarooFee <= 0) {
             return $line;
