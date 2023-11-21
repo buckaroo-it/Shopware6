@@ -29,8 +29,10 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
         const method = document.querySelector('.payment-method.bk-applepay');
         if (method) {
             const checkPaySupport = async function (merchantIdentifier) {
-                if (!('ApplePaySession' in window)) return false;
-                if (ApplePaySession === undefined) return false;
+                if (!("ApplePaySession" in window))
+                    return Promise.resolve(false);
+                if (ApplePaySession === undefined)
+                    return Promise.resolve(false);
                 return await ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
             };
             const toggle = async function () {
