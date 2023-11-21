@@ -318,11 +318,8 @@ Component.register('buckaroo-settings', {
                 return true;
             }
         }
-
-        if ((fid == 'idealRenderMode')) {
-            if (config["BuckarooPayments.config.idealRenderMode"] != undefined && config["BuckarooPayments.config.idealEnabled"]) {
+        if (fid == 'idealRenderMode' && config["BuckarooPayments.config.idealEnabled"]) {
                 return true;
-            }
         }
 
         if ((fid == 'transferSendEmail') || (fid == 'transferDateDue')) {
