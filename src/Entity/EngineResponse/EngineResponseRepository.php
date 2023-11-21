@@ -54,4 +54,19 @@ class EngineResponseRepository
             ->search($criteria, $context)
             ->getEntities();
     }
+
+    public function findBySignature(
+        ?string $signature,
+        Context $context
+    ): ?EngineResponseEntity {
+        $criteria = new Criteria();
+
+        $criteria->addFilter(
+            new EqualsFilter('signature', $signature),
+        );
+        /** @var EngineResponseCollection */
+        return $this->entityRepository
+            ->search($criteria, $context)
+            ->first();
+    }
 }

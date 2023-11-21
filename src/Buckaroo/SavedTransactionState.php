@@ -12,96 +12,138 @@ use Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseCollection;
 class SavedTransactionState
 {
 
-    public const ACTION_SUBMIT = 'submit';
-    public const ACTION_CONFIRM = 'confirm';
+    protected EngineResponseCollection $engineResponses;
 
+    private array $transactions;
 
-    protected EngineResponseCollection $transactions;
-
-    public function __construct(EngineResponseCollection $transactions)
+    public function __construct(EngineResponseCollection $engineResponses)
     {
-        $this->transactions = $transactions;
+        $this->engineResponses = $engineResponses;
+        $this->transactions = $this->getTransactionsWithLatestState();
     }
 
-    /**
-     * Get successful refunds
-     *
-     * @return EngineResponseCollection
-     */
-    public function getRefunds(): EngineResponseCollection
+    private function getTransactionsWithLatestState(): array
     {
-        return $this->getSuccessful(
-            $this->getOfType(RequestType::REFUND)
-        );
+        $transactionKeys = [];
+
+        $transactions = [];
+        foreach ($this->engineResponses as $engineResponse) {
+            $transactionKeys[] = $engineResponse->getTransactionKey();
+        }
+
+        foreach ($transactionKeys as $transactionKey) {
+            $responses = $this->engineResponses->filter(function($engineResponse) use($transactionKey) {
+                return $engineResponse->getTransactionKey() === $transactionKey;
+            });
+
+            $responses->sort(function($a, $b) {
+                return $a->getCreatedAt()->getTimestamp() <=> $b->getCreatedAt()->getTimestamp();
+            });
+
+            $transactions[] = new TransactionState(
+                $responses->first(),
+                $responses
+            );
+        }
+
+        return $transactions;
     }
 
-    /**
-     * Get successful canceled transactions
-     *
-     * @return EngineResponseCollection
-     */
-    public function getCancellations(): EngineResponseCollection
-    {
-        return $this->getSuccessful(
-            $this->getOfType(RequestType::CANCEL)
-        );
-    }
 
-    /**
-     * Get successful payments
-     *
-     * @return EngineResponseCollection
-     */
-    public function getPayments(): EngineResponseCollection
-    {
-        return $this->getSuccessful(
-            $this->getOfTypes([
-                RequestType::PAYMENT,
-                RequestType::GIFTCARD,
-            ])
-        );
-    }
+    // /**
+    //  * Has confirmed refunds
+    //  *
+    //  * @return boolean
+    //  */
+    // public function hasRefunds(): bool
+    // {
+    //     return count($this->getRefunds()) > 0;
+    // }
 
-    /**
-     * Get successful authorizations
-     *
-     * @return EngineResponseEntity|null
-     */
-    public function getAuthorization(): ?EngineResponseEntity
-    {
-        return $this->getSuccessful(
-            $this->getWithAction(
-                $this->getOfType(RequestType::AUTHORIZE),
-                self::ACTION_CONFIRM
-            )
-        )->first();
-    }
+    // /**
+    //  * Has confirmed cancellations
+    //  *
+    //  * @return boolean
+    //  */
+    // public function isGroup(): bool
+    // {
+    //     return count($this->getCancellations()) > 0;
+    // }
 
-    private function getOfType(string $type): EngineResponseCollection
-    {
-        return $this->transactions->filter(
-            static function (EngineResponseEntity $transaction) use ($type) {
-                return $transaction->getType() === $type;
-            }
-        );
-    }
 
-    private function getOfTypes(array $types): EngineResponseCollection
-    {
-        return $this->transactions->filter(
-            static function (EngineResponseEntity $transaction) use ($types) {
-                return in_array($transaction->getType(), $types);
-            }
-        );
-    }
 
-    private function getSuccessful(
-        EngineResponseCollection $transactions,
-    ) {
-        return $transactions->filter(
-            static function (EngineResponseEntity $transaction) {
-                return $transaction->getAction() === RequestStatus::SUCCESS;
-            }
-        );
-    }
+    // /**
+    //  * Get successful refunds
+    //  *
+    //  * @return EngineResponseCollection
+    //  */
+    // public function getRefunds(): EngineResponseCollection
+    // {
+    //     return $this->getSuccessful(
+    //         $this->getOfType(RequestType::REFUND)
+    //     );
+    // }
+
+    // /**
+    //  * Get successful canceled transactions
+    //  *
+    //  * @return EngineResponseCollection
+    //  */
+    // public function getCancellations(): EngineResponseCollection
+    // {
+    //     return $this->getSuccessful(
+    //         $this->getOfType(RequestType::CANCEL)
+    //     );
+    // }
+
+    // /**
+    //  * Get successful payments
+    //  *
+    //  * @return EngineResponseCollection
+    //  */
+    // public function getPayments(): EngineResponseCollection
+    // {
+    //     return $this->getSuccessful(
+    //         $this->getOfTypes([
+    //             RequestType::PAYMENT,
+    //             RequestType::GIFTCARD,
+    //         ])
+    //     );
+    // }
+
+    // /**
+    //  * Get successful authorizations
+    //  *
+    //  * @return EngineResponseEntity|null
+    //  */
+    // public function getAuthorization(): ?EngineResponseEntity
+    // {
+    //     return $this->getSuccessful(
+    //             $this->getOfType(RequestType::AUTHORIZE),
+    //     )->first();
+    // }
+
+    // private function getOfType(string $type): EngineResponseCollection
+    // {
+    //     return $this->getOfTypes([$type]);
+    // }
+
+    // private function getOfTypes(array $types): EngineResponseCollection
+    // {
+    //     return $this->transactions->filter(
+    //         static function (EngineResponseEntity $transaction) use ($types) {
+    //             return in_array($transaction->getType(), $types);
+    //         }
+    //     );
+    // }
+
+    // private function getSuccessful(
+    //     EngineResponseCollection $transactions,
+    // ) {
+    //     return $transactions->filter(
+    //         static function (EngineResponseEntity $transaction) {
+    //             return $transaction->getAction() === RequestStatus::SUCCESS;
+    //         }
+    //     );
+    // }
 }

@@ -37,7 +37,8 @@ class Migration1698417433EngineResponse extends MigrationStep
             INDEX `relatedTransaction_index` (`relatedTransaction`),
             PRIMARY KEY (`id`),
             INDEX `order_transaction_id_index` (`order_transaction_id`),
-            INDEX `order_transaction_version_id_index` (`order_transaction_version_id`)
+            INDEX `order_transaction_version_id_index` (`order_transaction_version_id`),
+            INDEX `signature_index` (`signature`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
     }

@@ -49,10 +49,9 @@ class PushService
         $lock = $this->lockService->getLock($orderTransactionId);
         if ($lock->acquire()) {
 
+            $this->saveEngineResponse($state, $salesChannelContext->getContext());
             $engineResponses = $this->getOrderTransactions($request, $salesChannelContext);
-            $this->saveEngineResponse($state, $engineResponses, $salesChannelContext->getContext());
-
-            // $state = $this->determineOrderState($engineResponses);
+            $state = $this->determineOrderState($engineResponses);
             // $this->changeStateService->setState(
             //     $orderTransactionId,
             //     $state,
@@ -69,15 +68,15 @@ class PushService
      *
      * @return string|null
      */
-    private function determineOrderState(EngineResponseCollection $engineResponses) {
+    private function determineOrderState(EngineResponseCollection $engineResponses): string {
         //todo create push payment state service
     }
 
-    private function canSaveEngineResponse(EngineResponseCollection $engineResponses, string $signature) {
-        $engineResponse = $engineResponses->filter(function ($engineResponse) use ($signature) {
-            return $engineResponse->getSignature() === $signature;
-        });
-        return $engineResponse->count() === 0;
+    private function canSaveEngineResponse(
+        string $signature,
+        Context $context
+    ) {
+        $this->engineResponseRepository->findBySignature($signature, $context) === null;
     }
 
     /**
@@ -91,14 +90,13 @@ class PushService
      */
     private function saveEngineResponse(
         ProcessingState $state,
-        EngineResponseCollection $engineResponses,
         Context $context
     ): void
     {
         if (
             !$this->canSaveEngineResponse(
-                $engineResponses,
-                $state->getRequest()->getSignature()
+                $state->getRequest()->getSignature(),
+                $context
             )
         ) {
            return;
