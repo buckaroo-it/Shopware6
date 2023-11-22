@@ -17,6 +17,7 @@ use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
 use Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler;
+use Buckaroo\Shopware6\PaymentMethods\In3;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -265,6 +266,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'currency'                 => $currency->getIsoCode(),
             'issuers'                  => $this->idealIssuerService->get($salesChannelId),
             'ideal_render_mode'        => $idealRenderMode,
+            'showIssuers'         => $this->canShowIssuers($salesChannelId, $buckarooKey),
             'payByBankMode'            => $this->settingsService->getSetting('paybybankRenderMode', $salesChannelId),
             'payByBankIssuers'         => $this->payByBankService->getIssuers($customer),
             'payByBankLogos'           => $this->payByBankService->getIssuerLogos($customer),
@@ -288,13 +290,42 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
-            'canShowPhone'          => $this->canShowPhone($customer)
+            'canShowPhone'          => $this->canShowPhone($customer),
+            'methodsWithFinancialWarning' => $this->getMethodsWithFinancialWarning($salesChannelId)
         ]);
 
         $event->getPage()->addExtension(
             BuckarooStruct::EXTENSION_NAME,
             $struct
         );
+    }
+
+    private function canShowIssuers(string $salesChannelId, string $key): bool
+    {
+        return $this->settingsService->getSetting($key."Showissuers", $salesChannelId) !== false;
+    }
+
+    private function getMethodsWithFinancialWarning(string $salesChannelId): array
+    {
+        $methods = [
+            'Billink',
+            'klarnakp',
+            'capayable',
+            'afterpay'
+        ];
+
+        $withFinancialWarning = [];
+        foreach ($methods as $method) {
+            if (
+                $this->settingsService->getSetting(
+                    $method."Financialwarning",
+                    $salesChannelId
+                ) !== false
+            ) {
+                $withFinancialWarning[] = $method;
+            }
+        }
+        return $withFinancialWarning;
     }
 
     private function getBillinkPaymentType(CustomerEntity $customer): string
@@ -420,6 +451,14 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     ): string {
         if ($label === null) {
             $label = $this->settingsService->getSettingAsString($buckarooKey . 'Label', $salesChannelId);
+        }
+
+        if (
+            $buckarooKey === 'capayable' &&
+            $this->settingsService->getSetting('capayableVersion', $salesChannelId) === 'v2' &&
+            $label === In3::DEFAULT_NAME
+        ) {
+            $label = In3::V2_NAME;
         }
 
         if ($buckarooFee = (string)$this->settingsService->getBuckarooFee($buckarooKey, $salesChannelId)) {

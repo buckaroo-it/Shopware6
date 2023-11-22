@@ -110,6 +110,8 @@ class StateTransitionService
                 return StateMachineTransitionActions::ACTION_REOPEN;
             case 'process':
                 return StateMachineTransitionActions::ACTION_PROCESS;
+            case 'authorize':
+                return StateMachineTransitionActions::ACTION_AUTHORIZE;
         }
         return null;
     }
@@ -198,7 +200,8 @@ class StateTransitionService
             }
 
             $actionStatusTransition = $this->getTransitionFromActionName($transitionAction, $context);
-            if ($actionStatusTransition !== null &&
+            if (
+                $actionStatusTransition !== null &&
                 $transaction->getStateId() == $actionStatusTransition->getId()
             ) {
                 return true;
@@ -263,7 +266,8 @@ class StateTransitionService
 
             $stateMachine = $order->getStateMachineState();
 
-            if ($stateMachine !== null &&
+            if (
+                $stateMachine !== null &&
                 $stateMachine->getTechnicalName() == $stateName
             ) {
                 return true;

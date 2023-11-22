@@ -456,6 +456,18 @@
 			<label lang="fr-FR">Activé</label>
         </input-field>
 
+        <input-field type="bool">
+            <name>idealShowissuers</name>
+            <label lang="en-GB">Show Issuer Selection in the Checkout</label>
+            <label lang="nl-NL">Weergeef de bankkeuze in de checkout</label>
+            <label lang="de-DE">Bankauswahl im Checkout anzeigen</label>
+			<label lang="fr-FR">Afficher la sélection de la banque à la caisse.</label>
+			<helpText lang="en-GB">When the "Disabled" option is selected, the issuer selection for iDEAL will not be displayed in the checkout. Instead, customers will be redirected to a separate page where they can choose their iDEAL issuer (i.e., their bank). On the other hand, selecting the "Enable" option will display the issuer selection directly in the checkout. It's important to note that enabling this option will incur additional costs from Buckaroo, estimated at around €0.002 for each transaction. For precise cost details, please reach out to Buckaroo directly.</helpText>
+			<helpText lang="nl-NL">Wanneer de optie 'Uitgeschakeld' is geselecteerd, zal de bankkeuze voor iDEAL niet worden weergegeven in de checkout. In plaats daarvan worden klanten doorgestuurd naar een aparte pagina waar ze hun eigen bank kunnen kiezen. Aan de andere kant zal het aanzetten van deze functie de bankkeuze direct in de checkout weergeven. Het is belangrijk om te melden dat het inschakelen van deze optie extra kosten met zich mee zal brengen van Buckaroo, geschat op ongeveer €0.002 per transactie. Voor nauwkeurige kostendetails kunt u rechtstreeks contact opnemen met Buckaroo.</helpText>
+			<helpText lang="de-DE">Wenn die Option 'Deaktiviert' ausgewählt ist, wird die Bankauswahl für iDEAL nicht im Checkout angezeigt. Stattdessen werden Kunden auf eine separate Seite weitergeleitet, auf der sie ihre eigene Bank auswählen können. Auf der anderen Seite wird das Aktivieren dieser Funktion die Bankauswahl direkt im Checkout anzeigen. Es ist wichtig zu beachten, dass das Aktivieren dieser Option zusätzliche Kosten von Buckaroo verursachen wird, die auf ungefähr €0,002 pro Transaktion geschätzt werden. Für genaue Kostenangaben können Sie sich direkt an Buckaroo wenden.</helpText>
+			<helpText lang="fr-FR">Lorsque l'option "NON" est sélectionnée, le choix de l'émetteur pour iDEAL ne sera pas affiché lors du paiement. Au lieu de cela, les clients seront redirigés vers une page séparée où ils pourront choisir leur émetteur iDEAL (c'est-à-dire, leur banque). En revanche, sélectionner l'option "Activer" affichera directement le choix de l'émetteur lors du paiement. Il est important de noter que l'activation de cette option entraînera des coûts supplémentaires de la part de Buckaroo, estimés à environ €0.002 par transaction. Pour des détails précis sur les coûts, veuillez contacter directement Buckaroo.</helpText>
+        </input-field>
+
         <input-field type="single-select">
             <name>idealEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -533,6 +545,18 @@
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
 			<label lang="fr-FR">Activé</label>
+        </input-field>
+
+         <input-field type="bool">
+            <name>idealprocessingShowissuers</name>
+            <label lang="en-GB">Show Issuer Selection in the Checkout</label>
+            <label lang="nl-NL">Weergeef de bankkeuze in de checkout</label>
+            <label lang="de-DE">Bankauswahl im Checkout anzeigen</label>
+			<label lang="fr-FR">Afficher la sélection de la banque à la caisse.</label>
+			<helpText lang="en-GB">When the "Disabled" option is selected, the issuer selection for iDEAL will not be displayed in the checkout. Instead, customers will be redirected to a separate page where they can choose their iDEAL issuer (i.e., their bank). On the other hand, selecting the "Enable" option will display the issuer selection directly in the checkout. It's important to note that enabling this option will incur additional costs from Buckaroo, estimated at around €0.002 for each transaction. For precise cost details, please reach out to buckaroo directly.</helpText>
+			<helpText lang="nl-NL">Wanneer de optie 'Uitgeschakeld' is geselecteerd, zal de bankkeuze voor iDEAL niet worden weergegeven in de checkout. In plaats daarvan worden klanten doorgestuurd naar een aparte pagina waar ze hun eigen bank kunnen kiezen. Aan de andere kant zal het aanzetten van deze functie de bankkeuze direct in de checkout weergeven. Het is belangrijk om te melden dat het inschakelen van deze optie extra kosten met zich mee zal brengen van Buckaroo, geschat op ongeveer €0.002 per transactie. Voor nauwkeurige kostendetails kunt u rechtstreeks contact opnemen met buckaroo.</helpText>
+			<helpText lang="de-DE">Wenn die Option 'Deaktiviert' ausgewählt ist, wird die Bankauswahl für iDEAL nicht im Checkout angezeigt. Stattdessen werden Kunden auf eine separate Seite weitergeleitet, auf der sie ihre eigene Bank auswählen können. Auf der anderen Seite wird das Aktivieren dieser Funktion die Bankauswahl direkt im Checkout anzeigen. Es ist wichtig zu beachten, dass das Aktivieren dieser Option zusätzliche Kosten von Buckaroo verursachen wird, die auf ungefähr €0,002 pro Transaktion geschätzt werden. Für genaue Kostenangaben können Sie sich direkt an buckaroo wenden.</helpText>
+			<helpText lang="fr-FR">Lorsque l'option "NON" est sélectionnée, le choix de l'émetteur pour iDEAL ne sera pas affiché lors du paiement. Au lieu de cela, les clients seront redirigés vers une page séparée où ils pourront choisir leur émetteur iDEAL (c'est-à-dire, leur banque). En revanche, sélectionner l'option "Activer" affichera directement le choix de l'émetteur lors du paiement. Il est important de noter que l'activation de cette option entraînera des coûts supplémentaires de la part de Buckaroo, estimés à environ €0.002 par transaction. Pour des détails précis sur les coûts, veuillez contacter directement buckaroo.</helpText>
         </input-field>
         
         <input-field type="single-select">
@@ -712,7 +736,16 @@
             <label lang="de-DE">Aktiviert</label>
 			<label lang="fr-FR">Activé</label>
         </input-field>
-        
+
+        <input-field type="bool">
+            <name>afterpayFinancialwarning</name>
+            <label lang="en-GB">Consumer Financial Warning</label>
+            <label lang="nl-NL">Financiële Waarschuwing</label>
+            <helpText lang="en-GB">Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.</helpText>
+			<helpText lang="nl-NL">Vanwege de voorschriften voor achteraf betaalmethoden in Nederland dien je klanten te waarschuwen voor het gebruik van een achteraf betaalmethode omdat het gemakkelijk kan leiden tot schulden. Wanneer deze functie is ingeschakeld, wordt er een waarschuwing weergegeven tijdens het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland.</helpText>
+            <defaultValue>1</defaultValue>
+        </input-field>
+
         <input-field type="single-select">
             <name>afterpayEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -732,6 +765,22 @@
             </options>
         </input-field>
 
+        <input-field type="bool">
+            <name>afterpayAuthorize</name>
+            <label lang="en-GB">Enable Authorize-Capture flow</label>
+            <label lang="nl-NL">Ingeschakeld Authorize-Capture flow</label>
+            <label lang="de-DE">Aktiviert Authorize-Capture flow</label>
+			<label lang="fr-FR">Activé Authorize-Capture flow</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>afterpayCaptureonshippent</name>
+            <label lang="en-GB">Enable Automatic capture on shipped</label>
+            <label lang="nl-NL">Ingeschakeld Automatic capture on shipped</label>
+            <label lang="de-DE">Aktiviert Automatic capture on shipped</label>
+			<label lang="fr-FR">Activé Automatic capture on shipped</label>
+        </input-field>
+        
         <input-field type="bool">
             <name>afterpayEnabledold</name>
             <label lang="en-GB">Enabled Riverty | AfterPay Old</label>
@@ -1852,6 +1901,15 @@
             <label lang="de-DE">Aktiviert</label>
 			<label lang="fr-FR">Activé</label>
         </input-field>
+
+        <input-field type="bool">
+            <name>capayableFinancialwarning</name>
+            <label lang="en-GB">Consumer Financial Warning</label>
+            <label lang="nl-NL">Financiële Waarschuwing</label>
+            <helpText lang="en-GB">Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.</helpText>
+			<helpText lang="nl-NL">Vanwege de voorschriften voor achteraf betaalmethoden in Nederland dien je klanten te waarschuwen voor het gebruik van een achteraf betaalmethode omdat het gemakkelijk kan leiden tot schulden. Wanneer deze functie is ingeschakeld, wordt er een waarschuwing weergegeven tijdens het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland.</helpText>
+            <defaultValue>1</defaultValue>
+        </input-field>
        
         <input-field type="single-select">
             <name>capayableEnvironment</name>
@@ -1882,7 +1940,7 @@
             <options>
                 <option>
                     <id>v3</id>
-                    <name>V3 (In3)</name>
+                    <name>V3 (iDEAL In3)</name>
                 </option>
                 <option>
                     <id>v2</id>
@@ -1905,7 +1963,7 @@
 			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
 			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
 			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
-            <defaultValue>In3</defaultValue>
+            <defaultValue>iDEAL In3</defaultValue>
         </input-field>
 
         <input-field type="float">
@@ -1973,6 +2031,114 @@
         </input-field>
     </card>
 
+    <card>
+    <title>MBWay</title>
+
+        <input-field type="bool">
+            <name>mbwayEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
+        </input-field>
+       
+        <input-field type="single-select">
+            <name>mbwayEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>mbwayLabel</name>
+            <label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
+            <defaultValue>MWPay</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>mbwayFee</name>
+            <min>0</min>
+            <max>1000</max>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
+        </input-field>
+    </card>
+
+    <card>
+    <title>Multibanco</title>
+
+        <input-field type="bool">
+            <name>multibancoEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
+        </input-field>
+       
+        <input-field type="single-select">
+            <name>multibancoEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>multibancoLabel</name>
+            <label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
+            <defaultValue>Multibanco</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>multibancoFee</name>
+            <min>0</min>
+            <max>1000</max>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
+        </input-field>
+    </card>
+    
     <card>
     <title>Przelewy24</title>
 
@@ -2199,6 +2365,16 @@
             <label lang="de-DE">Aktiviert Klarna Pay later (authorize/capture)</label>
 			<label lang="fr-FR">Enabled Klarna Pay later (authorize/capture)</label>
         </input-field>
+
+        <input-field type="bool">
+            <name>klarnakpFinancialwarning</name>
+            <label lang="en-GB">Consumer Financial Warning</label>
+            <label lang="nl-NL">Financiële Waarschuwing</label>
+            <helpText lang="en-GB">Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.</helpText>
+			<helpText lang="nl-NL">Vanwege de voorschriften voor achteraf betaalmethoden in Nederland dien je klanten te waarschuwen voor het gebruik van een achteraf betaalmethode omdat het gemakkelijk kan leiden tot schulden. Wanneer deze functie is ingeschakeld, wordt er een waarschuwing weergegeven tijdens het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland.</helpText>
+            <defaultValue>1</defaultValue>
+        </input-field>
+
        
         <input-field type="single-select">
             <name>klarnakpEnvironment</name>
@@ -2253,6 +2429,15 @@
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
 			<label lang="fr-FR">Activé</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>BillinkFinancialwarning</name>
+            <label lang="en-GB">Consumer Financial Warning</label>
+            <label lang="nl-NL">Financiële Waarschuwing</label>
+            <helpText lang="en-GB">Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.</helpText>
+			<helpText lang="nl-NL">Vanwege de voorschriften voor achteraf betaalmethoden in Nederland dien je klanten te waarschuwen voor het gebruik van een achteraf betaalmethode omdat het gemakkelijk kan leiden tot schulden. Wanneer deze functie is ingeschakeld, wordt er een waarschuwing weergegeven tijdens het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland.</helpText>
+            <defaultValue>1</defaultValue>
         </input-field>
         
         <input-field type="single-select">

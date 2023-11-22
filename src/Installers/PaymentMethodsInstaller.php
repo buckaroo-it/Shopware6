@@ -314,7 +314,13 @@ class PaymentMethodsInstaller implements InstallerInterface
             ['BillinkMode' => 'pay'],
             ['transferSendEmail' => 1],
             ['transferDateDue' => 7],
-            ['payperemailEnabledfrontend' => true]
+            ['payperemailEnabledfrontend' => true],
+            ['BillinkFinancialwarning' => true],
+            ['klarnakpFinancialwarning' => true],
+            ['capayableFinancialwarning' => true],
+            ['afterpayFinancialwarning' => true],
+            ['idealShowissuers' => true],
+            ['idealprocessingShowissuers' => true],
         ] as $key => $value) {
             $this->setBuckarooPaymentSettingsValue((string)$key, $value);
         }

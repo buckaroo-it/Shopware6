@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\In3PaymentHandler;
+use Buckaroo\Shopware6\Handlers\MultibancoPaymentHandler;
 
-class In3 extends AbstractPayment
+class Multibanco extends AbstractPayment
 {
-
-    public const DEFAULT_NAME = 'iDEAL In3';
-    public const V2_NAME = 'In3';
     /*
-     * @return string
-     */
+    * @return string
+    */
     public function getBuckarooKey(): string
     {
-        return 'capayable';
+        return 'multibanco';
     }
 
     /**
@@ -26,7 +23,7 @@ class In3 extends AbstractPayment
      */
     public function getName(): string
     {
-        return  self::DEFAULT_NAME;
+        return 'Buckaroo Multibanco';
     }
 
     /**
@@ -36,7 +33,17 @@ class In3 extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with iDEAL In3';
+        return 'Pay with Multibanco';
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return string
+     */
+    public function getMedia(): string
+    {
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/multibanco.svg';
     }
 
     /**
@@ -46,10 +53,10 @@ class In3 extends AbstractPayment
      */
     public function getPaymentHandler(): string
     {
-        return In3PaymentHandler::class;
+        return MultibancoPaymentHandler::class;
     }
 
-    /**
+   /**
      * {@inheritDoc}
      *
      * @return string|null
@@ -62,16 +69,6 @@ class In3 extends AbstractPayment
     /**
      * {@inheritDoc}
      *
-     * @return string
-     */
-    public function getMedia(): string
-    {
-        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/in3-ideal.svg';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
      * @return array<mixed>
      */
     public function getTranslations(): array
@@ -79,7 +76,7 @@ class In3 extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit iDEAL In3',
+                'description' => 'Bezahlen mit Multibanco',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),

@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\In3PaymentHandler;
+use Buckaroo\Shopware6\Handlers\MBWayPaymentHandler;
 
-class In3 extends AbstractPayment
+class MBWay extends AbstractPayment
 {
-
-    public const DEFAULT_NAME = 'iDEAL In3';
-    public const V2_NAME = 'In3';
     /*
-     * @return string
-     */
+    * @return string
+    */
     public function getBuckarooKey(): string
     {
-        return 'capayable';
+        return 'mbway';
     }
 
     /**
@@ -26,7 +23,7 @@ class In3 extends AbstractPayment
      */
     public function getName(): string
     {
-        return  self::DEFAULT_NAME;
+        return 'Buckaroo MBWay';
     }
 
     /**
@@ -36,7 +33,17 @@ class In3 extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with iDEAL In3';
+        return 'Pay with MBWay';
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return string
+     */
+    public function getMedia(): string
+    {
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/mbway.svg';
     }
 
     /**
@@ -46,7 +53,7 @@ class In3 extends AbstractPayment
      */
     public function getPaymentHandler(): string
     {
-        return In3PaymentHandler::class;
+        return MBWayPaymentHandler::class;
     }
 
     /**
@@ -62,16 +69,6 @@ class In3 extends AbstractPayment
     /**
      * {@inheritDoc}
      *
-     * @return string
-     */
-    public function getMedia(): string
-    {
-        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/in3-ideal.svg';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
      * @return array<mixed>
      */
     public function getTranslations(): array
@@ -79,7 +76,7 @@ class In3 extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit iDEAL In3',
+                'description' => 'Bezahlen mit MBWay',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),

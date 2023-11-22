@@ -180,7 +180,7 @@ Component.register('buckaroo-payment-detail', {
                 order.transactions.last().paymentMethod &&
                 order.transactions.last().paymentMethod.customFields &&
                 order.transactions.last().paymentMethod.customFields.buckaroo_key &&
-                ['klarnakp', 'billink'].includes(order.transactions.last().paymentMethod.customFields.buckaroo_key.toLowerCase());
+                ['klarnakp', 'billink'].includes(order.transactions.last().paymentMethod.customFields.buckaroo_key.toLowerCase()) || that.isAfterpayCapturePossible(order);
 
                 that.isPaylinkVisible = that.isPaylinkAvailable = this.getConfigValue('paylinkEnabled') && order.stateMachineState && order.stateMachineState.technicalName && order.stateMachineState.technicalName == 'open' && order.transactions && order.transactions.last().stateMachineState.technicalName == 'open';
             });
@@ -237,6 +237,10 @@ Component.register('buckaroo-payment-detail', {
                     console.log('errorResponse', errorResponse);
                 });
 
+        },
+
+        isAfterpayCapturePossible(order) {
+            return order.customFields.buckaroo_is_authorize === true;
         },
 
         refundOrder(transaction, amount) {
@@ -309,12 +313,12 @@ Component.register('buckaroo-payment-detail', {
                     if (response.status) {
                         this.createNotificationSuccess({
                             title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                            message: that.$tc(response.message) + response.amount
+                            message: response.message
                         });
                     } else {
                         this.createNotificationError({
                             title: that.$tc('buckaroo-payment.settingsForm.titleError'),
-                            message: that.$tc(response.message)
+                            message: response.message
                         });
                     }
                     that.isCapturePossible = true;

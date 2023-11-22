@@ -1,5 +1,8 @@
 {% block buckaroo_payment_methods %}
-    {% if payment.translated.customFields.buckaroo_key == 'paybybank' and page.extensions.buckaroo.payByBankLogos %}
+    {% set buckarooKey = payment.translated.customFields.buckaroo_key %}
+    {% set methodsWithFinancialWarning =  page.extensions.buckaroo.methodsWithFinancialWarning %}
+    {% set paymentMethodName = page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name %}
+    {% if buckarooKey == 'paybybank' and page.extensions.buckaroo.payByBankLogos %}
          {% set payByBankConfig = {
             issuerSelected: page.extensions.buckaroo.payByBankActiveIssuer,
             issuerLogos: page.extensions.buckaroo.payByBankLogos
@@ -8,11 +11,11 @@
     {% endif %}
     
     <div class="buckaroo-payment-body mb-2 ml-4">
-    {% if context.paymentMethod.translated.customFields.buckaroo_key == payment.translated.customFields.buckaroo_key %}
+    {% if context.paymentMethod.translated.customFields.buckaroo_key == buckarooKey %}
 
         {% if page.extensions.buckaroo.backLink %}
             <script>
-                window.buckaroo_back_link = '{{ app.request.get('sw-storefront-url') }}{{ page.extensions.buckaroo.backLink|raw }}';
+                window.buckaroo_back_link = '{{ page.extensions.buckaroo.backLink|raw }}';
                 var buckaroo_required_message =' {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}';
             </script>
         {% endif %}
@@ -21,9 +24,9 @@
 
             {% block buckaroo_payment_method_additional %}
 
-                {% if payment.translated.customFields.buckaroo_key == 'ideal' or payment.translated.customFields.buckaroo_key == 'idealprocessing' %}
+                {% if buckarooKey == 'ideal' or buckarooKey == 'idealprocessing' %}
                     {% block buckaroo_payment_method_ideal %}
-                        {% if page.extensions.buckaroo.issuers|length > 0 %}
+                        {% if page.extensions.buckaroo.issuers|length > 0 and page.extensions.buckaroo.showIssuers %}
                             {% if page.extensions.buckaroo.ideal_render_mode > 0 %}
                                 <div>
                                     <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
@@ -57,7 +60,7 @@
                             {% endif %}
                         {% endif %}
                     {% endblock %}
-                    {% elseif payment.translated.customFields.buckaroo_key == 'paybybank' %}
+                    {% elseif buckarooKey == 'paybybank' %}
                     
                     {% block buckaroo_payment_method_paybybank %}
                         {% if page.extensions.buckaroo.payByBankIssuers|length > 0 %}
@@ -124,7 +127,7 @@
                         {% endif %}
                     {% endblock %}
 
-                {% elseif payment.translated.customFields.buckaroo_key == 'creditcard' %}
+                {% elseif buckarooKey == 'creditcard' %}
                     {% block buckaroo_payment_method_creditcard %}
                         <label>{{ "buckaroo.checkout.selectCreditCard"|trans }}*:</label>
                         {% if page.extensions.buckaroo.creditcard|length > 0 %}
@@ -136,7 +139,7 @@
                         {% endif %}
                     {% endblock %}
 
-                {% elseif payment.translated.customFields.buckaroo_key == 'creditcards' %}
+                {% elseif buckarooKey == 'creditcards' %}
                     {% block buckaroo_payment_method_creditcards %}
                         {% if page.extensions.buckaroo.creditcards|length > 0 %}
                             <div class="card buckaroo-creditcards">
@@ -215,7 +218,7 @@
                         {% endif %}
                     {% endblock %}
 
-                {% elseif payment.translated.customFields.buckaroo_key == 'afterpay' %}
+                {% elseif buckarooKey == 'afterpay' %}
                     {% block buckaroo_payment_method_afterpay %}
                         <div class="payment-method-second-col billing-address-form">
                             <fieldset class="fieldset payment">
@@ -313,12 +316,15 @@
                                         {% endif %}
                                     </span>
                                 </div>
-
+                                
+                                {% if buckarooKey in methodsWithFinancialWarning and context.customer.activeBillingAddress.country.iso == 'NL' %}
+                                    <div style="margin:10px 0; font-size:0.8rem">{{ "buckaroo.checkout.financialWarning" | trans({'%method%': paymentMethodName}) }}</div>
+                                {% endif %}
                             </fieldset>
                         </div>
                     {% endblock %}
 
-                {% elseif payment.translated.customFields.buckaroo_key == 'Billink' %}
+                {% elseif buckarooKey == 'Billink' %}
                     {% block buckaroo_payment_method_billink %}
                         <div class="payment-method-second-col billing-address-form">
                             <fieldset class="fieldset payment">
@@ -425,12 +431,15 @@
                                         <a target="_blank" href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf">{{ "buckaroo.checkout.buckarooBillinkTermsCondition"|trans }}</a>
                                     </span>
                                 </div>
-                                
+                                {% if buckarooKey in methodsWithFinancialWarning and context.customer.activeBillingAddress.country.iso == 'NL' %}
+                                    <div style="margin:10px 0; font-size:0.8rem">{{ "buckaroo.checkout.financialWarning" | trans({'%method%': paymentMethodName}) }}</div>
+                                {% endif %}
+
                             </fieldset>
                         </div>
                     {% endblock %}
 
-                {% elseif payment.translated.customFields.buckaroo_key == 'capayable' %}
+                {% elseif buckarooKey == 'capayable' %}
                     {% block buckaroo_payment_method_capayable %}
                         <div class="payment-method-second-col billing-address-form">
                             <fieldset class="fieldset payment">
@@ -511,34 +520,13 @@
                                     </div>
                                 </div>
 
+                                {% if buckarooKey in methodsWithFinancialWarning and context.customer.activeBillingAddress.country.iso == 'NL' %}
+                                    <div style="margin:10px 0; font-size:0.8rem">{{ "buckaroo.checkout.financialWarning" | trans({'%method%': paymentMethodName}) }}</div>
+                                {% endif %}
                             </fieldset>
                         </div>
                     {% endblock %}
-
-                {% elseif payment.translated.customFields.buckaroo_key == 'giropay' %}
-                    {% block buckaroo_payment_method_giropay %}
-                        <div class="payment-method-second-col billing-address-form">
-                            <fieldset class="fieldset payment">
-
-                                <div class="form-group">
-                                    <label class="form-label" for="buckarooGiropayBic">
-                                        {{ "buckaroo.checkout.buckarooGiropayBic"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
-                                    </label>
-
-                                    <input type="text"
-                                           class="form-control"
-                                           form="confirmOrderForm"
-                                           id="buckarooGiropayBic"
-                                           name="buckarooGiropayBic"
-                                           pattern="([a-zA-Z]{4})([a-zA-Z]{2})(([2-9a-zA-Z]{1})([0-9a-np-zA-NP-Z]{1}))((([0-9a-wy-zA-WY-Z]{1})([0-9a-zA-Z]{2}))|([xX]{3})|)"
-                                           placeholder="{{ "buckaroo.checkout.buckarooGiropayBicPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
-                                           required="required">
-                                </div>
-                            </fieldset>
-                        </div>
-                    {% endblock %}
-
-                {% elseif payment.translated.customFields.buckaroo_key == 'sepadirectdebit' %}
+                {% elseif buckarooKey == 'sepadirectdebit' %}
                     {% block buckaroo_payment_method_sepadirectdebit %}
                         <div class="payment-method-second-col billing-address-form">
                             <fieldset class="fieldset payment">
@@ -576,7 +564,7 @@
                         </div>
                     {% endblock %}
 
-                {% elseif payment.translated.customFields.buckaroo_key == 'Przelewy24' %}
+                {% elseif buckarooKey == 'Przelewy24' %}
                     {% block buckaroo_payment_method_przelewy24 %}
                         <input type="hidden"
                                        value="{{ page.extensions.buckaroo.currency }}"
@@ -587,7 +575,7 @@
                         <div id="P24CurrencyError">{{ "buckaroo.checkout.buckarooP24CurrencyError"|trans|sw_sanitize }}</div>
                     {% endblock %}
             
-                {% elseif payment.translated.customFields.buckaroo_key == 'klarna' or payment.translated.customFields.buckaroo_key == 'klarnain' %}
+                {% elseif buckarooKey == 'klarna' or buckarooKey == 'klarnain' %}
                     {% block buckaroo_payment_method_klarna %}
                         <div class="payment-method-second-col billing-address-form">
                             <fieldset class="fieldset payment">
@@ -639,7 +627,7 @@
                         </div>
                     {% endblock %}
 
-                {% elseif payment.translated.customFields.buckaroo_key == 'klarnakp' %}
+                {% elseif buckarooKey == 'klarnakp' %}
                     {% block buckaroo_payment_method_klarnakp %}
                         <div class="payment-method-second-col billing-address-form">
                             <fieldset class="fieldset payment">
@@ -674,11 +662,15 @@
                                     </div>
                                 </div>
 
+                                {% if buckarooKey in methodsWithFinancialWarning and context.customer.activeBillingAddress.country.iso == 'NL' %}
+                                    <div style="margin:10px 0; font-size:0.8rem">{{ "buckaroo.checkout.financialWarning" | trans({'%method%': paymentMethodName}) }}</div>
+                                {% endif %}
+
                             </fieldset>
                         </div>
                     {% endblock %}
 
-                {% elseif payment.translated.customFields.buckaroo_key == 'payperemail' %}
+                {% elseif buckarooKey == 'payperemail' %}
                     {% block buckaroo_payment_method_payperemail %}
                         <div class="payment-method-second-col billing-address-form">
                             <fieldset class="fieldset payment">
