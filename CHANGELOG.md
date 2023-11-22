@@ -213,16 +213,17 @@ Compatible from Shopware 6.5.0 up to 6.5.5.2
 - BP-2956 Fix: Plugin settings page does not have a proper browser title
 
 # 2.2.0
-- BP-3014 & BP-2983 Add methods MB WAY & Multibanco
+- BP-3014 Add payment method MB WAY
+- BP-2983 Add payment method Multibanco
+- BP-3019 Add separate authorize capture flow for Riverty | Afterpay
 - BP-2991 For In3 (V3) set the iDEAL In3 logo as the default
 - BP-3029 Remove BIC/IBAN fields for Giropay
-- BP-3019 add separate authorize capture flow for Riverty
-- BP-3048 Payment fee bug with Klarna KP 
+- BP-3048 Payment fee bug with Klarna KP
 - BP-3054 In3 (V3) set a new default for the frontend label
-- BP-3019 Set payment to status authorize for authorizations 
+- BP-3019 Set payment to status authorize for authorizations
 - BP-3019 Fix flow settings label
 - BP-3116 Fix a "div" that is opened and never closed
-- BP-3122 Change Riverty/AfterPay rejection message
-- BP-3145 Add a option to not show the iDEAL issuers selection in the checkout
-- BP-3166 BuckarooPaymentFee is not present in the Admin Refund menu
+- BP-3122 Change and improve the Riverty/AfterPay rejection message
+- BP-3145 Add a option to not show the iDEAL issuers selection in the checkout (preparation for iDEAL 2.0)
 - BP-3168 Enabling and Disabling the "Show Issuer Selection" config hides another config
+- BP-3166 BuckarooPaymentFee is not present in the Admin Refund menu
