@@ -14,6 +14,9 @@ class SavedTransactionState
 
     protected EngineResponseCollection $engineResponses;
 
+    /**
+     * @var \Buckaroo\Shopware6\Buckaroo\TransactionState[]
+     */
     private array $transactions;
 
     public function __construct(EngineResponseCollection $engineResponses)
@@ -32,12 +35,12 @@ class SavedTransactionState
         }
 
         foreach ($transactionKeys as $transactionKey) {
-            $responses = $this->engineResponses->filter(function($engineResponse) use($transactionKey) {
-                return $engineResponse->getTransactionKey() === $transactionKey;
+            $responses = $this->engineResponses->filter(function ($engineResponse) use ($transactionKey) {
+                return $engineResponse->getTransactionKey() === $transactionKey && $engineResponse->getCreatedByEngineAt() !== null;
             });
 
-            $responses->sort(function($a, $b) {
-                return $a->getCreatedAt()->getTimestamp() <=> $b->getCreatedAt()->getTimestamp();
+            $responses->sort(function ($a, $b) {
+                return $a->getCreatedByEngineAt()->getTimestamp() <=> $b->getCreatedByEngineAt()->getTimestamp();
             });
 
             $transactions[] = new TransactionState(
@@ -46,104 +49,151 @@ class SavedTransactionState
             );
         }
 
+        return $this->setRelated($transactions);
+    }
+
+    /**
+     * Set related transactions to the main transaction
+     *
+     * @param array $transactions
+     *
+     * @return array
+     */
+    private function setRelated(array $transactions): array
+    {
+        foreach ($transactions as $transaction) {
+            $transaction->setRelated($this->getRelatedTransactions($transaction, $transactions));
+        }
+
         return $transactions;
     }
 
+    /**
+     * Get all related transactions 
+     *
+     * @param TransactionState $transaction
+     * @param array $transactions
+     *
+     * @return array
+     */
+    private function getRelatedTransactions(TransactionState $transaction, array $transactions): array
+    {
+        $related = [];
+        foreach ($transactions as $tr) {
+            if ($tr->getLatestResponse()->getRelatedTransaction() === $transaction->getLatestResponse()->getTransactionKey()) {
+                $related[] = $tr;
+            }
+        }
 
-    // /**
-    //  * Has confirmed refunds
-    //  *
-    //  * @return boolean
-    //  */
-    // public function hasRefunds(): bool
-    // {
-    //     return count($this->getRefunds()) > 0;
-    // }
+        return $related;
+    }
 
-    // /**
-    //  * Has confirmed cancellations
-    //  *
-    //  * @return boolean
-    //  */
-    // public function isGroup(): bool
-    // {
-    //     return count($this->getCancellations()) > 0;
-    // }
+    /**
+     * Has refunds
+     *
+     * @return boolean
+     */
+    public function hasRefunds(): bool
+    {
+        return count($this->getRefunds()) > 0;
+    }
 
+    /**
+     * Has cancellations
+     *
+     * @return boolean
+     */
+    public function isGroup(): bool
+    {
+        return count($this->getCancellations()) > 0;
+    }
 
+    /**
+     * Has authorization
+     *
+     * @return boolean
+     */
+    public function hasAuthorization(): bool {
+        return $this->getAuthorization() !==  null;
+    }
 
-    // /**
-    //  * Get successful refunds
-    //  *
-    //  * @return EngineResponseCollection
-    //  */
-    // public function getRefunds(): EngineResponseCollection
-    // {
-    //     return $this->getSuccessful(
-    //         $this->getOfType(RequestType::REFUND)
-    //     );
-    // }
+    /**
+     * Get successful refunds
+     *
+     * @return array
+     */
+    public function getRefunds(): array
+    {
+        return $this->getSuccessful(
+            $this->getOfType(RequestType::REFUND)
+        );
+    }
 
-    // /**
-    //  * Get successful canceled transactions
-    //  *
-    //  * @return EngineResponseCollection
-    //  */
-    // public function getCancellations(): EngineResponseCollection
-    // {
-    //     return $this->getSuccessful(
-    //         $this->getOfType(RequestType::CANCEL)
-    //     );
-    // }
+    /**
+     * Get successful canceled transactions
+     *
+     * @return array
+     */
+    public function getCancellations(): array
+    {
+        return $this->getSuccessful(
+            $this->getOfType(RequestType::CANCEL)
+        );
+    }
 
-    // /**
-    //  * Get successful payments
-    //  *
-    //  * @return EngineResponseCollection
-    //  */
-    // public function getPayments(): EngineResponseCollection
-    // {
-    //     return $this->getSuccessful(
-    //         $this->getOfTypes([
-    //             RequestType::PAYMENT,
-    //             RequestType::GIFTCARD,
-    //         ])
-    //     );
-    // }
+    /**
+     * Get successful payments
+     *
+     * @return array
+     */
+    public function getPayments(): array
+    {
+        return $this->getSuccessful(
+            $this->getOfTypes([
+                RequestType::PAYMENT,
+                RequestType::GIFTCARD,
+            ])
+        );
+    }
 
-    // /**
-    //  * Get successful authorizations
-    //  *
-    //  * @return EngineResponseEntity|null
-    //  */
-    // public function getAuthorization(): ?EngineResponseEntity
-    // {
-    //     return $this->getSuccessful(
-    //             $this->getOfType(RequestType::AUTHORIZE),
-    //     )->first();
-    // }
+    /**
+     * Get successful authorization
+     *
+     * @return EngineResponseEntity|null
+     */
+    public function getAuthorization(): ?EngineResponseEntity
+    {
+        return array_pop($this->getSuccessful(
+            $this->getOfType(RequestType::AUTHORIZE),
+        ));
+    }
 
-    // private function getOfType(string $type): EngineResponseCollection
-    // {
-    //     return $this->getOfTypes([$type]);
-    // }
+    private function getOfType(string $type): array
+    {
+        return $this->getOfTypes([$type]);
+    }
 
-    // private function getOfTypes(array $types): EngineResponseCollection
-    // {
-    //     return $this->transactions->filter(
-    //         static function (EngineResponseEntity $transaction) use ($types) {
-    //             return in_array($transaction->getType(), $types);
-    //         }
-    //     );
-    // }
+    private function getOfTypes(array $types): array
+    {
+        $transactions = [];
+        foreach ($this->transactions as $transaction) {
+            if (in_array($transaction->getLatestResponse()->getType(), $types)) {
+                $transactions[] = $transaction;
+            }
+        }
+        return $transactions;
+    }
 
-    // private function getSuccessful(
-    //     EngineResponseCollection $transactions,
-    // ) {
-    //     return $transactions->filter(
-    //         static function (EngineResponseEntity $transaction) {
-    //             return $transaction->getAction() === RequestStatus::SUCCESS;
-    //         }
-    //     );
-    // }
+    private function getSuccessful(
+        array $transactions,
+    ): array {
+
+        $transactions = [];
+        foreach ($this->transactions as $transaction) {
+            if ($transaction->getLatestResponse()->getAction() === RequestStatus::SUCCESS) {
+                $transactions[] = $transaction;
+            }
+        }
+        return $transactions;
+    }
 }

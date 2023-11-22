@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Buckaroo;
 
+use Buckaroo\Shopware6\Buckaroo\Push\RequestStatus;
 use Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseEntity;
 use Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseCollection;
 
@@ -43,6 +44,25 @@ class TransactionState
     {
         return $this->engineResponses;
     }
-    //todo: implement getters
 
+    public function getRelatedSuccessfulAmount(): float
+    {
+        $amount = 0;
+        foreach ($this->getRelatedSuccessful() as $transaction) {
+            $amount += $transaction->getAmount();
+        }
+        return $amount;
+    }
+
+
+    public function getRelatedSuccessful(): array
+    {
+        $transactions = [];
+        foreach ($this->relatedTransactions as $transaction) {
+            if ($transaction->getStatus() === RequestStatus::SUCCESS) {
+                $transactions[] = $transaction;
+            }
+        }
+        return $transactions;
+    }
 }

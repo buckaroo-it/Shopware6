@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Entity\EngineResponse;
 
+use DateTime;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -19,6 +20,8 @@ class EngineResponseEntity extends Entity
     protected ?string $status;
     protected ?string $signature;
     protected ?string $transaction;
+    protected ?string $relatedTransaction;
+    protected ?DateTime $createdByEngineAt;
 
     public function getOrderTransaction(): ?OrderTransactionEntity
     {
@@ -65,4 +68,11 @@ class EngineResponseEntity extends Entity
         return $this->transaction;
     }
 
+    public function getRelatedTransaction(): ?string
+    {
+        return $this->relatedTransaction;
+    }
+    public function getCreatedByEngineAt(): ?DateTime {
+        return $this->createdByEngineAt;
+    }
 }
