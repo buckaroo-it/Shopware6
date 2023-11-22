@@ -226,4 +226,4 @@ Compatible from Shopware 6.5.0 up to 6.5.5.2
 - BP-3122 Change and improve the Riverty/AfterPay rejection message
 - BP-3145 Add a option to not show the iDEAL issuers selection in the checkout (preparation for iDEAL 2.0)
 - BP-3168 Enabling and Disabling the "Show Issuer Selection" config hides another config
-- BP-3166 BuckarooPaymentFee is not present in the Admin Refund menu
+- BP-3166 Buckaroo payment fee is not present in the Admin Refund menu
