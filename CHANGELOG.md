@@ -213,6 +213,7 @@ Compatible from Shopware 6.5.0 up to 6.5.5.2
 - BP-2956 Fix: Plugin settings page does not have a proper browser title
 
 # 2.2.0
+Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BP-3014 Add payment method MB WAY
 - BP-2983 Add payment method Multibanco
 - BP-3019 Add separate authorize capture flow for Riverty | Afterpay
