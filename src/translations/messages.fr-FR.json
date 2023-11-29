@@ -1,0 +1,15 @@
+{
+    "buckaroo": {
+        "statuscode_failed": "Malheureusement, une erreur s'est produite lors du traitement de votre paiement. Veuillez réessayer. Si cette erreur persiste, veuillez choisir un autre mode de paiement.",
+        "userCanceled": "Selon notre système, vous avez annulé le paiement. Si ce n'est pas le cas, veuillez nous contacter.",
+        "billinkRejectedMessage": "Malheureusement, il n'est actuellement pas possible pour vous d'utiliser Billink. Veuillez sélectionner un autre mode de paiement ou contacter Billink.",
+        "afterpayRejectedMessage": "Malheureusement, il n'est actuellement pas possible pour vous d'utiliser Riverty. Veuillez sélectionner un autre mode de paiement ou contacter Riverty.",
+        "capture": {
+            "invalid_amount": "Le montant n'est pas valide",
+            "capture_not_supported": "La capture n'est pas prise en charge",
+            "already_captured": "Cette commande a déjà été capturée",
+            "captured_amount": "Montant capturé avec succès de %amount% %currency%",
+            "general_capture_error": "Malheureusement, une erreur s'est produite lors du traitement de votre capture. Veuillez réessayer."
+        }
+    }
+}

@@ -1,15 +1,15 @@
 {
     "buckaroo": {
-        "statuscode_failed": "Helaas is er een fout opgetreden tijdens het verwerken van uw betaling. Probeer het opnieuw. Als deze fout zich blijft voordoen, kies dan een andere betaalmethode.",
-        "userCanceled": "Volgens ons systeem heb je de betaling geannuleerd. Mocht dit niet het geval zijn, neem dan contact met ons op.",
-        "billinkRejectedMessage": "Helaas is het op dit moment voor jou niet mogelijk om gebruik te maken van Billink, selecteer een andere betaalmethode of neem contact op met Billink.",
-        "afterpayRejectedMessage": "Helaas is het op dit moment voor jou niet mogelijk om gebruik te maken van Riverty, selecteer een andere betaalmethode of neem  contact met Riverty op.",
+        "statuscode_failed": "Helaas is er een fout opgetreden bij het verwerken van uw betaling. Probeer het alstublieft opnieuw. Als deze fout aanhoudt, kies dan een andere betaalmethode.",
+        "userCanceled": "Volgens ons systeem heeft u de betaling geannuleerd. Indien dit niet het geval is, neem dan contact met ons op.",
+        "billinkRejectedMessage": "Helaas is het momenteel niet mogelijk voor u om Billink te gebruiken. Kies alstublieft een andere betaalmethode of neem contact op met Billink.",
+        "afterpayRejectedMessage": "Helaas is het momenteel niet mogelijk voor u om Riverty te gebruiken, selecteer alstublieft een andere betaalmethode of neem contact op met Riverty.",
         "capture": {
-            "invalid_amount": "Amount is not valid",
-            "capture_not_supported": "Capture is not supported",
-            "already_captured": "This order is already captured",
-            "captured_amount": "Successfully captured amount %amount% %currency%",
-            "general_capture_error": "Unfortunately an error occurred while processing your capture. Please try again."
+            "invalid_amount": "Bedrag is niet geldig.",
+            "capture_not_supported": "Capture wordt niet ondersteund.",
+            "already_captured": "Deze bestelling is al gecaptured.",
+            "captured_amount": "Succesvol gecaptured bedrag van %amount% %currency%",
+            "general_capture_error": "Helaas is er een fout opgetreden bij het verwerken van uw capture. Probeer het opnieuw."
         }
     }
 }
