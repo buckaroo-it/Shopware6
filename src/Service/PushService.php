@@ -9,7 +9,6 @@ use Buckaroo\Shopware6\Buckaroo\Push\Request;
 use Buckaroo\Shopware6\Buckaroo\Push\TypeFactory;
 use Buckaroo\Shopware6\Buckaroo\Push\ProcessingState;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository;
 use Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseCollection;
 use Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseRepository;
 
@@ -18,22 +17,22 @@ class PushService
     private TypeFactory $factory;
 
     private LockService $lockService;
-    private OrderDataRepository $orderDataRepository;
     private EngineResponseRepository $engineResponseRepository;
     private ChangeStateService $changeStateService;
+    private PushPaymentStateService $pushPaymentStateService;
 
     public function __construct(
         TypeFactory $factory,
         LockService $lockService,
-        OrderDataRepository $orderDataRepository,
         EngineResponseRepository $engineResponseRepository,
-        ChangeStateService $changeStateService
+        ChangeStateService $changeStateService,
+        PushPaymentStateService $pushPaymentStateService
     ) {
         $this->factory = $factory;
         $this->lockService = $lockService;
-        $this->orderDataRepository = $orderDataRepository;
         $this->engineResponseRepository = $engineResponseRepository;
         $this->changeStateService = $changeStateService;
+        $this->pushPaymentStateService = $pushPaymentStateService;
     }
     public function process(Request $request, SalesChannelContext $salesChannelContext)
     {
@@ -48,28 +47,20 @@ class PushService
 
         $lock = $this->lockService->getLock($orderTransactionId);
         if ($lock->acquire()) {
-
             $this->saveEngineResponse($state, $salesChannelContext->getContext());
             $engineResponses = $this->getOrderTransactions($request, $salesChannelContext);
-            $state = $this->determineOrderState($engineResponses);
-            // $this->changeStateService->setState(
-            //     $orderTransactionId,
-            //     $state,
-            //     $salesChannelContext->getContext()
-            // );
+            $state = $this->pushPaymentStateService->getState(
+                $engineResponses,
+                $salesChannelContext->getContext(),
+                $orderTransactionId
+            );
+            $this->changeStateService->setState(
+                $orderTransactionId,
+                $state,
+                $salesChannelContext->getContext()
+            );
             $lock->release();
         }
-
-        dd( $this->getOrderTransactions($request, $salesChannelContext));
-    }
-
-    /**
-     * Determine the state of the payment to be saved
-     *
-     * @return string|null
-     */
-    private function determineOrderState(EngineResponseCollection $engineResponses): string {
-        //todo create push payment state service
     }
 
     private function canSaveEngineResponse(

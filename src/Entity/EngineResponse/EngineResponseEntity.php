@@ -22,6 +22,7 @@ class EngineResponseEntity extends Entity
     protected ?string $transaction;
     protected ?string $relatedTransaction;
     protected ?DateTime $createdByEngineAt;
+    protected float $amount;
 
     public function getOrderTransaction(): ?OrderTransactionEntity
     {
@@ -74,5 +75,10 @@ class EngineResponseEntity extends Entity
     }
     public function getCreatedByEngineAt(): ?DateTime {
         return $this->createdByEngineAt;
+    }
+
+    public function getAmount(): float
+    {
+        return $this->amount;
     }
 }

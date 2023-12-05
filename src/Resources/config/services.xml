@@ -93,9 +93,13 @@
         <service id="Buckaroo\Shopware6\Service\PushService">
             <argument type="service" id="buckaroo.push.factory"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\LockService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository"/>
             <argument type="service" id="Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseRepository"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\ChangeStateService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\PushPaymentStateService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\PushPaymentStateService">
+            <argument type="service" id="order_transaction.repository"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\AfterPayOld">

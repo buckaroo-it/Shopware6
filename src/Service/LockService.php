@@ -22,8 +22,7 @@ class LockService
         return new Lock(
             $this->lockFactory->createLock(
                 "bk-order-transaction-" . $orderTransactionId,
-                self::LOCK_TTL,
-                false
+                self::LOCK_TTL
             )
         );
     }

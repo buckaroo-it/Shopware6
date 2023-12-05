@@ -6,7 +6,6 @@ namespace Buckaroo\Shopware6\Buckaroo;
 
 use Buckaroo\Shopware6\Buckaroo\Push\RequestType;
 use Buckaroo\Shopware6\Buckaroo\Push\RequestStatus;
-use Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseEntity;
 use Buckaroo\Shopware6\Entity\EngineResponse\EngineResponseCollection;
 
 class SavedTransactionState
@@ -99,16 +98,6 @@ class SavedTransactionState
     }
 
     /**
-     * Has cancellations
-     *
-     * @return boolean
-     */
-    public function isGroup(): bool
-    {
-        return count($this->getCancellations()) > 0;
-    }
-
-    /**
      * Has authorization
      *
      * @return boolean
@@ -130,17 +119,18 @@ class SavedTransactionState
     }
 
     /**
-     * Get successful canceled transactions
+     * Has canceled transactions
      *
      * @return array
      */
-    public function getCancellations(): array
+    public function hasCancellations(): bool
     {
-        return $this->getSuccessful(
-            $this->getOfType(RequestType::CANCEL)
-        );
+        return count($this->getOfType(RequestType::CANCEL)) > 0;
     }
 
+    public function hasPayments(): bool {
+        return count($this->getPayments()) > 0;
+    }
     /**
      * Get successful payments
      *
@@ -156,12 +146,22 @@ class SavedTransactionState
         );
     }
 
+    public function getAmount(array $transactions): float {
+        $amount = 0;
+        foreach ($transactions as $transaction) {
+            if ($transaction instanceof TransactionState) {
+                $amount += $transaction->getLatestResponse()->getAmount();
+            }
+        }
+        return $amount;
+    }
+
     /**
      * Get successful authorization
      *
-     * @return EngineResponseEntity|null
+     * @return TransactionState|null
      */
-    public function getAuthorization(): ?EngineResponseEntity
+    public function getAuthorization(): ?TransactionState
     {
         return array_pop($this->getSuccessful(
             $this->getOfType(RequestType::AUTHORIZE),
