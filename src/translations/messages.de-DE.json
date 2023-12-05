@@ -1,5 +1,15 @@
 {
     "buckaroo": {
-        "afterpayRejectedMessage": "Leider ist es Ihnen derzeit nicht möglich, Riverty zu nutzen, bitte wählen Sie eine andere Zahlungsmethode oder kontaktieren Sie Riverty."
+        "statuscode_failed": "Leider ist ein Fehler bei der Verarbeitung Ihrer Zahlung aufgetreten. Bitte versuchen Sie es erneut. Wenn dieser Fehler weiterhin besteht, wählen Sie bitte eine andere Zahlungsmethode.",
+        "userCanceled": "Laut unserem System haben Sie die Zahlung abgebrochen. Wenn dies nicht der Fall ist, kontaktieren Sie uns bitte.",
+        "billinkRejectedMessage": "Leider ist es Ihnen derzeit nicht möglich, Billink zu verwenden. Bitte wählen Sie eine andere Zahlungsmethode oder kontaktieren Sie Billink.",
+        "afterpayRejectedMessage": "Leider ist es Ihnen derzeit nicht möglich, Riverty zu verwenden. Bitte wählen Sie eine andere Zahlungsmethode oder kontaktieren Sie Riverty.",
+        "capture": {
+            "invalid_amount": "Betrag ist nicht gültig",
+            "capture_not_supported": "Erfassen wird nicht unterstützt",
+            "already_captured": "Diese Bestellung wurde bereits erfasst",
+            "captured_amount": "Betrag erfolgreich erfasst: %amount% %currency%",
+            "general_capture_error": "Leider ist ein Fehler bei der Verarbeitung Ihrer Erfassung aufgetreten. Bitte versuchen Sie es erneut."
+        }
     }
 }

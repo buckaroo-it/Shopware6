@@ -15,18 +15,18 @@
             <maxLength>30</maxLength>
             <minLength>10</minLength>
             <autocomplete>new-password</autocomplete>
-            <label lang="en-GB">(Website) key</label>
-            <label lang="de-DE">(Website) key</label>
-            <label lang="nl-NL">(Website) key</label>
-			<label lang="fr-FR">Clé (site Web)</label>
-            <description>Enter your Buckaroo merchant/website key.</description>
-            <description lang="de-DE">Geben Sie Ihren website-Schlüssel ein.</description>
-            <description lang="nl-NL">Voer uw merchant/website key in.</description>
-			<description lang="fr-FR">Entrez votre clé de marchand/site Web Buckaroo.</description>
-            <helpText>The (Website) Key can be retrieved in Payment Plaza under My Buckaroo > Websites. For support contact Buckaroo.</helpText>
-            <helpText lang="de-DE">Der (Website-) Schlüssel kann auf der Payment Plaza unter My Buckaroo > Websites abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
-            <helpText lang="nl-NL">De (Website) Key kan worden opgehaald in Payment Plaza onder My Buckaroo > Websites. Neem voor ondersteuning contact op met Buckaroo.</helpText>
-			<helpText lang="fr-FR">La clé (de site Web) peut être récupérée dans Payment Plaza sous Mon Buckaroo > Sites Web. Pour obtenir de l'aide, contactez Buckaroo.</helpText>
+            <label lang="en-GB">Website key:</label>
+            <label lang="de-DE">website-Schlüssel:</label>
+            <label lang="nl-NL">Website key:</label>
+			<label lang="fr-FR">Clé du site web:</label>
+            <description>Enter your Buckaroo "Website key".</description>
+            <description lang="de-DE">Geben Sie Ihren Buckaroo "Website-Schlüssel" ein.</description>
+            <description lang="nl-NL">Voer uw Buckaroo "Website key" in.</description>
+			<description lang="fr-FR">Entrez votre 'Clé de site web' Buckaroo.</description>
+            <helpText>The Website key can be retrieved in the Buckaroo Plaza at "Settings" > "Websites".</helpText>
+            <helpText lang="de-DE">Der "Website-Schlüssel" kann auf der "Buckaroo Plaza" unter "Settings" > "Websites" abgerufen werden.</helpText>
+            <helpText lang="nl-NL">De "Website key" kan worden opgehaald in de Buckaroo Plaza bij "Instellingen" > "Websites". Neem voor ondersteuning contact op met Buckaroo.</helpText>
+			<helpText lang="fr-FR">La clé du site web peut être récupérée dans la Buckaroo Plaza sous "Paramètres" > "Sites web".</helpText>
         </input-field>
 
         <input-field type="password">
@@ -34,43 +34,43 @@
             <required>true</required>
             <maxLength>50</maxLength>
             <minLength>5</minLength>
-            <label lang="en-GB">Secret key</label>
-            <label lang="de-DE">Geheimer Schlüssel</label>
-            <label lang="nl-NL">Secret key</label>
-			<label lang="fr-FR">Clé secrète</label>
-            <description>Enter your Buckaroo secret key.</description>
-            <description lang="nl-NL">Voer uw geheime sleutel van Buckaroo in.</description>
-            <description lang="de-DE">Geben Sie Ihren geheimen Buckaroo-Schlüssel ein.</description>
-			<description lang="fr-FR">Entrez votre clé secrète Buckaroo.</description>
-            <helpText>The Secret Key can be retrieved in Payment Plaza under Configuration > Security > Secret Key. For support contact Buckaroo.</helpText>
-            <helpText lang="nl-NL">De secret key kan worden opgehaald in de Buckaroo Payment Plaza onder Configuratie> Beveiliging> Secret key. Neem voor ondersteuning contact op met Buckaroo.</helpText>
-            <helpText lang="de-DE">Der geheime Schlüssel kann in Payment Plaza unter Konfiguration> Sicherheit> Geheimer Schlüssel abgerufen werden. Für Support wenden Sie sich an Buckaroo.</helpText>
-			<helpText lang="fr-FR">La clé secrète peut être récupérée dans Payment Plaza sous Configuration> Sécurité> Clé secrète. Veuillez contacter Buckaroo pour obtenir de l'aide.</helpText>
+            <label lang="en-GB">Secret key:</label>
+            <label lang="de-DE">Geheimer Schlüssel:</label>
+            <label lang="nl-NL">Secret key:</label>
+			<label lang="fr-FR">Clé secrète:</label>
+            <description>Enter your Buckaroo "Secret key".</description>
+            <description lang="nl-NL">Voer de "Secret key" van Buckaroo in.</description>
+            <description lang="de-DE">Geben Sie Ihren "geheimen Buckaroo-Schlüssel" ein.</description>
+			<description lang="fr-FR">Entrez votre "Clé secrète" Buckaroo.</description>
+            <helpText>The "Secret key" can be retrieved in the "Buckaroo Plaza" at "Settings" > "Secret Key".</helpText>
+            <helpText lang="nl-NL">De "Secret key" kan worden opgehaald in de Buckaroo Plaza bij "Instellingen" > "Secret Key".</helpText>
+            <helpText lang="de-DE">Der "Geheimschlüssel" kann im "Buckaroo Plaza" unter "Einstellungen" > "Geheimschlüssel" abgerufen werden.</helpText>
+			<helpText lang="fr-FR">La "clé secrète" peut être récupérée dans le "Buckaroo Plaza" à "Paramètres" > "Clé secrète".</helpText>
         </input-field>
 
         <input-field>
             <name>guid</name>
-            <label lang="en-GB">Guid</label>
-            <label lang="de-DE">Guid</label>
-            <label lang="nl-NL">Guid</label>
-			<label lang="fr-FR">Guid</label>
+            <label lang="en-GB">Guid:</label>
+            <label lang="de-DE">Guid:</label>
+            <label lang="nl-NL">Guid:</label>
+			<label lang="fr-FR">Guid:</label>
             <description>Enter your Buckaroo guid key (only when using Apple Pay).</description>
             <description lang="de-DE">Geben Sie Ihren Buckaroo-Leitschlüssel ein (Nur bei Verwendung von Apple Pay).</description>
             <description lang="nl-NL">Voer uw Buckaroo-GUID in (enkel bij gebruik Apple Pay).</description>
 			<description lang="fr-FR">Entrez votre clé de Guid Buckaroo (uniquement lors de l'utilisation d'Apple Pay).</description>
-            <helpText>The guid key can be retrieved in Payment Plaza under the profile tab. For support contact Buckaroo.</helpText>
-            <helpText lang="de-DE">Die Guid kann im Buckaroo Payment Plaza unter der Registerkarte My Buckaroo > General abgerufen werden. Bitte wenden Sie sich an Buckaroo, um Unterstützung zu erhalten.</helpText>
-            <helpText lang="nl-NL">De Guid kan worden opgehaald in de Buckaroo Payment Plaza onder het tabblad Mijn Buckaroo > Algemeen. Neem voor ondersteuning contact op met Buckaroo.</helpText>
-			<helpText lang="fr-FR">Le Guid peut être récupéré sur la Buckaroo Payment Plaza sous l'onglet Mon Buckaroo > Général. Veuillez contacter Buckaroo pour obtenir de l'aide.</helpText>
+            <helpText>The guid key can be retrieved in Buckaroo Plaza at "My Buckaroo" > "General".</helpText>
+            <helpText lang="de-DE">Der GUID-Schlüssel kann im Buckaroo Plaza unter "Mein Buckaroo" > "Allgemein" abgerufen werden.</helpText>
+            <helpText lang="nl-NL">De Guid kan worden opgehaald in de Buckaroo Plaza in het menu bij "Mijn Buckaroo" > "Algemeen".</helpText>
+			<helpText lang="fr-FR">La clé GUID peut être récupérée dans Buckaroo Plaza à "Mon Buckaroo" > "Général".</helpText>
         </input-field>
         
 
         <input-field>
             <name>transactionLabel</name>
-            <label lang="en-GB">Transaction description</label>
-            <label lang="de-DE">Transaktion Beschreibung</label>
-            <label lang="nl-NL">Transactiebeschrijving</label>
-			<label lang="fr-FR">Description de la transaction</label>
+            <label lang="en-GB">Transaction description:</label>
+            <label lang="de-DE">Transaktion Beschreibung:</label>
+            <label lang="nl-NL">Transactiebeschrijving:</label>
+			<label lang="fr-FR">Description de la transaction:</label>
             <description>The transaction description, shown in Buckaroo plaza and visible on bank account of consumers. You can also add the order number with the following {order_number} tag.</description>
             <description lang="de-DE">Die Transaktion beschreibung, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</description>
             <description lang="nl-NL">De transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</description>
@@ -83,14 +83,15 @@
 
         <input-field>
             <name>refundLabel</name>
-            <label lang="en-GB">Refund label</label>
-            <label lang="de-DE">Refund label</label>
-            <label lang="nl-NL">Refund label</label>
+            <label lang="en-GB">Refund description:</label>
+            <label lang="de-DE">Refund Beschreibung:</label>
+            <label lang="nl-NL">Refund beschrijving:</label>
+			<label lang="fr-FR">Description du remboursement:</label>
             <description>The refund transaction description, shown in Buckaroo plaza and visible on bank account of consumers. You can also add the order number with the following {order_number} tag.</description>
             <description lang="de-DE">Die Beschreibung der Rückerstattungstransaktion, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</description>
             <description lang="nl-NL">De refund transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</description>
 			<description lang="fr-FR">La description de la transaction de remboursement, qui est visible sur la place Buckaroo et visible sur le compte bancaire du consommateur. Vous pouvez également ajouter le numéro de commande avec la balise {order_number} suivante.</description>
-            <helpText>The transaction description, shown in Buckaroo plaza and visible on bank account of consumers. You can also add the order number with the following {order_number} tag.</helpText>
+            <helpText>The transaction description, shown in Buckaroo plaza and it is also visible on the bank account of consumers. You can also add the order number with the following {order_number} tag.</helpText>
             <helpText lang="de-DE">Die Beschreibung der Rückerstattungstransaktion, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</helpText>
             <helpText lang="nl-NL">De refund transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</helpText>
 			<helpText lang="fr-FR">La description de la transaction de remboursement, qui est visible sur la place Buckaroo et visible sur le compte bancaire du consommateur. Vous pouvez également ajouter le numéro de commande avec la balise {order_number} suivante.</helpText>
@@ -122,10 +123,10 @@
 
         <input-field type="single-select">
             <name>paymentSuccesStatus</name>
-            <label lang="en-GB">Payment success status</label>
-            <label lang="de-DE">Status des Zahlungserfolgs</label>
-            <label lang="nl-NL">Successtatus van betaling</label>
-			<label lang="fr-FR">État de réussite du paiement</label>
+            <label lang="en-GB">Payment success status:</label>
+            <label lang="de-DE">Status des Zahlungserfolgs:</label>
+            <label lang="nl-NL">Successtatus van betaling:</label>
+			<label lang="fr-FR">État de réussite du paiement:</label>
             <helpText lang="en-GB">This status will be given to orders that are paid.</helpText>
             <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde bestellingen.</helpText>
             <helpText lang="de-DE">Dieser Status wird für bezahlte Bestellungen vergeben.</helpText>
@@ -142,13 +143,13 @@
 
         <input-field type="single-select">
             <name>orderStatus</name>
-            <label lang="en-GB">Order status</label>
-            <label lang="de-DE">Bestellstatus</label>
-            <label lang="nl-NL">Bestelstatus</label>
-			<label lang="fr-FR">Statut de la commande</label>
+            <label lang="en-GB">Order status:</label>
+            <label lang="de-DE">Bestellstatus:</label>
+            <label lang="nl-NL">Order status:</label>
+			<label lang="fr-FR">Statut de la commande:</label>
             <helpText lang="en-GB">This status will be given to paid orders</helpText>
             <helpText lang="de-DE">Dieser Status wird für bezahlte Bestellungen vergeben</helpText>
-            <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde bestellingen</helpText>
+            <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde orders</helpText>
 			<helpText lang="fr-FR">Ce statut est attribué aux commandes payées</helpText>
             <defaultValue>open</defaultValue>
             <options>
@@ -208,9 +209,9 @@
 			<label lang="de-DE">Frontend-Label</label>
 			<label lang="nl-NL">Frontend label</label>
 			<label lang="fr-FR">Libellé frontal</label>
-			<helpText lang="en-GB">This displays the payment method name entered in the checkout (frontend label).</helpText>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
 			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
-			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (frontend-label).</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
 			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (étiquette frontale).</helpText>
             <defaultValue>Buckaroo Creditcard and Debit Card</defaultValue>
         </input-field>
@@ -324,7 +325,7 @@
 			<label lang="de-DE">Frontend-Label</label>
 			<label lang="nl-NL">Frontend label</label>
 			<label lang="fr-FR">Libellé frontal</label>
-			<helpText lang="en-GB">This displays the payment method name entered in the checkout (frontend label).</helpText>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
 			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
 			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (frontend-label).</helpText>
 			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (étiquette frontale).</helpText>
@@ -468,10 +469,10 @@
             <label lang="nl-NL">Weergeef de bankkeuze in de checkout</label>
             <label lang="de-DE">Bankauswahl im Checkout anzeigen</label>
 			<label lang="fr-FR">Afficher la sélection de la banque à la caisse.</label>
-			<helpText lang="en-GB">When the "Disabled" option is selected, the issuer selection for iDEAL will not be displayed in the checkout. Instead, customers will be redirected to a separate page where they can choose their iDEAL issuer (i.e., their bank). On the other hand, selecting the "Enable" option will display the issuer selection directly in the checkout. It's important to note that enabling this option will incur additional costs from Buckaroo, estimated at around €0.002 for each transaction. For precise cost details, please reach out to Buckaroo directly.</helpText>
-			<helpText lang="nl-NL">Wanneer de optie 'Uitgeschakeld' is geselecteerd, zal de bankkeuze voor iDEAL niet worden weergegeven in de checkout. In plaats daarvan worden klanten doorgestuurd naar een aparte pagina waar ze hun eigen bank kunnen kiezen. Aan de andere kant zal het aanzetten van deze functie de bankkeuze direct in de checkout weergeven. Het is belangrijk om te melden dat het inschakelen van deze optie extra kosten met zich mee zal brengen van Buckaroo, geschat op ongeveer €0.002 per transactie. Voor nauwkeurige kostendetails kunt u rechtstreeks contact opnemen met Buckaroo.</helpText>
-			<helpText lang="de-DE">Wenn die Option 'Deaktiviert' ausgewählt ist, wird die Bankauswahl für iDEAL nicht im Checkout angezeigt. Stattdessen werden Kunden auf eine separate Seite weitergeleitet, auf der sie ihre eigene Bank auswählen können. Auf der anderen Seite wird das Aktivieren dieser Funktion die Bankauswahl direkt im Checkout anzeigen. Es ist wichtig zu beachten, dass das Aktivieren dieser Option zusätzliche Kosten von Buckaroo verursachen wird, die auf ungefähr €0,002 pro Transaktion geschätzt werden. Für genaue Kostenangaben können Sie sich direkt an Buckaroo wenden.</helpText>
-			<helpText lang="fr-FR">Lorsque l'option "NON" est sélectionnée, le choix de l'émetteur pour iDEAL ne sera pas affiché lors du paiement. Au lieu de cela, les clients seront redirigés vers une page séparée où ils pourront choisir leur émetteur iDEAL (c'est-à-dire, leur banque). En revanche, sélectionner l'option "Activer" affichera directement le choix de l'émetteur lors du paiement. Il est important de noter que l'activation de cette option entraînera des coûts supplémentaires de la part de Buckaroo, estimés à environ €0.002 par transaction. Pour des détails précis sur les coûts, veuillez contacter directement Buckaroo.</helpText>
+			<helpText lang="en-GB">When the "Disabled" option is selected, the issuer selection for iDEAL will not be displayed in the checkout. Instead, customers will be redirected to a separate page where they can choose their iDEAL issuer (i.e., their bank). On the other hand, selecting the "Enable" option will display the issuer selection directly in the checkout. It's important to note that enabling this option will incur additional costs from Buckaroo. For precise cost details, please reach out to Buckaroo directly.</helpText>
+			<helpText lang="nl-NL">Wanneer de optie 'Uitgeschakeld' is geselecteerd, zal de bankkeuze voor iDEAL niet worden weergegeven in de checkout. In plaats daarvan worden klanten doorgestuurd naar een aparte pagina waar ze hun eigen bank kunnen kiezen. Aan de andere kant zal het aanzetten van deze functie de bankkeuze direct in de checkout weergeven. Het is belangrijk om te melden dat het inschakelen van deze optie extra kosten met zich mee zal brengen van Buckaroo. Voor nauwkeurige kostendetails kunt u rechtstreeks contact opnemen met Buckaroo.</helpText>
+			<helpText lang="de-DE">Wenn die Option 'Deaktiviert' ausgewählt ist, wird die Bankauswahl für iDEAL nicht im Checkout angezeigt. Stattdessen werden Kunden auf eine separate Seite weitergeleitet, auf der sie ihre eigene Bank auswählen können. Auf der anderen Seite wird das Aktivieren dieser Funktion die Bankauswahl direkt im Checkout anzeigen. Es ist wichtig zu beachten, dass das Aktivieren dieser Option zusätzliche Kosten von Buckaroo verursachen wird. Für genaue Kostenangaben können Sie sich direkt an Buckaroo wenden.</helpText>
+			<helpText lang="fr-FR">Lorsque l'option "NON" est sélectionnée, le choix de l'émetteur pour iDEAL ne sera pas affiché lors du paiement. Au lieu de cela, les clients seront redirigés vers une page séparée où ils pourront choisir leur émetteur iDEAL (c'est-à-dire, leur banque). En revanche, sélectionner l'option "Activer" affichera directement le choix de l'émetteur lors du paiement. Il est important de noter que l'activation de cette option entraînera des coûts supplémentaires de la part de Buckaroo. Pour des détails précis sur les coûts, veuillez contacter directement Buckaroo.</helpText>
         </input-field>
 
         <input-field type="single-select">
@@ -2640,7 +2641,7 @@
 
         <input-field type="multi-select">
             <name>payperemailAllowed</name>
-            <label lang="en-GB">PayPerEmail payment methods:</label>
+            <label lang="en-GB">PayPerEmail payment methods</label>
             <label lang="nl-NL">PayPerEmail-betaalmethoden</label>
             <label lang="de-DE">PayPerEmail-Zahlungsmethoden</label>
 			<label lang="fr-FR">PayPerEmail méthodes de payement:</label>
