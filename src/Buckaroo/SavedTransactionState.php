@@ -33,13 +33,13 @@ class SavedTransactionState
             $transactionKeys[] = $engineResponse->getTransactionKey();
         }
 
-        foreach ($transactionKeys as $transactionKey) {
+        foreach (array_unique($transactionKeys) as $transactionKey) {
             $responses = $this->engineResponses->filter(function ($engineResponse) use ($transactionKey) {
                 return $engineResponse->getTransactionKey() === $transactionKey && $engineResponse->getCreatedByEngineAt() !== null;
             });
 
             $responses->sort(function ($a, $b) {
-                return $a->getCreatedByEngineAt()->getTimestamp() <=> $b->getCreatedByEngineAt()->getTimestamp();
+                return $b->getCreatedByEngineAt()->getTimestamp() <=> $a->getCreatedByEngineAt()->getTimestamp();
             });
 
             $transactions[] = new TransactionState(
@@ -190,7 +190,7 @@ class SavedTransactionState
 
         $transactions = [];
         foreach ($this->transactions as $transaction) {
-            if ($transaction->getLatestResponse()->getAction() === RequestStatus::SUCCESS) {
+            if ($transaction->getLatestResponse()->getStatus() === RequestStatus::SUCCESS) {
                 $transactions[] = $transaction;
             }
         }
