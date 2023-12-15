@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -96,7 +97,34 @@ class FormatRequestParamService
             $lines[] = $fee;
         }
 
+        if ($order->getTaxStatus() === CartPrice::TAX_STATE_NET) {
+            $lines[] = $this->getTaxAmount($order);
+        }
+
         return $lines;
+    }
+
+    private function getTaxAmount(OrderEntity $order)
+    {
+        // Get currency code
+        $currency     = $order->getCurrency();
+        $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
+
+        $tax = $order->getPrice()->getCalculatedTaxes()->getAmount();
+
+        return [
+            'id'          => 'vat',
+            'type'        => 'vat',
+            'name'        => 'VAT',
+            'quantity'    => 1,
+            'unitPrice'   => $this->getPriceArray($currencyCode, $tax),
+            'totalAmount' => $this->getPriceArray($currencyCode, $tax),
+            'vatRate'     => 0,
+            'vatAmount'   => $this->getPriceArray($currencyCode, 0),
+            'sku'         => 'vat',
+            'imageUrl'    => null,
+            'productUrl'  => null,
+        ];
     }
 
     /**
