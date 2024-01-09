@@ -362,7 +362,11 @@ class RefundService
             'invoice'                => $order->getOrderNumber(),
             'amountCredit'           => $amount,
             'currency'               => $this->getCurrencyIso($order),
-            'description'            => $this->settingsService->getParsedLabel($order, $order->getSalesChannelId(), 'refundLabel'),
+            'description'            => $this->settingsService->getParsedLabel(
+                $order,
+                $order->getSalesChannelId(),
+                'refundLabel'
+            ),
             'pushURL'                => $this->urlService->getReturnUrl('buckaroo.payment.push'),
             'pushURLFailure'         => $this->urlService->getReturnUrl('buckaroo.payment.push'),
             'clientIP'               => $this->getIp($request),
