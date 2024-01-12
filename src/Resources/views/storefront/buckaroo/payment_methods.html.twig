@@ -2,6 +2,8 @@
     {% set buckarooKey = payment.translated.customFields.buckaroo_key %}
     {% set methodsWithFinancialWarning =  page.extensions.buckaroo.methodsWithFinancialWarning %}
     {% set paymentMethodName = page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name %}
+    {% set countryBillingIso = context.customer.activeBillingAddress.country.iso %}
+    
     {% if buckarooKey == 'paybybank' and page.extensions.buckaroo.payByBankLogos %}
          {% set payByBankConfig = {
             issuerSelected: page.extensions.buckaroo.payByBankActiveIssuer,
@@ -230,12 +232,11 @@
                                        <p style="color:red"> {{ "buckaroo.checkout.company_required"|trans|sw_sanitize }}</p>
                                 {% endif %}
 
-                                {% if 
-                                    (
+                                {% set isAfterpayB2B =  (
                                         page.extensions.buckaroo.afterpay_customer_type == 'both' and
                                         (
                                             (
-                                            context.customer.activeBillingAddress.country.iso == 'NL' and
+                                            countryBillingIso == 'NL' and
                                             context.customer.activeBillingAddress.company|length > 0)  or
                                             (
                                             context.customer.activeShippingAddress.country.iso == 'NL' and
@@ -246,10 +247,11 @@
                                     (
                                         page.extensions.buckaroo.afterpay_customer_type == 'b2b' and
                                         (
-                                            context.customer.activeBillingAddress.country.iso == 'NL' or
+                                            countryBillingIso == 'NL' or
                                             context.customer.activeShippingAddress.country.iso == 'NL'
                                         )
-                                    )  %}
+                                    ) %}
+                                {% if isAfterpayB2B  %}
                                     <div class="form-group">
                                         <label class="form-label" for="buckarooAfterpayCoC">
                                             {{ "buckaroo.checkout.Coc"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
@@ -310,14 +312,18 @@
                                     <input id="buckaroo_afterpay_TermsCondition" class="custom-control-input" form="confirmOrderForm" name="buckaroo_afterpay_TermsCondition" required="required" type="checkbox">
                                     <label class="custom-control-label" for="buckaroo_afterpay_TermsCondition"> <span>{{ "buckaroo.checkout.buckarooAfterpayTermsConditionTitle"|trans }}:</span> </label>
                                     <span>
-                                        <a target="_blank" href="https://documents.myafterpay.com/consumer-terms-conditions/{% set countryIso = context.customer.activeBillingAddress.country.iso %} {% if countryIso == 'DE' %} de_de {% elseif countryIso == 'AT' %} de_at {% elseif countryIso == 'NL' %} nl_nl {% elseif countryIso == 'BE' %} nl_be {% elseif countryIso == 'FI' %} fi_fi {% else %} en_nl {% endif %}/">{{ "buckaroo.checkout.buckarooAfterpayTermsCondition"|trans }}</a>
-                                        {% if countryIso == 'BE' %}
-                                            ({{ "buckaroo.checkout.buckarooAfterpayOrClickHere"|trans }}: <a target="_blank" href="https://documents.myafterpay.com/consumer-terms-conditions/fr_be/">{{ "buckaroo.checkout.buckarooAfterpayTermsAndCondition"|trans }}</a>.)
+                                        {% if isAfterpayB2B  %}
+                                            <a target="_blank" href="https://documents.riverty.com/terms_conditions/payment_methods/b2b_invoice/{% if countryBillingIso == 'DE' %}de_de{% elseif countryBillingIso == 'NL' %}nl_nl{% elseif countryBillingIso == 'ch' %}ch_en{% elseif countryBillingIso == 'AT' %}de_at{% else %}nl_en{% endif %}/">{{ "buckaroo.checkout.buckarooAfterpayTermsCondition"|trans }}</a>
+                                        {% else %}
+                                            <a target="_blank" href="https://documents.riverty.com/terms_conditions/payment_methods/invoice/{% if countryBillingIso == 'DE' %}de_de{% elseif countryBillingIso == 'NL' %}nl_nl{% elseif countryBillingIso == 'BE' %}be_nl{% elseif countryBillingIso == 'AT' %}de_at{% elseif countryBillingIso == 'NO' %}no_en{% elseif countryBillingIso == 'FI' %}fi_en{% elseif countryBillingIso == 'SE' %}se_en{% elseif countryBillingIso == 'CH' %}ch_en{% else %}nl_en{% endif %}/">{{ "buckaroo.checkout.buckarooAfterpayTermsCondition"|trans }}</a>
+                                            {% if countryBillingIso == 'BE' %}
+                                                ({{ "buckaroo.checkout.buckarooAfterpayOrClickHere"|trans }}: <a target="_blank" href="https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/">{{ "buckaroo.checkout.buckarooAfterpayTermsAndCondition"|trans }}</a>.)
+                                            {% endif %}
                                         {% endif %}
                                     </span>
                                 </div>
                                 
-                                {% if buckarooKey in methodsWithFinancialWarning and context.customer.activeBillingAddress.country.iso == 'NL' %}
+                                {% if buckarooKey in methodsWithFinancialWarning and countryBillingIso == 'NL' %}
                                     <div style="margin:10px 0; font-size:0.8rem">{{ "buckaroo.checkout.financialWarning" | trans({'%method%': paymentMethodName}) }}</div>
                                 {% endif %}
                             </fieldset>
@@ -431,7 +437,7 @@
                                         <a target="_blank" href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf">{{ "buckaroo.checkout.buckarooBillinkTermsCondition"|trans }}</a>
                                     </span>
                                 </div>
-                                {% if buckarooKey in methodsWithFinancialWarning and context.customer.activeBillingAddress.country.iso == 'NL' %}
+                                {% if buckarooKey in methodsWithFinancialWarning and countryBillingIso == 'NL' %}
                                     <div style="margin:10px 0; font-size:0.8rem">{{ "buckaroo.checkout.financialWarning" | trans({'%method%': paymentMethodName}) }}</div>
                                 {% endif %}
 
@@ -520,7 +526,7 @@
                                     </div>
                                 </div>
 
-                                {% if buckarooKey in methodsWithFinancialWarning and context.customer.activeBillingAddress.country.iso == 'NL' %}
+                                {% if buckarooKey in methodsWithFinancialWarning and countryBillingIso == 'NL' %}
                                     <div style="margin:10px 0; font-size:0.8rem">{{ "buckaroo.checkout.financialWarning" | trans({'%method%': paymentMethodName}) }}</div>
                                 {% endif %}
                             </fieldset>
@@ -662,7 +668,7 @@
                                     </div>
                                 </div>
 
-                                {% if buckarooKey in methodsWithFinancialWarning and context.customer.activeBillingAddress.country.iso == 'NL' %}
+                                {% if buckarooKey in methodsWithFinancialWarning and countryBillingIso == 'NL' %}
                                     <div style="margin:10px 0; font-size:0.8rem">{{ "buckaroo.checkout.financialWarning" | trans({'%method%': paymentMethodName}) }}</div>
                                 {% endif %}
 
