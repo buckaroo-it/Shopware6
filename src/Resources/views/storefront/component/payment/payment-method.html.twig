@@ -9,18 +9,18 @@
         
         <div class="payment-form-group form-group mb-0">
             {% block component_payment_method_control %}
-                <div class="custom-control custom-radio payment-method-radio bk-{{ payment.translated.customFields.buckaroo_key }}">
+                <div class="form-check custom-radio payment-method-radio bk-{{ payment.translated.customFields.buckaroo_key }}">
                     {% block component_payment_method_input %}
                         <input type="radio"
                                id="paymentMethod{{ payment.id }}"
                                name="paymentMethodId"
                                value="{{ payment.id }}"
                                {% if payment.id is same as(selectedPaymentMethodId) %}checked="checked"{% endif %}
-                               class="custom-control-input payment-method-input">
+                               class="form-check-input payment-method-input">
                     {% endblock %}
 
                     {% block component_payment_method_label %}
-                        <label class="custom-control-label payment-method-label"
+                        <label class="form-check-label payment-method-label"
                                for="paymentMethod{{ payment.id }}">
                             {% block component_payment_method_image %}
                                 {% set paymentMedia = payment.media %}
@@ -35,7 +35,7 @@
                                             'default': '100px'
                                         },
                                         attributes: {
-                                            'class': 'payment-method-image',
+                                            'class': 'payment-method-image bk-payment-image',
                                             'alt': (paymentMedia.translated.alt ?: payment.translated.name),
                                             'title': (paymentMedia.translated.title ?: payment.translated.name)
                                         }
