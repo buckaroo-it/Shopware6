@@ -42,7 +42,8 @@ class FormatRequestParamService
             // Get tax
             $itemTax = null;
 
-            if ($item->getPrice() !== null &&
+            if (
+                $item->getPrice() !== null &&
                 $item->getPrice()->getCalculatedTaxes() !== null
             ) {
                 $itemTax = $this->getLineItemTax($item->getPrice()->getCalculatedTaxes());
@@ -243,7 +244,7 @@ class FormatRequestParamService
             $buckarooFee = $this->settingsService->getBuckarooFee($paymentCode, $order->getSalesChannelId());
         }
 
-       
+
         if (!is_float($buckarooFee) || $buckarooFee <= 0) {
             return $line;
         }
@@ -252,7 +253,7 @@ class FormatRequestParamService
         $currency     = $order->getCurrency();
         $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
 
-        
+
         // Build the order line array
         $line = [
             'id'          => 'buckarooFee',
@@ -327,7 +328,8 @@ class FormatRequestParamService
      *
      * @return array<mixed>
      */
-    public static function getAddressParts(string $street): array {
+    public static function getAddressParts(string $street): array
+    {
         $format = [
             'house_number'    => '',
             'number_addition' => '',

@@ -306,8 +306,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
     /**
      * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
-     * @throws \Exception
-     * 
      * @return array<mixed>
      */
     private function areValidHouseNumbers($event): array
