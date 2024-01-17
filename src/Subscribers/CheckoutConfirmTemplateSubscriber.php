@@ -307,23 +307,25 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     /**
      * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
      * @throws \Exception
+     * 
+     * @return array<mixed>
      */
-    private function areValidHouseNumbers($event) {
-  
+    private function areValidHouseNumbers($event): array
+    {
+
         if (method_exists($event->getPage(), "getOrder")) {
             /** @var AccountEditOrderPageLoadedEvent $event */
             $billingAddress = $event->getPage()->getOrder()->getBillingAddress();
-            $shippingAddress = $event->getPage()->getOrder()->getShippingAddress();
+            $shippingAddress = $event->getPage()->getOrder()?->getDeliveries()->getShippingAddress()->first();
         } else {
             $billingAddress = $event->getSalesChannelContext()->getCustomer()->getDefaultBillingAddress();
             $shippingAddress = $event->getSalesChannelContext()->getCustomer()->getDefaultShippingAddress();
         }
 
         return [
-            "billing" => $this->isHouseNumberValid($billingAddress->getStreet()),
-            "shipping" => $this->isHouseNumberValid($shippingAddress->getStreet())
+            "billing" => $this->isHouseNumberValid($billingAddress),
+            "shipping" => $this->isHouseNumberValid($shippingAddress)
         ];
-
     }
 
     /**
@@ -333,19 +335,19 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      *
      * @return boolean
      */
-    private function isHouseNumberValid($address)
+    private function isHouseNumberValid($address): bool
     {
         if ($address === null) {
             return false;
         }
 
-        $parts = FormatRequestParamService::getAddressParts($address);
+        $parts = FormatRequestParamService::getAddressParts($address->getStreet());
         return is_string($parts['house_number']) && !empty(trim($parts['house_number']));
     }
 
     private function canShowIssuers(string $salesChannelId, string $key): bool
     {
-        return $this->settingsService->getSetting($key."Showissuers", $salesChannelId) !== false;
+        return $this->settingsService->getSetting($key . "Showissuers", $salesChannelId) !== false;
     }
 
     private function getMethodsWithFinancialWarning(string $salesChannelId): array
@@ -361,7 +363,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         foreach ($methods as $method) {
             if (
                 $this->settingsService->getSetting(
-                    $method."Financialwarning",
+                    $method . "Financialwarning",
                     $salesChannelId
                 ) !== false
             ) {
