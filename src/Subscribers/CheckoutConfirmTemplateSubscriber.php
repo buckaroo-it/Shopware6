@@ -314,10 +314,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if (method_exists($event->getPage(), "getOrder")) {
             /** @var AccountEditOrderPageLoadedEvent $event */
             $billingAddress = $event->getPage()->getOrder()->getBillingAddress();
-            $shippingAddress = $event->getPage()->getOrder()?->getDeliveries()->getShippingAddress()->first();
+            $shippingAddress = $event->getPage()->getOrder()->getDeliveries()?->getShippingAddress()->first();
         } else {
-            $billingAddress = $event->getSalesChannelContext()->getCustomer()->getDefaultBillingAddress();
-            $shippingAddress = $event->getSalesChannelContext()->getCustomer()->getDefaultShippingAddress();
+            $billingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultBillingAddress();
+            $shippingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultShippingAddress();
         }
 
         return [
