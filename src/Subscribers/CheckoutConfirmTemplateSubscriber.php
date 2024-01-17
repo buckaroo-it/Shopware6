@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
+use Buckaroo\Shopware6\PaymentMethods\In3;
 use Buckaroo\Shopware6\Service\UrlService;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\In3LogoService;
@@ -17,13 +18,14 @@ use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
 use Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler;
-use Buckaroo\Shopware6\PaymentMethods\In3;
+use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -291,13 +293,54 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'canShowPhone'          => $this->canShowPhone($customer),
-            'methodsWithFinancialWarning' => $this->getMethodsWithFinancialWarning($salesChannelId)
+            'methodsWithFinancialWarning' => $this->getMethodsWithFinancialWarning($salesChannelId),
+            'validHouseNumbers'     => $this->areValidHouseNumbers($event),
+            'afterpayOld' => $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true
         ]);
 
         $event->getPage()->addExtension(
             BuckarooStruct::EXTENSION_NAME,
             $struct
         );
+    }
+
+    /**
+     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
+     * @throws \Exception
+     */
+    private function areValidHouseNumbers($event) {
+  
+        if (method_exists($event->getPage(), "getOrder")) {
+            /** @var AccountEditOrderPageLoadedEvent $event */
+            $billingAddress = $event->getPage()->getOrder()->getBillingAddress();
+            $shippingAddress = $event->getPage()->getOrder()->getShippingAddress();
+        } else {
+            $billingAddress = $event->getSalesChannelContext()->getCustomer()->getDefaultBillingAddress();
+            $shippingAddress = $event->getSalesChannelContext()->getCustomer()->getDefaultShippingAddress();
+        }
+
+        return [
+            "billing" => $this->isHouseNumberValid($billingAddress->getStreet()),
+            "shipping" => $this->isHouseNumberValid($shippingAddress->getStreet())
+        ];
+
+    }
+
+    /**
+     * Check if we have a valid house number in a address
+     *
+     * @param CustomerAddressEntity|OrderAddressEntity|null $address
+     *
+     * @return boolean
+     */
+    private function isHouseNumberValid($address)
+    {
+        if ($address === null) {
+            return false;
+        }
+
+        $parts = FormatRequestParamService::getAddressParts($address);
+        return is_string($parts['house_number']) && !empty(trim($parts['house_number']));
     }
 
     private function canShowIssuers(string $salesChannelId, string $key): bool

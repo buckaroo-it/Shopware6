@@ -93,6 +93,8 @@
       "CocPlaceholder": "CoC-number",
       "buckarooMobileCocError": "CoC-number is required",
       "company_required": "The company name is required for this payment method",
+      "billing_house_number_required": "A valid billing house number is required for this payment",
+      "shipping_house_number_required": "A valid shipping house number is required for this payment",
       "cancelOrderMessage": "You have canceled the payment request",
       "cannotCreatePayment": "Cannot create payment",
       "moreBanks": "More banks",

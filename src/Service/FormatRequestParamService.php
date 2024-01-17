@@ -319,6 +319,15 @@ class FormatRequestParamService
      */
     public function formatStreet(string $street): array
     {
+        return self::getAddressParts($street);
+    }
+
+    /**
+     * @param string $street
+     *
+     * @return array<mixed>
+     */
+    public static function getAddressParts(string $street): array {
         $format = [
             'house_number'    => '',
             'number_addition' => '',
