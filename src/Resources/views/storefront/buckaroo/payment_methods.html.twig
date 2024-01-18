@@ -224,6 +224,17 @@
                     {% block buckaroo_payment_method_afterpay %}
                         <div class="payment-method-second-col billing-address-form">
                             <fieldset class="fieldset payment">
+                                {% set countryShippingIso = context.customer.activeShippingAddress.country.iso %}
+
+                                {% if page.extensions.buckaroo.afterpayOld === false %}
+                                    {% if countryBillingIso == "DE" and page.extensions.buckaroo.validHouseNumbers.billing === false %}
+                                        {% sw_include '@BuckarooPayments/storefront/component/alert.html.twig' with { type: 'danger', message: "buckaroo.checkout.billing_house_number_required"|trans|sw_sanitize } %}
+                                    {% endif %}
+
+                                    {% if countryShippingIso == "DE" and page.extensions.buckaroo.validHouseNumbers.shipping === false %}
+                                        {% sw_include '@BuckarooPayments/storefront/component/alert.html.twig' with { type: 'danger', message: "buckaroo.checkout.shipping_house_number_required"|trans|sw_sanitize } %}
+                                    {% endif %}
+                                {% endif %}
 
                                 {% if page.extensions.buckaroo.afterpay_customer_type == 'b2b' and 
                                      context.customer.activeBillingAddress.company|length == 0 and
@@ -239,7 +250,7 @@
                                             countryBillingIso == 'NL' and
                                             context.customer.activeBillingAddress.company|length > 0)  or
                                             (
-                                            context.customer.activeShippingAddress.country.iso == 'NL' and
+                                            countryShippingIso == 'NL' and
                                             context.customer.activeShippingAddress.company|length > 0
                                             )
                                         )
@@ -248,7 +259,7 @@
                                         page.extensions.buckaroo.afterpay_customer_type == 'b2b' and
                                         (
                                             countryBillingIso == 'NL' or
-                                            context.customer.activeShippingAddress.country.iso == 'NL'
+                                            countryShippingIso == 'NL'
                                         )
                                     ) %}
                                 {% if isAfterpayB2B  %}
