@@ -104,7 +104,7 @@ class FormatRequestParamService
         return $lines;
     }
 
-    private function getTaxAmount(OrderEntity $order)
+    private function getTaxAmount(OrderEntity $order): array
     {
         // Get currency code
         $currency     = $order->getCurrency();
