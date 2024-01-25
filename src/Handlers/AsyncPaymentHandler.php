@@ -254,12 +254,15 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $returnUrl = $this->getReturnUrl($transaction, $dataBag);
         $salesChannelId = $salesChannelContext->getSalesChannelId();
 
-        $fee =  $this->getFee($paymentCode, $salesChannelId);
 
         return [
             'order'         => $order->getOrderNumber(),
             'invoice'       => $order->getOrderNumber(),
-            'amountDebit'   => $order->getAmountTotal() + $fee,
+            'amountDebit'   => $this->getOrderTotalWithFee(
+                $order,
+                $salesChannelId,
+                $paymentCode
+            ),
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
             'returnURL'     => $returnUrl,
             'cancelURL'     => sprintf('%s&cancel=1', $returnUrl),
@@ -278,6 +281,32 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 ->getParsedLabel($order, $salesChannelId, 'transactionLabel'),
             'clientIP' => $this->getIp(),
         ];
+    }
+
+    /**
+     * Get order total, if a existing fee is on the order we remove it and add the new fee
+     *
+     * @param OrderEntity $order
+     * @param string $salesChannelId
+     * @param string $paymentCode
+     *
+     * @return float
+     */
+    private function getOrderTotalWithFee(
+        OrderEntity $order,
+        string $salesChannelId,
+        string $paymentCode
+    ): float
+    {
+        $fee =  $this->getFee($paymentCode, $salesChannelId);
+
+        $existingFee = $order->getCustomFieldsValue('buckarooFee');
+
+        if ($existingFee !== null && is_scalar($existingFee)) {
+            $fee = $fee - (float)$existingFee;
+        }
+
+        return $order->getAmountTotal() + $fee;
     }
 
     /**
