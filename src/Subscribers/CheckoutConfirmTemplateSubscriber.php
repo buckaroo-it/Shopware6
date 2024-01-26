@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
-use Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository;
+use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\Config\PageFactory;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
+use Buckaroo\Shopware6\Service\FormatRequestParamService;
+use Buckaroo\Shopware6\Entity\OrderData\OrderDataRepository;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
@@ -17,7 +19,6 @@ use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
@@ -184,11 +185,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         if (
             $event instanceof AccountEditOrderPageLoadedEvent ||
-            $event instanceof CheckoutCartPageLoadedEvent
+            $event instanceof CheckoutConfirmPageLoadedEvent
         ) {
             $struct->assign(['validHouseNumbers' => $this->areValidHouseNumbers($event)]);
         }
-
 
         $event->getPage()->addExtension(BuckarooStruct::EXTENSION_NAME, $struct);
     }
