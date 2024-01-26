@@ -1,7 +1,7 @@
 {% block buckaroo_payment_detail %}
     <div class="buckaroo-payment-detail">
         
-        <sw-card :title="$tc('buckaroo-payment.paymentDetail.paylinkTitle')" v-if="isPaylinkVisible">
+        <sw-card positionIdentifier="bk-paylink" :title="$tc('buckaroo-payment.paymentDetail.paylinkTitle')" v-if="isPaylinkVisible">
 
             {{ $tc('buckaroo-payment.paymentDetail.paylinkDescription') }}
             
@@ -20,7 +20,7 @@
 
         </sw-card>
 
-         <sw-card :title="$tc('buckaroo-payment.paymentDetail.refundTitle')">
+         <sw-card positionIdentifier="bk-refund" :title="$tc('buckaroo-payment.paymentDetail.refundTitle')">
             
             {{ $tc('buckaroo-payment.orderItems.title') }}
             <sw-data-grid :dataSource="orderItems"
@@ -28,8 +28,13 @@
                 :showActions="false"
                 :showSelection="false">
 
+                    <template #column-name="{ item }">
+                        <sw-product-variant-info :showTooltip="false" :variations="item.variations">
+                            {{ item.name }}
+                        </sw-product-variant-info>
+                    </template>
                     <template #column-quantity="{ item }">
-                        <input type="number" min="0" :max="item.quantityMax" v-model="item.quantity" @input="recalculateOrderItems" onkeydown="return event.keyCode !== 69">
+                        <input class="bk-reund-qty" type="number" min="0" :max="item.quantityMax" v-model="item.quantity" @input="recalculateOrderItems" onkeydown="return event.keyCode !== 69">
                     </template>
 
             </sw-data-grid>
@@ -99,7 +104,7 @@
 
          </sw-card>
 
-        <sw-card :title="$tc('buckaroo-payment.paymentDetail.payTitle')">
+        <sw-card positionIdentifier="bk-pay-desc" :title="$tc('buckaroo-payment.paymentDetail.payTitle')">
 
             {{ $tc('buckaroo-payment.paymentDetail.payDescription') }}
 
@@ -113,7 +118,7 @@
 
         </sw-card>
 
-         <sw-card :title="$tc('buckaroo-payment.paymentDetail.transactionsTitle')">
+         <sw-card positionIdentifier="bk-pay-transaction" :title="$tc('buckaroo-payment.paymentDetail.transactionsTitle')">
             <sw-data-grid :dataSource="relatedResources"
                 :columns="relatedResourceColumns"
                 :showActions="false"

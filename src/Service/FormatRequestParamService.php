@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 
 class FormatRequestParamService
 {
@@ -43,6 +44,7 @@ class FormatRequestParamService
             // Get tax
             $itemTax = null;
 
+            /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity $item */
             if (
                 $item->getPrice() !== null &&
                 $item->getPrice()->getCalculatedTaxes() !== null
@@ -72,6 +74,7 @@ class FormatRequestParamService
             if ($itemPayload !== null && !isset($itemPayload['taxId'])) {
                 $taxId = $itemPayload['taxId'];
             }
+            $payload = $item->getPayload()['options'];
 
 
             // Build the order lines array
@@ -87,7 +90,8 @@ class FormatRequestParamService
                 'sku'         => $item->getId(),
                 'imageUrl'    => null,
                 'productUrl'  => null,
-                'taxId'       => $taxId
+                'taxId'       => $taxId,
+                'variations'  => $this->getVariations($item), 
             ];
         }
 
@@ -103,6 +107,14 @@ class FormatRequestParamService
         }
 
         return $lines;
+    }
+
+    private function getVariations(OrderLineItemEntity $item): array {
+        $payload = $item->getPayload();
+        if (isset($payload['options'])) {
+            return $payload['options'];
+        }
+        return [];
     }
 
     private function getTaxAmount(OrderEntity $order): array
