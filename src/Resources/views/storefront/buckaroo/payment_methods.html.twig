@@ -223,7 +223,7 @@
                 {% elseif buckarooKey == 'afterpay' %}
                     {% block buckaroo_payment_method_afterpay %}
                         <div class="payment-method-second-col billing-address-form">
-                            <fieldset class="fieldset payment">
+                            <div class="fieldset payment">
                                 {% set countryShippingIso = context.customer.activeShippingAddress.country.iso %}
 
                                 {% if page.extensions.buckaroo.afterpayOld === false %}
