@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -80,8 +81,15 @@ class FormatRequestParamService
             $lines[] = $fee;
         }
 
+        if ($order->getTaxStatus() === CartPrice::TAX_STATE_NET) {
+            $lines[] = $this->getTaxAmount($order);
+        }
+
         return $lines;
     }
+
+    
+
 
     private function formatAmount(float $amount): string
     {
@@ -178,6 +186,22 @@ class FormatRequestParamService
         ];
     }
 
+
+    private function getTaxAmount(OrderEntity $order): array
+    {
+        $tax = $order->getPrice()->getCalculatedTaxes()->getAmount();
+
+        return [
+            'id'          => 'vat',
+            'name'        => 'VAT',
+            'quantity'    => 1,
+            'unitPrice'   => $this->formatAmount($tax),
+            'totalAmount' => $this->formatAmount($tax),
+            'vatRate'     => 0,
+            'sku'         => 'vat',
+        ];
+    }
+
     /**
      * Get buckaroo fee from
      *
@@ -199,7 +223,7 @@ class FormatRequestParamService
             $buckarooFee = $this->settingsService->getBuckarooFee($paymentCode, $order->getSalesChannelId());
         }
 
-       
+
         if (!is_float($buckarooFee) || $buckarooFee <= 0) {
             return $line;
         }
@@ -264,6 +288,16 @@ class FormatRequestParamService
      * @return array<mixed>
      */
     public function formatStreet(string $street): array
+    {
+        return self::getAddressParts($street);
+    }
+
+    /**
+     * @param string $street
+     *
+     * @return array<mixed>
+     */
+    public static function getAddressParts(string $street): array
     {
         $format = [
             'house_number'    => '',

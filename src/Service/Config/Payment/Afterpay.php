@@ -15,7 +15,8 @@ class Afterpay implements ConfigInterface
     {
         return [
             'afterpayCustomerType' => $state->getSetting('afterpayCustomerType'),
-            'canShowPhone'         => $this->canShowPhone($state->getCustomer())
+            'canShowPhone'         => $this->canShowPhone($state->getCustomer()),
+            'afterpayOld'          => $state->getSetting('afterpayEnabledold') === true
         ];
     }
 

@@ -182,6 +182,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             );
         }
 
+        if (
+            $event instanceof AccountEditOrderPageLoadedEvent ||
+            $event instanceof CheckoutCartPageLoadedEvent
+        ) {
+            $struct->assign(['validHouseNumbers' => $this->areValidHouseNumbers($event)]);
+        }
+
 
         $event->getPage()->addExtension(BuckarooStruct::EXTENSION_NAME, $struct);
     }
@@ -302,5 +309,44 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             return null;
         }
         return $translation['customFields']['buckaroo_key'];
+    }
+
+    /**
+     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
+     * @return array<mixed>
+     */
+    private function areValidHouseNumbers($event): array
+    {
+
+        if (method_exists($event->getPage(), "getOrder")) {
+            /** @var AccountEditOrderPageLoadedEvent $event */
+            $billingAddress = $event->getPage()->getOrder()->getBillingAddress();
+            $shippingAddress = $event->getPage()->getOrder()->getDeliveries()?->getShippingAddress()->first();
+        } else {
+            $billingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultBillingAddress();
+            $shippingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultShippingAddress();
+        }
+
+        return [
+            "billing" => $this->isHouseNumberValid($billingAddress),
+            "shipping" => $this->isHouseNumberValid($shippingAddress)
+        ];
+    }
+
+    /**
+     * Check if we have a valid house number in a address
+     *
+     * @param CustomerAddressEntity|OrderAddressEntity|null $address
+     *
+     * @return boolean
+     */
+    private function isHouseNumberValid($address): bool
+    {
+        if ($address === null) {
+            return false;
+        }
+
+        $parts = FormatRequestParamService::getAddressParts($address->getStreet());
+        return is_string($parts['house_number']) && !empty(trim($parts['house_number']));
     }
 }
