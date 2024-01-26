@@ -91,7 +91,7 @@ class FormatRequestParamService
                 'imageUrl'    => null,
                 'productUrl'  => null,
                 'taxId'       => $taxId,
-                'variations'  => $this->getVariations($item), 
+                'variations'  => $this->getVariations($item),
             ];
         }
 
@@ -109,7 +109,8 @@ class FormatRequestParamService
         return $lines;
     }
 
-    private function getVariations(OrderLineItemEntity $item): array {
+    private function getVariations(OrderLineItemEntity $item): array
+    {
         $payload = $item->getPayload();
         if (isset($payload['options'])) {
             return $payload['options'];
