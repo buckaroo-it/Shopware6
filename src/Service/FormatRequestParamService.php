@@ -74,8 +74,6 @@ class FormatRequestParamService
             if ($itemPayload !== null && !isset($itemPayload['taxId'])) {
                 $taxId = $itemPayload['taxId'];
             }
-            $payload = $item->getPayload()['options'];
-
 
             // Build the order lines array
             $lines[] = [
@@ -112,7 +110,11 @@ class FormatRequestParamService
     private function getVariations(OrderLineItemEntity $item): array
     {
         $payload = $item->getPayload();
-        if (isset($payload['options'])) {
+        if (
+            is_array($payload) &&
+            isset($payload['options']) &&
+            is_array($payload['options'])
+        ) {
             return $payload['options'];
         }
         return [];
