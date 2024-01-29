@@ -43,18 +43,25 @@ Component.register('buckaroo-payment-detail', {
     computed: {
         orderItemsColumns() {
             return [
-                {
-                    property: 'name',
-                    label: this.$tc('buckaroo-payment.orderItems.types.name'),
-                    rawData: true
-            },{
+            {
+                property: 'name',
+                label: this.$tc('buckaroo-payment.orderItems.types.name'),
+                allowResize: false,
+                primary: true,
+                inlineEdit: true,
+                multiLine: true,
+            },
+            {
                 property: 'quantity',
                 label: this.$tc('buckaroo-payment.orderItems.types.quantity'),
-                rawData: true
-            },{
+                rawData: true,
+                align: 'right'
+            },
+            {
                 property: 'totalAmount',
                 label: this.$tc('buckaroo-payment.orderItems.types.totalAmount'),
-                rawData: true
+                rawData: true,
+                align: 'right'
             }
             ];
         },
@@ -195,7 +202,8 @@ Component.register('buckaroo-payment-detail', {
                             quantity: element.quantity,
                             quantityMax: element.quantity,
                             unitPrice: element.unitPrice.value,
-                            totalAmount: element.totalAmount.value
+                            totalAmount: element.totalAmount.value,
+                            variations: element.variations || [],
                         });
                     })
                     that.recalculateOrderItems();

@@ -61,7 +61,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $salesChannelId  = $salesChannelContext->getSalesChannelId();
         $paymentCode = $paymentClass->getBuckarooKey();
         $this->asyncPaymentService->cancelPreviousPayments($transaction);
-        
+
         try {
             $order = $transaction->getOrder();
             $this->validateOrder($order);
@@ -296,8 +296,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         OrderEntity $order,
         string $salesChannelId,
         string $paymentCode
-    ): float
-    {
+    ): float {
         $fee =  $this->getFee($paymentCode, $salesChannelId);
 
         $existingFee = $order->getCustomFieldsValue('buckarooFee');
