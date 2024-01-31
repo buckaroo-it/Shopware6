@@ -140,4 +140,9 @@ class SettingsService
     {
         return $this->getSetting($method . 'Enabled', $salesChannelId) != 0;
     }
+
+    public function getPaymentLabel(string $method = '', string $salesChannelId = null): string
+    {
+        return $this->getSettingAsString($method . 'Label', $salesChannelId);
+    }
 }

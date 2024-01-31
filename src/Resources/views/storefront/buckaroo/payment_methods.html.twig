@@ -236,7 +236,7 @@
                                     {% endif %}
                                 {% endif %}
 
-                                {% if page.extensions.buckaroo.afterpay_customer_type == 'b2b' and 
+                                {% if page.extensions.buckaroo.afterpayCustomerType == 'b2b' and 
                                      context.customer.activeBillingAddress.company|length == 0 and
                                      context.customer.activeShippingAddress.company|length == 0
                                 %}
@@ -256,7 +256,7 @@
                                         )
                                     ) or 
                                     (
-                                        page.extensions.buckaroo.afterpay_customer_type == 'b2b' and
+                                        page.extensions.buckaroo.afterpayCustomerType == 'b2b' and
                                         (
                                             countryBillingIso == 'NL' or
                                             countryShippingIso == 'NL'
@@ -380,7 +380,7 @@
                                         </label>
                                     </div>
                                     
-                                {% if page.extensions.buckaroo.BillinkBusiness == 'B2B' %}
+                                {% if page.extensions.buckaroo.billinkBusiness == 'B2B' %}
                                     <div class="form-group">
                                         <label class="form-label" for="buckarooChamberOfCommerce">
                                             {{ "buckaroo.checkout.ChamberOfCommerce"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
