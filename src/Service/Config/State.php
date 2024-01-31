@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Shopware6\Service\Config;
 
+use Buckaroo\Shopware6\PaymentMethods\In3;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
