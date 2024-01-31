@@ -17,7 +17,7 @@ class ApplePay implements ConfigInterface
         ];
     }
 
-    protected function canShow($state): bool
+    protected function canShow(State $state): bool
     {
         if ($state->getPage() === 'checkout') {
             return true;
@@ -27,7 +27,7 @@ class ApplePay implements ConfigInterface
         return $state->getSetting('applepayShow' . $page) == 1;
     }
 
-    protected function getMerchantId($state): ?string
+    protected function getMerchantId(State $state): ?string
     {
         $merchantId =  $state->getSetting('guid');
         if ($merchantId !== null && is_scalar($merchantId)) {

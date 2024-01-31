@@ -18,7 +18,7 @@ class PaypalExpress implements ConfigInterface
         ];
     }
 
-    protected function canShow($state): bool
+    protected function canShow(State $state): bool
     {
         $locations = $state->getSetting('paypalExpresslocation');
         return is_array($locations) &&

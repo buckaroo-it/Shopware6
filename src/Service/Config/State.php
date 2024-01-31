@@ -57,6 +57,13 @@ class State
         return $this->salesChannelContext;
     }
 
+    /**
+     * Get settings
+     *
+     * @param string $name
+     *
+     * @return mixed|null
+     */
     public function getSetting(string $name)
     {
         return $this->settingsService->getSetting($name, $this->getSalesChannelId());
@@ -67,13 +74,26 @@ class State
         if ($buckarooKey === null) {
             $buckarooKey = $this->getBuckarooKey();
         }
-        
+
+        if ($buckarooKey === null) {
+            return 0;
+        }
+
         return $this->settingsService->getBuckarooFee($buckarooKey, $this->getSalesChannelId());
     }
 
     public function getPaymentLabel(string $buckarooKey): string
     {
-        return $this->settingsService->getPaymentLabel($buckarooKey, $this->getSalesChannelId());
+        $label = $this->settingsService->getPaymentLabel($buckarooKey, $this->getSalesChannelId());
+        if (
+            $buckarooKey === 'capayable' &&
+            $this->settingsService->getSetting('capayableVersion', $this->getSalesChannelId()) === 'v2' &&
+            $label === In3::DEFAULT_NAME
+        ) {
+            $label = In3::V2_NAME;
+        }
+
+        return $label;
     }
 
     public function getCustomer(): ?CustomerEntity

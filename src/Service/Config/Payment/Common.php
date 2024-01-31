@@ -27,19 +27,20 @@ class Common implements ConfigInterface
     public function get(State $state): array
     {
         return [
-            'payment_labels'           => $this->getPaymentLabels($state),
-            'buckarooFee'              => $state->getPaymentFee(),
-            'backLink'                 => $this->urlService->getRestoreUrl(),
+            'payment_labels'              => $this->getPaymentLabels($state),
+            'buckarooFee'                 => $state->getPaymentFee(),
+            'backLink'                    => $this->urlService->getRestoreUrl(),
+            'methodsWithFinancialWarning' => $this->getMethodsWithFinancialWarning($state)
         ];
     }
 
-    private function getPaymentLabels(State $state)
+    private function getPaymentLabels(State $state): array
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');
         $paymentLabels = [];
-        /** @var PaymentMethodCollection $paymentMethods */
+        /** @var \Shopware\Core\Checkout\Payment\PaymentMethodCollection $paymentMethods */
         $paymentMethods = $this->paymentMethodRepository
             ->search(
                 $criteria,
@@ -47,6 +48,7 @@ class Common implements ConfigInterface
             )
             ->getEntities();
 
+        /** @var \Shopware\Core\Checkout\Payment\PaymentMethodEntity $paymentMethod */
         foreach ($paymentMethods as $paymentMethod) {
             $buckarooPaymentKey = $state->getBuckarooKeyByPayment($paymentMethod);
             if ($buckarooPaymentKey !== null) {
@@ -59,14 +61,33 @@ class Common implements ConfigInterface
 
     protected function getBuckarooFeeLabel(State $state, string $buckarooKey): string
     {
+        $label = $state->getPaymentLabel($buckarooKey);
 
-        $salesChannelId = $state->getSalesChannelId();
-
-        $label = $state->getPaymentLabel($buckarooKey, $salesChannelId);
-
-        if ($buckarooFee = (string)$state->getPaymentFee($buckarooKey, $salesChannelId)) {
+        if ($buckarooFee = (string)$state->getPaymentFee($buckarooKey)) {
             $label .= ' +' . $state->getSalesChannel()->getCurrency()->getSymbol() . $buckarooFee;
         }
         return $label;
+    }
+
+    private function getMethodsWithFinancialWarning(State $state): array
+    {
+        $methods = [
+            'Billink',
+            'klarnakp',
+            'capayable',
+            'afterpay'
+        ];
+
+        $withFinancialWarning = [];
+        foreach ($methods as $method) {
+            if (
+                $state->getSetting(
+                    $method . "Financialwarning",
+                ) !== false
+            ) {
+                $withFinancialWarning[] = $method;
+            }
+        }
+        return $withFinancialWarning;
     }
 }
