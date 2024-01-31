@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
+use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Service\SettingsService;
+use Buckaroo\Shopware6\Service\Config\PageFactory;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
-use Buckaroo\Shopware6\Service\Config\PageFactory;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
+use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
@@ -59,7 +62,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $event->getPage()->setPaymentMethods(
             $paymentMethods->filter(function ($paymentMethod) use ($salesChannelId, $event) {
                 $buckarooKey = $this->getBuckarooKey($paymentMethod->getTranslated());
-            
+
                 if ($buckarooKey === 'payperemail') {
                     return $this->isPaymentEnabled($buckarooKey, $salesChannelId) &&
                         !$this->isPayPermMailDisabledInFrontend($salesChannelId);
@@ -117,24 +120,52 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if ($paymentMethod === null || $stateMachine === null) {
             return;
         }
+
+        /** @var \Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface */
         $session = $event->getRequest()->getSession();
 
+        if (strpos($paymentMethod->getHandlerIdentifier(), 'Buckaroo\Shopware6\Handlers') === false) {
+            return;
+        }
+
         if (
-            strpos($paymentMethod->getHandlerIdentifier(), 'Buckaroo\Shopware6\Handlers') !== false &&
-            $stateMachine->getTechnicalName() === 'in_progress' &&
+            $stateMachine->getTechnicalName() === OrderTransactionStates::STATE_IN_PROGRESS &&
             method_exists($session, 'getFlashBag')
         ) {
             $session->getFlashBag()->add('success', $this->translator->trans('buckaroo.messages.return791'));
         }
+
+        if (
+            in_array(
+                $stateMachine->getTechnicalName(),
+                [OrderTransactionStates::STATE_CANCELLED, OrderTransactionStates::STATE_FAILED]
+            )
+        ) {
+            $event->getPage()->setPaymentFailed(true);
+        }
     }
 
 
+    /**
+     * Add buckaroo extension to pages
+     *
+     * @param \Shopware\Storefront\Page\PageLoadedEvent $event
+     * @param string $page
+     *
+     * @return void
+     */
     private function addExtension($event, string $page): void
     {
-        $event->getPage()->addExtension(
-            BuckarooStruct::EXTENSION_NAME,
-            $this->pageFactory->get($event->getSalesChannelContext(), $page)
-        );
+        $struct = $this->pageFactory->get($event->getSalesChannelContext(), $page);
+
+        if (
+            $event instanceof AccountEditOrderPageLoadedEvent ||
+            $event instanceof CheckoutConfirmPageLoadedEvent
+        ) {
+            $struct->assign(['validHouseNumbers' => $this->areValidHouseNumbers($event)]);
+        }
+
+        $event->getPage()->addExtension(BuckarooStruct::EXTENSION_NAME, $struct);
     }
 
     /**
@@ -179,6 +210,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             $event->getSalesChannelContext()->getSalesChannelId()
         ) === AfterPayPaymentHandler::CUSTOMER_TYPE_B2B;
 
+        if (!$isStrictB2B) {
+            return true;
+        }
 
         if ($event instanceof AccountEditOrderPageLoadedEvent) {
             $order = $event->getPage()->getOrder();
@@ -188,12 +222,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $billingCompany = $billingAddress->getCompany();
             }
 
-            if ($order->getDeliveries() !== null) {
-                /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
-                $shippingAddress = $order->getDeliveries()->getShippingAddress()->first();
-                if ($shippingAddress !== null) {
-                    $shippingCompany = $shippingAddress->getCompany();
-                }
+            /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
+            $shippingAddress = $order->getDeliveries()?->getShippingAddress()->first();
+            if ($shippingAddress !== null) {
+                $shippingCompany = $shippingAddress->getCompany();
             }
         }
 
@@ -216,15 +248,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $shippingCompany = $shippingAddress->getCompany();
             }
         }
-        if (
-            $isStrictB2B &&
-            $this->isCompanyEmpty($billingCompany) &&
-            $this->isCompanyEmpty($shippingCompany)
-        ) {
-            return false;
-        }
-
-        return true;
+        return !($this->isCompanyEmpty($billingCompany) &&
+            $this->isCompanyEmpty($shippingCompany));
     }
 
     /**
@@ -259,5 +284,44 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             return null;
         }
         return $translation['customFields']['buckaroo_key'];
+    }
+
+    /**
+     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
+     * @return array<mixed>
+     */
+    private function areValidHouseNumbers($event): array
+    {
+
+        if (method_exists($event->getPage(), "getOrder")) {
+            /** @var AccountEditOrderPageLoadedEvent $event */
+            $billingAddress = $event->getPage()->getOrder()->getBillingAddress();
+            $shippingAddress = $event->getPage()->getOrder()->getDeliveries()?->getShippingAddress()->first();
+        } else {
+            $billingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultBillingAddress();
+            $shippingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultShippingAddress();
+        }
+
+        return [
+            "billing" => $this->isHouseNumberValid($billingAddress),
+            "shipping" => $this->isHouseNumberValid($shippingAddress)
+        ];
+    }
+
+    /**
+     * Check if we have a valid house number in a address
+     *
+     * @param CustomerAddressEntity|OrderAddressEntity|null $address
+     *
+     * @return boolean
+     */
+    private function isHouseNumberValid($address): bool
+    {
+        if ($address === null) {
+            return false;
+        }
+
+        $parts = FormatRequestParamService::getAddressParts($address->getStreet());
+        return is_string($parts['house_number']) && !empty(trim($parts['house_number']));
     }
 }
