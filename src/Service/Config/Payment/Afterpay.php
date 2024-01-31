@@ -15,19 +15,23 @@ class Afterpay implements ConfigInterface
     {
         return [
             'afterpayCustomerType' => $state->getSetting('afterpayCustomerType'),
-            'canShowPhone'         => $this->canShowPhone($state->getCustomer())
+            'canShowPhone'         => $this->canShowPhone($state->getCustomer()),
+            'afterpayOld'          => $state->getSetting('afterpayEnabledold') === true
         ];
     }
 
     /**
      * Can display phone number if required
      *
-     * @param CustomerEntity $customer
+     * @param CustomerEntity|null $customer
      *
      * @return boolean
      */
-    private function canShowPhone(CustomerEntity $customer): bool
+    private function canShowPhone(CustomerEntity $customer = null): bool
     {
+        if ($customer === null) {
+            return true;
+        }
         $billingAddress = $customer->getActiveBillingAddress();
         $shippingAddress = $customer->getActiveShippingAddress();
 
