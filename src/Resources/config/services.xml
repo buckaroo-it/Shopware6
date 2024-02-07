@@ -364,6 +364,12 @@
             </call>
         </service>
 
+        <service id="Buckaroo\Shopware6\Storefront\Controller\RefundController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\Config\CheckoutFactory"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
 
         <service id="Buckaroo\Shopware6\Storefront\Controller\SupportController" public="true">
             <argument type="service" id="Buckaroo\Shopware6\Service\TestCredentialsService"/>
