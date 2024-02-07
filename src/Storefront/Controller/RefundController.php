@@ -73,16 +73,24 @@ class RefundController extends StorefrontController
             );
         }
         try {
-            $responses = [];
-            if (is_array($transactionsToRefund)) {
-                $responses = $this->refundService->refundAll(
+            if (
+                !is_array($transactionsToRefund) ||
+                count($transactionsToRefund) === 0
+            ) {
+                return new JsonResponse(
+                    ['status' => false, 'message' => $this->trans("buckaroo-payment.cannotRefundMissingPayment")],
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+
+            return new JsonResponse(
+                $this->refundService->refundAll(
                     $request,
                     $order,
                     $context,
                     $transactionsToRefund,
-                );
-            }
-            return new JsonResponse($responses);
+                )
+            );
         } catch (\Exception $exception) {
             $this->logger->debug((string)$exception);
             return new JsonResponse(
