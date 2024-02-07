@@ -781,6 +781,22 @@
             <label lang="de-DE">Aktiviert Automatic capture on shipped</label>
 			<label lang="fr-FR">Activé Automatic capture on shipped</label>
         </input-field>
+
+        <input-field type="single-select">
+            <name>afterpayPaymentstatus</name>
+            <label lang="en-GB">Payment status when automatic capture on shipment is enabled:</label>
+            <defaultValue>authorize</defaultValue>
+            <options>
+                <option>
+                    <id>authorize</id>
+                    <name>Authorize</name>
+                </option>
+                <option>
+                    <id>paid</id>
+                    <name>Paid</name>
+                </option>
+            </options>
+        </input-field>
         
         <input-field type="bool">
             <name>afterpayEnabledold</name>
