@@ -271,6 +271,12 @@ Component.register('buckaroo-settings', {
                 return true;
             }
 
+            if (
+                id == 'afterpayPaymentstatus'
+            ) {
+                return config["BuckarooPayments.config.afterpayCaptureonshippent"] === true;
+            }
+
             if (id in this.collapsibleAdvancedState) {
                 if (config["BuckarooPayments.config.advancedConfiguration"] != undefined && config["BuckarooPayments.config.advancedConfiguration"]) {
                     return true;

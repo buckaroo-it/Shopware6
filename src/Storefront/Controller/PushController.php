@@ -153,7 +153,7 @@ class PushController extends StorefrontController
         if (
             in_array($brqTransactionType, self::AUTHORIZE_REQUESTS)
         ) {
-            $this->setStatusAuthorized($orderTransactionId, $salesChannelContext, $request);
+            $this->setStatusAuthorized($orderTransactionId, $salesChannelContext, $request, $status);
         }
 
         //skip mutationType Informational except for group transactions
@@ -380,10 +380,29 @@ class PushController extends StorefrontController
         return $this->response('buckaroo.messages.paymentError', false);
     }
 
+    private function getSuccessAuthorizeStatus(Request $request, string $salesChannelId): string
+    {
+        if (
+            in_array(
+                $request->request->get('brq_transaction_method'),
+                ['afterpay', 'afterpaydigiaccept']
+            )
+        ) {
+            $captureOnShipment = $this->checkoutHelper->getSettingsValue('afterpayCaptureonshippent', $salesChannelId);
+            if ($captureOnShipment) {
+                $status = $this->checkoutHelper->getSettingsValue('afterpayPaymentstatus', $salesChannelId);
+                return $status !== null && is_scalar($status) ? (string)$status : "authorize";
+            }
+        }
+
+        return "authorize";
+    }
+
     private function setStatusAuthorized(
         string $orderTransactionId,
         SalesChannelContext $salesChannelContext,
-        Request $request
+        Request $request,
+        string $status
     ): void {
         if ($this->stateTransitionService->isTransitionPaymentState(
             ['paid', 'pay_partially'],
@@ -392,7 +411,31 @@ class PushController extends StorefrontController
         )) {
             return;
         }
-        $this->setPaymentState("authorize", $orderTransactionId, $salesChannelContext, $request);
+
+        $orderStatus = null;
+        if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
+            $orderStatus = $this->getSuccessAuthorizeStatus(
+                $request,
+                $salesChannelContext->getSalesChannelId()
+            );
+        }
+
+        if (in_array(
+            $status,
+            [
+                ResponseStatus::BUCKAROO_STATUSCODE_TECHNICAL_ERROR,
+                ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE,
+                ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT,
+                ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
+                ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
+            ]
+        )) {
+            $orderStatus = "fail";
+        }
+
+        if ($orderStatus !== null) {
+            $this->setPaymentState($orderStatus, $orderTransactionId, $salesChannelContext, $request);
+        }
     }
 
     private function setPaymentState(
