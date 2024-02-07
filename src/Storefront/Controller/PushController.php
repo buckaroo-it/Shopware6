@@ -380,7 +380,8 @@ class PushController extends StorefrontController
         return $this->response('buckaroo.messages.paymentError', false);
     }
 
-    private function getSuccessAuthorizeStatus(Request $request, string $salesChannelId): string {
+    private function getSuccessAuthorizeStatus(Request $request, string $salesChannelId): string
+    {
         if (
             in_array(
                 $request->request->get('brq_transaction_method'),
@@ -413,7 +414,8 @@ class PushController extends StorefrontController
         $orderStatus = null;
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
             $orderStatus = $this->getSuccessAuthorizeStatus(
-                $request, $salesChannelContext->getSalesChannelId()
+                $request,
+                $salesChannelContext->getSalesChannelId()
             );
         }
 
