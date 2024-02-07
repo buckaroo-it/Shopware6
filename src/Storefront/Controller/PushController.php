@@ -151,7 +151,7 @@ class PushController extends StorefrontController
         // end handle event
 
         if (
-            in_array($brqTransactionType, self::AUTHORIZE_REQUESTS)
+            in_array($brqTransactionType, self::AUTHORIZE_REQUESTS) && $status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS
         ) {
             $this->setStatusAuthorized($orderTransactionId, $salesChannelContext, $request);
         }
