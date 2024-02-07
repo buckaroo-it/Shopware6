@@ -151,9 +151,9 @@ class PushController extends StorefrontController
         // end handle event
 
         if (
-            in_array($brqTransactionType, self::AUTHORIZE_REQUESTS) && $status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS
+            in_array($brqTransactionType, self::AUTHORIZE_REQUESTS)
         ) {
-            $this->setStatusAuthorized($orderTransactionId, $salesChannelContext, $request);
+            $this->setStatusAuthorized($orderTransactionId, $salesChannelContext, $request, $status);
         }
 
         //skip mutationType Informational except for group transactions
@@ -383,7 +383,8 @@ class PushController extends StorefrontController
     private function setStatusAuthorized(
         string $orderTransactionId,
         SalesChannelContext $salesChannelContext,
-        Request $request
+        Request $request,
+        string $status
     ): void {
         if ($this->stateTransitionService->isTransitionPaymentState(
             ['paid', 'pay_partially'],
@@ -392,7 +393,28 @@ class PushController extends StorefrontController
         )) {
             return;
         }
-        $this->setPaymentState("authorize", $orderTransactionId, $salesChannelContext, $request);
+
+        $orderStatus = null;
+        if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
+            $orderStatus = "authorize";
+        }
+
+        if (in_array(
+            $status,
+            [
+                ResponseStatus::BUCKAROO_STATUSCODE_TECHNICAL_ERROR,
+                ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE,
+                ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT,
+                ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
+                ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
+            ]
+        )) {
+            $orderStatus = "fail";
+        }
+
+        if ($orderStatus !== null) {
+            $this->setPaymentState($orderStatus, $orderTransactionId, $salesChannelContext, $request);
+        }
     }
 
     private function setPaymentState(
