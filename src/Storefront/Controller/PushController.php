@@ -380,6 +380,22 @@ class PushController extends StorefrontController
         return $this->response('buckaroo.messages.paymentError', false);
     }
 
+    private function getSuccessAuthorizeStatus(Request $request, string $salesChannelId): string {
+        if (
+            in_array(
+                $request->request->get('brq_transaction_method'),
+                ['afterpay', 'afterpaydigiaccept']
+            )
+        ) {
+            $captureOnShipment = $this->checkoutHelper->getSettingsValue('afterpayCaptureonshippent', $salesChannelId);
+            if ($captureOnShipment) {
+                return $this->checkoutHelper->getSettingsValue('afterpayPaymentstatus', $salesChannelId) ?? "authorize";
+            }
+        }
+
+        return "authorize";
+    }
+
     private function setStatusAuthorized(
         string $orderTransactionId,
         SalesChannelContext $salesChannelContext,
@@ -396,7 +412,9 @@ class PushController extends StorefrontController
 
         $orderStatus = null;
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
-            $orderStatus = "authorize";
+            $orderStatus = $this->getSuccessAuthorizeStatus(
+                $request, $salesChannelContext->getSalesChannelId()
+            );
         }
 
         if (in_array(
