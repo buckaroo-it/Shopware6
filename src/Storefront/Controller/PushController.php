@@ -391,7 +391,7 @@ class PushController extends StorefrontController
             $captureOnShipment = $this->checkoutHelper->getSettingsValue('afterpayCaptureonshippent', $salesChannelId);
             if ($captureOnShipment) {
                 $status = $this->checkoutHelper->getSettingsValue('afterpayPaymentstatus', $salesChannelId);
-                return $status !== null ? (string)$status : "authorize";
+                return $status !== null && is_scalar($status) ? (string)$status : "authorize";
             }
         }
 
