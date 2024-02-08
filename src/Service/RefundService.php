@@ -80,7 +80,6 @@ class RefundService
         $amountRemaining = $this->getMaxAmount(
             $orderItems,
             $request->get('customRefundAmount'),
-            $configCode
         );
 
         $responses = [];
@@ -494,20 +493,17 @@ class RefundService
     /**
      * @param array<mixed> $orderItems
      * @param mixed $customRefundAmount
-     * @param string $paymentCode
      *
      * @return float
      */
     public function getMaxAmount(
         array $orderItems,
-        $customRefundAmount,
-        string $paymentCode
+        $customRefundAmount
     ): float {
         $amount = 0;
 
         if (
-            is_scalar($customRefundAmount) &&
-            $this->isCustomRefundAmount($customRefundAmount, $paymentCode)
+            is_scalar($customRefundAmount) && (float)$customRefundAmount > 0
         ) {
             $amount = (float)$customRefundAmount;
         } else {
@@ -522,22 +518,6 @@ class RefundService
         return $amount;
     }
 
-
-
-    /**
-     * Is custom refund amount
-     *
-     * @param mixed $customRefundAmount
-     * @param string $paymentCode
-     *
-     * @return boolean
-     */
-    private function isCustomRefundAmount($customRefundAmount, string $paymentCode)
-    {
-        return is_scalar($customRefundAmount) &&
-            (float)$customRefundAmount > 0 &&
-            !in_array($paymentCode, ['afterpay', 'Billink', 'klarnakp']);
-    }
 
     /**
      * @param array<mixed> $customFields

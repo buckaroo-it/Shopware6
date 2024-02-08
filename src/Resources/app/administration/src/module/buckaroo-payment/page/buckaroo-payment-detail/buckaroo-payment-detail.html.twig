@@ -77,7 +77,7 @@
                 </sw-data-grid>
 
                 <sw-container columns="1fr 440px" class="sw-order-detail__summary">
-                    <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data" v-if="isAllowedCustomRefund">
+                    <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
                             <dt>{{ $tc('buckaroo-payment.paymentDetail.amountCustomRefundTitle') }}: </dt>
                             <dd>
                                 <input id="buckaroo_custom_refund_enabled" type="checkbox"
@@ -86,7 +86,7 @@
                                        v-model="buckaroo_refund_total_amount" disabled style="width:70px;"> {{ currency }}
                             </dd>
                     </sw-description-list>
-                    <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data" v-if="!isAllowedCustomRefund">
+                    <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
                             <dt>{{ $tc('buckaroo-payment.paymentDetail.amountRefundTotalTitle') }}: </dt>
                             <dd>{{ buckaroo_refund_total_amount }} {{ currency }}</dd>
                     </sw-description-list>

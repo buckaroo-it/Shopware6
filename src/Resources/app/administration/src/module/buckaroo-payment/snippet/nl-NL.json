@@ -107,6 +107,7 @@
         "missing_order_id": "Ontbrekende bestelling orderId",
         "missing_transaction": "Order transactie niet gevonden",
         "general_request_error": "Helaas is er een fout opgetreden tijdens het verwerken van uw aanvraag. Probeer het opnieuw.",
-        "in3LogoLabel":"Betaalmethode Logo:"
+        "in3LogoLabel":"Betaalmethode Logo:",
+        "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available"
     }
 }

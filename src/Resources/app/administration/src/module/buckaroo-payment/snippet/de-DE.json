@@ -107,6 +107,7 @@
         "missing_order_id": "Fehlende Bestell-ID",
         "missing_transaction": "Transaktion der Bestellung nicht gefunden",
         "general_request_error": "Leider ist ein Fehler bei der Bearbeitung Ihrer Anfrage aufgetreten. Bitte versuchen Sie es erneut.",
-        "in3LogoLabel": "Zahlungslogo:"
+        "in3LogoLabel": "Zahlungslogo:",
+        "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available"
     }
 }

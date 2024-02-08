@@ -31,12 +31,10 @@ Component.register('buckaroo-payment-detail', {
             paylink: '',
             isLoading: false,
             order: false,
-            buckarooFee: false,
             buckarooTransactions: null,
             orderItems: [],
             transactionsToRefund: [],
             relatedResources: [],
-            isAllowedCustomRefund: true
         };
     },
 
@@ -179,10 +177,6 @@ Component.register('buckaroo-payment-detail', {
             orderCriteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
 
             orderRepository.get(orderId, Context.api, orderCriteria).then((order) => {
-                if (order.customFields != undefined && order.customFields.buckarooFee != undefined) {
-                    this.buckarooFee = order.customFields.buckarooFee;
-                }
-
                 that.isCapturePossible = order.transactions &&
                 order.transactions.last().paymentMethod &&
                 order.transactions.last().paymentMethod.customFields &&
@@ -194,6 +188,9 @@ Component.register('buckaroo-payment-detail', {
 
             this.BuckarooPaymentService.getBuckarooTransaction(orderId)
                 .then((response) => {
+                    that.orderItems = [];
+                    that.transactionsToRefund = [];
+
                     this.$emit('loading-change', false);
                     response.orderItems.forEach((element) => {
                         that.orderItems.push({
@@ -209,9 +206,6 @@ Component.register('buckaroo-payment-detail', {
                     that.recalculateOrderItems();
 
                     response.transactionsToRefund.forEach((element) => {
-                        if (['afterpay', 'Billink', 'klarnakp'].includes(element.transaction_method)) {
-                            that.isAllowedCustomRefund = false;
-                        }
                         that.transactionsToRefund.push({
                             id: element.id,
                             transactions: element.transactions,
@@ -270,6 +264,7 @@ Component.register('buckaroo-payment-detail', {
                         }
                     }
                     that.isRefundPossible = true;
+                    this.createdComponent();
                 })
                 .catch((errorResponse) => {
                     this.createNotificationError({
@@ -299,6 +294,7 @@ Component.register('buckaroo-payment-detail', {
                         });
                     }
                     that.isPaylinkAvailable = true;
+                    this.createdComponent();
                 })
                 .catch((errorResponse) => {
                     this.createNotificationError({
