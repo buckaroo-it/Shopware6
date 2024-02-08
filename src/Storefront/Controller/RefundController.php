@@ -83,14 +83,23 @@ class RefundController extends StorefrontController
                 );
             }
 
-            return new JsonResponse(
-                $this->refundService->refundAll(
-                    $request,
-                    $order,
-                    $context,
-                    $transactionsToRefund,
-                )
+            $responses = $this->refundService->refundAll(
+                $request,
+                $order,
+                $context,
+                $transactionsToRefund,
             );
+
+            if (count($responses)) {
+                return new JsonResponse($responses);
+            }
+
+            return new JsonResponse(
+                ['status' => false, 'message' => $this->trans("buckaroo-payment.refund.already_refunded")],
+                Response::HTTP_BAD_REQUEST
+            );
+           
+
         } catch (\Exception $exception) {
             $this->logger->debug((string)$exception);
             return new JsonResponse(
