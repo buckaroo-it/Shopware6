@@ -86,6 +86,16 @@ class PaymentStateService
                 $this->getPaymentStatusCode($request)
             );
         }
+
+        if (
+            $this->isFailedPaymentRequest($request) &&
+            $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_CANCEL)
+        ) {
+            throw new CustomerCanceledAsyncPaymentException(
+                $transactionId,
+                $this->getStatusMessageByStatusCode($request),
+            );
+        }
     }
 
     private function loginCustomer(?string $customerId, SalesChannelContext $salesChannelContext): void
