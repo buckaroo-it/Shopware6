@@ -457,18 +457,6 @@
 			<label lang="fr-FR">Activé</label>
         </input-field>
 
-        <input-field type="bool">
-            <name>idealShowissuers</name>
-            <label lang="en-GB">Show Issuer Selection in the Checkout</label>
-            <label lang="nl-NL">Weergeef de bankkeuze in de checkout</label>
-            <label lang="de-DE">Bankauswahl im Checkout anzeigen</label>
-			<label lang="fr-FR">Afficher la sélection de la banque à la caisse.</label>
-			<helpText lang="en-GB">When the "Disabled" option is selected, the issuer selection for iDEAL will not be displayed in the checkout. Instead, customers will be redirected to a separate page where they can choose their iDEAL issuer (i.e., their bank). On the other hand, selecting the "Enable" option will display the issuer selection directly in the checkout. It's important to note that enabling this option will incur additional costs from Buckaroo. For precise cost details, please reach out to Buckaroo directly.</helpText>
-			<helpText lang="nl-NL">Wanneer de optie 'Uitgeschakeld' is geselecteerd, zal de bankkeuze voor iDEAL niet worden weergegeven in de checkout. In plaats daarvan worden klanten doorgestuurd naar een aparte pagina waar ze hun eigen bank kunnen kiezen. Aan de andere kant zal het aanzetten van deze functie de bankkeuze direct in de checkout weergeven. Het is belangrijk om te melden dat het inschakelen van deze optie extra kosten met zich mee zal brengen van Buckaroo. Voor nauwkeurige kostendetails kunt u rechtstreeks contact opnemen met Buckaroo.</helpText>
-			<helpText lang="de-DE">Wenn die Option 'Deaktiviert' ausgewählt ist, wird die Bankauswahl für iDEAL nicht im Checkout angezeigt. Stattdessen werden Kunden auf eine separate Seite weitergeleitet, auf der sie ihre eigene Bank auswählen können. Auf der anderen Seite wird das Aktivieren dieser Funktion die Bankauswahl direkt im Checkout anzeigen. Es ist wichtig zu beachten, dass das Aktivieren dieser Option zusätzliche Kosten von Buckaroo verursachen wird. Für genaue Kostenangaben können Sie sich direkt an Buckaroo wenden.</helpText>
-			<helpText lang="fr-FR">Lorsque l'option "NON" est sélectionnée, le choix de l'émetteur pour iDEAL ne sera pas affiché lors du paiement. Au lieu de cela, les clients seront redirigés vers une page séparée où ils pourront choisir leur émetteur iDEAL (c'est-à-dire, leur banque). En revanche, sélectionner l'option "Activer" affichera directement le choix de l'émetteur lors du paiement. Il est important de noter que l'activation de cette option entraînera des coûts supplémentaires de la part de Buckaroo. Pour des détails précis sur les coûts, veuillez contacter directement Buckaroo.</helpText>
-        </input-field>
-
         <input-field type="single-select">
             <name>idealEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -511,12 +499,28 @@
 			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
 
+        <input-field type="bool">
+            <name>idealShowissuers</name>
+            <label lang="en-GB">Show Issuer Selection in the Checkout</label>
+            <label lang="nl-NL">Weergeef de bankkeuze in de checkout</label>
+            <label lang="de-DE">Bankauswahl im Checkout anzeigen</label>
+			<label lang="fr-FR">Afficher la sélection de la banque à la caisse.</label>
+			<helpText lang="en-GB">When the "Disabled" option is selected, the issuer selection for iDEAL will not be displayed in the checkout. Instead, customers will be redirected to a separate page where they can choose their iDEAL issuer (i.e., their bank). On the other hand, selecting the "Enable" option will display the issuer selection directly in the checkout. It's important to note that enabling this option will incur additional costs from Buckaroo. For precise cost details, please reach out to Buckaroo directly.</helpText>
+			<helpText lang="nl-NL">Wanneer de optie 'Uitgeschakeld' is geselecteerd, zal de bankkeuze voor iDEAL niet worden weergegeven in de checkout. In plaats daarvan worden klanten doorgestuurd naar een aparte pagina waar ze hun eigen bank kunnen kiezen. Aan de andere kant zal het aanzetten van deze functie de bankkeuze direct in de checkout weergeven. Het is belangrijk om te melden dat het inschakelen van deze optie extra kosten met zich mee zal brengen van Buckaroo. Voor nauwkeurige kostendetails kunt u rechtstreeks contact opnemen met Buckaroo.</helpText>
+			<helpText lang="de-DE">Wenn die Option 'Deaktiviert' ausgewählt ist, wird die Bankauswahl für iDEAL nicht im Checkout angezeigt. Stattdessen werden Kunden auf eine separate Seite weitergeleitet, auf der sie ihre eigene Bank auswählen können. Auf der anderen Seite wird das Aktivieren dieser Funktion die Bankauswahl direkt im Checkout anzeigen. Es ist wichtig zu beachten, dass das Aktivieren dieser Option zusätzliche Kosten von Buckaroo verursachen wird. Für genaue Kostenangaben können Sie sich direkt an Buckaroo wenden.</helpText>
+			<helpText lang="fr-FR">Lorsque l'option "NON" est sélectionnée, le choix de l'émetteur pour iDEAL ne sera pas affiché lors du paiement. Au lieu de cela, les clients seront redirigés vers une page séparée où ils pourront choisir leur émetteur iDEAL (c'est-à-dire, leur banque). En revanche, sélectionner l'option "Activer" affichera directement le choix de l'émetteur lors du paiement. Il est important de noter que l'activation de cette option entraînera des coûts supplémentaires de la part de Buckaroo. Pour des détails précis sur les coûts, veuillez contacter directement Buckaroo.</helpText>
+        </input-field>
+
         <input-field type="single-select">
             <name>idealRenderMode</name>
-            <label lang="en-GB">Bank selection display</label>
+            <label lang="en-GB">Issuers selection display options</label>
             <label lang="nl-NL">Bank selectie weergave</label>
             <label lang="de-DE">Anzeige der Bankauswahl</label>
 			<label lang="fr-FR">Affichage de sélection de banque</label>
+            <helpText lang="en-GB">With this setting you can choose whether you want the issuer (banks) selection to be showed with a dropdown menu or to display all options with radio buttons in the checkout.</helpText>
+            <helpText lang="de-DE">With this setting you can choose whether you want the issuer (banks) selection to be showed with a dropdown menu or to display all options with radio buttons in the checkout.</helpText>
+            <helpText lang="nl-NL">With this setting you can choose whether you want the issuer (banks) selection to be showed with a dropdown menu or to display all options with radio buttons in the checkout.</helpText>
+            <helpText lang="fr-FR">With this setting you can choose whether you want the issuer (banks) selection to be showed with a dropdown menu or to display all options with radio buttons in the checkout.</helpText>
             <defaultValue>0</defaultValue>
             <options>
                 <option>
@@ -546,18 +550,6 @@
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
 			<label lang="fr-FR">Activé</label>
-        </input-field>
-
-         <input-field type="bool">
-            <name>idealprocessingShowissuers</name>
-            <label lang="en-GB">Show Issuer Selection in the Checkout</label>
-            <label lang="nl-NL">Weergeef de bankkeuze in de checkout</label>
-            <label lang="de-DE">Bankauswahl im Checkout anzeigen</label>
-			<label lang="fr-FR">Afficher la sélection de la banque à la caisse.</label>
-			<helpText lang="en-GB">When the "Disabled" option is selected, the issuer selection for iDEAL will not be displayed in the checkout. Instead, customers will be redirected to a separate page where they can choose their iDEAL issuer (i.e., their bank). On the other hand, selecting the "Enable" option will display the issuer selection directly in the checkout. It's important to note that enabling this option will incur additional costs from Buckaroo, estimated at around €0.002 for each transaction. For precise cost details, please reach out to buckaroo directly.</helpText>
-			<helpText lang="nl-NL">Wanneer de optie 'Uitgeschakeld' is geselecteerd, zal de bankkeuze voor iDEAL niet worden weergegeven in de checkout. In plaats daarvan worden klanten doorgestuurd naar een aparte pagina waar ze hun eigen bank kunnen kiezen. Aan de andere kant zal het aanzetten van deze functie de bankkeuze direct in de checkout weergeven. Het is belangrijk om te melden dat het inschakelen van deze optie extra kosten met zich mee zal brengen van Buckaroo, geschat op ongeveer €0.002 per transactie. Voor nauwkeurige kostendetails kunt u rechtstreeks contact opnemen met buckaroo.</helpText>
-			<helpText lang="de-DE">Wenn die Option 'Deaktiviert' ausgewählt ist, wird die Bankauswahl für iDEAL nicht im Checkout angezeigt. Stattdessen werden Kunden auf eine separate Seite weitergeleitet, auf der sie ihre eigene Bank auswählen können. Auf der anderen Seite wird das Aktivieren dieser Funktion die Bankauswahl direkt im Checkout anzeigen. Es ist wichtig zu beachten, dass das Aktivieren dieser Option zusätzliche Kosten von Buckaroo verursachen wird, die auf ungefähr €0,002 pro Transaktion geschätzt werden. Für genaue Kostenangaben können Sie sich direkt an buckaroo wenden.</helpText>
-			<helpText lang="fr-FR">Lorsque l'option "NON" est sélectionnée, le choix de l'émetteur pour iDEAL ne sera pas affiché lors du paiement. Au lieu de cela, les clients seront redirigés vers une page séparée où ils pourront choisir leur émetteur iDEAL (c'est-à-dire, leur banque). En revanche, sélectionner l'option "Activer" affichera directement le choix de l'émetteur lors du paiement. Il est important de noter que l'activation de cette option entraînera des coûts supplémentaires de la part de Buckaroo, estimés à environ €0.002 par transaction. Pour des détails précis sur les coûts, veuillez contacter directement buckaroo.</helpText>
         </input-field>
         
         <input-field type="single-select">
@@ -602,6 +594,46 @@
 			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
 
+        <input-field type="bool">
+            <name>idealprocessingShowissuers</name>
+            <label lang="en-GB">Show Issuer Selection in the Checkout</label>
+            <label lang="nl-NL">Weergeef de bankkeuze in de checkout</label>
+            <label lang="de-DE">Bankauswahl im Checkout anzeigen</label>
+			<label lang="fr-FR">Afficher la sélection de la banque à la caisse.</label>
+			<helpText lang="en-GB">When the "Disabled" option is selected, the issuer selection for iDEAL will not be displayed in the checkout. Instead, customers will be redirected to a separate page where they can choose their iDEAL issuer (i.e., their bank). On the other hand, selecting the "Enable" option will display the issuer selection directly in the checkout. It's important to note that enabling this option will incur additional costs from Buckaroo, estimated at around €0.002 for each transaction. For precise cost details, please reach out to buckaroo directly.</helpText>
+			<helpText lang="nl-NL">Wanneer de optie 'Uitgeschakeld' is geselecteerd, zal de bankkeuze voor iDEAL niet worden weergegeven in de checkout. In plaats daarvan worden klanten doorgestuurd naar een aparte pagina waar ze hun eigen bank kunnen kiezen. Aan de andere kant zal het aanzetten van deze functie de bankkeuze direct in de checkout weergeven. Het is belangrijk om te melden dat het inschakelen van deze optie extra kosten met zich mee zal brengen van Buckaroo, geschat op ongeveer €0.002 per transactie. Voor nauwkeurige kostendetails kunt u rechtstreeks contact opnemen met buckaroo.</helpText>
+			<helpText lang="de-DE">Wenn die Option 'Deaktiviert' ausgewählt ist, wird die Bankauswahl für iDEAL nicht im Checkout angezeigt. Stattdessen werden Kunden auf eine separate Seite weitergeleitet, auf der sie ihre eigene Bank auswählen können. Auf der anderen Seite wird das Aktivieren dieser Funktion die Bankauswahl direkt im Checkout anzeigen. Es ist wichtig zu beachten, dass das Aktivieren dieser Option zusätzliche Kosten von Buckaroo verursachen wird, die auf ungefähr €0,002 pro Transaktion geschätzt werden. Für genaue Kostenangaben können Sie sich direkt an buckaroo wenden.</helpText>
+			<helpText lang="fr-FR">Lorsque l'option "NON" est sélectionnée, le choix de l'émetteur pour iDEAL ne sera pas affiché lors du paiement. Au lieu de cela, les clients seront redirigés vers une page séparée où ils pourront choisir leur émetteur iDEAL (c'est-à-dire, leur banque). En revanche, sélectionner l'option "Activer" affichera directement le choix de l'émetteur lors du paiement. Il est important de noter que l'activation de cette option entraînera des coûts supplémentaires de la part de Buckaroo, estimés à environ €0.002 par transaction. Pour des détails précis sur les coûts, veuillez contacter directement buckaroo.</helpText>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>idealprocessingRenderMode</name>
+            <label lang="en-GB">Issuers selection display options</label>
+            <label lang="nl-NL">Bank selectie weergave</label>
+            <label lang="de-DE">Anzeige der Bankauswahl</label>
+			<label lang="fr-FR">Affichage de sélection de banque</label>
+            <helpText lang="en-GB">With this setting you can choose whether you want the issuer (banks) selection to be showed with a dropdown menu or to display all options with radio buttons in the checkout.</helpText>
+            <helpText lang="de-DE">With this setting you can choose whether you want the issuer (banks) selection to be showed with a dropdown menu or to display all options with radio buttons in the checkout.</helpText>
+            <helpText lang="nl-NL">With this setting you can choose whether you want the issuer (banks) selection to be showed with a dropdown menu or to display all options with radio buttons in the checkout.</helpText>
+            <helpText lang="fr-FR">With this setting you can choose whether you want the issuer (banks) selection to be showed with a dropdown menu or to display all options with radio buttons in the checkout.</helpText>
+            <defaultValue>0</defaultValue>
+            <options>
+                <option>
+                    <id>0</id>
+                    <name lang="en-GB">Radio button</name>
+                    <name lang="nl-NL">Radio keuzeknop</name>
+                    <name lang="de-DE">Radio knopf</name>
+					<name lang="fr-FR">Bouton radio</name>
+                </option>
+                <option>
+                    <id>1</id>
+                    <name lang="en-GB">Dropdown</name>
+                    <name lang="nl-NL">Keuzelijst</name>
+                    <name lang="de-DE">Dropdown liste</name>
+					<name lang="fr-FR">Menu déroulant</name>
+                </option>
+            </options>
+        </input-field>
     </card>
 
      <card>

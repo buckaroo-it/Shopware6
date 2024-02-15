@@ -324,9 +324,13 @@ Component.register('buckaroo-settings', {
                 return true;
             }
         }
-        if (fid == 'idealRenderMode' && config["BuckarooPayments.config.idealEnabled"]) {
+        if (fid == 'idealRenderMode' && config["BuckarooPayments.config.idealShowissuers"]) {
                 return true;
         }
+
+        if (fid == 'idealprocessingRenderMode' && config["BuckarooPayments.config.idealprocessingShowissuers"]) {
+            return true;
+    }
 
         if ((fid == 'transferSendEmail') || (fid == 'transferDateDue')) {
             if (config["BuckarooPayments.config.transferEnabled"] != undefined && config["BuckarooPayments.config.transferEnabled"]) {
