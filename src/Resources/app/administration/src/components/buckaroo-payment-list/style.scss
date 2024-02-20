@@ -8,9 +8,14 @@
         text-decoration: none;
         align-items: center;
         .bk-payment-img {
-            height: 40px;
+            height: 80px;
             width: auto;
             padding: 10px;
+            display: flex;
+            img {
+                width: 100%;
+                height: auto;
+            }
         }
         .bk-payment-name {
             text-align: center;

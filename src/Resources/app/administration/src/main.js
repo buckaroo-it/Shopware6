@@ -6,3 +6,4 @@ import './components/buckaroo-in3-logo';
 import './components/buckaroo-main-config';
 import './components/buckaroo-config-card';
 import './components/buckaroo-payment-list';
+import './components/buckaroo-test-credentials';

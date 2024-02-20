@@ -16,19 +16,6 @@ Component.register("buckaroo-config-card", {
         },
         value: {
             required: true,
-        },
-        isLoading: {
-            required: true,
-        }
-    },
-    created() {
-        console.log(this.card);
-    },
-    data() {
-        return {
-            index: 1,
-            isLoading: false,
-            hasCssFields: false,
         }
     },
     methods: {
@@ -49,6 +36,45 @@ Component.register("buckaroo-config-card", {
         },
         getInheritedValue(element) {
             return this.methods.getInheritedValue(element);
+        },
+        canShow(element) {
+            const name = element.name.replace("BuckarooPayments.config.", "");
+            
+            /** toggle for capayableVersion */
+            if (name === 'capayableLogo') {
+                return this.getValueForName('capayableVersion') !== 'v2';
+            }
+
+            /**  toggle for advancedConfiguration */
+            if (['orderStatus','paymentSuccesStatus', 'sendInvoiceEmail'].indexOf(name) !== -1) {
+                return this.getValueForName('advancedConfiguration');
+            }
+
+            /** toggle for afterpay b2b amount */
+            if (['afterpayB2bMinAmount','afterpayB2bMaxAmount'].indexOf(name) !== -1) {
+                return this.getValueForName('afterpayCustomerType') != 'b2c'
+            }
+
+            /** toggle for afterpay capture only payment */
+            if (name === 'afterpayPaymentstatus') {
+                return this.getValueForName('afterpayCaptureonshippent');
+            }
+
+            /** toggle for afterpay old tax */
+            if (name === 'afterpayOldtax') {
+                return this.getValueForName('afterpayEnabledold');
+            }
+            
+            return true;
+        },
+        getValueForName(name) {
+            return this.value[`BuckarooPayments.config.${name}`];
+        },
+        canShowCredentialTester(element) {
+            if (this.getValueForName('advancedConfiguration')) {
+                return element.name === 'BuckarooPayments.config.orderStatus'
+            }
+            return element.name === 'BuckarooPayments.config.advancedConfiguration'
         }
     }
 })

@@ -5,14 +5,8 @@
        
         {{ getInlineSnippet(card.title) }}
     </template>
-
-    <slot
-        name="beforeElements"
-        v-bind="{ card, config: value }"
-    ></slot>
-    
-    <template v-if="!isLoading">
-        <template v-for="element in card.elements">
+    <template v-for="element in card.elements">
+        <template v-if="canShow(element)">
             <slot
                 name="card-element"
                 v-bind="{ element: getElementBind(element), config: value, card }"
@@ -40,14 +34,14 @@
                             @change="props.updateCurrentValue"
                         />
                     </template>
+                    
                 </sw-inherit-wrapper>
             </slot>
+            <buckaroo-test-credentials
+                v-if="canShowCredentialTester(element)" 
+                :config="value"
+                :currentSalesChannelId="null"
+            />
         </template>
-        <slot name="card-element-last"></slot>
     </template>
-    <slot
-        name="afterElements"
-        v-bind="{ card, config: value, index, isNotDefaultSalesChannel, inheritance: {} }"
-    >
-    </slot>
 </sw-card>

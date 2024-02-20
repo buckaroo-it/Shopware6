@@ -55,7 +55,7 @@ Component.register("buckaroo-payment-list", {
                 },
                 {
                     code: "transfer",
-                    logo: "transfer.svg"
+                    logo: "sepa-credittransfer.svg"
                 },
                 {
                     code: "giropay",
@@ -99,7 +99,7 @@ Component.register("buckaroo-payment-list", {
                 },
                 {
                     code: "Przelewy24",
-                    logo: "przelewy.svg"
+                    logo: "przelewy24.svg"
                 },
                 {
                     code: "Alipay",

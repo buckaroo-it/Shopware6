@@ -161,11 +161,7 @@
                     <name>In Progress</name>
                 </option>
             </options>
-            <depends>
-                <field name="advancedConfiguration">true</field>
-            </depends>
         </input-field>
-
     </card>
     
     <card>
