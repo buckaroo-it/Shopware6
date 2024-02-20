@@ -1,0 +1,19 @@
+.bk-payment-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    .bk-payment {
+        flex: 0 20%;
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        align-items: center;
+        .bk-payment-img {
+            height: 40px;
+            width: auto;
+            padding: 10px;
+        }
+        .bk-payment-name {
+            text-align: center;
+        }
+    }
+}

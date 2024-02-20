@@ -1,0 +1,9 @@
+<div>
+<buckaroo-config-card
+    :card="mainCard"
+    :methods="elementMethods"
+    :isNotDefaultSalesChannel="isNotDefaultSalesChannel"
+    v-model="value"
+></buckaroo-config-card>
+<buckaroo-payment-list v-if="selectedCard === 'general'" :configSettings="configSettings"></buckaroo-payment-list>
+</div>

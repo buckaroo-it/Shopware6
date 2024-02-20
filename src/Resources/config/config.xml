@@ -3,6 +3,7 @@
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
 
     <card>
+        <name>general</name>
         <title>Configuration</title>
 		<title lang="en-GB">Configuration</title>
         <title lang="de-DE">Konfiguration</title>
@@ -160,11 +161,15 @@
                     <name>In Progress</name>
                 </option>
             </options>
+            <depends>
+                <field name="advancedConfiguration">true</field>
+            </depends>
         </input-field>
 
     </card>
     
     <card>
+        <name>creditcard</name>
         <title>Credit and debit card</title>
         <title lang="nl-NL">Creditcard en debetkaarten</title>
         <title lang="de-DE">Kartenzahlung</title>
@@ -276,6 +281,7 @@
     </card>
 
     <card>
+        <name>creditcards</name>
         <title>Credit and debit card (Client sided)</title>
 		<title lang="gb-GB">Credit and debit card (Client sided)</title>
         <title lang="nl-NL">Creditcard en debetkaart (Versleuteling aan clientzijde)</title>
@@ -393,7 +399,7 @@
 
     <card>
         <title>iDEAL QR</title>
-        
+        <name>idealqr</name>
         <input-field type="bool">
             <name>idealqrEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -448,7 +454,7 @@
 
     <card>
         <title>iDEAL</title>
-        
+        <name>ideal</name>
         <input-field type="bool">
             <name>idealEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -539,7 +545,7 @@
 
     <card>
         <title>iDEAL Processing</title>
-
+        <name>idealprocessing</name>
         <input-field type="bool">
             <name>idealprocessingEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -675,7 +681,7 @@
 
     <card>
         <title>Bancontact</title>
-
+        <name>bancontactmrcash</name>
         <input-field type="bool">
             <name>bancontactmrcashEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -729,7 +735,7 @@
 
     <card>
         <title>Riverty | AfterPay</title>
-
+        <name>afterpay</name>
         <input-field type="bool">
             <name>afterpayEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -854,7 +860,7 @@
 
     <card>
         <title>Sofort</title>
-
+        <name>sofortueberweisung</name>
         <input-field type="bool">
             <name>sofortueberweisungEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -908,7 +914,7 @@
 
     <card>
     <title>PayPal</title>
-
+        <name>paypal</name>
         <input-field type="bool">
             <name>paypalEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -1001,7 +1007,7 @@
 
     <card>
     <title>Bank Transfer</title>
-
+        <name>transfer</name>
         <input-field type="bool">
             <name>transferEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -1096,8 +1102,8 @@
     </card>
 
     <card>
-    <title>Giropay</title>
-
+        <title>Giropay</title>
+        <name>giropay</name>
         <input-field type="bool">
             <name>giropayEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -1150,8 +1156,8 @@
     </card>
 
     <card>
-    <title>KBC</title>
-
+        <title>KBC</title>
+        <name>KBCPaymentButton</name>
         <input-field type="bool">
             <name>KBCPaymentButtonEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -1204,8 +1210,8 @@
     </card>
 
     <card>
-    <title>Sepa Direct Debit</title>
-
+        <title>Sepa Direct Debit</title>
+        <name>sepadirectdebit</name>
         <input-field type="bool">
             <name>sepadirectdebitEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -1258,8 +1264,8 @@
     </card>
 
     <card>
-    <title>Payconiq</title>
-
+        <title>Payconiq</title>
+        <name>payconiq</name>
         <input-field type="bool">
             <name>payconiqEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -1313,7 +1319,7 @@
 
     <card>
         <title>Apple Pay</title>
-
+        <name>applepay</name>
         <input-field type="bool">
             <name>applepayEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -1409,6 +1415,7 @@
         <title lang="nl-NL">Cadeaubonnen kaarten</title>
         <title lang="de-DE">Geschenkkarten Karten</title>
 		<title lang="fr-FR">Cartes cadeaux</title>
+        <name>giftcards</name>
         <input-field type="bool">
             <name>giftcardsEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -1909,8 +1916,8 @@
         </input-field>
     </card>
     <card>
-    <title>In3</title>
-
+        <title>In3</title>
+        <name>capayable</name>
         <input-field type="bool">
             <name>capayableEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -1995,8 +2002,8 @@
     </card>
 
     <card>
-    <title>EPS</title>
-
+        <title>EPS</title>
+        <name>eps</name>
         <input-field type="bool">
             <name>epsEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -2049,8 +2056,8 @@
     </card>
 
     <card>
-    <title>MBWay</title>
-
+        <title>MBWay</title>
+        <name>mbway</name>
         <input-field type="bool">
             <name>mbwayEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -2103,8 +2110,8 @@
     </card>
 
     <card>
-    <title>Multibanco</title>
-
+        <title>Multibanco</title>
+        <name>multibanco</name>
         <input-field type="bool">
             <name>multibancoEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -2157,8 +2164,8 @@
     </card>
     
     <card>
-    <title>Przelewy24</title>
-
+        <title>Przelewy24</title>
+        <name>Przelewy24</name>
         <input-field type="bool">
             <name>Przelewy24Enabled</name>
             <label lang="en-GB">Enabled</label>
@@ -2211,8 +2218,8 @@
     </card>
 
     <card>
-    <title>Alipay</title>
-
+        <title>Alipay</title>
+        <name>Alipay</name>
         <input-field type="bool">
             <name>AlipayEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -2265,8 +2272,8 @@
     </card>
 
     <card>
-    <title>WeChatPay</title>
-
+        <title>WeChatPay</title>
+        <name>WeChatPay</name>
         <input-field type="bool">
             <name>WeChatPayEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -2319,8 +2326,8 @@
     </card>
     
     <card>
-    <title>Trustly</title>
-
+        <title>Trustly</title>
+        <name>Trustly</name>
         <input-field type="bool">
             <name>TrustlyEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -2374,7 +2381,7 @@
 
     <card>
         <title>Klarna</title>
-        
+        <name>klarnakp</name>
         <input-field type="bool">
             <name>klarnakpEnabled</name>
             <label lang="en-GB">Enabled Klarna Pay later (authorize/capture)</label>
@@ -2439,7 +2446,7 @@
 
     <card>
         <title>Billink - achteraf betalen</title>
-
+        <name>Billink</name>
         <input-field type="bool">
             <name>BillinkEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -2528,7 +2535,7 @@
     
     <card>
         <title>Belfius</title>
-        
+        <name>belfius</name>
         <input-field type="bool">
             <name>belfiusEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -2582,7 +2589,7 @@
 
     <card>
         <title>PayPerEmail</title>
-
+        <name>payperemail</name>
         <input-field type="bool">
             <name>payperemailEnabled</name>
             <label lang="en-GB">Enabled</label>
