@@ -7,6 +7,7 @@
             v-model="actualConfigData[currentSalesChannelId]"
             :configSettings="config"
             :isNotDefaultSalesChannel="isNotDefaultSalesChannel"
+            :currentSalesChannelId="currentSalesChannelId"
             :elementMethods="{getElementBind, getFieldError, getInheritWrapperBind, getInheritedValue, hasMapInheritanceSupport, getInlineSnippet, kebabCase}"
             v-if="!isLoading"
         ></buckaroo-main-config>

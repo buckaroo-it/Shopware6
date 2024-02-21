@@ -21,7 +21,6 @@ Component.register("buckaroo-test-credentials", {
             required: true
         },
         currentSalesChannelId: {
-            type: String,
             required: true
         }
     },

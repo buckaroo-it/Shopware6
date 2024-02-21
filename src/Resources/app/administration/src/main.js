@@ -7,3 +7,4 @@ import './components/buckaroo-main-config';
 import './components/buckaroo-config-card';
 import './components/buckaroo-payment-list';
 import './components/buckaroo-test-credentials';
+import './components/buckaroo-toggle-status';

@@ -16,7 +16,10 @@ Component.register("buckaroo-config-card", {
         },
         value: {
             required: true,
-        }
+        },
+        currentSalesChannelId: {
+            required: true,
+        },
     },
     methods: {
         getElementBind(element, props) {

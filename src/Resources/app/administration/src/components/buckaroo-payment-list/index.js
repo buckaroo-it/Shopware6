@@ -9,6 +9,12 @@ Component.register("buckaroo-payment-list", {
     props: {
         configSettings: {
             required: true
+        },
+        value: {
+            required: true
+        },
+        currentSalesChannelId: {
+            required: true
         }
     },
     mixins: [
@@ -18,12 +24,44 @@ Component.register("buckaroo-payment-list", {
         return {
             payments: [
                 {
+                    code: "Alipay",
+                    logo: "alipay.svg"
+                },
+                {
+                    code: "applepay",
+                    logo: "applepay.svg"
+                },
+                {
+                    code: "bancontactmrcash",
+                    logo: "bancontact.svg"
+                },
+                {
+                    code: "belfius",
+                    logo: "belfius.svg"
+                },
+                {
+                    code: "Billink",
+                    logo: "billink.svg"
+                },
+                {
                     code: "creditcard",
                     logo: "creditcards.svg"
                 },
                 {
                     code: "creditcards",
                     logo: "creditcards.svg"
+                },
+                {
+                    code: "eps",
+                    logo: "eps.svg"
+                },
+                {
+                    code: "giftcards",
+                    logo: "giftcards.svg"
+                },
+                {
+                    code: "giropay",
+                    logo: "giropay.svg"
                 },
                 {
                     code: "idealqr",
@@ -38,56 +76,16 @@ Component.register("buckaroo-payment-list", {
                     logo: "ideal.svg"
                 },
                 {
-                    code: "bancontactmrcash",
-                    logo: "bancontact.svg"
-                },
-                {
-                    code: "afterpay",
-                    logo: "afterpay.svg"
-                },
-                {
-                    code: "sofortueberweisung",
-                    logo: "sofort.svg"
-                },
-                {
-                    code: "paypal",
-                    logo: "paypal.svg"
-                },
-                {
-                    code: "transfer",
-                    logo: "sepa-credittransfer.svg"
-                },
-                {
-                    code: "giropay",
-                    logo: "giropay.svg"
+                    code: "capayable",
+                    logo: "ideal-in3.svg"
                 },
                 {
                     code: "KBCPaymentButton",
                     logo: "kbc.svg"
                 },
                 {
-                    code: "sepadirectdebit",
-                    logo: "sepa-directdebit.svg"
-                },
-                {
-                    code: "payconiq",
-                    logo: "payconiq.svg"
-                },
-                {
-                    code: "applepay",
-                    logo: "applepay.svg"
-                },
-                {
-                    code: "giftcards",
-                    logo: "giftcards.svg"
-                },
-                {
-                    code: "capayable",
-                    logo: "ideal-in3.svg"
-                },
-                {
-                    code: "eps",
-                    logo: "eps.svg"
+                    code: "klarnakp",
+                    logo: "klarna.svg"
                 },
                 {
                     code: "mbway",
@@ -98,36 +96,48 @@ Component.register("buckaroo-payment-list", {
                     logo: "multibanco.svg"
                 },
                 {
+                    code: "paybybank",
+                    logo: "paybybank.gif"
+                },
+                {
+                    code: "payconiq",
+                    logo: "payconiq.svg"
+                },
+                {
+                    code: "paypal",
+                    logo: "paypal.svg"
+                },
+                {
+                    code: "payperemail",
+                    logo: "payperemail.svg"
+                },
+                {
                     code: "Przelewy24",
                     logo: "przelewy24.svg"
                 },
                 {
-                    code: "Alipay",
-                    logo: "alipay.svg"
+                    code: "afterpay",
+                    logo: "afterpay.svg"
                 },
                 {
-                    code: "WeChatPay",
-                    logo: "wechatpay.svg"
+                    code: "sofortueberweisung",
+                    logo: "sofort.svg"
+                },
+                {
+                    code: "sepadirectdebit",
+                    logo: "sepa-directdebit.svg"
+                },
+                {
+                    code: "transfer",
+                    logo: "sepa-credittransfer.svg"
                 },
                 {
                     code: "Trustly",
                     logo: "trustly.svg"
                 },
                 {
-                    code: "klarnakp",
-                    logo: "klarna.svg"
-                },
-                {
-                    code: "Billink",
-                    logo: "billink.svg"
-                },
-                {
-                    code: "belfius",
-                    logo: "belfius.svg"
-                },
-                {
-                    code: "payperemail",
-                    logo: "payperemail.svg"
+                    code: "WeChatPay",
+                    logo: "wechatpay.svg"
                 }
 
             ]

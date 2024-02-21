@@ -2,13 +2,32 @@
     display: flex;
     flex-wrap: wrap;
     .bk-payment {
+        .bk-payment-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0.25rem 0.125rem;
+            padding: 0.5rem;
+            background-color: #fafafa;
+            border-radius: 0.5rem;
+            a {
+                text-decoration: none;
+            }
+            .bk-payment-name {
+                text-align: center;
+                text-decoration: none;
+                padding: 0.25rem;
+                color: #555555;
+                font-weight: bold;
+            }
+        }
         flex: 0 20%;
         display: flex;
         flex-direction: column;
-        text-decoration: none;
         align-items: center;
+        
         .bk-payment-img {
-            height: 80px;
+            height: 60px;
             width: auto;
             padding: 10px;
             display: flex;
@@ -17,8 +36,6 @@
                 height: auto;
             }
         }
-        .bk-payment-name {
-            text-align: center;
-        }
+        
     }
 }

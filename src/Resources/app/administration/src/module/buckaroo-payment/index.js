@@ -1,7 +1,5 @@
 const { Module } = Shopware;
 
-import './page/buckaroo-settings';
-
 import './extension/sw-order';
 import './extension/sw-order-detail-base';
 import './extension/sw-order-user-card';

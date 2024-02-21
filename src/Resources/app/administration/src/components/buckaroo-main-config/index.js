@@ -16,9 +16,11 @@ Component.register("buckaroo-main-config", {
         },
         isNotDefaultSalesChannel: {
             required: true,
+        },
+        currentSalesChannelId: {
+            required: true,
         }
     },
-
     data() {
         return {
             selectedCard: this.$route.params?.paymentCode || 'general'
@@ -36,6 +38,6 @@ Component.register("buckaroo-main-config", {
     computed: {
         mainCard() {
             return this.configSettings.filter((card) => card.name === this.selectedCard)?.pop()
-        },
+        }
     }
 }) 

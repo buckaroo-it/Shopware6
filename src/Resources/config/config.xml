@@ -608,7 +608,7 @@
 
      <card>
         <title>PayByBank</title>
-        
+        <name>paybybank</name>
         <input-field type="bool">
             <name>paybybankEnabled</name>
             <label lang="en-GB">Enabled</label>
