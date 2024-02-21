@@ -26,6 +26,12 @@ Component.register("buckaroo-toggle-status", {
             isLoading: false,
         }
     },
+
+    watch: {
+        value() {
+            this.status = this.getStatus()
+        }
+    },
     methods: {
         getStatus() {
             if (!this.isActive()) {
