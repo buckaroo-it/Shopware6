@@ -267,7 +267,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $struct->assign([
             'currency'                 => $currency->getIsoCode(),
             'issuers'                  => $this->idealIssuerService->get($salesChannelId),
-            'ideal_render_mode'        => $idealRenderMode,
+            'idealRenderMode'          => $idealRenderMode,
+            'idealProcessingRenderMode'=> $this->getIdealProcessingRenderMode($salesChannelId),
             'showIssuers'         => $this->canShowIssuers($salesChannelId, $buckarooKey),
             'payByBankMode'            => $this->settingsService->getSetting('paybybankRenderMode', $salesChannelId),
             'payByBankIssuers'         => $this->payByBankService->getIssuers($customer),
@@ -302,6 +303,15 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             BuckarooStruct::EXTENSION_NAME,
             $struct
         );
+    }
+
+    private function getIdealProcessingRenderMode(string $salesChannelId): int
+    {
+        $mode = $this->settingsService->getSetting('idealprocessingRenderMode', $salesChannelId);
+        if (is_scalar($mode)) {
+            return (int)$mode;
+        }
+        return 0;
     }
 
     /**

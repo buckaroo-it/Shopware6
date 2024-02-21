@@ -53,6 +53,16 @@ Component.register("buckaroo-config-card", {
                 return this.getValueForName('advancedConfiguration');
             }
 
+            /** toggle for ideal processing issuer render mode */
+            if (name === "idealprocessingRenderMode") {
+                return this.getValueForName('idealprocessingShowissuers');
+            }
+
+            /** toggle for ideal issuer render mode */
+            if (name === "idealRenderMode") {
+                return this.getValueForName('idealShowissuers');
+            }
+
             /** toggle for afterpay capture only payment */
             if (name === 'afterpayPaymentstatus') {
                 return this.getValueForName('afterpayCaptureonshippent');
