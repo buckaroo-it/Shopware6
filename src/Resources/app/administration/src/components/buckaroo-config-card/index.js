@@ -53,11 +53,6 @@ Component.register("buckaroo-config-card", {
                 return this.getValueForName('advancedConfiguration');
             }
 
-            /** toggle for afterpay b2b amount */
-            if (['afterpayB2bMinAmount','afterpayB2bMaxAmount'].indexOf(name) !== -1) {
-                return this.getValueForName('afterpayCustomerType') != 'b2c'
-            }
-
             /** toggle for afterpay capture only payment */
             if (name === 'afterpayPaymentstatus') {
                 return this.getValueForName('afterpayCaptureonshippent');
