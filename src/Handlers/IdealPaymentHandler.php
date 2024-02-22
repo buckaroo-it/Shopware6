@@ -31,7 +31,9 @@ class IdealPaymentHandler extends AsyncPaymentHandler
     ): array {
         
         if ($this->withoutIssuers($salesChannelContext->getSalesChannelId())) {
-            return [];
+            return [
+                'continueOnIncomplete' => true
+            ];
         }
         return [
             'issuer' => $dataBag->get('bankMethodId')
