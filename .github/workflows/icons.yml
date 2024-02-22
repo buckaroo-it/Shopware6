@@ -26,6 +26,10 @@ jobs:
             cd ${{ github.workspace }}/Media
             cp -R "Payment methods/SVG/." ${{ github.workspace }}/src/Resources/views/storefront/buckaroo/payments/
             cp "Payment methods/SVG/creditcards.svg" ${{ github.workspace }}/src/Resources/public/storefront/buckaroo/creditcards.svg
+      - name: Copy payment method icons for admin area
+        run: |
+            cd ${{ github.workspace }}/Media
+            cp -R "Payment methods/SVG/." ${{ github.workspace }}/src/Resources/public/administration/static/
       - name: Copy creditcards icons
         run: |
             cd Media

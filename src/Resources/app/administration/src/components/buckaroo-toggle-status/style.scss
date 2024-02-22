@@ -1,0 +1,40 @@
+.bk-toogle-wrap {
+    display: flex;
+    border-radius: 0.25rem;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+    padding:0.125rem;
+    background-color: #fff;
+    button {
+        outline: none;
+        margin:0.125rem;
+        padding:0.25rem;
+        background-color: rgb(229 231 235);
+        border-radius: 0.125rem;
+        text-transform: uppercase;
+        border:0;
+        color: #9ca3af;
+        cursor: pointer;
+        flex-grow: 1;
+    }
+    button.test:hover,  button.test.active {
+        background-color: #eab308;
+        color:#fff;
+    }
+    button.live:hover, button.live.active {
+        background-color: #22c55e;
+        color:#fff;
+    }
+    button.disabled:hover, button.disabled.active {
+        background-color: #000;
+        color:#fff;
+    }
+    .bk-edit-link {
+        display: flex;
+        align-items: center;
+        margin:0 0.125rem
+    }
+    .bk-link {
+        padding-top:2px;
+    }
+
+}
