@@ -35,6 +35,7 @@ Component.register('buckaroo-payment-detail', {
             orderItems: [],
             transactionsToRefund: [],
             relatedResources: [],
+            isAuthorized: false
         };
     },
 
@@ -177,6 +178,7 @@ Component.register('buckaroo-payment-detail', {
             orderCriteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
 
             orderRepository.get(orderId, Context.api, orderCriteria).then((order) => {
+                that.checkedIsAuthorized(order);
                 that.isCapturePossible = order.transactions &&
                 order.transactions.last().paymentMethod &&
                 order.transactions.last().paymentMethod.customFields &&
@@ -243,6 +245,10 @@ Component.register('buckaroo-payment-detail', {
 
         isAfterpayCapturePossible(order) {
             return order.customFields.buckaroo_is_authorize === true;
+        },
+
+        checkedIsAuthorized(order) {
+            this.isAuthorized = order?.transactions?.last()?.stateMachineState?.technicalName === "authorized";
         },
 
         refundOrder(transaction, amount) {

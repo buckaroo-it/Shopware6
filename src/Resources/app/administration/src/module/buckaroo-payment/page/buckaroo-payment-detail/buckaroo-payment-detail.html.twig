@@ -49,10 +49,6 @@
             <sw-card-section divider="top" secondary slim>
                 <sw-container columns="1fr 440px"
                               class="sw-order-detail__summary">
-                    <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
-                            <dd></dd>
-                            <dt>{{ $tc('buckaroo-payment.transactionsToRefund.title') }}</dt>
-                    </sw-description-list>
                 </sw-container>
 
                 <sw-data-grid :dataSource="transactionsToRefund"
@@ -76,7 +72,7 @@
 
                 </sw-data-grid>
 
-                <sw-container columns="1fr 440px" class="sw-order-detail__summary">
+                <sw-container v-if="!isAuthorized" columns="1fr 440px" class="sw-order-detail__summary">
                     <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
                             <dt>{{ $tc('buckaroo-payment.paymentDetail.amountCustomRefundTitle') }}: </dt>
                             <dd>
@@ -96,7 +92,7 @@
 
             <sw-container columns="1fr 440px" class="sw-order-detail__summary">
                 <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data"><dt></dt><dd>
-                    <sw-button @click="refundOrder(orderId, buckaroo_refund_amount)" :disabled="!isRefundPossible">
+                    <sw-button @click="refundOrder(orderId, buckaroo_refund_amount)" :disabled="!isRefundPossible || isAuthorized">
                     {{ $tc('buckaroo-payment.paymentDetail.buttonTitle') }}
                     </sw-button></dd>
                 </sw-description-list>
