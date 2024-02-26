@@ -110,6 +110,7 @@
         "in3LogoLabel": "Zahlungslogo:",
         "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available",
         "configure-payment": "Configure payment",
+        "configure-link": "Configure",
         "payment-methods": "Payment methods"
     }
 }

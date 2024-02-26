@@ -166,7 +166,7 @@
     
     <card>
         <name>creditcard</name>
-        <title>Credit and debit card</title>
+        <title>Cards</title>
         <title lang="nl-NL">Creditcard en debetkaarten</title>
         <title lang="de-DE">Kartenzahlung</title>
 		<title lang="fr-FR">Cartes de crédit et de débit</title>
@@ -278,7 +278,7 @@
 
     <card>
         <name>creditcards</name>
-        <title>Credit and debit card (Client sided)</title>
+        <title>Cards (Client sided)</title>
 		<title lang="gb-GB">Credit and debit card (Client sided)</title>
         <title lang="nl-NL">Creditcard en debetkaart (Versleuteling aan clientzijde)</title>
         <title lang="de-DE">Kartenzahlung (Clientseitige Verschlüsselung)</title>
@@ -2473,7 +2473,7 @@
     </card>
 
     <card>
-        <title>Billink - achteraf betalen</title>
+        <title>Billink</title>
         <name>Billink</name>
         <input-field type="bool">
             <name>BillinkEnabled</name>

@@ -21,6 +21,10 @@
             :method="payment.code"
             v-model="value"
         />
+   
+        <router-link class="bk-link" :title="$tc('buckaroo-payment.configure-payment')" :to="{name: 'buckaroo.payment.config', params: {namespace: 'BuckarooPayments', paymentCode: payment.code } }">
+            {{$tc('buckaroo-payment.configure-link')}}
+        </router-link>
         </div>
     </div>
  </template>

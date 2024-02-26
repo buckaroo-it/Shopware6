@@ -1,13 +1,5 @@
 <div class="bk-toogle-wrap">
-    <router-link class="bk-link" tag="button" :title="$tc('buckaroo-payment.configure-payment')" :to="{name: 'buckaroo.payment.config', params: {namespace: 'BuckarooPayments', paymentCode: method } }">
-        <sw-icon
-            name="regular-pencil-s"
-            size="16px"
-            color="#9ca3af"
-        />
-    </router-link>
     <button type="button" :disabled="isLoading" :class="`live ${getClass('live')}`" @click="setStatus('live')">Live</button>
     <button type="button" :disabled="isLoading" :class="`test ${getClass('test')}`" @click="setStatus('test')">Test</button>
     <button type="button" :disabled="isLoading" :class="`disabled ${getClass('disabled')}`" @click="setStatus('disabled')">Off</button>
-    
 </div>
