@@ -19,6 +19,7 @@
                 padding: 0.25rem 0 0.5rem;;
                 color: #555555;
                 font-weight: bold;
+                font-size: 16px;
             }
         }
         flex: 0 20%;
@@ -37,5 +38,13 @@
             }
         }
         
+    }
+    .bk-link {
+        padding: 0.25rem 0 0.125rem;
+        color: #555555;
+    }
+
+    .bk-link:hover {
+       font-weight: bold;
     }
 }
