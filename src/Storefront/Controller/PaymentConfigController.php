@@ -6,37 +6,37 @@ namespace Buckaroo\Shopware6\Storefront\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Buckaroo\Shopware6\Service\Config\CheckoutFactory;
+use Buckaroo\Shopware6\Service\Config\PageFactory;
 use Shopware\Storefront\Controller\StorefrontController;
+use Buckaroo\Shopware6\Service\Rest\PaymentConfigResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class RefundController extends StorefrontController
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+class PaymentConfigController extends StorefrontController
 {
    
-    private CheckoutFactory $checkoutFactory;
+    protected PageFactory $pageFactory;
 
-    public function __construct(CheckoutFactory $checkoutFactory)
+    public function __construct(PageFactory $pageFactory)
     {
-        $this->checkoutFactory = $checkoutFactory;
+        $this->pageFactory = $pageFactory;
     }
 
     /**
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      *
-     * @return JsonResponse
+     * @return PaymentConfigResponse
      */
     #[Route(
-        path: '/buckaroo/payment/config',
-        name: 'frontend.action.buckaroo.payment.config',
-        options: ['seo' => false], methods: ['POST'],
-        defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']]
+        path: '/store-api/buckaroo/payment/config',
+        name: 'store-api.action.buckaroo.payment.config',
+        methods: ['POST']
     )]
-    public function refundBuckaroo(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
+    public function get(Request $request, SalesChannelContext $salesChannelContext): PaymentConfigResponse
     {
-        return new JsonResponse(
-            $this->checkoutFactory->get($salesChannelContext)
-        );
+
+        $struct = $this->pageFactory->get($salesChannelContext, 'checkout');
+        return new PaymentConfigResponse($struct);
     }
 }
