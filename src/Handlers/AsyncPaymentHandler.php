@@ -471,8 +471,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      *
      * @return array<mixed>
      */
-    protected function getOrderLinesArray(OrderEntity $order, string $paymentCode = null, ?Context $context): array
-    {
+    protected function getOrderLinesArray(
+        OrderEntity $order,
+        string $paymentCode = null,
+        ?Context $context = null
+    ): array {
         return $this->asyncPaymentService
             ->formatRequestParamService
             ->getOrderLinesArray($order, $paymentCode, $context);

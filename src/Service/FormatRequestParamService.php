@@ -114,11 +114,11 @@ class FormatRequestParamService
     }
 
     private function getProductImgUrl(
-        string $productId,
+        ?string $productId,
         ?string $paymentCode,
         ?Context $context
     ): ?string {
-        if ($paymentCode !== 'afterpay' || $context === null) {
+        if ($productId === null || $paymentCode !== 'afterpay' || $context === null) {
             return null;
         }
         return $this->riveryProductImageUrlService->getImageUrl($productId, $context);
