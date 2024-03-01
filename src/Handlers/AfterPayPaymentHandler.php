@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
+use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Handlers\AfterPayOld;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Buckaroo\Shopware6\Service\CaptureService;
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 use Buckaroo\Resources\Constants\RecipientCategory;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
-use Buckaroo\Shopware6\Service\CaptureService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -88,7 +89,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         return array_merge_recursive(
             $this->getBillingData($order, $dataBag, $salesChannelContext->getSalesChannelId()),
             $this->getShippingData($order, $dataBag, $salesChannelContext->getSalesChannelId()),
-            $this->getArticles($order, $paymentCode)
+            $this->getArticles($order, $paymentCode, $salesChannelContext->getContext())
         );
     }
 
@@ -210,9 +211,9 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    private function getArticles(OrderEntity $order, string $paymentCode): array
+    private function getArticles(OrderEntity $order, string $paymentCode, Context $context): array
     {
-        $lines = $this->getOrderLinesArray($order, $paymentCode);
+        $lines = $this->getOrderLinesArray($order, $paymentCode, $context);
 
         $articles = [];
 
@@ -220,13 +221,19 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
             if (!is_array($item)) {
                 continue;
             }
-            $articles[] = [
+
+            $article = [
                 'identifier'        => $item['sku'],
                 'description'       => $item['name'],
                 'quantity'          => $item['quantity'],
                 'price'             => $item['unitPrice']['value'],
                 'vatPercentage'     => $item['vatRate'],
             ];
+
+            if (is_string($item['imageUrl']) && strlen($item['imageUrl'])) {
+                $article['imageUrl'] = $item['imageUrl'];
+            }
+            $articles[] = $article;
         }
         return [
             'articles' => $articles
