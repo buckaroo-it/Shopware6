@@ -32,8 +32,10 @@ jobs:
             cp -R "Payment methods/SVG/." ${{ github.workspace }}/src/Resources/public/administration/static/
       - name: Copy creditcards icons
         run: |
+            cd "${{ github.workspace }}/Media/Creditcard issuers/SVG/""
+            mv cartebleue.svg cartebleuevisa.svg
+            rm -f mastercard_debit.svg
             cd Media
-            mv "Creditcard issuers/SVG/cartebleue.svg" "Creditcard issuers/SVG/cartebleuevisa.svg"
             cp -R "Creditcard issuers/SVG/." ${{ github.workspace }}/src/Resources/public/storefront/buckaroo/creditcards/
       - name: Copy payment issuers icons
         run: |
