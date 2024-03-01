@@ -192,6 +192,7 @@ Component.register('buckaroo-payment-detail', {
                 .then((response) => {
                     that.orderItems = [];
                     that.transactionsToRefund = [];
+                    that.relatedResources = [];
 
                     this.$emit('loading-change', false);
                     response.orderItems.forEach((element) => {
@@ -300,7 +301,6 @@ Component.register('buckaroo-payment-detail', {
                         });
                     }
                     that.isPaylinkAvailable = true;
-                    this.createdComponent();
                 })
                 .catch((errorResponse) => {
                     this.createNotificationError({
@@ -332,6 +332,7 @@ Component.register('buckaroo-payment-detail', {
                         });
                     }
                     that.isCapturePossible = true;
+                    this.createdComponent();
                 })
                 .catch((errorResponse) => {
                     this.createNotificationError({
