@@ -61,7 +61,7 @@ class RiveryProductImageUrlService
             ->addSorting(new FieldSorting('height', FieldSorting::DESCENDING));
 
         /** @var \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity */
-        $thumbnail = $this->thumbnailRepository->search($criteria,  $context)->first();
+        $thumbnail = $this->thumbnailRepository->search($criteria, $context)->first();
 
         if ($this->legacyGenerator !== null) {
             return $this->legacyGenerator->getAbsoluteThumbnailUrl($media, $thumbnail);
