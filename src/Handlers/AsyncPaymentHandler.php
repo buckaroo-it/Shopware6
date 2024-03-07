@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
+use Shopware\Core\Framework\Context;
 
 class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
@@ -113,7 +114,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 $paymentCode
             );
         } catch (\Throwable $th) {
-            $this->asyncPaymentService->logger->debug((string) $th);
+            $this->asyncPaymentService->logger->error((string) $th);
             throw new AsyncPaymentProcessException(
                 $transaction->getOrderTransaction()->getId(),
                 'Cannot create buckaroo payment',
@@ -320,8 +321,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         OrderEntity $order,
         string $salesChannelId,
         string $paymentCode
-    ): float
-    {
+    ): float {
         $fee =  $this->getFee($paymentCode, $salesChannelId);
 
         $existingFee = $order->getCustomFieldsValue('buckarooFee');
@@ -497,11 +497,14 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      *
      * @return array<mixed>
      */
-    protected function getOrderLinesArray(OrderEntity $order, string $paymentCode = null): array
-    {
+    protected function getOrderLinesArray(
+        OrderEntity $order,
+        string $paymentCode = null,
+        ?Context $context = null
+    ): array {
         return $this->asyncPaymentService
             ->formatRequestParamService
-            ->getOrderLinesArray($order, $paymentCode);
+            ->getOrderLinesArray($order, $paymentCode, $context);
     }
 
     /**

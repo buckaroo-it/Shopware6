@@ -85,6 +85,6 @@ class KlarnaKp extends AbstractPayment
 
     public function canCapture(): bool
     {
-        return true;
+        return false;
     }
 }

@@ -4,19 +4,26 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 
 class FormatRequestParamService
 {
     protected SettingsService $settingsService;
 
-    public function __construct(SettingsService $settingsService)
-    {
+    protected RiveryProductImageUrlService $riveryProductImageUrlService;
+
+    public function __construct(
+        SettingsService $settingsService,
+        RiveryProductImageUrlService $riveryProductImageUrlService
+    ) {
         $this->settingsService = $settingsService;
+        $this->riveryProductImageUrlService = $riveryProductImageUrlService;
     }
 
     /**
@@ -25,7 +32,7 @@ class FormatRequestParamService
      * @param OrderEntity $order
      * @return array<array>
      */
-    public function getOrderLinesArray(OrderEntity $order, string $paymentCode = null)
+    public function getOrderLinesArray(OrderEntity $order, string $paymentCode = null, ?Context $context = null)
     {
         // Variables
         $lines     = [];
@@ -40,6 +47,7 @@ class FormatRequestParamService
             // Get tax
             $itemTax = null;
 
+            /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity $item */
             if (
                 $item->getPrice() !== null &&
                 $item->getPrice()->getCalculatedTaxes() !== null
@@ -60,7 +68,6 @@ class FormatRequestParamService
                 $taxId = $itemPayload['taxId'];
             }
 
-
             // Build the order lines array
             $lines[] = [
                 'id'          => $item->getId(),
@@ -70,7 +77,9 @@ class FormatRequestParamService
                 'totalAmount' => $this->formatAmount($item->getTotalPrice()),
                 'vatRate'     => $this->formatAmount($vatRate),
                 'sku'         => $item->getId(),
-                'taxId'       => $taxId
+                'taxId'       => $taxId,
+                'imageUrl'    => $this->getProductImgUrl($item->getProductId(), $paymentCode, $context),
+                'variations'  => $this->getVariations($item),
             ];
         }
 
@@ -88,8 +97,29 @@ class FormatRequestParamService
         return $lines;
     }
 
-    
+    private function getProductImgUrl(
+        ?string $productId,
+        ?string $paymentCode,
+        ?Context $context
+    ): ?string {
+        if ($productId === null || $paymentCode !== 'afterpay' || $context === null) {
+            return null;
+        }
+        return $this->riveryProductImageUrlService->getImageUrl($productId, $context);
+    }
 
+    private function getVariations(OrderLineItemEntity $item): array
+    {
+        $payload = $item->getPayload();
+        if (
+            is_array($payload) &&
+            isset($payload['options']) &&
+            is_array($payload['options'])
+        ) {
+            return $payload['options'];
+        }
+        return [];
+    }
 
     private function formatAmount(float $amount): string
     {

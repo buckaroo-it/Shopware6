@@ -311,6 +311,15 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         return $translation['customFields']['buckaroo_key'];
     }
 
+    private function getIdealProcessingRenderMode(string $salesChannelId): int
+    {
+        $mode = $this->settingsService->getSetting('idealprocessingRenderMode', $salesChannelId);
+        if (is_scalar($mode)) {
+            return (int)$mode;
+        }
+        return 0;
+    }
+
     /**
      * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
      * @return array<mixed>

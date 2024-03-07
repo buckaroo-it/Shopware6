@@ -10,6 +10,7 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 
@@ -61,6 +62,11 @@ class ChangeStateService
         );
 
         $transition = $this->getTransition($availableTransitions, $newState);
+
+        if ($transition === null && $newState === OrderTransactionStates::STATE_FAILED) {
+            $transition = $this->getTransition($availableTransitions, OrderTransactionStates::STATE_CANCELLED);
+        }
+        
         if ($transition === null) {
             return self::PAYMENT_STATE_FAILED_TO_CHANGE;
         }

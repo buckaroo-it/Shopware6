@@ -101,6 +101,12 @@
         <service id="Buckaroo\Shopware6\Service\PushPaymentStateService">
             <argument type="service" id="order_transaction.repository"/>
         </service>
+        
+        <service id="Buckaroo\Shopware6\Service\RiveryProductImageUrlService">
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="media_thumbnail.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface" on-invalid="null"/>
+        </service>
 
         <service id="Buckaroo\Shopware6\Handlers\AfterPayOld">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
@@ -200,6 +206,7 @@
 
         <service id="Buckaroo\Shopware6\Service\FormatRequestParamService">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\RiveryProductImageUrlService"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\SignatureValidationService">
