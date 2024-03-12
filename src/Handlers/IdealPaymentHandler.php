@@ -13,6 +13,9 @@ class IdealPaymentHandler extends AsyncPaymentHandler
 {
     protected string $paymentClass = Ideal::class;
 
+    public const IDEAL_PROCESSING = 'idealProcessing';
+
+
     /**
      * Get parameters for specific payment method
      *
@@ -23,23 +26,37 @@ class IdealPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+        protected function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        
+
+
         if ($this->withoutIssuers($salesChannelContext->getSalesChannelId())) {
-            return [
-                'continueOnIncomplete' => true
-            ];
+            if ($this->isIdealProcessing()){
+                return [];
+            }else{
+                return [
+                    'continueOnIncomplete' => true
+                ];
+            }
         }
         return [
             'issuer' => $dataBag->get('bankMethodId')
         ];
     }
 
+    /**
+     * Check if is IdealProcessing
+     *
+     * @return boolean
+     */
+    private function isIdealProcessing(): bool
+    {
+        return $this->getSetting("paymentHandler") === self::IDEAL_PROCESSING;
+    }
     private function withoutIssuers(string $salesChannelId): bool
     {
         return $this->getSetting("idealShowissuers", $salesChannelId) === false;

@@ -451,6 +451,33 @@
     <card>
         <title>iDEAL</title>
         <name>ideal</name>
+        <title>iDEAL Configuration</title>
+
+        <input-field type="single-select">
+            <name>paymentHandler</name>
+            <label lang="en-GB">Select Payment Type</label>
+            <label lang="nl-NL">Selecteer betalingstype</label>
+            <label lang="de-DE">Zahlungstyp auswählen</label>
+            <label lang="fr-FR">Sélectionnez le type de paiement</label>
+            <defaultValue>ideal</defaultValue>
+            <options>
+                <option>
+                    <id>ideal</id>
+                    <name lang="en-GB">iDEAL</name>
+                    <name lang="nl-NL">iDEAL</name>
+                    <name lang="de-DE">iDEAL</name>
+                    <name lang="fr-FR">iDEAL</name>
+                </option>
+                <option>
+                    <id>idealProcessing</id>
+                    <name lang="en-GB">iDEAL Processing</name>
+                    <name lang="nl-NL">iDEAL Processing</name>
+                    <name lang="de-DE">iDEAL Processing</name>
+                    <name lang="fr-FR">iDEAL Processing</name>
+                </option>
+            </options>
+        </input-field>
+
         <input-field type="bool">
             <name>idealEnabled</name>
             <label lang="en-GB">Enabled</label>
