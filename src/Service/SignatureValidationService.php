@@ -80,6 +80,7 @@ class SignatureValidationService
 
         foreach ($sortableArray as $brq_key => $value) {
             if (is_scalar($value)) {
+                $brq_key = $this->getCorrectKey((string)$brq_key);
                 $value = $this->decodePushValue($brq_key, (string)$value);
                 $signatureString .= $brq_key . '=' . $value;
             }
@@ -145,6 +146,19 @@ class SignatureValidationService
         }
 
         return $decodedValue;
+    }
+    private function getCorrectKey(string $key): string
+    {
+        if ($key === 'brq_SERVICE_knaken_Buyer_UUID')
+        {
+            $key = 'brq_SERVICE_knaken_Buyer UUID';
+        }
+
+        if ($key === 'brq_SERVICE_knaken_Buyer_Name')
+        {
+            $key = 'brq_SERVICE_knaken_Buyer Name';
+        }
+        return $key;
     }
 
     /**
