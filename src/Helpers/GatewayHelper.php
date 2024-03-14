@@ -34,6 +34,7 @@ use Buckaroo\Shopware6\PaymentMethods\Multibanco;
 use Buckaroo\Shopware6\PaymentMethods\Creditcards;
 use Buckaroo\Shopware6\PaymentMethods\PayPerEmail;
 use Buckaroo\Shopware6\PaymentMethods\IdealProcessing;
+use Buckaroo\Shopware6\PaymentMethods\Knaken;
 use Buckaroo\Shopware6\PaymentMethods\SepaDirectDebit;
 
 class GatewayHelper
@@ -69,6 +70,7 @@ class GatewayHelper
         PayByBank::class,
         IdealQr::class,
         MBWay::class,
-        Multibanco::class
+        Multibanco::class,
+        Knaken::class
     ];
 }
