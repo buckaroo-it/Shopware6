@@ -77,7 +77,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        if ($this->getSetting('afterpayEnabledold') === true) {
+        if ($this->isAfterpayOld(($salesChannelContext->getSalesChannelId()))) {
             return $this->afterPayOld->buildPayParameters(
                 $order,
                 $salesChannelContext,

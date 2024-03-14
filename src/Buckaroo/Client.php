@@ -18,6 +18,8 @@ class Client
 
     protected string $action = 'pay';
 
+    protected ?int $version = null;
+
     /**
      * Additional services
      *
@@ -51,6 +53,12 @@ class Client
         $this->paymentCode = $paymentCode;
     }
 
+    public function setServiceVersion(int $serviceVersion): self
+    {
+        $this->version = $serviceVersion;
+        return $this;
+    }
+
     /**
      * Execute buckaroo request
      *
@@ -66,6 +74,13 @@ class Client
                 $request->combine($service);
             }
         }
+
+        if (
+            $this->version !== null
+        ) {
+            $request->setServiceVersion($this->version);
+        }
+
         return new ClientResponse(
             $request->{$this->action}($this->payload)
         );
