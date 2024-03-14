@@ -260,6 +260,11 @@
             <tag name="shopware.payment.method.async" />
         </service>
 
+        <service id="Buckaroo\Shopware6\Handlers\KnakenPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method.async" />
+        </service>
+
         <service id="Buckaroo\Shopware6\Handlers\MBWayPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
