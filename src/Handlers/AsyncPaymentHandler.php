@@ -65,7 +65,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         try {
             $order = $transaction->getOrder();
             $this->validateOrder($order);
-            
+
             if ($this->getOrderTotalWithFee(
                 $order,
                 $salesChannelId,
@@ -202,7 +202,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
     private function completeZeroAmountPayment(
         AsyncPaymentTransactionStruct $transaction,
         SalesChannelContext $salesChannelContext
-    ) {
+    ): RedirectResponse {
         $this->asyncPaymentService
             ->stateTransitionService
             ->transitionPaymentState(
@@ -213,7 +213,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         return $this->redirectToFinishPage($transaction);
     }
 
-    private function redirectToFinishPage(AsyncPaymentTransactionStruct $transaction)
+    private function redirectToFinishPage(AsyncPaymentTransactionStruct $transaction): RedirectResponse
     {
         return new RedirectResponse(
             $this->asyncPaymentService
