@@ -108,7 +108,6 @@
         "missing_transaction": "Order transaction not found",
         "general_request_error": "Unfortunately an error occurred while processing your request. Please try again.",
         "in3LogoLabel":"Payment Logo:",
-        "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available",
         "configure-payment": "Configure payment",
         "configure-link": "Configure",
         "payment-methods": "Payment methods"

@@ -56,6 +56,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         SalesChannelContext $salesChannelContext
     ): RedirectResponse {
 
+
+
         $dataBag = $this->getRequestBag($dataBag);
         $transactionId = $transaction->getOrderTransaction()->getId();
         $paymentClass = $this->getPayment($transactionId);
@@ -63,9 +65,18 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $paymentCode = $paymentClass->getBuckarooKey();
         $this->asyncPaymentService->cancelPreviousPayments($transaction);
 
+
         try {
             $order = $transaction->getOrder();
             $this->validateOrder($order);
+            
+            if ($this->getOrderTotalWithFee(
+                $order,
+                $salesChannelId,
+                $paymentCode
+            ) == 0) {
+                return $this->completeZeroAmountPayment($transaction, $salesChannelContext);
+            }
 
             $client = $this->getClient(
                 $paymentCode,
@@ -175,14 +186,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                         $salesChannelContext->getContext()
                     );
             }
-            return new RedirectResponse(
-                $this->asyncPaymentService
-                    ->urlService
-                    ->forwardToRoute(
-                        'frontend.checkout.finish.page',
-                        ['orderId' => $transaction->getOrder()->getId()]
-                    )
-            );
+            return $this->redirectToFinishPage($transaction);
         }
 
         if ($response->isCanceled()) {
@@ -196,6 +200,32 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 "%s&brq_payment_method={$paymentCode}&brq_statuscode=" . $response->getStatusCode(),
                 $returnUrl
             )
+        );
+    }
+
+    private function completeZeroAmountPayment(
+        AsyncPaymentTransactionStruct $transaction,
+        SalesChannelContext $salesChannelContext
+    ) {
+        $this->asyncPaymentService
+            ->stateTransitionService
+            ->transitionPaymentState(
+                'paid',
+                $transaction->getOrderTransaction()->getId(),
+                $salesChannelContext->getContext()
+            );
+        return $this->redirectToFinishPage($transaction);
+    }
+
+    private function redirectToFinishPage(AsyncPaymentTransactionStruct $transaction)
+    {
+        return new RedirectResponse(
+            $this->asyncPaymentService
+                ->urlService
+                ->forwardToRoute(
+                    'frontend.checkout.finish.page',
+                    ['orderId' => $transaction->getOrder()->getId()]
+                )
         );
     }
 
