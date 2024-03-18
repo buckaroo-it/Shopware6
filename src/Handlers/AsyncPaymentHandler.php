@@ -62,7 +62,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $paymentCode = $paymentClass->getBuckarooKey();
         $this->asyncPaymentService->cancelPreviousPayments($transaction);
 
-
         try {
             $order = $transaction->getOrder();
             $this->validateOrder($order);
