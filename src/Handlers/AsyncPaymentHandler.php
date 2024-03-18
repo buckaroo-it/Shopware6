@@ -55,9 +55,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext
     ): RedirectResponse {
-
-
-
         $dataBag = $this->getRequestBag($dataBag);
         $transactionId = $transaction->getOrderTransaction()->getId();
         $paymentClass = $this->getPayment($transactionId);
