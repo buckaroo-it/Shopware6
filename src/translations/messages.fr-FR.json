@@ -10,6 +10,7 @@
             "already_captured": "Cette commande a déjà été capturée",
             "captured_amount": "Montant capturé avec succès de %amount% %currency%",
             "general_capture_error": "Malheureusement, une erreur s'est produite lors du traitement de votre capture. Veuillez réessayer."
-        }
+        },
+        "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available"
     }
 }

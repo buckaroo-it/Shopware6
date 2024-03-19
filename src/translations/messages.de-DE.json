@@ -10,6 +10,7 @@
             "already_captured": "Diese Bestellung wurde bereits erfasst",
             "captured_amount": "Betrag erfolgreich erfasst: %amount% %currency%",
             "general_capture_error": "Leider ist ein Fehler bei der Verarbeitung Ihrer Erfassung aufgetreten. Bitte versuchen Sie es erneut."
-        }
+        },
+        "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available"
     }
 }
