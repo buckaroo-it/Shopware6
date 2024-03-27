@@ -2054,10 +2054,6 @@
             </options>
         </input-field>
 
-        <component name="buckaroo-in3-logo">
-            <name>capayableLogo</name>
-        </component>
-
         <input-field>
             <name>capayableLabel</name>
             <label lang="en-GB">Frontend label</label>
