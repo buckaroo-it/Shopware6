@@ -149,7 +149,6 @@ class In3LogoService
     /**
      * Get active media logo
      *
-     * @param mixed $mediaId
      * @param mixed $version
      * @param Context $context
      *
