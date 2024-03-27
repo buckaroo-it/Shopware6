@@ -275,7 +275,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'payByBankLogos'           => $this->payByBankService->getIssuerLogos($customer),
             'payByBankActiveIssuer'    => $this->payByBankService->getActiveIssuer($customer),
             'in3Logo'                  => $this->in3LogoService->getActiveLogo(
-                $this->settingsService->getSetting('capayableLogo', $salesChannelId),
                 $this->settingsService->getSetting('capayableVersion', $salesChannelId),
                 $event->getSalesChannelContext()->getContext()
             ),

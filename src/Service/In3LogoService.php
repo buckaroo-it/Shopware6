@@ -149,23 +149,17 @@ class In3LogoService
     /**
      * Get active media logo
      *
-     * @param mixed $mediaId
      * @param mixed $version
      * @param Context $context
      *
      * @return MediaEntity|null
      */
-    public function getActiveLogo($mediaId, $version, Context $context): ?MediaEntity
+    public function getActiveLogo($version, Context $context): ?MediaEntity
     {
         if ($version === In3PaymentHandler::V2) {
             return $this->getIn3V2Media($context);
         }
 
-        if ($mediaId === self::DEFAULT_PAYMENT_ICON || !is_string($mediaId)) {
-            return null;
-        }
-
-        /** @var \Shopware\Core\Content\Media\MediaEntity|null */
-        return $this->mediaRepository->search(new Criteria([$mediaId]), $context)->first();
+        return null;
     }
 }
