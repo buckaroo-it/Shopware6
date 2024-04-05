@@ -207,11 +207,6 @@
             <tag name="shopware.payment.method.async" />
         </service>
 
-        <service id="Buckaroo\Shopware6\Handlers\IdealProcessingPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method.async" />
-        </service>
-
         <service id="Buckaroo\Shopware6\Handlers\BancontactPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
