@@ -77,7 +77,7 @@ class FormatRequestParamService
 
             $taxId = null;
             $itemPayload = $item->getPayload();
-            if ($itemPayload !== null && !isset($itemPayload['taxId'])) {
+            if ($itemPayload !== null && isset($itemPayload['taxId'])) {
                 $taxId = $itemPayload['taxId'];
             }
 

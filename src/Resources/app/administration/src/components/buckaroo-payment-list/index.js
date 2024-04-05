@@ -84,6 +84,10 @@ Component.register("buckaroo-payment-list", {
                     logo: "klarna.svg"
                 },
                 {
+                    code: "knaken",
+                    logo: "knaken.svg"
+                },
+                {
                     code: "mbway",
                     logo: "mbway.svg"
                 },

@@ -10,6 +10,7 @@
             "already_captured": "Deze bestelling is al gecaptured.",
             "captured_amount": "Succesvol gecaptured bedrag van %amount% %currency%",
             "general_capture_error": "Helaas is er een fout opgetreden bij het verwerken van uw capture. Probeer het opnieuw."
-        }
+        },
+        "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available"
     }
 }
