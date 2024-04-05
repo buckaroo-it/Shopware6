@@ -451,6 +451,32 @@
     <card>
         <title>iDEAL</title>
         <name>ideal</name>
+
+        <input-field type="single-select">
+            <name>paymentHandler</name>
+            <label lang="en-GB">Select Payment Type</label>
+            <label lang="nl-NL">Selecteer betalingstype</label>
+            <label lang="de-DE">Zahlungstyp auswählen</label>
+            <label lang="fr-FR">Sélectionnez le type de paiement</label>
+            <defaultValue>ideal</defaultValue>
+            <options>
+                <option>
+                    <id>ideal</id>
+                    <name lang="en-GB">iDEAL Collecting</name>
+                    <name lang="nl-NL">iDEAL Collecting</name>
+                    <name lang="de-DE">iDEAL Collecting</name>
+                    <name lang="fr-FR">iDEAL Collecting</name>
+                </option>
+                <option>
+                    <id>idealProcessing</id>
+                    <name lang="en-GB">iDEAL Processing</name>
+                    <name lang="nl-NL">iDEAL Processing</name>
+                    <name lang="de-DE">iDEAL Processing</name>
+                    <name lang="fr-FR">iDEAL Processing</name>
+                </option>
+            </options>
+        </input-field>
+
         <input-field type="bool">
             <name>idealEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -543,100 +569,6 @@
         </input-field>
     </card>
 
-    <card>
-        <title>iDEAL Processing</title>
-        <name>idealprocessing</name>
-        <input-field type="bool">
-            <name>idealprocessingEnabled</name>
-            <label lang="en-GB">Enabled</label>
-            <label lang="nl-NL">Ingeschakeld</label>
-            <label lang="de-DE">Aktiviert</label>
-			<label lang="fr-FR">Activé</label>
-        </input-field>
-        
-        <input-field type="single-select">
-            <name>idealprocessingEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
-            <defaultValue>test</defaultValue>
-            <options>
-                <option>
-                    <id>test</id>
-                    <name>Test</name>
-                </option>
-                <option>
-                    <id>live</id>
-                    <name>Live</name>
-                </option>
-            </options>
-        </input-field>
-
-        <input-field>
-            <name>idealprocessingLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
-			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
-			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
-			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>	
-            <defaultValue>iDEAL Processing</defaultValue>
-        </input-field>
-
-        <input-field type="float">
-            <name>idealprocessingFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
-        </input-field>
-
-        <input-field type="bool">
-            <name>idealprocessingShowissuers</name>
-            <label lang="en-GB">Show Issuer Selection in the Checkout</label>
-            <label lang="nl-NL">Weergeef de bankkeuze in de checkout</label>
-            <label lang="de-DE">Bankauswahl im Checkout anzeigen</label>
-			<label lang="fr-FR">Afficher la sélection de la banque à la caisse.</label>
-			<helpText lang="en-GB">When the "Disabled" option is selected, the issuer selection for iDEAL will not be displayed in the checkout. Instead, customers will be redirected to a separate page where they can choose their iDEAL issuer (i.e., their bank). On the other hand, selecting the "Enable" option will display the issuer selection directly in the checkout. It's important to note that enabling this option will incur additional costs from Buckaroo, estimated at around €0.002 for each transaction. For precise cost details, please reach out to buckaroo directly.</helpText>
-			<helpText lang="nl-NL">Wanneer de optie 'Uitgeschakeld' is geselecteerd, zal de bankkeuze voor iDEAL niet worden weergegeven in de checkout. In plaats daarvan worden klanten doorgestuurd naar een aparte pagina waar ze hun eigen bank kunnen kiezen. Aan de andere kant zal het aanzetten van deze functie de bankkeuze direct in de checkout weergeven. Het is belangrijk om te melden dat het inschakelen van deze optie extra kosten met zich mee zal brengen van Buckaroo, geschat op ongeveer €0.002 per transactie. Voor nauwkeurige kostendetails kunt u rechtstreeks contact opnemen met buckaroo.</helpText>
-			<helpText lang="de-DE">Wenn die Option 'Deaktiviert' ausgewählt ist, wird die Bankauswahl für iDEAL nicht im Checkout angezeigt. Stattdessen werden Kunden auf eine separate Seite weitergeleitet, auf der sie ihre eigene Bank auswählen können. Auf der anderen Seite wird das Aktivieren dieser Funktion die Bankauswahl direkt im Checkout anzeigen. Es ist wichtig zu beachten, dass das Aktivieren dieser Option zusätzliche Kosten von Buckaroo verursachen wird, die auf ungefähr €0,002 pro Transaktion geschätzt werden. Für genaue Kostenangaben können Sie sich direkt an buckaroo wenden.</helpText>
-			<helpText lang="fr-FR">Lorsque l'option "NON" est sélectionnée, le choix de l'émetteur pour iDEAL ne sera pas affiché lors du paiement. Au lieu de cela, les clients seront redirigés vers une page séparée où ils pourront choisir leur émetteur iDEAL (c'est-à-dire, leur banque). En revanche, sélectionner l'option "Activer" affichera directement le choix de l'émetteur lors du paiement. Il est important de noter que l'activation de cette option entraînera des coûts supplémentaires de la part de Buckaroo, estimés à environ €0.002 par transaction. Pour des détails précis sur les coûts, veuillez contacter directement buckaroo.</helpText>
-        </input-field>
-
-        <input-field type="single-select">
-            <name>idealprocessingRenderMode</name>
-            <label lang="en-GB">Issuers selection display options</label>
-            <label lang="nl-NL">Weergaveopties voor selectie van issuers (banken)</label>
-            <label lang="de-DE">Anzeigeoptionen für die Auswahl von Emittenten (Banken)</label>
-			<label lang="fr-FR">Options d'affichage de la sélection des émetteurs</label>
-            <helpText lang="en-GB">With this setting you can choose whether you want the issuer (banks) selection to be showed with a dropdown menu or to display all options with radio buttons in the checkout.</helpText>
-            <helpText lang="nl-NL">Met deze instelling kunt u kiezen of u wilt dat de selectie van de issuers (banken) wordt weergegeven met een vervolgkeuzemenu (dropdown) of dat alle opties worden weergegeven met keuzerondjes (radio buttons) tijdens het afrekenen.</helpText>
-            <helpText lang="de-DE">Mit dieser Einstellung können Sie wählen, ob Sie möchten, dass die Auswahl der Banken mit einem Dropdown-Menü angezeigt wird oder ob alle Optionen während des Bezahlvorgangs mit Optionsfeldern angezeigt werden sollen.</helpText>
-            <helpText lang="fr-FR">Avec ce paramètre, vous pouvez choisir si vous souhaitez que la sélection de l'émetteur (banques) soit affichée avec un menu déroulant ou si toutes les options doivent être affichées avec des boutons radio lors du paiement.</helpText>
-            <defaultValue>0</defaultValue>
-            <options>
-                <option>
-                    <id>0</id>
-                    <name lang="en-GB">Radio button</name>
-                    <name lang="nl-NL">Radio keuzeknop</name>
-                    <name lang="de-DE">Radio knopf</name>
-					<name lang="fr-FR">Bouton radio</name>
-                </option>
-                <option>
-                    <id>1</id>
-                    <name lang="en-GB">Dropdown</name>
-                    <name lang="nl-NL">Keuzelijst</name>
-                    <name lang="de-DE">Dropdown liste</name>
-					<name lang="fr-FR">Menu déroulant</name>
-                </option>
-            </options>
-        </input-field>
-    </card>
 
      <card>
         <title>PayByBank</title>
@@ -2779,10 +2711,6 @@
                 <option>
                     <id>ideal</id>
                     <name>iDEAL</name>
-                </option>
-                <option>
-                    <id>idealprocessing</id>
-                    <name>iDEAL Processing</name>
                 </option>
                 <option>
                     <id>maestro</id>

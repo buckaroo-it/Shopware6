@@ -72,10 +72,6 @@ Component.register("buckaroo-payment-list", {
                     logo: "ideal.svg"
                 },
                 {
-                    code: "idealprocessing",
-                    logo: "ideal.svg"
-                },
-                {
                     code: "capayable",
                     logo: "ideal-in3.svg"
                 },

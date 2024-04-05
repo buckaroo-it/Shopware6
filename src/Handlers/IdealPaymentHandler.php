@@ -13,6 +13,9 @@ class IdealPaymentHandler extends AsyncPaymentHandler
 {
     protected string $paymentClass = Ideal::class;
 
+    public const IDEAL_PROCESSING = 'idealProcessing';
+
+
     /**
      * Get parameters for specific payment method
      *
@@ -29,7 +32,8 @@ class IdealPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        
+
+
         if ($this->withoutIssuers($salesChannelContext->getSalesChannelId())) {
             return [
                 'continueOnIncomplete' => true
