@@ -35,28 +35,15 @@ class IdealPaymentHandler extends AsyncPaymentHandler
 
 
         if ($this->withoutIssuers($salesChannelContext->getSalesChannelId())) {
-            if ($this->isIdealProcessing()){
-                return [];
-            }else{
-                return [
-                    'continueOnIncomplete' => true
-                ];
-            }
+            return [
+                'continueOnIncomplete' => true
+            ];
         }
         return [
             'issuer' => $dataBag->get('bankMethodId')
         ];
     }
 
-    /**
-     * Check if is IdealProcessing
-     *
-     * @return boolean
-     */
-    private function isIdealProcessing(): bool
-    {
-        return $this->getSetting("paymentHandler") === self::IDEAL_PROCESSING;
-    }
     private function withoutIssuers(string $salesChannelId): bool
     {
         return $this->getSetting("idealShowissuers", $salesChannelId) === false;
