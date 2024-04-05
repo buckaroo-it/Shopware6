@@ -463,10 +463,10 @@
             <options>
                 <option>
                     <id>ideal</id>
-                    <name lang="en-GB">iDEAL</name>
-                    <name lang="nl-NL">iDEAL</name>
-                    <name lang="de-DE">iDEAL</name>
-                    <name lang="fr-FR">iDEAL</name>
+                    <name lang="en-GB">iDEAL Collecting</name>
+                    <name lang="nl-NL">iDEAL Collecting</name>
+                    <name lang="de-DE">iDEAL Collecting</name>
+                    <name lang="fr-FR">iDEAL Collecting</name>
                 </option>
                 <option>
                     <id>idealProcessing</id>
