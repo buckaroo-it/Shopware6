@@ -451,7 +451,7 @@
     <card>
         <title>iDEAL</title>
         <name>ideal</name>
-        <title>iDEAL Configuration</title>
+        <title>iDEAL</title>
 
         <input-field type="single-select">
             <name>paymentHandler</name>
