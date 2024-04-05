@@ -26,7 +26,7 @@ class IdealPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-        protected function getMethodPayload(
+    protected function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
