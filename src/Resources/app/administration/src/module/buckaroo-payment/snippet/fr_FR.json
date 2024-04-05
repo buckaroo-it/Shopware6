@@ -108,7 +108,6 @@
         "missing_transaction": "Transaction de commande introuvable",
         "general_request_error": "Malheureusement, une erreur s'est produite lors du traitement de votre demande. Veuillez réessayer.",
         "in3LogoLabel":"Logo de paiement:",
-        "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available",
         "configure-payment": "Configure payment",
         "configure-link": "Configure",
         "payment-methods": "Payment methods"

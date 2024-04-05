@@ -78,7 +78,7 @@ class RefundController extends StorefrontController
                 count($transactionsToRefund) === 0
             ) {
                 return new JsonResponse(
-                    ['status' => false, 'message' => $this->trans("buckaroo-payment.cannotRefundMissingPayment")],
+                    ['status' => false, 'message' => $this->trans("buckaroo.cannotRefundMissingPayment")],
                     Response::HTTP_NOT_FOUND
                 );
             }
