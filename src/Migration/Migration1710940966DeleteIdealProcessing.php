@@ -17,14 +17,16 @@ class Migration1710940966DeleteIdealProcessing extends MigrationStep
         return 1710940966;
     }
 
+
     public function update(Connection $connection): void
     {
-        // SQL statement to delete row from payment_method table
         $connection->executeStatement("
-            DELETE FROM `payment_method`
+            UPDATE `payment_method`
+            SET `active` = 0
             WHERE `handler_identifier` = :handlerIdentifier
         ", ['handlerIdentifier' => self::HANDLER_IDENTIFIER]);
     }
+
 
     public function updateDestructive(Connection $connection): void
     {
