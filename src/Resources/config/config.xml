@@ -691,6 +691,32 @@
             <label lang="de-DE">Buckaroo Gebühr</label>
 			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
+
+        <input-field type="single-select">
+            <name>redirectBancontact</name>
+            <label lang="en-GB">Client Side Encryption</label>
+            <label lang="nl-NL">Client Side Encryption</label>
+            <label lang="de-DE">Clientseitige Verschlüsselung</label>
+            <label lang="fr-FR">Cryptage côté client</label>
+            <defaultValue>enabledRedirect</defaultValue>
+            <options>
+                <option>
+                    <id>enabledRedirect</id>
+                    <name lang="en-GB">Enabled</name>
+                    <name lang="nl-NL">Ingeschakeld</name>
+                    <name lang="de-DE">Aktiviert</name>
+                    <name lang="fr-FR">Activé</name>
+                </option>
+                <option>
+                    <id>disabledRedirect</id>
+                    <name lang="en-GB">Disabled</name>
+                    <name lang="nl-NL">Uitgeschakeld</name>
+                    <name lang="de-DE">Deaktiviert</name>
+                    <name lang="fr-FR">Désactivé</name>
+                </option>
+            </options>
+        </input-field>
+
     </card>
 
     <card>

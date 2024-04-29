@@ -147,7 +147,43 @@
                         {% endif %}
                     {% endblock %}
 
-                {% elseif buckarooKey == 'creditcards' %}
+        {% elseif buckarooKey == 'bancontactmrcash' %}
+            {% block buckaroo_payment_method_bancontactmrcash %}
+
+                <div class="card buckaroo-creditcards">
+                    <fieldset>
+                        <div class="form-row col-md-12">
+                            <div class="form-group col-md-12">
+                                <label class="form-label" for="bancontactmrcash_cardholdername">{{ "buckaroo.checkout.bancontactmrcash.cardholder" | trans }}:</label>
+                                <input class="form-control" id="bancontactmrcash_cardholdername" name="bancontactmrcash_cardholdername" form="confirmOrderForm" required="required" />
+                                <input type="hidden" id="encryptedCardData" name="encryptedCardData" form="confirmOrderForm">
+                                <label class="form-label" style="display:none; color:red" for="bancontactmrcash_cardholdername" id="bancontactmrcash_cardholdernameError">
+                                    {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
+                                </label>
+                            </div>
+
+                            <div class="form-group col-md-12">
+                                <label class="form-label" for="bancontactmrcash_cardnumber">{{ "buckaroo.checkout.bancontactmrcash.cardNumber" | trans }}:</label>
+                                <input class="form-control" id="bancontactmrcash_cardnumber" name="bancontactmrcash_cardnumber" form="confirmOrderForm" required="required" />
+                                <label class="form-label" style="display:none; color:red" for="bancontactmrcash_cardnumber" id="bancontactmrcash_cardnumberError">
+                                    {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
+                                </label>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="form-label" for="bancontactmrcash_expirationmonth">{{ "buckaroo.checkout.bancontactmrcash.expiration" | trans }}:</label>
+                                <input type="text" id="bancontactmrcash_expirationmonth" name="bancontactmrcash_expirationmonth" form="confirmOrderForm" required="required" class="form-control" placeholder="mm/YY" pattern="\d{2}/\d{2}" title="Please enter a valid expiration date in the format mm/YY">
+                                <label class="form-label" style="display:none; color:red" for="bancontactmrcash_expirationmonth" id="bancontactmrcash_expirationmonthError">
+                                    {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            {% endblock %}
+
+
+        {% elseif buckarooKey == 'creditcards' %}
                     {% block buckaroo_payment_method_creditcards %}
                         {% if page.extensions.buckaroo.creditcards|length > 0 %}
                             <div class="card buckaroo-creditcards">
