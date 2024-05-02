@@ -102,6 +102,12 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                         $paymentCode
                     )
                 );
+            if (
+                $paymentCode === "afterpay" &&
+                !$this->isAfterpayOld($salesChannelContext->getSalesChannelId())
+            ) {
+                $client->setServiceVersion(2);
+            }
 
             $this->asyncPaymentService->dispatchEvent(
                 new BeforePaymentRequestEvent(
@@ -536,5 +542,16 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 $fee,
                 $salesChannelContext->getContext()
             );
+    }
+
+    /**
+     * Check if afterpay old is enabled
+     *
+     * @param string $salesChannelContextId
+     *
+     * @return boolean
+     */
+    protected function isAfterpayOld(string $salesChannelContextId) {
+        return $this->getSetting('afterpayEnabledold', $salesChannelContextId) === true;
     }
 }
