@@ -32,6 +32,7 @@ Component.register("buckaroo-test-credentials", {
     },
     methods: {
         getConfigValue: function(name) {
+            console.log(this.config)
             return this.config["BuckarooPayments.config."+name];
         },
         sendTestApi() {

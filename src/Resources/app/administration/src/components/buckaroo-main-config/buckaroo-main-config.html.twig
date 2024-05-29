@@ -1,15 +1,17 @@
 <div>
-<buckaroo-config-card
-    :card="mainCard"
-    :methods="elementMethods"
-    :isNotDefaultSalesChannel="isNotDefaultSalesChannel"
-    :currentSalesChannelId="currentSalesChannelId"
-    v-model="value"
-></buckaroo-config-card>
-<buckaroo-payment-list
-    v-if="selectedCard === 'general'"
-    :configSettings="configSettings"
-    :currentSalesChannelId="currentSalesChannelId"
-    v-model="value">
-</buckaroo-payment-list>
+    <buckaroo-config-card
+            :card="mainCard"
+            :methods="elementMethods"
+            :isNotDefaultSalesChannel="isNotDefaultSalesChannel"
+            :currentSalesChannelId="currentSalesChannelId"
+            :modelValue="localConfigData"
+            @update:modelValue="localConfigData = $event"
+    ></buckaroo-config-card>
+    <buckaroo-payment-list
+            v-if="selectedCard === 'general'"
+            :configSettings="configSettings"
+            :currentSalesChannelId="currentSalesChannelId"
+            :modelValue="localConfigData"
+            @update:modelValue="localConfigData = $event">
+    </buckaroo-payment-list>
 </div>

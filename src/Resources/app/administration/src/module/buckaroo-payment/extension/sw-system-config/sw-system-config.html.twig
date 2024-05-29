@@ -1,15 +1,16 @@
- {% block sw_system_config_content_card %}
+{% block sw_system_config_content_card %}
     <template v-if="domain !== 'BuckarooPayments.config'">
         {% parent() %}
     </template>
     <template v-else>
-       <buckaroo-main-config
-            v-model="actualConfigData[currentSalesChannelId]"
-            :configSettings="config"
-            :isNotDefaultSalesChannel="isNotDefaultSalesChannel"
-            :currentSalesChannelId="currentSalesChannelId"
-            :elementMethods="{getElementBind, getFieldError, getInheritWrapperBind, getInheritedValue, hasMapInheritanceSupport, getInlineSnippet, kebabCase}"
-            v-if="!isLoading"
+        <buckaroo-main-config
+                :modelValue="actualConfigData[currentSalesChannelId]"
+                @update:modelValue="actualConfigData[currentSalesChannelId] = $event"
+                :configSettings="config"
+                :isNotDefaultSalesChannel="isNotDefaultSalesChannel"
+                :currentSalesChannelId="currentSalesChannelId"
+                :elementMethods="{getElementBind, getFieldError, getInheritWrapperBind, getInheritedValue, hasMapInheritanceSupport, getInlineSnippet, kebabCase}"
+                v-if="!isLoading"
         ></buckaroo-main-config>
     </template>
- {% endblock %}
+{% endblock %}

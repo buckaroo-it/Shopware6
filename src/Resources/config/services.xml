@@ -38,10 +38,7 @@
         </service>
         
         <!-- /Entity -->
-
-
         <service id="Buckaroo\Shopware6\Helpers\Logger" class="Monolog\Logger">
-            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
             <argument type="string">buckaroo_payment</argument>
         </service>
 

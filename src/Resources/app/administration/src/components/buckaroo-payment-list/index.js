@@ -1,8 +1,6 @@
-const { Component } = Shopware;
-
+const { Component, Filter } = Shopware;
 import template from "./buckaroo-payment-list.html.twig";
 import "./style.scss";
-const { Mixin } = Shopware;
 
 Component.register("buckaroo-payment-list", {
     template,
@@ -17,9 +15,6 @@ Component.register("buckaroo-payment-list", {
             required: true
         }
     },
-    mixins: [
-        Mixin.getByName('sw-inline-snippet')
-    ],
     data() {
         return {
             payments: [
@@ -139,17 +134,16 @@ Component.register("buckaroo-payment-list", {
                     code: "WeChatPay",
                     logo: "wechatpay.svg"
                 }
-
             ]
-        }
+        };
     },
     methods: {
         getPaymentTitle(code) {
-            const card = this.configSettings.filter((card) => card.name === code)?.pop();
-            if (card.title) {
-                return this.getInlineSnippet(card.title);
-            }
-            return code
+            const payment = this.payments.find(payment => payment.code === code);
+            return payment ? payment.code : 'Unknown Payment';
+        },
+        assetFilter(path) {
+            return Filter.getByName('asset')(path);
         }
     }
-})
+});
