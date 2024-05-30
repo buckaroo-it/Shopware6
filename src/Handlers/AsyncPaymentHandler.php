@@ -551,7 +551,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      *
      * @return boolean
      */
-    protected function isAfterpayOld(string $salesChannelContextId) 
+    protected function isAfterpayOld(string $salesChannelContextId)
     {
         return $this->getSetting('afterpayEnabledold', $salesChannelContextId) === true;
     }
