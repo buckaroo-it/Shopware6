@@ -6,4 +6,4 @@ parameters:
     treatPhpDocTypesAsCertain: false
     checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
-		- '#Call to an undefined method [a-zA-Z0-9\\_]+::setServiceVersion\(\)#'
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::setServiceVersion\(\)#'
