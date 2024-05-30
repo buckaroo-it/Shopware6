@@ -146,7 +146,7 @@ Component.register("buckaroo-payment-list", {
     methods: {
         getPaymentTitle(code) {
             const card = this.configSettings.filter((card) => card.name === code)?.pop();
-            if (card.title) {
+            if (card && card.title) {
                 return this.getInlineSnippet(card.title);
             }
             return code
