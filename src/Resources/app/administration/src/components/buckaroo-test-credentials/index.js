@@ -26,8 +26,6 @@ Component.register("buckaroo-test-credentials", {
     },
     computed: {
         enabled: function() {
-            console.log(this.getConfigValue('websiteKey') , 'webSiteKey')
-            console.log(this.getConfigValue('secretKey') , 'secretKey')
             return (this.getConfigValue('websiteKey') || '').length > 0 &&
             (this.getConfigValue('secretKey') || '').length > 0
         }

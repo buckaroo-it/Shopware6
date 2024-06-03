@@ -29,22 +29,13 @@ Component.override('sw-system-config', {
 
             const currentPaymentCard = this.getCurrentConfigCard();
 
-            const websiteKeyInput = document.querySelector('input[name="BuckarooPayments.config.websiteKey"]');
-            const secretKeyInput = document.querySelector('input[name="BuckarooPayments.config.secretKey"]');
-            const websiteKey = (websiteKeyInput) ? websiteKeyInput.value : null;
-            const secretKey = (secretKeyInput) ? secretKeyInput.value : null;
-
             if (currentPaymentCard?.elements) {
                 let actualConfigValues = {};
                 currentPaymentCard?.elements.forEach((element) => {
-                    // console.log("Element name:", element.name);
-                    // console.log("Array", currentConfigValues);
-                    // console.log("Current value for element:", currentConfigValues[element.name]);
                     if (element?.name) {
                         actualConfigValues[element.name] = currentConfigValues[element.name];
                     }
                 });
-                // console.log("Actual config values:", actualConfigValues);
 
                 return { [this.currentSalesChannelId]: actualConfigValues };
             }
