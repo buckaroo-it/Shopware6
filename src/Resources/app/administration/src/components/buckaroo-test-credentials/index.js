@@ -1,4 +1,4 @@
-const { Component, Mixin } = Shopware;
+const { Component, Mixin} = Shopware;
 import template from "./buckaroo-test-credentials.twig";
 
 Component.register("buckaroo-test-credentials", {
@@ -26,13 +26,14 @@ Component.register("buckaroo-test-credentials", {
     },
     computed: {
         enabled: function() {
+            console.log(this.getConfigValue('websiteKey') , 'webSiteKey')
+            console.log(this.getConfigValue('secretKey') , 'secretKey')
             return (this.getConfigValue('websiteKey') || '').length > 0 &&
             (this.getConfigValue('secretKey') || '').length > 0
         }
     },
     methods: {
         getConfigValue: function(name) {
-            console.log(this.config)
             return this.config["BuckarooPayments.config."+name];
         },
         sendTestApi() {
