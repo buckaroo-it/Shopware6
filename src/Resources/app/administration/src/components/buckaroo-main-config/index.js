@@ -1,5 +1,4 @@
 const { Component } = Shopware;
-
 import template from "./buckaroo-main-config.html.twig";
 
 Component.register("buckaroo-main-config", {
@@ -24,20 +23,18 @@ Component.register("buckaroo-main-config", {
     data() {
         return {
             selectedCard: this.$route.params?.paymentCode || 'general'
-        }
+        };
     },
-
     watch: {
         $route(to) {
-          if (to.params?.paymentCode) {
-              this.selectedCard = to.params.paymentCode
-          }
+            if (to.params?.paymentCode) {
+                this.selectedCard = to.params.paymentCode;
+            }
         }
     },
-
     computed: {
         mainCard() {
-            return this.configSettings.filter((card) => card.name === this.selectedCard)?.pop()
+            return this.configSettings.find((card) => card.name === this.selectedCard);
         }
     }
-})
+});

@@ -1,4 +1,4 @@
-const { Component, Mixin} = Shopware;
+const { Component, Mixin } = Shopware;
 import template from "./buckaroo-test-credentials.twig";
 
 Component.register("buckaroo-test-credentials", {
@@ -25,24 +25,24 @@ Component.register("buckaroo-test-credentials", {
         }
     },
     computed: {
-        enabled: function() {
+        enabled() {
             return (this.getConfigValue('websiteKey') || '').length > 0 &&
-            (this.getConfigValue('secretKey') || '').length > 0
+                (this.getConfigValue('secretKey') || '').length > 0;
         }
     },
     methods: {
-        getConfigValue: function(name) {
-            return this.config["BuckarooPayments.config."+name];
+        getConfigValue(name) {
+            return this.config[`BuckarooPayments.config.${name}`];
         },
         sendTestApi() {
             this.isLoading = true;
-            let websiteKeyId = this.getConfigValue('websiteKey'),
+            const websiteKeyId = this.getConfigValue('websiteKey'),
                 secretKeyId = this.getConfigValue('secretKey');
             this.BuckarooPaymentSettingsService.getApiTest(websiteKeyId, secretKeyId, this.currentSalesChannelId)
                 .then((result) => {
                     this.isLoading = false;
 
-                    if (result.status == 'success') {
+                    if (result.status === 'success') {
                         this.createNotificationSuccess({
                             title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
                             message: this.$tc(result.message)
@@ -53,11 +53,14 @@ Component.register("buckaroo-test-credentials", {
                             message: this.$tc(result.message)
                         });
                     }
-
                 })
                 .catch(() => {
                     this.isLoading = false;
+                    this.createNotificationError({
+                        title: this.$tc('buckaroo-payment.settingsForm.titleError'),
+                        message: this.$tc('buckaroo-payment.settingsForm.messageApiTestError')
+                    });
                 });
-        },
+        }
     }
-})
+});
