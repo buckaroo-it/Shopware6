@@ -2,7 +2,7 @@
         position-identifier="xxsw-system-config-content"
 >
     <template #title>
-       
+
         {{ getInlineSnippet(card.title) }}
     </template>
     <template v-for="element in card.elements">
@@ -34,11 +34,11 @@
                             @change="props.updateCurrentValue"
                         />
                     </template>
-                    
+
                 </sw-inherit-wrapper>
             </slot>
             <buckaroo-test-credentials
-                v-if="canShowCredentialTester(element)" 
+                v-if="canShowCredentialTester(element)"
                 :config="value"
                 :currentSalesChannelId="currentSalesChannelId"
             />

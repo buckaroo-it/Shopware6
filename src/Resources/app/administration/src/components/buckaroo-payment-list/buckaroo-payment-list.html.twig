@@ -9,19 +9,19 @@
         <div class="bk-payment-inner">
         <router-link  :title="$tc('buckaroo-payment.configure-payment')" :to="{name: 'buckaroo.payment.config', params: {namespace: 'BuckarooPayments', paymentCode: payment.code } }">
             <div class="bk-payment-img">
-                <img :src="`buckaroopayments/administration/static/${payment.logo}` | asset">
+                <img :src="assetFilter(`buckaroopayments/administration/static/${payment.logo}`)" alt="Payment logo">
             </div>
             <div class="bk-payment-name">
                 {{getPaymentTitle(payment.code)}}
             </div>
         </router-link>
-        
+
         <buckaroo-toggle-status
             :currentSalesChannelId="currentSalesChannelId"
             :method="payment.code"
             v-model="value"
         />
-   
+
         <router-link class="bk-link" :title="$tc('buckaroo-payment.configure-payment')" :to="{name: 'buckaroo.payment.config', params: {namespace: 'BuckarooPayments', paymentCode: payment.code } }">
             {{$tc('buckaroo-payment.configure-link')}}
         </router-link>

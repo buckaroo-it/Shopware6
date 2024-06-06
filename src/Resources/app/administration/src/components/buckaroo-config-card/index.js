@@ -42,7 +42,7 @@ Component.register("buckaroo-config-card", {
         },
         canShow(element) {
             const name = element.name.replace("BuckarooPayments.config.", "");
-            
+
             /**  toggle for advancedConfiguration */
             if (['orderStatus','paymentSuccesStatus', 'sendInvoiceEmail'].indexOf(name) !== -1) {
                 return this.getValueForName('advancedConfiguration');
@@ -67,7 +67,7 @@ Component.register("buckaroo-config-card", {
             if (name === 'afterpayOldtax') {
                 return this.getValueForName('afterpayEnabledold');
             }
-            
+
             return true;
         },
         getValueForName(name) {

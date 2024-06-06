@@ -1,4 +1,4 @@
-const { Component, Mixin } = Shopware;
+const { Component, Mixin} = Shopware;
 import template from "./buckaroo-test-credentials.twig";
 
 Component.register("buckaroo-test-credentials", {
