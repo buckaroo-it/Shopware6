@@ -11,10 +11,7 @@
         "ext-json": "*",
         "ext-pcre": "*",
         "ext-fileinfo": "*",
-        "shopware/core": ">=6.5.0 <=6.6.2",
-        "buckaroo/sdk": "^1.12.0",
-        "shopware/storefront": ">=6.5.0 <=6.6.2",
-        "shopware/administration": ">=6.5.0 <=6.6.2"
+        "buckaroo/sdk": "^1.13.0"
     },
     "authors": [{
         "name": "Buckaroo",
@@ -50,7 +47,10 @@
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "*",
-        "phpstan/phpstan": "^1.9"
+        "phpstan/phpstan": "^1.9",
+        "shopware/core": "*",
+        "shopware/storefront": "*",
+        "shopware/administration": "*"
     },
     "scripts": {
         "phpcs": [
