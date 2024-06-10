@@ -150,7 +150,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
-            <!-- <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/> -->
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\PaymentStateService"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
