@@ -1,6 +1,6 @@
-const { Component } = Shopware;
+import template from './buckaroo-config-card.html.twig'
 
-import template from "./buckaroo-config-card.html.twig";
+const { Component } = Shopware;
 
 Component.register("buckaroo-config-card", {
     template,
