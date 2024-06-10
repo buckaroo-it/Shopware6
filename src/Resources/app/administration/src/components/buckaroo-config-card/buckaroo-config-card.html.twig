@@ -30,11 +30,12 @@
                                 @change="props.updateCurrentValue"
                                 @update:value="props.currentValue = $event"
                             /> #}
-
                             <sw-form-field-renderer v-bind="getElementBind(element, props)"
                                 :value="value[element.name]" 
                                 :disabled="props.isInherited"
                                 :error="getFieldError(element.name)"
+                                @input="props.updateCurrentValue"
+                                @change="props.updateCurrentValue"
                                 @update:value="value[element.name] = $event" />
                         </template>
 
