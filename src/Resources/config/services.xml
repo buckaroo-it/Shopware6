@@ -40,7 +40,7 @@
         <!-- /Entity -->
         <service id="Buckaroo\Shopware6\Helpers\Logger" class="Monolog\Logger">
             <argument type="string">buckaroo_payment</argument>
-        </service> -->
+        </service>
 
 
         <service id="Buckaroo\Shopware6\Service\TransactionService">
