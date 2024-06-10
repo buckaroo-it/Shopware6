@@ -5,7 +5,6 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <!-- Entity -->
         <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityDefinition">
             <tag name="shopware.entity.definition" entity="buckaroo_transaction" />
         </service>
@@ -37,11 +36,9 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
         </service>
         
-        <!-- /Entity -->
         <service id="Buckaroo\Shopware6\Helpers\Logger" class="Monolog\Logger">
             <argument type="string">buckaroo_payment</argument>
         </service>
-
 
         <service id="Buckaroo\Shopware6\Service\TransactionService">
             <argument type="service" id="order_transaction.repository"/>
