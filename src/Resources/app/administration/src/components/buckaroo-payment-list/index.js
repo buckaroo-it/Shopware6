@@ -1,4 +1,4 @@
-const { Component, Filter } = Shopware;
+const { Component, Filter, Mixin } = Shopware;
 import template from "./buckaroo-payment-list.html.twig";
 import "./style.scss";
 
@@ -15,6 +15,9 @@ Component.register("buckaroo-payment-list", {
             required: true
         }
     },
+    mixins: [
+        Mixin.getByName('sw-inline-snippet'),
+    ],
     data() {
         return {
             payments: [
@@ -139,6 +142,12 @@ Component.register("buckaroo-payment-list", {
     },
     methods: {
         getPaymentTitle(code) {
+            const card = this.configSettings.find((card) => card.name === code);
+
+            if(card) {
+                return this.getInlineSnippet(card.title)
+            }
+
             const payment = this.payments.find(payment => payment.code === code);
             return payment ? payment.code : 'Unknown Payment';
         },
