@@ -199,6 +199,7 @@ export default class BuckarooPaymentHelper extends Plugin {
     _handleRequired()
     {
         let requiredElements = document.getElementById('changePaymentForm').querySelectorAll("[required]");
+
         if (requiredElements && requiredElements.length) {
             requiredElements.forEach((element) => {
 
