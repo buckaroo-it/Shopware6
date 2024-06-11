@@ -11,8 +11,8 @@ Component.override('sw-system-config', {
             }
             return this.saveBuckaroo();
         },
-        /** save only the current values */
         saveBuckaroo() {
+
             this.isLoading = true;
             return this.systemConfigApiService
                 .batchSave(this.getSelectedValues())
@@ -22,10 +22,11 @@ Component.override('sw-system-config', {
         },
         getCurrentConfigCard() {
             const code = this.$route.params?.paymentCode || 'general';
-            return this.config.filter((card) => card.name === code)?.pop()
+            return this.config.filter((card) => card.name === code)?.pop();
         },
         getSelectedValues() {
             const currentConfigValues = this.actualConfigData[this.currentSalesChannelId];
+
             const currentPaymentCard = this.getCurrentConfigCard();
 
             if (currentPaymentCard?.elements) {
@@ -34,14 +35,12 @@ Component.override('sw-system-config', {
                     if (element?.name) {
                         actualConfigValues[element.name] = currentConfigValues[element.name];
                     }
-                })
-                console.log({[this.currentSalesChannelId]: actualConfigValues});
+                });
 
-                return {[this.currentSalesChannelId]: actualConfigValues}
+                return { [this.currentSalesChannelId]: actualConfigValues };
             }
 
             return this.actualConfigData;
-
         }
     }
-})
+});

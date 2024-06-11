@@ -40,4 +40,4 @@ Component.register("buckaroo-main-config", {
             return this.configSettings.filter((card) => card.name === this.selectedCard)?.pop()
         }
     }
-}) 
+})
