@@ -1,47 +1,52 @@
-<sw-card
-        position-identifier="xxsw-system-config-content"
->
-    <template #title>
-       
-        {{ getInlineSnippet(card.title) }}
-    </template>
-    <template v-for="element in card.elements">
-        <template v-if="canShow(element)">
-            <slot
-                name="card-element"
-                v-bind="{ element: getElementBind(element), config: value, card }"
-            >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                <sw-inherit-wrapper
-                    {% if VUE3 %}
-                    v-model:value="value[element.name]"
-                    {% else %}
-                    v-model="value[element.name]"
-                    {% endif %}
-                    v-bind="getInheritWrapperBind(element)"
-                    :has-parent="isNotDefaultSalesChannel"
-                    :inherited-value="getInheritedValue(element)"
-                    :class="'sw-system-config--field-' + kebabCase(getElementBind(element).name)"
-                >
-                    <template #content="props">
-                        <sw-form-field-renderer
-                            v-bind="getElementBind(element, props)"
-                            :key="props.isInheritField + props.isInherited"
-                            :disabled="props.isInherited"
-                            :value="props.currentValue"
-                            :error="getFieldError(element.name)"
-                            @input="props.updateCurrentValue"
-                            @change="props.updateCurrentValue"
-                        />
-                    </template>
-                    
-                </sw-inherit-wrapper>
-            </slot>
-            <buckaroo-test-credentials
-                v-if="canShowCredentialTester(element)" 
-                :config="value"
-                :currentSalesChannelId="currentSalesChannelId"
-            />
+{% block buckaroo_config_card %}
+    <sw-card position-identifier="xxsw-system-config-content">
+        <template #title>
+            {{ getInlineSnippet(card.title) }}
         </template>
-    </template>
-</sw-card>
+
+        <div v-for="element in card.elements">
+            <div v-if="canShow(element)">
+                <slot name="card-element" v-bind="{ element: getElementBind(element), config: value, card }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    <sw-inherit-wrapper
+                        {% if VUE3 %}
+                        v-model:value="value[element.name]"
+                        {% else %}
+                        v-model="value[element.name]"
+                        {% endif %}
+                        v-bind="getInheritWrapperBind(element)"
+                        :has-parent="isNotDefaultSalesChannel"
+                        :inherited-value="getInheritedValue(element)"
+                        :class="'sw-system-config--field-' + kebabCase(getElementBind(element).name)"
+                    >
+                        <template #content="props">
+                            {# <sw-form-field-renderer
+                                v-bind="getElementBind(element, props)"
+                                :key="props.isInheritField + props.isInherited"
+                                :disabled="props.isInherited"
+                                :value="props.currentValue"
+                                :error="getFieldError(element.name)"
+                                @input="props.updateCurrentValue"
+                                @change="props.updateCurrentValue"
+                                @update:value="props.currentValue = $event"
+                            /> #}
+                            <sw-form-field-renderer v-bind="getElementBind(element, props)"
+                                :value="value[element.name]" 
+                                :disabled="props.isInherited"
+                                :error="getFieldError(element.name)"
+                                @input="props.updateCurrentValue"
+                                @change="props.updateCurrentValue"
+                                @update:value="value[element.name] = $event" />
+                        </template>
+
+                    </sw-inherit-wrapper>
+                </slot>
+                <buckaroo-test-credentials
+                    v-if="canShowCredentialTester(element)"
+                    :config="value"
+                    :currentSalesChannelId="currentSalesChannelId"
+                />
+            </div>
+        </div>
+    </sw-card>
+{% endblock %}
