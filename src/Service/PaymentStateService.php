@@ -11,13 +11,13 @@ use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
-use Buckaroo\Shopware6\Service\Exceptions\PaymentFailedException;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
+use Shopware\Core\Checkout\Payment\PaymentException;
 
 class PaymentStateService
 {
@@ -78,12 +78,19 @@ class PaymentStateService
             $this->isFailedPaymentRequest($request) &&
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)
         ) {
-            throw new PaymentFailedException(
+            if (\Composer\InstalledVersions::getVersion('shopware/core') < 6.6) {
+                throw new \Buckaroo\Shopware6\Service\Exceptions\PaymentFailedException\PaymentFailedException(
+                    $transactionId,
+                    $this->getStatusMessageByStatusCode($request),
+                    [],
+                    null,
+                    $this->getPaymentStatusCode($request)
+                );
+            }
+
+            throw PaymentException::asyncProcessInterrupted(
                 $transactionId,
-                $this->getStatusMessageByStatusCode($request),
-                [],
-                null,
-                $this->getPaymentStatusCode($request)
+                $this->getStatusMessageByStatusCode($request)
             );
         }
 
