@@ -79,7 +79,7 @@ class PaymentStateService
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)
         ) {
             if (\Composer\InstalledVersions::getVersion('shopware/core') < 6.6) {
-                throw new \Buckaroo\Shopware6\Service\Exceptions\PaymentFailedException\PaymentFailedException(
+                throw new \Buckaroo\Shopware6\Service\Exceptions\PaymentFailedException(
                     $transactionId,
                     $this->getStatusMessageByStatusCode($request),
                     [],
