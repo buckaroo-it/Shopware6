@@ -7,7 +7,7 @@ import BuckarooLoadScripts from './scripts/scripts.plugin';
 import IdealQrPlugin from './ideal-qr/ideal-qr.plugin';
 import BuckarooPayByBankSelect from './paybybank/select.plugin';
 import BuckarooPayByBankLogo from './paybybank/logo.plugin';
-import BuckarooBanContact from './bancontact/bancontact';
+import BuckarooBanContact from './bancontact/buckaroo-payment.bancontact';
 
 const PluginManager = window.PluginManager;
 PluginManager.register('BuckarooPaymentValidateSubmit', BuckarooPaymentValidateSubmit);
