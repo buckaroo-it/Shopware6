@@ -76,8 +76,9 @@ class CaptureService
 
         $customFields = $this->transactionService->getCustomFields($order, $context);
         $paymentCode = $this->getValidCustomField($customFields, 'serviceName');
-
         $validationErrors = $this->validate($order, $customFields);
+
+        $action = ($paymentCode != 'klarnakp') ? 'capture' : 'pay';
 
         if ($validationErrors !== null) {
             return $validationErrors;
@@ -87,7 +88,7 @@ class CaptureService
             $paymentCode,
             $order->getSalesChannelId()
         )
-            ->setAction('capture')
+            ->setAction($action)
             ->setPayload(
                 array_merge_recursive(
                     $this->getCommonRequestPayload(
