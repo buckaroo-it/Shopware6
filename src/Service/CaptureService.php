@@ -76,7 +76,7 @@ class CaptureService
 
         $customFields = $this->transactionService->getCustomFields($order, $context);
         $paymentCode = $this->getValidCustomField($customFields, 'serviceName');
-        $validationErrors = $this->validate($order, $customFields);
+        $validationErrors = $this->validate($order, $customFields,$paymentCode);
 
         $action = ($paymentCode != 'klarnakp') ? 'capture' : 'pay';
 
@@ -265,7 +265,7 @@ class CaptureService
      *
      * @return array<mixed>|null
      */
-    private function validate(OrderEntity $order, array $customFields): ?array
+    private function validate(OrderEntity $order, array $customFields, string $paymentCode): ?array
     {
 
         if ($order->getAmountTotal() <= 0) {
@@ -289,7 +289,7 @@ class CaptureService
             ];
         }
 
-        if (!isset($customFields['originalTransactionKey'])) {
+        if (!isset($customFields['originalTransactionKey']) && $paymentCode != 'klarnakp' ) {
             return [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo.capture.general_capture_error")
