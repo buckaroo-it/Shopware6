@@ -116,7 +116,7 @@ class PushController extends StorefrontController
         $salesChannelId     =  $salesChannelContext->getSalesChannelId();
 
         if ($paymentMethod && (strtolower($paymentMethod) == 'klarnakp')) {
-            $originalTransactionKey   = (string)$request->request->get('brq_SERVICE_klarnakp_AutoPayTransactionKey');
+            $originalTransactionKey   = (string)$request->request->get('brq_SERVICE_klarnakp_ReservationNumber');
         }
         // since the payment engine doesn't support custom parameters for ideal QR
         // we use the invoice number to retrieve the order id and transaction id
