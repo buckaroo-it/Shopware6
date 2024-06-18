@@ -249,7 +249,6 @@ class CaptureService
             $data = array_merge($data, $this->getArticles($order, $paymentCode));
         }
         if ($paymentCode === 'klarnakp') {
-            var_dump('qetu');
             $data = array_merge($data, ['reservationNumber' => $customFields['reservationNumber']]);
         }
 
@@ -297,13 +296,6 @@ class CaptureService
             return [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo.capture.already_captured")
-            ];
-        }
-
-        if ( $paymentCode != 'klarnakp' ) {
-            return [
-                'status' => false,
-                'message' => $this->translator->trans("buckaroo.capture.general_capture_error")
             ];
         }
         return null;
