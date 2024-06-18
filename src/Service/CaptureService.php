@@ -73,12 +73,17 @@ class CaptureService
         if (!$this->transactionService->isBuckarooPaymentMethod($order)) {
             return null;
         }
-
         $customFields = $this->transactionService->getCustomFields($order, $context);
         $paymentCode = $this->getValidCustomField($customFields, 'serviceName');
         $validationErrors = $this->validate($order, $customFields,$paymentCode);
 
-        $action = ($paymentCode != 'klarnakp') ? 'capture' : 'pay';
+        if ($paymentCode == 'klarnakp') {
+            $action = 'pay';
+            $originalTransactionKey = null;
+        }else {
+            $action = 'capture';
+            $originalTransactionKey = $customFields['originalTransactionKey'];
+        }
 
         if ($validationErrors !== null) {
             return $validationErrors;
@@ -94,7 +99,7 @@ class CaptureService
                     $this->getCommonRequestPayload(
                         $request,
                         $order,
-                        $this->getValidCustomField($customFields, 'originalTransactionKey')
+                        $originalTransactionKey
                     ),
                     $this->getMethodPayload(
                         $order,
@@ -190,23 +195,28 @@ class CaptureService
     private function getCommonRequestPayload(
         Request $request,
         OrderEntity $order,
-        string $transactionKey
-    ): array {
-        return [
-            'order'                  => $order->getOrderNumber(),
-            'invoice'                => $order->getOrderNumber(),
-            'amountDebit'            => $order->getAmountTotal(),
-            'currency'               => $this->getCurrencyIso($order),
-            'pushURL'                => $this->urlService->getReturnUrl('buckaroo.payment.push'),
-            'clientIP'               => $this->getIp($request),
-            'originalTransactionKey' => $transactionKey,
-            'additionalParameters'   => [
+        $transactionKey
+    ): array
+    {
+        $payload = [
+            'order' => $order->getOrderNumber(),
+            'invoice' => $order->getOrderNumber(),
+            'amountDebit' => $order->getAmountTotal(),
+            'currency' => $this->getCurrencyIso($order),
+            'pushURL' => $this->urlService->getReturnUrl('buckaroo.payment.push'),
+            'clientIP' => $this->getIp($request),
+            'additionalParameters' => [
                 'orderTransactionId' => $this->getLastTransactionId($order),
                 'orderId' => $order->getId(),
             ],
         ];
-    }
 
+        if ($transactionKey !== null) {
+            $payload['originalTransactionKey'] = $transactionKey;
+        }
+
+        return $payload;
+    }
     private function getLastTransactionId(OrderEntity $order): string
     {
         $transactions = $order->getTransactions();
@@ -239,6 +249,7 @@ class CaptureService
             $data = array_merge($data, $this->getArticles($order, $paymentCode));
         }
         if ($paymentCode === 'klarnakp') {
+            var_dump('qetu');
             $data = array_merge($data, ['reservationNumber' => $customFields['reservationNumber']]);
         }
 
@@ -289,7 +300,7 @@ class CaptureService
             ];
         }
 
-        if (!isset($customFields['originalTransactionKey']) && $paymentCode != 'klarnakp' ) {
+        if ( $paymentCode != 'klarnakp' ) {
             return [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo.capture.general_capture_error")
