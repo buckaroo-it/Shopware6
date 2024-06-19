@@ -75,12 +75,12 @@ class CaptureService
         }
         $customFields = $this->transactionService->getCustomFields($order, $context);
         $paymentCode = $this->getValidCustomField($customFields, 'serviceName');
-        $validationErrors = $this->validate($order, $customFields,$paymentCode);
+        $validationErrors = $this->validate($order, $customFields, $paymentCode);
 
         if ($paymentCode == 'klarnakp') {
             $action = 'pay';
             $originalTransactionKey = null;
-        }else {
+        } else {
             $action = 'capture';
             $originalTransactionKey = $customFields['originalTransactionKey'];
         }
@@ -196,8 +196,7 @@ class CaptureService
         Request $request,
         OrderEntity $order,
         $transactionKey
-    ): array
-    {
+    ): array {
         $payload = [
             'order' => $order->getOrderNumber(),
             'invoice' => $order->getOrderNumber(),
