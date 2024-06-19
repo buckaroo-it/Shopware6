@@ -77,20 +77,18 @@ class CaptureService
         $paymentCode = $this->getValidCustomField($customFields, 'serviceName');
         $validationErrors = $this->validate($order, $customFields, $paymentCode);
 
+        $originalTransactionKey = null;
         if ($paymentCode == 'klarnakp') {
             $action = 'pay';
-            $originalTransactionKey = null;
         } else {
             $action = 'capture';
             if (isset($customFields['originalTransactionKey'])) {
-                $originalTransactionKey = is_string($customFields['originalTransactionKey'])
-                    ? $customFields['originalTransactionKey']
-                    : (string) $customFields['originalTransactionKey'];
-            } else {
-                $originalTransactionKey = null;
+                $originalTransactionKey = $customFields['originalTransactionKey'];
+                if (!is_string($originalTransactionKey)) {
+                    $originalTransactionKey = (string)$originalTransactionKey;
+                }
             }
         }
-
         if ($validationErrors !== null) {
             return $validationErrors;
         }
