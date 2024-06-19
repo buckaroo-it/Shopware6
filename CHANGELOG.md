@@ -234,7 +234,7 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 # 2.3.0
 - Add support for Shopware 6.5.8.10
-- BP-3558 Add support for Shopware 6.6.2.0
+- BP-3558 Add support for Shopware 6.6.3.0
 - BP-3401 Improve the plugin user interface with a payment method overview.
 - BP-3470 Add payment method: Knaken Settle.
 - BP-3348 Resize payment method logo’s for better readabillity.
@@ -255,3 +255,6 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BP-3565 Fix: Riverty TOC URL's are showing a error 404 in some cases.
 - BP-3534 Fix: Apple Pay button is not always clickable for specific merchant.
 - BP-3614 Fix: Manual capture is not always working for Klarna (authorize/capture).
+
+# 2.3.1
+- Minor fixes
