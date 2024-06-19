@@ -80,14 +80,10 @@ class CaptureService
         $originalTransactionKey = null;
         if ($paymentCode == 'klarnakp') {
             $action = 'pay';
+            $originalTransactionKey = 'false';
         } else {
             $action = 'capture';
-            if (isset($customFields['originalTransactionKey'])) {
-                $originalTransactionKey = $customFields['originalTransactionKey'];
-                if (!is_string($originalTransactionKey)) {
-                    $originalTransactionKey = (string)$originalTransactionKey;
-                }
-            }
+            $originalTransactionKey = (string)$originalTransactionKey;
         }
         if ($validationErrors !== null) {
             return $validationErrors;
@@ -103,7 +99,8 @@ class CaptureService
                     $this->getCommonRequestPayload(
                         $request,
                         $order,
-                        $originalTransactionKey
+                        $originalTransactionKey,
+                        $action
                     ),
                     $this->getMethodPayload(
                         $order,
@@ -199,7 +196,8 @@ class CaptureService
     private function getCommonRequestPayload(
         Request $request,
         OrderEntity $order,
-        string $transactionKey = null
+        string $transactionKey,
+        string $action
     ): array {
         $payload = [
             'order' => $order->getOrderNumber(),
@@ -214,7 +212,7 @@ class CaptureService
             ],
         ];
 
-        if (!empty($transactionKey)) {
+        if ($action == 'capture') {
             $payload['originalTransactionKey'] = $transactionKey;
         }
 
