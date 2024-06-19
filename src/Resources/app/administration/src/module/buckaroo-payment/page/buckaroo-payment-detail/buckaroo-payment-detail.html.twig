@@ -1,7 +1,7 @@
 {% block buckaroo_payment_detail %}
     <div class="buckaroo-payment-detail">
         
-        <sw-card :title="$tc('buckaroo-payment.paymentDetail.paylinkTitle')" v-if="isPaylinkVisible">
+        <sw-card positionIdentifier="bk-paylink" :title="$tc('buckaroo-payment.paymentDetail.paylinkTitle')" v-if="isPaylinkVisible">
 
             {{ $tc('buckaroo-payment.paymentDetail.paylinkDescription') }}
             
@@ -20,7 +20,7 @@
 
         </sw-card>
 
-         <sw-card :title="$tc('buckaroo-payment.paymentDetail.refundTitle')">
+         <sw-card positionIdentifier="bk-refund" :title="$tc('buckaroo-payment.paymentDetail.refundTitle')">
             
             {{ $tc('buckaroo-payment.orderItems.title') }}
             <sw-data-grid :dataSource="orderItems"
@@ -28,8 +28,13 @@
                 :showActions="false"
                 :showSelection="false">
 
+                    <template #column-name="{ item }">
+                        <sw-product-variant-info :showTooltip="false" :variations="item.variations">
+                            {{ item.name }}
+                        </sw-product-variant-info>
+                    </template>
                     <template #column-quantity="{ item }">
-                        <input type="number" min="0" :max="item.quantityMax" v-model="item.quantity" @input="recalculateOrderItems" onkeydown="return event.keyCode !== 69">
+                        <input class="bk-reund-qty" type="number" min="0" :max="item.quantityMax" v-model="item.quantity" @input="recalculateOrderItems" onkeydown="return event.keyCode !== 69">
                     </template>
 
             </sw-data-grid>
@@ -44,10 +49,6 @@
             <sw-card-section divider="top" secondary slim>
                 <sw-container columns="1fr 440px"
                               class="sw-order-detail__summary">
-                    <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
-                            <dd></dd>
-                            <dt>{{ $tc('buckaroo-payment.transactionsToRefund.title') }}</dt>
-                    </sw-description-list>
                 </sw-container>
 
                 <sw-data-grid :dataSource="transactionsToRefund"
@@ -71,8 +72,8 @@
 
                 </sw-data-grid>
 
-                <sw-container columns="1fr 440px" class="sw-order-detail__summary">
-                    <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data" v-if="isAllowedCustomRefund">
+                <sw-container v-if="!isAuthorized" columns="1fr 440px" class="sw-order-detail__summary">
+                    <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
                             <dt>{{ $tc('buckaroo-payment.paymentDetail.amountCustomRefundTitle') }}: </dt>
                             <dd>
                                 <input id="buckaroo_custom_refund_enabled" type="checkbox"
@@ -81,7 +82,7 @@
                                        v-model="buckaroo_refund_total_amount" disabled style="width:70px;"> {{ currency }}
                             </dd>
                     </sw-description-list>
-                    <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data" v-if="!isAllowedCustomRefund">
+                    <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
                             <dt>{{ $tc('buckaroo-payment.paymentDetail.amountRefundTotalTitle') }}: </dt>
                             <dd>{{ buckaroo_refund_total_amount }} {{ currency }}</dd>
                     </sw-description-list>
@@ -91,7 +92,7 @@
 
             <sw-container columns="1fr 440px" class="sw-order-detail__summary">
                 <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data"><dt></dt><dd>
-                    <sw-button @click="refundOrder(orderId, buckaroo_refund_amount)" :disabled="!isRefundPossible">
+                    <sw-button @click="refundOrder(orderId, buckaroo_refund_amount)" :disabled="!isRefundPossible || isAuthorized">
                     {{ $tc('buckaroo-payment.paymentDetail.buttonTitle') }}
                     </sw-button></dd>
                 </sw-description-list>
@@ -99,7 +100,7 @@
 
          </sw-card>
 
-        <sw-card :title="$tc('buckaroo-payment.paymentDetail.payTitle')">
+        <sw-card positionIdentifier="bk-pay-desc" :title="$tc('buckaroo-payment.paymentDetail.payTitle')">
 
             {{ $tc('buckaroo-payment.paymentDetail.payDescription') }}
 
@@ -113,7 +114,7 @@
 
         </sw-card>
 
-         <sw-card :title="$tc('buckaroo-payment.paymentDetail.transactionsTitle')">
+         <sw-card positionIdentifier="bk-pay-transaction" :title="$tc('buckaroo-payment.paymentDetail.transactionsTitle')">
             <sw-data-grid :dataSource="relatedResources"
                 :columns="relatedResourceColumns"
                 :showActions="false"

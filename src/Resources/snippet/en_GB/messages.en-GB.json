@@ -31,7 +31,7 @@
       "skipInformational": "Informational push"
     },
     "checkout": {
-      "financialWarning": "Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van %method%. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.",
+      "financialWarning": "Je dient minimaal 18+ te zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van %method%. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.",
       "CustomerEmail": "Email",
       "CustomerFirstName": "Billing First Name",
       "CustomerLastName": "Billing Last Name",
@@ -93,6 +93,8 @@
       "CocPlaceholder": "CoC-number",
       "buckarooMobileCocError": "CoC-number is required",
       "company_required": "The company name is required for this payment method",
+      "billing_house_number_required": "A valid billing house number is required for this payment",
+      "shipping_house_number_required": "A valid shipping house number is required for this payment",
       "cancelOrderMessage": "You have canceled the payment request",
       "cannotCreatePayment": "Cannot create payment",
       "moreBanks": "More banks",

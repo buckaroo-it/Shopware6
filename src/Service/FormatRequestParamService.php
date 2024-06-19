@@ -4,18 +4,26 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 
 class FormatRequestParamService
 {
     protected SettingsService $settingsService;
 
-    public function __construct(SettingsService $settingsService)
-    {
+    protected RiveryProductImageUrlService $riveryProductImageUrlService;
+
+    public function __construct(
+        SettingsService $settingsService,
+        RiveryProductImageUrlService $riveryProductImageUrlService
+    ) {
         $this->settingsService = $settingsService;
+        $this->riveryProductImageUrlService = $riveryProductImageUrlService;
     }
 
     /**
@@ -24,7 +32,7 @@ class FormatRequestParamService
      * @param OrderEntity $order
      * @return array<array>
      */
-    public function getOrderLinesArray(OrderEntity $order, string $paymentCode = null)
+    public function getOrderLinesArray(OrderEntity $order, string $paymentCode = null, ?Context $context = null)
     {
         // Variables
         $lines     = [];
@@ -42,7 +50,9 @@ class FormatRequestParamService
             // Get tax
             $itemTax = null;
 
-            if ($item->getPrice() !== null &&
+            /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity $item */
+            if (
+                $item->getPrice() !== null &&
                 $item->getPrice()->getCalculatedTaxes() !== null
             ) {
                 $itemTax = $this->getLineItemTax($item->getPrice()->getCalculatedTaxes());
@@ -67,10 +77,9 @@ class FormatRequestParamService
 
             $taxId = null;
             $itemPayload = $item->getPayload();
-            if ($itemPayload !== null && !isset($itemPayload['taxId'])) {
+            if ($itemPayload !== null && isset($itemPayload['taxId'])) {
                 $taxId = $itemPayload['taxId'];
             }
-
 
             // Build the order lines array
             $lines[] = [
@@ -83,9 +92,10 @@ class FormatRequestParamService
                 'vatRate'     => number_format($vatRate, 2, '.', ''),
                 'vatAmount'   => $vatAmount,
                 'sku'         => $item->getId(),
-                'imageUrl'    => null,
+                'imageUrl'    => $this->getProductImgUrl($item->getProductId(), $paymentCode, $context),
                 'productUrl'  => null,
-                'taxId'       => $taxId
+                'taxId'       => $taxId,
+                'variations'  => $this->getVariations($item),
             ];
         }
 
@@ -96,7 +106,58 @@ class FormatRequestParamService
             $lines[] = $fee;
         }
 
+        if ($order->getTaxStatus() === CartPrice::TAX_STATE_NET) {
+            $lines[] = $this->getTaxAmount($order);
+        }
+
         return $lines;
+    }
+
+    private function getProductImgUrl(
+        ?string $productId,
+        ?string $paymentCode,
+        ?Context $context
+    ): ?string {
+        if ($productId === null || $paymentCode !== 'afterpay' || $context === null) {
+            return null;
+        }
+        return $this->riveryProductImageUrlService->getImageUrl($productId, $context);
+    }
+
+    private function getVariations(OrderLineItemEntity $item): array
+    {
+        $payload = $item->getPayload();
+        if (
+            is_array($payload) &&
+            isset($payload['options']) &&
+            is_array($payload['options'])
+        ) {
+            return $payload['options'];
+        }
+        return [];
+    }
+
+    private function getTaxAmount(OrderEntity $order): array
+    {
+        // Get currency code
+        $currency     = $order->getCurrency();
+        $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
+
+        $tax = $order->getPrice()->getCalculatedTaxes()->getAmount();
+
+        return [
+            'id'          => 'vat',
+            'type'        => 'vat',
+            'name'        => 'VAT',
+            'quantity'    => 1,
+            'unitPrice'   => $this->getPriceArray($currencyCode, $tax),
+            'totalAmount' => $this->getPriceArray($currencyCode, $tax),
+            'vatRate'     => 0,
+            'vatAmount'   => $this->getPriceArray($currencyCode, 0),
+            'sku'         => 'vat',
+            'imageUrl'    => null,
+            'productUrl'  => null,
+        ];
     }
 
     /**
@@ -243,7 +304,7 @@ class FormatRequestParamService
             $buckarooFee = $this->settingsService->getBuckarooFee($paymentCode, $order->getSalesChannelId());
         }
 
-       
+
         if (!is_float($buckarooFee) || $buckarooFee <= 0) {
             return $line;
         }
@@ -252,7 +313,7 @@ class FormatRequestParamService
         $currency     = $order->getCurrency();
         $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
 
-        
+
         // Build the order line array
         $line = [
             'id'          => 'buckarooFee',
@@ -318,6 +379,16 @@ class FormatRequestParamService
      * @return array<mixed>
      */
     public function formatStreet(string $street): array
+    {
+        return self::getAddressParts($street);
+    }
+
+    /**
+     * @param string $street
+     *
+     * @return array<mixed>
+     */
+    public static function getAddressParts(string $street): array
     {
         $format = [
             'house_number'    => '',

@@ -22,14 +22,20 @@ jobs:
       - name: Copy payment method icons
         run: |
             cd "${{ github.workspace }}/Media/Payment methods/SVG/"
-            rm -f knaken.svg paylink.svg paybybank.svg pos.svg tinka.svg pos-nfc.svg riverty.svg
+            rm -f paylink.svg paybybank.svg pos.svg tinka.svg pos-nfc.svg riverty.svg
             cd ${{ github.workspace }}/Media
             cp -R "Payment methods/SVG/." ${{ github.workspace }}/src/Resources/views/storefront/buckaroo/payments/
             cp "Payment methods/SVG/creditcards.svg" ${{ github.workspace }}/src/Resources/public/storefront/buckaroo/creditcards.svg
+      - name: Copy payment method icons for admin area
+        run: |
+            cd ${{ github.workspace }}/Media
+            cp -R "Payment methods/SVG/." ${{ github.workspace }}/src/Resources/public/administration/static/
       - name: Copy creditcards icons
         run: |
-            cd Media
-            mv "Creditcard issuers/SVG/cartebleue.svg" "Creditcard issuers/SVG/cartebleuevisa.svg"
+            cd "${{ github.workspace }}/Media/Creditcard issuers/SVG/"
+            mv cartebleue.svg cartebleuevisa.svg
+            rm -f mastercard_debit.svg
+            cd ${{ github.workspace }}/Media
             cp -R "Creditcard issuers/SVG/." ${{ github.workspace }}/src/Resources/public/storefront/buckaroo/creditcards/
       - name: Copy payment issuers icons
         run: |

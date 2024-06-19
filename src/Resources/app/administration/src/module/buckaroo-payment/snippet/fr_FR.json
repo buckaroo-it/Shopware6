@@ -1,0 +1,115 @@
+{
+    "buckaroo-payment": {
+        "fee": "Frais de Buckaroo",
+        "order": {
+            "refundDescription": "Remboursement pour la commande #orderNumber"
+        },
+        "general": {
+            "title": "Buckaroo",
+            "description": "Paiement Buckaroo"
+        },
+        "settingsForm": {
+            "save": "Enregistrer",
+            "titleSuccess": "Succès",
+            "titleError": "Erreur"
+        },
+        "supportModal": {
+            "menuButton": "Version et support",
+            "title": "Version et support",
+            "support": {
+                "description": "Avant de contacter le support technique de Buckaroo, veuillez récupérer votre clé de site web et votre clé secrète.",
+                "label1": "Buckaroo Plaza:",
+                "label2": "Téléphone:",
+                "label3": "E-mail:",
+                "label4": "Site Web:",
+                "your_version": "Votre version PHP:",
+                "version": "Compatibilité de version",
+                "information": "Information"
+            }
+        },
+        "tabs": {
+            "title": "Paiement Buckaroo",
+            "overview": "Vue d'ensemble"
+        },
+        "paymentDetail": {
+            "yourLink": "Votre lien de paiement (Paylink)",
+            "paylinkButton": "Créer un lien de paiement (Paylink)",
+            "paylinkDescription": "Créer un lien de paiement pour la commande (Paylink)",
+            "paylinkTitle": "Lien de paiement (Paylink)",
+            "refundTitle": "Remboursement",
+            "transactionsTitle": "Transactions",
+            "amountTitle": "Montant",
+            "amountTotalTitle": "Total général",
+            "amountRefundTotalTitle": "Total général du remboursement",
+            "amountCustomRefundTitle": "Montant personnalisé du remboursement",
+            "buttonTitle": "Remboursement",
+            "successTitle": "Succès",
+            "successMessage": "Remboursement Buckaroo réussi ",
+            "errorTitle": "Erreur",
+            "payTitle": "Capture de paiement",
+            "payDescription": "Capturer et créer une facture pour la commande",
+            "payButton": "Capturer le paiement"
+        },
+        "orderItems": {
+            "title": "Articles à rembourser",
+            "types": {
+                "id": "ID",
+                "name": "Titre",
+                "quantity": "Quantité à rembourser",
+                "totalAmount": "Sous-total"
+            }
+        },
+        "transactionsToRefund": {
+            "title": "Totals des remboursements"
+        },
+        "transactionHistory": {
+            "types": {
+                "id": "ID",
+                "created_at": "Date/heure",
+                "total": "Total",
+                "shipping_costs": "Frais de livraison",
+                "total_excluding_vat": "Total hors TVA (VAT)",
+                "total_including_vat": "Total TTC (VAT)",
+                "vat": "TVA (VAT)",
+                "transaction_key": "Clé de transaction",
+                "transaction_method": "Moyen de paiement",
+                "statuscode": "Statut"
+            }
+        },
+        "messageNotValid": "Ce champ n'est pas valide.",
+        "messageNotBlank": "Ce champ ne doit pas être vide.",
+        "button": {
+            "labelTestApi": "Tester la connexion"
+        },
+        "afterpay": {
+            "setup": "Configurer l'association fiscale pour Riverty | AfterPay (old) ",
+            "hightTaxes": "Taxes TVA élevées (VAT)",
+            "middleTaxes": "Taxes TVA moyennes (VAT)",
+            "lowTaxes": "Taxes TVA basses (VAT)",
+            "zeroTaxes": "Zéro TVA (VAT)",
+            "noTaxes": "Pas de taxe de TVA (VAT)"
+        },
+        "paymentInTestMode": "Le paiement pour cette commande a été effectué en mode test",
+        "refund": {
+            "not_supported": "Le remboursement n'est pas pris en charge",
+            "already_refunded": "Cette commande a déjà été remboursée",
+            "refunded_amount": "Remboursement réussi par Buckaroo"
+        },
+        "test_api": {
+            "connection_ready": "Connexion prête",
+            "connection_failed": "Échec de la connexion"
+        },
+        "paylink": {
+            "invalid_amount": "Le montant n'est pas valide",
+            "pay_link": "Votre lien de paiement (Paylink):"
+
+        },
+        "missing_order_id": "Identifiant de commande manquant",
+        "missing_transaction": "Transaction de commande introuvable",
+        "general_request_error": "Malheureusement, une erreur s'est produite lors du traitement de votre demande. Veuillez réessayer.",
+        "in3LogoLabel":"Logo de paiement:",
+        "configure-payment": "Configure payment",
+        "configure-link": "Configure",
+        "payment-methods": "Payment methods"
+    }
+}

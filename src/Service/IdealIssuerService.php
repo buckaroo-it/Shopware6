@@ -43,6 +43,7 @@ class IdealIssuerService
         'KNABNL2H' => 'knab',
         'BUNQNL2A' => 'bunq',
         'REVOLT21' => 'revolut',
+        'REVONL22' => 'revolut',
         'BITSNL2A' => 'yoursafe',
         'NTSBDEB1' => 'n26',
         'NNBANL2G' => 'nn'

@@ -5,7 +5,6 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <!-- Entity -->
         <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityDefinition">
             <tag name="shopware.entity.definition" entity="buckaroo_transaction" />
         </service>
@@ -22,6 +21,11 @@
             <argument type="service" id="buckaroo_transaction.repository"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Service\RiveryProductImageUrlService">
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="media_thumbnail.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface" on-invalid="null"/>
+        </service>
 
         <service id="Buckaroo\Shopware6\Handlers\AfterPayOld">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
@@ -32,14 +36,9 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
         </service>
         
-        <!-- /Entity -->
-
-
         <service id="Buckaroo\Shopware6\Helpers\Logger" class="Monolog\Logger">
-            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
             <argument type="string">buckaroo_payment</argument>
         </service>
-
 
         <service id="Buckaroo\Shopware6\Service\TransactionService">
             <argument type="service" id="order_transaction.repository"/>
@@ -118,6 +117,7 @@
 
         <service id="Buckaroo\Shopware6\Service\FormatRequestParamService">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\RiveryProductImageUrlService"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\SignatureValidationService">
@@ -201,11 +201,6 @@
             <tag name="shopware.payment.method.async" />
         </service>
 
-        <service id="Buckaroo\Shopware6\Handlers\IdealProcessingPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method.async" />
-        </service>
-
         <service id="Buckaroo\Shopware6\Handlers\BancontactPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
@@ -250,6 +245,11 @@
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\KbcPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\KnakenPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
         </service>

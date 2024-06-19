@@ -6,6 +6,7 @@ namespace Buckaroo\Shopware6\Service\Buckaroo;
 
 use Buckaroo\Config\Config;
 use Buckaroo\Shopware6\Buckaroo\Client;
+use Buckaroo\Shopware6\Handlers\IdealPaymentHandler;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Handlers\In3PaymentHandler;
 use Buckaroo\Shopware6\Service\Exceptions\ClientInitException;
@@ -73,6 +74,13 @@ class ClientService
             $this->settingsService->getSetting("capayableVersion") === In3PaymentHandler::V2
         ) {
             return 'in3old';
+        }
+
+        if (
+            $configCode === 'ideal' &&
+            $this->settingsService->getSetting("paymentHandler") === IdealPaymentHandler::IDEAL_PROCESSING
+        ) {
+            return 'idealprocessing';
         }
 
         $mappings = [
