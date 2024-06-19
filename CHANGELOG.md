@@ -234,7 +234,7 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 # 2.3.0
 - Add support for Shopware 6.5.8.10
-- BP-3558 Add support for Shopware 6.6.3.0
+- BP-3558 Add support for Shopware 6.6.2.0
 - BP-3401 Improve the plugin user interface with a payment method overview.
 - BP-3470 Add payment method: Knaken Settle.
 - BP-3348 Resize payment method logo’s for better readabillity.
