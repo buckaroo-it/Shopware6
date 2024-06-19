@@ -85,7 +85,7 @@ class CaptureService
             if (isset($customFields['originalTransactionKey'])) {
                 $originalTransactionKey = $customFields['originalTransactionKey'];
                 if (!is_string($originalTransactionKey)) {
-                    $originalTransactionKey = (string)$originalTransactionKey;
+                    $originalTransactionKey = strval($originalTransactionKey);
                 }
             }
         }
