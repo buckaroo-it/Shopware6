@@ -82,7 +82,9 @@ class CaptureService
             $originalTransactionKey = null;
         } else {
             $action = 'capture';
-            $originalTransactionKey = $customFields['originalTransactionKey'];
+            $originalTransactionKey = isset($customFields['originalTransactionKey']) && is_string($customFields['originalTransactionKey'])
+                ? $customFields['originalTransactionKey']
+                : null;
         }
 
         if ($validationErrors !== null) {
