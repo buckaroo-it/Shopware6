@@ -79,7 +79,7 @@ class CaptureService
 
         if ($paymentCode == 'klarnakp') {
             $action = 'pay';
-            $originalTransactionKey = '';
+            $originalTransactionKey = null;
         } else {
             $action = 'capture';
             $originalTransactionKey = $customFields['originalTransactionKey'];
@@ -195,7 +195,7 @@ class CaptureService
     private function getCommonRequestPayload(
         Request $request,
         OrderEntity $order,
-        string $transactionKey
+        string $transactionKey = null
     ): array {
         $payload = [
             'order' => $order->getOrderNumber(),
@@ -210,7 +210,7 @@ class CaptureService
             ],
         ];
 
-        if ($transactionKey !== '') {
+        if (!empty($transactionKey)) {
             $payload['originalTransactionKey'] = $transactionKey;
         }
 
