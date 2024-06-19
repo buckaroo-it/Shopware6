@@ -195,7 +195,7 @@ class CaptureService
     private function getCommonRequestPayload(
         Request $request,
         OrderEntity $order,
-        $transactionKey
+        string $transactionKey = null
     ): array {
         $payload = [
             'order' => $order->getOrderNumber(),
@@ -210,7 +210,7 @@ class CaptureService
             ],
         ];
 
-        if ($transactionKey !== null) {
+        if (!empty($transactionKey)) {
             $payload['originalTransactionKey'] = $transactionKey;
         }
 
