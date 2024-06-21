@@ -20,6 +20,7 @@ use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
@@ -102,6 +103,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                         $paymentCode
                     )
                 );
+
             if (
                 $paymentCode === "afterpay" &&
                 !$this->isAfterpayOld($salesChannelContext->getSalesChannelId())
@@ -127,7 +129,16 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         } catch (\Throwable $th) {
             $this->asyncPaymentService->logger->error((string) $th);
-            throw new AsyncPaymentProcessException(
+            
+            if (\Composer\InstalledVersions::getVersion('shopware/core') < 6.6) {
+                throw new AsyncPaymentProcessException(
+                    $transaction->getOrderTransaction()->getId(),
+                    'Cannot create buckaroo payment',
+                    $th
+                );
+            }
+
+            throw PaymentException::asyncProcessInterrupted(
                 $transaction->getOrderTransaction()->getId(),
                 'Cannot create buckaroo payment',
                 $th

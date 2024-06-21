@@ -231,3 +231,30 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 # 2.2.1
 - BP-3393 - Fix for the separate authorize/capture flow for Riverty which could set incorrect attempts to processing.
+
+# 2.3.0
+- Add support for Shopware 6.5.8.10
+- BP-3558 Add support for Shopware 6.6.3.0
+- BP-3401 Improve the plugin user interface with a payment method overview.
+- BP-3470 Add payment method: Knaken Settle.
+- BP-3348 Resize payment method logo’s for better readabillity.
+- BP-3383 Add Riverty Strong Customer Authentication setting (SCA).
+- BP-3393 Add additional order status setting for authorized Riverty transactions.
+- BP-3321 Change new required fields for Riverty specificly for Germany.
+- BP-3336 Update the consumer financial warning text for BNPL methods.
+- BP-3362 Display additional product information in the Buckaroo Payment tab.
+- BP-3400 Minor iDEAL adjustments/improvements (plugin configuration).
+- BP-3437 Add product image URL's for Riverty transactions.
+- BP-3515 Remove the logo selection for iDEAL In3.
+- BP-3444 Merge iDEAL collecting and processing as one single payment method with additional configuration.
+- BP-3418 Fix: iDEAL without issuer is not sending ContinueOnIncomplete.
+- BP-3376 Fix: Riverty refund with custom amount is not working.
+- BP-3330 Fix: No description send for refund requests.
+- BP-3288 Fix: Refund issue with the tax amount.
+- BP-3466 Fix: Full order amount discount (Promotions) makes it unable to place the order.
+- BP-3565 Fix: Riverty TOC URL's are showing a error 404 in some cases.
+- BP-3534 Fix: Apple Pay button is not always clickable for specific merchant.
+- BP-3614 Fix: Manual capture is not always working for Klarna (authorize/capture).
+
+# 2.3.1
+- Minor fixes
