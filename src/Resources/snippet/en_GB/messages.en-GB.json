@@ -89,6 +89,17 @@
         "selectYear": "Select a year",
         "securityCode": "CVC/VV"
       },
+      "bancontactmrcash" : {
+        "card": "Card",
+        "cardholder": "Name on card",
+        "cardNumber": "Card number",
+        "month": "Month",
+        "expiration": "Expiration",
+        "selectMonth": "Select a month",
+        "year": "Year",
+        "selectYear": "Select a year",
+        "securityCode": "CVC/VV"
+      },
       "Coc": "CoC-number:",
       "CocPlaceholder": "CoC-number",
       "buckarooMobileCocError": "CoC-number is required",

@@ -7,6 +7,7 @@ import BuckarooLoadScripts from './scripts/scripts.plugin';
 import IdealQrPlugin from './ideal-qr/ideal-qr.plugin';
 import BuckarooPayByBankSelect from './paybybank/select.plugin';
 import BuckarooPayByBankLogo from './paybybank/logo.plugin';
+import BuckarooBanContact from './bancontact/buckaroo-payment.bancontact';
 
 const PluginManager = window.PluginManager;
 PluginManager.register('BuckarooPaymentValidateSubmit', BuckarooPaymentValidateSubmit);
@@ -16,5 +17,6 @@ PluginManager.register('PaypalExpressPlugin', PaypalExpressPlugin, '[data-paypal
 PluginManager.register('BuckarooIdealQrPlugin', IdealQrPlugin, '[data-ideal-qr]');
 PluginManager.register('BuckarooApplePayPlugin', ApplePayPlugin, '[data-bk-applepay]');
 PluginManager.register('BuckarooLoadScripts', BuckarooLoadScripts);
+PluginManager.register('BuckarooBanContact', BuckarooBanContact);
 PluginManager.register('BuckarooPayByBankSelect', BuckarooPayByBankSelect, '[data-bk-select]');
 PluginManager.register('BuckarooPayByBankLogo', BuckarooPayByBankLogo, '[data-bk-paybybank-logo]');
