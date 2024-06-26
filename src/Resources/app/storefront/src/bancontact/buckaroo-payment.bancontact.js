@@ -3,6 +3,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 export default class BuckarooPaymentBancontact extends Plugin {
     init()
     {
+
         this._listenToSubmit();
         this._createScript(() => {
             const bancontactmrcashInputs = [ 'bancontactmrcash_cardholdername', 'bancontactmrcash_cardnumber', 'bancontactmrcash_expirationmonth', 'bancontactmrcash_expirationyear'];
@@ -13,7 +14,6 @@ export default class BuckarooPaymentBancontact extends Plugin {
                 }
             }
             this._getEncryptedData();
-            // this._CheckValidate();
         });
     }
 
