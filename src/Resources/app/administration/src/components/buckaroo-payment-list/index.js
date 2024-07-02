@@ -34,6 +34,10 @@ Component.register("buckaroo-payment-list", {
                     logo: "bancontact.svg"
                 },
                 {
+                    code: "blik",
+                    logo: "blik.svg"
+                },
+                {
                     code: "belfius",
                     logo: "belfius.svg"
                 },
