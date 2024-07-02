@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Helpers;
 
+use Buckaroo\Shopware6\PaymentMethods\Blik;
 use Buckaroo\Shopware6\PaymentMethods\Eps;
 use Buckaroo\Shopware6\PaymentMethods\In3;
 use Buckaroo\Shopware6\PaymentMethods\Kbc;
@@ -40,6 +41,7 @@ class GatewayHelper
 {
     public const GATEWAYS = [
         Ideal::class,
+        Blik::class,
         Bancontact::class,
         Creditcard::class,
         Creditcards::class,
