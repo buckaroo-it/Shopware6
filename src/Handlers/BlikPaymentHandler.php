@@ -9,5 +9,4 @@ use Buckaroo\Shopware6\PaymentMethods\Blik;
 class BlikPaymentHandler extends AsyncPaymentHandler
 {
     protected string $paymentClass = Blik::class;
-
 }
