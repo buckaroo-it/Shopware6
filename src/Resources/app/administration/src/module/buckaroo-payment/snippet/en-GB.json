@@ -82,7 +82,7 @@
             "labelTestApi": "Test connection"
         },
         "afterpay": {
-            "setup": "Setup tax association for Riverty | AfterPay old ",
+            "setup": "Setup tax association for Riverty old ",
             "hightTaxes": "High VAT taxes",
             "middleTaxes": "Middle VAT taxes",
             "lowTaxes": "Low VAT taxes",
