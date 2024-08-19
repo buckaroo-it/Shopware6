@@ -82,7 +82,7 @@
             "labelTestApi": "Verbindung testen"
         },
         "afterpay": {
-            "setup": "Steuerzuordnung für Riverty | AfterPay old einrichten ",
+            "setup": "Steuerzuordnung für Riverty old einrichten ",
             "hightTaxes": "Hohe MwSt. (VAT)",
             "middleTaxes": "Mittlere MwSt. (VAT)",
             "lowTaxes": "Niedrige MwSt. (VAT)",

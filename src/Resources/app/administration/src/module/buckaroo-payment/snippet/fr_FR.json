@@ -82,7 +82,7 @@
             "labelTestApi": "Tester la connexion"
         },
         "afterpay": {
-            "setup": "Configurer l'association fiscale pour Riverty | AfterPay (old) ",
+            "setup": "Configurer l'association fiscale pour Riverty (old) ",
             "hightTaxes": "Taxes TVA élevées (VAT)",
             "middleTaxes": "Taxes TVA moyennes (VAT)",
             "lowTaxes": "Taxes TVA basses (VAT)",
