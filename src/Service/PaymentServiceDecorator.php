@@ -55,12 +55,10 @@ class PaymentServiceDecorator
         $order = $this->orderRepository->search($criteria, $context)->first();
 
         if ($order === null) {
-
             throw new PaymentException(
                 $paymentToken,
                 "Order could not be found for Transaction ID: $transactionId"
             );
-
         }
 
         return $this->orderConverter->assembleSalesChannelContext($order, $context);

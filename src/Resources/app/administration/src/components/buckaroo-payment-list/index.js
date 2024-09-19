@@ -62,10 +62,6 @@ Component.register("buckaroo-payment-list", {
                     logo: "giftcards.svg"
                 },
                 {
-                    code: "giropay",
-                    logo: "giropay.svg"
-                },
-                {
                     code: "idealqr",
                     logo: "ideal-qr.svg"
                 },

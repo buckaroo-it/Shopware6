@@ -244,11 +244,6 @@
             <tag name="shopware.payment.method.async" />
         </service>
 
-        <service id="Buckaroo\Shopware6\Handlers\GiropayPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method.async" />
-        </service>
-
         <service id="Buckaroo\Shopware6\Handlers\KbcPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
