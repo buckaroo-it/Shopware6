@@ -60,7 +60,6 @@ class PaymentServiceDecorator
                 $paymentToken,
                 "Order could not be found for Transaction ID: $transactionId"
             );
-
         }
 
         return $this->orderConverter->assembleSalesChannelContext($order, $context);
