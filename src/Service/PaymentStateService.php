@@ -12,7 +12,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
@@ -56,7 +55,7 @@ class PaymentStateService
             $this->isPayPalPending($request) ||
             $this->isCanceledPaymentRequest($request)
         ) {
-            throw new CustomerCanceledAsyncPaymentException(
+            throw PaymentException::asyncProcessInterrupted(
                 $transactionId,
                 $this->translator->trans('buckaroo.userCanceled')
             );
@@ -98,9 +97,9 @@ class PaymentStateService
             $this->isFailedPaymentRequest($request) &&
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_CANCEL)
         ) {
-            throw new CustomerCanceledAsyncPaymentException(
+            throw PaymentException::asyncProcessInterrupted(
                 $transactionId,
-                $this->getStatusMessageByStatusCode($request),
+                $this->getStatusMessageByStatusCode($request)
             );
         }
     }
