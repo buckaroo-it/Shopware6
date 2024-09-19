@@ -130,7 +130,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             if (\Composer\InstalledVersions::getVersion('shopware/core') < 6.6) {
                 throw PaymentException::asyncProcessInterrupted(
                     $transaction->getOrderTransaction()->getId(),
-                    'Cannot create buckaroo payment',
+                    'Cannot create buckaroo payment'
                 );
             }
 
