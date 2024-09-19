@@ -17,7 +17,6 @@ use Buckaroo\Shopware6\PaymentMethods\Paypal;
 use Buckaroo\Shopware6\PaymentMethods\Sofort;
 use Buckaroo\Shopware6\PaymentMethods\Belfius;
 use Buckaroo\Shopware6\PaymentMethods\Billink;
-use Buckaroo\Shopware6\PaymentMethods\Giropay;
 use Buckaroo\Shopware6\PaymentMethods\IdealQr;
 use Buckaroo\Shopware6\PaymentMethods\Trustly;
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
@@ -50,7 +49,6 @@ class GatewayHelper
         Paypal::class,
         Transfer::class,
         ApplePay::class,
-        Giropay::class,
         Kbc::class,
         SepaDirectDebit::class,
         Payconiq::class,
