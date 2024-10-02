@@ -428,7 +428,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      * @throws PaymentException
-     * @throws PaymentFailedException
      */
     public function finalize(
         AsyncPaymentTransactionStruct $transaction,

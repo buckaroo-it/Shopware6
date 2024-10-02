@@ -11,7 +11,7 @@ class PaymentFailedException extends PaymentException
     protected ?string $paymentStatusCode;
 
     public function __construct(
-        string $orderTransactionId,
+        int $orderTransactionId,
         string $message,
         array $parameters = [],
         ?\Throwable $e = null,
