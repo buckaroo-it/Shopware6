@@ -5,5 +5,4 @@ parameters:
     ignoreErrors:
         - identifier: missingType.iterableValue
         - identifier: missingType.generics
-        - '#Call to an undefined method [a-zA-Z0-9\\_]+::setServiceVersion\(\)#'
     treatPhpDocTypesAsCertain: false
