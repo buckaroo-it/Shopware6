@@ -40,7 +40,7 @@ class PaymentServiceDecorator
         $transactionId = $parsedToken->getTransactionId();
 
         if ($transactionId === null) {
-            throw new PaymentException(
+            throw PaymentException::asyncProcessInterrupted(
                 $paymentToken,
                 "Transaction ID is missing in the token."
             );
@@ -55,7 +55,7 @@ class PaymentServiceDecorator
         $order = $this->orderRepository->search($criteria, $context)->first();
 
         if ($order === null) {
-            throw new PaymentException(
+            throw PaymentException::asyncProcessInterrupted(
                 $paymentToken,
                 "Order could not be found for Transaction ID: $transactionId"
             );

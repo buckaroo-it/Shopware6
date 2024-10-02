@@ -20,11 +20,11 @@ class Migration1726736268RemoveGiropay extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement("
-            UPDATE `payment_method`
-            SET `active` = 0
-            WHERE `handler_identifier` = :handlerIdentifier
-        ", ['handlerIdentifier' => self::HANDLER_IDENTIFIER]);
-
+        $connection->executeStatement(
+            "UPDATE `payment_method`
+                SET `active` = 0
+                WHERE `handler_identifier` = :handlerIdentifier",
+            ['handlerIdentifier' => self::HANDLER_IDENTIFIER]
+        );
     }
 }
