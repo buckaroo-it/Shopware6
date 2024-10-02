@@ -27,4 +27,12 @@ class Migration1726736268RemoveGiropay extends MigrationStep
             ['handlerIdentifier' => self::HANDLER_IDENTIFIER]
         );
     }
+    public function updateDestructive(Connection $connection): void
+    {
+        $connection->executeStatement(
+            "DELETE FROM `payment_method`
+                WHERE `handler_identifier` = :handlerIdentifier",
+            ['handlerIdentifier' => self::HANDLER_IDENTIFIER]
+        );
+    }
 }
