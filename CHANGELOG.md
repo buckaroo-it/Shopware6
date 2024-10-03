@@ -258,3 +258,14 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 # 2.3.1
 - Minor fixes
+
+# 2.4.0
+
+- Add support for Shopware 6.6.6.0
+- Add support for Shopware 6.5.8.14
+- BP-3629 Add payment method: Blik
+- BP-3490 Add a Bancontact option to let consumer fill in card information in the Shopware checkout instead of the Buckaroo hosted payment page.
+- BP-3629 Adjust the default Riverty | Afterpay name just to Riverty
+- BP-3711 Adjust the Riverty | Afterpay logo to the new Riverty logo
+- BP-3637 Fix Javascript error: Plugin "BuckarooPaymentValidateSubmit" is already registered
+- BP-3785 Remove payment method Giropay (discontinued)
