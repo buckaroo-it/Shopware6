@@ -205,7 +205,12 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
         </service>
-        
+
+        <service id="Buckaroo\Shopware6\Handlers\BlikPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method.async" />
+        </service>
+
         <service id="Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
@@ -235,11 +240,6 @@
         </service>
         
         <service id="Buckaroo\Shopware6\Handlers\TransferPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method.async" />
-        </service>
-
-        <service id="Buckaroo\Shopware6\Handlers\GiropayPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
         </service>

@@ -295,8 +295,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'canShowPhone'          => $this->canShowPhone($customer),
             'methodsWithFinancialWarning' => $this->getMethodsWithFinancialWarning($salesChannelId),
             'validHouseNumbers'     => $this->areValidHouseNumbers($event),
-            'afterpayOld' => $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true
-        ]);
+            'afterpayOld' => $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true,
+            'redirectBancontact' =>
+                $this->settingsService->getSetting('redirectBancontact', $salesChannelId) === 'enabledRedirect']);
 
         $event->getPage()->addExtension(
             BuckarooStruct::EXTENSION_NAME,

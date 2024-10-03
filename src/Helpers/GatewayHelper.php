@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Helpers;
 
+use Buckaroo\Shopware6\PaymentMethods\Blik;
 use Buckaroo\Shopware6\PaymentMethods\Eps;
 use Buckaroo\Shopware6\PaymentMethods\In3;
 use Buckaroo\Shopware6\PaymentMethods\Kbc;
@@ -16,7 +17,6 @@ use Buckaroo\Shopware6\PaymentMethods\Paypal;
 use Buckaroo\Shopware6\PaymentMethods\Sofort;
 use Buckaroo\Shopware6\PaymentMethods\Belfius;
 use Buckaroo\Shopware6\PaymentMethods\Billink;
-use Buckaroo\Shopware6\PaymentMethods\Giropay;
 use Buckaroo\Shopware6\PaymentMethods\IdealQr;
 use Buckaroo\Shopware6\PaymentMethods\Trustly;
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
@@ -40,6 +40,7 @@ class GatewayHelper
 {
     public const GATEWAYS = [
         Ideal::class,
+        Blik::class,
         Bancontact::class,
         Creditcard::class,
         Creditcards::class,
@@ -48,7 +49,6 @@ class GatewayHelper
         Paypal::class,
         Transfer::class,
         ApplePay::class,
-        Giropay::class,
         Kbc::class,
         SepaDirectDebit::class,
         Payconiq::class,

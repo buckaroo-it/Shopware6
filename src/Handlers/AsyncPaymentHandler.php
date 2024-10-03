@@ -21,9 +21,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
-use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Framework\Context;
 
@@ -48,7 +45,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
      * @return RedirectResponse
-     * @throws AsyncPaymentProcessException
+     * @throws PaymentException
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function pay(
@@ -131,10 +128,9 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $this->asyncPaymentService->logger->error((string) $th);
             
             if (\Composer\InstalledVersions::getVersion('shopware/core') < 6.6) {
-                throw new AsyncPaymentProcessException(
+                throw PaymentException::asyncProcessInterrupted(
                     $transaction->getOrderTransaction()->getId(),
-                    'Cannot create buckaroo payment',
-                    $th
+                    'Cannot create buckaroo payment'
                 );
             }
 
@@ -203,8 +199,9 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         }
 
         if ($response->isCanceled()) {
-            throw new CustomerCanceledAsyncPaymentException(
-                $transaction->getOrderTransaction()->getId()
+            throw PaymentException::asyncProcessInterrupted(
+                $transaction->getOrderTransaction()->getId(),
+                'Cannot create buckaroo payment'
             );
         }
 
@@ -409,7 +406,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      * Get payment class
      *
      * @return AbstractPayment
-     * @throws AsyncPaymentProcessException
+     * @throws PaymentException
      */
     private function getPayment(string $transactionId): AbstractPayment
     {
@@ -419,9 +416,9 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             $paymentClass = new $this->paymentClass();
         }
         if ($paymentClass === null || !$paymentClass instanceof AbstractPayment) {
-            throw new AsyncPaymentProcessException(
+            throw PaymentException::asyncProcessInterrupted(
                 $transactionId,
-                'Invalid buckaroo payment class provided'
+                'Invalid buckaroo payment class'
             );
         }
         return $paymentClass;
@@ -430,8 +427,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      * @param AsyncPaymentTransactionStruct $transaction
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
-     * @throws AsyncPaymentFinalizeException
-     * @throws CustomerCanceledAsyncPaymentException
+     * @throws PaymentException
      */
     public function finalize(
         AsyncPaymentTransactionStruct $transaction,

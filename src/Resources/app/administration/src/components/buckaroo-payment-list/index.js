@@ -34,6 +34,10 @@ Component.register("buckaroo-payment-list", {
                     logo: "bancontact.svg"
                 },
                 {
+                    code: "blik",
+                    logo: "blik.svg"
+                },
+                {
                     code: "belfius",
                     logo: "belfius.svg"
                 },
@@ -56,10 +60,6 @@ Component.register("buckaroo-payment-list", {
                 {
                     code: "giftcards",
                     logo: "giftcards.svg"
-                },
-                {
-                    code: "giropay",
-                    logo: "giropay.svg"
                 },
                 {
                     code: "idealqr",

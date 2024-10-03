@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -40,7 +40,10 @@ class PaymentServiceDecorator
         $transactionId = $parsedToken->getTransactionId();
 
         if ($transactionId === null) {
-            throw new InvalidTokenException($paymentToken);
+            throw PaymentException::asyncProcessInterrupted(
+                $paymentToken,
+                "Transaction ID is missing in the token."
+            );
         }
 
         $criteria = new Criteria();
@@ -52,7 +55,10 @@ class PaymentServiceDecorator
         $order = $this->orderRepository->search($criteria, $context)->first();
 
         if ($order === null) {
-            throw new InvalidTokenException($paymentToken);
+            throw PaymentException::asyncProcessInterrupted(
+                $paymentToken,
+                "Order could not be found for Transaction ID: $transactionId"
+            );
         }
 
         return $this->orderConverter->assembleSalesChannelContext($order, $context);

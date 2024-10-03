@@ -649,7 +649,7 @@
             <label lang="de-DE">Aktiviert</label>
 			<label lang="fr-FR">Activé</label>
         </input-field>
-        
+
         <input-field type="single-select">
             <name>bancontactmrcashEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -671,14 +671,14 @@
 
         <input-field>
             <name>bancontactmrcashLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
-			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
-			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
-			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
+            <label lang="en-GB">Frontend label</label>
+            <label lang="de-DE">Frontend-Label</label>
+            <label lang="nl-NL">Frontend label</label>
+            <label lang="fr-FR">Étiquette frontale</label>
+            <helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+            <helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+            <helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+            <helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
             <defaultValue>Bancontact</defaultValue>
         </input-field>
 
@@ -689,12 +689,94 @@
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
+
+        <input-field type="single-select">
+            <name>redirectBancontact</name>
+            <label lang="en-GB">Client Side Encryption</label>
+            <label lang="nl-NL">Client Side Encryption</label>
+            <label lang="de-DE">Clientseitige Verschlüsselung</label>
+            <label lang="fr-FR">Cryptage côté client</label>
+            <defaultValue>enabledRedirect</defaultValue>
+            <options>
+                <option>
+                    <id>enabledRedirect</id>
+                    <name lang="en-GB">Enabled</name>
+                    <name lang="nl-NL">Ingeschakeld</name>
+                    <name lang="de-DE">Aktiviert</name>
+                    <name lang="fr-FR">Activé</name>
+                </option>
+                <option>
+                    <id>disabledRedirect</id>
+                    <name lang="en-GB">Disabled</name>
+                    <name lang="nl-NL">Uitgeschakeld</name>
+                    <name lang="de-DE">Deaktiviert</name>
+                    <name lang="fr-FR">Désactivé</name>
+                </option>
+            </options>
+        </input-field>
+
     </card>
 
     <card>
-        <title>Riverty | AfterPay</title>
+        <title>Blik</title>
+        <name>blik</name>
+        <input-field type="bool">
+            <name>blikEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+            <label lang="fr-FR">Activé</label>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>blikEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+            <label lang="fr-FR">Tester ou Vivre:</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>blikLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <label lang="de-DE">Frontend-Label</label>
+            <label lang="nl-NL">Frontend label</label>
+            <label lang="fr-FR">Étiquette frontale</label>
+            <helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+            <helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+            <helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+            <helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
+            <defaultValue>Blik</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>blikFee</name>
+            <min>0</min>
+            <max>1000</max>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+            <label lang="fr-FR">Frais de buckaroo</label>
+        </input-field>
+
+
+    </card>
+
+    <card>
+        <title>Riverty</title>
         <name>afterpay</name>
         <input-field type="bool">
             <name>afterpayEnabled</name>
@@ -766,9 +848,9 @@
         
         <input-field type="bool">
             <name>afterpayEnabledold</name>
-            <label lang="en-GB">Enabled Riverty | AfterPay Old</label>
-            <label lang="nl-NL">Ingeschakeld Riverty | AfterPay Old</label>
-            <label lang="de-DE">Aktiviert Riverty | AfterPay Old</label>
+            <label lang="en-GB">Enabled Riverty Old</label>
+            <label lang="nl-NL">Ingeschakeld Riverty Old</label>
+            <label lang="de-DE">Aktiviert Riverty Old</label>
             <label lang="de-DE">false</label>
         </input-field>
 
@@ -780,7 +862,7 @@
             <name>afterpayLabel</name>
             <label lang="en-GB">Frontend label</label>
             <helpText>Determines the frontend label shown.</helpText>
-            <defaultValue>Riverty | AfterPay</defaultValue>
+            <defaultValue>Riverty</defaultValue>
         </input-field>
 
         <input-field type="float">
@@ -795,11 +877,11 @@
 
         <input-field type="single-select">
             <name>afterpayCustomerType</name>
-            <label lang="en-GB">Riverty | AfterPay customer type:</label>
-            <label lang="de-DE">Riverty | AfterPay customer type:</label>
-            <label lang="nl-NL">Riverty | AfterPay customer type:</label>
-            <helpText lang="en-GB">This setting determines whether you accept Riverty | AfterPay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.</helpText>
-            <helpText lang="de-DE">Deze instelling bepaalt of je Riverty | AfterPay-betalingen accepteert voor B2C, B2B of beide klanttypes. Wanneer B2B word geselecteerd wordt deze methode enkel getoond wanneer er een bedrijfsnaam is ingevuld in het checkout proces.</helpText>
+            <label lang="en-GB">Riverty customer type:</label>
+            <label lang="de-DE">Riverty customer type:</label>
+            <label lang="nl-NL">Riverty customer type:</label>
+            <helpText lang="en-GB">This setting determines whether you accept Riverty payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.</helpText>
+            <helpText lang="de-DE">Deze instelling bepaalt of je Riverty-betalingen accepteert voor B2C, B2B of beide klanttypes. Wanneer B2B word geselecteerd wordt deze methode enkel getoond wanneer er een bedrijfsnaam is ingevuld in het checkout proces.</helpText>
             <defaultValue>both</defaultValue>
             <options>
                 <option>
@@ -1058,60 +1140,6 @@
             <helpText lang="nl-NL">Het aantal dagen na de besteldatum waarin de klant de betaling moet voltooien. Na deze periode wordt de bestelling geannuleerd. U kunt deze vervaldatum toevoegen in het sjabloon van de Transfer-e-mail.</helpText>
             <helpText lang="de-DE">Die Anzahl der Tage nach dem Bestelldatum, in denen der Kunde die Zahlung abschließen muss. Nach Ablauf dieser Frist wird die Bestellung storniert. Sie können dieses Fälligkeitsdatum in der Vorlage der Überweisungs-E-Mail hinzufügen.</helpText>
 			<helpText lang="fr-FR">Le nombre de jours après la date de commande pendant lesquels le client doit effectuer le paiement. Passé ce délai la commande sera annulée. Vous pouvez ajouter cette date d'échéance dans le modèle de l'e-mail de virement bancaire (Transférer).</helpText>
-        </input-field>
-    </card>
-
-    <card>
-        <title>Giropay</title>
-        <name>giropay</name>
-        <input-field type="bool">
-            <name>giropayEnabled</name>
-            <label lang="en-GB">Enabled</label>
-            <label lang="nl-NL">Ingeschakeld</label>
-            <label lang="de-DE">Aktiviert</label>
-			<label lang="fr-FR">Activé</label>
-        </input-field>
-        
-        <input-field type="single-select">
-            <name>giropayEnvironment</name>
-            <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
-            <defaultValue>test</defaultValue>
-            <options>
-                <option>
-                    <id>test</id>
-                    <name>Test</name>
-                </option>
-                <option>
-                    <id>live</id>
-                    <name>Live</name>
-                </option>
-            </options>
-        </input-field>
-
-        <input-field>
-            <name>giropayLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
-			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
-			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
-			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
-            <defaultValue>Giropay</defaultValue>
-        </input-field>
-
-        <input-field type="float">
-            <name>giropayFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
 
@@ -2703,10 +2731,6 @@
                 <option>
                     <id>giftcard</id>
                     <name>Giftcards</name>
-                </option>
-                <option>
-                    <id>giropay</id>
-                    <name>Giropay</name>
                 </option>
                 <option>
                     <id>ideal</id>

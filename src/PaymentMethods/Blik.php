@@ -4,24 +4,16 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\GiropayPaymentHandler;
+use Buckaroo\Shopware6\Handlers\BlikPaymentHandler;
 
-class Giropay extends AbstractPayment
+class Blik extends AbstractPayment
 {
     /*
     * @return string
     */
     public function getBuckarooKey(): string
     {
-        return 'giropay';
-    }
-
-    /**
-     * @return string
-     */
-    public function getVersion(): string
-    {
-        return '2';
+        return 'blik';
     }
 
     /**
@@ -31,7 +23,7 @@ class Giropay extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Giropay';
+        return 'Buckaroo Blik';
     }
 
     /**
@@ -41,7 +33,7 @@ class Giropay extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with Giropay';
+        return 'Pay with Blik';
     }
 
     /**
@@ -51,7 +43,7 @@ class Giropay extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/giropay.svg';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/blik.svg';
     }
 
     /**
@@ -61,17 +53,7 @@ class Giropay extends AbstractPayment
      */
     public function getPaymentHandler(): string
     {
-        return GiropayPaymentHandler::class;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return string|null
-     */
-    public function getTemplate(): ?string
-    {
-        return null;
+        return BlikPaymentHandler::class;
     }
 
     /**
@@ -84,7 +66,7 @@ class Giropay extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit Bank Giropay',
+                'description' => 'Bezahlen mit PayPerEmail',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),

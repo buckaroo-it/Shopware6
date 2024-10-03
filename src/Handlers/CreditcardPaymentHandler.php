@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 
 class CreditcardPaymentHandler extends AsyncPaymentHandler
 {
@@ -36,7 +36,7 @@ class CreditcardPaymentHandler extends AsyncPaymentHandler
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
      * @return RedirectResponse
-     * @throws AsyncPaymentProcessException
+     * @throws PaymentException
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function pay(

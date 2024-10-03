@@ -82,7 +82,7 @@
             "labelTestApi": "Test gegevens"
         },
         "afterpay": {
-            "setup": "Belastingkoppeling instellen voor Riverty | AfterPay old ",
+            "setup": "Belastingkoppeling instellen voor Riverty old ",
             "hightTaxes": "Hoge BTW-heffingen",
             "middleTaxes": "Middelmatige BTW-belastingen",
             "lowTaxes": "Lage BTW-heffingen",

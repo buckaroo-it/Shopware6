@@ -2,8 +2,7 @@ parameters:
     level: 9
     paths:
         - ./src
-    checkMissingIterableValueType: false
-    treatPhpDocTypesAsCertain: false
-    checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
-        - '#Call to an undefined method [a-zA-Z0-9\\_]+::setServiceVersion\(\)#'
+        - identifier: missingType.iterableValue
+        - identifier: missingType.generics
+    treatPhpDocTypesAsCertain: false

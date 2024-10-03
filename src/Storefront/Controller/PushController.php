@@ -24,7 +24,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
 use Buckaroo\Shopware6\Events\PushPaymentStateChangeEvent;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
@@ -336,7 +336,10 @@ class PushController extends StorefrontController
                 | StateMachineStateNotFoundException $exception
             ) {
                 $this->logger->info(__METHOD__ . "|55|");
-                throw new AsyncPaymentFinalizeException($orderTransactionId, $exception->getMessage());
+                throw PaymentException::asyncProcessInterrupted(
+                    $orderTransactionId,
+                    $exception->getMessage()
+                );
             }
             $this->logger->info(__METHOD__ . "|60|");
             return $this->response('buckaroo.messages.paymentUpdated');
