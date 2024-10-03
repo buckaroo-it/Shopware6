@@ -18,6 +18,7 @@
         <div class="bk-apple-pay-button" style="margin-top: 10px;">
     {% endif %}
 
+
     {% if page.extensions.buckaroo.showPaypalExpress %}
         {% set paypalExpressOptions = {
             page: "checkout",
@@ -31,6 +32,17 @@
 
         <div style="margin-top:15px;" class="bk-paypal-express" data-paypal-express data-paypal-express-plugin-options='{{ paypalExpressOptions|json_encode }}'>
             <div class="buckaroo-paypal-express"></div>
+        </div>
+
+    {% endif %}
+
+    {% if page.extensions.buckaroo.showIdealFastCheckout %}
+
+        <div style="margin-top:15px;" class="bk-ideal-fast-checkout" data-bk-ideal-fast-checkout>
+            <button class="buckaroo-ideal-fast-checkout" id="fast-checkout-ideal-btn" style="">
+                <img
+                        src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/ideal-fast-checkout-rgb-dark.png")}}" alt="Ideal Snel bestellen"/>
+            </button>
         </div>
 
     {% endif %}

@@ -57,7 +57,10 @@ Component.register("buckaroo-config-card", {
             if (name === "idealRenderMode") {
                 return this.getValueForName('idealShowissuers');
             }
-
+            /** toggle for ideal fast checkout settings */
+            if (['idealFastCheckoutActivity','idealFastCheckoutVisibility','idealFastCheckoutLogoScheme'].indexOf(name) !== -1) {
+                return this.getValueForName('idealFastCheckout');
+            }
             /** toggle for afterpay capture only payment */
             if (name === 'afterpayPaymentstatus') {
                 return this.getValueForName('afterpayCaptureonshippent');

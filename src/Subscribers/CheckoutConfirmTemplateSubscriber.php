@@ -289,6 +289,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'backLink'                 => $backUrl,
             'afterpay_customer_type'   => $this->settingsService->getSetting('afterpayCustomerType', $salesChannelId),
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'checkout'),
+            'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
@@ -398,6 +399,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct->assign([
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'cart'),
+            'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
@@ -452,6 +454,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $struct->assign([
             'applepayShowProduct' => $this->settingsService->getSetting('applepayShowProduct', $salesChannelId) == 1,
             'showPaypalExpress' => $this->showPaypalExpress($salesChannelId),
+            'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId' => $this->getAppleMerchantId($salesChannelId),
             'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId)
@@ -470,6 +473,20 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             $this->getPaypalExpressMerchantId($salesChannelId) != null;
     }
     protected function getPaypalExpressMerchantId(string $salesChannelId): ?string
+    {
+        $merchantId =  $this->settingsService->getSetting('paypalExpressmerchantid', $salesChannelId);
+        if ($merchantId !== null && is_scalar($merchantId)) {
+            return (string)$merchantId;
+        }
+        return null;
+    }
+    protected function showIdealFastCheckout(string $salesChannelId, string $page = 'product'): bool
+    {
+        $locations = $this->settingsService->getSetting('idealFastCheckoutVisibility', $salesChannelId);
+        return is_array($locations) &&
+            in_array($page, $locations);
+    }
+    protected function getIdealFastChekout(string $salesChannelId): ?string
     {
         $merchantId =  $this->settingsService->getSetting('paypalExpressmerchantid', $salesChannelId);
         if ($merchantId !== null && is_scalar($merchantId)) {
