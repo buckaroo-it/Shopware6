@@ -429,6 +429,18 @@
             </call>
         </service>
 
+        <service id="Buckaroo\Shopware6\Storefront\Controller\IdealFastCheckoutController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\CartService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
          <service id="Buckaroo\Shopware6\Storefront\Controller\CartController" public="true">
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

@@ -1,11 +1,12 @@
-{% sw_extends '@Storefront/storefront/page/checkout/cart/index.html.twig' %}
+{% sw_extends '@Storefront/storefront/component/buy-widget/buy-widget-form.html.twig' %}
 
-{% block page_checkout_cart_action_proceed %}
+{% block buy_widget_buy_form_inner %}
+
     {{ parent() }}
     {% if page.extensions.buckaroo.showPaypalExpress %}
         <div class="col-12 p-0">
             {% set paypalExpressOptions = {
-                page: "cart",
+                page: "product",
                 merchantId: page.extensions.buckaroo.paypalMerchantId,
                 websiteKey: page.extensions.buckaroo.websiteKey,
                 i18n: {
@@ -20,10 +21,10 @@
         </div>
     {% endif %}
 
-     {% if page.extensions.buckaroo.showApplePay %}
+     {% if page.extensions.buckaroo.applepayShowProduct %}
         <div class="col-12 p-0">
             {% set applePayConfig = {
-                page: "cart",
+                page: "product",
                 merchantId: page.extensions.buckaroo.applePayMerchantId,
                 cultureCode: page.header.activeLanguage.translationCode.code,
                 i18n: {
@@ -32,20 +33,20 @@
                 }
             } %}
             <div data-bk-applepay data-buckaroo-apple-pay-plugin-options='{{ applePayConfig|json_encode }}'></div>
-            <div class="bk-apple-pay-button" style="margin-top: 10px;"></div>
+            <div class="bk-apple-pay-button" style="margin-top: 10px;">
         </div>
     {% endif %}
 
     {% if page.extensions.buckaroo.showIdealFastCheckout %}
         <div class="col-12 p-0">
             {% set idealFastCheckoutConfig = {
-                page: "cart",
+                page: "product",
                 i18n: {
                     cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
                     cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
                 }
             } %}
-            <div  style="margin-top:15px;" data-bk-ideal-fast-checkout data-buckaroo-ideal-fast-checkout-plugin-options='{{ idealFastCheckoutConfig|json_encode }}'>
+            <div data-bk-ideal-fast-checkout data-buckaroo-ideal-fast-checkout-plugin-options='{{ idealFastCheckoutConfig|json_encode }}'>
                 <div  class="bk-ideal-fast-checkout" id="fast-checkout-ideal-btn" style="">
                     <img
                             src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/#{page.extensions.buckaroo.idealFastCheckoutLogo}.png")}}"
