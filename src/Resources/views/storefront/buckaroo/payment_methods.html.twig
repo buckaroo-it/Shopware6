@@ -231,7 +231,7 @@
 
                                         <div class="form-group col-md-12">
                                             <label class="form-label" for="creditcards_cardholdername">{{ "buckaroo.checkout.creditcards.cardholder" | trans }}:</label>
-                                            <input class="form-control" id="creditcards_cardholdername" name="creditcards_cardholdername" form="confirmOrderForm" required="required" />
+                                            <input class="form-control" id="creditcards_cardholdername" name="creditcards_cardholdername"  required="required" />
                                             <input type="hidden" id="encryptedCardData" name="encryptedCardData" form="confirmOrderForm">
                                             <label class="form-label" style="display:none; color:red" for="creditcards_cardholdername" id="creditcards_cardholdernameError">
                                                 {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
@@ -240,7 +240,7 @@
 
                                         <div class="form-group col-md-12">
                                             <label class="form-label" for="creditcards_cardnumber">{{ "buckaroo.checkout.creditcards.cardNumber" | trans }}:</label>
-                                            <input class="form-control" id="creditcards_cardnumber" name="creditcards_cardnumber" form="confirmOrderForm" required="required" />
+                                            <input class="form-control" id="creditcards_cardnumber" name="creditcards_cardnumber" required="required" />
                                             <label class="form-label" style="display:none; color:red" for="creditcards_cardnumber" id="creditcards_cardnumberError">
                                                 {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
                                             </label>
@@ -248,7 +248,7 @@
 
                                         <div class="form-group col-md-6">
                                             <label class="form-label" for="creditcards_expirationmonth">{{ "buckaroo.checkout.creditcards.month" | trans }}:</label>
-                                            <select type="text" id="creditcards_expirationmonth" name="creditcards_expirationmonth" form="confirmOrderForm" required="required" class="form-control">
+                                            <select type="text" id="creditcards_expirationmonth" name="creditcards_expirationmonth" required="required" class="form-control">
                                                 <option value="">{{ "buckaroo.checkout.creditcards.selectMonth"|trans }}</option>
                                                 {% for month in 1..12 %}
                                                     <option value="{{ month }}">{{ month }}</option>
@@ -261,7 +261,7 @@
 
                                         <div class="form-group col-md-6">
                                             <label class="form-label" for="creditcards_expirationyear">{{ "buckaroo.checkout.creditcards.year" | trans }}:</label>
-                                            <select type="text" id="creditcards_expirationyear" name="creditcards_expirationyear" form="confirmOrderForm" required="required" class="form-control">
+                                            <select type="text" id="creditcards_expirationyear" name="creditcards_expirationyear" required="required" class="form-control">
                                                 <option value="">{{ "buckaroo.checkout.creditcards.selectYear"|trans }}</option>
                                                 {% set start_year = date() | date('Y') %}
                                                 {% set end_year = start_year + 10 %}
@@ -277,7 +277,7 @@
 
                                         <div class="form-group col-md-6">
                                             <label class="form-label" for="creditcards_cvc">{{ "buckaroo.checkout.creditcards.securityCode" | trans }}:</label>
-                                            <input class="form-control" id="creditcards_cvc" name="creditcards_cvc" form="confirmOrderForm" required="required" />
+                                            <input class="form-control" id="creditcards_cvc" name="creditcards_cvc" required="required" />
                                             <label class="form-label" style="display:none; color:red" for="creditcards_cvc" id="creditcards_cvcError">
                                                 {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
                                             </label>
