@@ -46,7 +46,7 @@
                     cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
                 }
             } %}
-            <div data-bk-ideal-fast-checkout data-ideal-fast-checkout-plugin-options='{{ idealFastCheckoutConfig|json_encode }}'>
+            <div data-bk-ideal-fast-checkout data-buckaroo-ideal-fast-checkout-plugin-options='{{ idealFastCheckoutConfig|json_encode }}'>
                 <div class="bk-ideal-fast-checkout" id="fast-checkout-ideal-btn" style="">
                     <img
                             src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/#{page.extensions.buckaroo.idealFastCheckoutLogo}.png")}}"

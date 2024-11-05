@@ -2,7 +2,6 @@ import { IdealFastCheckout } from './sdk'; // Importing IdealFastCheckout
 import HttpClient from 'src/service/http-client.service';
 import Plugin from 'src/plugin-system/plugin.class';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
-
 export default class IdealFastCheckoutPlugin extends Plugin {
 
     static options = {
@@ -21,76 +20,110 @@ export default class IdealFastCheckoutPlugin extends Plugin {
     cartToken = null;
 
     init() {
-        // Step 1: Get pluginOptionsData from data-ideal-fast-checkout-plugin-options attribute
-        const pluginOptionsData = this.el.getAttribute('data-ideal-fast-checkout-plugin-options');
+        const element = document.querySelector('[data-buckaroo-ideal-fast-checkout-plugin-options]');
 
-        if (pluginOptionsData) {
-            const options = JSON.parse(pluginOptionsData);
+        if (element) {
+            const pluginOptionsData = element.getAttribute('data-buckaroo-ideal-fast-checkout-plugin-options');
+            if (pluginOptionsData) {
+                // Step 3: Parse the JSON-encoded options
+                const options = JSON.parse(pluginOptionsData);
+                this.options.page = options.page;
+                console.log(options.containerSelector)
+                let checkoutButton = document.getElementById('fast-checkout-ideal-btn');
+                if (!checkoutButton) {
+                    console.error('Ideal Fast Checkout button not found');
+                    return;
+                }
 
-            this.setupClickHandler(options);
-        } else {
-            console.error('Ideal Fast Checkout plugin options not found');
+                // Using an arrow function to keep the correct `this` context
+                checkoutButton.addEventListener('click', (e) => {
+                    this.initPayment(e);
+                });
+            }
         }
     }
 
-    setupClickHandler(options) {
-
-        IdealFastCheckout.initiate({
-            buckarooWebsiteKey: options.websiteKey,
-            currency: 'EUR',
-            amount: 10.00,
-            containerSelector: '.bk-ideal-fast-checkout',
-            baseCheckoutUrl: this.url,
-            createPaymentHandler: (data) => this.createTransaction(data),
-            onSuccessCallback: () => {
-                console.log('Payment successful!');
-                window.location.href = '/checkout/success';
-            },
-            onErrorCallback: (error) => {
-                console.error('Payment failed', error);
-                this.displayErrorMessage(error);
-            },
-            onCancelCallback: () => {
-                console.log('Payment canceled');
-                this.displayErrorMessage(options.i18n.cancel_error_message); // Use i18n from pluginOptionsData
-            },
-            onShippingChangeHandler: (data, actions) => this.onShippingChangeHandler(data, actions),
-            onInitCallback: () => {
-                console.log('Ideal Fast Checkout initialized');
-            },
-            onClickCallback: () => {
-                console.log('Checkout button clicked');
-            }
+    initPayment(e) {
+        e.preventDefault();
+        this.createCart().then((data) => {
+            this.createOrder(data);
         });
     }
 
-    createTransaction(orderData) {
-        console.log(orderData)
-        const data = {
-            page: this.options.page,
-            orderId: orderData.orderId,
-        };
+    createCart() {
+        let formData = null;
 
-        if (this.cartToken) {
-            data.cartToken = this.cartToken;
+        if (this.options.page === "product") {
+            const formElement = document.getElementById('productDetailPageBuyProductForm');
+            if (formElement) {
+                formData = FormSerializeUtil.serializeJson(formElement);
+            } else {
+                console.error('Form element not found.');
+            }
         }
-
         return new Promise((resolve, reject) => {
             this.httpClient.post(
-                `${this.url}/idealfastcheckout/pay`,
-                JSON.stringify(data),
+                `${this.url}/ideal/cart/get`,
+                JSON.stringify({
+                    form: formData,
+                    page: this.options.page,
+                }),
                 (response) => {
-                    const parsedResponse = JSON.parse(response);
-                    if (parsedResponse) {
-                        resolve(parsedResponse);
+                    let resp = JSON.parse(response);
+                    console.log(resp);
+                    if(resp.error) {
+                        this.displayErrorMessage(resp.message);
+                        reject(resp.message);
                     } else {
-                        reject('Transaction failed');
+                        this.cartToken = resp.cartToken;
+                        resolve(resp);
                     }
+
                 }
             );
         });
     }
 
+
+
+    /**
+     * Create the sw6 order with the payment data
+     * @param {*} payment
+     */
+    createOrder(payment) {
+        return new Promise((resolve) => {
+            this.httpClient.post(
+                `${this.url}/ideal/order/create`,
+                JSON.stringify({
+                    payment: JSON.stringify(payment),
+                    cartToken: this.cartToken,
+                    page: this.options.page
+                }),
+                (response) => {
+                    console.log(response)
+                    // const resp = JSON.parse(response);
+                    // if (resp.redirect) {
+                    //     resolve({
+                    //         status: ApplePaySession.STATUS_SUCCESS,
+                    //         errors: [],
+                    //     });
+                    //     window.location = resp.redirect;
+                    // } else {
+                    //
+                    //     let message = this.options.i18n.cannot_create_payment;
+                    //     if(resp.message) {
+                    //         message = resp.message;
+                    //     }
+                    //     this.displayErrorMessage(message);
+                    //     resolve({
+                    //         status: ApplePaySession.STATUS_FAILURE,
+                    //         errors: [message],
+                    //     });
+                    // }
+                }
+            );
+        });
+    }
     onShippingChangeHandler(data, actions) {
         const formData = FormSerializeUtil.serializeJson(this.el.closest('form'));
         return new Promise((resolve, reject) => {

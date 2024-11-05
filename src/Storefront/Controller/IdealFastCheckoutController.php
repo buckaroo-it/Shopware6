@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Buckaroo\Shopware6\Service\ContextService;
 use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -19,14 +20,25 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
-
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 class IdealFastCheckoutController extends AbstractPaymentController
 {
     /**
      * @var \Psr\Log\LoggerInterface
      */
     protected $logger;
+    protected ContextService $contextService;
+    /**
+     * @var AbstractShippingMethodRoute
+     */
+    private $shippingMethodRoute;
+
+    private EntityRepository $shippingMethodRepository;
 
     public function __construct(
         CartService $cartService,
@@ -34,9 +46,15 @@ class IdealFastCheckoutController extends AbstractPaymentController
         OrderService $orderService,
         SalesChannelRepository $paymentMethodRepository,
         SettingsService $settingsService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ContextService $contextService,
+        AbstractShippingMethodRoute $shippingMethodRoute,
+        EntityRepository $shippingMethodRepository
     ) {
         $this->logger = $logger;
+        $this->contextService = $contextService;
+        $this->shippingMethodRoute = $shippingMethodRoute;
+        $this->shippingMethodRepository = $shippingMethodRepository;
 
         parent::__construct(
             $cartService,
@@ -49,68 +67,178 @@ class IdealFastCheckoutController extends AbstractPaymentController
     /**
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
-     *
-     * @return JsonResponse
      */
-    #[Route(path: "buckaroo/idealfastcheckout/create", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest" => true], options: ["seo" => false], name: "frontend.action.buckaroo.idealFastCheckoutCreate", methods: ["POST"])]
-    public function create(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
+    #[Route(path: '/buckaroo/ideal/cart/get', name: 'frontend.action.buckaroo.idealGetCart', options: ['seo' => false], methods: ['POST'], defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']])]
+    public function getIdealCart(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
-
         try {
+
             $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
-            $this->loginCustomer(
-                $this->getCustomerData($request),
-                $salesChannelContext
-            );
             $cart = $this->getCart($request, $salesChannelContext);
+
+            $fee = $this->getFee($salesChannelContext, 'idealFee');
+            return $this->response([
+                "cartToken" => $cart->getToken(),
+                "storeName" => $this->contextService->getStoreName($salesChannelContext),
+                "country" => $this->contextService->getCountryCode($salesChannelContext),
+                "currency" => $this->contextService->getCurrencyCode($salesChannelContext),
+                "lineItems" => $this->getLineItems($cart, $fee),
+                "totals" => $this->getTotal($cart, $fee),
+                "shippingMethods" => $this->getFormatedShippingMethods($cart, $salesChannelContext)
+            ]);
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
             return $this->response(
-                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
+                ["message" => $th],
                 true
             );
         }
-
-        return $this->response([
-            "cart" => $this->getCartBreakdown($cart, $salesChannelContext),
-            "token" => $cart->getToken(),
-        ]);
     }
 
 
+    /**
+     * Get cart line items from
+     *
+     * @param Cart $cart
+     * @return array<mixed>
+     */
+    public function getLineItems(Cart $cart, float $fee)
+    {
+        $shippingSum = $cart->getDeliveries()->getShippingCosts()->sum();
+        $productSum = $cart->getLineItems()->getPrices()->sum();
+
+        return [
+            [
+                'label' => $this->trans('bkr-applepay.Subtotal'),
+                'amount' => $this->formatNumber(
+                    $productSum->getTotalPrice() + $fee
+                ),
+                'type' => 'final'
+            ],
+            [
+                'label' => $this->trans('bkr-applepay.Deliverycosts'),
+                'amount' => $this->formatNumber($shippingSum->getUnitPrice()),
+                'type' => 'final'
+            ]
+        ];
+    }
+
+    /**
+     * Get cart total;
+     *
+     * @param Cart $cart
+     * @return array<mixed>
+     */
+    public function getTotal(Cart $cart, float $fee): array
+    {
+        return  [
+            'label' => $this->trans('checkout.summaryTotalPrice'),
+            'amount' => $this->formatNumber(
+                $cart->getPrice()->getTotalPrice() + $fee
+            ),
+            'type' => 'final'
+        ];
+    }
+
+    /**
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return ShippingMethodCollection
+     */
+    protected function getShippingMethods(SalesChannelContext $salesChannelContext): ShippingMethodCollection
+    {
+
+        $request = new Request();
+        $request->query->set('onlyAvailable', '1');
+
+        /** @var \Shopware\Core\Checkout\Shipping\ShippingMethodCollection */
+        return $this->shippingMethodRoute
+            ->load($request, $salesChannelContext, new Criteria())
+            ->getShippingMethods();
+    }
+
+
+    /**
+     * @param Cart $cart
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return array<mixed>
+     */
+    public function getFormatedShippingMethods(Cart $cart, SalesChannelContext $salesChannelContext): array
+    {
+        $shippingMethodsCollection = $this->getShippingMethods($salesChannelContext);
+        $shippingMethods = [];
+
+        $currentShippingMethod = $salesChannelContext->getShippingMethod();
+
+        foreach ($shippingMethodsCollection as $shippingMethod) {
+            $amount = $this->calculateCartShippingAmountForShippingMethod(
+                $cart,
+                $salesChannelContext,
+                $shippingMethod
+            )->getShippingCosts()->getTotalPrice();
+            $shippingMethods[] = [
+                'label' => $shippingMethod->getName(),
+                'amount' => $amount,
+                'identifier' => $shippingMethod->getId(),
+                'detail' => $shippingMethod->getDescription()
+            ];
+        }
+
+        // Restore cart & context to the original payment method
+        $this->calculateCartShippingAmountForShippingMethod(
+            $cart,
+            $salesChannelContext,
+            $currentShippingMethod
+        );
+
+        return $shippingMethods;
+    }
+
+    /**
+     * @param Cart $cart
+     * @param SalesChannelContext $salesChannelContext
+     * @param ShippingMethodEntity $shippingMethod
+     *
+     * @return Cart
+     */
+    public function calculateCartShippingAmountForShippingMethod(
+        Cart $cart,
+        SalesChannelContext $salesChannelContext,
+        ShippingMethodEntity $shippingMethod
+    ): Cart {
+        $salesChannelContext->assign([
+            'shippingMethod' => $shippingMethod
+        ]);
+
+        return $this->cartService->calculateCart($cart, $salesChannelContext);
+    }
 
     /**
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
-     *
-     * @return JsonResponse
      */
-    #[Route(path: "buckaroo/idealfastcheckout/pay", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest" => true], options: ["seo" => false], name: "frontend.action.buckaroo.idealFastCheckoutCreate", methods: ["POST"])]
+    #[Route(path: "buckaroo/ideal/order/create", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest" => true], options: ["seo" => false], name: "frontend.action.buckaroo.idealFastCheckoutCreate", methods: ["POST"])]
     public function pay(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
-        $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
 
-        if (!$request->request->has('orderId')) {
-            return $this->response(
-                ["message" => $this->trans("buckaroo.button_payment.missing_order_id")],
-                true
-            );
-        }
         try {
+            $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
             $redirectPath = $this->placeOrder(
-                $this->createOrder($salesChannelContext, (string)$request->request->get('cartToken')),
+                $this->createOrder($salesChannelContext, $request),
                 $salesChannelContext,
                 new RequestDataBag([
-                    "orderId" => $request->request->get('orderId')
+                    "idealFastCheckoutInfo" => $request->request->get('payment')
                 ])
             );
+
             return $this->response([
                 "redirect" => $this->getFinishPage($redirectPath)
             ]);
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
             return $this->response(
-                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
+                ["message" => $th],
                 true
             );
         }
@@ -120,13 +248,13 @@ class IdealFastCheckoutController extends AbstractPaymentController
      * Create order from cart
      *
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $cartToken
+     * @param Request $request
      *
      * @return \Shopware\Core\Checkout\Order\OrderEntity
      */
-    protected function createOrder(SalesChannelContext $salesChannelContext, string $cartToken = null): OrderEntity
-    {
-
+    protected function createOrder(SalesChannelContext $salesChannelContext, Request $request)
+    {;
+        $cartToken = $request->request->get('cartToken');
         if (!is_string($cartToken)) {
             $cartToken = $salesChannelContext->getToken();
         }
@@ -136,6 +264,19 @@ class IdealFastCheckoutController extends AbstractPaymentController
         if ($cart === null) {
             throw new \Exception("Cannot find cart", 1);
         }
+
+        if (in_array($request->request->get('page'), ['product', 'cart'])) {
+
+            $updatedCart = $this->updateCartBillingAddress(
+                $cart,
+                $salesChannelContext,
+                $request->request->get('payment')
+            );
+            if ($updatedCart !== null) {
+                $cart = $updatedCart;
+            }
+        }
+
         $order = $this->orderService
             ->setSaleChannelContext($salesChannelContext)
             ->persist($cart);
@@ -144,6 +285,47 @@ class IdealFastCheckoutController extends AbstractPaymentController
             throw new \Exception("Cannot create order", 1);
         }
         return $order;
+    }
+
+    /**
+     *
+     * @param Cart $cart
+     * @param SalesChannelContext $salesChannelContext
+     * @param mixed $paymentData
+     *
+     * @return Cart|null
+     */
+    protected function updateCartBillingAddress(
+        Cart $cart,
+        SalesChannelContext $salesChannelContext,
+        $paymentData
+    ): ?Cart {
+        if (is_string($paymentData)) {
+            $paymentData = json_decode($paymentData, true);
+        }
+
+        if (!is_array($paymentData) || !isset($paymentData['billingContact'])) {
+            return null;
+        }
+
+        $customer = $salesChannelContext->getCustomer();
+        if ($customer === null) {
+            throw new \InvalidArgumentException('Customer cannot be null');
+        }
+
+        $address = $this->customerService
+            ->setSaleChannelContext($salesChannelContext)
+            ->createAddress(
+                $this->getCustomerData($paymentData['billingContact']),
+                $customer
+            );
+
+
+        if ($address !== null) {
+            $customer->setActiveBillingAddress($address);
+            return $this->cartService->calculateCart($cart, $salesChannelContext);
+        }
+        return $cart;
     }
     /**
      * Get cart price breakdown
@@ -198,7 +380,6 @@ class IdealFastCheckoutController extends AbstractPaymentController
         if (!$request->request->has('customer')) {
             throw new InvalidParameterException("Invalid payment request", 1);
         }
-
         $customer = $request->request->get('customer');
 
         if (!isset($customer['shipping_address'])) {
