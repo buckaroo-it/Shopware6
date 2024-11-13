@@ -362,7 +362,7 @@ class PushController extends StorefrontController
             )) {
                 return $this->response('buckaroo.messages.skippedPush');
             }
-            $this->setPaymentState("fail", $orderTransactionId, $salesChannelContext, $request);
+            $this->setPaymentState("process_unconfirmed", $orderTransactionId, $salesChannelContext, $request);
 
             return $this->response('buckaroo.messages.orderCancelled');
         }
@@ -433,7 +433,7 @@ class PushController extends StorefrontController
                 ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
             ]
         )) {
-            $orderStatus = "fail";
+            $orderStatus = "cancelled";
         }
 
         if ($orderStatus !== null) {
