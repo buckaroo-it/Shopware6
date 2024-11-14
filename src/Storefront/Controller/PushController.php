@@ -362,8 +362,6 @@ class PushController extends StorefrontController
             )) {
                 return $this->response('buckaroo.messages.skippedPush');
             }
-
-
             $this->setPaymentState("fail", $orderTransactionId, $salesChannelContext, $request);
 
             return $this->response('buckaroo.messages.orderCancelled');
