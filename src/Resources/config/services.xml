@@ -186,170 +186,170 @@
         </service>
         <service id="Buckaroo\Shopware6\Handlers\AsyncPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
         <!-- Payment methods -->
 
         <service id="Buckaroo\Shopware6\Handlers\IdealPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <argument type="service" id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\BancontactPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\BlikPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\CreditcardsPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <argument type="service" id="Buckaroo\Shopware6\Handlers\AfterPayOld" />
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\SofortPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\PaypalPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData" />
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\TransferPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\KbcPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\KnakenPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\MBWayPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\MultibancoPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\SepaDirectDebitPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\PayconiqPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\ApplePayPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\GiftcardsPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\In3PaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <argument type="service" id="Buckaroo\Shopware6\Handlers\In3V2"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\EpsPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\P24PaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\AlipayPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\WeChatPayPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\TrustlyPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\KlarnaPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\KlarnaKpPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\KlarnainPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\BillinkPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\BelfiusPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\PayByBankPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\PayPerEmailPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\PayLinkService"/>
-            <tag name="shopware.payment.method" />
+            <tag name="shopware.payment.method.async" />
         </service>
         <!-- /Payment methods -->
 
