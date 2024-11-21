@@ -58,6 +58,7 @@ export default class IdealFastCheckoutPlugin extends Plugin {
             if (formElement) {
                 formData = FormSerializeUtil.serializeJson(formElement);
             } else {
+                formData = null;
                 console.error('Form element not found.');
             }
         }
@@ -100,26 +101,24 @@ export default class IdealFastCheckoutPlugin extends Plugin {
                     page: this.options.page
                 }),
                 (response) => {
-                    console.log(response)
-                    // const resp = JSON.parse(response);
-                    // if (resp.redirect) {
-                    //     resolve({
-                    //         status: ApplePaySession.STATUS_SUCCESS,
-                    //         errors: [],
-                    //     });
-                    //     window.location = resp.redirect;
-                    // } else {
-                    //
-                    //     let message = this.options.i18n.cannot_create_payment;
-                    //     if(resp.message) {
-                    //         message = resp.message;
-                    //     }
-                    //     this.displayErrorMessage(message);
-                    //     resolve({
-                    //         status: ApplePaySession.STATUS_FAILURE,
-                    //         errors: [message],
-                    //     });
-                    // }
+                    const resp = JSON.parse(response);
+                    if (resp.redirect) {
+                        resolve({
+                            errors: [],
+                        });
+                        window.location = resp.redirect;
+                    } else {
+
+                        let message = this.options.i18n.cannot_create_payment;
+                        if(resp.message) {
+                            message = resp.message;
+                        }
+                        this.displayErrorMessage(message);
+                        resolve({
+                            status: ApplePaySession.STATUS_FAILURE,
+                            errors: [message],
+                        });
+                    }
                 }
             );
         });

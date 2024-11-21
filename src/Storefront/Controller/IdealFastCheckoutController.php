@@ -228,12 +228,11 @@ class IdealFastCheckoutController extends AbstractPaymentController
                 $this->createOrder($salesChannelContext, $request),
                 $salesChannelContext,
                 new RequestDataBag([
-                    "idealFastCheckoutInfo" => $request->request->get('payment')
+                    "idealFastCheckoutInfo" => true
                 ])
             );
-
             return $this->response([
-                "redirect" => $this->getFinishPage($redirectPath)
+                "redirect" => $redirectPath
             ]);
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
