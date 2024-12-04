@@ -299,6 +299,11 @@ class PushController extends StorefrontController
                     'alreadyPaid' => $alreadyPaid,
                 ]);
 
+                var_dump($request->request->get('brq_transactions') . ' request');
+                var_dump($originalTransactionKey.' $originalTransactionKey');
+                var_dump($data.' $data');
+                die('push controller executed');
+
                 $this->transactionService->saveTransactionData(
                     $orderTransactionId,
                     $context,
