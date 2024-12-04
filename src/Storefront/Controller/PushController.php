@@ -282,6 +282,7 @@ class PushController extends StorefrontController
                     $this->logger->info(__METHOD__ . "|42|");
                     $paymentState              = 'authorize';
                     $data['reservationNumber'] = $request->request->get('brq_SERVICE_klarnakp_ReservationNumber');
+                    $originalTransactionKey = $request->request->get('brq_SERVICE_klarnakp_AutoPayTransactionKey');
                 }
                 $this->logger->info(__METHOD__ . "|45|", [$paymentState, $brqAmount, $totalPrice]);
 
