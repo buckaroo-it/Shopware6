@@ -294,7 +294,7 @@ class PushController extends StorefrontController
 
                 $paymentMethodCode = $paymentMethod ? $paymentMethod : $request->request->get('brq_transaction_method');
                 $data = array_merge($data, [
-                    'originalTransactionKey' => (string)$request->request->get('brq_transactions'),
+                    'originalTransactionKey' => $originalTransactionKey,
                     'brqPaymentMethod'       => $paymentMethodCode,
                     'alreadyPaid' => $alreadyPaid,
                 ]);
