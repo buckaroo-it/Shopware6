@@ -294,15 +294,10 @@ class PushController extends StorefrontController
 
                 $paymentMethodCode = $paymentMethod ? $paymentMethod : $request->request->get('brq_transaction_method');
                 $data = array_merge($data, [
-                    'originalTransactionKey' => $request->request->get('brq_transactions'),
+                    'originalTransactionKey' => (string)$request->request->get('brq_transactions'),
                     'brqPaymentMethod'       => $paymentMethodCode,
                     'alreadyPaid' => $alreadyPaid,
                 ]);
-
-                var_dump($request->request->get('brq_transactions') . ' request');
-                var_dump($originalTransactionKey.' $originalTransactionKey');
-                var_dump($data.' $data');
-                die('push controller executed');
 
                 $this->transactionService->saveTransactionData(
                     $orderTransactionId,
