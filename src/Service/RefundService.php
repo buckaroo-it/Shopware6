@@ -449,12 +449,12 @@ class RefundService
             ];
         }
 
-//        if (!isset($customFields['originalTransactionKey'])) {
-//            return [
-//                'status' => false,
-//                'message' => $this->translator->trans("buckaroo-payment.general_error")
-//            ];
-//        }
+        if (!isset($customFields['originalTransactionKey'])) {
+            return [
+                'status' => false,
+                'message' => $this->translator->trans("buckaroo-payment.general_error")
+            ];
+        }
         return null;
     }
 
