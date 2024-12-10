@@ -55,12 +55,8 @@ export default class IdealFastCheckoutPlugin extends Plugin {
 
         if (this.options.page === "product") {
             const formElement = document.getElementById('productDetailPageBuyProductForm');
-            if (formElement) {
-                formData = FormSerializeUtil.serializeJson(formElement);
-            } else {
-                formData = null;
-                console.error('Form element not found.');
-            }
+
+            formData = FormSerializeUtil.serializeJson(formElement);
         }
         return new Promise((resolve, reject) => {
             this.httpClient.post(
