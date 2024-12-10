@@ -72,8 +72,7 @@ class IdealFastCheckoutController extends AbstractPaymentController
     public function getIdealCart(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         try {
-
-            $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
+//            $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
             $cart = $this->getCart($request, $salesChannelContext);
 
             $fee = $this->getFee($salesChannelContext, 'idealFee');
@@ -221,14 +220,14 @@ class IdealFastCheckoutController extends AbstractPaymentController
     #[Route(path: "buckaroo/ideal/order/create", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest" => true], options: ["seo" => false], name: "frontend.action.buckaroo.idealFastCheckoutCreate", methods: ["POST"])]
     public function pay(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
-
         try {
             $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
             $redirectPath = $this->placeOrder(
                 $this->createOrder($salesChannelContext, $request),
                 $salesChannelContext,
                 new RequestDataBag([
-                    "idealFastCheckoutInfo" => true
+                    "idealFastCheckoutInfo" => true,
+                    "payment" => $request->request->get('payment')
                 ])
             );
             return $this->response([
@@ -253,27 +252,14 @@ class IdealFastCheckoutController extends AbstractPaymentController
      */
     protected function createOrder(SalesChannelContext $salesChannelContext, Request $request)
     {;
+
         $cartToken = $request->request->get('cartToken');
         if (!is_string($cartToken)) {
             $cartToken = $salesChannelContext->getToken();
         }
-
         $cart = $this->getCartByToken($cartToken, $salesChannelContext);
-
         if ($cart === null) {
             throw new \Exception("Cannot find cart", 1);
-        }
-
-        if (in_array($request->request->get('page'), ['product', 'cart'])) {
-
-            $updatedCart = $this->updateCartBillingAddress(
-                $cart,
-                $salesChannelContext,
-                $request->request->get('payment')
-            );
-            if ($updatedCart !== null) {
-                $cart = $updatedCart;
-            }
         }
 
         $order = $this->orderService

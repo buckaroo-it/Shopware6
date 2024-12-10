@@ -35,7 +35,8 @@ class IdealPaymentHandler extends AsyncPaymentHandler
     ): array {
         if ($this->withoutIssuers($salesChannelContext->getSalesChannelId()) || $dataBag->get('idealFastCheckoutInfo')) {
             return [
-                'continueOnIncomplete' => true
+                'orderId' => $dataBag->get('orderId'),
+                'shippingCost' => 1
             ];
         }
         return [
@@ -57,7 +58,7 @@ class IdealPaymentHandler extends AsyncPaymentHandler
         string $paymentCode
     ): string {
         if ($dataBag->get('idealFastCheckoutInfo')) {
-            return 'PayFastCheckout';
+            return 'payFastCheckout';
         }
         return 'pay';
     }

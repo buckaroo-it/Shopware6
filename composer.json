@@ -11,7 +11,7 @@
         "ext-json": "*",
         "ext-pcre": "*",
         "ext-fileinfo": "*",
-        "buckaroo/sdk": "^1.13.0",
+        "buckaroo/sdk": "^1.17.1",
         "shopware/core": "*"
     },
     "authors": [{
