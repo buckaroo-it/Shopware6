@@ -118,10 +118,6 @@ Component.register("buckaroo-payment-list", {
                     logo: "afterpay.svg"
                 },
                 {
-                    code: "sofortueberweisung",
-                    logo: "sofort.svg"
-                },
-                {
                     code: "sepadirectdebit",
                     logo: "sepa-directdebit.svg"
                 },
