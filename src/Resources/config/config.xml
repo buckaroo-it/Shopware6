@@ -900,59 +900,6 @@
         </input-field>
     </card>
 
-    <card>
-        <title>Sofort</title>
-        <name>sofortueberweisung</name>
-        <input-field type="bool">
-            <name>sofortueberweisungEnabled</name>
-            <label lang="en-GB">Enabled</label>
-            <label lang="nl-NL">Ingeschakeld</label>
-            <label lang="de-DE">Aktiviert</label>
-			<label lang="fr-FR">Activé</label>
-        </input-field>
-        
-        <input-field type="single-select">
-            <name>sofortueberweisungEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
-            <defaultValue>test</defaultValue>
-            <options>
-                <option>
-                    <id>test</id>
-                    <name>Test</name>
-                </option>
-                <option>
-                    <id>live</id>
-                    <name>Live</name>
-                </option>
-            </options>
-        </input-field>
-
-        <input-field>
-            <name>sofortueberweisungLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
-			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
-			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
-			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>	
-            <defaultValue>Sofort</defaultValue>
-        </input-field>
-
-        <input-field type="float">
-            <name>sofortueberweisungFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
-        </input-field>
-    </card>
 
     <card>
     <title>PayPal</title>
@@ -1902,10 +1849,6 @@
                     <name>PayPal</name>
                 </option>
                 <option>
-                    <id>sofortueberweisung</id>
-                    <name>SOFORT</name>
-                </option>
-                <option>
                     <id>Przelewy24</id>
                     <name>Przelewy24</name>
                 </option>
@@ -2751,10 +2694,6 @@
                 <option>
                     <id>sepadirectdebit</id>
                     <name>SEPA Direct Debit</name>
-                </option>
-                <option>
-                    <id>sofortueberweisung</id>
-                    <name>Sofort Banking</name>
                 </option>
                 <option>
                     <id>belfius</id>
