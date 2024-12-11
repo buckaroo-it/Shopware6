@@ -101,7 +101,7 @@ class CaptureService
                     $this->getCommonRequestPayload(
                         $request,
                         $order,
-                        (string)$originalTransactionKey,
+                        $originalTransactionKey,
                         $action
                     ),
                     $this->getMethodPayload(
