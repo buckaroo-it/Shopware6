@@ -650,16 +650,7 @@
                         </div>
                     {% endblock %}
 
-                {% elseif buckarooKey == 'Przelewy24' %}
-                    {% block buckaroo_payment_method_przelewy24 %}
-                        <input type="hidden"
-                                       value="{{ page.extensions.buckaroo.currency }}"
-                                       class="form-control"
-                                       form="confirmOrderForm"
-                                       id="P24Currency"
-                                       name="P24Currency">
-                        <div id="P24CurrencyError">{{ "buckaroo.checkout.buckarooP24CurrencyError"|trans|sw_sanitize }}</div>
-                    {% endblock %}
+
             
                 {% elseif buckarooKey == 'klarna' or buckarooKey == 'klarnain' %}
                     {% block buckaroo_payment_method_klarna %}
