@@ -82,7 +82,7 @@ class CaptureService
             $originalTransactionKey = 'false';
         } else {
             $action = 'capture';
-            $originalTransactionKey = $customFields['originalTransactionKey'];
+            $originalTransactionKey = isset($customFields['originalTransactionKey']) ? (string)$customFields['originalTransactionKey'] : '';
         }
         if ($validationErrors !== null) {
             return $validationErrors;
@@ -98,7 +98,7 @@ class CaptureService
                     $this->getCommonRequestPayload(
                         $request,
                         $order,
-                        $originalTransactionKey,
+                        (string)$originalTransactionKey,
                         $action
                     ),
                     $this->getMethodPayload(
