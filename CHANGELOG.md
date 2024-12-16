@@ -269,3 +269,23 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BP-3711 Adjust the Riverty | Afterpay logo to the new Riverty logo
 - BP-3637 Fix Javascript error: Plugin "BuckarooPaymentValidateSubmit" is already registered
 - BP-3785 Remove payment method Giropay (discontinued)
+
+# 2.5.0
+
+-BP-3911 Add support for Shopware 6.6.8.2
+-BP-3850 Add support for Shopware 6.6.7.0 & 6.6.7.1
+-BP-4015 Added support for EUR currency in Przelewy24.
+-BP-3877 Enhanced Security for Cards (with Cliënt Side Encryption): ensuring a safer checkout experience.
+-BP-3888 Improved Security for Bancontact (with Cliënt Side Encryption): ensuring a safer checkout experience.
+-BP-4016 Remove the payment method Sofort (Discontinued).
+-BP-4017 Updated the bank transfer logo to a globally recognized version.
+-BP-3594 Resolved an extension conflict with the Wexo DHLShipping module regarding Riverty and B2B orders.
+-BP-3868 Resolved an issue where canceling an iDEAL transaction could result in an error page.
+-BP-3893 Resolved an issue with the PayPal Express button that was sometimes not displayed (in the cart page).
+-BP-3906 Resolved an error: The selected payment method does not exist.
+-BP-3910 Resolved an error: Plugin "BuckarooPaymentValidateSubmit" is already registered.
+-BP-3799 Resolve an issue with PayPal orders that contain a “+” sign and can’t process the PUSH correctly.
+-BP-3893 Resolve an issue where the PayPal Express button occasionally failed to appear on the product page.
+-BP-3985 Resolve an issue with Klarna KP and refunds that triggered an error when “Automatically Pay Reservation” was enabled in the Plaza.
+-BP-3886 iDEAL cancellation can result into a error page.
+-BP-3985 Resolved an issue where Klarna refunds from Shopware displayed an error when Automatic Capture was enabled in the Buckaroo Plaza.
