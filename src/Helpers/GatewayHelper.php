@@ -14,7 +14,6 @@ use Buckaroo\Shopware6\PaymentMethods\MBWay;
 use Buckaroo\Shopware6\PaymentMethods\Alipay;
 use Buckaroo\Shopware6\PaymentMethods\Klarna;
 use Buckaroo\Shopware6\PaymentMethods\Paypal;
-use Buckaroo\Shopware6\PaymentMethods\Sofort;
 use Buckaroo\Shopware6\PaymentMethods\Belfius;
 use Buckaroo\Shopware6\PaymentMethods\Billink;
 use Buckaroo\Shopware6\PaymentMethods\IdealQr;
@@ -45,7 +44,6 @@ class GatewayHelper
         Creditcard::class,
         Creditcards::class,
         AfterPay::class,
-        Sofort::class,
         Paypal::class,
         Transfer::class,
         ApplePay::class,

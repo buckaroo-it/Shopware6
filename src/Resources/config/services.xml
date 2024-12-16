@@ -227,18 +227,14 @@
             <argument type="service" id="Buckaroo\Shopware6\Handlers\AfterPayOld" />
             <tag name="shopware.payment.method.async" />
         </service>
-        
-        <service id="Buckaroo\Shopware6\Handlers\SofortPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method.async" />
-        </service>
+
 
         <service id="Buckaroo\Shopware6\Handlers\PaypalPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData" />
             <tag name="shopware.payment.method.async" />
         </service>
-        
+
         <service id="Buckaroo\Shopware6\Handlers\TransferPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
@@ -263,12 +259,12 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
         </service>
-        
+
         <service id="Buckaroo\Shopware6\Handlers\SepaDirectDebitPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
         </service>
-        
+
         <service id="Buckaroo\Shopware6\Handlers\PayconiqPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
@@ -283,7 +279,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
         </service>
-       
+
         <service id="Buckaroo\Shopware6\Handlers\In3PaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <argument type="service" id="Buckaroo\Shopware6\Handlers\In3V2"/>
@@ -329,12 +325,12 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
         </service>
-        
+
         <service id="Buckaroo\Shopware6\Handlers\BillinkPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
         </service>
-        
+
         <service id="Buckaroo\Shopware6\Handlers\BelfiusPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method.async" />
@@ -345,7 +341,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
             <tag name="shopware.payment.method.async" />
         </service>
-        
+
         <service id="Buckaroo\Shopware6\Handlers\PayPerEmailPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\PayLinkService"/>
