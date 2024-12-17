@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://www.buckaroo.nl/media/3476/shopware6_icon.png" width="200px" position="center">
+  <img src="https://github.com/user-attachments/assets/fec1c08d-c555-48ad-beab-671488a33295" width="200px" position="center">
 </p>
 
 # Buckaroo Shopware 6 Payments Plugin
