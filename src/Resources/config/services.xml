@@ -357,7 +357,7 @@
             <argument type="service" id="order_transaction.repository" />
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="order.repository" />
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -424,7 +424,9 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Helper"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="sales_channel.payment_method.repository"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="session"/>
+            <argument type="service" id="translator" />
             <tag name="kernel.event_subscriber"/>
         </service>
 

@@ -112,8 +112,6 @@ class PushController extends StorefrontController
             $this->checkoutHelper->saveBuckarooTransaction($request, $context);
         }
 
-        $transaction = $this->checkoutHelper->getOrderTransaction($orderTransactionId, $context);
-
         $totalPrice = $order->getPrice()->getTotalPrice();
 
         //Check if the push is a refund request or cancel authorize

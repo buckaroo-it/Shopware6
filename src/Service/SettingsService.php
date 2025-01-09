@@ -34,8 +34,14 @@ class SettingsService
     {
         return $this->systemConfigService->set('BuckarooPayments.config.' . $setting, $value, $salesChannelId);
     }
+    
     public function getShopName(string $salesChannelId = null)
     {
         return $this->systemConfigService->get('core.basicInformation.shopName');
+    }
+
+    public function getEnabled($method = '', $salesChannelId = null)
+    {
+        return $this->getSetting($method . 'Enabled', $salesChannelId);
     }
 }
