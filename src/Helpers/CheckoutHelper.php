@@ -165,6 +165,11 @@ class CheckoutHelper
         $this->logger = $logger;
     }
 
+    public function getShopwareVersion()
+    {
+        return $this->shopwareVersion;
+    }
+
     public function getSetting(string $name, string $salesChannelId = null)
     {
         return $this->settingsService->getSetting($name, $salesChannelId);
@@ -1926,19 +1931,19 @@ class CheckoutHelper
         return $productData;
     }
 
-    public function getOrderCurrency(Context $context): CurrencyEntity
-    {
-        $criteria = new Criteria([$context->getCurrencyId()]);
+    // public function getOrderCurrency(Context $context): CurrencyEntity
+    // {
+    //     $criteria = new Criteria([$context->getCurrencyId()]);
 
-        /** @var null|CurrencyEntity $currency */
-        $currency = $this->currencyRepository->search($criteria, $context)->first();
+    //     /** @var null|CurrencyEntity $currency */
+    //     $currency = $this->currencyRepository->search($criteria, $context)->first();
 
-        if (null === $currency) {
-            throw new RuntimeException('missing order currency entity');
-        }
+    //     if (null === $currency) {
+    //         throw new RuntimeException('missing order currency entity');
+    //     }
 
-        return $currency;
-    }
+    //     return $currency;
+    // }
 
     /**
      * Detect Mobile Browser
@@ -1953,19 +1958,19 @@ class CheckoutHelper
         return false;
     }
 
-    public function getIdealRenderMode(string $salesChannelId = null)
-    {
-        return $this->getSetting('idealRenderMode', $salesChannelId);
-    }
+    // public function getIdealRenderMode(string $salesChannelId = null)
+    // {
+    //     return $this->getSetting('idealRenderMode', $salesChannelId);
+    // }
     
-    public function getBuckarooFeeLabel($buckarooKey, $label, $context, string $salesChannelId = null)
-    {
-        $currency = $this->getOrderCurrency($context);
-        if($buckarooFee = $this->getSetting($buckarooKey.'Fee', $salesChannelId)){
-            $label .= ' +' . $currency->getSymbol() . $buckarooFee;
-        }
-        return $label;
-    }
+    // public function getBuckarooFeeLabel($buckarooKey, $label, $context, string $salesChannelId = null)
+    // {
+    //     $currency = $this->getOrderCurrency($context);
+    //     if($buckarooFee = $this->getSetting($buckarooKey.'Fee', $salesChannelId)){
+    //         $label .= ' +' . $currency->getSymbol() . $buckarooFee;
+    //     }
+    //     return $label;
+    // }
 
     public function getBuckarooFee($buckarooKey, string $salesChannelId = null)
     {

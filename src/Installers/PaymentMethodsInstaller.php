@@ -247,9 +247,7 @@ class PaymentMethodsInstaller implements InstallerInterface
 
         foreach (
             [
-                ['pendingPaymentStatus'=>'open'],
                 ['paymentSuccesStatus'=>'paid'],
-                ['paymentFailedStatus'=>'cancelled'],
                 ['orderStatus'=>'open'],
                 ['klarnaBusiness'=>'B2C'],
                 ['BillinkMode'=>'pay'], 
