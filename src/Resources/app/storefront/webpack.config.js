@@ -16,8 +16,10 @@ try {
     const versionOutput = require('child_process')
         .execSync(`${path.resolve(__dirname, '../../../../../../../bin/console')} -V`)
         .toString();
-    console.log('qetuu', versionOutput)
+    console.log(versionOutput , ' versionOutput')
     const match = versionOutput.match(/(\d+\.\d+)/);
+
+    console.log(match , 'match')
     if (match) {
         shopwareVersion = match[1];
     }
@@ -26,7 +28,7 @@ try {
 }
 
 const isNewerThan65 = parseFloat(shopwareVersion) >= 6.5;
-
+console.log(isNewerThan65)
 console.log(`Shopware version detected: ${shopwareVersion} (${isNewerThan65 ? '>=6.5' : '<6.5'})`);
 
 module.exports = {
