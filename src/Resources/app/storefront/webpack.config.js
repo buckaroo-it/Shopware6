@@ -27,7 +27,7 @@ try {
     console.log('error ' , error);
 }
 
-const isNewerThan65 = parseFloat(shopwareVersion) >= 6.5;
+const isNewerThan65 = parseFloat(shopwareVersion) > 6.5;
 console.log(isNewerThan65)
 console.log(`Shopware version detected: ${shopwareVersion} (${isNewerThan65 ? '>=6.5' : '<6.5'})`);
 
