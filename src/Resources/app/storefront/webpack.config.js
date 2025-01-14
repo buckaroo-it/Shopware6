@@ -38,7 +38,7 @@ module.exports = {
     output: {
         path: path.resolve(
             __dirname,
-            `dist/storefront/js/${isNewerThan65 ? '' : 'buckaroo-payments'}`
+            `dist/storefront/js/${isNewerThan65 ? 'buckaroo-payments' : ''}`
         ),
         filename: isNewerThan65
             ? 'buckaroo-payments/buckaroo-payments.js' // File directly in the js folder
