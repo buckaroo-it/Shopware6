@@ -1,5 +1,5 @@
 {
-  "name": "your-plugin-name",
+  "name": "buckaroo-payments",
   "version": "1.0.0",
   "description": "Shopware plugin for handling storefront JavaScript.",
   "scripts": {
