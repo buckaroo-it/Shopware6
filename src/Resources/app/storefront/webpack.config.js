@@ -18,7 +18,7 @@ try {
         .toString();
     console.log('qetuu', versionOutput)
     const match = versionOutput.match(/(\d+\.\d+)/);
-    if (match) {``
+    if (match) {
         shopwareVersion = match[1];
     }
 } catch (error) {
