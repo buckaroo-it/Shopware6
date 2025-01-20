@@ -1,0 +1,16 @@
+{
+  "name": "buckaroo-payments",
+  "version": "1.0.0",
+  "description": "Shopware plugin for handling storefront JavaScript.",
+  "scripts": {
+    "build": "webpack --mode production",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "webpack": "^5.0.0",
+    "webpack-cli": "^4.0.0",
+    "babel-loader": "^9.2.1",
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0"
+  }
+}

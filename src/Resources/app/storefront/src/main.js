@@ -10,22 +10,13 @@ import BuckarooPayByBankLogo from './paybybank/logo.plugin';
 import BuckarooBanContact from './bancontact/buckaroo-payment.bancontact';
 
 const PluginManager = window.PluginManager;
-
-const registerPlugin = (pluginName, pluginClass, selector = null) => {
-    if (!PluginManager.getPlugin(pluginName)) {
-        PluginManager.register(pluginName, pluginClass, selector);
-    } else {
-        console.warn(`Plugin "${pluginName}" is already registered.`);
-    }
-};
-
-registerPlugin('BuckarooPaymentValidateSubmit', BuckarooPaymentValidateSubmit);
-registerPlugin('BuckarooPaymentCreditcards', BuckarooPaymentCreditcards);
-registerPlugin('BuckarooPaymentHelper', BuckarooPaymentHelper);
-registerPlugin('PaypalExpressPlugin', PaypalExpressPlugin, '[data-paypal-express]');
-registerPlugin('BuckarooIdealQrPlugin', IdealQrPlugin, '[data-ideal-qr]');
-registerPlugin('BuckarooApplePayPlugin', ApplePayPlugin, '[data-bk-applepay]');
-registerPlugin('BuckarooLoadScripts', BuckarooLoadScripts);
-registerPlugin('BuckarooBanContact', BuckarooBanContact);
-registerPlugin('BuckarooPayByBankSelect', BuckarooPayByBankSelect, '[data-bk-select]');
-registerPlugin('BuckarooPayByBankLogo', BuckarooPayByBankLogo, '[data-bk-paybybank-logo]');
+PluginManager.register('BuckarooPaymentValidateSubmit', BuckarooPaymentValidateSubmit);
+PluginManager.register('BuckarooPaymentCreditcards', BuckarooPaymentCreditcards);
+PluginManager.register('BuckarooPaymentHelper', BuckarooPaymentHelper);
+PluginManager.register('PaypalExpressPlugin', PaypalExpressPlugin, '[data-paypal-express]');
+PluginManager.register('BuckarooIdealQrPlugin', IdealQrPlugin, '[data-ideal-qr]');
+PluginManager.register('BuckarooApplePayPlugin', ApplePayPlugin, '[data-bk-applepay]');
+PluginManager.register('BuckarooLoadScripts', BuckarooLoadScripts);
+PluginManager.register('BuckarooBanContact', BuckarooBanContact);
+PluginManager.register('BuckarooPayByBankSelect', BuckarooPayByBankSelect, '[data-bk-select]');
+PluginManager.register('BuckarooPayByBankLogo', BuckarooPayByBankLogo, '[data-bk-paybybank-logo]');
