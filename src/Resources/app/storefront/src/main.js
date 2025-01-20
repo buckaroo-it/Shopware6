@@ -10,13 +10,23 @@ import BuckarooPayByBankLogo from './paybybank/logo.plugin';
 import BuckarooBanContact from './bancontact/buckaroo-payment.bancontact';
 
 const PluginManager = window.PluginManager;
-PluginManager.register('BuckarooPaymentValidateSubmit', BuckarooPaymentValidateSubmit);
-PluginManager.register('BuckarooPaymentCreditcards', BuckarooPaymentCreditcards);
-PluginManager.register('BuckarooPaymentHelper', BuckarooPaymentHelper);
-PluginManager.register('PaypalExpressPlugin', PaypalExpressPlugin, '[data-paypal-express]');
-PluginManager.register('BuckarooIdealQrPlugin', IdealQrPlugin, '[data-ideal-qr]');
-PluginManager.register('BuckarooApplePayPlugin', ApplePayPlugin, '[data-bk-applepay]');
-PluginManager.register('BuckarooLoadScripts', BuckarooLoadScripts);
-PluginManager.register('BuckarooBanContact', BuckarooBanContact);
-PluginManager.register('BuckarooPayByBankSelect', BuckarooPayByBankSelect, '[data-bk-select]');
-PluginManager.register('BuckarooPayByBankLogo', BuckarooPayByBankLogo, '[data-bk-paybybank-logo]');
+
+
+const init = () => {
+    if('BuckarooPaymentValidateSubmit' in window.PluginManager.getPluginList()) {
+        return;
+    }
+
+    PluginManager.register('BuckarooPaymentValidateSubmit', BuckarooPaymentValidateSubmit);
+    PluginManager.register('BuckarooPaymentCreditcards', BuckarooPaymentCreditcards);
+    PluginManager.register('BuckarooPaymentHelper', BuckarooPaymentHelper);
+    PluginManager.register('PaypalExpressPlugin', PaypalExpressPlugin, '[data-paypal-express]');
+    PluginManager.register('BuckarooIdealQrPlugin', IdealQrPlugin, '[data-ideal-qr]');
+    PluginManager.register('BuckarooApplePayPlugin', ApplePayPlugin, '[data-bk-applepay]');
+    PluginManager.register('BuckarooLoadScripts', BuckarooLoadScripts);
+    PluginManager.register('BuckarooBanContact', BuckarooBanContact);
+    PluginManager.register('BuckarooPayByBankSelect', BuckarooPayByBankSelect, '[data-bk-select]');
+    PluginManager.register('BuckarooPayByBankLogo', BuckarooPayByBankLogo, '[data-bk-paybybank-logo]');
+}
+
+init();
