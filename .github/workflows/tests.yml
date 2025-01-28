@@ -9,13 +9,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Install apt-fast
-        run: |
-          sudo add-apt-repository -y ppa:apt-fast/stable
-          sudo apt-get update
-          sudo apt-get install -y apt-fast
       - name: Setup php
-        uses: nanasess/setup-php@v3.3.2
+        uses: nanasess/setup-php@v4
         with:
           php-version: 8.1
       - uses: actions/checkout@v3
