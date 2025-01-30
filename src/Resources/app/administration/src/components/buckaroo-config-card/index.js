@@ -44,7 +44,7 @@ Component.register("buckaroo-config-card", {
             const name = element.name.replace("BuckarooPayments.config.", "");
 
             /**  toggle for advancedConfiguration */
-            if (['orderStatus','paymentSuccesStatus', 'sendInvoiceEmail'].indexOf(name) !== -1) {
+            if (['orderStatus','paymentSuccesStatus', 'automaticallyCloseOpenOrders', 'sendInvoiceEmail'].indexOf(name) !== -1) {
                 return this.getValueForName('advancedConfiguration');
             }
 
