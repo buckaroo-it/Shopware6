@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
 use Buckaroo\Shopware6\Service\ContextService;
-use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Buckaroo\Shopware6\Service\CartService;
 use Buckaroo\Shopware6\Service\OrderService;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\Service\SettingsService;
@@ -68,23 +66,32 @@ class IdealFastCheckoutController extends AbstractPaymentController
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      */
-    #[Route(path: '/buckaroo/ideal/cart/get', name: 'frontend.action.buckaroo.idealGetCart', options: ['seo' => false], methods: ['POST'], defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']])]
-    public function getIdealCart(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
+    #[Route(path: '/buckaroo/idealfastcheckout/pay', name: 'frontend.action.buckaroo.idealGetCart', options: ['seo' => false], methods: ['POST'], defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']])]
+    public function pay(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         try {
-//            $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
-            $cart = $this->getCart($request, $salesChannelContext);
+            $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
 
-            $fee = $this->getFee($salesChannelContext, 'idealFee');
+//            $this->loginCustomer(
+//                $this->getCustomerData($request),
+//                $salesChannelContext
+//            );
+
+            $cart = $this->getCart($request, $salesChannelContext);
+//            $fee = $this->getFee($salesChannelContext, 'idealFee');
+            $redirectPath = $this->placeOrder(
+                $this->createOrder($salesChannelContext,  $cart->getToken()),
+                $salesChannelContext,
+                new RequestDataBag([
+                    "idealFastCheckoutInfo" => true,
+                    "page" => $request->request->get('page')
+                ])
+            );
+            $this->cartService->deleteFromCart($salesChannelContext);
             return $this->response([
-                "cartToken" => $cart->getToken(),
-                "storeName" => $this->contextService->getStoreName($salesChannelContext),
-                "country" => $this->contextService->getCountryCode($salesChannelContext),
-                "currency" => $this->contextService->getCurrencyCode($salesChannelContext),
-                "lineItems" => $this->getLineItems($cart, $fee),
-                "totals" => $this->getTotal($cart, $fee),
-                "shippingMethods" => $this->getFormatedShippingMethods($cart, $salesChannelContext)
+                "redirect" => $redirectPath
             ]);
+
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
             return $this->response(
@@ -108,14 +115,14 @@ class IdealFastCheckoutController extends AbstractPaymentController
 
         return [
             [
-                'label' => $this->trans('bkr-applepay.Subtotal'),
+                'label' => $this->trans('bkr-idealfastcheckout.Subtotal'),
                 'amount' => $this->formatNumber(
                     $productSum->getTotalPrice() + $fee
                 ),
                 'type' => 'final'
             ],
             [
-                'label' => $this->trans('bkr-applepay.Deliverycosts'),
+                'label' => $this->trans('bkr-idealfastcheckout.Deliverycosts'),
                 'amount' => $this->formatNumber($shippingSum->getUnitPrice()),
                 'type' => 'final'
             ]
@@ -214,35 +221,6 @@ class IdealFastCheckoutController extends AbstractPaymentController
     }
 
     /**
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     */
-    #[Route(path: "buckaroo/ideal/order/create", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest" => true], options: ["seo" => false], name: "frontend.action.buckaroo.idealFastCheckoutCreate", methods: ["POST"])]
-    public function pay(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
-    {
-        try {
-            $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
-            $redirectPath = $this->placeOrder(
-                $this->createOrder($salesChannelContext, $request),
-                $salesChannelContext,
-                new RequestDataBag([
-                    "idealFastCheckoutInfo" => true,
-                    "payment" => $request->request->get('payment')
-                ])
-            );
-            return $this->response([
-                "redirect" => $redirectPath
-            ]);
-        } catch (\Throwable $th) {
-            $this->logger->debug((string)$th);
-            return $this->response(
-                ["message" => $th],
-                true
-            );
-        }
-    }
-
-    /**
      * Create order from cart
      *
      * @param SalesChannelContext $salesChannelContext
@@ -250,18 +228,15 @@ class IdealFastCheckoutController extends AbstractPaymentController
      *
      * @return \Shopware\Core\Checkout\Order\OrderEntity
      */
-    protected function createOrder(SalesChannelContext $salesChannelContext, Request $request)
-    {;
-
-        $cartToken = $request->request->get('cartToken');
+    protected function createOrder(SalesChannelContext $salesChannelContext, String $cartToken)
+    {
         if (!is_string($cartToken)) {
             $cartToken = $salesChannelContext->getToken();
         }
-        $cart = $this->getCartByToken($cartToken, $salesChannelContext);
+        $cart = $this->getCartByToken($cartToken, $salesChannelContext);;
         if ($cart === null) {
             throw new \Exception("Cannot find cart", 1);
         }
-
         $order = $this->orderService
             ->setSaleChannelContext($salesChannelContext)
             ->persist($cart);
@@ -365,6 +340,8 @@ class IdealFastCheckoutController extends AbstractPaymentController
         if (!$request->request->has('customer')) {
             throw new InvalidParameterException("Invalid payment request", 1);
         }
+
+
         $customer = $request->request->get('customer');
 
         if (!isset($customer['shipping_address'])) {

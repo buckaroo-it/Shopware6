@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Ideal;
-use Buckaroo\Shopware6\Service\CaptureService;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 class IdealPaymentHandler extends AsyncPaymentHandler
 {
