@@ -170,7 +170,14 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 ],
                 $salesChannelContext->getContext()
             );
+
+        $this->asyncPaymentService->transactionService
+            ->updateTransactionCustomFields($transaction->getOrderTransaction()->getId(), [
+                'originalTransactionKey'    => $response->getTransactionKey()
+            ]);
+
         $this->setFeeOnOrder($transaction, $salesChannelContext, $paymentCode);
+
         if ($response->hasRedirect()) {
             $this->asyncPaymentService
                 ->checkoutHelper
