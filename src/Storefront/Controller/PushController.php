@@ -367,7 +367,7 @@ class PushController extends StorefrontController
 
             $paymentSuccesStatus = $this->getCancelOpenOrderSetting($salesChannelId);
             
-            if($paymentSuccesStatus == 'enabled') {
+            if ($paymentSuccesStatus == 'enabled') {
                 $this->stateTransitionService->changeOrderStatus($order, $context, 'cancel');
             }
 
