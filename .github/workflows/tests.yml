@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup php
-        uses: nanasess/setup-php@v3.3.2
+        uses: nanasess/setup-php@v4
         with:
           php-version: 8.1
       - uses: actions/checkout@v3
