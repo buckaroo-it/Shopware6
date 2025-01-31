@@ -576,29 +576,12 @@
             <label lang="fr-FR">paiement rapide iDEAL</label>
         </input-field>
 
-        <input-field type="single-select">
-            <name>idealFastCheckoutActivity</name>
-            <label lang="en-GB">iDEAL Fast Checkout</label>
-            <label lang="de-DE">iDEAL Fast Checkout</label>
-            <label lang="nl-NL">iDEAL Fast Checkout</label>
-            <label lang="fr-FR">iDEAL Fast Checkout</label>
-            <defaultValue>idealFastCheckoutEnabled</defaultValue>
-            <options>
-                <option>
-                    <id>idealFastCheckoutEnabled</id>
-                    <name lang="en-GB">Enabled</name>
-                    <name lang="nl-NL">Ingeschakeld</name>
-                    <name lang="de-DE">Aktiviert</name>
-                    <name lang="fr-FR">Activé</name>
-                </option>
-                <option>
-                    <id>idealFastCheckoutDisabled</id>
-                    <name lang="en-GB">Disabled</name>
-                    <name lang="nl-NL">Uitgeschakeld</name>
-                    <name lang="de-DE">Deaktiviert</name>
-                    <name lang="fr-FR">Désactivé</name>
-                </option>
-            </options>
+        <input-field type="bool">
+            <name>idealFastCheckoutEnabled</name>
+            <label lang="en-GB">Fast Checkout Enabled</label>
+            <label lang="nl-NL">Fast Checkout Ingeschakeld</label>
+            <label lang="de-DE">Fast Checkout Aktiviert</label>
+            <label lang="fr-FR">Fast Checkout Activé</label>
         </input-field>
 
         <input-field type="multi-select">

@@ -485,9 +485,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
     protected function showIdealFastCheckout(string $salesChannelId, string $page = 'product'): bool
     {
-        $locations = $this->settingsService->getSetting('idealFastCheckoutVisibility', $salesChannelId);
-        return is_array($locations) &&
-            in_array($page, $locations);
+        if($this->settingsService->getSetting('idealEnabled', $salesChannelId) && $this->settingsService->getSetting('idealFastCheckoutEnabled', $salesChannelId)){
+            $locations = $this->settingsService->getSetting('idealFastCheckoutVisibility', $salesChannelId);
+            return is_array($locations) &&
+                in_array($page, $locations);
+        }else {
+            return false;
+        }
     }
     protected function getIdealFastCheckoutLogo(string $salesChannelId): ?string
     {
