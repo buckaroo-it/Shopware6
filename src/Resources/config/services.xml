@@ -554,10 +554,5 @@
                        id="Buckaroo\Shopware6\Storefront\Framework\Cookie\BuckarooCookieProvider.inner" />
         </service>
 
-        <service id="Buckaroo\Shopware6\Subscribers\OrderPlacedSubscriber">
-            <argument type="service" id="Buckaroo\Shopware6\Service\CartService"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
     </services>
 </container>
