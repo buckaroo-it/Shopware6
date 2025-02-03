@@ -116,5 +116,4 @@ class IdealFastCheckoutController extends AbstractPaymentController
         }
         return $order;
     }
-
 }
