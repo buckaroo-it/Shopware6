@@ -151,4 +151,9 @@ class ClientResponse implements ClientResponseInterface
     {
         return $this->response->getTransactionKey();
     }
+
+    public function getSubCodeMessage()
+    {
+        return $this->response->getSubCodeMessage();
+    }
 }
