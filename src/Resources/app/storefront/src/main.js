@@ -2,6 +2,7 @@ import BuckarooPaymentCreditcards from './creditcards/buckaroo-payment.creditcar
 import BuckarooPaymentHelper from './helper/buckaroo-payment.helper';
 import BuckarooPaymentValidateSubmit from './helper/buckaroo-validate';
 import PaypalExpressPlugin from './paypal-express/paypal-express.plugin';
+import IdealFastCheckoutPlugin from './ideal-fast-checkout/ideal-fast-checkout.plugin';
 import ApplePayPlugin from './applepay/applepay.plugin';
 import BuckarooLoadScripts from './scripts/scripts.plugin';
 import IdealQrPlugin from './ideal-qr/ideal-qr.plugin';
@@ -27,6 +28,7 @@ const init = () => {
     PluginManager.register('BuckarooBanContact', BuckarooBanContact);
     PluginManager.register('BuckarooPayByBankSelect', BuckarooPayByBankSelect, '[data-bk-select]');
     PluginManager.register('BuckarooPayByBankLogo', BuckarooPayByBankLogo, '[data-bk-paybybank-logo]');
+    PluginManager.register('IdealFastCheckoutPlugin', IdealFastCheckoutPlugin, '[data-bk-ideal-fast-checkout]');
 }
 
 init();

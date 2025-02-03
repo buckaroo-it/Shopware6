@@ -37,6 +37,27 @@
         </div>
     {% endif %}
 
+    {% if page.extensions.buckaroo.showIdealFastCheckout %}
+        <div class="col-12 p-0">
+            {% set idealFastCheckoutConfig = {
+                page: "product",
+                websiteKey: page.extensions.buckaroo.websiteKey,
+                i18n: {
+                    cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
+                    cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
+                }
+            } %}
+            <div data-bk-ideal-fast-checkout data-buckaroo-ideal-fast-checkout-plugin-options='{{ idealFastCheckoutConfig|json_encode }}'>
+                <div  class="bk-ideal-fast-checkout"  id="fast-checkout-ideal-btn" style="">
+                    <img
+                            src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/#{page.extensions.buckaroo.idealFastCheckoutLogo}.png")}}"
+                            alt="Ideal Snel bestellen"
+                    />
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
 
 
 {% endblock %}

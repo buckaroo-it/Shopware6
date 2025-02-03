@@ -278,6 +278,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $this->settingsService->getSetting('capayableVersion', $salesChannelId),
                 $event->getSalesChannelContext()->getContext()
             ),
+            'idealFastCheckoutLogo'    => $this->getIdealFastCheckoutLogo($salesChannelId),
             'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
             'creditcard'               => $creditcard,
             'creditcards'              => $creditcards,
@@ -289,6 +290,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'backLink'                 => $backUrl,
             'afterpay_customer_type'   => $this->settingsService->getSetting('afterpayCustomerType', $salesChannelId),
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'checkout'),
+            'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
@@ -398,10 +400,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct->assign([
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'cart'),
+            'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'cart'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
-            'showApplePay'         => $this->settingsService->getSetting('applepayShowCart', $salesChannelId) == 1
+            'showApplePay'         => $this->settingsService->getSetting('applepayShowCart', $salesChannelId) == 1,
+            'idealFastCheckoutLogo' => $this->getIdealFastCheckoutLogo($salesChannelId)
         ]);
 
         $event->getPage()->addExtension(
@@ -452,9 +456,11 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $struct->assign([
             'applepayShowProduct' => $this->settingsService->getSetting('applepayShowProduct', $salesChannelId) == 1,
             'showPaypalExpress' => $this->showPaypalExpress($salesChannelId),
+            'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId' => $this->getAppleMerchantId($salesChannelId),
-            'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId)
+            'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId),
+            'idealFastCheckoutLogo' => $this->getIdealFastCheckoutLogo($salesChannelId)
         ]);
 
         $event->getPage()->addExtension(
@@ -476,6 +482,25 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             return (string)$merchantId;
         }
         return null;
+    }
+    protected function showIdealFastCheckout(string $salesChannelId, string $page = 'product'): bool
+    {
+        if (
+            $this->settingsService->getSetting('idealEnabled', $salesChannelId) &&
+            $this->settingsService->getSetting('idealFastCheckoutEnabled', $salesChannelId)
+        ) {
+            $locations = $this->settingsService->getSetting('idealFastCheckoutVisibility', $salesChannelId);
+            return is_array($locations) &&
+                in_array($page, $locations);
+        } else {/**/
+            return false;
+        }
+    }
+    protected function getIdealFastCheckoutLogo(string $salesChannelId): ?string
+    {
+        $settings = $this->settingsService->getSetting('idealFastCheckoutLogoScheme', $salesChannelId);
+
+        return is_string($settings) ? $settings : null;
     }
     protected function getAppleMerchantId(string $salesChannelId): ?string
     {
