@@ -290,7 +290,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'backLink'                 => $backUrl,
             'afterpay_customer_type'   => $this->settingsService->getSetting('afterpayCustomerType', $salesChannelId),
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'checkout'),
-            'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId,'checkout'),
+            'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
@@ -400,7 +400,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct->assign([
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'cart'),
-            'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId,'cart'),
+            'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'cart'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),

@@ -73,21 +73,27 @@ class IdealFastCheckoutController extends AbstractPaymentController
         try {
             $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
 
-//            $this->loginCustomer(
-//                $this->getCustomerData($request),
-//                $salesChannelContext
-//            );
+            $customer = $salesChannelContext->getCustomer();
+
+            if (!$customer) {
+                return $this->response([
+                    "status" => "FAILED",
+                    "message" => "No customer information available. Please log in to continue.",
+                    "redirect" => $this->generateUrl('frontend.account.login.page')
+                ], true);
+            }
 
             $cart = $this->getCart($request, $salesChannelContext);
-//            $fee = $this->getFee($salesChannelContext, 'idealFee');
+
             $redirectPath = $this->placeOrder(
-                $this->createOrder($salesChannelContext,  $cart->getToken()),
+                $this->createOrder($salesChannelContext, $cart->getToken()),
                 $salesChannelContext,
                 new RequestDataBag([
                     "idealFastCheckoutInfo" => true,
                     "page" => $request->request->get('page')
                 ])
             );
+
             $this->cartService->deleteFromCart($salesChannelContext);
             return $this->response([
                 "redirect" => $redirectPath
@@ -230,10 +236,7 @@ class IdealFastCheckoutController extends AbstractPaymentController
      */
     protected function createOrder(SalesChannelContext $salesChannelContext, String $cartToken)
     {
-        if (!is_string($cartToken)) {
-            $cartToken = $salesChannelContext->getToken();
-        }
-        $cart = $this->getCartByToken($cartToken, $salesChannelContext);;
+        $cart = $this->getCartByToken($cartToken, $salesChannelContext);
         if ($cart === null) {
             throw new \Exception("Cannot find cart", 1);
         }

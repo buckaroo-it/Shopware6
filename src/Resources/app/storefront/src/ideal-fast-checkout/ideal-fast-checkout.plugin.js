@@ -1,5 +1,6 @@
 import HttpClient from 'src/service/http-client.service';
 import Plugin from 'src/plugin-system/plugin.class';
+
 export default class IdealFastCheckoutPlugin extends Plugin {
 
     static options = {
@@ -8,13 +9,16 @@ export default class IdealFastCheckoutPlugin extends Plugin {
         websiteKey: null,
         i18n: {
             cancel_error_message: "Payment was cancelled.",
-            cannot_create_payment: "Cannot create the payment. Please try again."
+            cannot_create_payment: "Cannot create the payment. Please try again.",
+            customer_not_found: "You must be logged in to perform this action.",
+            general_error: "An error occurred while processing your payment."
         }
     }
-        httpClient = new HttpClient();
-        url = '/buckaroo';
-        result = null;
-        cartToken = null;
+
+    httpClient = new HttpClient();
+    url = '/buckaroo';
+    result = null;
+    cartToken = null;
 
     init() {
         const element = document.querySelector('[data-buckaroo-ideal-fast-checkout-plugin-options]');
@@ -48,9 +52,10 @@ export default class IdealFastCheckoutPlugin extends Plugin {
 
     createCart() {
         let formObject = {};
-        if (this.options.page === 'product'){
+        if (this.options.page === 'product') {
             formObject = this.getFormData();
         }
+
         if (!formObject) {
             console.error('Form data could not be retrieved');
             return;
@@ -60,20 +65,29 @@ export default class IdealFastCheckoutPlugin extends Plugin {
             form: formObject,
             page: this.options.page
         }).then(response => {
-            console.log(response)
             if (response.redirect) {
                 window.location = response.redirect;
-                return { errors: [] };
+            } else if (response.errorCode) {
+                this.handleErrorResponse(response);
             } else {
                 const message = response.message || this.options.i18n.cannot_create_payment;
                 this.displayErrorMessage(message);
-                return { status: 'FAILED', errors: [message] };
             }
         }).catch(error => {
             console.error('Error creating cart:', error);
+            this.displayErrorMessage(this.options.i18n.general_error);
         });
     }
 
+    handleErrorResponse(response) {
+        let message = response.message || this.options.i18n.general_error;
+
+        if (response.errorCode === 'CUSTOMER_NOT_FOUND') {
+            message = this.options.i18n.customer_not_found;
+        }
+
+        this.displayErrorMessage(message);
+    }
 
     getFormData() {
         const formElement = document.getElementById('productDetailPageBuyProductForm');
@@ -90,6 +104,7 @@ export default class IdealFastCheckoutPlugin extends Plugin {
         });
         return formObject;
     }
+
     sendPostRequest(url, data) {
         return new Promise((resolve, reject) => {
             this.httpClient.post(
@@ -107,6 +122,7 @@ export default class IdealFastCheckoutPlugin extends Plugin {
             );
         });
     }
+
     displayErrorMessage(message) {
         const errorContainer = document.createElement('div');
         errorContainer.className = 'buckaroo-idealfastcheckout-express-error alert alert-warning alert-has-icon';
