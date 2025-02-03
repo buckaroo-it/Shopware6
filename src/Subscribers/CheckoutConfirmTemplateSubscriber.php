@@ -502,14 +502,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         return is_string($settings) ? $settings : null;
     }
-    protected function getIdealFastChekout(string $salesChannelId): ?string
-    {
-        $merchantId =  $this->settingsService->getSetting('paypalExpressmerchantid', $salesChannelId);
-        if ($merchantId !== null && is_scalar($merchantId)) {
-            return (string)$merchantId;
-        }
-        return null;
-    }
     protected function getAppleMerchantId(string $salesChannelId): ?string
     {
         $merchantId =  $this->settingsService->getSetting('guid', $salesChannelId);
