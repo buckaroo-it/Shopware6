@@ -365,6 +365,12 @@ class PushController extends StorefrontController
             }
             $this->setPaymentState("fail", $orderTransactionId, $salesChannelContext, $request);
 
+            $paymentSuccesStatus = $this->getCancelOpenOrderSetting($salesChannelId);
+            
+            if ($paymentSuccesStatus == 'enabled') {
+                $this->stateTransitionService->changeOrderStatus($order, $context, 'cancel');
+            }
+
             return $this->response('buckaroo.messages.orderCancelled');
         }
 
@@ -469,6 +475,16 @@ class PushController extends StorefrontController
             return $status;
         }
         return "completed";
+    }
+    
+    private function getCancelOpenOrderSetting(string $salesChannelId): string
+    {
+        $status = $this->checkoutHelper->getSettingsValue('automaticallyCloseOpenOrders', $salesChannelId);
+        if ($status !== null && is_string($status)) {
+            return $status;
+        }
+
+        return "disabled";
     }
 
     private function response(
