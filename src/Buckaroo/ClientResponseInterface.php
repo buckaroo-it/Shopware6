@@ -77,4 +77,6 @@ interface ClientResponseInterface
     public function getSomeError(): string;
 
     public function getTransactionKey(): string;
+
+    public function getSubCodeMessage(): string;
 }

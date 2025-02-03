@@ -152,7 +152,7 @@ class ClientResponse implements ClientResponseInterface
         return $this->response->getTransactionKey();
     }
 
-    public function getSubCodeMessage()
+    public function getSubCodeMessage(): string
     {
         return $this->response->getSubCodeMessage();
     }
