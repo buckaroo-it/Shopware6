@@ -25,9 +25,6 @@ class IdealFastCheckoutController extends AbstractPaymentController
      */
     protected $logger;
     protected ContextService $contextService;
-    /**
-     * @var AbstractShippingMethodRoute
-     */
 
     public function __construct(
         CartService $cartService,
