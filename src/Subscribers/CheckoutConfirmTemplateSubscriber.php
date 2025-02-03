@@ -492,7 +492,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             $locations = $this->settingsService->getSetting('idealFastCheckoutVisibility', $salesChannelId);
             return is_array($locations) &&
                 in_array($page, $locations);
-        } else {
+        } else {/**/
             return false;
         }
     }
@@ -500,7 +500,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $settings = $this->settingsService->getSetting('idealFastCheckoutLogoScheme', $salesChannelId);
 
-        return $settings;
+        return is_string($settings) ? $settings : null;
     }
     protected function getIdealFastChekout(string $salesChannelId): ?string
     {
