@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+
 class IdealPaymentHandler extends AsyncPaymentHandler
 {
     protected string $paymentClass = Ideal::class;
@@ -31,7 +32,10 @@ class IdealPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        if ($this->withoutIssuers($salesChannelContext->getSalesChannelId()) || $dataBag->get('idealFastCheckoutInfo')) {
+        if (
+            $this->withoutIssuers($salesChannelContext->getSalesChannelId()) ||
+            $dataBag->get('idealFastCheckoutInfo')
+        ) {
             return [
                 'orderId' => $dataBag->get('orderId'),
                 'shippingCost' => 1

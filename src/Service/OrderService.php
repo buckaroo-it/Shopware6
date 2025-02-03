@@ -93,11 +93,17 @@ class OrderService
     {
         $urls = $this->getCheckoutUrls($orderId, $data);
 
-        // Extract the URLs if available
         $finishUrl = $urls['finishUrl'] ?? null;
         $errorUrl = $urls['errorUrl'] ?? null;
 
-        $response = $this->paymentProcessor->process($orderId, $data, $this->salesChannelContext, $finishUrl, $errorUrl);
+        $response = $this->paymentProcessor->process(
+            $orderId,
+            $data,
+            $this->salesChannelContext,
+            $finishUrl,
+            $errorUrl
+        );
+
 
         if ($response instanceof RedirectResponse) {
             return $response->getTargetUrl();

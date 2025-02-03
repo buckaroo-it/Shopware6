@@ -290,7 +290,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'backLink'                 => $backUrl,
             'afterpay_customer_type'   => $this->settingsService->getSetting('afterpayCustomerType', $salesChannelId),
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'checkout'),
-            'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId,'checkout'),
+            'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId,'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
@@ -400,7 +400,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct->assign([
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'cart'),
-            'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId,'cart'),
+            'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId,'cart'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
@@ -485,11 +485,14 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
     protected function showIdealFastCheckout(string $salesChannelId, string $page = 'product'): bool
     {
-        if($this->settingsService->getSetting('idealEnabled', $salesChannelId) && $this->settingsService->getSetting('idealFastCheckoutEnabled', $salesChannelId)){
+        if (
+            $this->settingsService->getSetting('idealEnabled', $salesChannelId) &&
+            $this->settingsService->getSetting('idealFastCheckoutEnabled', $salesChannelId)
+        ) {
             $locations = $this->settingsService->getSetting('idealFastCheckoutVisibility', $salesChannelId);
             return is_array($locations) &&
                 in_array($page, $locations);
-        }else {
+        } else {
             return false;
         }
     }

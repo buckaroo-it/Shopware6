@@ -24,6 +24,7 @@ use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+
 class IdealFastCheckoutController extends AbstractPaymentController
 {
     /**
@@ -91,7 +92,6 @@ class IdealFastCheckoutController extends AbstractPaymentController
             return $this->response([
                 "redirect" => $redirectPath
             ]);
-
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
             return $this->response(
