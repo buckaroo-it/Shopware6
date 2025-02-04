@@ -90,7 +90,6 @@ class IdealFastCheckoutController extends AbstractPaymentController
             return $this->response([
                 "redirect" => $redirectPath
             ]);
-
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
             return $this->response(
