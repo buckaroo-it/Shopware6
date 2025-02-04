@@ -44,11 +44,21 @@ export default class IdealFastCheckoutPlugin extends Plugin {
 
         checkoutButton.addEventListener('click', (e) => this.initPayment(e));
     }
-
     initPayment(event) {
         event.preventDefault();
-        this.createCart();
+        const checkoutButton = document.getElementById('fast-checkout-ideal-btn');
+
+        if (checkoutButton) {
+            checkoutButton.setAttribute('disabled', 'disabled');
+        }
+
+        this.createCart().finally(() => {
+            if (checkoutButton) {
+                checkoutButton.removeAttribute('disabled');
+            }
+        });
     }
+
 
     createCart() {
         let formObject = {};

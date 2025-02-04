@@ -77,10 +77,20 @@ class IdealFastCheckoutController extends AbstractPaymentController
                 ])
             );
 
+            if ($redirectPath == null) {
+                return $this->response([
+                    "status" => "FAILED",
+                    "message" => "Something went wrong",
+                    "reload" => true
+                ], true);
+            }
+
             $this->cartService->deleteFromCart($salesChannelContext);
+
             return $this->response([
                 "redirect" => $redirectPath
             ]);
+
         } catch (\Throwable $th) {
             $this->logger->debug((string)$th);
             return $this->response(
