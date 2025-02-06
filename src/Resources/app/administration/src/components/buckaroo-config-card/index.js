@@ -44,7 +44,7 @@ Component.register("buckaroo-config-card", {
             const name = element.name.replace("BuckarooPayments.config.", "");
 
             /**  toggle for advancedConfiguration */
-            if (['orderStatus','paymentSuccesStatus', 'sendInvoiceEmail'].indexOf(name) !== -1) {
+            if (['orderStatus','paymentSuccesStatus', 'automaticallyCloseOpenOrders', 'sendInvoiceEmail'].indexOf(name) !== -1) {
                 return this.getValueForName('advancedConfiguration');
             }
 
@@ -57,7 +57,10 @@ Component.register("buckaroo-config-card", {
             if (name === "idealRenderMode") {
                 return this.getValueForName('idealShowissuers');
             }
-
+            /** toggle for ideal fast checkout settings */
+            if (['idealFastCheckoutEnabled','idealFastCheckoutVisibility','idealFastCheckoutLogoScheme'].indexOf(name) !== -1) {
+                return this.getValueForName('idealFastCheckout');
+            }
             /** toggle for afterpay capture only payment */
             if (name === 'afterpayPaymentstatus') {
                 return this.getValueForName('afterpayCaptureonshippent');

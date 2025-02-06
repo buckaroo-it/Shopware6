@@ -2,7 +2,6 @@
 
 {% block page_checkout_cart_action_proceed %}
     {{ parent() }}
-   
     {% if page.extensions.buckaroo.showPaypalExpress %}
         <div class="col-12 p-0">
             {% set paypalExpressOptions = {
@@ -34,6 +33,26 @@
             } %}
             <div data-bk-applepay data-buckaroo-apple-pay-plugin-options='{{ applePayConfig|json_encode }}'></div>
             <div class="bk-apple-pay-button" style="margin-top: 10px;"></div>
+        </div>
+    {% endif %}
+
+    {% if page.extensions.buckaroo.showIdealFastCheckout %}
+        <div class="col-12 p-0">
+            {% set idealFastCheckoutConfig = {
+                page: "cart",
+                i18n: {
+                    cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
+                    cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
+                }
+            } %}
+            <div  style="margin-top:15px;" data-bk-ideal-fast-checkout data-buckaroo-ideal-fast-checkout-plugin-options='{{ idealFastCheckoutConfig|json_encode }}'>
+                <div  class="bk-ideal-fast-checkout" id="fast-checkout-ideal-btn" style="">
+                    <img
+                            src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/#{page.extensions.buckaroo.idealFastCheckoutLogo}.png")}}"
+                            alt="Ideal Snel bestellen"
+                    />
+                </div>
+            </div>
         </div>
     {% endif %}
 

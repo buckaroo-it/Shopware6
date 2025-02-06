@@ -67,6 +67,7 @@ class CartService
 
     public function load(string $token): Cart
     {
+
         $this->validateSaleChannelContext();
         return $this->cartPersister->load($token, $this->salesChannelContext);
     }
@@ -80,7 +81,9 @@ class CartService
      */
     public function setSaleChannelContext(SalesChannelContext $salesChannelContext): self
     {
+
         $this->salesChannelContext = $salesChannelContext;
+
         return $this;
     }
 
@@ -149,5 +152,16 @@ class CartService
     public function calculateCart(Cart $cart, SalesChannelContext $salesChannelContext): Cart
     {
         return $this->cartCalculator->calculate($cart, $salesChannelContext);
+    }
+
+    /**
+     * Validate saleChannelContext
+     *
+     * @return void
+     */
+    public function deleteFromCart(SalesChannelContext $salesChannelContext): void
+    {
+        $token = $salesChannelContext->getToken();
+        $this->cartPersister->delete($token, $salesChannelContext);
     }
 }

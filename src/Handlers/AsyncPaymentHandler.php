@@ -19,10 +19,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
+use Buckaroo\Shopware6\Service\Exceptions\BuckarooPaymentRejectException;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Framework\Context;
+use Symfony\Component\HttpFoundation\Response;
 
 class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
@@ -124,9 +126,17 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 $salesChannelContext,
                 $paymentCode
             );
+        } catch (BuckarooPaymentRejectException $e) {
+            $this->asyncPaymentService->logger->error((string) $e->getMessage());
+
+            throw new PaymentException(
+                Response::HTTP_BAD_REQUEST,
+                PaymentException::PAYMENT_ASYNC_PROCESS_INTERRUPTED,
+                $e->getMessage()
+            );
         } catch (\Throwable $th) {
             $this->asyncPaymentService->logger->error((string) $th);
-            
+
             if (\Composer\InstalledVersions::getVersion('shopware/core') < 6.6) {
                 throw PaymentException::asyncProcessInterrupted(
                     $transaction->getOrderTransaction()->getId(),
@@ -170,7 +180,18 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 ],
                 $salesChannelContext->getContext()
             );
+
+        $this->asyncPaymentService->transactionService
+            ->updateTransactionCustomFields($transaction->getOrderTransaction()->getId(), [
+                'originalTransactionKey'    => $response->getTransactionKey()
+            ]);
+
         $this->setFeeOnOrder($transaction, $salesChannelContext, $paymentCode);
+
+        if ($response->isRejected()) {
+            throw new BuckarooPaymentRejectException($response->getSubCodeMessage());
+        }
+        
         if ($response->hasRedirect()) {
             $this->asyncPaymentService
                 ->checkoutHelper

@@ -135,6 +135,28 @@
             </options>
         </input-field>
 
+        <input-field type="single-select">
+            <name>automaticallyCloseOpenOrders</name>
+            <label lang="en-GB">Automatically close open orders:</label>
+            <label lang="de-DE">Offene Bestellungen automatisch schließen:</label>
+            <label lang="nl-NL">Openstaande bestellingen automatisch annuleren:</label>
+			<label lang="fr-FR">Fermer automatiquement les commandes ouvertes:</label>
+            <helpText lang="en-GB">If the payment does not go through, the order will automatically be canceled after 15 minutes. This ensures that the stock is reverted.</helpText>
+            <helpText lang="nl-NL">Als de betaling niet wordt voltooid, wordt de bestelling automatisch geannuleerd na 15 minuten. Dit zorgt ervoor dat de voorraad wordt vrijgegeven.</helpText>
+            <helpText lang="de-DE">Wenn die Zahlung nicht erfolgt, wird die Bestellung nach 15 Minuten automatisch storniert. Dies stellt sicher, dass der Lagerbestand zurückgesetzt wird.</helpText>
+			<helpText lang="fr-FR">Si le paiement n'aboutit pas, la commande sera automatiquement annulée après 15 minutes. Cela garantit que le stock est rétabli.</helpText>
+            <defaultValue>Disabled</defaultValue>
+            <options>
+                <option>
+                    <id>disabled</id>
+                    <name>Disabled</name>
+                </option>
+                <option>
+                    <id>enabled</id>
+                    <name>Enabled</name>
+                </option>
+            </options>
+        </input-field>
 
         <input-field type="single-select">
             <name>orderStatus</name>
@@ -564,6 +586,69 @@
                     <name lang="nl-NL">Keuzelijst</name>
                     <name lang="de-DE">Dropdown liste</name>
 					<name lang="fr-FR">Menu déroulant</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="bool">
+            <name>idealFastCheckout</name>
+            <label lang="en-GB">iDEAL fast checkout configuration</label>
+            <label lang="nl-NL">iDEAL snel bestellen</label>
+            <label lang="de-DE">iDEAL schneller checkout</label>
+            <label lang="fr-FR">paiement rapide iDEAL</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>idealFastCheckoutEnabled</name>
+            <label lang="en-GB">Fast Checkout Enabled</label>
+            <label lang="nl-NL">Fast Checkout Ingeschakeld</label>
+            <label lang="de-DE">Fast Checkout Aktiviert</label>
+            <label lang="fr-FR">Fast Checkout Activé</label>
+        </input-field>
+
+        <input-field type="multi-select">
+            <name>idealFastCheckoutVisibility</name>
+            <label lang="en-GB">iDEAL fast checkout logo visibillity</label>
+            <label lang="nl-NL">iDEAL fast checkout logo visibillity</label>
+            <label lang="de-DE">ZiDEAL fast checkout logo visibillity</label>
+            <defaultValue>["none"]</defaultValue>
+            <options>
+                <option>
+                    <id>none</id>
+                    <name>None</name>
+                </option>
+                <option>
+                    <id>product</id>
+                    <name>Product page</name>
+                </option>
+                <option>
+                    <id>cart</id>
+                    <name>Cart page</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>idealFastCheckoutLogoScheme</name>
+            <label lang="en-GB">iDEAL fast checkout logo color scheme</label>
+            <label lang="de-DE">iDEAL fast checkout logo color scheme</label>
+            <label lang="nl-NL">iDEAL fast checkout logo color scheme</label>
+            <label lang="fr-FR">iDEAL fast checkout logo color scheme</label>
+            <defaultValue>idealFastCheckoutLogoLight</defaultValue>
+            <options>
+                <option>
+                    <id>idealFastCheckoutLogoDark</id>
+                    <name lang="en-GB">Dark</name>
+                    <name lang="nl-NL">Dark</name>
+                    <name lang="de-DE">Dark</name>
+                    <name lang="fr-FR">Dark</name>
+                </option>
+                <option>
+                    <id>idealFastCheckoutLogoLight</id>
+                    <name lang="en-GB">Light</name>
+                    <name lang="nl-NL">Light</name>
+                    <name lang="de-DE">Light</name>
+                    <name lang="fr-FR">Light</name>
                 </option>
             </options>
         </input-field>

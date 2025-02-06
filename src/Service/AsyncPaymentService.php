@@ -32,6 +32,8 @@ class AsyncPaymentService
     public StateTransitionService $stateTransitionService;
 
     public CheckoutHelper $checkoutHelper;
+    
+    public TransactionService $transactionService;
 
     /**
      * @var LoggerInterface
@@ -55,6 +57,7 @@ class AsyncPaymentService
         StateTransitionService $stateTransitionService,
         ClientService $clientService,
         CheckoutHelper $checkoutHelper,
+        TransactionService $transactionService,
         LoggerInterface $logger,
         FormatRequestParamService $formatRequestParamService,
         PaymentStateService $paymentStateService,
@@ -67,6 +70,7 @@ class AsyncPaymentService
         $this->stateTransitionService = $stateTransitionService;
         $this->clientService = $clientService;
         $this->checkoutHelper = $checkoutHelper;
+        $this->transactionService = $transactionService;
         $this->logger = $logger;
         $this->formatRequestParamService = $formatRequestParamService;
         $this->paymentStateService = $paymentStateService;
