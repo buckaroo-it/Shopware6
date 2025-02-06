@@ -289,3 +289,12 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 -BP-3985 Resolve an issue with Klarna KP and refunds that triggered an error when “Automatically Pay Reservation” was enabled in the Plaza.
 -BP-3886 iDEAL cancellation can result into a error page.
 -BP-3985 Resolved an issue where Klarna refunds from Shopware displayed an error when Automatic Capture was enabled in the Buckaroo Plaza.
+
+# 2.6.0
+
+-BP-3998 Add support for Shopware 6.6.9.0
+-BP-4148 Add transaction key to custom fields.
+-BP-4148 Add a setting that orders are closed automatically when failed/cancelled.
+-BP-4150 Implement better support for displaying error messages for headless implementations.
+-BP-3807 Add iDEAL fast checkout button.
+-BP-4943 Resolve error message: Plugin “BuckarooPaymentValidateSubmit” is already registered.
