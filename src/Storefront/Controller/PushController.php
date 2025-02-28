@@ -353,7 +353,8 @@ class PushController extends StorefrontController
                 ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE,
                 ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT,
                 ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
-                ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
+                ResponseStatus::BUCKAROO_STATUSCODE_REJECTED,
+                ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER
             ]
         )) {
             if ($this->stateTransitionService->isTransitionPaymentState(
