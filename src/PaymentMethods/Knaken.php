@@ -23,7 +23,7 @@ class Knaken extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Knaken Settle';
+        return 'goSettle';
     }
 
     /**
@@ -33,7 +33,7 @@ class Knaken extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with Knaken Settle';
+        return 'Pay with goSettle';
     }
 
     /**
@@ -43,7 +43,7 @@ class Knaken extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/knaken.svg';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/gosettle.svg';
     }
 
     /**
@@ -66,7 +66,7 @@ class Knaken extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit Knaken Settle',
+                'description' => 'Bezahlen mit goSettle',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),
