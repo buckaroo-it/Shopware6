@@ -589,6 +589,69 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field type="bool">
+            <name>idealFastCheckout</name>
+            <label lang="en-GB">iDEAL fast checkout configuration</label>
+            <label lang="nl-NL">iDEAL snel bestellen</label>
+            <label lang="de-DE">iDEAL schneller checkout</label>
+            <label lang="fr-FR">paiement rapide iDEAL</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>idealFastCheckoutEnabled</name>
+            <label lang="en-GB">Fast Checkout Enabled</label>
+            <label lang="nl-NL">Fast Checkout Ingeschakeld</label>
+            <label lang="de-DE">Fast Checkout Aktiviert</label>
+            <label lang="fr-FR">Fast Checkout Activé</label>
+        </input-field>
+
+        <input-field type="multi-select">
+            <name>idealFastCheckoutVisibility</name>
+            <label lang="en-GB">iDEAL fast checkout logo visibillity</label>
+            <label lang="nl-NL">iDEAL fast checkout logo visibillity</label>
+            <label lang="de-DE">ZiDEAL fast checkout logo visibillity</label>
+            <defaultValue>["none"]</defaultValue>
+            <options>
+                <option>
+                    <id>none</id>
+                    <name>None</name>
+                </option>
+                <option>
+                    <id>product</id>
+                    <name>Product page</name>
+                </option>
+                <option>
+                    <id>cart</id>
+                    <name>Cart page</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>idealFastCheckoutLogoScheme</name>
+            <label lang="en-GB">iDEAL fast checkout logo color scheme</label>
+            <label lang="de-DE">iDEAL fast checkout logo color scheme</label>
+            <label lang="nl-NL">iDEAL fast checkout logo color scheme</label>
+            <label lang="fr-FR">iDEAL fast checkout logo color scheme</label>
+            <defaultValue>idealFastCheckoutLogoLight</defaultValue>
+            <options>
+                <option>
+                    <id>idealFastCheckoutLogoDark</id>
+                    <name lang="en-GB">Dark</name>
+                    <name lang="nl-NL">Dark</name>
+                    <name lang="de-DE">Dark</name>
+                    <name lang="fr-FR">Dark</name>
+                </option>
+                <option>
+                    <id>idealFastCheckoutLogoLight</id>
+                    <name lang="en-GB">Light</name>
+                    <name lang="nl-NL">Light</name>
+                    <name lang="de-DE">Light</name>
+                    <name lang="fr-FR">Light</name>
+                </option>
+            </options>
+        </input-field>
     </card>
 
 

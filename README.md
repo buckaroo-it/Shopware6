@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/fec1c08d-c555-48ad-beab-671488a33295" width="200px" position="center">
+  <img src="https://github.com/user-attachments/assets/8ad00a67-7902-4e47-89ef-1af4b7426a50" width="200px" position="center">
 </p>
 
 # Buckaroo Shopware 6 Payments Plugin
@@ -27,7 +27,7 @@ Start accepting payments within a few minutes.
 
 To use the Buckaroo plugin, please be aware of the following minimum requirements:
 - A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
-- Shopware 6.5.0 up to 6.6.6.0
+- Shopware 6.5.0 up to 6.6.9.0
 - PHP 8.1, 8.2, 8.3
 
 ### Installation

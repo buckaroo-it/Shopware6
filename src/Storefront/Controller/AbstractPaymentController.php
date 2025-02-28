@@ -306,7 +306,7 @@ abstract class AbstractPaymentController extends StorefrontController
         $paymentMethod = $this->getValidPaymentMethod($salesChannelContext, $handler);
 
         if ($paymentMethod === null) {
-            throw new \Exception("Cannot set paypal payment method", 1);
+            throw new \Exception("Cannot set payment method", 1);
         }
         $salesChannelContext->assign([
             'paymentMethod' => $paymentMethod

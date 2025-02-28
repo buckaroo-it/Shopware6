@@ -91,14 +91,26 @@ class OrderService
      */
     public function doPayment(string $orderId, RequestDataBag $data): ?string
     {
+        $urls = $this->getCheckoutUrls($orderId, $data);
 
-        $response = $this->paymentProcessor->process($orderId, $data, $this->salesChannelContext);
+        $finishUrl = $urls['finishUrl'] ?? null;
+        $errorUrl = $urls['errorUrl'] ?? null;
+
+        $response = $this->paymentProcessor->process(
+            $orderId,
+            $data,
+            $this->salesChannelContext,
+            $finishUrl,
+            $errorUrl
+        );
+
 
         if ($response instanceof RedirectResponse) {
             return $response->getTargetUrl();
         }
         return null;
     }
+
     /**
      * Create order from cart
      *
@@ -165,5 +177,23 @@ class OrderService
         if (!$this->salesChannelContext instanceof SalesChannelContext) {
             throw new CreateCartException('SaleChannelContext is required');
         }
+    }
+    /**
+     * Get finish and error URLs for the payment process
+     *
+     * @param string $orderId
+     * @param RequestDataBag $data
+     * @return array|null
+     */
+    private function getCheckoutUrls(string $orderId, RequestDataBag $data): ?array
+    {
+        if ($data->get('idealFastCheckoutInfo')) {
+            return [
+                'finishUrl' => '/checkout/finish?orderId=' . $orderId,
+                'errorUrl'  => '/account/order/edit/' . $orderId,
+            ];
+        }
+
+        return null;
     }
 }
