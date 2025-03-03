@@ -1230,7 +1230,7 @@
     </card>
 
     <card>
-        <title>Knaken Settle</title>
+        <title>goSettle</title>
         <name>knaken</name>
         <input-field type="bool">
             <name>knakenEnabled</name>
