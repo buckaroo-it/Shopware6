@@ -83,7 +83,7 @@ Component.register("buckaroo-payment-list", {
                 },
                 {
                     code: "knaken",
-                    logo: "knaken.svg"
+                    logo: "gosettle.svg"
                 },
                 {
                     code: "mbway",
