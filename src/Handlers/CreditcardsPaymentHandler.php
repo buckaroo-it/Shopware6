@@ -30,6 +30,8 @@ class CreditcardsPaymentHandler extends AsyncPaymentHandler
         string $paymentCode
     ): array {
         if ($this->isEncripted($dataBag)) {
+            var_dump('here ? ');
+            die();
             return [
                 'name'              => $dataBag->get('creditcards_issuer'),
                 'encryptedCardData' => $dataBag->get('encryptedCardData')
@@ -52,10 +54,7 @@ class CreditcardsPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): string {
-        if ($this->isEncripted($dataBag)) {
-            return 'payEncrypted';
-        }
-        return parent::getMethodAction($dataBag, $salesChannelContext, $paymentCode);
+        return 'PayWithToken';
     }
 
     private function isEncripted(RequestDataBag $dataBag): bool

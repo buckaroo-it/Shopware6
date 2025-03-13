@@ -74,6 +74,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 return $this->completeZeroAmountPayment($transaction, $salesChannelContext);
             }
 
+
             $client = $this->getClient(
                 $paymentCode,
                 $salesChannelId,
@@ -102,7 +103,8 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                         $paymentCode
                     )
                 );
-
+//dump($client);
+//die();
             if (
                 $paymentCode === "afterpay" &&
                 !$this->isAfterpayOld($salesChannelContext->getSalesChannelId())

@@ -368,23 +368,23 @@
 			<label lang="fr-FR">Cartes de crédit et de débit autorisées:</label>
             <options>
                 <option>
-                    <id>mastercard</id>
+                    <id>MasterCard</id>
                     <name>MasterCard</name>
                 </option>
                 <option>
-                    <id>visa</id>
+                    <id>Visa</id>
                     <name>Visa</name>
                 </option>
                 <option>
-                    <id>amex</id>
+                    <id>Amex</id>
                     <name>American Express</name>
                 </option>
                 <option>
-                    <id>vpay</id>
+                    <id>VPay</id>
                     <name>VPay</name>
                 </option>
                 <option>
-                    <id>maestro</id>
+                    <id>Maestro</id>
                     <name>Maestro</name>
                 </option>
                 <option>
