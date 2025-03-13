@@ -36,9 +36,16 @@ class IdealPaymentHandler extends AsyncPaymentHandler
             $this->withoutIssuers($salesChannelContext->getSalesChannelId()) ||
             $dataBag->get('idealFastCheckoutInfo')
         ) {
+            $deliveries = $order->getDeliveries();
+            $shippingCost = 0;
+
+            if ($deliveries) {
+                $shippingCost = $deliveries->first()->getShippingCosts()->getTotalPrice();
+            }
+
             return [
                 'orderId' => $dataBag->get('orderId'),
-                'shippingCost' => 1
+                'shippingCost' => $shippingCost
             ];
         }
         return [
