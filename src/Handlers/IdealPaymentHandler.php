@@ -39,7 +39,7 @@ class IdealPaymentHandler extends AsyncPaymentHandler
             $deliveries = $order->getDeliveries();
             $shippingCost = 0;
 
-            if ($deliveries) {
+            if ($deliveries && count($deliveries) > 0) {
                 $shippingCost = $deliveries->first()->getShippingCosts()->getTotalPrice();
             }
 
