@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
 
 /**
  * @RouteScope(scopes={"storefront"})
@@ -43,9 +42,11 @@ class BuckarooTokenController extends AbstractPaymentController
         }
 
         // Retrieve credentials from Shopware settings
-        $clientId = '994F5CDC62DE4E4283C4A11A3529B926';
-        $clientSecret = '4A0077E31F1F4902A0CA02C8C61C52B5';
+
+        $clientId =  $this->systemConfigService->get('BuckarooPayments.config.clientId' );
+        $clientSecret = $this->systemConfigService->get('BuckarooPayments.config.clientSecret' );
         $issuers = $this->systemConfigService->get('BuckarooPayments.config.allowedcreditcards');
+
         // Validate credentials
         if (empty($clientId) || empty($clientSecret)) {
             return new JsonResponse([

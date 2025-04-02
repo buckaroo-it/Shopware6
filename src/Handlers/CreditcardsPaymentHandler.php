@@ -30,8 +30,6 @@ class CreditcardsPaymentHandler extends AsyncPaymentHandler
         string $paymentCode
     ): array {
         if ($this->isEncripted($dataBag)) {
-            var_dump('here ? ');
-            die();
             return [
                 'name'              => $dataBag->get('creditcards_issuer'),
                 'encryptedCardData' => $dataBag->get('encryptedCardData')

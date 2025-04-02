@@ -78,11 +78,6 @@ class Client
         ) {
             $request->setServiceVersion($this->version);
         }
-//dump($request);
-//dump($this->action);
-//dump($this->payload);
-//die
-
         return new ClientResponse(
             $request->{$this->action}($this->payload)
         );
