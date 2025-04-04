@@ -31,25 +31,19 @@ export default class BuckarooCreditCards extends Plugin {
 
     async _initializeHostedFields() {
         try {
-            const baseUrl = window.location.origin;
-            const response = await fetch(`${baseUrl}/buckaroo/get-oauth-token`, {
-                method: "GET",
-                headers: {
-                    "X-Requested-From": "ShopwareFrontend"
-                }
-            });
+            const tokenData = await this._getOrRefreshToken();
 
-            const data = await response.json();
-            if (!data || !data.data.access_token) {
+            if (!tokenData || !tokenData.access_token) {
                 console.error("Failed to retrieve Buckaroo OAuth token.");
                 return;
             }
 
-            const accessToken = data.data.access_token;
+            const accessToken = tokenData.access_token;
+
             this.sdkClient = new BuckarooHostedFieldsSdk.HFClient(accessToken);
             this.sdkClient.setLanguage("en");
 
-            await this.sdkClient.setSupportedServices(data.data.issuers);
+            await this.sdkClient.setSupportedServices(tokenData.issuers);
 
             const issuerField = document.getElementById("selected-issuer");
             let payButton = document.getElementById("pay");
@@ -160,4 +154,43 @@ export default class BuckarooCreditCards extends Plugin {
             submitButton.addEventListener("click", this._handleSubmit.bind(this));
         }
     }
+    async _getOrRefreshToken() {
+        const now = Date.now();
+
+        if (this.tokenExpiresAt && now < this.tokenExpiresAt && this.accessToken) {
+            // ✅ Token is still valid
+            return {
+                access_token: this.accessToken,
+                issuers: this.issuers
+            };
+        }
+        try {
+            const baseUrl = window.location.origin;
+            const response = await fetch(`${baseUrl}/buckaroo/get-oauth-token`, {
+                method: "GET",
+                headers: {
+                    "X-Requested-From": "ShopwareFrontend"
+                }
+            });
+
+            const data = await response.json();
+            if (!data || !data.data.access_token) {
+                throw new Error("No access token in response");
+            }
+
+            // Save token and expiration (assume token is valid for 10 mins)
+            this.accessToken = data.data.access_token;
+            this.issuers = data.data.issuers;
+            this.tokenExpiresAt = now + (10 * 60 * 1000); // 10 mins
+
+            return {
+                access_token: this.accessToken,
+                issuers: this.issuers
+            };
+        } catch (error) {
+            console.error("Token refresh failed:", error);
+            return null;
+        }
+    }
+
 }
