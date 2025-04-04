@@ -55,31 +55,6 @@ class CreditcardsPaymentHandler extends AsyncPaymentHandler
         return 'PayWithToken';
     }
 
-    /**
-     *
-     * @param OrderEntity $order
-     * @param SalesChannelContext $salesChannelContext
-     * @param RequestDataBag $dataBag
-     * @param string $paymentCode
-     *
-     * @return array<mixed>
-     */
-    public function buildPayParameters(
-        OrderEntity $order,
-        SalesChannelContext $salesChannelContext,
-        RequestDataBag $dataBag,
-        string $paymentCode
-    ): array {
-
-        return array_merge_recursive(
-            [
-                'customerIPAddress' => (Request::createFromGlobals())->getClientIp()
-            ],
-            $this->getBillingData($order, $dataBag),
-            $this->getShippingData($order, $dataBag),
-            $this->getArticles($order, $paymentCode)
-        );
-    }
     private function isHostedFields(RequestDataBag $dataBag): bool
     {
         return $dataBag->has('buckaroo-token');
