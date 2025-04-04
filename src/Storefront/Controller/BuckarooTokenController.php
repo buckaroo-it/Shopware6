@@ -71,6 +71,7 @@ class BuckarooTokenController extends AbstractPaymentController
                 ],
             ]);
 
+            /** @var array<string, mixed> $responseData */
             $responseData = json_decode($response->getContent(), true);
 
             if (isset($responseData['access_token'])) {
