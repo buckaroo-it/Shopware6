@@ -43,8 +43,8 @@ class BuckarooTokenController extends AbstractPaymentController
 
 
 
-        $clientId =  $this->systemConfigService->get('BuckarooPayments.config.clientId' );
-        $clientSecret = $this->systemConfigService->get('BuckarooPayments.config.clientSecret' );
+        $clientId =  $this->systemConfigService->get('BuckarooPayments.config.clientId');
+        $clientSecret = $this->systemConfigService->get('BuckarooPayments.config.clientSecret');
         $issuers = $this->systemConfigService->get('BuckarooPayments.config.allowedcreditcards');
 
         if (empty($clientId) || empty($clientSecret)) {
@@ -88,7 +88,6 @@ class BuckarooTokenController extends AbstractPaymentController
                 'error'   => true,
                 'message' => 'Failed to retrieve Buckaroo OAuth token.'
             ], JsonResponse::HTTP_BAD_REQUEST);
-
         } catch (\Exception $e) {
             $this->logger->error('Buckaroo Token Request Error: ' . $e->getMessage());
 
