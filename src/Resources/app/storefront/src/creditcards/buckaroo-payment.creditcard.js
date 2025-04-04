@@ -1,17 +1,23 @@
 import Plugin from 'src/plugin-system/plugin.class';
 
 export default class BuckarooCreditCards extends Plugin {
-    init()
-    {
+    init() {
+        const element = document.getElementById("tailwind-wrapper-creditcards");
+
+        if (!element) {
+            return;
+        }
+
         this._loadHostedFieldsScript(() => {
             this._initializeHostedFields();
             this._listenToSubmit();
         });
     }
 
-    _loadHostedFieldsScript(callback)
-    {
+    _loadHostedFieldsScript(callback) {
+
         const scriptUrl = "https://hostedfields-externalapi.prod-pci.buckaroo.io/v1/sdk";
+
         if (!document.getElementById("buckaroo-sdk")) {
             const script = document.createElement("script");
             script.id = "buckaroo-sdk";
@@ -23,8 +29,7 @@ export default class BuckarooCreditCards extends Plugin {
         }
     }
 
-    async _initializeHostedFields()
-    {
+    async _initializeHostedFields() {
         try {
             const baseUrl = window.location.origin;
             const response = await fetch(`${baseUrl}/buckaroo/get-oauth-token`, {
@@ -43,13 +48,13 @@ export default class BuckarooCreditCards extends Plugin {
             const accessToken = data.data.access_token;
             this.sdkClient = new BuckarooHostedFieldsSdk.HFClient(accessToken);
             this.sdkClient.setLanguage("en");
-            console.log(data.data.issuers)
-            await this.sdkClient.setSupportedServices(data.data.issuers);
-            let payButton = document.getElementById("pay");
 
+            await this.sdkClient.setSupportedServices(data.data.issuers);
+
+            const issuerField = document.getElementById("selected-issuer");
+            let payButton = document.getElementById("pay");
             let service = "";
 
-            // Mount Hosted Fields
             await this.sdkClient.startSession((event) => {
                 this.sdkClient.handleValidation(
                     event,
@@ -60,78 +65,67 @@ export default class BuckarooCreditCards extends Plugin {
                 );
 
                 if (payButton) {
-                    let disabled = !this.sdkClient.formIsValid();
-
+                    const disabled = !this.sdkClient.formIsValid();
                     payButton.disabled = disabled;
 
-                    if (disabled) {
-                        payButton.style.backgroundColor = "#ff5555";
-                        payButton.style.cursor = "not-allowed";
-                        payButton.style.opacity = "0.5";
-                    } else {
-                        payButton.style.backgroundColor = "";
-                        payButton.style.cursor = "";
-                        payButton.style.opacity = "";
-                    }
+                    payButton.style.backgroundColor = disabled ? "#ff5555" : "";
+                    payButton.style.cursor = disabled ? "not-allowed" : "";
+                    payButton.style.opacity = disabled ? "0.5" : "";
                 }
 
                 service = this.sdkClient.getService();
+                issuerField.value = service;
             });
-            let styling = {
-                fontSize:"14px",
+
+            const cardLogoStyling = {
+                height: "80%",
+                position: 'absolute',
+                border: '1px solid gray',
+                radius: '5px',
+                opacity: '1',
+                transition: 'all 0.3s ease',
+                right: '5px',
+                backgroundColor: 'inherit'
+            };
+
+            const styling = {
+                fontSize: "14px",
                 fontFamily: 'Consolas, Liberation Mono, Menlo, Courier, monospace',
                 textAlign: 'left',
                 background: 'inherit',
-                color:'black',
-                placeholderColor:'grey'
+                color: 'black',
+                placeholderColor: 'grey',
+                cardLogoStyling
             };
 
-            // Options for CardholderName.
-            let chnameOptions = {
+            await this.sdkClient.mountCardHolderName("#cc-name-wrapper", {
                 id: "ccname",
                 placeHolder: "John Doe",
                 labelSelector: "#cc-name-label",
                 baseStyling: styling
-            };
+            }).then(field => field.focus());
 
-            // Mount CardholderName and focus in it
-            await this.sdkClient.mountCardHolderName("#cc-name-wrapper", chnameOptions)
-                .then(function (cardHolderNameField) {
-                    cardHolderNameField.focus();
-                });
-
-            // Options for Cardnumber. optional: CardLogoStyling
-            let ccOptions = {
+            await this.sdkClient.mountCardNumber("#cc-number-wrapper", {
                 id: "cc",
                 placeHolder: "555x xxxx xxxx xxxx",
                 labelSelector: "#cc-number-label",
-                baseStyling: styling
-            };
+                baseStyling: styling,
+                cardLogoStyling
+            });
 
-            // Mount CardNumber.
-            await this.sdkClient.mountCardNumber("#cc-number-wrapper", ccOptions);
-
-            // Options for CVC.
-            let cvcOptions = {
+            await this.sdkClient.mountCvc("#cc-cvc-wrapper", {
                 id: "cvc",
                 placeHolder: "1234",
                 labelSelector: "#cc-cvc-label",
                 baseStyling: styling
-            };
+            });
 
-            // Mount CVC.
-            await this.sdkClient.mountCvc("#cc-cvc-wrapper", cvcOptions);
-
-            // Options for Expiry Date.
-            let expiryDateOptions = {
+            await this.sdkClient.mountExpiryDate("#cc-expiry-wrapper", {
                 id: "expiry",
                 placeHolder: "MM / YY",
                 labelSelector: "#cc-expiry-label",
                 baseStyling: styling
-            };
-
-            // Mount Expiry Date.
-            await this.sdkClient.mountExpiryDate("#cc-expiry-wrapper", expiryDateOptions);
+            });
 
 
         } catch (error) {
@@ -139,32 +133,28 @@ export default class BuckarooCreditCards extends Plugin {
         }
     }
 
-    async _handleSubmit(event)
-    {
+    async _handleSubmit(event) {
         event.preventDefault();
 
         try {
             const paymentToken = await this.sdkClient.submitSession();
+
             if (!paymentToken) {
                 console.error("Failed to retrieve Hosted Fields token.");
                 return;
             }
 
-            // Store token in hidden input field
             const tokenField = document.getElementById("buckaroo-token");
-            if (tokenField) {
-                tokenField.value = paymentToken;
-            }
 
-            // Submit the form
+            if (tokenField) tokenField.value = paymentToken;
+
             document.getElementById("confirmOrderForm").submit();
         } catch (error) {
             console.error("Error processing Buckaroo payment:", error);
         }
     }
 
-    _listenToSubmit()
-    {
+    _listenToSubmit() {
         const submitButton = document.getElementById("pay");
         if (submitButton) {
             submitButton.addEventListener("click", this._handleSubmit.bind(this));

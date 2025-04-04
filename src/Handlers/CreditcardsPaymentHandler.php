@@ -29,10 +29,10 @@ class CreditcardsPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        if ($this->isEncripted($dataBag)) {
+        if ($this->isHostedFields($dataBag)) {
             return [
-                'name'              => $dataBag->get('creditcards_issuer'),
-                'encryptedCardData' => $dataBag->get('encryptedCardData')
+                    'name'              => $dataBag->get('selected-issuer'),
+                    'sessionId'         => $dataBag->get('buckaroo-token')
             ];
         }
         return [];
@@ -55,8 +55,33 @@ class CreditcardsPaymentHandler extends AsyncPaymentHandler
         return 'PayWithToken';
     }
 
-    private function isEncripted(RequestDataBag $dataBag): bool
+    /**
+     *
+     * @param OrderEntity $order
+     * @param SalesChannelContext $salesChannelContext
+     * @param RequestDataBag $dataBag
+     * @param string $paymentCode
+     *
+     * @return array<mixed>
+     */
+    public function buildPayParameters(
+        OrderEntity $order,
+        SalesChannelContext $salesChannelContext,
+        RequestDataBag $dataBag,
+        string $paymentCode
+    ): array {
+
+        return array_merge_recursive(
+            [
+                'customerIPAddress' => (Request::createFromGlobals())->getClientIp()
+            ],
+            $this->getBillingData($order, $dataBag),
+            $this->getShippingData($order, $dataBag),
+            $this->getArticles($order, $paymentCode)
+        );
+    }
+    private function isHostedFields(RequestDataBag $dataBag): bool
     {
-        return $dataBag->has('creditcards_issuer') && $dataBag->has('encryptedCardData');
+        return $dataBag->has('buckaroo-token');
     }
 }

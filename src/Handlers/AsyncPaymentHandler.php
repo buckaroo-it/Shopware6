@@ -74,7 +74,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 return $this->completeZeroAmountPayment($transaction, $salesChannelContext);
             }
 
-
             $client = $this->getClient(
                 $paymentCode,
                 $salesChannelId,
@@ -127,6 +126,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 $paymentCode
             );
         } catch (BuckarooPaymentRejectException $e) {
+            var_dump($e . 'error ');die();
             $this->asyncPaymentService->logger->error((string) $e->getMessage());
 
             throw new PaymentException(
