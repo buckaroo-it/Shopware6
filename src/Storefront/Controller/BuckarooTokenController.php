@@ -32,7 +32,7 @@ class BuckarooTokenController extends AbstractPaymentController
     #[Route(path: '/buckaroo/get-oauth-token', options: ['seo' => false], methods: ['GET'], defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']])]
     public function getOAuthToken(Request $request): JsonResponse
     {
-        // Validate Request Origin
+
         $requestOrigin = $request->headers->get('X-Requested-From');
         if ($requestOrigin !== 'ShopwareFrontend') {
             return new JsonResponse([
@@ -41,13 +41,12 @@ class BuckarooTokenController extends AbstractPaymentController
             ], JsonResponse::HTTP_FORBIDDEN);
         }
 
-        // Retrieve credentials from Shopware settings
+
 
         $clientId =  $this->systemConfigService->get('BuckarooPayments.config.clientId' );
         $clientSecret = $this->systemConfigService->get('BuckarooPayments.config.clientSecret' );
         $issuers = $this->systemConfigService->get('BuckarooPayments.config.allowedcreditcards');
 
-        // Validate credentials
         if (empty($clientId) || empty($clientSecret)) {
             return new JsonResponse([
                 'error'   => true,
@@ -63,7 +62,6 @@ class BuckarooTokenController extends AbstractPaymentController
         }
 
         try {
-            // Send request to Buckaroo API
             $response = $this->client->request('POST', 'https://auth.buckaroo.io/oauth/token', [
                 'auth_basic' => [$clientId, $clientSecret],
                 'headers'    => ['Content-Type' => 'application/x-www-form-urlencoded'],
@@ -75,7 +73,6 @@ class BuckarooTokenController extends AbstractPaymentController
 
             $responseData = json_decode($response->getContent(), true);
 
-            // Check if token exists
             if (isset($responseData['access_token'])) {
                 return new JsonResponse([
                     'error' => false,

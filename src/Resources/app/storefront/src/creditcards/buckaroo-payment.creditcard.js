@@ -41,7 +41,7 @@ export default class BuckarooCreditCards extends Plugin {
             const accessToken = tokenData.access_token;
 
             this.sdkClient = new BuckarooHostedFieldsSdk.HFClient(accessToken);
-            this.sdkClient.setLanguage("en");
+            this.sdkClient.setLanguage("en");``
 
             await this.sdkClient.setSupportedServices(tokenData.issuers);
 
@@ -158,7 +158,7 @@ export default class BuckarooCreditCards extends Plugin {
         const now = Date.now();
 
         if (this.tokenExpiresAt && now < this.tokenExpiresAt && this.accessToken) {
-            // ✅ Token is still valid
+
             return {
                 access_token: this.accessToken,
                 issuers: this.issuers
@@ -178,10 +178,10 @@ export default class BuckarooCreditCards extends Plugin {
                 throw new Error("No access token in response");
             }
 
-            // Save token and expiration (assume token is valid for 10 mins)
+
             this.accessToken = data.data.access_token;
             this.issuers = data.data.issuers;
-            this.tokenExpiresAt = now + (10 * 60 * 1000); // 10 mins
+            this.tokenExpiresAt = now + (10 * 60 * 1000);
 
             return {
                 access_token: this.accessToken,
