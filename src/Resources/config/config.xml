@@ -368,23 +368,23 @@
 			<label lang="fr-FR">Cartes de crédit et de débit autorisées:</label>
             <options>
                 <option>
-                    <id>mastercard</id>
+                    <id>MasterCard</id>
                     <name>MasterCard</name>
                 </option>
                 <option>
-                    <id>visa</id>
+                    <id>Visa</id>
                     <name>Visa</name>
                 </option>
                 <option>
-                    <id>amex</id>
+                    <id>Amex</id>
                     <name>American Express</name>
                 </option>
                 <option>
-                    <id>vpay</id>
+                    <id>VPay</id>
                     <name>VPay</name>
                 </option>
                 <option>
-                    <id>maestro</id>
+                    <id>Maestro</id>
                     <name>Maestro</name>
                 </option>
                 <option>
@@ -412,6 +412,36 @@
                     <name>PostePay</name>
                 </option>
             </options>
+        </input-field>
+        <input-field type="password">
+            <name>clientId</name>
+            <label lang="en-GB">Client ID:</label>
+            <label lang="de-DE">Client ID:</label>
+            <label lang="nl-NL">Client ID:</label>
+            <label lang="fr-FR">Client ID:</label>
+            <description>Enter your Buckaroo "Client ID".</description>
+            <description lang="de-DE">Geben Sie Ihren Buckaroo "Client ID" ein.</description>
+            <description lang="nl-NL">Voer uw Buckaroo "Client ID" in.</description>
+            <description lang="fr-FR">Entrez votre 'Client ID' Buckaroo.</description>
+            <helpText>The Client ID can be retrieved in the Buckaroo Plaza at "Settings" > "Websites".</helpText>
+            <helpText lang="de-DE">Der "Client ID" kann auf der "Buckaroo Plaza" unter "Settings" > "Websites" abgerufen werden.</helpText>
+            <helpText lang="nl-NL">De "Client ID" kan worden opgehaald in de Buckaroo Plaza bij "Instellingen" > "Websites". Neem voor ondersteuning contact op met Buckaroo.</helpText>
+            <helpText lang="fr-FR">La clé du site Client ID être récupérée dans la Buckaroo Plaza sous "Paramètres" > "Sites web".</helpText>
+        </input-field>
+        <input-field type="password">
+            <name>clientSecret</name>
+            <label lang="en-GB">Client ID:</label>
+            <label lang="de-DE">Client ID:</label>
+            <label lang="nl-NL">Client ID:</label>
+            <label lang="fr-FR">Client ID:</label>
+            <description>Enter your Buckaroo "Client Secret".</description>
+            <description lang="de-DE">Geben Sie Ihren Buckaroo "Client Secrete" ein.</description>
+            <description lang="nl-NL">Voer uw Buckaroo "Client Secrete" in.</description>
+            <description lang="fr-FR">Entrez votre 'Client Secrete' Buckaroo.</description>
+            <helpText>The Client Secrete can be retrieved in the Buckaroo Plaza at "Settings" > "Websites".</helpText>
+            <helpText lang="de-DE">Der "Client Secrete" kann auf der "Buckaroo Plaza" unter "Settings" > "Websites" abgerufen werden.</helpText>
+            <helpText lang="nl-NL">De "Client Secrete" kan worden opgehaald in de Buckaroo Plaza bij "Instellingen" > "Websites". Neem voor ondersteuning contact op met Buckaroo.</helpText>
+            <helpText lang="fr-FR">La clé du site Client Secrete être récupérée dans la Buckaroo Plaza sous "Paramètres" > "Sites web".</helpText>
         </input-field>
     </card>
 

@@ -1,4 +1,6 @@
 {% block buckaroo_payment_methods %}
+
+    <script src="https://cdn.tailwindcss.com"></script>
     {% set buckarooKey = payment.translated.customFields.buckaroo_key %}
     {% set methodsWithFinancialWarning =  page.extensions.buckaroo.methodsWithFinancialWarning %}
     {% set paymentMethodName = page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name %}
@@ -211,85 +213,89 @@
 
 
         {% elseif buckarooKey == 'creditcards' %}
-                    {% block buckaroo_payment_method_creditcards %}
-                        {% if page.extensions.buckaroo.creditcards|length > 0 %}
-                            <div class="card buckaroo-creditcards">
-                                <fieldset>
-                                    <div class="form-row col-md-12">
-                                        <div class="form-group col-md-12">
-                                            <label class="form-label" for="creditcards_issuer">{{ "buckaroo.checkout.creditcards.card" | trans }}:</label>
-                                            <select name="creditcards_issuer" id="creditcards_issuer" form="confirmOrderForm" required="required" class="form-control">
-                                                <option value="" data-logo="{{ asset("bundles/buckaroopayments/storefront/buckaroo/creditcards.svg") }}">{{ "buckaroo.checkout.selectCreditCard"|trans }}</option>
-                                                    {% for creditcard in page.extensions.buckaroo.creditcards %}
-                                                        <option data-logo="{{ asset("bundles/buckaroopayments/storefront/buckaroo/creditcards/#{creditcard.code}.svg")}}" value="{{ creditcard.code }}">{{ creditcard.name }}</option>
-                                                    {% endfor %}
-                                            </select>  
-                                            <div class="card_kind">
-                                                <img id="card_kind_img" src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/creditcards.svg") }}">
-                                            </div>
-                                        </div>
+            {% block buckaroo_payment_method_creditcards %}
+                {% if page.extensions.buckaroo.creditcards|length > 0 %}
+        <div class="tailwind-wrapper" id="tailwind-wrapper-creditcards">
+            <!-- All your custom content here -->
+            <div class="tailwind-form">
+                <!-- Form elements styled with Tailwind -->
+                <div class="buckaroo-creditcards">
+                    <form id="confirmOrderForm" class="bg-white px-8 pt-6 pb-8">
+                        <div class="mb-4">
+                            <h1 class="text-2xl font-bold">Payment</h1>
+                        </div>
 
-                                        <div class="form-group col-md-12">
-                                            <label class="form-label" for="creditcards_cardholdername">{{ "buckaroo.checkout.creditcards.cardholder" | trans }}:</label>
-                                            <input class="form-control" id="creditcards_cardholdername" name="creditcards_cardholdername"  required="required" />
-                                            <input type="hidden" id="encryptedCardData" name="encryptedCardData" form="confirmOrderForm">
-                                            <label class="form-label" style="display:none; color:red" for="creditcards_cardholdername" id="creditcards_cardholdernameError">
-                                                {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
-                                            </label>
-                                        </div>
+                        <!-- Token + Issuer Hidden Fields -->
 
-                                        <div class="form-group col-md-12">
-                                            <label class="form-label" for="creditcards_cardnumber">{{ "buckaroo.checkout.creditcards.cardNumber" | trans }}:</label>
-                                            <input class="form-control" id="creditcards_cardnumber" name="creditcards_cardnumber" required="required" />
-                                            <label class="form-label" style="display:none; color:red" for="creditcards_cardnumber" id="creditcards_cardnumberError">
-                                                {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
-                                            </label>
-                                        </div>
+                        <input type="hidden" id="buckaroo-token" name="buckaroo-token" form="confirmOrderForm">
+                        <input type="hidden" id="selected-issuer" name="selected-issuer"  form="confirmOrderForm" />
 
-                                        <div class="form-group col-md-6">
-                                            <label class="form-label" for="creditcards_expirationmonth">{{ "buckaroo.checkout.creditcards.month" | trans }}:</label>
-                                            <select type="text" id="creditcards_expirationmonth" name="creditcards_expirationmonth" required="required" class="form-control">
-                                                <option value="">{{ "buckaroo.checkout.creditcards.selectMonth"|trans }}</option>
-                                                {% for month in 1..12 %}
-                                                    <option value="{{ month }}">{{ month }}</option>
-                                                {% endfor %}
-                                            </select>
-                                            <label class="form-label" style="display:none; color:red" for="creditcards_expirationmonth" id="creditcards_expirationmonthError">
-                                                {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
-                                            </label>
-                                        </div>
+                        <!-- Global Error Message -->
+                        <div class="buckaroo-hf-error text-red-600 text-sm mb-4 hidden"></div>
 
-                                        <div class="form-group col-md-6">
-                                            <label class="form-label" for="creditcards_expirationyear">{{ "buckaroo.checkout.creditcards.year" | trans }}:</label>
-                                            <select type="text" id="creditcards_expirationyear" name="creditcards_expirationyear" required="required" class="form-control">
-                                                <option value="">{{ "buckaroo.checkout.creditcards.selectYear"|trans }}</option>
-                                                {% set start_year = date() | date('Y') %}
-                                                {% set end_year = start_year + 10 %}
-
-                                                {% for year in start_year..end_year %}
-                                                    <option value="{{ year }}">{{ year }}</option>
-                                                {% endfor %}
-                                            </select>
-                                            <label class="form-label" style="display:none; color:red" for="creditcards_expirationyear" id="creditcards_expirationyearError">
-                                                {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
-                                            </label>
-                                        </div>
-
-                                        <div class="form-group col-md-6">
-                                            <label class="form-label" for="creditcards_cvc">{{ "buckaroo.checkout.creditcards.securityCode" | trans }}:</label>
-                                            <input class="form-control" id="creditcards_cvc" name="creditcards_cvc" required="required" />
-                                            <label class="form-label" style="display:none; color:red" for="creditcards_cvc" id="creditcards_cvcError">
-                                                {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
-                                            </label>
-                                        </div>
-
-                                    </div>
-                                </fieldset>
+                        <div class="mb-4">
+                            <label id="cc-name-label" class="block text-gray-700 text-sm font-bold mb-2">
+                                Cardholder Name
+                            </label>
+                            <div id="cc-name-wrapper"
+                                 class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                             </div>
-                        {% endif %}
-                    {% endblock %}
+                            <p id="cc-name-error" class="text-red-500 text-xs italic mt-1"></p>
+                        </div>
 
-                {% elseif buckarooKey == 'afterpay' %}
+                        <div class="mb-4">
+                            <label id="cc-number-label" class="block text-gray-700 text-sm font-bold mb-2">
+                                Card Number
+                            </label>
+                            <div id="cc-number-wrapper"
+                                 class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            </div>
+                            <p id="cc-number-error" class="text-red-500 text-xs italic mt-1"></p>
+                        </div>
+
+                        <div class="mb-6">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="col-span-1">
+                                    <label id="cc-expiry-label" class="block text-gray-700 text-sm font-bold mb-2">
+                                        Expiry Date
+                                    </label>
+                                    <div id="cc-expiry-wrapper"
+                                         class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                    </div>
+                                    <p id="cc-expiry-error" class="text-red-500 text-xs italic mt-1"></p>
+                                </div>
+                                <div class="col-span-1">
+                                    <label id="cc-cvc-label" class="block text-gray-700 text-sm font-bold mb-2">
+                                        CVC
+                                    </label>
+                                    <div id="cc-cvc-wrapper"
+                                         class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                    </div>
+                                    <p id="cc-cvc-error" class="text-red-500 text-xs italic mt-1"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <button id="pay"
+                                    class="bg-[#ff5555] hover:bg-red-600 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                                    type="button">
+                                Submit
+                            </button>
+                            <a class="inline-block align-baseline text-sm text-gray-500 hover:text-gray-800" href="#">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+            {% endif %}
+        {% endblock %}
+
+
+        {% elseif buckarooKey == 'afterpay' %}
                     {% block buckaroo_payment_method_afterpay %}
                         <div class="payment-method-second-col billing-address-form">
                             <fieldset class="fieldset payment">
