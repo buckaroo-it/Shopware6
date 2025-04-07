@@ -15,26 +15,27 @@ class Migration1744014276RemoveIssuerForHostedFields extends MigrationStep
     {
         return 1744014276;
     }
-
     public function update(Connection $connection): void
     {
         $configKey = 'BuckarooPayments.config.allowedcreditcards';
 
-        $existingConfig = $connection->fetchOne('
+        $json = $connection->fetchOne('
             SELECT configuration_value
             FROM system_config
             WHERE configuration_key = :key
         ', ['key' => $configKey]);
 
-        if (!$existingConfig) {
+        if (!$json) {
             return;
         }
 
-        $allowedCards = @unserialize($existingConfig);
+        $decoded = json_decode($json, true);
 
-        if (!is_array($allowedCards)) {
+        if (!is_array($decoded)) {
             return;
         }
+
+        $allowedCards = $decoded;
 
         $removedCards = [
             'cartebleuevisa',
@@ -53,7 +54,7 @@ class Migration1744014276RemoveIssuerForHostedFields extends MigrationStep
                 SET configuration_value = :value
                 WHERE configuration_key = :key
             ', [
-                'value' => serialize($filteredCards),
+                'value' => json_encode($filteredCards),
                 'key' => $configKey,
             ]);
         }
