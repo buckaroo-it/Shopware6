@@ -25,10 +25,9 @@ class Migration1744014276RemoveIssuerForHostedFields extends MigrationStep
             WHERE configuration_key = :key
         ', ['key' => $configKey]);
 
-        if (!$json) {
+        if (!is_string($json) || $json === '') {
             return;
         }
-
         $decoded = json_decode((string) $json, true);
 
         if (!is_array($decoded)) {
