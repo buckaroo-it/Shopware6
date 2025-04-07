@@ -58,9 +58,4 @@ class  Migration1744014276RemoveIssuerForHostedFields extends MigrationStep
             ]);
         }
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-
-    }
 }
