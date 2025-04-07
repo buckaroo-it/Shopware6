@@ -300,11 +300,11 @@
 
     <card>
         <name>creditcards</name>
-        <title>Cards (Client sided)</title>
-		<title lang="gb-GB">Credit and debit card (Client sided)</title>
-        <title lang="nl-NL">Creditcard en debetkaart (Versleuteling aan clientzijde)</title>
-        <title lang="de-DE">Kartenzahlung (Clientseitige Verschlüsselung)</title>
-		<title lang="fr-FR">Cartes de crédit et de débit (Cryptage côté client)</title>
+        <title>Cards (Hosted Fields)</title>
+		<title lang="gb-GB">Credit and debit card (Hosted Fields)</title>
+        <title lang="nl-NL">Creditcard en debetkaart (Hosted Fields)</title>
+        <title lang="de-DE">Kartenzahlung (Hosted Fields)</title>
+		<title lang="fr-FR">Cartes de crédit et de débit (Hosted Fields)</title>
         
         <input-field type="bool">
             <name>creditcardsEnabled</name>
@@ -380,36 +380,8 @@
                     <name>American Express</name>
                 </option>
                 <option>
-                    <id>VPay</id>
-                    <name>VPay</name>
-                </option>
-                <option>
                     <id>Maestro</id>
                     <name>Maestro</name>
-                </option>
-                <option>
-                    <id>visaelectron</id>
-                    <name>Visa Electron</name>
-                </option>
-                <option>
-                    <id>cartebleuevisa</id>
-                    <name>Carte Bleue</name>
-                </option>
-                <option>
-                    <id>cartebancaire</id>
-                    <name>Carte Bancaire</name>
-                </option>
-                <option>
-                    <id>dankort</id>
-                    <name>Dankort</name>
-                </option>
-                <option>
-                    <id>nexi</id>
-                    <name>Nexi</name>
-                </option>
-                <option>
-                    <id>postepay</id>
-                    <name>PostePay</name>
                 </option>
             </options>
         </input-field>
