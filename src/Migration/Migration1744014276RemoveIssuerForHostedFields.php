@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-class  Migration1744014276RemoveIssuerForHostedFields extends MigrationStep
+class Migration1744014276RemoveIssuerForHostedFields extends MigrationStep
 {
 
     public function getCreationTimestamp(): int
