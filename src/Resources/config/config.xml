@@ -456,25 +456,6 @@
 			<label lang="fr-FR">Activé</label>
         </input-field>
 
-        <input-field type="single-select">
-            <name>idealqrEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre</label>
-            <defaultValue>test</defaultValue>
-            <options>
-                <option>
-                    <id>test</id>
-                    <name>Test</name>
-                </option>
-                <option>
-                    <id>live</id>
-                    <name>Live</name>
-                </option>
-            </options>
-        </input-field>
-
         <input-field>
             <name>idealqrLabel</name>
 			<label lang="en-GB">Frontend label</label>
