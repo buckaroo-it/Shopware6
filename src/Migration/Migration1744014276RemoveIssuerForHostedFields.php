@@ -29,7 +29,7 @@ class Migration1744014276RemoveIssuerForHostedFields extends MigrationStep
             return;
         }
 
-        $decoded = json_decode($json, true);
+        $decoded = json_decode((string) $json, true);
 
         if (!is_array($decoded)) {
             return;
