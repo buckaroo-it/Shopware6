@@ -252,12 +252,18 @@ class StateTransitionService
 
     public function changeDeliveryStatus(OrderEntity $order, Context $context, string $transitionName): void
     {
-        if (!empty($transitionName) && $order->deliveries->count() > 0) {
+        $deliveries = $order->getDeliveries();
+
+        if (!empty($transitionName) && $deliveries->count() > 0) {
+
+            $delivery = $deliveries->first();
+            $deliveryId = $delivery->getId();
+
             try {
                 $this->stateMachineRegistry->transition(
                     new Transition(
                         OrderDeliveryDefinition::ENTITY_NAME,
-                        $order->deliveries->first()->getId(),
+                        $deliveryId,
                         $transitionName,
                         'stateId'
                     ),
