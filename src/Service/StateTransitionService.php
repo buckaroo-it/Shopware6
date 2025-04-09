@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -236,6 +237,27 @@ class StateTransitionService
                     new Transition(
                         OrderDefinition::ENTITY_NAME,
                         $order->getId(),
+                        $transitionName,
+                        'stateId'
+                    ),
+                    $context
+                );
+            } catch (\Exception $e) {
+                $this->logger->error($e->getMessage(), [$e]);
+            }
+        }
+
+        return;
+    }
+
+    public function changeDeliveryStatus(OrderEntity $order, Context $context, string $transitionName): void
+    {
+        if (!empty($transitionName) && $order->deliveries->count() > 0) {
+            try {
+                $this->stateMachineRegistry->transition(
+                    new Transition(
+                        OrderDeliveryDefinition::ENTITY_NAME,
+                        $order->deliveries->first()->getId(),
                         $transitionName,
                         'stateId'
                     ),

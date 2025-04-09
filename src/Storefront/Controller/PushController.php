@@ -370,6 +370,7 @@ class PushController extends StorefrontController
             
             if ($paymentSuccesStatus == 'enabled') {
                 $this->stateTransitionService->changeOrderStatus($order, $context, 'cancel');
+                $this->stateTransitionService->changeDeliveryStatus($order, $context, 'cancel');
             }
 
             return $this->response('buckaroo.messages.orderCancelled');
