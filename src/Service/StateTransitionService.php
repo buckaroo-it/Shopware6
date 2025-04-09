@@ -255,7 +255,6 @@ class StateTransitionService
         $deliveries = $order->getDeliveries();
 
         if (!empty($transitionName) && $deliveries->count() > 0) {
-
             $delivery = $deliveries->first();
             $deliveryId = $delivery->getId();
 
