@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
 use Buckaroo\Shopware6\Service\ContextService;
+use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 use Psr\Log\LoggerInterface;
 use Buckaroo\Shopware6\Service\CartService;
 use Buckaroo\Shopware6\Service\OrderService;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\Service\SettingsService;
@@ -55,17 +57,10 @@ class IdealFastCheckoutController extends AbstractPaymentController
     {
         try {
             $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
-
-            $customer = $salesChannelContext->getCustomer();
-
-            if (!$customer) {
-                return $this->response([
-                    "status" => "FAILED",
-                    "message" => "No customer information available. Please log in to continue.",
-                    "redirect" => $this->generateUrl('frontend.account.login.page')
-                ], true);
-            }
-
+            $this->loginCustomer(
+                $this->createDummyGuestCustomer($salesChannelContext),
+                $salesChannelContext
+            );
             $cart = $this->getCart($request, $salesChannelContext);
 
             $redirectPath = $this->placeOrder(
@@ -91,6 +86,8 @@ class IdealFastCheckoutController extends AbstractPaymentController
                 "redirect" => $redirectPath
             ]);
         } catch (\Throwable $th) {
+            var_dump($th);
+            die();
             $this->logger->debug((string)$th);
             return $this->response(
                 ["message" => $th],
@@ -122,4 +119,30 @@ class IdealFastCheckoutController extends AbstractPaymentController
         }
         return $order;
     }
+    protected function createDummyGuestCustomer(SalesChannelContext $salesChannelContext): DataBag
+    {
+        $email = 'guest_' . uniqid() . '@buckaroo.test';
+
+        $data = [
+            'guest' => true,
+            'first_name' => 'Guest',
+            'last_name' => 'User',
+            'email' => $email,
+            'country_code' =>$salesChannelContext->getShippingLocation()->getCountry()->getIso(),
+            'city' => 'Guest City',
+            'street' => 'Guest Street 1',
+            'zipcode' => '12345',
+            'storefrontUrl' => $salesChannelContext->getSalesChannel()->getDomains()->first()?->getUrl(),
+            'billingAddress' => [
+                'firstName' => 'Guest',
+                'lastName' => 'User',
+                'street' => 'Guest Street 1',
+                'zipcode' => '12345',
+                'city' => 'Guest City',
+            ],
+        ];
+
+        return new DataBag($data);
+    }
+
 }
