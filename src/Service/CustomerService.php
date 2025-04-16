@@ -370,7 +370,7 @@ class CustomerService
 
     protected function resolveCountryCode(Request $request): string
     {
-        $countryName = $request->request->get('brq_SERVICE_ideal_ShippingAddressCountryName', 'Netherlands');
+        $countryName = $request->request->get('brq_SERVICE_ideal_ShippingAddressCountryName');
 
         $mapping = [
             'Netherlands' => 'NL',
