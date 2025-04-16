@@ -329,24 +329,24 @@ class CustomerService
             'country_code' => $countryCode,
         ]);
 
-        $billingAddress = $customer->getDefaultBillingAddress();
-        $shippingAddress = $customer->getDefaultShippingAddress();
+//        $billingAddress = $customer->getDefaultBillingAddress();
+//        $shippingAddress = $customer->getDefaultShippingAddress();
 
-        if ($billingAddress) {
-            $this->customerAddressService
-                ->setSaleChannelContext($this->salesChannelContext)
-                ->update($billingAddress->getId(), $billingData, $context);
-        } else {
+//        if ($billingAddress) {
+//            $this->customerAddressService
+//                ->setSaleChannelContext($this->salesChannelContext)
+//                ->update($billingAddress->getId(), $billingData, $context);
+//        } else {
             $billingAddress = $this->createAddress($billingData, $customer);
-        }
-
-        if ($shippingAddress) {
-            $this->customerAddressService
-                ->setSaleChannelContext($this->salesChannelContext)
-                ->update($shippingAddress->getId(), $shippingData, $context);
-        } else {
+//        }
+//
+//        if ($shippingAddress) {
+//            $this->customerAddressService
+//                ->setSaleChannelContext($this->salesChannelContext)
+//                ->update($shippingAddress->getId(), $shippingData, $context);
+//        } else {
             $shippingAddress = $this->createAddress($shippingData, $customer);
-        }
+//        }
 
         // Update customer profile
         $updateData = [
