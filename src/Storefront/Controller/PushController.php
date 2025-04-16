@@ -599,6 +599,7 @@ class PushController extends StorefrontController
             ]);
         }catch (\Exception $e){
             var_dump($e);
+            die();
         }
     }
 
