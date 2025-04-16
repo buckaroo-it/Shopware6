@@ -560,43 +560,46 @@ class PushController extends StorefrontController
     }
     private function updateIdealFastCheckout(Request $request, SalesChannelContext $salesChannelContext): void
     {
-        $orderTransactionId = (string)($request->request->get('ADD_orderTransactionId') ??
-            $request->request->get('brq_AdditionalParameters_orderTransactionId'));
+        try {
+            $orderTransactionId = (string)($request->request->get('ADD_orderTransactionId') ??
+                $request->request->get('brq_AdditionalParameters_orderTransactionId'));
 
-        if (empty($orderTransactionId)) {
-            $this->logger->warning(__METHOD__ . '|Missing orderTransactionId for Ideal Fast Checkout');
-            return;
+            if (empty($orderTransactionId)) {
+                $this->logger->warning(__METHOD__ . '|Missing orderTransactionId for Ideal Fast Checkout');
+                return;
+            }
+            $context = $salesChannelContext->getContext();
+            $order = $this->orderService
+                ->setSaleChannelContext($salesChannelContext)
+                ->getOrderById(
+                    (string)($request->request->get('ADD_orderId') ??
+                        $request->request->get('brq_AdditionalParameters_orderId')),
+                    ['transactions', 'orderCustomer'],
+                    $context
+                );
+
+            if (!$order || !$order->getOrderCustomer()) {
+                $this->logger->warning(__METHOD__ . '|No customer found for Ideal Fast Checkout order');
+                return;
+            }
+
+            $customerId = $order->getOrderCustomer()->getCustomerId();
+            $customer = $this->customerService->getCustomerById($customerId);
+
+            $this->customerService
+                ->setSaleChannelContext($salesChannelContext)
+                ->updateDummyCustomerFromPush($customer, $request, $context);
+
+    //        $this->customerAddressService
+    //            ->setSaleChannelContext($salesChannelContext)
+    //            ->updateDummyCustomerAddressFromPush($customer, $request, $context);
+
+            $this->logger->info(__METHOD__ . '|Customer updated for Ideal Fast Checkout', [
+                'customerId' => $customer->getId()
+            ]);
+        }catch (\Exception $e){
+            var_dump($e);
         }
-        $context = $salesChannelContext->getContext();
-
-        $order = $this->orderService
-            ->setSaleChannelContext($salesChannelContext)
-            ->getOrderById(
-                (string)($request->request->get('ADD_orderId') ??
-                    $request->request->get('brq_AdditionalParameters_orderId')),
-                ['transactions', 'orderCustomer'],
-                $context
-            );
-
-        if (!$order || !$order->getOrderCustomer()) {
-            $this->logger->warning(__METHOD__ . '|No customer found for Ideal Fast Checkout order');
-            return;
-        }
-
-        $customerId = $order->getOrderCustomer()->getCustomerId();
-        $customer = $this->customerService->getCustomerById($customerId);
-
-        $this->customerService
-            ->setSaleChannelContext($salesChannelContext)
-            ->updateDummyCustomerFromPush($customer, $request, $context);
-
-//        $this->customerAddressService
-//            ->setSaleChannelContext($salesChannelContext)
-//            ->updateDummyCustomerAddressFromPush($customer, $request, $context);
-
-        $this->logger->info(__METHOD__ . '|Customer updated for Ideal Fast Checkout', [
-            'customerId' => $customer->getId()
-        ]);
     }
 
 }
