@@ -513,13 +513,12 @@
             <argument type="service" id="country.repository"/>
         </service>
 
-
         <service id="Buckaroo\Shopware6\Service\OrderService">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
-            <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface"/>
+            <argument type="service" id="order_address.repository"/>
         </service>
 
 

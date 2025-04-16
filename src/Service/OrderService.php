@@ -37,6 +37,11 @@ class OrderService
     protected $orderRepository;
 
     /**
+     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     */
+    protected $orderAddressRepository;
+
+    /**
      * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     protected $eventDispatcher;
@@ -51,12 +56,14 @@ class OrderService
         OrderPersisterInterface $orderPersister,
         EntityRepository $orderRepository,
         EventDispatcherInterface $eventDispatcher,
-        PaymentTransactionChainProcessor $paymentProcessor
+        PaymentTransactionChainProcessor $paymentProcessor,
+        EntityRepository $orderAddressRepository
     ) {
         $this->orderPersister = $orderPersister;
         $this->orderRepository = $orderRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->paymentProcessor = $paymentProcessor;
+        $this->orderAddressRepository = $orderAddressRepository;
     }
 
     /**
@@ -196,4 +203,55 @@ class OrderService
 
         return null;
     }
+    /**
+     * Updates the billing and shipping addresses for a given order.
+     *
+     * @param OrderEntity $order       The order entity containing address information.
+     * @param array       $billingData
+     * @param array       $shippingData
+     * @param string      $countryId   The ID of the country for both addresses.
+     * @param Context     $context     The Shopware context for the operation.
+     *
+     * @return void
+     */
+    public function updateOrderAddresses(OrderEntity $order, array $billingData, array $shippingData, string $countryId, Context $context): void
+    {
+        $billingAddress = $order->getAddresses()->get($order->getBillingAddressId());
+        $shippingAddress = $order->getDeliveries()->first()?->getShippingOrderAddress();
+
+        $updates = [];
+
+        if ($billingAddress) {
+            $updates[] = [
+                'id' => $billingAddress->getId(),
+                'versionId' => $order->getVersionId(),
+                'firstName' => $billingData['firstName'],
+                'lastName' => $billingData['lastName'],
+                'street' => $billingData['street'],
+                'zipcode' => $billingData['zipcode'],
+                'city' => $billingData['city'],
+                'company' => $billingData['company'],
+                'countryId' => $countryId,
+            ];
+        }
+
+        if ($shippingAddress) {
+            $updates[] = [
+                'id' => $shippingAddress->getId(),
+                'versionId' => $order->getVersionId(),
+                'firstName' => $shippingData['firstName'],
+                'lastName' => $shippingData['lastName'],
+                'street' => $shippingData['street'],
+                'zipcode' => $shippingData['zipcode'],
+                'city' => $shippingData['city'],
+                'company' => $shippingData['company'],
+                'countryId' => $countryId,
+            ];
+        }
+
+        if (!empty($updates)) {
+            $this->orderAddressRepository->update($updates, $context);
+        }
+    }
+
 }

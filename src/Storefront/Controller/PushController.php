@@ -65,7 +65,6 @@ class PushController extends StorefrontController
 
     protected OrderService $orderService;
     protected CustomerService $customerService;
-//    protected CustomerAddressService $customerAddressService;
 
     public function __construct(
         SignatureValidationService $signatureValidationService,
@@ -78,7 +77,6 @@ class PushController extends StorefrontController
         IdealQrOrderRepository $idealQrRepository,
         OrderService $orderService,
         CustomerService $customerService,
-//        CustomerAddressService $customerAddressService
     ) {
         $this->signatureValidationService = $signatureValidationService;
         $this->transactionService         = $transactionService;
@@ -103,10 +101,12 @@ class PushController extends StorefrontController
     public function pushBuckaroo(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
 
+
         $this->logger->info(__METHOD__ . "|1|", [$_POST]);
 
         $status             = (string)$request->request->get('brq_statuscode');
         $context            = $salesChannelContext->getContext();
+
         $brqAmount          = (float)$request->request->get('brq_amount');
         $brqOrderId         = (string)$request->request->get('ADD_orderId');
         if ($request->request->has('brq_AdditionalParameters_orderId')) {
@@ -137,10 +137,6 @@ class PushController extends StorefrontController
                 $orderTransactionId = $entity->getOrderTransactionId();
             }
         }
-        if ($this->isIdealFastCheckout($request)) {
-            $this->updateIdealFastCheckout($request, $salesChannelContext);
-        }
-
 
         if (empty($brqOrderId) || empty($orderTransactionId)) {
             return $this->response('buckaroo.messages.paymentError', false);
@@ -154,6 +150,9 @@ class PushController extends StorefrontController
             return $this->response('buckaroo.messages.signatureIncorrect', false);
         }
 
+        if ($this->isIdealFastCheckout($request)) {
+            $this->updateIdealFastCheckout($request, $salesChannelContext);
+        }
         // Handle event
         $event = new PushProcessingEvent(
             $request,
@@ -404,6 +403,8 @@ class PushController extends StorefrontController
             return $this->response('buckaroo.messages.orderCancelled');
         }
 
+        var_dump('qetu2');
+        die();
         return $this->response('buckaroo.messages.paymentError', false);
     }
 
@@ -558,6 +559,13 @@ class PushController extends StorefrontController
         $invoice = str_replace(IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX, "", (string)$request->request->get('brq_invoicenumber'));
         return $this->idealQrRepository->findByInvoice((int)$invoice, $salesChannelContext);
     }
+
+    /**
+     * @param Request $request
+     * @param SalesChannelContext $salesChannelContext
+     *
+     * @return JsonResponse
+     */
     private function updateIdealFastCheckout(Request $request, SalesChannelContext $salesChannelContext): void
     {
         try {
@@ -568,13 +576,14 @@ class PushController extends StorefrontController
                 $this->logger->warning(__METHOD__ . '|Missing orderTransactionId for Ideal Fast Checkout');
                 return;
             }
+
             $context = $salesChannelContext->getContext();
             $order = $this->orderService
                 ->setSaleChannelContext($salesChannelContext)
                 ->getOrderById(
                     (string)($request->request->get('ADD_orderId') ??
                         $request->request->get('brq_AdditionalParameters_orderId')),
-                    ['transactions', 'orderCustomer'],
+                    ['transactions', 'orderCustomer', 'addresses', 'deliveries.shippingOrderAddress'],
                     $context
                 );
 
@@ -584,23 +593,52 @@ class PushController extends StorefrontController
             }
 
             $customerId = $order->getOrderCustomer()->getCustomerId();
-            $customer = $this->customerService->getCustomerById($customerId);
+            $customer = $this->customerService
+                ->setSaleChannelContext($salesChannelContext)
+                ->getCustomerById($customerId);
+            $countryId = $salesChannelContext->getSalesChannel()->getCountryId();
+
+            $customerData = [
+                'first_name'   => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsFirstName', $customer->getFirstName())),
+                'last_name'    => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsLastName', $customer->getLastName())),
+                'email'        => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsEmail', $customer->getEmail())),
+                'country_code' => $countryId
+            ];
+
+            $billingData = [
+                'firstName'   => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressFirstName')),
+                'lastName'    => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressLastName')),
+                'street'      => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressStreet')),
+                'zipcode'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressPostalCode')),
+                'city'        => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressCity')),
+                'company'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressCompanyName')),
+                'country_code'=> $countryId
+            ];
+
+            $shippingData = [
+                'firstName'   => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressFirstName')),
+                'lastName'    => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressLastName')),
+                'street'      => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressStreet')),
+                'zipcode'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressPostalCode')),
+                'city'        => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressCity')),
+                'company'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressCompanyName')),
+                'country_code'=> $countryId
+            ];
 
             $this->customerService
                 ->setSaleChannelContext($salesChannelContext)
-                ->updateDummyCustomerFromPush($customer, $request, $context);
+                ->updateDummyCustomerFromPush($customer, $customerData, $billingData, $shippingData, $context);
 
-    //        $this->customerAddressService
-    //            ->setSaleChannelContext($salesChannelContext)
-    //            ->updateDummyCustomerAddressFromPush($customer, $request, $context);
+            $this->orderService->updateOrderAddresses($order, $billingData, $shippingData, $countryId, $context);
 
-            $this->logger->info(__METHOD__ . '|Customer updated for Ideal Fast Checkout', [
+            $this->logger->info(__METHOD__ . '|Customer and order addresses updated for Ideal Fast Checkout', [
                 'customerId' => $customer->getId()
             ]);
-        }catch (\Exception $e){
-            var_dump($e);
-            die();
+        } catch (\Exception $e) {
+            $this->logger->error(__METHOD__ . '|Exception occurred: ' . $e->getMessage());
         }
     }
+
+
 
 }

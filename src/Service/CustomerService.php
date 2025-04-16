@@ -297,58 +297,35 @@ class CustomerService
             $context
         );
     }
-    public function updateDummyCustomerFromPush(CustomerEntity $customer, Request $request, Context $context): void
+    public function updateDummyCustomerFromPush(CustomerEntity $customer, array $customerData, array $billingData, array $shippingData, Context $context): void
     {
         $this->salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
 
-        // Customer info
-        $firstName = urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsFirstName', $customer->getFirstName()));
-        $lastName  = urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsLastName', $customer->getLastName()));
-        $email     = urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsEmail', $customer->getEmail()));
-        $countryCode = $this->resolveCountryCode($request);
+        $firstName = $customerData['first_name'];
+        $lastName  = $customerData['last_name'];
+        $email     =  $customerData['email'];
 
-        // Billing address
-        $billingData = new DataBag([
-            'first_name'   => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressFirstName')),
-            'last_name'    => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressLastName')),
-            'street'       => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressStreet')),
-            'postal_code'  => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressPostalCode')),
-            'city'         => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressCity')),
-            'company'      => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressCompanyName')),
-            'country_code' => $countryCode,
-        ]);
 
-        // Shipping address
-        $shippingData = new DataBag([
-            'first_name'   => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressFirstName')),
-            'last_name'    => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressLastName')),
-            'street'       => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressStreet')),
-            'postal_code'  => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressPostalCode')),
-            'city'         => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressCity')),
-            'company'      => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressCompanyName')),
-            'country_code' => $countryCode,
-        ]);
-
-//        $billingAddress = $customer->getDefaultBillingAddress();
-//        $shippingAddress = $customer->getDefaultShippingAddress();
-
-//        if ($billingAddress) {
-//            $this->customerAddressService
-//                ->setSaleChannelContext($this->salesChannelContext)
-//                ->update($billingAddress->getId(), $billingData, $context);
-//        } else {
-            $billingAddress = $this->createAddress($billingData, $customer);
-//        }
-//
-//        if ($shippingAddress) {
-//            $this->customerAddressService
-//                ->setSaleChannelContext($this->salesChannelContext)
-//                ->update($shippingAddress->getId(), $shippingData, $context);
-//        } else {
-            $shippingAddress = $this->createAddress($shippingData, $customer);
-//        }
-
-        // Update customer profile
+        $billingAddress = $customer->getDefaultBillingAddress();
+        $shippingAddress = $customer->getDefaultShippingAddress();
+        if ($billingAddress) {
+            $billingData['id'] = $billingAddress->getId();
+            $this->customerAddressService
+                ->setSaleChannelContext($this->salesChannelContext)
+                ->customerAddressRepository
+                ->update([$billingData], $context);
+        } else {
+            $billingAddress = $this->createAddress(new DataBag($billingData), $customer);
+        }
+        if ($shippingAddress) {
+            $shippingData['id'] = $shippingAddress->getId();
+            $this->customerAddressService
+                ->setSaleChannelContext($this->salesChannelContext)
+                ->customerAddressRepository
+                ->update([$shippingData], $context);
+        } else {
+            $shippingAddress = $this->createAddress(new DataBag($shippingData), $customer);
+        }
         $updateData = [
             'id'        => $customer->getId(),
             'firstName' => $firstName,
@@ -367,18 +344,5 @@ class CustomerService
         $this->customerRepository->update([$updateData], $context);
     }
 
-
-    protected function resolveCountryCode(Request $request): string
-    {
-        $countryName = $request->request->get('brq_SERVICE_ideal_ShippingAddressCountryName');
-
-        $mapping = [
-            'Netherlands' => 'NL',
-            'Germany'     => 'DE',
-            'Belgium'     => 'BE',
-        ];
-
-        return $mapping[$countryName] ?? 'NL';
-    }
 
 }
