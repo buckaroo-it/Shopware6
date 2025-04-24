@@ -127,9 +127,6 @@ class PushController extends StorefrontController
         $originalTransactionKey   = (string)$request->request->get('brq_transactions');
         $salesChannelId     =  $salesChannelContext->getSalesChannelId();
 
-        // since the payment engine doesn't support custom parameters for ideal QR
-        // we use the invoice number to retrieve the order id and transaction id
-        // saved in the database
         if ($this->isIdealQrRequest($request)) {
             $entity = $this->getIdealQrEntity($request, $salesChannelContext);
             if ($entity !== null) {
@@ -403,8 +400,6 @@ class PushController extends StorefrontController
             return $this->response('buckaroo.messages.orderCancelled');
         }
 
-        var_dump('qetu2');
-        die();
         return $this->response('buckaroo.messages.paymentError', false);
     }
 

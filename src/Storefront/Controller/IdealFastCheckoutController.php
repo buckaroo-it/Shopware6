@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
 use Buckaroo\Shopware6\Service\ContextService;
-use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 use Psr\Log\LoggerInterface;
 use Buckaroo\Shopware6\Service\CartService;
 use Buckaroo\Shopware6\Service\OrderService;
@@ -18,7 +17,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
-use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
+use Symfony\Component\HttpFoundation\Cookie;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 
 class IdealFastCheckoutController extends AbstractPaymentController
 {
@@ -27,6 +27,7 @@ class IdealFastCheckoutController extends AbstractPaymentController
      */
     protected $logger;
     protected ContextService $contextService;
+    private SalesChannelContextPersister $contextPersister;
 
     public function __construct(
         CartService $cartService,
@@ -36,9 +37,11 @@ class IdealFastCheckoutController extends AbstractPaymentController
         SettingsService $settingsService,
         LoggerInterface $logger,
         ContextService $contextService,
+        SalesChannelContextPersister $contextPersister,
     ) {
         $this->logger = $logger;
         $this->contextService = $contextService;
+        $this->contextPersister = $contextPersister;
 
         parent::__construct(
             $cartService,
@@ -57,14 +60,27 @@ class IdealFastCheckoutController extends AbstractPaymentController
     {
         try {
             $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
-            $this->loginCustomer(
-                $this->createDummyGuestCustomer($salesChannelContext),
-                $salesChannelContext
-            );
+            // 1. Create and login dummy customer
+            if (!$salesChannelContext->getCustomer()) {
+                $dummyCustomer = $this->loginCustomer(
+                    $this->createDummyGuestCustomer($salesChannelContext),
+                    $salesChannelContext
+                );
+
+                // 2. Save customer into context so Shopware knows it
+                $this->contextPersister->save(
+                    $salesChannelContext->getToken(),
+                    ['customerId' => $dummyCustomer->getId()],
+                    $salesChannelContext->getSalesChannel()->getId()
+                );
+            }
+
+            // 3. Continue with cart and order creation
             $cart = $this->getCart($request, $salesChannelContext);
+            $orderId = $this->createOrder($salesChannelContext, $cart->getToken());
 
             $redirectPath = $this->placeOrder(
-                $this->createOrder($salesChannelContext, $cart->getToken()),
+                $orderId,
                 $salesChannelContext,
                 new RequestDataBag([
                     "idealFastCheckoutInfo" => true,
@@ -72,7 +88,7 @@ class IdealFastCheckoutController extends AbstractPaymentController
                 ])
             );
 
-            if ($redirectPath == null) {
+            if (!$redirectPath) {
                 return $this->response([
                     "status" => "FAILED",
                     "message" => "Something went wrong",
@@ -82,19 +98,20 @@ class IdealFastCheckoutController extends AbstractPaymentController
 
             $this->cartService->deleteFromCart($salesChannelContext);
 
-            return $this->response([
-                "redirect" => $redirectPath
+            $response = $this->response([
+                'redirect' => $redirectPath
             ]);
+            return $response;
         } catch (\Throwable $th) {
-            var_dump($th);
-            die();
-            $this->logger->debug((string)$th);
-            return $this->response(
-                ["message" => $th],
-                true
-            );
+            $this->logger->error((string)$th);
+            return $this->response([
+                "message" => $th->getMessage()
+            ], true);
         }
     }
+
+
+
 
     /**
      * Create order from cart
@@ -122,27 +139,39 @@ class IdealFastCheckoutController extends AbstractPaymentController
     protected function createDummyGuestCustomer(SalesChannelContext $salesChannelContext): DataBag
     {
         $email = 'guest_' . uniqid() . '@buckaroo.test';
+        $country = $salesChannelContext->getShippingLocation()->getCountry();
 
         $data = [
             'guest' => true,
             'first_name' => 'Guest',
             'last_name' => 'User',
             'email' => $email,
-            'country_code' =>$salesChannelContext->getShippingLocation()->getCountry()->getIso(),
+            'country_code' => $country->getIso(),
             'city' => 'Guest City',
             'street' => 'Guest Street 1',
             'zipcode' => '12345',
             'storefrontUrl' => $salesChannelContext->getSalesChannel()->getDomains()->first()?->getUrl(),
+            'paymentToken' => $salesChannelContext->getToken(), // optional but useful
+            'shipping_address' => [
+                'firstName' => 'Guest',
+                'lastName' => 'User',
+                'street' => 'Guest Street 1',
+                'zipcode' => '12345',
+                'city' => 'Guest City',
+                'countryCode' => $country->getIso()
+            ],
             'billingAddress' => [
                 'firstName' => 'Guest',
                 'lastName' => 'User',
                 'street' => 'Guest Street 1',
                 'zipcode' => '12345',
                 'city' => 'Guest City',
+                'countryCode' => $country->getIso()
             ],
         ];
 
         return new DataBag($data);
     }
+
 
 }

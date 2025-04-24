@@ -22,6 +22,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Checkout\Customer\CustomerAddressEntity;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+
 
 abstract class AbstractPaymentController extends StorefrontController
 {
@@ -93,15 +96,36 @@ abstract class AbstractPaymentController extends StorefrontController
      *
      * @return CustomerEntity
      */
-    protected function loginCustomer(
-        DataBag $customerData,
-        SalesChannelContext $salesChannelContext
-    ): CustomerEntity {
-        return $this->customerService
+    protected function loginCustomer(DataBag $customerData, SalesChannelContext $salesChannelContext): CustomerEntity
+    {
+        /** @var CustomerEntity $customer */
+        $customer = $this->customerService
             ->setSaleChannelContext($salesChannelContext)
             ->get($customerData);
-    }
 
+        // Fallback to default addresses
+        $defaultShipping = $customer->getDefaultShippingAddress();
+        $defaultBilling = $customer->getDefaultBillingAddress();
+
+        // Ensure active addresses are set to allow checkout
+        if ($defaultShipping instanceof CustomerAddressEntity) {
+            $customer->setActiveShippingAddress($defaultShipping);
+        }
+
+        if ($defaultBilling instanceof CustomerAddressEntity) {
+            $customer->setActiveBillingAddress($defaultBilling);
+        }
+
+        // Update sales channel context
+        $salesChannelContext->assign([
+            'customer' => $customer,
+            'shippingLocation' => $defaultShipping
+                ? ShippingLocation::createFromAddress($defaultShipping)
+                : ShippingLocation::createFromCountry($salesChannelContext->getShippingLocation()->getCountry())
+        ]);
+
+        return $customer;
+    }
     /**
      * Get or create cart
      *
