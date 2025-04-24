@@ -633,7 +633,4 @@ class PushController extends StorefrontController
             $this->logger->error(__METHOD__ . '|Exception occurred: ' . $e->getMessage());
         }
     }
-
-
-
 }

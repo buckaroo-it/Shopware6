@@ -297,8 +297,13 @@ class CustomerService
             $context
         );
     }
-    public function updateDummyCustomerFromPush(CustomerEntity $customer, array $customerData, array $billingData, array $shippingData, Context $context): void
-    {
+    public function updateDummyCustomerFromPush(
+        CustomerEntity $customer,
+        array $customerData,
+        array $billingData,
+        array $shippingData,
+        Context $context
+    ): void {
         $this->salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
 
         $firstName = $customerData['first_name'];
@@ -340,9 +345,6 @@ class CustomerService
         if ($shippingAddress !== null) {
             $updateData['defaultShippingAddressId'] = $shippingAddress->getId();
         }
-
         $this->customerRepository->update([$updateData], $context);
     }
-
-
 }

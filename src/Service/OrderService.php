@@ -214,8 +214,13 @@ class OrderService
      *
      * @return void
      */
-    public function updateOrderAddresses(OrderEntity $order, array $billingData, array $shippingData, string $countryId, Context $context): void
-    {
+    public function updateOrderAddresses(
+        OrderEntity $order,
+        array $billingData,
+        array $shippingData,
+        string $countryId,
+        Context $context
+    ): void {
         $billingAddress = $order->getAddresses()->get($order->getBillingAddressId());
         $shippingAddress = $order->getDeliveries()->first()?->getShippingOrderAddress();
 

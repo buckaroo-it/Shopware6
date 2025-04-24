@@ -172,6 +172,4 @@ class IdealFastCheckoutController extends AbstractPaymentController
 
         return new DataBag($data);
     }
-
-
 }

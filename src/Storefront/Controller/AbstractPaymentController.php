@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Checkout\Customer\CustomerAddressEntity;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 
-
 abstract class AbstractPaymentController extends StorefrontController
 {
     /**
