@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Checkout\Customer\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 
 abstract class AbstractPaymentController extends StorefrontController
@@ -102,20 +102,12 @@ abstract class AbstractPaymentController extends StorefrontController
             ->setSaleChannelContext($salesChannelContext)
             ->get($customerData);
 
-        // Fallback to default addresses
         $defaultShipping = $customer->getDefaultShippingAddress();
         $defaultBilling = $customer->getDefaultBillingAddress();
 
-        // Ensure active addresses are set to allow checkout
-        if ($defaultShipping instanceof CustomerAddressEntity) {
-            $customer->setActiveShippingAddress($defaultShipping);
-        }
+        $customer->setActiveShippingAddress($defaultShipping);
+        $customer->setActiveBillingAddress($defaultBilling);
 
-        if ($defaultBilling instanceof CustomerAddressEntity) {
-            $customer->setActiveBillingAddress($defaultBilling);
-        }
-
-        // Update sales channel context
         $salesChannelContext->assign([
             'customer' => $customer,
             'shippingLocation' => $defaultShipping
