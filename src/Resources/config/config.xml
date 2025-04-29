@@ -402,10 +402,10 @@
         </input-field>
         <input-field type="password">
             <name>clientSecret</name>
-            <label lang="en-GB">Client ID:</label>
-            <label lang="de-DE">Client ID:</label>
-            <label lang="nl-NL">Client ID:</label>
-            <label lang="fr-FR">Client ID:</label>
+            <label lang="en-GB">Client Secret:</label>
+            <label lang="de-DE">Client Secret:</label>
+            <label lang="nl-NL">Client Secret:</label>
+            <label lang="fr-FR">Client Secret:</label>
             <description>Enter your Buckaroo "Client Secret".</description>
             <description lang="de-DE">Geben Sie Ihren Buckaroo "Client Secrete" ein.</description>
             <description lang="nl-NL">Voer uw Buckaroo "Client Secrete" in.</description>
