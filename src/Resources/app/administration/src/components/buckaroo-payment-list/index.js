@@ -95,7 +95,7 @@ Component.register("buckaroo-payment-list", {
                 },
                 {
                     code: "paybybank",
-                    logo: "paybybank.gif"
+                    logo: "paybybank.svg"
                 },
                 {
                     code: "payconiq",
