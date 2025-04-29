@@ -273,9 +273,27 @@ export default class BuckarooPaymentHelper extends Plugin {
         }
         document.$emitter.publish('buckaroo_payment_validate', {valid, type:'general'});
     }
+
     _listenToSubmit()
     {
-        document.$emitter.subscribe('buckaroo_payment_submit', this._validateOnSubmit.bind(this))
+        document.$emitter.subscribe('buckaroo_payment_submit', this._validateOnSubmit.bind(this));
+
+        const confirmButton = document.getElementById('confirmFormSubmit');
+        if (confirmButton) {
+            confirmButton.addEventListener('click', (event) => {
+                // Immediately disable to prevent double click spam
+                confirmButton.disabled = true;
+
+                // Allow some milliseconds to validate and potentially re-enable if needed
+                setTimeout(() => {
+                    const notValid = this._CheckValidate();
+                    if (notValid) {
+                        confirmButton.disabled = false; // Validation failed, allow retry
+                    }
+                }, 2000);
+            });
+        }
     }
+
 
 }
