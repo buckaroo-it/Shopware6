@@ -78,7 +78,6 @@ class CustomerService
         $this->validateSaleChannelContext();
 
         $customer = $this->salesChannelContext->getCustomer();
-
         if ($customer !== null) {
             $addressData->add(
                 [
@@ -111,7 +110,6 @@ class CustomerService
         $addressId = Uuid::randomHex();
         $salutationId = $this->getSalutationId();
         $address = $this->getAddressData($data, $customerId, $addressId, $salutationId);
-
         $customer = [
             'id' => $customerId,
             'customerNumber' => $data->get('paymentToken', bin2hex(random_bytes(16))),
@@ -134,8 +132,9 @@ class CustomerService
             [$customer],
             $this->salesChannelContext->getContext()
         );
-
-        $customer = $this->getCustomerById($customerId);
+        if ($customerId !== null) {
+            $customer = $this->getCustomerById($customerId);
+        }
         $this->loginCreatedCustomer($customer);
         return $customer;
     }
@@ -161,7 +160,6 @@ class CustomerService
         if ($salutationId === null) {
             throw new \UnexpectedValueException('Cannot find validation id');
         }
-
         return $this->customerAddressService
             ->setSaleChannelContext($this->salesChannelContext)
             ->create($data, $customer->getId(), $salutationId);

@@ -42,7 +42,8 @@ export default class BuckarooCreditCards extends Plugin {
 
             this.sdkClient = new BuckarooHostedFieldsSdk.HFClient(accessToken);
             this.sdkClient.setLanguage("en");``
-
+            console.log(tokenData.issuers)
+            console.log(tokenData)
             await this.sdkClient.setSupportedServices(tokenData.issuers);
 
             const issuerField = document.getElementById("selected-issuer");

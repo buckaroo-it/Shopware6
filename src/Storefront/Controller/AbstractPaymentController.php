@@ -97,25 +97,9 @@ abstract class AbstractPaymentController extends StorefrontController
      */
     protected function loginCustomer(DataBag $customerData, SalesChannelContext $salesChannelContext): CustomerEntity
     {
-        /** @var CustomerEntity $customer */
-        $customer = $this->customerService
+        return $this->customerService
             ->setSaleChannelContext($salesChannelContext)
             ->get($customerData);
-
-        $defaultShipping = $customer->getDefaultShippingAddress();
-        $defaultBilling = $customer->getDefaultBillingAddress();
-
-        $customer->setActiveShippingAddress($defaultShipping);
-        $customer->setActiveBillingAddress($defaultBilling);
-
-        $salesChannelContext->assign([
-            'customer' => $customer,
-            'shippingLocation' => $defaultShipping
-                ? ShippingLocation::createFromAddress($defaultShipping)
-                : ShippingLocation::createFromCountry($salesChannelContext->getShippingLocation()->getCountry())
-        ]);
-
-        return $customer;
     }
     /**
      * Get or create cart

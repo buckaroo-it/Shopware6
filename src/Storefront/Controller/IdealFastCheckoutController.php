@@ -4,78 +4,75 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
-use Buckaroo\Shopware6\Service\ContextService;
-use Psr\Log\LoggerInterface;
 use Buckaroo\Shopware6\Service\CartService;
 use Buckaroo\Shopware6\Service\OrderService;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\Service\SettingsService;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
-use Symfony\Component\HttpFoundation\Cookie;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class IdealFastCheckoutController extends AbstractPaymentController
 {
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    protected $logger;
-    protected ContextService $contextService;
+    private LoggerInterface $logger;
     private SalesChannelContextPersister $contextPersister;
+    private SalesChannelContextService $contextService;
+    private RegisterRoute $registerRoute;
+
+    /**
+     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     */
+    protected $salutationRepository;
 
     public function __construct(
         CartService $cartService,
         CustomerService $customerService,
         OrderService $orderService,
-        SalesChannelRepository $paymentMethodRepository,
         SettingsService $settingsService,
+        SalesChannelRepository $paymentMethodRepository,
         LoggerInterface $logger,
-        ContextService $contextService,
         SalesChannelContextPersister $contextPersister,
+        SalesChannelContextService $contextService,
+        RegisterRoute $registerRoute,
+        EntityRepository $salutationRepository
     ) {
+        parent::__construct($cartService, $customerService, $orderService, $settingsService, $paymentMethodRepository);
         $this->logger = $logger;
-        $this->contextService = $contextService;
         $this->contextPersister = $contextPersister;
-
-        parent::__construct(
-            $cartService,
-            $customerService,
-            $orderService,
-            $settingsService,
-            $paymentMethodRepository
-        );
+        $this->contextService = $contextService;
+        $this->registerRoute = $registerRoute;
+        $this->salutationRepository = $salutationRepository;
     }
-    /**
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     */
-    #[Route(path: '/buckaroo/idealfastcheckout/pay', name: 'frontend.action.buckaroo.idealGetCart', options: ['seo' => false], methods: ['POST'], defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']])]
+    #[Route(
+        path: '/buckaroo/idealfastcheckout/pay',
+        name: 'frontend.action.buckaroo.idealGetCart',
+        options: ['seo' => false],
+        methods: ['POST'],
+        defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']]
+    )]
     public function pay(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         try {
             $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
-            // 1. Create and login dummy customer
-            if (!$salesChannelContext->getCustomer()) {
-                $dummyCustomer = $this->loginCustomer(
-                    $this->createDummyGuestCustomer($salesChannelContext),
-                    $salesChannelContext
-                );
 
-                // 2. Save customer into context so Shopware knows it
-                $this->contextPersister->save(
-                    $salesChannelContext->getToken(),
-                    ['customerId' => $dummyCustomer->getId()],
-                    $salesChannelContext->getSalesChannel()->getId()
-                );
+            if (!$salesChannelContext->getCustomer()) {
+                $this->registerGuestCustomer($salesChannelContext);
             }
 
-            // 3. Continue with cart and order creation
             $cart = $this->getCart($request, $salesChannelContext);
             $orderId = $this->createOrder($salesChannelContext, $cart->getToken());
 
@@ -83,18 +80,10 @@ class IdealFastCheckoutController extends AbstractPaymentController
                 $orderId,
                 $salesChannelContext,
                 new RequestDataBag([
-                    "idealFastCheckoutInfo" => true,
-                    "page" => $request->request->get('page')
+                    'idealFastCheckoutInfo' => true,
+                    'page' => $request->request->get('page')
                 ])
             );
-
-            if (!$redirectPath) {
-                return $this->response([
-                    "status" => "FAILED",
-                    "message" => "Something went wrong",
-                    "reload" => true
-                ], true);
-            }
 
             $this->cartService->deleteFromCart($salesChannelContext);
 
@@ -102,26 +91,22 @@ class IdealFastCheckoutController extends AbstractPaymentController
                 'redirect' => $redirectPath
             ]);
             return $response;
-        } catch (\Throwable $th) {
-            $this->logger->error((string)$th);
-            return $this->response([
-                "message" => $th->getMessage()
-            ], true);
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
+            return $this->response(['message' => $e->getMessage()], true);
         }
     }
-
-
 
 
     /**
      * Create order from cart
      *
      * @param SalesChannelContext $salesChannelContext
-     * @param String $cartToken
-     *
+     * @param string $cartToken
      * @return \Shopware\Core\Checkout\Order\OrderEntity
+     * @throws \Exception
      */
-    protected function createOrder(SalesChannelContext $salesChannelContext, String $cartToken)
+    protected function createOrder(SalesChannelContext $salesChannelContext, string $cartToken)
     {
         $cart = $this->getCartByToken($cartToken, $salesChannelContext);
         if ($cart === null) {
@@ -136,40 +121,47 @@ class IdealFastCheckoutController extends AbstractPaymentController
         }
         return $order;
     }
-    protected function createDummyGuestCustomer(SalesChannelContext $salesChannelContext): DataBag
+    private function registerGuestCustomer(SalesChannelContext $context): void
     {
         $email = 'guest_' . uniqid() . '@buckaroo.test';
-        $country = $salesChannelContext->getShippingLocation()->getCountry();
+        $country = $context->getShippingLocation()->getCountry();
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('salutationKey', 'not_specified')); // use 'mr'/'ms' or the one you want
+        $salutationId = $this->salutationRepository->search($criteria, $context->getContext())->first()?->getId();
 
-        $data = [
+        $data = new RequestDataBag([
             'guest' => true,
-            'first_name' => 'Guest',
-            'last_name' => 'User',
+            'salutationId' => $salutationId,
+            'firstName' => 'Guest',
+            'lastName' => 'User',
             'email' => $email,
-            'country_code' => $country->getIso(),
+            'country_code' => 'NL',
             'city' => 'Guest City',
-            'street' => 'Guest Street 1',
-            'zipcode' => '12345',
-            'storefrontUrl' => $salesChannelContext->getSalesChannel()->getDomains()->first()?->getUrl(),
-            'paymentToken' => $salesChannelContext->getToken(), // optional but useful
-            'shipping_address' => [
-                'firstName' => 'Guest',
-                'lastName' => 'User',
-                'street' => 'Guest Street 1',
-                'zipcode' => '12345',
-                'city' => 'Guest City',
-                'countryCode' => $country->getIso()
-            ],
+            'paymentToken' => $context->getToken(),
             'billingAddress' => [
                 'firstName' => 'Guest',
                 'lastName' => 'User',
                 'street' => 'Guest Street 1',
                 'zipcode' => '12345',
                 'city' => 'Guest City',
-                'countryCode' => $country->getIso()
+                'countryId' => $country->getId(),
             ],
-        ];
-
-        return new DataBag($data);
+            'shippingAddress' => [
+                'firstName' => 'Guest',
+                'lastName' => 'User',
+                'street' => 'Guest Street 1',
+                'zipcode' => '12345',
+                'city' => 'Guest City',
+                'countryId' => $country->getId(),
+            ]
+        ]);
+//
+//        $this->loginCustomer(
+//            $data,
+//            $context
+//        );
+         $val = $this->registerRoute->register($data, $context, false)->getCustomer();
+        var_dump($val   );
+        die();
     }
 }
