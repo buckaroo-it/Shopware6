@@ -31,7 +31,7 @@ class Ideal extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo iDEAL';
+        return 'iDEAL';
     }
 
     /**

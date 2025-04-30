@@ -23,7 +23,7 @@ class Alipay extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo Alipay';
+        return 'Alipay';
     }
 
     /**

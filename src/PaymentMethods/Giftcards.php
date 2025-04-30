@@ -31,7 +31,7 @@ class Giftcards extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo Giftcards';
+        return 'Giftcards';
     }
 
     /**
