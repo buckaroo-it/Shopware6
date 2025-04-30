@@ -60,5 +60,6 @@ class Migration1746016954RemoveBuckarooPrefixForAllPayments extends MigrationSte
             WHERE description LIKE '%Buckaroo%';
         ");
     }
+
 }
 
