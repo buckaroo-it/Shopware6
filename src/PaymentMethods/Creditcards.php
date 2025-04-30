@@ -31,7 +31,7 @@ class Creditcards extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo Credit and debit card';
+        return 'Credit and debit card';
     }
 
     /**

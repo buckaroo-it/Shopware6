@@ -23,7 +23,7 @@ class Paypal extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo PayPal';
+        return 'PayPal';
     }
 
     /**
