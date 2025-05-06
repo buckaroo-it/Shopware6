@@ -298,3 +298,19 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 -BP-4150 Implement better support for displaying error messages for headless implementations.
 -BP-3807 Add iDEAL fast checkout button.
 -BP-4943 Resolve error message: Plugin “BuckarooPaymentValidateSubmit” is already registered.
+
+# 2.7.0
+
+-BP-4208 Rebranding for “Knaken Settle” into “goSettle”.
+-BP-4204 Fix: The setting that automatically closes orders when they fail or are canceled has no effect on status 890.
+
+# 2.8.0
+
+-BP-4232 Use a more generic "PayByBank" logo.
+-BP-4257 Adjust payment method names, to not contain the prefix "Buckaroo" anymore.
+-BP-4273 Added setting to auto-cancel order and delivery status on failed transactions.
+-BP-4191 Replace "Cards (CSE)" with "Cards Hosted Fields".
+-BP-4203 Removed “Test” option for iDEAL QR (since there is no sandbox anymore).
+-BP-4312 Added the parameter “ConsumerEmail” for Trustly payments.
+-BP-4221 Fix: iDEAL Fast Checkout shipping cost issue.
+-BP-4227 Fix: Error “An error occurred while processing your payment” for iDEAL Fast Checkout.
