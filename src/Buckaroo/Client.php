@@ -68,19 +68,16 @@ class Client
     public function execute(): ClientResponseInterface
     {
         $request = $this->client->method($this->paymentCode);
-
         if (count($this->services)) {
             foreach ($this->services as $service) {
                 $request->combine($service);
             }
         }
-
         if (
             $this->version !== null
         ) {
             $request->setServiceVersion($this->version);
         }
-
         return new ClientResponse(
             $request->{$this->action}($this->payload)
         );

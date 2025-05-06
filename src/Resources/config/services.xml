@@ -532,6 +532,15 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Storefront\Controller\BuckarooTokenController" public="true">
+            <argument type="service" id="http_client"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Buckaroo\Shopware6\Resources\snippet\de_DE\GermanTranslations">
             <tag name="shopware.snippet.file"/>
         </service>

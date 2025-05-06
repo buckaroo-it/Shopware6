@@ -61,7 +61,7 @@ class PayByBank extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/paybybank.gif';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/paybybank.svg';
     }
 
     /**

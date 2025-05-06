@@ -23,7 +23,7 @@ class P24 extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo Przelewy24';
+        return 'Przelewy24';
     }
 
     /**

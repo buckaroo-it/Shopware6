@@ -29,10 +29,10 @@ class CreditcardsPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        if ($this->isEncripted($dataBag)) {
+        if ($this->isHostedFields($dataBag)) {
             return [
-                'name'              => $dataBag->get('creditcards_issuer'),
-                'encryptedCardData' => $dataBag->get('encryptedCardData')
+                    'name'              => $dataBag->get('selected-issuer'),
+                    'sessionId'         => $dataBag->get('buckaroo-token')
             ];
         }
         return [];
@@ -52,14 +52,11 @@ class CreditcardsPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): string {
-        if ($this->isEncripted($dataBag)) {
-            return 'payEncrypted';
-        }
-        return parent::getMethodAction($dataBag, $salesChannelContext, $paymentCode);
+        return 'PayWithToken';
     }
 
-    private function isEncripted(RequestDataBag $dataBag): bool
+    private function isHostedFields(RequestDataBag $dataBag): bool
     {
-        return $dataBag->has('creditcards_issuer') && $dataBag->has('encryptedCardData');
+        return $dataBag->has('buckaroo-token');
     }
 }

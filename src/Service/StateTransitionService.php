@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,6 +19,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 
 class StateTransitionService
 {
@@ -243,6 +246,35 @@ class StateTransitionService
                 );
             } catch (\Exception $e) {
                 $this->logger->error($e->getMessage(), [$e]);
+            }
+        }
+
+        return;
+    }
+
+    public function changeDeliveryStatus(OrderEntity $order, Context $context, string $transitionName): void
+    {
+        $deliveries = $order->getDeliveries();
+
+        if (!empty($transitionName) && ($deliveries instanceof OrderDeliveryCollection && $deliveries->count() > 0)) {
+            $delivery = $deliveries->first();
+
+            if ($delivery instanceof OrderDeliveryEntity) {
+                $deliveryId = $delivery->getId();
+
+                try {
+                    $this->stateMachineRegistry->transition(
+                        new Transition(
+                            OrderDeliveryDefinition::ENTITY_NAME,
+                            $deliveryId,
+                            $transitionName,
+                            'stateId'
+                        ),
+                        $context
+                    );
+                } catch (\Exception $e) {
+                    $this->logger->error($e->getMessage(), [$e]);
+                }
             }
         }
 
