@@ -61,4 +61,3 @@ class Migration1746016954RemoveBuckarooPrefixForAllPayments extends MigrationSte
         ");
     }
 }
-
