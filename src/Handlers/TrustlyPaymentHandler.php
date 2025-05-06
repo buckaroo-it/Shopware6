@@ -38,8 +38,8 @@ class TrustlyPaymentHandler extends AsyncPaymentHandler
             'customer' => [
                 'firstName' => $address->getFirstName(),
                 'lastName' => $address->getLastName(),
-                'email' => $email
-            ]
+            ],
+            'email' => $email
         ];
     }
 }
