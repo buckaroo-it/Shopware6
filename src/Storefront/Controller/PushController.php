@@ -623,6 +623,7 @@ class PushController extends StorefrontController
                 'company'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressCompanyName')),
                 'country_code'=> $countryId
             ];
+
             if ($customer != null){
 
                 $this->customerService
@@ -635,7 +636,6 @@ class PushController extends StorefrontController
                     'customerId' => $customer->getId()
                 ]);
             }
-
         } catch (\Exception $e) {
             $this->logger->error(__METHOD__ . '|Exception occurred: ' . $e->getMessage());
         }
