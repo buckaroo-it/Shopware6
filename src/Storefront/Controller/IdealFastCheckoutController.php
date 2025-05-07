@@ -86,7 +86,7 @@ class IdealFastCheckoutController extends AbstractPaymentController
                         null,
                         null,
                         $salesChannelContext->getContext(),
-                        $customer->getId()                  
+                        $customer->getId()
                     )
                 );
             }
