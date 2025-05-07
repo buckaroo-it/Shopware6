@@ -29,6 +29,18 @@ class ApplePayPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
+        $usingApplepayHostedPaymentPageConfig = $this->asyncPaymentService->settingsService->getSetting(
+            'applepayHostedPaymentPage',
+            $salesChannelContext->getSalesChannelId()
+        );
+
+        if($usingApplepayHostedPaymentPageConfig == 1)
+        {
+            return array(
+                'continueOnIncomplete' => '1',
+            );
+        }
+
         $applePayInfo = $dataBag->get('applePayInfo');
 
         if (!is_string($applePayInfo)) {

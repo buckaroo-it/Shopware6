@@ -59,6 +59,7 @@ class PaypalExpressController extends AbstractPaymentController
 
         try {
             $this->overrideChannelPaymentMethod($salesChannelContext, 'PaypalPaymentHandler');
+
             $this->loginCustomer(
                 $this->getCustomerData($request),
                 $salesChannelContext
@@ -202,7 +203,7 @@ class PaypalExpressController extends AbstractPaymentController
             throw new InvalidParameterException("Invalid payment request", 1);
         }
 
-        $customer = $request->request->get('customer');
+        $customer = $request->request->all()['customer'];
 
         if (!isset($customer['shipping_address'])) {
             throw new InvalidParameterException("Invalid payment request", 1);
