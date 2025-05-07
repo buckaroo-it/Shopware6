@@ -435,8 +435,8 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="sales_channel.payment_method.repository"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/> <!-- 7th, should be Persister! -->
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>   <!-- 8th, should be Service! -->
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute"/>
             <argument type="service" id="salutation.repository"/>
             <call method="setContainer">
