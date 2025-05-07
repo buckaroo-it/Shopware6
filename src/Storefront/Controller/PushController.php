@@ -624,7 +624,7 @@ class PushController extends StorefrontController
                 'country_code'=> $countryId
             ];
 
-            if ($customer != null){
+            if ($customer != null) {
                 $this->customerService
                     ->setSaleChannelContext($salesChannelContext)
                     ->updateDummyCustomerFromPush($customer, $customerData, $billingData, $shippingData, $context);
