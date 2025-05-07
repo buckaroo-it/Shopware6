@@ -625,7 +625,6 @@ class PushController extends StorefrontController
             ];
 
             if ($customer != null){
-
                 $this->customerService
                     ->setSaleChannelContext($salesChannelContext)
                     ->updateDummyCustomerFromPush($customer, $customerData, $billingData, $shippingData, $context);
