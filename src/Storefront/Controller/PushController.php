@@ -88,7 +88,6 @@ class PushController extends StorefrontController
         $this->idealQrRepository     = $idealQrRepository;
         $this->orderService = $orderService;
         $this->customerService = $customerService;
-//        $this->customerAddressService = $customerAddressService;
     }
 
     /**

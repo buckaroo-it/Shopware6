@@ -125,9 +125,7 @@ Component.register('buckaroo-payment-detail', {
         recalculateOrderItems() {
             this.buckaroo_refund_amount = 0;
             for (const key in this.orderItems) {
-                console.log(parseFloat(this.orderItems[key]['unitPrice']) * parseFloat(this.orderItems[key]['quantity'] || 0));
                 this.orderItems[key]['totalAmount'] = parseFloat(parseFloat(this.orderItems[key]['unitPrice']) * parseFloat(this.orderItems[key]['quantity'] || 0)).toFixed(2);
-                console.log(this.orderItems[key]['totalAmount'])
                 this.buckaroo_refund_amount = parseFloat(parseFloat(this.buckaroo_refund_amount) + parseFloat(this.orderItems[key]['totalAmount'])).toFixed(2);
             }
         },
