@@ -23,7 +23,7 @@ class Eps extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo EPS';
+        return 'EPS';
     }
 
     /**

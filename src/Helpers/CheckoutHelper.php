@@ -132,6 +132,7 @@ class CheckoutHelper
         $orderCriteria->addAssociation('transactions.paymentMethod');
         $orderCriteria->addAssociation('transactions.paymentMethod.plugin');
         $orderCriteria->addAssociation('salesChannel');
+        $orderCriteria->addAssociation('deliveries');
 
         /** @var \Shopware\Core\Checkout\Order\OrderEntity|null */
         return $this->orderRepository->search($orderCriteria, $context)->first();

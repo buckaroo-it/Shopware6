@@ -23,7 +23,7 @@ class MBWay extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo MBWay';
+        return 'MBWay';
     }
 
     /**

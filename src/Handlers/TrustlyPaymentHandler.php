@@ -30,12 +30,16 @@ class TrustlyPaymentHandler extends AsyncPaymentHandler
         string $paymentCode
     ): array {
         $address = $this->asyncPaymentService->getBillingAddress($order);
+        $orderCustomer = $order->getOrderCustomer();
+        $email = $orderCustomer?->getEmail();
+
         return [
             'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
-            'customer'      => [
+            'customer' => [
                 'firstName' => $address->getFirstName(),
-                'lastName' => $address->getLastName()
-            ]
+                'lastName' => $address->getLastName(),
+            ],
+            'email' => $email
         ];
     }
 }

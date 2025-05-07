@@ -23,7 +23,7 @@ class PayPerEmail extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo PayPerEmail';
+        return 'PayPerEmail';
     }
 
     /**

@@ -23,7 +23,7 @@ class Blik extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo Blik';
+        return 'Blik';
     }
 
     /**

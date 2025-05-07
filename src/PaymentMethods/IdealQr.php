@@ -31,7 +31,7 @@ class IdealQr extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo iDEAL QR';
+        return 'iDEAL QR';
     }
 
     /**

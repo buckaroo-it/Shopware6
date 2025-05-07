@@ -23,7 +23,7 @@ class Multibanco extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo Multibanco';
+        return 'Multibanco';
     }
 
     /**

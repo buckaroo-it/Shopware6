@@ -141,10 +141,10 @@
             <label lang="de-DE">Offene Bestellungen automatisch schließen:</label>
             <label lang="nl-NL">Openstaande bestellingen automatisch annuleren:</label>
 			<label lang="fr-FR">Fermer automatiquement les commandes ouvertes:</label>
-            <helpText lang="en-GB">If the payment does not go through, the order will automatically be canceled after 15 minutes. This ensures that the stock is reverted.</helpText>
-            <helpText lang="nl-NL">Als de betaling niet wordt voltooid, wordt de bestelling automatisch geannuleerd na 15 minuten. Dit zorgt ervoor dat de voorraad wordt vrijgegeven.</helpText>
-            <helpText lang="de-DE">Wenn die Zahlung nicht erfolgt, wird die Bestellung nach 15 Minuten automatisch storniert. Dies stellt sicher, dass der Lagerbestand zurückgesetzt wird.</helpText>
-			<helpText lang="fr-FR">Si le paiement n'aboutit pas, la commande sera automatiquement annulée après 15 minutes. Cela garantit que le stock est rétabli.</helpText>
+            <helpText lang="en-GB">If a payment transaction fails, the order and delivery statuses will automatically be updated to 'Cancelled' to ensure that the stock is properly restored.</helpText>
+            <helpText lang="nl-NL">Als een betalingstransactie mislukt, worden de bestel- en leveringsstatus automatisch bijgewerkt naar 'Geannuleerd' om ervoor te zorgen dat de voorraad correct wordt hersteld.</helpText>
+            <helpText lang="de-DE">Wenn eine Zahlungstransaktion fehlschlägt, werden der Bestell- und Lieferstatus automatisch auf „Storniert“ gesetzt, um sicherzustellen, dass der Lagerbestand korrekt zurückgesetzt wird.</helpText>
+			<helpText lang="fr-FR">En cas d’échec de la transaction de paiement, le statut de la commande et de la livraison sera automatiquement mis à jour sur « Annulé » afin de garantir la remise en stock correcte.</helpText>
             <defaultValue>Disabled</defaultValue>
             <options>
                 <option>
@@ -402,10 +402,10 @@
         </input-field>
         <input-field type="password">
             <name>clientSecret</name>
-            <label lang="en-GB">Client ID:</label>
-            <label lang="de-DE">Client ID:</label>
-            <label lang="nl-NL">Client ID:</label>
-            <label lang="fr-FR">Client ID:</label>
+            <label lang="en-GB">Client Secret:</label>
+            <label lang="de-DE">Client Secret:</label>
+            <label lang="nl-NL">Client Secret:</label>
+            <label lang="fr-FR">Client Secret:</label>
             <description>Enter your Buckaroo "Client Secret".</description>
             <description lang="de-DE">Geben Sie Ihren Buckaroo "Client Secrete" ein.</description>
             <description lang="nl-NL">Voer uw Buckaroo "Client Secrete" in.</description>

@@ -31,7 +31,7 @@ class Belfius extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Buckaroo Belfius';
+        return 'Belfius';
     }
 
     /**
