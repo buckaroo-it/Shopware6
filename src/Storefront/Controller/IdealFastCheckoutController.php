@@ -146,11 +146,10 @@ class IdealFastCheckoutController extends AbstractPaymentController
         $country = $context->getShippingLocation()->getCountry();
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('salutationKey', 'not_specified'));
-        $salutationId = $this->salutationRepository->search($criteria, $context->getContext())->first()?->getId();
 
         $data = new RequestDataBag([
             'guest' => true,
-            'salutationId' => $salutationId,
+            'salutationId' => null,
             'firstName' => 'Guest',
             'lastName' => 'User',
             'email' => $email,

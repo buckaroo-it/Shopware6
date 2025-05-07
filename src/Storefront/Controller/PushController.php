@@ -142,7 +142,7 @@ class PushController extends StorefrontController
         if (!$this->signatureValidationService->validateSignature(
             $request,
             $salesChannelId
-        )) {
+        ) && !$this->isIdealFastCheckout($request)) {
             $this->logger->info(__METHOD__ . "|5|");
             return $this->response('buckaroo.messages.signatureIncorrect', false);
         }
@@ -587,6 +587,8 @@ class PushController extends StorefrontController
             }
 
             $customerId = $order->getOrderCustomer()->getCustomerId();
+            $customer = null;
+
             if ($customerId !== null) {
                 $customer = $this->customerService
                     ->setSaleChannelContext($salesChannelContext)
@@ -596,9 +598,9 @@ class PushController extends StorefrontController
             $countryId = $salesChannelContext->getSalesChannel()->getCountryId();
 
             $customerData = [
-                'first_name'   => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsFirstName', $customer->getFirstName())),
-                'last_name'    => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsLastName', $customer->getLastName())),
-                'email'        => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsEmail', $customer->getEmail())),
+                'first_name'   => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsFirstName')),
+                'last_name'    => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsLastName')),
+                'email'        => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsEmail')),
                 'country_code' => $countryId
             ];
 
