@@ -68,10 +68,29 @@ class IdealFastCheckoutController extends AbstractPaymentController
     {
         try {
             $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
-
             if (!$salesChannelContext->getCustomer()) {
-                $this->registerGuestCustomer($salesChannelContext);
+                $customer = $this->registerGuestCustomer($salesChannelContext);
+
+                $this->contextPersister->save(
+                    $salesChannelContext->getToken(),
+                    ['customerId' => $customer->getId()],
+                    $salesChannelContext->getSalesChannel()->getId(),
+                    $customer->getId()
+                );
+
+                $salesChannelContext = $this->contextService->get(
+                    new SalesChannelContextServiceParameters(
+                        $salesChannelContext->getSalesChannel()->getId(),
+                        $salesChannelContext->getToken(),
+                        null,
+                        null,
+                        null,
+                        $salesChannelContext->getContext(),
+                        $customer->getId()                  
+                    )
+                );
             }
+
 
             $cart = $this->getCart($request, $salesChannelContext);
             $orderId = $this->createOrder($salesChannelContext, $cart->getToken());
@@ -121,12 +140,12 @@ class IdealFastCheckoutController extends AbstractPaymentController
         }
         return $order;
     }
-    private function registerGuestCustomer(SalesChannelContext $context): void
+    private function registerGuestCustomer(SalesChannelContext $context): CustomerEntity
     {
         $email = 'guest_' . uniqid() . '@buckaroo.test';
         $country = $context->getShippingLocation()->getCountry();
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('salutationKey', 'not_specified')); // use 'mr'/'ms' or the one you want
+        $criteria->addFilter(new EqualsFilter('salutationKey', 'not_specified'));
         $salutationId = $this->salutationRepository->search($criteria, $context->getContext())->first()?->getId();
 
         $data = new RequestDataBag([
@@ -155,13 +174,7 @@ class IdealFastCheckoutController extends AbstractPaymentController
                 'countryId' => $country->getId(),
             ]
         ]);
-//
-//        $this->loginCustomer(
-//            $data,
-//            $context
-//        );
-         $val = $this->registerRoute->register($data, $context, false)->getCustomer();
-        var_dump($val   );
-        die();
+
+        return $this->registerRoute->register($data, $context, false)->getCustomer();
     }
 }
