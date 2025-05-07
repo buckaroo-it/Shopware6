@@ -382,6 +382,8 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
             <argument type="service" id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -430,15 +432,15 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\CartService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
-            <argument type="service" id="sales_channel.payment_method.repository"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
-            <argument type="service" id="Buckaroo\Shopware6\Service\ContextService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory"/>
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute"/>
+            <argument type="service" id="salutation.repository"/>
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                    <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -511,13 +513,12 @@
             <argument type="service" id="country.repository"/>
         </service>
 
-
         <service id="Buckaroo\Shopware6\Service\OrderService">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
-            <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface"/>
+            <argument type="service" id="order_address.repository"/>
         </service>
 
 

@@ -78,7 +78,6 @@ class CustomerService
         $this->validateSaleChannelContext();
 
         $customer = $this->salesChannelContext->getCustomer();
-
         if ($customer !== null) {
             $addressData->add(
                 [
@@ -111,7 +110,6 @@ class CustomerService
         $addressId = Uuid::randomHex();
         $salutationId = $this->getSalutationId();
         $address = $this->getAddressData($data, $customerId, $addressId, $salutationId);
-
         $customer = [
             'id' => $customerId,
             'customerNumber' => $data->get('paymentToken', bin2hex(random_bytes(16))),
@@ -134,8 +132,9 @@ class CustomerService
             [$customer],
             $this->salesChannelContext->getContext()
         );
-
-        $customer = $this->getCustomerById($customerId);
+        if ($customerId !== null) {
+            $customer = $this->getCustomerById($customerId);
+        }
         $this->loginCreatedCustomer($customer);
         return $customer;
     }
@@ -161,7 +160,6 @@ class CustomerService
         if ($salutationId === null) {
             throw new \UnexpectedValueException('Cannot find validation id');
         }
-
         return $this->customerAddressService
             ->setSaleChannelContext($this->salesChannelContext)
             ->create($data, $customer->getId(), $salutationId);
@@ -296,5 +294,55 @@ class CustomerService
             ]],
             $context
         );
+    }
+    public function updateDummyCustomerFromPush(
+        CustomerEntity $customer,
+        array $customerData,
+        array $billingData,
+        array $shippingData,
+        Context $context
+    ): void {
+        $this->salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
+
+        $firstName = $customerData['first_name'];
+        $lastName  = $customerData['last_name'];
+        $email     =  $customerData['email'];
+
+
+        $billingAddress = $customer->getDefaultBillingAddress();
+        $shippingAddress = $customer->getDefaultShippingAddress();
+        if ($billingAddress) {
+            $billingData['id'] = $billingAddress->getId();
+            $this->customerAddressService
+                ->setSaleChannelContext($this->salesChannelContext)
+                ->customerAddressRepository
+                ->update([$billingData], $context);
+        } else {
+            $billingAddress = $this->createAddress(new DataBag($billingData), $customer);
+        }
+        if ($shippingAddress) {
+            $shippingData['id'] = $shippingAddress->getId();
+            $this->customerAddressService
+                ->setSaleChannelContext($this->salesChannelContext)
+                ->customerAddressRepository
+                ->update([$shippingData], $context);
+        } else {
+            $shippingAddress = $this->createAddress(new DataBag($shippingData), $customer);
+        }
+        $updateData = [
+            'id'        => $customer->getId(),
+            'firstName' => $firstName,
+            'lastName'  => $lastName,
+            'email'     => $email,
+        ];
+
+        if ($billingAddress !== null) {
+            $updateData['defaultBillingAddressId'] = $billingAddress->getId();
+        }
+
+        if ($shippingAddress !== null) {
+            $updateData['defaultShippingAddressId'] = $shippingAddress->getId();
+        }
+        $this->customerRepository->update([$updateData], $context);
     }
 }

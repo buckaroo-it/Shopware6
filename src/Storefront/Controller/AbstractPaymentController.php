@@ -22,6 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 
 abstract class AbstractPaymentController extends StorefrontController
 {
@@ -93,15 +95,12 @@ abstract class AbstractPaymentController extends StorefrontController
      *
      * @return CustomerEntity
      */
-    protected function loginCustomer(
-        DataBag $customerData,
-        SalesChannelContext $salesChannelContext
-    ): CustomerEntity {
+    protected function loginCustomer(DataBag $customerData, SalesChannelContext $salesChannelContext): CustomerEntity
+    {
         return $this->customerService
             ->setSaleChannelContext($salesChannelContext)
             ->get($customerData);
     }
-
     /**
      * Get or create cart
      *
