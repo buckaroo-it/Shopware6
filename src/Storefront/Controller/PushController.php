@@ -623,16 +623,19 @@ class PushController extends StorefrontController
                 'company'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressCompanyName')),
                 'country_code'=> $countryId
             ];
+            if ($customer != null){
 
-            $this->customerService
-                ->setSaleChannelContext($salesChannelContext)
-                ->updateDummyCustomerFromPush($customer, $customerData, $billingData, $shippingData, $context);
+                $this->customerService
+                    ->setSaleChannelContext($salesChannelContext)
+                    ->updateDummyCustomerFromPush($customer, $customerData, $billingData, $shippingData, $context);
 
-            $this->orderService->updateOrderAddresses($order, $billingData, $shippingData, $countryId, $context);
+                $this->orderService->updateOrderAddresses($order, $billingData, $shippingData, $countryId, $context);
 
-            $this->logger->info(__METHOD__ . '|Customer and order addresses updated for Ideal Fast Checkout', [
-                'customerId' => $customer->getId()
-            ]);
+                $this->logger->info(__METHOD__ . '|Customer and order addresses updated for Ideal Fast Checkout', [
+                    'customerId' => $customer->getId()
+                ]);
+            }
+
         } catch (\Exception $e) {
             $this->logger->error(__METHOD__ . '|Exception occurred: ' . $e->getMessage());
         }
