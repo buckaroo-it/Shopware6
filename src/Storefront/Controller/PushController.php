@@ -559,8 +559,6 @@ class PushController extends StorefrontController
     /**
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
-     *
-     * @return JsonResponse
      */
     private function updateIdealFastCheckout(Request $request, SalesChannelContext $salesChannelContext): void
     {
@@ -589,9 +587,12 @@ class PushController extends StorefrontController
             }
 
             $customerId = $order->getOrderCustomer()->getCustomerId();
-            $customer = $this->customerService
-                ->setSaleChannelContext($salesChannelContext)
-                ->getCustomerById($customerId);
+            if ($customerId !== null) {
+                $customer = $this->customerService
+                    ->setSaleChannelContext($salesChannelContext)
+                    ->getCustomerById($customerId);
+            }
+
             $countryId = $salesChannelContext->getSalesChannel()->getCountryId();
 
             $customerData = [

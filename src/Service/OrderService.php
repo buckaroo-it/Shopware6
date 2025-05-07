@@ -221,8 +221,9 @@ class OrderService
         string $countryId,
         Context $context
     ): void {
-        $billingAddress = $order->getAddresses()->get($order->getBillingAddressId());
-        $shippingAddress = $order->getDeliveries()->first()?->getShippingOrderAddress();
+        $billingAddress = $order->getAddresses()?->get($order->getBillingAddressId());
+        $shippingAddress = $order->getDeliveries()?->first()?->getShippingOrderAddress();
+
 
         $updates = [];
 
