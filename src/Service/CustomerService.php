@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Buckaroo\Shopware6\Service\CustomerAddressService;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -36,6 +36,10 @@ class CustomerService
      * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
      */
     protected $salutationRepository;
+    /**
+     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     */
+    protected $orderCustomerRepository;
 
     /**
      * @var SalesChannelContext
@@ -56,12 +60,14 @@ class CustomerService
         CustomerAddressService $customerAddressService,
         EntityRepository $customerRepository,
         EntityRepository $salutationRepository,
+        EntityRepository $orderCustomerRepository,
         SalesChannelContextRestorer $restorer,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->customerAddressService = $customerAddressService;
         $this->customerRepository = $customerRepository;
         $this->salutationRepository = $salutationRepository;
+        $this->orderCustomerRepository = $orderCustomerRepository;
         $this->restorer = $restorer;
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -160,6 +166,7 @@ class CustomerService
         if ($salutationId === null) {
             throw new \UnexpectedValueException('Cannot find validation id');
         }
+
         return $this->customerAddressService
             ->setSaleChannelContext($this->salesChannelContext)
             ->create($data, $customer->getId(), $salutationId);
@@ -296,6 +303,7 @@ class CustomerService
         );
     }
     public function updateDummyCustomerFromPush(
+        OrderEntity $order,
         CustomerEntity $customer,
         array $customerData,
         array $billingData,
@@ -335,6 +343,11 @@ class CustomerService
             'lastName'  => $lastName,
             'email'     => $email,
         ];
+        $updateDataOrderCustomer = [
+            'firstName' => $firstName,
+            'lastName'  => $lastName,
+            'email'     => $email,
+        ];
 
         if ($billingAddress !== null) {
             $updateData['defaultBillingAddressId'] = $billingAddress->getId();
@@ -343,6 +356,28 @@ class CustomerService
         if ($shippingAddress !== null) {
             $updateData['defaultShippingAddressId'] = $shippingAddress->getId();
         }
+
+        $this->updateOrderCustomerDetails($order, $updateDataOrderCustomer, $context);
+
         $this->customerRepository->update([$updateData], $context);
+    }
+    public function updateOrderCustomerDetails(
+        OrderEntity $order,
+        array $data,
+        Context $context
+    ): void {
+        $orderCustomer = $order->getOrderCustomer();
+
+        if (!$orderCustomer) {
+            return;
+        }
+
+        $updateData = [
+            'id' => $orderCustomer->getId(),
+        ];
+
+        $updateData = array_merge($updateData, $data);
+
+        $this->orderCustomerRepository->update([$updateData], $context);
     }
 }
