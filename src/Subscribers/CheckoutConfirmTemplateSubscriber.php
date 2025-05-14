@@ -292,6 +292,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'checkout'),
             'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
+            'applepayHostedPaymentPage' =>
+                $this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId) === 1,
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'canShowPhone'          => $this->canShowPhone($customer),
@@ -399,13 +401,15 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $struct             = new BuckarooStruct();
 
         $struct->assign([
-            'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'cart'),
-            'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'cart'),
-            'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
-            'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
-            'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
-            'showApplePay'         => $this->settingsService->getSetting('applepayShowCart', $salesChannelId) == 1,
-            'idealFastCheckoutLogo' => $this->getIdealFastCheckoutLogo($salesChannelId)
+            'applepayHostedPaymentPage' =>
+                $this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId) === 1,
+            'showPaypalExpress'         => $this->showPaypalExpress($salesChannelId, 'cart'),
+            'showIdealFastCheckout'     => $this->showIdealFastCheckout($salesChannelId, 'cart'),
+            'paypalMerchantId'          => $this->getPaypalExpressMerchantId($salesChannelId),
+            'applePayMerchantId'        => $this->getAppleMerchantId($salesChannelId),
+            'websiteKey'                => $this->settingsService->getSetting('websiteKey', $salesChannelId),
+            'showApplePay'              => $this->settingsService->getSetting('applepayShowCart', $salesChannelId) == 1,
+            'idealFastCheckoutLogo'     => $this->getIdealFastCheckoutLogo($salesChannelId)
         ]);
 
         $event->getPage()->addExtension(
@@ -454,7 +458,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
         $struct->assign([
-            'applepayShowProduct' => $this->settingsService->getSetting('applepayShowProduct', $salesChannelId) == 1,
+            'applepayShowProduct'       =>
+                $this->settingsService->getSetting('applepayShowProduct', $salesChannelId) == 1,
+            'applepayHostedPaymentPage' =>
+                $this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId) === 1,
             'showPaypalExpress' => $this->showPaypalExpress($salesChannelId),
             'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),

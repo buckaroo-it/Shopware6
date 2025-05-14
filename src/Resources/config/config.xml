@@ -1385,6 +1385,25 @@
             <label lang="de-DE">Buckaroo Gebühr</label>
 			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
+    
+        <input-field type="single-select">
+            <name>applepayHostedPaymentPage</name>
+            <label lang="en-GB">Using a Hosted Payment Page</label>
+            <label lang="de-DE">Verwendung einer gehosteten Zahlungsseite</label>
+            <label lang="nl-NL">Een gehoste betaalpagina gebruiken</label>
+			<label lang="fr-FR">Utilisation d’une page de paiement hébergée</label>
+            <defaultValue>0</defaultValue>
+            <options>
+                <option>
+                    <id>1</id>
+                    <name>Yes</name>
+                </option>
+                <option>
+                    <id>0</id>
+                    <name>No</name>
+                </option>
+            </options>
+        </input-field>
 
         <input-field type="single-select">
             <name>applepayShowProduct</name>
@@ -2395,7 +2414,7 @@
             <label lang="en-GB">Enabled Klarna Pay later (authorize/capture)</label>
             <label lang="nl-NL">Ingeschakeld Klarna Pay later (authorize/capture)</label>
             <label lang="de-DE">Aktiviert Klarna Pay later (authorize/capture)</label>
-			<label lang="fr-FR">Enabled Klarna Pay later (authorize/capture)</label>
+			<label lang="fr-FR">Klarna Pay Later activé (autorisation/capture)</label>
         </input-field>
 
         <input-field type="bool">
