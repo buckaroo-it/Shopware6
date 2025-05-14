@@ -357,7 +357,7 @@ class CustomerService
             $updateData['defaultShippingAddressId'] = $shippingAddress->getId();
         }
 
-        $this->updateOrderCustomerDetails($order, $updateDataOrderCustomer,$context);
+        $this->updateOrderCustomerDetails($order, $updateDataOrderCustomer, $context);
 
         $this->customerRepository->update([$updateData], $context);
     }
