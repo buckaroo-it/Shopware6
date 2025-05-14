@@ -34,40 +34,6 @@
                         {% if buckarooKey == 'idealprocessing' %}
                             {% set renderMode = page.extensions.buckaroo.idealProcessingRenderMode %}
                         {% endif %}
-
-                        {% if page.extensions.buckaroo.issuers|length > 0 and page.extensions.buckaroo.showIssuers %}
-                            {% if renderMode > 0 %}
-                                <div>
-                                    <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
-                                    <select name="bankMethodId" id="bankMethodId" form="confirmOrderForm" required="required" class="form-control" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
-                                        <option value="">{{ "buckaroo.checkout.selectBankIssuer"|trans }}</option>
-                                            {% for issuer in page.extensions.buckaroo.issuers %}
-                                                <option value="{{ issuer.id }}">{{ issuer.name }}</option>
-                                            {% endfor %}
-                                    </select>  
-                                </div>
-                            {% else %}
-                                <div>
-                                    <label><strong>{{ "buckaroo.checkout.selectBankIssuer"|trans|sw_sanitize }}</strong>*:</label>
-                                    <div class="radio-group-required bk-ideal-radio-group" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
-                                    {% for issuer in page.extensions.buckaroo.issuers %}
-                                        <div class="custom-control custom-radio bank-control">
-                                            <input type="radio"
-                                            form="confirmOrderForm"
-                                            id="bankMethod{{ issuer.id }}"
-                                            name="bankMethodId"
-                                            value="{{ issuer.id }}"
-                                            class="custom-control-input bank-method-input">
-                                            <label class="custom-control-label bank-method-label" for="bankMethod{{ issuer.id }}">
-                                                <img src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/issuers/#{issuer.imgName}.svg")}}" class="bank-method-image" width="25"  alt="{{ issuer.name }}" title="{{ issuer.name }}">
-                                                <strong>{{ issuer.name }}</strong>
-                                            </label>
-                                        </div>
-                                    {% endfor %}
-                                    </div>
-                                </div>
-                            {% endif %}
-                        {% endif %}
                     {% endblock %}
                     {% elseif buckarooKey == 'paybybank' %}
                     
