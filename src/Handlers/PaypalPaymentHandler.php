@@ -51,9 +51,11 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        if ($dataBag->has('orderId')) {
-            return ['payPalOrderId' => $dataBag->get('orderId')];
-        }
+        // We dont really need this.
+        
+        // if ($dataBag->has('orderId')) {
+        //     return ['payPalOrderId' => $dataBag->get('orderId')];
+        // }
 
         if ($this->isSellerProtection($salesChannelContext)) {
             return $this->getSellerProtectionData($order);

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Buckaroo\Shopware6\Service\CustomerAddressService;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -36,6 +36,10 @@ class CustomerService
      * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
      */
     protected $salutationRepository;
+    /**
+     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     */
+    protected $orderCustomerRepository;
 
     /**
      * @var SalesChannelContext
@@ -56,12 +60,14 @@ class CustomerService
         CustomerAddressService $customerAddressService,
         EntityRepository $customerRepository,
         EntityRepository $salutationRepository,
+        EntityRepository $orderCustomerRepository,
         SalesChannelContextRestorer $restorer,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->customerAddressService = $customerAddressService;
         $this->customerRepository = $customerRepository;
         $this->salutationRepository = $salutationRepository;
+        $this->orderCustomerRepository = $orderCustomerRepository;
         $this->restorer = $restorer;
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -78,7 +84,6 @@ class CustomerService
         $this->validateSaleChannelContext();
 
         $customer = $this->salesChannelContext->getCustomer();
-
         if ($customer !== null) {
             $addressData->add(
                 [
@@ -111,7 +116,6 @@ class CustomerService
         $addressId = Uuid::randomHex();
         $salutationId = $this->getSalutationId();
         $address = $this->getAddressData($data, $customerId, $addressId, $salutationId);
-
         $customer = [
             'id' => $customerId,
             'customerNumber' => $data->get('paymentToken', bin2hex(random_bytes(16))),
@@ -134,8 +138,9 @@ class CustomerService
             [$customer],
             $this->salesChannelContext->getContext()
         );
-
-        $customer = $this->getCustomerById($customerId);
+        if ($customerId !== null) {
+            $customer = $this->getCustomerById($customerId);
+        }
         $this->loginCreatedCustomer($customer);
         return $customer;
     }
@@ -296,5 +301,83 @@ class CustomerService
             ]],
             $context
         );
+    }
+    public function updateDummyCustomerFromPush(
+        OrderEntity $order,
+        CustomerEntity $customer,
+        array $customerData,
+        array $billingData,
+        array $shippingData,
+        Context $context
+    ): void {
+        $this->salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
+
+        $firstName = $customerData['first_name'];
+        $lastName  = $customerData['last_name'];
+        $email     =  $customerData['email'];
+
+
+        $billingAddress = $customer->getDefaultBillingAddress();
+        $shippingAddress = $customer->getDefaultShippingAddress();
+        if ($billingAddress) {
+            $billingData['id'] = $billingAddress->getId();
+            $this->customerAddressService
+                ->setSaleChannelContext($this->salesChannelContext)
+                ->customerAddressRepository
+                ->update([$billingData], $context);
+        } else {
+            $billingAddress = $this->createAddress(new DataBag($billingData), $customer);
+        }
+        if ($shippingAddress) {
+            $shippingData['id'] = $shippingAddress->getId();
+            $this->customerAddressService
+                ->setSaleChannelContext($this->salesChannelContext)
+                ->customerAddressRepository
+                ->update([$shippingData], $context);
+        } else {
+            $shippingAddress = $this->createAddress(new DataBag($shippingData), $customer);
+        }
+        $updateData = [
+            'id'        => $customer->getId(),
+            'firstName' => $firstName,
+            'lastName'  => $lastName,
+            'email'     => $email,
+        ];
+        $updateDataOrderCustomer = [
+            'firstName' => $firstName,
+            'lastName'  => $lastName,
+            'email'     => $email,
+        ];
+
+        if ($billingAddress !== null) {
+            $updateData['defaultBillingAddressId'] = $billingAddress->getId();
+        }
+
+        if ($shippingAddress !== null) {
+            $updateData['defaultShippingAddressId'] = $shippingAddress->getId();
+        }
+
+        $this->updateOrderCustomerDetails($order, $updateDataOrderCustomer, $context);
+
+        $this->customerRepository->update([$updateData], $context);
+    }
+    public function updateOrderCustomerDetails(
+        OrderEntity $order,
+        array $data,
+        Context $context
+    ): void {
+        $orderCustomer = $order->getOrderCustomer();
+
+        if (!$orderCustomer) {
+            return;
+        }
+
+        $updateData = [
+            'id' => $orderCustomer->getId(),
+        ];
+
+        $updateData = array_merge($updateData, $data);
+
+        $this->orderCustomerRepository->update([$updateData], $context);
     }
 }

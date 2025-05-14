@@ -25,7 +25,7 @@ class CustomerAddressService
     /**
      * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
      */
-    protected EntityRepository $customerAddressRepository;
+    public EntityRepository $customerAddressRepository;
 
     protected EntityRepository $countryRepository;
 

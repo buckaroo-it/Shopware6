@@ -314,3 +314,11 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 -BP-4312 Added the parameter “ConsumerEmail” for Trustly payments.
 -BP-4221 Fix: iDEAL Fast Checkout shipping cost issue.
 -BP-4227 Fix: Error “An error occurred while processing your payment” for iDEAL Fast Checkout.
+
+# 2.8.1
+
+-BP-4317 Fix: PayPal Express sending wrong amount and add option for Apple Pay redirect to Buckaroo hosted payment.
+-BP-4245 Fix: iDEAL Fast Checkout does not always work with guest orders.
+-BP-4272: Fix: Missing ConsumerEmail parameter when using Trustly payment method.
+-BP-4297 Fix: Clicking multiple times on the “Place order button for Riverty” can result in a page with errors.
+-BP-4328 Fix: Updating the Buckaroo plugin results into a internal server error.
