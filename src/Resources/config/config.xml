@@ -532,34 +532,6 @@
 			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
 
-        <input-field type="single-select">
-            <name>idealRenderMode</name>
-            <label lang="en-GB">Issuers selection display options</label>
-            <label lang="nl-NL">Weergaveopties voor selectie van issuers (banken)</label>
-            <label lang="de-DE">Anzeigeoptionen für die Auswahl von Emittenten (Banken)</label>
-			<label lang="fr-FR">Options d'affichage de la sélection des émetteurs</label>
-            <helpText lang="en-GB">With this setting you can choose whether you want the issuer (banks) selection to be showed with a dropdown menu or to display all options with radio buttons in the checkout.</helpText>
-            <helpText lang="nl-NL">Met deze instelling kunt u kiezen of u wilt dat de selectie van de issuers (banken) wordt weergegeven met een vervolgkeuzemenu (dropdown) of dat alle opties worden weergegeven met keuzerondjes (radio buttons) tijdens het afrekenen.</helpText>
-            <helpText lang="de-DE">Mit dieser Einstellung können Sie wählen, ob Sie möchten, dass die Auswahl der Banken mit einem Dropdown-Menü angezeigt wird oder ob alle Optionen während des Bezahlvorgangs mit Optionsfeldern angezeigt werden sollen.</helpText>
-            <helpText lang="fr-FR">Avec ce paramètre, vous pouvez choisir si vous souhaitez que la sélection de l'émetteur (banques) soit affichée avec un menu déroulant ou si toutes les options doivent être affichées avec des boutons radio lors du paiement.</helpText>
-            <defaultValue>0</defaultValue>
-            <options>
-                <option>
-                    <id>0</id>
-                    <name lang="en-GB">Radio button</name>
-                    <name lang="nl-NL">Radio keuzeknop</name>
-                    <name lang="de-DE">Radio knopf</name>
-					<name lang="fr-FR">Bouton radio</name>
-                </option>
-                <option>
-                    <id>1</id>
-                    <name lang="en-GB">Dropdown</name>
-                    <name lang="nl-NL">Keuzelijst</name>
-                    <name lang="de-DE">Dropdown liste</name>
-					<name lang="fr-FR">Menu déroulant</name>
-                </option>
-            </options>
-        </input-field>
 
         <input-field type="bool">
             <name>idealFastCheckout</name>
