@@ -504,6 +504,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\CustomerAddressService"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="order_customer.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
         </service>
