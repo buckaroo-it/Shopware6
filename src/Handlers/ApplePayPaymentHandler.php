@@ -34,8 +34,7 @@ class ApplePayPaymentHandler extends AsyncPaymentHandler
             $salesChannelContext->getSalesChannelId()
         );
 
-        if ($usingApplepayHostedPaymentPageConfig == 1)
-        {
+        if ($usingApplepayHostedPaymentPageConfig == 1) {
             return array(
                 'continueOnIncomplete' => '1',
             );
