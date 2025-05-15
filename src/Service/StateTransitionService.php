@@ -309,7 +309,14 @@ class StateTransitionService
     }
     public function isOrderPaid(OrderEntity $order): bool
     {
-        $paymentState = $order->getTransactions()->last()?->getStateMachineState()?->getTechnicalName();
+        $transactions = $order->getTransactions();
+
+        if ($transactions === null || $transactions->count() === 0) {
+            return false;
+        }
+
+        $paymentState = $transactions->last()?->getStateMachineState()?->getTechnicalName();
+
         return in_array($paymentState, ['paid', 'pay_partially'], true);
     }
 }
