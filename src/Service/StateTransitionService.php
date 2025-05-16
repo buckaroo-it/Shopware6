@@ -307,6 +307,7 @@ class StateTransitionService
         }
         return false;
     }
+
     public function isOrderPaid(OrderEntity $order): bool
     {
         $transactions = $order->getTransactions();
@@ -319,5 +320,4 @@ class StateTransitionService
 
         return in_array($paymentState, ['paid', 'pay_partially'], true);
     }
-
 }
