@@ -537,11 +537,6 @@ class PushController extends StorefrontController
 
         return true;
     }
-    public function isOrderPaid(OrderEntity $order, Context $context): bool
-    {
-        $paymentState = $order->getTransactions()->last()?->getStateMachineState()?->getTechnicalName();
-        return in_array($paymentState, ['paid', 'pay_partially'], true);
-    }
 
     protected function isIdealQrRequest(Request $request): bool
     {
