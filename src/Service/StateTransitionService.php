@@ -21,6 +21,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 
 class StateTransitionService
 {
@@ -306,5 +307,18 @@ class StateTransitionService
             }
         }
         return false;
+    }
+
+    public function isOrderPaid(OrderEntity $order): bool
+    {
+        $transactions = $order->getTransactions();
+
+        if (!$transactions instanceof OrderTransactionCollection || $transactions->count() === 0) {
+            return false;
+        }
+
+        $paymentState = $transactions->last()?->getStateMachineState()?->getTechnicalName();
+
+        return in_array($paymentState, ['paid', 'pay_partially'], true);
     }
 }
