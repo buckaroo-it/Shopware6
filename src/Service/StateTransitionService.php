@@ -317,8 +317,15 @@ class StateTransitionService
             return false;
         }
 
-        $paymentState = $transactions->last()?->getStateMachineState()?->getTechnicalName();
+        foreach ($transactions as $transaction) {
+            $paymentState = $transaction->getStateMachineState()?->getTechnicalName();
 
-        return in_array($paymentState, ['paid', 'pay_partially'], true);
+
+            if (in_array($paymentState, ['paid', 'pay_partially'], true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
