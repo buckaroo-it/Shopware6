@@ -313,13 +313,15 @@ class StateTransitionService
     {
         $transactions = $order->getTransactions();
 
-        if ($transactions === null || $transactions->count() === 0) {
+        if (!$transactions instanceof OrderTransactionCollection || $transactions->count() === 0) {
             return false;
         }
 
         foreach ($transactions as $transaction) {
-            $state = $transaction->getStateMachineState()?->getTechnicalName();
-            if (in_array($state, ['paid', 'pay_partially'], true)) {
+            $paymentState = $transaction->getStateMachineState()?->getTechnicalName();
+
+
+            if (in_array($paymentState, ['paid', 'pay_partially'], true)) {
                 return true;
             }
         }
