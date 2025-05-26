@@ -43,6 +43,7 @@ export default class PaypalExpressPlugin extends Plugin {
         if (this.merchantId === null) {
             alert('Merchant id is required');
         }
+        console.log(this.merchantId)
         document.$emitter.subscribe('buckaroo_scripts_loaded', () => {
             this.sdk = BuckarooSdk.PayPal;
             this.sdk.initiate(this.sdkOptions);
@@ -142,6 +143,7 @@ export default class PaypalExpressPlugin extends Plugin {
      */
     setShipping(data)
     {
+        console.log(data)
         let formData = null;
 
         if (this.options.page === 'product') {
