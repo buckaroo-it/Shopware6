@@ -189,7 +189,9 @@ class TransactionService
             throw new \InvalidArgumentException('Order transaction not found.');
         }
 
-        /** @var OrderTransactionEntity|null */
-        return $transactions->last()->getId();
+        /** @var OrderTransactionEntity|null $lastTransaction */
+        $lastTransaction = $transactions->last();
+
+        return $lastTransaction?->getId();
     }
 }
