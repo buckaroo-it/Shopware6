@@ -192,5 +192,4 @@ class TransactionService
         /** @var OrderTransactionEntity|null */
         return $transactions->last()->getId();
     }
-
 }
