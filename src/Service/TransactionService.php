@@ -181,7 +181,7 @@ class TransactionService
         return end($baseClassArr) === end($buckarooPaymentClass);
     }
 
-    public function getLastTransaction(OrderEntity $order): ?OrderTransactionEntity
+    public function getLastTransactionId(OrderEntity $order): ?string
     {
         $transactions = $order->getTransactions();
 
@@ -190,6 +190,7 @@ class TransactionService
         }
 
         /** @var OrderTransactionEntity|null */
-        return $transactions->last();
+        return $transactions->last()->getId();
     }
+
 }
