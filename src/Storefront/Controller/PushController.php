@@ -286,7 +286,7 @@ class PushController extends StorefrontController
 
                 $lastTransactionId = $this->transactionService->getLastTransactionId($order);
 
-                if($lastTransactionId) {
+                if ($lastTransactionId) {
                     $this->transactionService->updateTransactionCustomFields($lastTransactionId, [
                         'originalTransactionKey'    => $originalTransactionKey
                     ]);
