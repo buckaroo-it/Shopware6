@@ -55,7 +55,9 @@ export default class PaypalExpressPlugin extends Plugin {
     onShippingChangeHandler(data, actions)
     {
         let shipping = this.setShipping(data);
+        console.log(data , 'data')
         return shipping.then((response) => {
+            console.log(response , 'response')
             if (response.error === false) {
                 this.cartToken = response.token;
                 this.sdkOptions.amount = response.cart.value
@@ -154,6 +156,7 @@ export default class PaypalExpressPlugin extends Plugin {
                     page: this.options.page
                 }),
                 (response) => {
+                    console.log(JSON.parse(response) , 'response from paypal')
                     resolve(JSON.parse(response));
                 }
             )
