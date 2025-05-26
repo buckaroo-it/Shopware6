@@ -180,4 +180,16 @@ class TransactionService
 
         return end($baseClassArr) === end($buckarooPaymentClass);
     }
+
+    public function getLastTransaction(OrderEntity $order): ?OrderTransactionEntity
+    {
+        $transactions = $order->getTransactions();
+
+        if ($transactions === null) {
+            throw new \InvalidArgumentException('Order transaction not found.');
+        }
+
+        /** @var OrderTransactionEntity|null */
+        return $transactions->last();
+    }
 }
