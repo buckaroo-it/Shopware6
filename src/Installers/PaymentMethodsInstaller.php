@@ -160,7 +160,8 @@ class PaymentMethodsInstaller implements InstallerInterface
                 self::BUCKAROO_KEY => $paymentMethod->getBuckarooKey(),
                 self::IS_BUCKAROO => true,
                 self::TEMPLATE => $paymentMethod->getTemplate()
-            ]
+            ],
+            'technicalName' => $paymentMethod->getTechnicalName()
         ];
 
         $this->paymentMethodRepository->upsert([$paymentData], $context);

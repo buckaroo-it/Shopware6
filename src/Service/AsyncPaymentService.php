@@ -17,7 +17,8 @@ use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct
+;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 
@@ -185,7 +186,8 @@ class AsyncPaymentService
         ) === 1;
     }
 
-    public function cancelPreviousPayments(AsyncPaymentTransactionStruct $transaction): void
+    public function cancelPreviousPayments(PaymentTransactionStruct
+ $transaction): void
     {
         try {
             $this->cancelPaymentService->cancel($transaction);

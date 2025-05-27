@@ -8,6 +8,7 @@ use Buckaroo\Shopware6\PaymentMethods\Ideal;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class IdealPaymentHandler extends AsyncPaymentHandler
@@ -18,13 +19,6 @@ class IdealPaymentHandler extends AsyncPaymentHandler
 
     /**
      * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     *
-     * @return array<mixed>
      */
     protected function getMethodPayload(
         OrderEntity $order,
@@ -32,41 +26,31 @@ class IdealPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        if (
-            $dataBag->get('idealFastCheckoutInfo')
-        ) {
+        if ($dataBag->get('idealFastCheckoutInfo')) {
             $shippingCost = 0;
-
             $firstDelivery = $order->getDeliveries()?->first();
+
             if ($firstDelivery && $firstDelivery->getShippingCosts()) {
                 $shippingCost = $firstDelivery->getShippingCosts()->getTotalPrice();
             }
 
             return [
                 'orderId' => $dataBag->get('orderId'),
-                'shippingCost' => $shippingCost
+                'shippingCost' => $shippingCost,
             ];
         }
-        return [
-        ];
+
+        return [];
     }
+
     /**
      * Get method action for specific payment method
-     *
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     *
-     * @return string
      */
     protected function getMethodAction(
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): string {
-        if ($dataBag->get('idealFastCheckoutInfo')) {
-            return 'payFastCheckout';
-        }
-        return 'pay';
+        return $dataBag->get('idealFastCheckoutInfo') ? 'payFastCheckout' : 'pay';
     }
 }

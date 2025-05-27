@@ -87,4 +87,8 @@ class Klarnain extends AbstractPayment
     {
         return false;
     }
+    public function getTechnicalName(): string
+    {
+        return 'buckaroo_klarnain';
+    }
 }

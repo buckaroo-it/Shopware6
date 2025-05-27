@@ -9,12 +9,14 @@ use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct
+;
 
 class AfterPaymentRequestEvent implements ShopwareSalesChannelEvent
 {
 
-    protected AsyncPaymentTransactionStruct $transaction;
+    protected PaymentTransactionStruct
+ $transaction;
 
     protected RequestDataBag $dataBag;
 
@@ -25,7 +27,8 @@ class AfterPaymentRequestEvent implements ShopwareSalesChannelEvent
     protected string $paymentCode;
 
     public function __construct(
-        AsyncPaymentTransactionStruct $transaction,
+        PaymentTransactionStruct
+ $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $context,
         ClientResponseInterface $response,
@@ -48,7 +51,8 @@ class AfterPaymentRequestEvent implements ShopwareSalesChannelEvent
         return $this->salesChannelContext->getContext();
     }
 
-    public function getAsyncPaymentTransaction(): AsyncPaymentTransactionStruct
+    public function getAsyncPaymentTransaction(): PaymentTransactionStruct
+
     {
         return $this->transaction;
     }

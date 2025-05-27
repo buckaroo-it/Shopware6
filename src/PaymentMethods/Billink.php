@@ -79,4 +79,9 @@ class Billink extends AbstractPayment
     {
         return true;
     }
+    public function getTechnicalName(): string
+    {
+        return 'buckaroo_billink';
+    }
+
 }

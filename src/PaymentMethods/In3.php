@@ -87,4 +87,8 @@ class In3 extends AbstractPayment
             ],
         ];
     }
+    public function getTechnicalName(): string
+    {
+        return 'buckaroo_in3';
+    }
 }

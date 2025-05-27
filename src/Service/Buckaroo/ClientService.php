@@ -47,6 +47,8 @@ class ClientService
                 $this->shopwareVersion
             );
         } catch (\Throwable $th) {
+            var_dump($th);
+            die();
             throw new ClientInitException("Cannot initiate buckaroo sdk client", 0, $th);
         }
     }

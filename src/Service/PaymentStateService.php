@@ -11,7 +11,8 @@ use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct
+;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
@@ -41,7 +42,8 @@ class PaymentStateService
     }
 
     public function finalizePayment(
-        AsyncPaymentTransactionStruct $transaction,
+        PaymentTransactionStruct
+ $transaction,
         Request $request,
         SalesChannelContext $salesChannelContext
     ): void {

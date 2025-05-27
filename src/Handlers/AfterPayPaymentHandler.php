@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Handlers;
 
 use Shopware\Core\Framework\Context;
-use Buckaroo\Shopware6\Handlers\AfterPayOld;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\Service\CaptureService;
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 use Buckaroo\Resources\Constants\RecipientCategory;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
 class AfterPayPaymentHandler extends AsyncPaymentHandler
@@ -40,13 +41,16 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         parent::__construct($asyncPaymentService);
         $this->afterPayOld = $afterPayOld;
     }
-
     /** @inheritDoc */
     public function pay(
-        AsyncPaymentTransactionStruct $transaction,
-        RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext
-    ): RedirectResponse {
+        Request $request,
+        PaymentTransactionStruct $transaction,
+        Context $context,
+        ?Struct $validateStruct
+    ): ?RedirectResponse {
+        $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext($context);
+
+        // Add authorization custom field if enabled
         if ($this->isAuthorization($salesChannelContext->getSalesChannelId())) {
             $this->asyncPaymentService
                 ->checkoutHelper
@@ -58,7 +62,8 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                     $salesChannelContext->getContext()
                 );
         }
-        return parent::pay($transaction, $dataBag, $salesChannelContext);
+
+        return parent::pay($request, $transaction, $context, $validateStruct);
     }
 
     /**

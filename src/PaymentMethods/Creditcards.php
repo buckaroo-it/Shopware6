@@ -92,4 +92,8 @@ class Creditcards extends AbstractPayment
     {
         return 'direct';
     }
+    public function getTechnicalName(): string
+    {
+        return 'buckaroo_creditcards';
+    }
 }

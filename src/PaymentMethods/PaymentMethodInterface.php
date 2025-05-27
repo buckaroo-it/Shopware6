@@ -82,4 +82,7 @@ interface PaymentMethodInterface
      * @return bool
      */
     public function canCapture(): bool;
+
+    public function getTechnicalName(): string;
+
 }

@@ -84,4 +84,8 @@ class Multibanco extends AbstractPayment
             ],
         ];
     }
+    public function getTechnicalName(): string
+    {
+        return 'buckaroo_multibanco';
+    }
 }

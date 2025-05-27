@@ -8,11 +8,14 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\PaymentMethods\PayByBank;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
-use Buckaroo\Shopware6\Handlers\AsyncPaymentHandler;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct
+;
 use Shopware\Core\Checkout\Payment\PaymentException;
 
 class PayByBankPaymentHandler extends AsyncPaymentHandler
@@ -33,7 +36,8 @@ class PayByBankPaymentHandler extends AsyncPaymentHandler
 
 
      /**
-     * @param AsyncPaymentTransactionStruct $transaction
+     * @param PaymentTransactionStruct
+ $transaction
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
      * @return RedirectResponse
@@ -41,13 +45,14 @@ class PayByBankPaymentHandler extends AsyncPaymentHandler
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function pay(
-        AsyncPaymentTransactionStruct $transaction,
-        RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext
+        Request $request,
+        PaymentTransactionStruct $transaction,
+        Context $context,
+        ?Struct $validateStruct
     ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $this->updateCustomerIssuer($dataBag, $salesChannelContext);
-        return parent::pay($transaction, $dataBag, $salesChannelContext);
+        $dataBag = new RequestDataBag($request->request->all());
+        $this->updateCustomerIssuer($dataBag, $this->asyncPaymentService->getSalesChannelContext($context));
+        return parent::pay($request, $transaction, $context, $validateStruct);
     }
     /**
      * Get parameters for specific payment method

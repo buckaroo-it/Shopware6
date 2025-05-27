@@ -13,7 +13,8 @@ use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntity;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct
+;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
 
 class CancelPaymentService
@@ -38,12 +39,14 @@ class CancelPaymentService
     /**
      * Do a refund on hanging giftcards
      *
-     * @param AsyncPaymentTransactionStruct $transactionStruct
+     * @param PaymentTransactionStruct
+ $transactionStruct
      *
      * @return void
      */
     public function cancel(
-        AsyncPaymentTransactionStruct $transactionStruct
+        PaymentTransactionStruct
+ $transactionStruct
     ): void {
 
         $orderTransaction = $transactionStruct->getOrderTransaction();
