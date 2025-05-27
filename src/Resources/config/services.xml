@@ -465,16 +465,7 @@
             </call>
         </service>
 
-        <service id="Buckaroo\Shopware6\Storefront\Controller\PaymentController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
+
 
 
         <!-- /Controllers -->
@@ -518,10 +509,9 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentProcessor"/>
             <argument type="service" id="order_address.repository"/>
         </service>
-
 
         <service id="Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber" >
             <argument type="service" id="sales_channel.payment_method.repository"/>
