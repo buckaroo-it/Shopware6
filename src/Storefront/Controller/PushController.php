@@ -284,6 +284,15 @@ class PushController extends StorefrontController
                     return $this->response('buckaroo.messages.paymentUpdatedEarlier');
                 }
 
+                $lastTransactionId = $this->transactionService->getLastTransactionId($order);
+
+                if ($lastTransactionId) {
+                    $this->transactionService->updateTransactionCustomFields($lastTransactionId, [
+                        'originalTransactionKey'    => $originalTransactionKey
+                    ]);
+                }
+                
+
                 $customFields = $this->transactionService->getCustomFields($order, $context);
                 $paymentSuccesStatus = $this->getPaymentSuccessStatus($salesChannelId);
                 $alreadyPaid = round($brqAmount + ($customFields['alreadyPaid'] ?? 0), 2);
