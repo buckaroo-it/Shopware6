@@ -284,6 +284,15 @@ class PushController extends StorefrontController
                     return $this->response('buckaroo.messages.paymentUpdatedEarlier');
                 }
 
+                $lastTransactionId = $this->transactionService->getLastTransactionId($order);
+
+                if ($lastTransactionId) {
+                    $this->transactionService->updateTransactionCustomFields($lastTransactionId, [
+                        'originalTransactionKey'    => $originalTransactionKey
+                    ]);
+                }
+                
+
                 $customFields = $this->transactionService->getCustomFields($order, $context);
                 $paymentSuccesStatus = $this->getPaymentSuccessStatus($salesChannelId);
                 $alreadyPaid = round($brqAmount + ($customFields['alreadyPaid'] ?? 0), 2);
@@ -368,13 +377,18 @@ class PushController extends StorefrontController
                 ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER
             ]
         )) {
-            if ($this->stateTransitionService->isTransitionPaymentState(
-                ['paid', 'pay_partially'],
-                $orderTransactionId,
-                $context
-            )) {
+            if (
+                $this->stateTransitionService->isTransitionPaymentState(
+                    ['paid', 'pay_partially'],
+                    $orderTransactionId,
+                    $context
+                ) ||
+                $this->stateTransitionService->isOrderPaid($order)
+            ) {
+                $this->logger->info(__METHOD__ . '|Push ignored because order is already paid');
                 return $this->response('buckaroo.messages.skippedPush');
             }
+
             $this->setPaymentState("fail", $orderTransactionId, $salesChannelContext, $request);
 
             $paymentSuccesStatus = $this->getCancelOpenOrderSetting($salesChannelId);
@@ -388,16 +402,17 @@ class PushController extends StorefrontController
         }
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER) {
-            if ($this->stateTransitionService->isTransitionPaymentState(
-                ['paid', 'pay_partially'],
-                $orderTransactionId,
-                $context
-            )) {
+            if (
+                $this->stateTransitionService->isTransitionPaymentState(
+                    ['paid', 'pay_partially'],
+                    $orderTransactionId,
+                    $context
+                ) ||
+                $this->stateTransitionService->isOrderPaid($order)
+            ) {
+                $this->logger->info(__METHOD__ . '|Push ignored because order is already paid');
                 return $this->response('buckaroo.messages.skippedPush');
             }
-            $this->setPaymentState("process_unconfirmed", $orderTransactionId, $salesChannelContext, $request);
-
-            return $this->response('buckaroo.messages.orderCancelled');
         }
 
         return $this->response('buckaroo.messages.paymentError', false);
