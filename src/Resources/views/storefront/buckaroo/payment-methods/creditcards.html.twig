@@ -1,6 +1,21 @@
 {% block buckaroo_payment_method_creditcards %}
+    {% if payment.media %}
+        {% sw_thumbnails 'payment-method-image-thumbnails' with {
+            media: payment.media,
+            sizes: {
+                'default': '100px'
+            },
+            attributes: {
+                'class': 'payment-method-image bk-payment-image mb-2',
+                'alt': (payment.media.translated.alt ?: payment.translated.name),
+                'title': (payment.media.translated.title ?: payment.translated.name),
+                'style': 'max-height: 30px;'
+            }
+        } %}
+    {% endif %}
     {% if page.extensions.buckaroo.creditcards|length > 0 %}
     <div class="tailwind-wrapper" id="tailwind-wrapper-creditcards">
+        <script src="https://cdn.tailwindcss.com"></script>
         <div class="tailwind-form">
             <div class="buckaroo-creditcards">
                 <form id="confirmOrderForm" class="bg-white px-8 pt-6 pb-8">
