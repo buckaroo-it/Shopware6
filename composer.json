@@ -50,7 +50,8 @@
         "squizlabs/php_codesniffer": "*",
         "phpstan/phpstan": "^1.9",
         "shopware/storefront": "*",
-        "shopware/administration": "*"
+        "shopware/administration": "*",
+        "deployer/deployer": "^7.3"
     },
     "scripts": {
         "phpcs": [
