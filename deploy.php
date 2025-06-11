@@ -17,4 +17,4 @@ task('plugin:deploy', function () {
 });
 
 // Add plugin deployment to the main deployment process
-after('deploy:update_code', 'plugin:deploy'); 
+after('deploy:update_code', 'plugin:deploy');
