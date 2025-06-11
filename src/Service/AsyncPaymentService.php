@@ -223,7 +223,8 @@ class AsyncPaymentService
         $criteria->addAssociation('order.billingAddress');
         $criteria->addAssociation('order.deliveries.shippingAddress');
 
-        return $this->orderTransactionRepository->search($criteria, $context)->first();
+        $result = $this->orderTransactionRepository->search($criteria, $context)->first();
+        return $result instanceof OrderTransactionEntity ? $result : null;
     }
 
     /**
