@@ -391,8 +391,8 @@ class FormatRequestParamService
     public static function getAddressParts(string $street): array
     {
         $format = [
-            'house_number'    => '',
-            'number_addition' => '',
+            'house_number'    => null,
+            'number_addition' => null,
             'street'          => $street,
         ];
 
