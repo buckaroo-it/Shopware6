@@ -144,18 +144,19 @@
             <argument type="service" id="request_stack"/>
         </service>
 
-        <service id="Buckaroo\Shopware6\Service\AsyncPaymentService">
+        <service id="Buckaroo\Shopware6\Service\AsyncPaymentService" public="true">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
-            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Psr\Log\LoggerInterface"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\PaymentStateService"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\CancelPaymentService"/>
+            <argument type="service" id="order_transaction.repository"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Events\OrderStateChangeEvent">
@@ -179,11 +180,12 @@
             <argument type="service" id="order.repository"/>
         </service>
 
-        <service id="Buckaroo\Shopware6\Service\PaymentStateService">
+        <service id="Buckaroo\Shopware6\Service\PaymentStateService" class="Buckaroo\Shopware6\Service\PaymentStateService" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="translator" />
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <argument type="service" id="Psr\Log\LoggerInterface"/>
         </service>
         <service id="Buckaroo\Shopware6\Handlers\AsyncPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>

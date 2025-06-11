@@ -32,9 +32,7 @@ class IdealPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        if (
-            $dataBag->get('idealFastCheckoutInfo')
-        ) {
+        if ($dataBag->get('idealFastCheckoutInfo')) {
             $shippingCost = 0;
 
             $firstDelivery = $order->getDeliveries()?->first();
@@ -44,12 +42,24 @@ class IdealPaymentHandler extends AsyncPaymentHandler
 
             return [
                 'orderId' => $dataBag->get('orderId'),
-                'shippingCost' => $shippingCost
+                'shippingCost' => $shippingCost,
+                'customer' => [
+                    'email' => $order->getOrderCustomer()?->getEmail(),
+                    'firstName' => $order->getOrderCustomer()?->getFirstName(),
+                    'lastName' => $order->getOrderCustomer()?->getLastName(),
+                ]
             ];
         }
+
         return [
+            'customer' => [
+                'email' => $order->getOrderCustomer()?->getEmail(),
+                'firstName' => $order->getOrderCustomer()?->getFirstName(),
+                'lastName' => $order->getOrderCustomer()?->getLastName(),
+            ]
         ];
     }
+
     /**
      * Get method action for specific payment method
      *

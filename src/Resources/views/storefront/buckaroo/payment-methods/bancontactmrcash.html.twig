@@ -1,0 +1,70 @@
+{% block buckaroo_payment_method_bancontactmrcash %}
+    <div class="card buckaroo-creditcards">
+        {% if payment.media %}
+            {% sw_thumbnails 'payment-method-image-thumbnails' with {
+                media: payment.media,
+                sizes: {
+                    'default': '100px'
+                },
+                attributes: {
+                    'class': 'payment-method-image bk-payment-image mb-2',
+                    'alt': (payment.media.translated.alt ?: payment.translated.name),
+                    'title': (payment.media.translated.title ?: payment.translated.name),
+                    'style': 'max-height: 30px;'
+                }
+            } %}
+        {% endif %}
+        <fieldset>
+            <div class="form-row col-md-12">
+                <div class="form-group col-md-12">
+                    <label class="form-label" for="bancontactmrcash_cardholdername">{{ "buckaroo.checkout.bancontactmrcash.cardholder" | trans }}:</label>
+                    <input class="form-control" id="bancontactmrcash_cardholdername" name="bancontactmrcash_cardholdername"  required="required" />
+                    <input type="hidden" id="encryptedCardData" name="encryptedCardData" form="confirmOrderForm">
+                    <label class="form-label" style="display:none; color:red" for="bancontactmrcash_cardholdername" id="bancontactmrcash_cardholdernameError">
+                        {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
+                    </label>
+                </div>
+
+                <div class="form-group col-md-12">
+                    <label class="form-label" for="bancontactmrcash_cardnumber">{{ "buckaroo.checkout.bancontactmrcash.cardNumber" | trans }}:</label>
+                    <input class="form-control" id="bancontactmrcash_cardnumber" name="bancontactmrcash_cardnumber"  required="required" />
+                    <label class="form-label" style="display:none; color:red" for="bancontactmrcash_cardnumber" id="bancontactmrcash_cardnumberError">
+                        {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
+                    </label>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="bancontactmrcash_expirationmonth">{{ "buckaroo.checkout.bancontactmrcash.month" | trans }}:</label>
+                    <select type="text" id="bancontactmrcash_expirationmonth" name="bancontactmrcash_expirationmonth"  required="required" class="form-control">
+                        <option value="">{{ "buckaroo.checkout.bancontactmrcash.selectMonth"|trans }}</option>
+                        {% for month in 1..12 %}
+                            <option value="{{ month }}">{{ month }}</option>
+                        {% endfor %}
+                    </select>
+                    <label class="form-label" style="display:none; color:red" for="bancontactmrcash_expirationmonth" id="bancontactmrcash_expirationmonthError">
+                        {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
+                    </label>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="bancontactmrcash_expirationyear">{{ "buckaroo.checkout.creditcards.year" | trans }}:</label>
+                    <select type="text" id="bancontactmrcash_expirationyear" name="bancontactmrcash_expirationyear"  required="required" class="form-control">
+                        <option value="">{{ "buckaroo.checkout.creditcards.selectYear"|trans }}</option>
+                        {% set start_year = date() | date('Y') %}
+                        {% set end_year = start_year + 10 %}
+
+                        {% for year in start_year..end_year %}
+                            <option value="{{ year }}">{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                    <label class="form-label" style="display:none; color:red" for="bancontactmrcash_expirationyear" id="bancontactmrcash_expirationyearError">
+                        {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}
+                    </label>
+                </div>
+            </div>
+        </fieldset>
+        <div style="margin-top:15px;" class="bk-bancontactmrcash" data-bancontactmrcash >
+            <div id="bancontactMobileButton"></div>
+        </div>
+    </div>
+{% endblock %} 

@@ -1,0 +1,26 @@
+{% block buckaroo_payment_method_afterpay %}
+    <div class="form-group">
+        <label class="form-label" for="buckaroo-afterpay-gender">
+            {{ "buckaroo.payment.afterpay.gender"|trans|sw_sanitize }}
+        </label>
+        <select class="form-select" id="buckaroo-afterpay-gender" name="buckaroo-afterpay-gender" required="required">
+            <option value="">{{ "buckaroo.payment.afterpay.select_gender"|trans|sw_sanitize }}</option>
+            <option value="1">{{ "buckaroo.payment.afterpay.gender_male"|trans|sw_sanitize }}</option>
+            <option value="2">{{ "buckaroo.payment.afterpay.gender_female"|trans|sw_sanitize }}</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="buckaroo-afterpay-birthdate">
+            {{ "buckaroo.payment.afterpay.birthdate"|trans|sw_sanitize }}
+        </label>
+        <input type="date" class="form-control" id="buckaroo-afterpay-birthdate" name="buckaroo-afterpay-birthdate" required="required">
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="buckaroo-afterpay-phone">
+            {{ "buckaroo.payment.afterpay.phone"|trans|sw_sanitize }}
+        </label>
+        <input type="tel" class="form-control" id="buckaroo-afterpay-phone" name="buckaroo-afterpay-phone" required="required">
+    </div>
+{% endblock %} 

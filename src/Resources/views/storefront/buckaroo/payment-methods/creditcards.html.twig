@@ -1,0 +1,74 @@
+{% block buckaroo_payment_method_creditcards %}
+    {% if page.extensions.buckaroo.creditcards|length > 0 %}
+    <div class="tailwind-wrapper" id="tailwind-wrapper-creditcards">
+        <div class="tailwind-form">
+            <div class="buckaroo-creditcards">
+                <form id="confirmOrderForm" class="bg-white px-8 pt-6 pb-8">
+                    <div class="mb-4">
+                        <h1 class="text-2xl font-bold">Payment</h1>
+                    </div>
+
+                    <input type="hidden" id="buckaroo-token" name="buckaroo-token" form="confirmOrderForm">
+                    <input type="hidden" id="selected-issuer" name="selected-issuer"  form="confirmOrderForm" />
+
+                    <div class="buckaroo-hf-error text-red-600 text-sm mb-4 hidden"></div>
+
+                    <div class="mb-4">
+                        <label id="cc-name-label" class="block text-gray-700 text-sm font-bold mb-2">
+                            Cardholder Name
+                        </label>
+                        <div id="cc-name-wrapper"
+                             class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+                        <p id="cc-name-error" class="text-red-500 text-xs italic mt-1"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label id="cc-number-label" class="block text-gray-700 text-sm font-bold mb-2">
+                            Card Number
+                        </label>
+                        <div id="cc-number-wrapper"
+                             class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+                        <p id="cc-number-error" class="text-red-500 text-xs italic mt-1"></p>
+                    </div>
+
+                    <div class="mb-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-1">
+                                <label id="cc-expiry-label" class="block text-gray-700 text-sm font-bold mb-2">
+                                    Expiry Date
+                                </label>
+                                <div id="cc-expiry-wrapper"
+                                     class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                </div>
+                                <p id="cc-expiry-error" class="text-red-500 text-xs italic mt-1"></p>
+                            </div>
+                            <div class="col-span-1">
+                                <label id="cc-cvc-label" class="block text-gray-700 text-sm font-bold mb-2">
+                                    CVC
+                                </label>
+                                <div id="cc-cvc-wrapper"
+                                     class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                </div>
+                                <p id="cc-cvc-error" class="text-red-500 text-xs italic mt-1"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <button id="pay"
+                                class="bg-[#ff5555] hover:bg-red-600 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                                type="button">
+                            Submit
+                        </button>
+                        <a class="inline-block align-baseline text-sm text-gray-500 hover:text-gray-800" href="#">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %} 
