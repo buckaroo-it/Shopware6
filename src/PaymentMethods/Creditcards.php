@@ -54,6 +54,8 @@ class Creditcards extends AbstractPayment
         return CreditcardsPaymentHandler::class;
     }
 
+
+
     /**
      * {@inheritDoc}
      *
@@ -61,7 +63,7 @@ class Creditcards extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__ . '/../../Resources/views/storefront/buckaroo/payments/creditcards.svg';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/creditcards.svg';
     }
 
     /**
