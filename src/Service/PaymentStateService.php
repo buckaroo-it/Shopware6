@@ -255,7 +255,7 @@ class PaymentStateService
             ResponseStatus::BUCKAROO_STATUSCODE_REJECTED => 'buckaroo.statuscode_failed'
         ];
 
-        return isset($errorMessages[$statusCode]) 
+        return isset($errorMessages[$statusCode])
             ? $this->translator->trans($errorMessages[$statusCode])
             : '';
     }
