@@ -102,6 +102,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                         $paymentCode
                     )
                 );
+
             if (
                 $paymentCode === "afterpay" &&
                 !$this->isAfterpayOld($salesChannelContext->getSalesChannelId())
@@ -127,7 +128,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         } catch (BuckarooPaymentRejectException $e) {
             $this->asyncPaymentService->logger->error((string) $e->getMessage());
-
             throw new PaymentException(
                 Response::HTTP_BAD_REQUEST,
                 PaymentException::PAYMENT_ASYNC_PROCESS_INTERRUPTED,
@@ -170,6 +170,26 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         $returnUrl = $this->getReturnUrl($transaction, $dataBag);
 
+        $this->storeTransactionInfo($transaction, $response, $salesChannelContext, $paymentCode);
+
+        if ($response->isRejected()) {
+            throw new BuckarooPaymentRejectException($response->getSubCodeMessage());
+        }
+        
+        if ($response->hasRedirect()) {
+            $this->handleRedirectResponse($transaction);
+            return new RedirectResponse($response->getRedirectUrl());
+        }
+
+        return $this->handlePaymentStatus($response, $transaction, $salesChannelContext, $returnUrl, $paymentCode);
+    }
+
+    private function storeTransactionInfo(
+        AsyncPaymentTransactionStruct $transaction,
+        ClientResponseInterface $response,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): void {
         $this->asyncPaymentService
             ->checkoutHelper
             ->appendCustomFields(
@@ -182,24 +202,28 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         $this->asyncPaymentService->transactionService
             ->updateTransactionCustomFields($transaction->getOrderTransaction()->getId(), [
-                'originalTransactionKey'    => $response->getTransactionKey()
+                'originalTransactionKey' => $response->getTransactionKey()
             ]);
 
         $this->setFeeOnOrder($transaction, $salesChannelContext, $paymentCode);
+    }
 
-        if ($response->isRejected()) {
-            throw new BuckarooPaymentRejectException($response->getSubCodeMessage());
-        }
-        
-        if ($response->hasRedirect()) {
-            $this->asyncPaymentService
-                ->checkoutHelper
-                ->getSession()
-                ->set('buckaroo_latest_order', $transaction->getOrder()->getId());
+    private function handleRedirectResponse(
+        AsyncPaymentTransactionStruct $transaction
+    ): void {
+        $this->asyncPaymentService
+            ->checkoutHelper
+            ->getSession()
+            ->set('buckaroo_latest_order', $transaction->getOrder()->getId());
+    }
 
-            return new RedirectResponse($response->getRedirectUrl());
-        }
-
+    private function handlePaymentStatus(
+        ClientResponseInterface $response,
+        AsyncPaymentTransactionStruct $transaction,
+        SalesChannelContext $salesChannelContext,
+        string $returnUrl,
+        string $paymentCode
+    ): RedirectResponse {
         if (
             $response->isSuccess() ||
             $response->isAwaitingConsumer() ||
@@ -221,7 +245,7 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         if ($response->isCanceled()) {
             throw PaymentException::asyncProcessInterrupted(
                 $transaction->getOrderTransaction()->getId(),
-                'Cannot create buckaroo payment'
+                'Payment was canceled'
             );
         }
 
@@ -409,7 +433,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      */
     private function getClient(string $paymentCode, string $salesChannelId, DataBag $dataBag): Client
     {
-        //do a ideal payment if the issuer is ING for payByBank on mobile devices
         if (
             $paymentCode === 'paybybank' &&
             $dataBag->get('payBybankMethodId') === 'INGBNL2A' &&

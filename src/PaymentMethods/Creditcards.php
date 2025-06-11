@@ -61,7 +61,7 @@ class Creditcards extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/creditcards.svg';
+        return __DIR__ . '/../../Resources/views/storefront/buckaroo/payments/creditcards.svg';
     }
 
     /**

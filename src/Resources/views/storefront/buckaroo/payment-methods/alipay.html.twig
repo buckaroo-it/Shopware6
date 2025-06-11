@@ -1,0 +1,16 @@
+{% block buckaroo_payment_method_alipay %}
+    <div class="buckaroo-alipay-container">
+        <div id="buckaroo-alipay-qr" class="buckaroo-alipay-qr"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.Alipay) {
+                const qrContainer = document.getElementById('buckaroo-alipay-qr');
+                if (qrContainer) {
+                    qrContainer.style.display = 'block';
+                }
+            }
+        });
+    </script>
+{% endblock %} 
