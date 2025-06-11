@@ -208,7 +208,9 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         $this->setFeeOnOrder($transaction, $salesChannelContext, $paymentCode);
     }
 
-    private function handleRedirectResponse(AsyncPaymentTransactionStruct $transaction): void{
+    private function handleRedirectResponse(
+        AsyncPaymentTransactionStruct $transaction
+    ): void {
         $this->asyncPaymentService
             ->checkoutHelper
             ->getSession()
