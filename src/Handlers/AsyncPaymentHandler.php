@@ -135,6 +135,14 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         } catch (\Throwable $th) {
             $this->asyncPaymentService->logger->error((string) $th);
+
+            if (\Composer\InstalledVersions::getVersion('shopware/core') < 6.6) {
+                throw PaymentException::asyncProcessInterrupted(
+                    $transaction->getOrderTransaction()->getId(),
+                    'Cannot create buckaroo payment'
+                );
+            }
+
             throw PaymentException::asyncProcessInterrupted(
                 $transaction->getOrderTransaction()->getId(),
                 'Cannot create buckaroo payment',
