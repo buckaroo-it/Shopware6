@@ -1,5 +1,5 @@
 {% block buckaroo_payment_method_bancontactmrcash %}
-    <div class="card buckaroo-creditcards">
+    <div class="card buckaroo-bancontactmrcash">
         {% if payment.media %}
             {% sw_thumbnails 'payment-method-image-thumbnails' with {
                 media: payment.media,
@@ -47,9 +47,9 @@
                 </div>
 
                 <div class="form-group col-md-6">
-                    <label class="form-label" for="bancontactmrcash_expirationyear">{{ "buckaroo.checkout.creditcards.year" | trans }}:</label>
+                    <label class="form-label" for="bancontactmrcash_expirationyear">{{ "buckaroo.checkout.bancontactmrcash.year" | trans }}:</label>
                     <select type="text" id="bancontactmrcash_expirationyear" name="bancontactmrcash_expirationyear"  required="required" class="form-control">
-                        <option value="">{{ "buckaroo.checkout.creditcards.selectYear"|trans }}</option>
+                        <option value="">{{ "buckaroo.checkout.bancontactmrcash.selectYear"|trans }}</option>
                         {% set start_year = date() | date('Y') %}
                         {% set end_year = start_year + 10 %}
 
