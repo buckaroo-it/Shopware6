@@ -170,7 +170,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 
         $returnUrl = $this->getReturnUrl($transaction, $dataBag);
 
-        // Store transaction information
         $this->storeTransactionInfo($transaction, $response, $salesChannelContext, $paymentCode);
 
         if ($response->isRejected()) {
@@ -191,7 +190,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): void {
-        // Store test mode information
         $this->asyncPaymentService
             ->checkoutHelper
             ->appendCustomFields(
@@ -202,13 +200,11 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
                 $salesChannelContext->getContext()
             );
 
-        // Store transaction key
         $this->asyncPaymentService->transactionService
             ->updateTransactionCustomFields($transaction->getOrderTransaction()->getId(), [
                 'originalTransactionKey' => $response->getTransactionKey()
             ]);
 
-        // Set payment fee
         $this->setFeeOnOrder($transaction, $salesChannelContext, $paymentCode);
     }
 
@@ -435,7 +431,6 @@ class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
      */
     private function getClient(string $paymentCode, string $salesChannelId, DataBag $dataBag): Client
     {
-        //do a ideal payment if the issuer is ING for payByBank on mobile devices
         if (
             $paymentCode === 'paybybank' &&
             $dataBag->get('payBybankMethodId') === 'INGBNL2A' &&
