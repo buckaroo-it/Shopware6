@@ -1,0 +1,8 @@
+{% block buckaroo_payment_method_transfer %}
+    <div class="form-group">
+        <label class="form-label" for="buckaroo-transfer-email">
+            {{ "buckaroo.payment.transfer.email"|trans|sw_sanitize }}
+        </label>
+        <input type="email" class="form-control" id="buckaroo-transfer-email" name="buckaroo-transfer-email" required="required">
+    </div>
+{% endblock %} 

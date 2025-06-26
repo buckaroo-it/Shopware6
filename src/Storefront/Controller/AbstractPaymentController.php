@@ -93,15 +93,12 @@ abstract class AbstractPaymentController extends StorefrontController
      *
      * @return CustomerEntity
      */
-    protected function loginCustomer(
-        DataBag $customerData,
-        SalesChannelContext $salesChannelContext
-    ): CustomerEntity {
+    protected function loginCustomer(DataBag $customerData, SalesChannelContext $salesChannelContext): CustomerEntity
+    {
         return $this->customerService
             ->setSaleChannelContext($salesChannelContext)
             ->get($customerData);
     }
-
     /**
      * Get or create cart
      *

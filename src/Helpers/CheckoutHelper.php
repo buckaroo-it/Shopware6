@@ -129,6 +129,7 @@ class CheckoutHelper
         $orderCriteria->addAssociation('stateMachineState');
         $orderCriteria->addAssociation('lineItems');
         $orderCriteria->addAssociation('transactions');
+        $orderCriteria->addAssociation('transactions.stateMachineState');
         $orderCriteria->addAssociation('transactions.paymentMethod');
         $orderCriteria->addAssociation('transactions.paymentMethod.plugin');
         $orderCriteria->addAssociation('salesChannel');

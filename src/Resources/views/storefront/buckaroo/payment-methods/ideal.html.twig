@@ -1,0 +1,36 @@
+{% block buckaroo_payment_method_ideal %}
+    {% set renderMode = page.extensions.buckaroo.idealRenderMode|default(0) %}
+    {% if buckarooKey == 'idealprocessing' %}
+        {% set renderMode = 1 %}
+    {% endif %}
+
+    {% if renderMode == 0 %}
+        <div class="form-group">
+            <label class="form-label" for="buckaroo-ideal-select">
+                {{ "buckaroo.payment.ideal.select_bank"|trans|sw_sanitize }}
+            </label>
+            <select class="form-select" id="buckaroo-ideal-select" name="buckaroo-ideal-select" required="required">
+                <option value="">{{ "buckaroo.payment.ideal.select_placeholder"|trans|sw_sanitize }}</option>
+                {% for issuer in page.extensions.buckaroo.idealIssuers %}
+                    <option value="{{ issuer.id }}">
+                        {{ issuer.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    {% else %}
+        <div class="buckaroo-ideal-issuers">
+            {% for issuer in page.extensions.buckaroo.idealIssuers %}
+                <div class="buckaroo-ideal-issuer">
+                    <input type="radio" id="issuer-{{ issuer.id }}" name="buckaroo-ideal-issuer" value="{{ issuer.id }}" required="required">
+                    <label for="issuer-{{ issuer.id }}">
+                        {% if issuer.image is defined %}
+                            <img src="{{ issuer.image }}" alt="{{ issuer.name }}" class="buckaroo-ideal-issuer-image">
+                        {% endif %}
+                        <span class="buckaroo-ideal-issuer-name">{{ issuer.name }}</span>
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %} 

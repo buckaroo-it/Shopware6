@@ -1,0 +1,26 @@
+{% block buckaroo_payment_method_in3 %}
+    <div class="form-group">
+        <label class="form-label" for="buckaroo-in3-gender">
+            {{ "buckaroo.payment.in3.gender"|trans|sw_sanitize }}
+        </label>
+        <select class="form-select" id="buckaroo-in3-gender" name="buckaroo-in3-gender" required="required">
+            <option value="">{{ "buckaroo.payment.in3.select_gender"|trans|sw_sanitize }}</option>
+            <option value="1">{{ "buckaroo.payment.in3.gender_male"|trans|sw_sanitize }}</option>
+            <option value="2">{{ "buckaroo.payment.in3.gender_female"|trans|sw_sanitize }}</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="buckaroo-in3-birthdate">
+            {{ "buckaroo.payment.in3.birthdate"|trans|sw_sanitize }}
+        </label>
+        <input type="date" class="form-control" id="buckaroo-in3-birthdate" name="buckaroo-in3-birthdate" required="required">
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="buckaroo-in3-phone">
+            {{ "buckaroo.payment.in3.phone"|trans|sw_sanitize }}
+        </label>
+        <input type="tel" class="form-control" id="buckaroo-in3-phone" name="buckaroo-in3-phone" required="required">
+    </div>
+{% endblock %} 

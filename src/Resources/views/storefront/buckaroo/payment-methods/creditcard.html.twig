@@ -1,0 +1,26 @@
+{% block buckaroo_payment_method_creditcard %}
+    <div class="form-group">
+        {% if payment.media %}
+            {% sw_thumbnails 'payment-method-image-thumbnails' with {
+                media: payment.media,
+                sizes: {
+                    'default': '100px'
+                },
+                attributes: {
+                    'class': 'payment-method-image bk-payment-image mb-2',
+                    'alt': (payment.media.translated.alt ?: payment.translated.name),
+                    'title': (payment.media.translated.title ?: payment.translated.name),
+                    'style': 'max-height: 30px;'
+                }
+            } %}
+        {% endif %}
+        <label>{{ "buckaroo.checkout.selectCreditCard"|trans }}*:</label>
+        {% if page.extensions.buckaroo.creditcard|length > 0 %}
+            <select form="confirmOrderForm" required="required" name="creditcard" class="custom-select" style="max-width: 300px;margin-left: 0.5rem;margin-bottom: 0.5rem;">
+                {% for creditcard in page.extensions.buckaroo.creditcard %}
+                    <option {% if page.extensions.buckaroo.last_used_creditcard == creditcard.code %} selected="selected" {% endif %} value="{{ creditcard.code }}">{{ creditcard.name }}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </div>
+{% endblock %} 

@@ -29,6 +29,8 @@ use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Buckaroo\Shopware6\Service\OrderService;
+use Buckaroo\Shopware6\Service\CustomerService;
 
 class PushController extends StorefrontController
 {
@@ -61,6 +63,9 @@ class PushController extends StorefrontController
 
     protected IdealQrOrderRepository $idealQrRepository;
 
+    protected OrderService $orderService;
+    protected CustomerService $customerService;
+
     public function __construct(
         SignatureValidationService $signatureValidationService,
         TransactionService $transactionService,
@@ -69,7 +74,9 @@ class PushController extends StorefrontController
         CheckoutHelper $checkoutHelper,
         LoggerInterface $logger,
         EventDispatcherInterface $eventDispatcher,
-        IdealQrOrderRepository $idealQrRepository
+        IdealQrOrderRepository $idealQrRepository,
+        OrderService $orderService,
+        CustomerService $customerService,
     ) {
         $this->signatureValidationService = $signatureValidationService;
         $this->transactionService         = $transactionService;
@@ -79,6 +86,8 @@ class PushController extends StorefrontController
         $this->logger                = $logger;
         $this->eventDispatcher       = $eventDispatcher;
         $this->idealQrRepository     = $idealQrRepository;
+        $this->orderService = $orderService;
+        $this->customerService = $customerService;
     }
 
     /**
@@ -91,10 +100,12 @@ class PushController extends StorefrontController
     public function pushBuckaroo(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
 
+
         $this->logger->info(__METHOD__ . "|1|", [$_POST]);
 
         $status             = (string)$request->request->get('brq_statuscode');
         $context            = $salesChannelContext->getContext();
+
         $brqAmount          = (float)$request->request->get('brq_amount');
         $brqOrderId         = (string)$request->request->get('ADD_orderId');
         if ($request->request->has('brq_AdditionalParameters_orderId')) {
@@ -115,9 +126,6 @@ class PushController extends StorefrontController
         $originalTransactionKey   = (string)$request->request->get('brq_transactions');
         $salesChannelId     =  $salesChannelContext->getSalesChannelId();
 
-        // since the payment engine doesn't support custom parameters for ideal QR
-        // we use the invoice number to retrieve the order id and transaction id
-        // saved in the database
         if ($this->isIdealQrRequest($request)) {
             $entity = $this->getIdealQrEntity($request, $salesChannelContext);
             if ($entity !== null) {
@@ -133,11 +141,14 @@ class PushController extends StorefrontController
         if (!$this->signatureValidationService->validateSignature(
             $request,
             $salesChannelId
-        )) {
+        ) && !$this->isIdealFastCheckout($request)) {
             $this->logger->info(__METHOD__ . "|5|");
             return $this->response('buckaroo.messages.signatureIncorrect', false);
         }
 
+        if ($this->isIdealFastCheckout($request)) {
+            $this->updateIdealFastCheckout($request, $salesChannelContext);
+        }
         // Handle event
         $event = new PushProcessingEvent(
             $request,
@@ -273,6 +284,15 @@ class PushController extends StorefrontController
                     return $this->response('buckaroo.messages.paymentUpdatedEarlier');
                 }
 
+                $lastTransactionId = $this->transactionService->getLastTransactionId($order);
+
+                if ($lastTransactionId) {
+                    $this->transactionService->updateTransactionCustomFields($lastTransactionId, [
+                        'originalTransactionKey'    => $originalTransactionKey
+                    ]);
+                }
+                
+
                 $customFields = $this->transactionService->getCustomFields($order, $context);
                 $paymentSuccesStatus = $this->getPaymentSuccessStatus($salesChannelId);
                 $alreadyPaid = round($brqAmount + ($customFields['alreadyPaid'] ?? 0), 2);
@@ -357,13 +377,18 @@ class PushController extends StorefrontController
                 ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER
             ]
         )) {
-            if ($this->stateTransitionService->isTransitionPaymentState(
-                ['paid', 'pay_partially'],
-                $orderTransactionId,
-                $context
-            )) {
+            if (
+                $this->stateTransitionService->isTransitionPaymentState(
+                    ['paid', 'pay_partially'],
+                    $orderTransactionId,
+                    $context
+                ) ||
+                $this->stateTransitionService->isOrderPaid($order)
+            ) {
+                $this->logger->info(__METHOD__ . '|Push ignored because order is already paid');
                 return $this->response('buckaroo.messages.skippedPush');
             }
+
             $this->setPaymentState("fail", $orderTransactionId, $salesChannelContext, $request);
 
             $paymentSuccesStatus = $this->getCancelOpenOrderSetting($salesChannelId);
@@ -377,16 +402,17 @@ class PushController extends StorefrontController
         }
 
         if ($status == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER) {
-            if ($this->stateTransitionService->isTransitionPaymentState(
-                ['paid', 'pay_partially'],
-                $orderTransactionId,
-                $context
-            )) {
+            if (
+                $this->stateTransitionService->isTransitionPaymentState(
+                    ['paid', 'pay_partially'],
+                    $orderTransactionId,
+                    $context
+                ) ||
+                $this->stateTransitionService->isOrderPaid($order)
+            ) {
+                $this->logger->info(__METHOD__ . '|Push ignored because order is already paid');
                 return $this->response('buckaroo.messages.skippedPush');
             }
-            $this->setPaymentState("process_unconfirmed", $orderTransactionId, $salesChannelContext, $request);
-
-            return $this->response('buckaroo.messages.orderCancelled');
         }
 
         return $this->response('buckaroo.messages.paymentError', false);
@@ -528,6 +554,12 @@ class PushController extends StorefrontController
         return is_string($invoice) && strpos($invoice, IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX) !== false;
     }
 
+    protected function isIdealFastCheckout(Request $request): bool
+    {
+        $transactionFlow = $request->request->get('brq_SERVICE_ideal_TransactionFlow');
+        return $transactionFlow === 'Fast_Checkout';
+    }
+
     protected function getIdealQrEntity(Request $request, SalesChannelContext $salesChannelContext): ?IdealQrOrderEntity
     {
         if (!is_scalar($request->request->get('brq_invoicenumber'))) {
@@ -536,5 +568,89 @@ class PushController extends StorefrontController
 
         $invoice = str_replace(IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX, "", (string)$request->request->get('brq_invoicenumber'));
         return $this->idealQrRepository->findByInvoice((int)$invoice, $salesChannelContext);
+    }
+
+    /**
+     * @param Request $request
+     * @param SalesChannelContext $salesChannelContext
+     */
+    private function updateIdealFastCheckout(Request $request, SalesChannelContext $salesChannelContext): void
+    {
+        try {
+            $orderTransactionId = (string)($request->request->get('ADD_orderTransactionId') ??
+                $request->request->get('brq_AdditionalParameters_orderTransactionId'));
+
+            if (empty($orderTransactionId)) {
+                $this->logger->warning(__METHOD__ . '|Missing orderTransactionId for Ideal Fast Checkout');
+                return;
+            }
+
+            $context = $salesChannelContext->getContext();
+            $order = $this->orderService
+                ->setSaleChannelContext($salesChannelContext)
+                ->getOrderById(
+                    (string)($request->request->get('ADD_orderId') ??
+                        $request->request->get('brq_AdditionalParameters_orderId')),
+                    ['transactions', 'orderCustomer', 'addresses', 'deliveries.shippingOrderAddress'],
+                    $context
+                );
+
+            if (!$order || !$order->getOrderCustomer()) {
+                $this->logger->warning(__METHOD__ . '|No customer found for Ideal Fast Checkout order');
+                return;
+            }
+
+            $customerId = $order->getOrderCustomer()->getCustomerId();
+            $customer = null;
+
+            if ($customerId !== null) {
+                $customer = $this->customerService
+                    ->setSaleChannelContext($salesChannelContext)
+                    ->getCustomerById($customerId);
+            }
+
+            $countryId = $salesChannelContext->getSalesChannel()->getCountryId();
+
+            $customerData = [
+                'first_name'   => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsFirstName')),
+                'last_name'    => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsLastName')),
+                'email'        => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsEmail')),
+                'country_code' => $countryId
+            ];
+
+            $billingData = [
+                'firstName'   => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressFirstName')),
+                'lastName'    => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressLastName')),
+                'street'      => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressStreet')),
+                'zipcode'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressPostalCode')),
+                'city'        => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressCity')),
+                'company'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressCompanyName')),
+                'country_code'=> $countryId
+            ];
+
+            $shippingData = [
+                'firstName'   => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressFirstName')),
+                'lastName'    => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressLastName')),
+                'street'      => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressStreet')),
+                'zipcode'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressPostalCode')),
+                'city'        => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressCity')),
+                'company'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressCompanyName')),
+                'country_code'=> $countryId
+            ];
+
+            if ($customer != null) {
+                $this->customerService
+                    ->setSaleChannelContext($salesChannelContext)
+                    ->updateDummyCustomerFromPush($order, $customer, $customerData, $billingData, $shippingData, $context);
+
+                $this->orderService->updateOrderAddresses($order, $billingData, $shippingData, $countryId, $context);
+
+                $this->logger->info(__METHOD__ . '|Customer and order addresses updated for Ideal Fast Checkout', [
+                    'customerId' => $customer->getId()
+                ]);
+            }
+        } catch (\Exception $e) {
+            $this->logger->error(__METHOD__ . '|Exception occurred: ' . $e->getMessage());
+        }
     }
 }

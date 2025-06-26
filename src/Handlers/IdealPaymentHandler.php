@@ -32,10 +32,7 @@ class IdealPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        if (
-            $this->withoutIssuers($salesChannelContext->getSalesChannelId()) ||
-            $dataBag->get('idealFastCheckoutInfo')
-        ) {
+        if ($dataBag->get('idealFastCheckoutInfo')) {
             $shippingCost = 0;
 
             $firstDelivery = $order->getDeliveries()?->first();
@@ -45,13 +42,24 @@ class IdealPaymentHandler extends AsyncPaymentHandler
 
             return [
                 'orderId' => $dataBag->get('orderId'),
-                'shippingCost' => $shippingCost
+                'shippingCost' => $shippingCost,
+                'customer' => [
+                    'email' => $order->getOrderCustomer()?->getEmail(),
+                    'firstName' => $order->getOrderCustomer()?->getFirstName(),
+                    'lastName' => $order->getOrderCustomer()?->getLastName(),
+                ]
             ];
         }
+
         return [
-            'issuer' => $dataBag->get('bankMethodId')
+            'customer' => [
+                'email' => $order->getOrderCustomer()?->getEmail(),
+                'firstName' => $order->getOrderCustomer()?->getFirstName(),
+                'lastName' => $order->getOrderCustomer()?->getLastName(),
+            ]
         ];
     }
+
     /**
      * Get method action for specific payment method
      *
@@ -70,9 +78,5 @@ class IdealPaymentHandler extends AsyncPaymentHandler
             return 'payFastCheckout';
         }
         return 'pay';
-    }
-    private function withoutIssuers(string $salesChannelId): bool
-    {
-        return $this->getSetting("idealShowissuers", $salesChannelId) === false;
     }
 }

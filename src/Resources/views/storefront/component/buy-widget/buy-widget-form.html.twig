@@ -21,7 +21,7 @@
         </div>
     {% endif %}
 
-    {% if page.extensions.buckaroo.applepayShowProduct %}
+    {% if page.extensions.buckaroo.applepayHostedPaymentPage == false && page.extensions.buckaroo.applepayShowProduct %}
         <div class="col-12 p-0">
         {% set applePayConfig = {
             page: "product",
@@ -33,7 +33,7 @@
             }
         } %}
         <div data-bk-applepay data-buckaroo-apple-pay-plugin-options='{{ applePayConfig|json_encode }}'></div>
-        <div class="bk-apple-pay-button" style="margin-top: 10px;">
+            <div class="bk-apple-pay-button" style="margin-top: 10px;">
         </div>
     {% endif %}
 

@@ -9,6 +9,10 @@ use Buckaroo\Shopware6\Service\UrlService;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -20,6 +24,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 
 class AsyncPaymentService
 {
@@ -48,6 +54,8 @@ class AsyncPaymentService
 
     protected CancelPaymentService $cancelPaymentService;
 
+    protected EntityRepository $orderTransactionRepository;
+
     /**
      * Buckaroo constructor.
      */
@@ -62,7 +70,8 @@ class AsyncPaymentService
         FormatRequestParamService $formatRequestParamService,
         PaymentStateService $paymentStateService,
         EventDispatcherInterface $eventDispatcher,
-        CancelPaymentService $cancelPaymentService
+        CancelPaymentService $cancelPaymentService,
+        EntityRepository $orderTransactionRepository
     ) {
 
         $this->settingsService = $settingsService;
@@ -76,6 +85,7 @@ class AsyncPaymentService
         $this->paymentStateService = $paymentStateService;
         $this->eventDispatcher = $eventDispatcher;
         $this->cancelPaymentService = $cancelPaymentService;
+        $this->orderTransactionRepository = $orderTransactionRepository;
     }
 
     /**
@@ -150,11 +160,11 @@ class AsyncPaymentService
      */
     public function getCurrency(OrderEntity $order): CurrencyEntity
     {
-        $address = $order->getCurrency();
-        if ($address === null) {
-            throw new \InvalidArgumentException('Billing address cannot be null');
+        $currency = $order->getCurrency();
+        if ($currency === null) {
+            throw new \InvalidArgumentException('Currency cannot be null');
         }
-        return $address;
+        return $currency;
     }
 
     public function dispatchEvent(ShopwareSalesChannelEvent $event): object
@@ -190,7 +200,77 @@ class AsyncPaymentService
         try {
             $this->cancelPaymentService->cancel($transaction);
         } catch (\Throwable $th) {
-            $this->logger->error((string)$th);
+            $this->logger->error('Failed to cancel previous payments: ' . $th->getMessage(), [
+                'transactionId' => $transaction->getOrderTransaction()->getId(),
+                'orderId' => $transaction->getOrder()->getId(),
+                'exception' => $th
+            ]);
         }
+    }
+
+    /**
+     * Get transaction by ID
+     *
+     * @param string $transactionId
+     * @param Context $context
+     * @return OrderTransactionEntity|null
+     */
+    public function getTransaction(string $transactionId, Context $context): ?OrderTransactionEntity
+    {
+        $criteria = new Criteria([$transactionId]);
+        $criteria->addAssociation('order');
+        $criteria->addAssociation('order.orderCustomer');
+        $criteria->addAssociation('order.billingAddress');
+        $criteria->addAssociation('order.deliveries.shippingAddress');
+
+        $result = $this->orderTransactionRepository->search($criteria, $context)->first();
+        return $result instanceof OrderTransactionEntity ? $result : null;
+    }
+
+    /**
+     * Update transaction state
+     *
+     * @param string $transactionId
+     * @param string $state
+     * @param Context $context
+     * @return void
+     */
+    public function updateTransactionState(string $transactionId, string $state, Context $context): void
+    {
+        try {
+            $this->stateTransitionService->transitionPaymentState(
+                $state,
+                $transactionId,
+                $context
+            );
+        } catch (\Throwable $th) {
+            $this->logger->error('Failed to update transaction state: ' . $th->getMessage(), [
+                'transactionId' => $transactionId,
+                'state' => $state,
+                'exception' => $th
+            ]);
+            throw $th;
+        }
+    }
+
+    /**
+     * Check if transaction is in final state
+     *
+     * @param OrderTransactionEntity $transaction
+     * @return bool
+     */
+    public function isTransactionInFinalState(OrderTransactionEntity $transaction): bool
+    {
+        $state = $transaction->getStateMachineState();
+        if ($state === null) {
+            return false;
+        }
+
+        return in_array($state->getTechnicalName(), [
+            OrderTransactionStates::STATE_PAID,
+            OrderTransactionStates::STATE_CANCELLED,
+            OrderTransactionStates::STATE_FAILED,
+            OrderTransactionStates::STATE_REFUNDED
+        ]);
     }
 }
