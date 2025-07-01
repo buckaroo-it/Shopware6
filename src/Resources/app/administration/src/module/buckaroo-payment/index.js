@@ -1,3 +1,9 @@
+import BuckarooPaymentDetail from './page/BuckarooPaymentDetail.vue';
+import BuckarooSystemConfigOverride from './extension/sw-system-config/BuckarooSystemConfigOverride.vue';
+import BuckarooOrderDetailOverride from './extension/sw-order/BuckarooOrderDetailOverride.vue';
+import BuckarooOrderUserCardOverride from './extension/sw-order-user-card/BuckarooOrderUserCardOverride.vue';
+import BuckarooOrderDetailBaseOverride from './extension/sw-order-detail-base/BuckarooOrderDetailBaseOverride.vue';
+
 const { Module } = Shopware;
 
 import './extension/sw-order';
@@ -56,3 +62,10 @@ Module.register('buckaroo-payment', {
         }
     }
 });
+
+const { Component } = Shopware;
+Component.register('buckaroo-payment-detail', BuckarooPaymentDetail);
+Component.override('sw-system-config', BuckarooSystemConfigOverride);
+Component.override('sw-order-detail', BuckarooOrderDetailOverride);
+Component.override('sw-order-user-card', BuckarooOrderUserCardOverride);
+Component.override('sw-order-detail-base', BuckarooOrderDetailBaseOverride);

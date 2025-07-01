@@ -5,5 +5,9 @@
     "main": "index.js",
     "author": "Buckaroo",
     "license": "MIT",
-    "private": true
+    "private": true,
+    "scripts": {
+        "build": "vite build",
+        "watch": "vite build --watch"
+    }
 }
