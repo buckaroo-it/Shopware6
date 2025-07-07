@@ -15,6 +15,7 @@ class Migration1744014276RemoveIssuerForHostedFields extends MigrationStep
     {
         return 1744014276;
     }
+
     public function update(Connection $connection): void
     {
         $configKey = 'BuckarooPayments.config.allowedcreditcards';
@@ -57,5 +58,9 @@ class Migration1744014276RemoveIssuerForHostedFields extends MigrationStep
                 'key' => $configKey,
             ]);
         }
+    }
+
+    public function updateDestructive(Connection $connection): void
+    {
     }
 }
