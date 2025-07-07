@@ -328,3 +328,10 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 -BP-4399 Fix: Riverty transaction key sometimes missing via Shopware API.
 -BP-4259 Fix: Prevent expired push from overwriting successful payment status.
 -BP-4399 Fix: "Can't ship to this location" error on some PayPal Express attempts.
+
+# 2.9.0 
+
+-BP-4387 When "Cards" (Hosted Fields) is selected other payment methods are not selectable in the dropdown.
+-BP-4316 Add support for Shopware 6.6.10.x.
+-BP-4484 Billink V2 Shopware support.
+-BP-4423 Fix: In3, null check bypassed due to early initialization with empty string.

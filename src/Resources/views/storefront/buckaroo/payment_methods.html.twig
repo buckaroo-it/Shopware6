@@ -20,7 +20,6 @@
                 var buckaroo_required_message =' {{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize }}';
             </script>
         {% endif %}
-
         {% block buckaroo_payment_method %}
             {% block buckaroo_payment_method_additional %}
                 {% if buckarooKey == 'ideal' or buckarooKey == 'idealprocessing' %}
