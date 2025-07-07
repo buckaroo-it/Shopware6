@@ -1,0 +1,14 @@
+{% block sw_order_detail_base_secondary_info_payment %}
+    <template v-if="currentOrder.transactions.length > 0 && (!currentOrder.transactions.last().paymentMethod.translated.customFields || !currentOrder.transactions.last().paymentMethod.translated.customFields.is_buckaroo)">
+        {% parent %}
+    </template>
+    <template v-if="currentOrder.transactions.length > 0 && currentOrder.transactions.last().paymentMethod.translated.customFields && currentOrder.transactions.last().paymentMethod.translated.customFields.is_buckaroo">
+        <dt>{{ $tc('sw-order.detailBase.labelPaymentMethod') }}</dt>
+        <dd>
+            <template v-if="config['BuckarooPayments.config.' + currentOrder.transactions.last().paymentMethod.translated.customFields.buckaroo_key + 'Label']">
+                {{ config['BuckarooPayments.config.' + currentOrder.transactions.last().paymentMethod.translated.customFields.buckaroo_key + 'Label'] }}
+            </template>
+        </dd>
+    </template>
+{% endblock %}
+
