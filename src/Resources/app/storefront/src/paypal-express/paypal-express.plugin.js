@@ -1,6 +1,5 @@
 import HttpClient from 'src/service/http-client.service';
 import Plugin from 'src/plugin-system/plugin.class';
-import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 
 export default class PaypalExpressPlugin extends Plugin {
 
@@ -54,11 +53,15 @@ export default class PaypalExpressPlugin extends Plugin {
      */
     onShippingChangeHandler(data, actions)
     {
+
         let shipping = this.setShipping(data);
+
         return shipping.then((response) => {
+
             if (response.error === false) {
                 this.cartToken = response.token;
-                this.sdkOptions.amount = response.cart.value
+                this.sdkOptions.amount = response.cart.value;
+
                 return actions.order.patch([
                     {
                         op: 'replace',
@@ -70,7 +73,7 @@ export default class PaypalExpressPlugin extends Plugin {
                 this.displayErrorMessage(response.message);
                 actions.reject(response.message);
             }
-        })
+        });
     }
     createPaymentHandler(data)
     {
@@ -132,7 +135,21 @@ export default class PaypalExpressPlugin extends Plugin {
         })
     }
 
+    getFormData() {
+        const formElement = document.getElementById('productDetailPageBuyProductForm');
 
+        if (!formElement) {
+            console.error('Product form not found');
+            return null;
+        }
+
+        const formData = new FormData(formElement);
+        const formObject = {};
+        formData.forEach((value, key) => {
+            formObject[key] = value;
+        });
+        return formObject;
+    }
     /**
      * Set shipping on cart and return new total
      * @param {Object} data
@@ -140,25 +157,34 @@ export default class PaypalExpressPlugin extends Plugin {
      */
     setShipping(data)
     {
-        let formData = null;
 
+        let formData = {};
         if (this.options.page === 'product') {
-            formData = FormSerializeUtil.serializeJson(this.el.closest('form'));
+            formData = this.getFormData();
+            if (!formData) {
+                console.error('[Buckaroo] Form element not found on product page.');
+            }
         }
+
+        const payload = {
+            form: formData,
+            customer: data,
+            page: this.options.page
+        };
+
+
         return new Promise((resolve) => {
             this.httpClient.post(
                 `${this.url}/paypal/create`,
-                JSON.stringify({
-                    form: formData,
-                    customer: data,
-                    page: this.options.page
-                }),
+                JSON.stringify(payload),
                 (response) => {
-                    resolve(JSON.parse(response));
+                    const parsedResponse = JSON.parse(response);
+                    resolve(parsedResponse);
                 }
-            )
+            );
         });
     }
+
 
     /**
      * Display any validation errors we receive

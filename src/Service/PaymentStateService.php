@@ -18,27 +18,28 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Psr\Log\LoggerInterface;
 
 class PaymentStateService
 {
     protected TranslatorInterface $translator;
-
     protected OrderTransactionStateHandler $transactionStateHandler;
-
     protected StateMachineRegistry $stateMachineRegistry;
-
     protected AccountService $accountService;
+    protected LoggerInterface $logger;
 
     public function __construct(
         OrderTransactionStateHandler $transactionStateHandler,
         StateMachineRegistry $stateMachineRegistry,
         TranslatorInterface $translator,
-        AccountService $accountService
+        AccountService $accountService,
+        LoggerInterface $logger
     ) {
         $this->transactionStateHandler = $transactionStateHandler;
         $this->stateMachineRegistry = $stateMachineRegistry;
         $this->translator = $translator;
         $this->accountService = $accountService;
+        $this->logger = $logger;
     }
 
     public function finalizePayment(
@@ -51,55 +52,74 @@ class PaymentStateService
         $transactionId = $transaction->getOrderTransaction()->getId();
         $context = $salesChannelContext->getContext();
 
-        if (
-            $request->query->getBoolean('cancel') ||
-            $this->isGroupTransactionCancel($request) ||
-            $this->isPayPalPending($request) ||
-            $this->isCanceledPaymentRequest($request)
-        ) {
+        try {
+            $this->handlePaymentFinalization($transaction, $request, $transactionId, $context);
+        } catch (PaymentException $e) {
+            $this->logger->error('Payment finalization failed', [
+                'transactionId' => $transactionId,
+                'error' => $e->getMessage(),
+                'statusCode' => $this->getPaymentStatusCode($request),
+                'paymentMethod' => $request->get('brq_payment_method')
+            ]);
+            throw $e;
+        }
+    }
+
+    private function handlePaymentFinalization(
+        AsyncPaymentTransactionStruct $transaction,
+        Request $request,
+        string $transactionId,
+        Context $context
+    ): void {
+        if ($this->shouldCancelPayment($request)) {
             throw PaymentException::asyncProcessInterrupted(
                 $transactionId,
                 $this->translator->trans('buckaroo.userCanceled')
             );
         }
 
-        $availableTransitions = $this->getAvailableTransitions(
-            $transactionId,
-            $context
-        );
+        $availableTransitions = $this->getAvailableTransitions($transactionId, $context);
+        $this->processPaymentState($request, $availableTransitions, $transactionId, $context);
+    }
 
-        if (
-            $this->isPendingPaymentRequest($request) &&
-            $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_DO_PAY)
-        ) {
+    private function shouldCancelPayment(Request $request): bool
+    {
+        return $request->query->getBoolean('cancel') ||
+            $this->isGroupTransactionCancel($request) ||
+            $this->isPayPalPending($request) ||
+            $this->isCanceledPaymentRequest($request);
+    }
+
+    private function processPaymentState(
+        Request $request,
+        array $availableTransitions,
+        string $transactionId,
+        Context $context
+    ): void {
+        if ($this->isPendingPaymentRequest($request) &&
+            $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_DO_PAY)) {
             $this->transactionStateHandler->process($transactionId, $context);
+            return;
         }
 
-        if (
-            $this->isFailedPaymentRequest($request) &&
-            $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)
-        ) {
-            if (\Composer\InstalledVersions::getVersion('shopware/core') < 6.6) {
-                throw PaymentException::asyncProcessInterrupted(
-                    $transactionId,
-                    $this->getStatusMessageByStatusCode($request)
-                );
-            }
+        if ($this->isFailedPaymentRequest($request)) {
+            $this->handleFailedPayment($request, $availableTransitions, $transactionId);
+        }
+    }
 
-            throw PaymentException::asyncProcessInterrupted(
-                $transactionId,
-                $this->getStatusMessageByStatusCode($request)
-            );
+    private function handleFailedPayment(
+        Request $request,
+        array $availableTransitions,
+        string $transactionId
+    ): void {
+        $errorMessage = $this->getStatusMessageByStatusCode($request);
+        
+        if ($this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)) {
+            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage);
         }
 
-        if (
-            $this->isFailedPaymentRequest($request) &&
-            $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_CANCEL)
-        ) {
-            throw PaymentException::asyncProcessInterrupted(
-                $transactionId,
-                $this->getStatusMessageByStatusCode($request)
-            );
+        if ($this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_CANCEL)) {
+            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage);
         }
     }
 
@@ -109,7 +129,14 @@ class PaymentStateService
             return;
         }
 
-        $this->accountService->loginById($customerId, $salesChannelContext);
+        try {
+            $this->accountService->loginById($customerId, $salesChannelContext);
+        } catch (\Throwable $e) {
+            $this->logger->warning('Failed to login customer', [
+                'customerId' => $customerId,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -143,16 +170,24 @@ class PaymentStateService
      */
     private function getAvailableTransitions(string $transactionId, Context $context): array
     {
-        $availableTransitions = $this->stateMachineRegistry->getAvailableTransitions(
-            OrderTransactionDefinition::ENTITY_NAME,
-            $transactionId,
-            'stateId',
-            $context
-        );
+        try {
+            $availableTransitions = $this->stateMachineRegistry->getAvailableTransitions(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $transactionId,
+                'stateId',
+                $context
+            );
 
-        return array_map(function (StateMachineTransitionEntity $transition) {
-            return $transition->getActionName();
-        }, $availableTransitions);
+            return array_map(function (StateMachineTransitionEntity $transition) {
+                return $transition->getActionName();
+            }, $availableTransitions);
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed to get available transitions', [
+                'transactionId' => $transactionId,
+                'error' => $e->getMessage()
+            ]);
+            return [];
+        }
     }
 
     private function isPayPalPending(Request $request): bool
@@ -168,16 +203,16 @@ class PaymentStateService
 
     private function isFailedPaymentRequest(Request $request): bool
     {
-        return
-            is_string($request->get('brq_statuscode')) &&
-            in_array(
-                $request->get('brq_statuscode'),
-                [
-                    ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
-                    ResponseStatus::BUCKAROO_STATUSCODE_REJECTED,
-                    ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE
-                ]
-            );
+        $statusCode = $request->get('brq_statuscode');
+        if (!is_string($statusCode)) {
+            return false;
+        }
+
+        return in_array($statusCode, [
+            ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
+            ResponseStatus::BUCKAROO_STATUSCODE_REJECTED,
+            ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE
+        ]);
     }
 
     private function isCanceledPaymentRequest(Request $request): bool
@@ -188,10 +223,7 @@ class PaymentStateService
     private function getPaymentStatusCode(Request $request): ?string
     {
         $statusCode = $request->get('brq_statuscode');
-        if (is_string($statusCode)) {
-            return $statusCode;
-        }
-        return null;
+        return is_string($statusCode) ? $statusCode : null;
     }
 
     /**
@@ -205,19 +237,28 @@ class PaymentStateService
             return '';
         }
 
-        if (
-            $request->get('brq_payment_method') === 'Billink' &&
-            $statusCode === ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
-        ) {
+        if ($this->isBillinkRejected($request, $statusCode)) {
             return $this->translator->trans('buckaroo.billinkRejectedMessage');
         }
 
-        $statusCodeAddErrorMessage = [];
-        $statusCodeAddErrorMessage[ResponseStatus::BUCKAROO_STATUSCODE_FAILED] =
-            $this->translator->trans('buckaroo.statuscode_failed');
-        $statusCodeAddErrorMessage[ResponseStatus::BUCKAROO_STATUSCODE_REJECTED] =
-            $this->translator->trans('buckaroo.statuscode_failed');
+        return $this->getErrorMessageByStatusCode($statusCode);
+    }
 
-        return isset($statusCodeAddErrorMessage[$statusCode]) ? $statusCodeAddErrorMessage[$statusCode] : '';
+    private function isBillinkRejected(Request $request, string $statusCode): bool
+    {
+        return $request->get('brq_payment_method') === 'Billink' &&
+            $statusCode === ResponseStatus::BUCKAROO_STATUSCODE_REJECTED;
+    }
+
+    private function getErrorMessageByStatusCode(string $statusCode): string
+    {
+        $errorMessages = [
+            ResponseStatus::BUCKAROO_STATUSCODE_FAILED => 'buckaroo.statuscode_failed',
+            ResponseStatus::BUCKAROO_STATUSCODE_REJECTED => 'buckaroo.statuscode_failed'
+        ];
+
+        return isset($errorMessages[$statusCode])
+            ? $this->translator->trans($errorMessages[$statusCode])
+            : '';
     }
 }

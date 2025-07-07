@@ -62,6 +62,10 @@ class BuckarooPayments extends Plugin
      */
     public function uninstall(UninstallContext $uninstallContext): void
     {
+        if ($uninstallContext->keepUserData()) {
+            return;
+        }
+        
         (new MediaInstaller($this->container))->uninstall($uninstallContext);
         (new PaymentMethodsInstaller($this->container))->uninstall($uninstallContext);
         parent::uninstall($uninstallContext);

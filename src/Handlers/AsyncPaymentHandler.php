@@ -20,15 +20,13 @@ use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
 use Buckaroo\Shopware6\Service\Exceptions\BuckarooPaymentRejectException;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
+use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\HttpFoundation\Response;
 
-class AsyncPaymentHandler extends AbstractPaymentHandler
+class AsyncPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
     use ValidateOrderTrait;
 
@@ -44,24 +42,20 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         $this->formatRequestParamService = $this->asyncPaymentService->formatRequestParamService;
     }
 
-    public function supports(
-        PaymentHandlerType $type,
-        string $paymentMethodId,
-        Context $context
-    ): bool {
-        return $type === PaymentHandlerType::ASYNC;
-    }
-
+    /**
+     * @param AsyncPaymentTransactionStruct $transaction
+     * @param RequestDataBag $dataBag
+     * @param SalesChannelContext $salesChannelContext
+     * @return RedirectResponse
+     * @throws PaymentException
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function pay(
-        Request $request,
-        PaymentTransactionStruct $transaction,
-        Context $context,
-        ?Struct $validateStruct
-    ): ?RedirectResponse {
-        $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext($context);
-        $dataBag = new RequestDataBag($request->request->all());
+        AsyncPaymentTransactionStruct $transaction,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext
+    ): RedirectResponse {
         $dataBag = $this->getRequestBag($dataBag);
-
         $transactionId = $transaction->getOrderTransaction()->getId();
         $paymentClass = $this->getPayment($transactionId);
         $salesChannelId  = $salesChannelContext->getSalesChannelId();
@@ -72,39 +66,94 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
             $order = $transaction->getOrder();
             $this->validateOrder($order);
 
-            if ($this->getOrderTotalWithFee($order, $salesChannelId, $paymentCode) == 0) {
+            if ($this->getOrderTotalWithFee(
+                $order,
+                $salesChannelId,
+                $paymentCode
+            ) == 0) {
                 return $this->completeZeroAmountPayment($transaction, $salesChannelContext);
             }
 
-            $client = $this->getClient($paymentCode, $salesChannelId, $dataBag)
-                ->setPayload(array_merge_recursive(
-                    $this->getCommonRequestPayload($transaction, $dataBag, $salesChannelContext, $paymentCode),
-                    $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode)
-                ))
-                ->setAction($this->getMethodAction($dataBag, $salesChannelContext, $paymentCode));
+            $client = $this->getClient(
+                $paymentCode,
+                $salesChannelId,
+                $dataBag
+            )
+                ->setPayload(
+                    array_merge_recursive(
+                        $this->getCommonRequestPayload(
+                            $transaction,
+                            $dataBag,
+                            $salesChannelContext,
+                            $paymentCode
+                        ),
+                        $this->getMethodPayload(
+                            $order,
+                            $dataBag,
+                            $salesChannelContext,
+                            $paymentCode
+                        )
+                    )
+                )
+                ->setAction(
+                    $this->getMethodAction(
+                        $dataBag,
+                        $salesChannelContext,
+                        $paymentCode
+                    )
+                );
 
-            if ($paymentCode === "afterpay" && !$this->isAfterpayOld($salesChannelId)) {
+            if (
+                $paymentCode === "afterpay" &&
+                !$this->isAfterpayOld($salesChannelContext->getSalesChannelId())
+            ) {
                 $client->setServiceVersion(2);
             }
 
             $this->asyncPaymentService->dispatchEvent(
-                new BeforePaymentRequestEvent($transaction, $dataBag, $salesChannelContext, $client)
+                new BeforePaymentRequestEvent(
+                    $transaction,
+                    $dataBag,
+                    $salesChannelContext,
+                    $client
+                )
             );
 
-            return $this->handleResponse($client->execute(), $transaction, $dataBag, $salesChannelContext, $paymentCode);
+            return $this->handleResponse(
+                $client->execute(),
+                $transaction,
+                $dataBag,
+                $salesChannelContext,
+                $paymentCode
+            );
         } catch (BuckarooPaymentRejectException $e) {
             $this->asyncPaymentService->logger->error((string) $e->getMessage());
-            throw new AsyncPaymentProcessException($transactionId, $e->getMessage());
+            throw new PaymentException(
+                Response::HTTP_BAD_REQUEST,
+                PaymentException::PAYMENT_ASYNC_PROCESS_INTERRUPTED,
+                $e->getMessage()
+            );
         } catch (\Throwable $th) {
             $this->asyncPaymentService->logger->error((string) $th);
-            throw new AsyncPaymentProcessException($transactionId, 'Cannot create buckaroo payment', $th);
+
+            if (\Composer\InstalledVersions::getVersion('shopware/core') < 6.6) {
+                throw PaymentException::asyncProcessInterrupted(
+                    $transaction->getOrderTransaction()->getId(),
+                    'Cannot create buckaroo payment'
+                );
+            }
+
+            throw PaymentException::asyncProcessInterrupted(
+                $transaction->getOrderTransaction()->getId(),
+                'Cannot create buckaroo payment',
+                $th
+            );
         }
     }
 
     protected function handleResponse(
         ClientResponseInterface $response,
-        PaymentTransactionStruct
- $transaction,
+        AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
@@ -121,6 +170,26 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
 
         $returnUrl = $this->getReturnUrl($transaction, $dataBag);
 
+        $this->storeTransactionInfo($transaction, $response, $salesChannelContext, $paymentCode);
+
+        if ($response->isRejected()) {
+            throw new BuckarooPaymentRejectException($response->getSubCodeMessage());
+        }
+        
+        if ($response->hasRedirect()) {
+            $this->handleRedirectResponse($transaction);
+            return new RedirectResponse($response->getRedirectUrl());
+        }
+
+        return $this->handlePaymentStatus($response, $transaction, $salesChannelContext, $returnUrl, $paymentCode);
+    }
+
+    private function storeTransactionInfo(
+        AsyncPaymentTransactionStruct $transaction,
+        ClientResponseInterface $response,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): void {
         $this->asyncPaymentService
             ->checkoutHelper
             ->appendCustomFields(
@@ -133,24 +202,28 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
 
         $this->asyncPaymentService->transactionService
             ->updateTransactionCustomFields($transaction->getOrderTransaction()->getId(), [
-                'originalTransactionKey'    => $response->getTransactionKey()
+                'originalTransactionKey' => $response->getTransactionKey()
             ]);
 
         $this->setFeeOnOrder($transaction, $salesChannelContext, $paymentCode);
+    }
 
-        if ($response->isRejected()) {
-            throw new BuckarooPaymentRejectException($response->getSubCodeMessage());
-        }
-        
-        if ($response->hasRedirect()) {
-            $this->asyncPaymentService
-                ->checkoutHelper
-                ->getSession()
-                ->set('buckaroo_latest_order', $transaction->getOrder()->getId());
+    private function handleRedirectResponse(
+        AsyncPaymentTransactionStruct $transaction
+    ): void {
+        $this->asyncPaymentService
+            ->checkoutHelper
+            ->getSession()
+            ->set('buckaroo_latest_order', $transaction->getOrder()->getId());
+    }
 
-            return new RedirectResponse($response->getRedirectUrl());
-        }
-
+    private function handlePaymentStatus(
+        ClientResponseInterface $response,
+        AsyncPaymentTransactionStruct $transaction,
+        SalesChannelContext $salesChannelContext,
+        string $returnUrl,
+        string $paymentCode
+    ): RedirectResponse {
         if (
             $response->isSuccess() ||
             $response->isAwaitingConsumer() ||
@@ -172,7 +245,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         if ($response->isCanceled()) {
             throw PaymentException::asyncProcessInterrupted(
                 $transaction->getOrderTransaction()->getId(),
-                'Cannot create buckaroo payment'
+                'Payment was canceled'
             );
         }
 
@@ -185,8 +258,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
     }
 
     private function completeZeroAmountPayment(
-        PaymentTransactionStruct
- $transaction,
+        AsyncPaymentTransactionStruct $transaction,
         SalesChannelContext $salesChannelContext
     ): RedirectResponse {
         $this->asyncPaymentService
@@ -199,8 +271,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         return $this->redirectToFinishPage($transaction);
     }
 
-    private function redirectToFinishPage(PaymentTransactionStruct
- $transaction): RedirectResponse
+    private function redirectToFinishPage(AsyncPaymentTransactionStruct $transaction): RedirectResponse
     {
         return new RedirectResponse(
             $this->asyncPaymentService
@@ -250,8 +321,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
     /**
      * Get parameters common to all payment methods
      *
-     * @param PaymentTransactionStruct
- $transaction
+     * @param AsyncPaymentTransactionStruct $transaction
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
      * @param string $paymentCode
@@ -259,8 +329,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
      * @return array<mixed>
      */
     protected function getCommonRequestPayload(
-        PaymentTransactionStruct
- $transaction,
+        AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
@@ -364,7 +433,6 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
      */
     private function getClient(string $paymentCode, string $salesChannelId, DataBag $dataBag): Client
     {
-        //do a ideal payment if the issuer is ING for payByBank on mobile devices
         if (
             $paymentCode === 'paybybank' &&
             $dataBag->get('payBybankMethodId') === 'INGBNL2A' &&
@@ -399,14 +467,16 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         return $paymentClass;
     }
     /**
+     * @param AsyncPaymentTransactionStruct $transaction
      * @param Request $request
-     * @param PaymentTransactionStruct $transaction
      * @param SalesChannelContext $salesChannelContext
+     * @throws PaymentException
      */
-
-    public function finalize(Request $request, PaymentTransactionStruct $transaction, Context $context): void
-    {
-        $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext($context);
+    public function finalize(
+        AsyncPaymentTransactionStruct $transaction,
+        Request $request,
+        SalesChannelContext $salesChannelContext
+    ): void {
         $this->asyncPaymentService->paymentStateService->finalizePayment(
             $transaction,
             $request,
@@ -450,13 +520,11 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
      * Get full return url
      *
      * @param DataBag $dataBag
-     * @param PaymentTransactionStruct
- $transaction
+     * @param AsyncPaymentTransactionStruct $transaction
      *
      * @return string
      */
-    protected function getReturnUrl(PaymentTransactionStruct
- $transaction, $dataBag)
+    protected function getReturnUrl(AsyncPaymentTransactionStruct $transaction, $dataBag)
     {
         if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
             $finishUrl = (string)$dataBag->get('finishUrl');
@@ -511,8 +579,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
     }
 
     private function setFeeOnOrder(
-        PaymentTransactionStruct
- $transaction,
+        AsyncPaymentTransactionStruct $transaction,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): void {

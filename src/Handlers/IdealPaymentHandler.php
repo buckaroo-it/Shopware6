@@ -19,6 +19,13 @@ class IdealPaymentHandler extends AsyncPaymentHandler
 
     /**
      * Get parameters for specific payment method
+     *
+     * @param OrderEntity $order
+     * @param RequestDataBag $dataBag
+     * @param SalesChannelContext $salesChannelContext
+     * @param string $paymentCode
+     *
+     * @return array<mixed>
      */
     protected function getMethodPayload(
         OrderEntity $order,
@@ -37,14 +44,31 @@ class IdealPaymentHandler extends AsyncPaymentHandler
             return [
                 'orderId' => $dataBag->get('orderId'),
                 'shippingCost' => $shippingCost,
+                'customer' => [
+                    'email' => $order->getOrderCustomer()?->getEmail(),
+                    'firstName' => $order->getOrderCustomer()?->getFirstName(),
+                    'lastName' => $order->getOrderCustomer()?->getLastName(),
+                ]
             ];
         }
 
-        return [];
+        return [
+            'customer' => [
+                'email' => $order->getOrderCustomer()?->getEmail(),
+                'firstName' => $order->getOrderCustomer()?->getFirstName(),
+                'lastName' => $order->getOrderCustomer()?->getLastName(),
+            ]
+        ];
     }
 
     /**
      * Get method action for specific payment method
+     *
+     * @param RequestDataBag $dataBag
+     * @param SalesChannelContext $salesChannelContext
+     * @param string $paymentCode
+     *
+     * @return string
      */
     protected function getMethodAction(
         RequestDataBag $dataBag,
