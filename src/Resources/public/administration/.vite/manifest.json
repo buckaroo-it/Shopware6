@@ -1,0 +1,11 @@
+{
+  "main.js": {
+    "file": "assets/buckaroo-payments-C1MVKcXx.js",
+    "name": "buckaroo-payments",
+    "src": "main.js",
+    "isEntry": true,
+    "css": [
+      "assets/buckaroo-payments-BKf8MdOb.css"
+    ]
+  }
+}
