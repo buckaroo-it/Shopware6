@@ -335,3 +335,8 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 -BP-4316 Add support for Shopware 6.6.10.x.
 -BP-4484 Billink V2 Shopware support.
 -BP-4423 Fix: In3, null check bypassed due to early initialization with empty string.
+
+# 2.9.1
+
+-BP-4426-Refactor-Shopware-6-Frontend
+-BP-4495 (Migration Fix)
