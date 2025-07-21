@@ -35,7 +35,7 @@ class Migration1744014276RemoveIssuerForHostedFields extends MigrationStep
             return;
         }
 
-        $allowedCards = $decoded;
+        $allowedCards = $decoded['_value'] ?? [];
 
         $removedCards = [
             'cartebleuevisa',
