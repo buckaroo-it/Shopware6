@@ -1,0 +1,108 @@
+{% block buckaroo_payment_method_afterpay %}
+    <div class="payment-method-second-col billing-address-form">
+        <fieldset class="fieldset payment">
+            {% set countryShippingIso = context.customer.activeShippingAddress.country.iso %}
+            {% if page.extensions.buckaroo.afterpayOld === false %}
+                {% if countryBillingIso == "DE" and page.extensions.buckaroo.validHouseNumbers.billing === false %}
+                    {% sw_include '@BuckarooPayments/storefront/component/alert.html.twig' with { type: 'danger', message: "buckaroo.checkout.billing_house_number_required"|trans|sw_sanitize } %}
+                {% endif %}
+                {% if countryShippingIso == "DE" and page.extensions.buckaroo.validHouseNumbers.shipping === false %}
+                    {% sw_include '@BuckarooPayments/storefront/component/alert.html.twig' with { type: 'danger', message: "buckaroo.checkout.shipping_house_number_required"|trans|sw_sanitize } %}
+                {% endif %}
+            {% endif %}
+            {% if page.extensions.buckaroo.afterpay_customer_type == 'b2b' and 
+                 context.customer.activeBillingAddress.company|length == 0 and
+                 context.customer.activeShippingAddress.company|length == 0
+            %}
+                   <p style="color:red"> {{ "buckaroo.checkout.company_required"|trans|sw_sanitize }}</p>
+            {% endif %}
+            {% set isAfterpayB2B =  (
+                    page.extensions.buckaroo.afterpay_customer_type == 'both' and
+                    (
+                        (
+                        countryBillingIso == 'NL' and
+                        context.customer.activeBillingAddress.company|length > 0)  or
+                        (
+                        countryShippingIso == 'NL' and
+                        context.customer.activeShippingAddress.company|length > 0
+                        )
+                    )
+                ) or 
+                (
+                    page.extensions.buckaroo.afterpay_customer_type == 'b2b' and
+                    (
+                        countryBillingIso == 'NL' or
+                        countryShippingIso == 'NL'
+                    )
+                ) %}
+            {% if isAfterpayB2B  %}
+                <div class="form-group">
+                    <label class="form-label" for="buckarooAfterpayCoC">
+                        {{ "buckaroo.checkout.Coc"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                    </label>
+                    <input type="text"
+                        class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
+                        form="confirmOrderForm"
+                        id="buckarooAfterpayCoC"
+                        name="buckaroo_afterpay_Coc"
+                        placeholder="{{ "buckaroo.checkout.CocPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                        value=""
+                        required="required">
+                </div>
+            {% endif %}
+            {% if page.extensions.buckaroo.canShowPhone %}
+            <div class="form-group">
+                <label class="form-label" for="buckarooAfterpayPhone">
+                    {{ "buckaroo.checkout.Phone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                </label>
+                <input type="text"
+                       class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
+                       form="confirmOrderForm"
+                       id="buckarooAfterpayPhone"
+                       name="buckaroo_afterpay_phone"
+                       placeholder="{{ "buckaroo.checkout.PhonePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                       value=""
+                       required="required"
+                       minlength="10">
+                <label class="form-label" style="display:none; color:red" for="buckarooAfterpayPhone" id="buckarooMobilePhoneError">
+                    {{ "buckaroo.checkout.buckarooMobilePhoneError"|trans|sw_sanitize }}
+                </label>
+            </div>
+            {% endif %}
+            <div class="form-group">
+                <label class="label" for="buckaroo_afterpay_DoB">{{ "buckaroo.checkout.buckarooAfterpayDoBTitle"|trans }}:</label>
+                <span><sup>{{ "buckaroo.checkout.buckarooAfterpayDoBTitleSup"|trans }}</sup></span>
+                <div class="control">
+                    <input id="buckaroo_afterpay_DoB" 
+                    class="form-control field" 
+                    type="date"
+                    max='{{ "now"|date_modify("-18 years")|date("Y-m-d") }}'
+                    name="buckaroo_afterpay_DoB"
+                    form="confirmOrderForm"
+                    required="required"
+                    >
+                    <label class="form-label" style="display:none; color:red" for="buckaroo_afterpay_DoB" id="buckarooDoBError">
+                        {{ "buckaroo.checkout.buckarooDoBError"|trans|sw_sanitize }}
+                    </label>
+                </div>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input id="buckaroo_afterpay_TermsCondition" class="custom-control-input" form="confirmOrderForm" name="buckaroo_afterpay_TermsCondition" required="required" type="checkbox">
+                <label class="custom-control-label" for="buckaroo_afterpay_TermsCondition"> <span>{{ "buckaroo.checkout.buckarooAfterpayTermsConditionTitle"|trans }}:</span> </label>
+                <span>
+                    {% if isAfterpayB2B  %}
+                        <a target="_blank" href="https://documents.riverty.com/terms_conditions/payment_methods/b2b_invoice/{% if countryBillingIso == 'DE' %}de_de{% elseif countryBillingIso == 'NL' %}nl_nl{% elseif countryBillingIso == 'ch' %}ch_en{% elseif countryBillingIso == 'AT' %}at_en{% else %}nl_en{% endif %}/">{{ "buckaroo.checkout.buckarooAfterpayTermsCondition"|trans }}</a>
+                    {% else %}
+                        <a target="_blank" href="https://documents.riverty.com/terms_conditions/payment_methods/invoice/{% if countryBillingIso == 'DE' %}de_de{% elseif countryBillingIso == 'NL' %}nl_nl{% elseif countryBillingIso == 'BE' %}be_nl{% elseif countryBillingIso == 'AT' %}at_en{% elseif countryBillingIso == 'NO' %}no_en{% elseif countryBillingIso == 'FI' %}fi_en{% elseif countryBillingIso == 'SE' %}se_en{% elseif countryBillingIso == 'CH' %}ch_en{% elseif countryBillingIso == 'DK' %}dk_en{% else %}nl_en{% endif %}/">{{ "buckaroo.checkout.buckarooAfterpayTermsCondition"|trans }}</a>
+                        {% if countryBillingIso == 'BE' %}
+                            ({{ "buckaroo.checkout.buckarooAfterpayOrClickHere"|trans }}: <a target="_blank" href="https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/">{{ "buckaroo.checkout.buckarooAfterpayTermsAndCondition"|trans }}</a>.)
+                        {% endif %}
+                    {% endif %}
+                </span>
+            </div>
+            {% if buckarooKey in methodsWithFinancialWarning and countryBillingIso == 'NL' %}
+                <div style="margin:10px 0; font-size:0.8rem">{{ "buckaroo.checkout.financialWarning" | trans({'%method%': paymentMethodName}) }}</div>
+            {% endif %}
+        </fieldset>
+    </div>
+{% endblock %} 
