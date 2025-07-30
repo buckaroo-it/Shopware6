@@ -1,4 +1,4 @@
-const { Component, Filter, Mixin } = Shopware;
+const { Component, Filter } = Shopware;
 import template from "./buckaroo-payment-list.html.twig";
 import "./style.scss";
 
@@ -6,18 +6,23 @@ Component.register("buckaroo-payment-list", {
     template,
     props: {
         configSettings: {
-            required: true
+            type: Array,
+            required: false,
+            default: () => []
         },
         value: {
-            required: true
+            type: Object,
+            required: false,
+            default: () => ({})
         },
         currentSalesChannelId: {
+            type: String,
             required: true
         }
     },
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+
+    emits: ['input'],
+
     data() {
         return {
             payments: [
@@ -138,10 +143,42 @@ Component.register("buckaroo-payment-list", {
     },
     methods: {
         getPaymentTitle(code) {
-            const card = this.configSettings.find((card) => card.name === code);
+            if (this.configSettings && Array.isArray(this.configSettings)) {
+                const card = this.configSettings.find((card) => card.name === code);
+                if (card && card.title) {
+                    try {
+                        if (typeof card.title === 'object' && card.title !== null) {
+                            const locale = this.$i18n?.locale || 'en-GB';
 
-            if(card) {
-                return this.getInlineSnippet(card.title)
+                            if (card.title[locale]) {
+                                return card.title[locale];
+                            }
+                            if (card.title['en-GB']) {
+                                return card.title['en-GB'];
+                            }
+                            
+                            const firstKey = Object.keys(card.title)[0];
+                            if (firstKey && card.title[firstKey]) {
+                                return card.title[firstKey];
+                            }
+                            
+                            return JSON.stringify(card.title);
+                        }
+                        
+                        if (typeof card.title === 'string') {
+                            if (this.$t && typeof this.$t === 'function') {
+                                return this.$t(card.title);
+                            }
+                            return card.title;
+                        }
+                        
+                        return String(card.title);
+                        
+                    } catch (error) {
+                        console.warn('Translation error for:', card.title, error);
+                        return typeof card.title === 'object' ? JSON.stringify(card.title) : String(card.title);
+                    }
+                }
             }
 
             const payment = this.payments.find(payment => payment.code === code);

@@ -1,7 +1,7 @@
 import template from './buckaroo-payment-detail.html.twig';
 import './buckaroo-payment-detail.scss';
 
-const { Component, Mixin, Filter, Context } = Shopware;
+const { Component, Filter, Context } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 
 Component.register('buckaroo-payment-detail', {
@@ -11,10 +11,6 @@ Component.register('buckaroo-payment-detail', {
         'repositoryFactory',
         'BuckarooPaymentService',
         'systemConfigApiService'
-    ],
-
-    mixins: [
-        Mixin.getByName('notification')
     ],
 
     data() {
@@ -259,12 +255,14 @@ Component.register('buckaroo-payment-detail', {
                 .then((response) => {
                     for (const key in response) {
                         if (response[key].status) {
-                            this.createNotificationSuccess({
+                            this.$store.dispatch('notification/createNotification', {
+                                variant: 'success',
                                 title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
                                 message: that.$tc(response[key].message) + response[key].amount
                             });
                         } else {
-                            this.createNotificationError({
+                            this.$store.dispatch('notification/createNotification', {
+                                variant: 'error',
                                 title: that.$tc('buckaroo-payment.settingsForm.titleError'),
                                 message: that.$tc(response[key].message)
                             });
@@ -274,7 +272,8 @@ Component.register('buckaroo-payment-detail', {
                     this.createdComponent();
                 })
                 .catch((errorResponse) => {
-                    this.createNotificationError({
+                    this.$store.dispatch('notification/createNotification', {
+                        variant: 'error',
                         title: this.$tc('buckaroo-payment.settingsForm.titleError'),
                         message: errorResponse.response.data.message
                     });
@@ -290,12 +289,14 @@ Component.register('buckaroo-payment-detail', {
                     if (response.status) {
                         that.paylinkMessage = that.$tc(response.message) + response.paylinkhref;
                         that.paylink = response.paylink;
-                        this.createNotificationSuccess({
+                        this.$store.dispatch('notification/createNotification', {
+                            variant: 'success',
                             title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
                             message: that.paylinkMessage
                         });
                     } else {
-                        this.createNotificationError({
+                        this.$store.dispatch('notification/createNotification', {
+                            variant: 'error',
                             title: that.$tc('buckaroo-payment.settingsForm.titleError'),
                             message: that.$tc(response.message)
                         });
@@ -303,7 +304,8 @@ Component.register('buckaroo-payment-detail', {
                     that.isPaylinkAvailable = true;
                 })
                 .catch((errorResponse) => {
-                    this.createNotificationError({
+                    this.$store.dispatch('notification/createNotification', {
+                        variant: 'error',
                         title: this.$tc('buckaroo-payment.settingsForm.titleError'),
                         message: errorResponse.response.data.message
                     });
@@ -321,12 +323,14 @@ Component.register('buckaroo-payment-detail', {
             this.BuckarooPaymentService.captureOrder(transaction, this.transactionsToRefund, this.orderItems)
                 .then((response) => {
                     if (response.status) {
-                        this.createNotificationSuccess({
+                        this.$store.dispatch('notification/createNotification', {
+                            variant: 'success',
                             title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
                             message: response.message
                         });
                     } else {
-                        this.createNotificationError({
+                        this.$store.dispatch('notification/createNotification', {
+                            variant: 'error',
                             title: that.$tc('buckaroo-payment.settingsForm.titleError'),
                             message: response.message
                         });
@@ -335,7 +339,8 @@ Component.register('buckaroo-payment-detail', {
                     this.createdComponent();
                 })
                 .catch((errorResponse) => {
-                    this.createNotificationError({
+                    this.$store.dispatch('notification/createNotification', {
+                        variant: 'error',
                         title: this.$tc('buckaroo-payment.settingsForm.titleError'),
                         message: that.$tc(errorResponse.response.data.message)
                     });

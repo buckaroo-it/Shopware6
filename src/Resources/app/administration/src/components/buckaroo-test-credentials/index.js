@@ -1,13 +1,8 @@
-const { Component, Mixin} = Shopware;
+const { Component } = Shopware;
 import template from "./buckaroo-test-credentials.twig";
 
 Component.register("buckaroo-test-credentials", {
     template,
-
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet')
-    ],
     data() {
         return {
             isLoading: false,
@@ -43,12 +38,14 @@ Component.register("buckaroo-test-credentials", {
                     this.isLoading = false;
 
                     if (result.status == 'success') {
-                        this.createNotificationSuccess({
+                        this.$store.dispatch('notification/createNotification', {
+                            variant: 'success',
                             title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
                             message: this.$tc(result.message)
                         });
                     } else {
-                        this.createNotificationError({
+                        this.$store.dispatch('notification/createNotification', {
+                            variant: 'error',
                             title: this.$tc('buckaroo-payment.settingsForm.titleError'),
                             message: this.$tc(result.message)
                         });

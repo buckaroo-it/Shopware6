@@ -116,25 +116,21 @@ const checkPaySupport = async function (merchantIdentifier) {
                 shippingType: _this.options.shippingType,
                 shippingMethods: _this.options.shippingMethods,
             };
-          // Create the Apple Pay session.
             _this.session = new ApplePaySession(_this.applePayVersion, paymentRequest);
-          // Setup handler for validation the merchant session.
             _this.session.onvalidatemerchant = _this.onValidateMerchant;
-          // Setup handler for shipping method selection.
+
             if (_this.options.shippingMethodSelectedCallback) {
                 _this.session.onshippingmethodselected = _this.onShippingMethodSelected;
             }
-          // Setup handler for shipping contact selection.
+
             if (_this.options.shippingContactSelectedCallback) {
                 _this.session.onshippingcontactselected = _this.onShippingContactSelected;
             }
-          // Setup handler for shipping method selection.
+
             if (_this.options.cancelCallback) {
                 _this.session.oncancel = _this.onCancel;
             }
-          // Setup handler to receive the token when payment is authorized.
             _this.session.onpaymentauthorized = _this.onPaymentAuthorized;
-          // Begin the session to display the Apple Pay sheet.
             _this.session.begin();
         };
       /**
@@ -149,8 +145,6 @@ const checkPaySupport = async function (merchantIdentifier) {
                 domainName: window.location.hostname,
                 merchantIdentifier: _this.options.merchantIdentifier,
             };
-          // Post the payload to the server to validate the
-          // merchant session using the merchant certificate.
             fetch(_this.validationUrl, {
                 method: 'POST',
                 body: JSON.stringify(data),

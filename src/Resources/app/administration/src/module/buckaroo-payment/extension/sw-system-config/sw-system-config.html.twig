@@ -4,12 +4,13 @@
     </template>
     <template v-else>
        <buckaroo-main-config
-            v-model="actualConfigData[currentSalesChannelId]"
+            :value="actualConfigData[currentSalesChannelId]"
             :configSettings="config"
             :isNotDefaultSalesChannel="isNotDefaultSalesChannel"
             :currentSalesChannelId="currentSalesChannelId"
             :elementMethods="{getElementBind, getFieldError, getInheritWrapperBind, getInheritedValue, hasMapInheritanceSupport, getInlineSnippet, kebabCase}"
-            v-if="!isLoading"
+            @input="onConfigDataUpdate"
+            v-if="!isLoading && actualConfigData[currentSalesChannelId] && config && config.length > 0"
         ></buckaroo-main-config>
     </template>
  {% endblock %}

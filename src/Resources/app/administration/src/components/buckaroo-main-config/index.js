@@ -6,21 +6,39 @@ Component.register("buckaroo-main-config", {
     template,
     props: {
         configSettings: {
-            required: true,
+            type: Array,
+            required: false,
+            default: () => []
         },
         value: {
-            required: true,
+            type: Object,
+            required: false,
+            default: () => ({})
         },
         elementMethods: {
-            required: true,
+            type: Object,
+            required: false,
+            default: () => ({})
         },
         isNotDefaultSalesChannel: {
-            required: true,
+            type: Boolean,
+            required: false,
+            default: false
         },
         currentSalesChannelId: {
-            required: true,
+            type: String,
+            required: false,
+            default: null
         }
     },
+    emits: ['input'],
+
+    model: {
+        prop: 'value',
+        event: 'input'
+    },
+
+
     data() {
         return {
             selectedCard: this.$route.params?.paymentCode || 'general'
@@ -28,16 +46,33 @@ Component.register("buckaroo-main-config", {
     },
 
     watch: {
+        value: {
+            handler(newVal, oldVal) {
+                this.$nextTick(() => {
+                    this.$forceUpdate();
+                });
+            },
+            deep: true,
+            immediate: true
+        },
         $route(to) {
-          if (to.params?.paymentCode) {
-              this.selectedCard = to.params.paymentCode
-          }
+            if (to.params?.paymentCode) {
+                this.selectedCard = to.params.paymentCode;
+            }
         }
     },
 
     computed: {
         mainCard() {
-            return this.configSettings.filter((card) => card.name === this.selectedCard)?.pop()
+            const card = this.configSettings.filter((card) => card.name === this.selectedCard)?.pop();
+            return card;
+        }
+    },
+
+    methods: {
+        onInput(value) {
+            this.$emit('input', value);
         }
     }
+
 })

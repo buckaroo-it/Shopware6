@@ -1,10 +1,20 @@
-const { Application } = Shopware;
-const ApiService = Shopware.Classes.ApiService;
+const { ApiService } = Shopware.Classes;
 
 class BuckarooPaymentSettingsService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'buckaroo')
     {
         super(httpClient, loginService, apiEndpoint);
+    }
+
+    getBasicHeaders() {
+        if (this.loginService && typeof this.loginService.getToken === 'function') {
+            return super.getBasicHeaders();
+        }
+
+        return {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
     }
 
     getSupportVersion()
@@ -75,8 +85,8 @@ class BuckarooPaymentSettingsService extends ApiService {
     }
 }
 
-Application.addServiceProvider('BuckarooPaymentSettingsService', (container) => {
-    const initContainer = Application.getContainer('init');
-    return new BuckarooPaymentSettingsService(initContainer.httpClient, container.loginService);
+Shopware.Service().register('BuckarooPaymentSettingsService', () => {
+    const initContainer = Shopware.Application.getContainer('init');
+    return new BuckarooPaymentSettingsService(initContainer.httpClient, initContainer.loginService || null);
 });
 
