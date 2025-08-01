@@ -74,8 +74,4 @@ class Payconiq extends AbstractPayment
             ],
         ];
     }
-    public function getTechnicalName(): string
-    {
-        return 'buckaroo_payconiq';
-    }
 }

@@ -84,8 +84,4 @@ class Trustly extends AbstractPayment
             ],
         ];
     }
-    public function getTechnicalName(): string
-    {
-        return 'buckaroo_trustly';
-    }
 }

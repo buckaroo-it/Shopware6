@@ -74,8 +74,4 @@ class Knaken extends AbstractPayment
             ],
         ];
     }
-    public function getTechnicalName(): string
-    {
-        return 'buckaroo_knaken';
-    }
 }

@@ -74,8 +74,4 @@ class Blik extends AbstractPayment
             ],
         ];
     }
-    public function getTechnicalName(): string
-    {
-        return 'buckaroo_blik';
-    }
 }

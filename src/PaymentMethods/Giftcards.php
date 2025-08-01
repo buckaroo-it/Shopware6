@@ -92,8 +92,4 @@ class Giftcards extends AbstractPayment
     {
         return 'direct';
     }
-    public function getTechnicalName(): string
-    {
-        return 'buckaroo_giftcards';
-    }
 }

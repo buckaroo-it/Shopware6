@@ -34,11 +34,12 @@ class CreditcardPaymentHandler extends AsyncPaymentHandler
     }
 
 
-     /**
+    /**
+     * @param Request $request
      * @param PaymentTransactionStruct $transaction
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @return RedirectResponse
+     * @param Context $context
+     * @param Struct|null $validateStruct
+     * @return RedirectResponse|null
      * @throws PaymentException
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

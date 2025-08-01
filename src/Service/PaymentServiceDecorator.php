@@ -42,7 +42,8 @@ class PaymentServiceDecorator
         if ($transactionId === null) {
             throw PaymentException::asyncProcessInterrupted(
                 $paymentToken,
-                "Transaction ID is missing in the token."
+                "Transaction ID is missing in the token.",
+                null
             );
         }
 
@@ -57,7 +58,8 @@ class PaymentServiceDecorator
         if ($order === null) {
             throw PaymentException::asyncProcessInterrupted(
                 $paymentToken,
-                "Order could not be found for Transaction ID: $transactionId"
+                "Order could not be found for Transaction ID: $transactionId",
+                null
             );
         }
 

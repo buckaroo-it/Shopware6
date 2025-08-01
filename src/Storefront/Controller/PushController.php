@@ -359,7 +359,8 @@ class PushController extends StorefrontController
                 $this->logger->info(__METHOD__ . "|55|");
                 throw PaymentException::asyncProcessInterrupted(
                     $orderTransactionId,
-                    $exception->getMessage()
+                    $exception->getMessage(),
+                    $exception
                 );
             }
             $this->logger->info(__METHOD__ . "|60|");

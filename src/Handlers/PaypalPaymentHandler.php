@@ -13,8 +13,7 @@ use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct
-;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 
 class PaypalPaymentHandler extends AsyncPaymentHandler
 {
@@ -87,17 +86,18 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
 
     protected function handleResponse(
         ClientResponseInterface $response,
-        PaymentTransactionStruct
- $transaction,
+        $orderTransaction,
+        $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): RedirectResponse {
-        $this->orderUpdater->update($response, $transaction->getOrder(), $salesChannelContext);
+        $this->orderUpdater->update($response, $order, $salesChannelContext);
 
         return parent::handleResponse(
             $response,
-            $transaction,
+            $orderTransaction,
+            $order,
             $dataBag,
             $salesChannelContext,
             $paymentCode

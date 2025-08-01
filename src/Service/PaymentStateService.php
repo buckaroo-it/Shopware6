@@ -11,8 +11,7 @@ use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct
-;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
@@ -43,13 +42,12 @@ class PaymentStateService
     }
 
     public function finalizePayment(
-        PaymentTransactionStruct
- $transaction,
+        $transaction,
         Request $request,
         SalesChannelContext $salesChannelContext
     ): void {
         $this->loginCustomer($salesChannelContext->getCustomerId(), $salesChannelContext);
-        $transactionId = $transaction->getOrderTransaction()->getId();
+        $transactionId = $transaction->getOrderTransactionId();
         $context = $salesChannelContext->getContext();
 
         try {
@@ -66,7 +64,7 @@ class PaymentStateService
     }
 
     private function handlePaymentFinalization(
-        AsyncPaymentTransactionStruct $transaction,
+        $transaction,
         Request $request,
         string $transactionId,
         Context $context
@@ -74,7 +72,8 @@ class PaymentStateService
         if ($this->shouldCancelPayment($request)) {
             throw PaymentException::asyncProcessInterrupted(
                 $transactionId,
-                $this->translator->trans('buckaroo.userCanceled')
+                $this->translator->trans('buckaroo.userCanceled'),
+                null
             );
         }
 
@@ -115,11 +114,11 @@ class PaymentStateService
         $errorMessage = $this->getStatusMessageByStatusCode($request);
         
         if ($this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)) {
-            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage);
+            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage, null);
         }
 
         if ($this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_CANCEL)) {
-            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage);
+            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage, null);
         }
     }
 

@@ -33,10 +33,6 @@ class Ideal extends AbstractPayment
     {
         return 'iDEAL';
     }
-    public function getTechnicalName(): string
-    {
-        return 'buckaroo_ideal';
-    }
     /**
      * {@inheritDoc}
      *

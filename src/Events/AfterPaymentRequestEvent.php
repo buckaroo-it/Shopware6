@@ -9,8 +9,7 @@ use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct
-;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 
 class AfterPaymentRequestEvent implements ShopwareSalesChannelEvent
 {

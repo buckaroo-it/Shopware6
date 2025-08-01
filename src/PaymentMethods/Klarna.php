@@ -87,8 +87,4 @@ class Klarna extends AbstractPayment
     {
         return false;
     }
-    public function getTechnicalName(): string
-    {
-        return 'buckaroo_klarna';
-    }
 }
