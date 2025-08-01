@@ -13,8 +13,7 @@ use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntity;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct
-;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
 
 class CancelPaymentService
@@ -45,19 +44,19 @@ class CancelPaymentService
      * @return void
      */
     public function cancel(
-        PaymentTransactionStruct
- $transactionStruct
+        PaymentTransactionStruct $transactionStruct
     ): void {
 
-        $orderTransaction = $transactionStruct->getOrderTransaction();
-        $transactions = $this->buckarooTransactionEntityRepository->findByOrderId($orderTransaction->getOrderId());
+        // Get the order transaction ID from the struct
+        $orderTransactionId = $transactionStruct->getOrderTransactionId();
+        $order = $transactionStruct->getOrder();
+        $transactions = $this->buckarooTransactionEntityRepository->findByOrderId($order->getId());
 
         foreach ($transactions as $transaction) {
             if ($transaction->get('statuscode') != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
                 continue;
             }
 
-            $order = $transactionStruct->getOrder();
             $amount = $transaction->get('amount');
             $paymentCode = $transaction->get('transaction_method');
 
@@ -83,7 +82,7 @@ class CancelPaymentService
                     $this->getPayload(
                         $order,
                         $bkTransactionId,
-                        $orderTransaction->getId(),
+                        $orderTransactionId,
                         (float)$amount,
                         $paymentCode
                     )
