@@ -15,7 +15,6 @@ Component.override('sw-system-config', {
             
             this.systemConfigApiService.getValues('BuckarooPayments.config', this.currentSalesChannelId)
                 .then(response => {
-                    console.log('Raw response from API:', response);
                     
                     if (!this.actualConfigData[this.currentSalesChannelId]) {
                         this.actualConfigData[this.currentSalesChannelId] = {};

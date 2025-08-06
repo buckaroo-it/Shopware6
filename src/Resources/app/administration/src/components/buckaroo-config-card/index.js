@@ -362,7 +362,7 @@ Component.register('buckaroo-config-card', {
 
                 if (actualValue === "on") {
                     actualValue = true;
-                } else if (actualValue === "off" || actualValue === "") {
+                } else if (actualValue === "off") {
                     actualValue = false;
                 }
                 const cleanFieldName = fieldName.replace('BuckarooPayments.config.', '');
