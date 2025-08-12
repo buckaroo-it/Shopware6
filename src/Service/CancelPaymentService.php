@@ -44,14 +44,12 @@ class CancelPaymentService
      * @return void
      */
     public function cancel(
-        PaymentTransactionStruct $transactionStruct
+        PaymentTransactionStruct $transactionStruct,
+        OrderEntity $order
     ): void {
 
-        // Get the order transaction ID from the struct
         $orderTransactionId = $transactionStruct->getOrderTransactionId();
-        $order = $transactionStruct->getOrder();
         $transactions = $this->buckarooTransactionEntityRepository->findByOrderId($order->getId());
-
         foreach ($transactions as $transaction) {
             if ($transaction->get('statuscode') != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
                 continue;

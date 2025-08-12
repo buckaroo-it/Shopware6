@@ -14,8 +14,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 class BeforePaymentRequestEvent implements ShopwareSalesChannelEvent
 {
 
-    protected PaymentTransactionStruct
- $transaction;
+    protected PaymentTransactionStruct $transaction;
 
     protected RequestDataBag $dataBag;
 
@@ -24,8 +23,7 @@ class BeforePaymentRequestEvent implements ShopwareSalesChannelEvent
     protected Client $client;
 
     public function __construct(
-        PaymentTransactionStruct
- $transaction,
+        PaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $context,
         Client $client

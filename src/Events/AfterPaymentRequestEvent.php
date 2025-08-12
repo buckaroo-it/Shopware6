@@ -26,8 +26,7 @@ class AfterPaymentRequestEvent implements ShopwareSalesChannelEvent
     protected string $paymentCode;
 
     public function __construct(
-        PaymentTransactionStruct
- $transaction,
+        PaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $context,
         ClientResponseInterface $response,

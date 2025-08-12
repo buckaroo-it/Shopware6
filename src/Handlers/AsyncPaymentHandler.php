@@ -16,6 +16,7 @@ use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContextServiceInterface;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
@@ -28,7 +29,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\HttpFoundation\Response;
 
-    class AsyncPaymentHandler extends AbstractPaymentHandler
+class AsyncPaymentHandler extends AbstractPaymentHandler
 {
     use ValidateOrderTrait;
 
@@ -58,16 +59,6 @@ use Symfony\Component\HttpFoundation\Response;
         // Support asynchronous payment processing (redirects)
         return $type === PaymentHandlerType::ASYNCHRONOUS;
     }
-
-    /**
-     * @param Request $request
-     * @param PaymentTransactionStruct $transaction
-     * @param Context $context
-     * @param Struct|null $validateStruct
-     * @return RedirectResponse|null
-     * @throws PaymentException
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
     public function pay(
         Request $request,
         PaymentTransactionStruct $transaction,
@@ -75,33 +66,26 @@ use Symfony\Component\HttpFoundation\Response;
         ?Struct $validateStruct
     ): ?RedirectResponse {
         $dataBag = new RequestDataBag($request->request->all());
-        $dataBag = $this->getRequestBag($dataBag);
         $transactionId = $transaction->getOrderTransactionId();
-
-        $orderTransaction = $this->asyncPaymentService->getOrderTransaction($transactionId, $context);
+        $orderTransaction = $this->asyncPaymentService->getTransaction($transactionId, $context);
         $order = $orderTransaction->getOrder();
-        
-        $salesChannelId = $order->getSalesChannelId();
-        $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext($context);
-        
+        $salesChannelContext = $request->get('sw-sales-channel-context');
         $paymentClass = $this->getPayment($transactionId);
         $paymentCode = $paymentClass->getBuckarooKey();
-        $this->asyncPaymentService->cancelPreviousPayments($transaction);
+        $this->asyncPaymentService->cancelPreviousPayments($transaction,$order);
 
         try {
             $this->validateOrder($order);
-
             if ($this->getOrderTotalWithFee(
-                $order,
-                $salesChannelId,
-                $paymentCode
-            ) == 0) {
+                    $order,
+                    $order->getSalesChannelId(),
+                    $paymentCode
+                ) == 0) {
                 return $this->completeZeroAmountPayment($orderTransaction, $salesChannelContext);
             }
-
             $client = $this->getClient(
                 $paymentCode,
-                $salesChannelId,
+                $order->getSalesChannelId(),
                 $dataBag
             )
                 ->setPayload(
@@ -129,7 +113,6 @@ use Symfony\Component\HttpFoundation\Response;
                         $paymentCode
                     )
                 );
-
             if (
                 $paymentCode === "afterpay" &&
                 !$this->isAfterpayOld($salesChannelContext->getSalesChannelId())
@@ -139,16 +122,15 @@ use Symfony\Component\HttpFoundation\Response;
 
             $this->asyncPaymentService->dispatchEvent(
                 new BeforePaymentRequestEvent(
-                    $orderTransaction,
+                    $transaction,       // <-- pass $transaction here (PaymentTransactionStruct)
                     $dataBag,
                     $salesChannelContext,
                     $client
                 )
             );
-
             return $this->handleResponse(
                 $client->execute(),
-                $orderTransaction,
+                $transaction,
                 $order,
                 $dataBag,
                 $salesChannelContext,
@@ -171,6 +153,7 @@ use Symfony\Component\HttpFoundation\Response;
         }
     }
 
+
     protected function handleResponse(
         ClientResponseInterface $response,
         $orderTransaction,
@@ -188,9 +171,7 @@ use Symfony\Component\HttpFoundation\Response;
                 $paymentCode
             )
         );
-
         $returnUrl = $this->getReturnUrl($orderTransaction, $order, $dataBag);
-
         $this->storeTransactionInfo($orderTransaction, $order, $response, $salesChannelContext, $paymentCode);
 
         if ($response->isRejected()) {
@@ -221,12 +202,10 @@ use Symfony\Component\HttpFoundation\Response;
                 ],
                 $salesChannelContext->getContext()
             );
-
         $this->asyncPaymentService->transactionService
-            ->updateTransactionCustomFields($orderTransaction->getId(), [
+            ->updateTransactionCustomFields($orderTransaction->getOrderTransactionId(), [
                 'originalTransactionKey' => $response->getTransactionKey()
             ]);
-
         $this->setFeeOnOrder($orderTransaction, $order, $salesChannelContext, $paymentCode);
     }
 
@@ -455,7 +434,7 @@ use Symfony\Component\HttpFoundation\Response;
      *
      * @return Client
      */
-    private function getClient(string $paymentCode, string $salesChannelId, DataBag $dataBag): Client
+    private function getClient(string $paymentCode, string $salesChannelId, RequestDataBag $dataBag): Client
     {
         if (
             $paymentCode === 'paybybank' &&
@@ -526,6 +505,14 @@ use Symfony\Component\HttpFoundation\Response;
             return new RequestDataBag(
                 $request->request->all()
             );
+        }
+        return $currentBag;
+    }
+    protected function getDataBag(DataBag $currentBag): DataBag
+    {
+        if ($this->isUpdateOrder($currentBag)) {
+            $request = new Request($_GET, $_POST);
+            return new DataBag($request->request->all());
         }
         return $currentBag;
     }

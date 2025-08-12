@@ -59,7 +59,6 @@ class TransactionService
             'id'           => $orderTransactionId,
             'customFields' => $customFields,
         ];
-
         $this->transactionRepository->update([$data], Context::createDefaultContext());
     }
 
