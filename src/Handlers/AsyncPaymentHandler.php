@@ -90,14 +90,14 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
             )
                 ->setPayload(
                     array_merge_recursive(
-                        $this->getCommonRequestPayload(
-                            $orderTransaction,
-                            $order,
-                            $dataBag,
-                            $salesChannelContext,
-                            $paymentCode,
-                            $transaction->getReturnUrl()
-                        ),
+                                                $this->getCommonRequestPayload(
+                             $orderTransaction,
+                             $order,
+                             $dataBag,
+                             $salesChannelContext,
+                             $paymentCode,
+                             $transaction->getReturnUrl()
+                         ),
                         $this->getMethodPayload(
                             $order,
                             $dataBag,
@@ -122,7 +122,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
 
             $this->asyncPaymentService->dispatchEvent(
                 new BeforePaymentRequestEvent(
-                    $transaction,       // <-- pass $transaction here (PaymentTransactionStruct)
+                    $transaction,
                     $dataBag,
                     $salesChannelContext,
                     $client
@@ -171,7 +171,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
                 $paymentCode
             )
         );
-        $returnUrl = $this->getReturnUrl($orderTransaction, $order, $dataBag);
+        $returnUrl = $orderTransaction->getReturnUrl();
         $this->storeTransactionInfo($orderTransaction, $order, $response, $salesChannelContext, $paymentCode);
 
         if ($response->isRejected()) {
@@ -244,18 +244,10 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         }
 
         if ($response->isCanceled()) {
-            throw PaymentException::asyncProcessInterrupted(
-                $orderTransaction->getId(),
-                'Payment was canceled'
-            );
+            return $this->redirectToFinishPage($orderTransaction);
         }
 
-        return new RedirectResponse(
-            sprintf(
-                "%s&brq_payment_method={$paymentCode}&brq_statuscode=" . $response->getStatusCode(),
-                $returnUrl
-            )
-        );
+        return $this->redirectToFinishPage($orderTransaction);
     }
 
     private function completeZeroAmountPayment(
@@ -572,7 +564,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
      */
     protected function getDefaultReturnUrl($orderTransaction, OrderEntity $order, $dataBag): string
     {
-        return $this->asyncPaymentService
+        return rtrim($this->asyncPaymentService->urlService->getSaleBaseUrl(), '/') . $this->asyncPaymentService
             ->urlService
             ->forwardToRoute(
                 'frontend.checkout.finish.page',

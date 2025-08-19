@@ -70,11 +70,16 @@ class PaymentStateService
         Context $context
     ): void {
         if ($this->shouldCancelPayment($request)) {
-            throw PaymentException::asyncProcessInterrupted(
-                $transactionId,
-                $this->translator->trans('buckaroo.userCanceled'),
-                null
-            );
+            $availableTransitions = $this->getAvailableTransitions($transactionId, $context);
+            if ($this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_CANCEL)) {
+                $this->transactionStateHandler->cancel($transactionId, $context);
+                return;
+            }
+            if ($this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)) {
+                $this->transactionStateHandler->fail($transactionId, $context);
+                return;
+            }
+            return;
         }
 
         $availableTransitions = $this->getAvailableTransitions($transactionId, $context);
@@ -95,6 +100,12 @@ class PaymentStateService
         string $transactionId,
         Context $context
     ): void {
+        if ($this->isSuccessfulPaymentRequest($request) &&
+            $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_PAID)) {
+            $this->transactionStateHandler->paid($transactionId, $context);
+            return;
+        }
+
         if ($this->isPendingPaymentRequest($request) &&
             $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_DO_PAY)) {
             $this->transactionStateHandler->process($transactionId, $context);
@@ -102,24 +113,28 @@ class PaymentStateService
         }
 
         if ($this->isFailedPaymentRequest($request)) {
-            $this->handleFailedPayment($request, $availableTransitions, $transactionId);
+            $this->handleFailedPayment($request, $availableTransitions, $transactionId, $context);
         }
     }
 
     private function handleFailedPayment(
         Request $request,
         array $availableTransitions,
-        string $transactionId
+        string $transactionId,
+        Context $context
     ): void {
-        $errorMessage = $this->getStatusMessageByStatusCode($request);
-        
+
         if ($this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)) {
-            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage, null);
+            $this->transactionStateHandler->fail($transactionId, $context);
+            return;
         }
 
         if ($this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_CANCEL)) {
-            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage, null);
+            $this->transactionStateHandler->cancel($transactionId, $context);
+            return;
         }
+
+        return;
     }
 
     private function loginCustomer(?string $customerId, SalesChannelContext $salesChannelContext): void
@@ -217,6 +232,11 @@ class PaymentStateService
     private function isCanceledPaymentRequest(Request $request): bool
     {
         return $request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
+    }
+
+    private function isSuccessfulPaymentRequest(Request $request): bool
+    {
+        return $request->get('brq_statuscode') === ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS;
     }
 
     private function getPaymentStatusCode(Request $request): ?string
