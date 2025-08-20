@@ -119,13 +119,11 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
             ) {
                 $client->setServiceVersion(2);
             }
-            $response = $client->execute();
-
             return $this->handleResponse(
-                $response,
+                $client->execute(),
                 $orderTransaction,
                 $order,
-                $this->getRequestBag($dataBag),
+                $dataBag,
                 $salesChannelContext,
                 $paymentCode
             );
@@ -149,18 +147,17 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): RedirectResponse {
-        $this->asyncPaymentService->dispatchEvent(
-            new AfterPaymentRequestEvent(
-                $orderTransaction,
-                $dataBag,
-                $salesChannelContext,
-                $response,
-                $paymentCode
-            )
-        );
+//        $this->asyncPaymentService->dispatchEvent(
+//            new AfterPaymentRequestEvent(
+//                $orderTransaction,
+//                $dataBag,
+//                $salesChannelContext,
+//                $response,
+//                $paymentCode
+//            )
+//        );
         $returnUrl = $this->getReturnUrl($orderTransaction, $order, $dataBag);
         $this->storeTransactionInfo($orderTransaction, $order, $response, $salesChannelContext, $paymentCode);
-
         if ($response->isRejected()) {
             throw new BuckarooPaymentRejectException($response->getSubCodeMessage());
         }
@@ -189,7 +186,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
                 $salesChannelContext->getContext()
             );
         $this->asyncPaymentService->transactionService
-            ->updateTransactionCustomFields($orderTransaction->getOrderTransactionId(), [
+            ->updateTransactionCustomFields($orderTransaction->getId(), [
                 'originalTransactionKey' => $response->getTransactionKey()
             ]);
         $this->setFeeOnOrder($orderTransaction, $order, $salesChannelContext, $paymentCode);
@@ -531,7 +528,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
      *
      * @return string
      */
-    protected function getReturnUrl($orderTransaction, OrderEntity $order, $dataBag)
+    protected function getReturnUrl($orderTransaction, OrderEntity $order,RequestDataBag $dataBag)
     {
         if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
             $finishUrl = (string)$dataBag->get('finishUrl');

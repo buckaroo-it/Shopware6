@@ -14,8 +14,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 class AfterPaymentRequestEvent implements ShopwareSalesChannelEvent
 {
 
-    protected PaymentTransactionStruct
- $transaction;
+    protected PaymentTransactionStruct $transaction;
 
     protected RequestDataBag $dataBag;
 
