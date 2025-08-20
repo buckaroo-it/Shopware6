@@ -57,7 +57,8 @@ class OrderService
                 $this->salesChannelContext,
                 $orderEntity,
                 new MailRecipientStruct([
-                        $orderEntity->getOrderCustomer()?->getEmail() ?? '' => $orderEntity->getOrderCustomer()?->getFirstName() ?? ''
+                    $orderEntity->getOrderCustomer()?->getEmail() ?? ''
+                        => $orderEntity->getOrderCustomer()?->getFirstName() ?? ''
                 ])
             )
         );
@@ -106,8 +107,11 @@ class OrderService
         return $this->getOrderById($orderId);
     }
 
-    public function getOrderById(string $orderId, array $associations = ['lineItems'], Context $context = null): ?OrderEntity
-    {
+    public function getOrderById(
+        string $orderId,
+        array $associations = ['lineItems'],
+        Context $context = null
+    ): ?OrderEntity {
         if ($context === null) {
             $this->validateSaleChannelContext();
             $context = $this->salesChannelContext->getContext();

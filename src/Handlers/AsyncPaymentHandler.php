@@ -72,15 +72,15 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         $salesChannelContext = $request->get('sw-sales-channel-context');
         $paymentClass = $this->getPayment($transactionId);
         $paymentCode = $paymentClass->getBuckarooKey();
-        $this->asyncPaymentService->cancelPreviousPayments($transaction,$order);
+        $this->asyncPaymentService->cancelPreviousPayments($transaction, $order);
 
         try {
             $this->validateOrder($order);
             if ($this->getOrderTotalWithFee(
-                    $order,
-                    $order->getSalesChannelId(),
-                    $paymentCode
-                ) == 0) {
+                $order,
+                $order->getSalesChannelId(),
+                $paymentCode
+            ) == 0) {
                 return $this->completeZeroAmountPayment($orderTransaction, $salesChannelContext);
             }
             $client = $this->getClient(
@@ -90,14 +90,14 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
             )
                 ->setPayload(
                     array_merge_recursive(
-                                                $this->getCommonRequestPayload(
-                             $orderTransaction,
-                             $order,
-                             $dataBag,
-                             $salesChannelContext,
-                             $paymentCode,
-                             $transaction->getReturnUrl()
-                         ),
+                        $this->getCommonRequestPayload(
+                            $orderTransaction,
+                            $order,
+                            $dataBag,
+                            $salesChannelContext,
+                            $paymentCode,
+                            $transaction->getReturnUrl()
+                        ),
                         $this->getMethodPayload(
                             $order,
                             $dataBag,
@@ -119,37 +119,24 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
             ) {
                 $client->setServiceVersion(2);
             }
+            $response = $client->execute();
 
-            $this->asyncPaymentService->dispatchEvent(
-                new BeforePaymentRequestEvent(
-                    $transaction,
-                    $dataBag,
-                    $salesChannelContext,
-                    $client
-                )
-            );
             return $this->handleResponse(
-                $client->execute(),
-                $transaction,
+                $response,
+                $orderTransaction,
                 $order,
-                $dataBag,
+                $this->getRequestBag($dataBag),
                 $salesChannelContext,
                 $paymentCode
             );
-        } catch (BuckarooPaymentRejectException $e) {
-            $this->asyncPaymentService->logger->error((string) $e->getMessage());
-            throw PaymentException::asyncProcessInterrupted(
-                $transactionId,
-                $e->getMessage(),
-                $e
-            );
-        } catch (\Throwable $th) {
-            $this->asyncPaymentService->logger->error((string) $th);
-            throw PaymentException::asyncProcessInterrupted(
-                $transactionId,
-                'Cannot create buckaroo payment',
-                $th
-            );
+        } catch (PaymentException $exception) {
+            throw $exception;
+        } catch (PaymentResponseException $exception) {
+            throw PaymentException::asyncProcessInterrupted($transactionId, $exception->getMessage());
+        } catch (ClientInitException $exception) {
+            throw PaymentException::asyncProcessInterrupted($transactionId, $exception->getMessage());
+        } catch (CreateCartException $exception) {
+            throw PaymentException::asyncProcessInterrupted($transactionId, $exception->getMessage());
         }
     }
 
@@ -171,13 +158,12 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
                 $paymentCode
             )
         );
-        $returnUrl = $orderTransaction->getReturnUrl();
+        $returnUrl = $this->getReturnUrl($orderTransaction,$order, $dataBag);
         $this->storeTransactionInfo($orderTransaction, $order, $response, $salesChannelContext, $paymentCode);
 
         if ($response->isRejected()) {
             throw new BuckarooPaymentRejectException($response->getSubCodeMessage());
         }
-        
         if ($response->hasRedirect()) {
             $this->handleRedirectResponse($order);
             return new RedirectResponse($response->getRedirectUrl());
@@ -209,8 +195,8 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         $this->setFeeOnOrder($orderTransaction, $order, $salesChannelContext, $paymentCode);
     }
 
-    private function handleRedirectResponse(
-        $order
+    private function    handleRedirectResponse(
+         $order
     ): void {
         $this->asyncPaymentService
             ->checkoutHelper
@@ -244,10 +230,18 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         }
 
         if ($response->isCanceled()) {
-            return $this->redirectToFinishPage($orderTransaction);
+            throw PaymentException::asyncProcessInterrupted(
+                $orderTransaction->getId(),
+                'Payment was canceled'
+            );
         }
 
-        return $this->redirectToFinishPage($orderTransaction);
+        return new RedirectResponse(
+            sprintf(
+                "%s&brq_payment_method={$paymentCode}&brq_statuscode=" . $response->getStatusCode(),
+                $returnUrl
+            )
+        );
     }
 
     private function completeZeroAmountPayment(
@@ -344,8 +338,19 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
                 $paymentCode
             ),
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
-            'returnURL'     => $returnUrl ?: $this->getDefaultReturnUrl($orderTransaction, $order, $dataBag),
-            'cancelURL'     => sprintf('%s&cancel=1', $returnUrl ?: $this->getDefaultReturnUrl($orderTransaction, $order, $dataBag)),
+            'returnURL'     => $returnUrl ?: $this->getDefaultReturnUrl(
+                $orderTransaction,
+                $order,
+                $dataBag
+            ),
+            'cancelURL'     => sprintf(
+                '%s&cancel=1',
+                $returnUrl ?: $this->getDefaultReturnUrl(
+                    $orderTransaction,
+                    $order,
+                    $dataBag
+                )
+            ),
             'pushURL'       => $this->asyncPaymentService
                 ->urlService
                 ->getReturnUrl('buckaroo.payment.push'),
@@ -472,13 +477,10 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         PaymentTransactionStruct $transaction,
         Context $context
     ): void {
-        $orderTransaction = $this->asyncPaymentService->getOrderTransaction($transaction->getOrderTransactionId(), $context);
-        $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext($context);
-        
         $this->asyncPaymentService->paymentStateService->finalizePayment(
             $transaction,
             $request,
-            $salesChannelContext
+            $context
         );
     }
 
@@ -564,7 +566,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
      */
     protected function getDefaultReturnUrl($orderTransaction, OrderEntity $order, $dataBag): string
     {
-        return rtrim($this->asyncPaymentService->urlService->getSaleBaseUrl(), '/') . $this->asyncPaymentService
+        return $this->asyncPaymentService
             ->urlService
             ->forwardToRoute(
                 'frontend.checkout.finish.page',

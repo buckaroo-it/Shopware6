@@ -56,7 +56,14 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
         ?string $returnUrl
     ): array {
         $this->createIdealQrOrder($orderTransaction, $order, $salesChannelContext);
-        $payload = parent::getCommonRequestPayload($orderTransaction, $order, $dataBag, $salesChannelContext, $paymentCode, $returnUrl);
+        $payload = parent::getCommonRequestPayload(
+            $orderTransaction,
+            $order,
+            $dataBag,
+            $salesChannelContext,
+            $paymentCode,
+            $returnUrl
+        );
         unset($payload['invoice']);
         return $payload;
     }

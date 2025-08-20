@@ -158,6 +158,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\CancelPaymentService"/>
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\PaymentServiceDecorator"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Events\OrderStateChangeEvent">

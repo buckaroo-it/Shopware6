@@ -44,11 +44,9 @@ class PaymentStateService
     public function finalizePayment(
         $transaction,
         Request $request,
-        SalesChannelContext $salesChannelContext
+        Context $context
     ): void {
-        $this->loginCustomer($salesChannelContext->getCustomerId(), $salesChannelContext);
         $transactionId = $transaction->getOrderTransactionId();
-        $context = $salesChannelContext->getContext();
 
         try {
             $this->handlePaymentFinalization($transaction, $request, $transactionId, $context);
@@ -59,7 +57,13 @@ class PaymentStateService
                 'statusCode' => $this->getPaymentStatusCode($request),
                 'paymentMethod' => $request->get('brq_payment_method')
             ]);
-            throw $e;
+            return;
+        } catch (\Throwable $e) {
+            $this->logger->error('Payment finalization threw an unexpected error', [
+                'transactionId' => $transactionId,
+                'error' => $e->getMessage()
+            ]);
+            return;
         }
     }
 

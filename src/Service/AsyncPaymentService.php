@@ -43,7 +43,8 @@ class AsyncPaymentService
         protected EventDispatcherInterface $eventDispatcher,
         protected CancelPaymentService $cancelPaymentService,
         protected EntityRepository $orderTransactionRepository,
-        protected  SalesChannelContextService $salesChannelContextService
+        protected  SalesChannelContextService $salesChannelContextService,
+        private PaymentServiceDecorator $paymentServiceDecorator
     ) {
     }
 
@@ -129,10 +130,10 @@ class AsyncPaymentService
                 substr((string) $useragent, 0, 4)
             ) === 1;
     }
-    public function cancelPreviousPayments(PaymentTransactionStruct $transaction,OrderEntity $order): void
+    public function cancelPreviousPayments(PaymentTransactionStruct $transaction, OrderEntity $order): void
     {
         try {
-            $this->cancelPaymentService->cancel($transaction,$order);
+            $this->cancelPaymentService->cancel($transaction, $order);
         } catch (\Throwable $th) {
             $this->logger->error('Failed to cancel previous payments: ' . $th->getMessage(), [
                 'transactionId' => $transaction->getOrderTransaction()->getId(),
