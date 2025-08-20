@@ -50,7 +50,6 @@ class AfterPaymentRequestEvent implements ShopwareSalesChannelEvent
     }
 
     public function getAsyncPaymentTransaction(): PaymentTransactionStruct
-
     {
         return $this->transaction;
     }

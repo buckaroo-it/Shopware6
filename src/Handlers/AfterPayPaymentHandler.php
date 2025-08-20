@@ -48,9 +48,9 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         Context $context,
         ?Struct $validateStruct
     ): ?RedirectResponse {
-        $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext($context);
 
-        // Add authorization custom field if enabled
+        $salesChannelContext = $request->get('sw-sales-channel-context');
+
         if ($this->isAuthorization($salesChannelContext->getSalesChannelId())) {
             $this->asyncPaymentService
                 ->checkoutHelper
@@ -59,7 +59,7 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                     [
                         CaptureService::ORDER_IS_AUTHORIZED => true,
                     ],
-                    $salesChannelContext->getContext()
+                    $context
                 );
         }
 

@@ -158,7 +158,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
                 $paymentCode
             )
         );
-        $returnUrl = $this->getReturnUrl($orderTransaction,$order, $dataBag);
+        $returnUrl = $this->getReturnUrl($orderTransaction, $order, $dataBag);
         $this->storeTransactionInfo($orderTransaction, $order, $response, $salesChannelContext, $paymentCode);
 
         if ($response->isRejected()) {
@@ -195,9 +195,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         $this->setFeeOnOrder($orderTransaction, $order, $salesChannelContext, $paymentCode);
     }
 
-    private function    handleRedirectResponse(
-         $order
-    ): void {
+    private function handleRedirectResponse(OrderEntity $order): void {
         $this->asyncPaymentService
             ->checkoutHelper
             ->getSession()
