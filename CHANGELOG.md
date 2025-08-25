@@ -272,66 +272,71 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 # 2.5.0
 
--BP-3911 Add support for Shopware 6.6.8.2
--BP-3850 Add support for Shopware 6.6.7.0 & 6.6.7.1
--BP-4015 Added support for EUR currency in Przelewy24.
--BP-3877 Enhanced Security for Cards (with Cliënt Side Encryption): ensuring a safer checkout experience.
--BP-3888 Improved Security for Bancontact (with Cliënt Side Encryption): ensuring a safer checkout experience.
--BP-4016 Remove the payment method Sofort (Discontinued).
--BP-4017 Updated the bank transfer logo to a globally recognized version.
--BP-3594 Resolved an extension conflict with the Wexo DHLShipping module regarding Riverty and B2B orders.
--BP-3868 Resolved an issue where canceling an iDEAL transaction could result in an error page.
--BP-3893 Resolved an issue with the PayPal Express button that was sometimes not displayed (in the cart page).
--BP-3906 Resolved an error: The selected payment method does not exist.
--BP-3910 Resolved an error: Plugin "BuckarooPaymentValidateSubmit" is already registered.
--BP-3799 Resolve an issue with PayPal orders that contain a “+” sign and can’t process the PUSH correctly.
--BP-3893 Resolve an issue where the PayPal Express button occasionally failed to appear on the product page.
--BP-3985 Resolve an issue with Klarna KP and refunds that triggered an error when “Automatically Pay Reservation” was enabled in the Plaza.
--BP-3886 iDEAL cancellation can result into a error page.
--BP-3985 Resolved an issue where Klarna refunds from Shopware displayed an error when Automatic Capture was enabled in the Buckaroo Plaza.
+- BP-3911 Add support for Shopware 6.6.8.2
+- BP-3850 Add support for Shopware 6.6.7.0 & 6.6.7.1
+- BP-4015 Added support for EUR currency in Przelewy24.
+- BP-3877 Enhanced Security for Cards (with Cliënt Side Encryption): ensuring a safer checkout experience.
+- BP-3888 Improved Security for Bancontact (with Cliënt Side Encryption): ensuring a safer checkout experience.
+- BP-4016 Remove the payment method Sofort (Discontinued).
+- BP-4017 Updated the bank transfer logo to a globally recognized version.
+- BP-3594 Resolved an extension conflict with the Wexo DHLShipping module regarding Riverty and B2B orders.
+- BP-3868 Resolved an issue where canceling an iDEAL transaction could result in an error page.
+- BP-3893 Resolved an issue with the PayPal Express button that was sometimes not displayed (in the cart page).
+- BP-3906 Resolved an error: The selected payment method does not exist.
+- BP-3910 Resolved an error: Plugin "BuckarooPaymentValidateSubmit" is already registered.
+- BP-3799 Resolve an issue with PayPal orders that contain a “+” sign and can’t process the PUSH correctly.
+- BP-3893 Resolve an issue where the PayPal Express button occasionally failed to appear on the product page.
+- BP-3985 Resolve an issue with Klarna KP and refunds that triggered an error when “Automatically Pay Reservation” was enabled in the Plaza.
+- BP-3886 iDEAL cancellation can result into a error page.
+- BP-3985 Resolved an issue where Klarna refunds from Shopware displayed an error when Automatic Capture was enabled in the Buckaroo Plaza.
 
 # 2.6.0
 
--BP-3998 Add support for Shopware 6.6.9.0
--BP-4148 Add transaction key to custom fields.
--BP-4148 Add a setting that orders are closed automatically when failed/cancelled.
--BP-4150 Implement better support for displaying error messages for headless implementations.
--BP-3807 Add iDEAL fast checkout button.
--BP-4943 Resolve error message: Plugin “BuckarooPaymentValidateSubmit” is already registered.
+- BP-3998 Add support for Shopware 6.6.9.0
+- BP-4148 Add transaction key to custom fields.
+- BP-4148 Add a setting that orders are closed automatically when failed/cancelled.
+- BP-4150 Implement better support for displaying error messages for headless implementations.
+- BP-3807 Add iDEAL fast checkout button.
+- BP-4943 Resolve error message: Plugin “BuckarooPaymentValidateSubmit” is already registered.
 
 # 2.7.0
 
--BP-4208 Rebranding for “Knaken Settle” into “goSettle”.
--BP-4204 Fix: The setting that automatically closes orders when they fail or are canceled has no effect on status 890.
+- BP-4208 Rebranding for “Knaken Settle” into “goSettle”.
+- BP-4204 Fix: The setting that automatically closes orders when they fail or are canceled has no effect on status 890.
 
 # 2.8.0
 
--BP-4232 Use a more generic "PayByBank" logo.
--BP-4257 Adjust payment method names, to not contain the prefix "Buckaroo" anymore.
--BP-4273 Added setting to auto-cancel order and delivery status on failed transactions.
--BP-4191 Replace "Cards (CSE)" with "Cards Hosted Fields".
--BP-4203 Removed “Test” option for iDEAL QR (since there is no sandbox anymore).
--BP-4312 Added the parameter “ConsumerEmail” for Trustly payments.
--BP-4221 Fix: iDEAL Fast Checkout shipping cost issue.
--BP-4227 Fix: Error “An error occurred while processing your payment” for iDEAL Fast Checkout.
+- BP-4232 Use a more generic "PayByBank" logo.
+- BP-4257 Adjust payment method names, to not contain the prefix "Buckaroo" anymore.
+- BP-4273 Added setting to auto-cancel order and delivery status on failed transactions.
+- BP-4191 Replace "Cards (CSE)" with "Cards Hosted Fields".
+- BP-4203 Removed “Test” option for iDEAL QR (since there is no sandbox anymore).
+- BP-4312 Added the parameter “ConsumerEmail” for Trustly payments.
+- BP-4221 Fix: iDEAL Fast Checkout shipping cost issue.
+- BP-4227 Fix: Error “An error occurred while processing your payment” for iDEAL Fast Checkout.
 
 # 2.8.1
 
--BP-4317 Fix: PayPal Express sending wrong amount and add option for Apple Pay redirect to Buckaroo hosted payment.
--BP-4245 Fix: iDEAL Fast Checkout does not always work with guest orders.
--BP-4272: Fix: Missing ConsumerEmail parameter when using Trustly payment method.
--BP-4297 Fix: Clicking multiple times on the “Place order button for Riverty” can result in a page with errors.
--BP-4328 Fix: Updating the Buckaroo plugin results into a internal server error.
+- BP-4317 Fix: PayPal Express sending wrong amount and add option for Apple Pay redirect to Buckaroo hosted payment.
+- BP-4245 Fix: iDEAL Fast Checkout does not always work with guest orders.
+- BP-4272: Fix: Missing ConsumerEmail parameter when using Trustly payment method.
+- BP-4297 Fix: Clicking multiple times on the “Place order button for Riverty” can result in a page with errors.
+- BP-4328 Fix: Updating the Buckaroo plugin results into a internal server error.
 
 # 2.8.2
 
--BP-4399 Fix: Riverty transaction key sometimes missing via Shopware API.
--BP-4259 Fix: Prevent expired push from overwriting successful payment status.
--BP-4399 Fix: "Can't ship to this location" error on some PayPal Express attempts.
+- BP-4399 Fix: Riverty transaction key sometimes missing via Shopware API.
+- BP-4259 Fix: Prevent expired push from overwriting successful payment status.
+- BP-4399 Fix: "Can't ship to this location" error on some PayPal Express attempts.
 
 # 2.9.0 
 
--BP-4387 When "Cards" (Hosted Fields) is selected other payment methods are not selectable in the dropdown.
--BP-4316 Add support for Shopware 6.6.10.x.
--BP-4484 Billink V2 Shopware support.
--BP-4423 Fix: In3, null check bypassed due to early initialization with empty string.
+- BP-4387 When "Cards" (Hosted Fields) is selected other payment methods are not selectable in the dropdown.
+- BP-4316 Add support for Shopware 6.6.10.x.
+- BP-4484 Billink V2 Shopware support.
+- BP-4423 Fix: In3, null check bypassed due to early initialization with empty string.
+
+# 2.9.1
+
+- BP-4426-Refactor-Shopware-6-Frontend
+- BP-4495 (Migration Fix)
