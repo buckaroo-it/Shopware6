@@ -192,7 +192,8 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         $this->setFeeOnOrder($orderTransaction, $order, $salesChannelContext, $paymentCode);
     }
 
-    private function handleRedirectResponse(OrderEntity $order): void {
+    private function handleRedirectResponse(OrderEntity $order): void
+    {
         $this->asyncPaymentService
             ->checkoutHelper
             ->getSession()
@@ -528,7 +529,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
      *
      * @return string
      */
-    protected function getReturnUrl($orderTransaction, OrderEntity $order,RequestDataBag $dataBag)
+    protected function getReturnUrl($orderTransaction, OrderEntity $order, RequestDataBag $dataBag)
     {
         if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
             $finishUrl = (string)$dataBag->get('finishUrl');
