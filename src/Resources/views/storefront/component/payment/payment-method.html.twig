@@ -55,7 +55,6 @@
                 </div>
             {% endif %}
 
-            {# Shopware 6.7 Fix: Add payment inputs directly here since component_payment_fieldset_template doesn't work properly #}
             {% if payment.translated.customFields.is_buckaroo and payment.id is same as(selectedPaymentMethodId) %}
                 {% set buckarooKey = payment.translated.customFields.buckaroo_key %}
                 <div class="buckaroo-payment-inputs" style="margin-top: 15px;">
@@ -128,6 +127,5 @@
 {% endblock %}
 
 {% block component_payment_fieldset_template %}
-    {# This block is kept for backward compatibility but not used in Shopware 6.7 #}
     {{ parent() }}
 {% endblock %}
