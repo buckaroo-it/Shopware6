@@ -1,4 +1,3 @@
-import '../public/administration/css/buckaroo-payments.css';
 import BuckarooPaymentCreditcard from './creditcards/buckaroo-payment.creditcard';
 import BuckarooPaymentCreditcards from './creditcards/buckaroo-payment.creditcards';
 import BuckarooPaymentHelper from './helper/buckaroo-payment.helper';
@@ -7,7 +6,6 @@ import PaypalExpressPlugin from './paypal-express/paypal-express.plugin';
 import IdealFastCheckoutPlugin from './ideal-fast-checkout/ideal-fast-checkout.plugin';
 import ApplePayPlugin from './applepay/applepay.plugin';
 import BuckarooLoadScripts from './scripts/scripts.plugin';
-
 import IdealQrPlugin from './ideal-qr/ideal-qr.plugin';
 import BuckarooPayByBankSelect from './paybybank/select.plugin';
 import BuckarooPayByBankLogo from './paybybank/logo.plugin';

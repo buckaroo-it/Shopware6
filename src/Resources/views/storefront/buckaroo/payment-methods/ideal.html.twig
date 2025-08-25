@@ -1,0 +1,6 @@
+{% block buckaroo_payment_method_ideal %}
+    {% set renderMode = page.extensions.buckaroo.idealRenderMode %}
+    {% if buckarooKey == 'idealprocessing' %}
+        {% set renderMode = page.extensions.buckaroo.idealProcessingRenderMode %}
+    {% endif %}
+{% endblock %} 
