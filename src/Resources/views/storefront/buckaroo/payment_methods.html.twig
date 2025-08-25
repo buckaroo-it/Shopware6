@@ -1,8 +1,8 @@
 {% block buckaroo_payment_methods %}
     {% set buckarooKey = payment.translated.customFields.buckaroo_key %}
-    {% set methodsWithFinancialWarning =  page.extensions.buckaroo.methodsWithFinancialWarning %}
+    {% set methodsWithFinancialWarning = page.extensions.buckaroo.methodsWithFinancialWarning %}
     {% set paymentMethodName = page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name %}
-    {% set countryBillingIso = context.customer.activeBillingAddress.country.iso %}
+    {% set countryBillingIso = page.extensions.buckaroo.countryBillingIso %}
 
     {% if buckarooKey == 'paybybank' and page.extensions.buckaroo.payByBankLogos %}
         {% set payByBankConfig = {

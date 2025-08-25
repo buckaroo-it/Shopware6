@@ -298,6 +298,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'canShowPhone'          => $this->canShowPhone($customer),
             'methodsWithFinancialWarning' => $this->getMethodsWithFinancialWarning($salesChannelId),
+            'countryBillingIso'     => $this->getCountryBillingIso($customer),
+            'countryShippingIso'    => $this->getCountryShippingIso($customer),
             'validHouseNumbers'     => $this->areValidHouseNumbers($event),
             'afterpayOld' => $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true,
             'redirectBancontact' =>
@@ -715,5 +717,53 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
 
         return $address->getPhoneNumber() === null || strlen(trim($address->getPhoneNumber())) === 0;
+    }
+
+    /**
+     * Get billing country ISO code
+     *
+     * @param CustomerEntity $customer
+     *
+     * @return string|null
+     */
+    private function getCountryBillingIso(CustomerEntity $customer): ?string
+    {
+        $billingAddress = $customer->getActiveBillingAddress();
+        
+        if ($billingAddress === null) {
+            return null;
+        }
+        
+        $country = $billingAddress->getCountry();
+        
+        if ($country === null) {
+            return null;
+        }
+        
+        return $country->getIso();
+    }
+
+    /**
+     * Get shipping country ISO code
+     *
+     * @param CustomerEntity $customer
+     *
+     * @return string|null
+     */
+    private function getCountryShippingIso(CustomerEntity $customer): ?string
+    {
+        $shippingAddress = $customer->getActiveShippingAddress();
+        
+        if ($shippingAddress === null) {
+            return null;
+        }
+        
+        $country = $shippingAddress->getCountry();
+        
+        if ($country === null) {
+            return null;
+        }
+        
+        return $country->getIso();
     }
 }

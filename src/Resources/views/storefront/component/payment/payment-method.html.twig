@@ -57,6 +57,10 @@
 
             {% if payment.translated.customFields.is_buckaroo and payment.id is same as(selectedPaymentMethodId) %}
                 {% set buckarooKey = payment.translated.customFields.buckaroo_key %}
+                {% set methodsWithFinancialWarning = page.extensions.buckaroo.methodsWithFinancialWarning %}
+                {% set paymentMethodName = page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name %}
+                {% set countryBillingIso = page.extensions.buckaroo.countryBillingIso %}
+                {% set countryShippingIso = page.extensions.buckaroo.countryShippingIso %}
                 <div class="buckaroo-payment-inputs" style="margin-top: 15px;">
                     {% if buckarooKey == 'bancontactmrcash' %}
                         {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/bancontactmrcash.html.twig' %}
