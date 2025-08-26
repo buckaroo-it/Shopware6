@@ -105,3 +105,18 @@ namespace Buckaroo\Shopware6\Handlers
         }
     }
 }
+
+namespace Shopware\Core\Checkout\Cart\Event
+{
+    if (!class_exists(CheckoutOrderPlacedEvent::class)) {
+        class CheckoutOrderPlacedEvent
+        {
+            public function __construct(
+                \Shopware\Core\Framework\Context|\Shopware\Core\System\SalesChannel\SalesChannelContext $context,
+                \Shopware\Core\Checkout\Order\OrderEntity $order,
+                \Shopware\Core\Framework\Event\EventData\MailRecipientStruct|string|null $third = null
+            ) {
+            }
+        }
+    }
+}
