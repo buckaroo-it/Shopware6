@@ -15,8 +15,7 @@ class ClientInitException extends \Exception
         string $message = "Failed to initialize Buckaroo client",
         int $code = 0,
         \Throwable $previous = null
-    )
-    {
+    ) {
         parent::__construct($message, $code, $previous);
     }
 
@@ -54,8 +53,7 @@ class ClientInitException extends \Exception
     public static function authenticationFailed(
         string $reason = "Invalid credentials",
         \Throwable $previous = null
-    ): self
-    {
+    ): self {
         return new self("Authentication failed: {$reason}", 0, $previous);
     }
 }

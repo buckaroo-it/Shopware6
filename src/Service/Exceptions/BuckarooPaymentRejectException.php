@@ -15,8 +15,7 @@ class BuckarooPaymentRejectException extends \Exception
         string $message = "Payment was rejected by Buckaroo",
         int $code = 0,
         \Throwable $previous = null
-    )
-    {
+    ) {
         parent::__construct($message, $code, $previous);
     }
 
@@ -66,8 +65,7 @@ class BuckarooPaymentRejectException extends \Exception
     public static function fraudDetected(
         string $reason = "Fraud detection triggered",
         \Throwable $previous = null
-    ): self
-    {
+    ): self {
         return new self("Fraud detected: {$reason}", 0, $previous);
     }
 
@@ -81,8 +79,7 @@ class BuckarooPaymentRejectException extends \Exception
     public static function threeDSecureFailed(
         string $reason = "3D Secure authentication failed",
         \Throwable $previous = null
-    ): self
-    {
+    ): self {
         return new self("3D Secure failed: {$reason}", 0, $previous);
     }
 

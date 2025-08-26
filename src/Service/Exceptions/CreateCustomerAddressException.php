@@ -15,8 +15,7 @@ class CreateCustomerAddressException extends \Exception
         string $message = "Failed to create customer address",
         int $code = 0,
         \Throwable $previous = null
-    )
-    {
+    ) {
         parent::__construct($message, $code, $previous);
     }
 

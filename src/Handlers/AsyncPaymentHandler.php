@@ -551,8 +551,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         OrderTransactionEntity $orderTransaction,
         OrderEntity $order,
         RequestDataBag $dataBag
-    ): string
-    {
+    ): string {
         if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
             $finishUrl = (string)$dataBag->get('finishUrl');
             if (
@@ -586,8 +585,7 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         OrderTransactionEntity $orderTransaction,
         OrderEntity $order,
         DataBag $dataBag
-    ): string
-    {
+    ): string {
         return $this->asyncPaymentService
             ->urlService
             ->forwardToRoute(
