@@ -31,7 +31,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-
 class PaymentHandlerModern extends AbstractPaymentHandler
 {
     use \Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
@@ -126,7 +125,6 @@ class PaymentHandlerModern extends AbstractPaymentHandler
 
             if ($paymentCode === 'afterpay' && !$this->isAfterpayOld($salesChannelContext->getSalesChannelId())) {
                 $client->setServiceVersion(2);
-                
             }
 
       
@@ -262,14 +260,21 @@ class PaymentHandlerModern extends AbstractPaymentHandler
             'amountDebit'   => $this->getOrderTotalWithFee($order, $salesChannelId, $paymentCode),
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
             'returnURL'     => $returnUrl ?: $this->getDefaultReturnUrl($orderTransaction, $order, $dataBag),
-            'cancelURL'     => sprintf('%s&cancel=1', $returnUrl ?: $this->getDefaultReturnUrl($orderTransaction, $order, $dataBag)),
+            'cancelURL'     => sprintf(
+                '%s&cancel=1',
+                $returnUrl ?: $this->getDefaultReturnUrl($orderTransaction, $order, $dataBag)
+            ),
             'pushURL'       => $this->asyncPaymentService->urlService->getReturnUrl('buckaroo.payment.push'),
             'additionalParameters' => [
                 'orderTransactionId' => $orderTransaction->getId(),
                 'orderId' => $order->getId(),
                 'sw-context-token' => $salesChannelContext->getToken()
             ],
-            'description' => $this->asyncPaymentService->settingsService->getParsedLabel($order, $salesChannelId, 'transactionLabel'),
+            'description' => $this->asyncPaymentService->settingsService->getParsedLabel(
+                $order,
+                $salesChannelId,
+                'transactionLabel'
+            ),
             'clientIP' => $this->getIp(),
         ];
     }
@@ -371,7 +376,7 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         if ($response->hasRedirect()) {
             $this->handleRedirectResponse($orderTransaction);
             return new RedirectResponse($response->getRedirectUrl());
-        }   
+        }
         return $this->handlePaymentStatus($response, $orderTransaction, $salesChannelContext, $returnUrl, $paymentCode);
     }
 
@@ -476,7 +481,9 @@ class PaymentHandlerModern extends AbstractPaymentHandler
 
     protected function isUpdateOrder(RequestDataBag $bag): bool
     {
-        return $bag->has('errorUrl') && is_scalar($bag->get('errorUrl')) && strstr((string)$bag->get('errorUrl'), '/account/order/edit/') !== false;
+        return $bag->has('errorUrl') &&
+            is_scalar($bag->get('errorUrl')) &&
+            strstr((string)$bag->get('errorUrl'), '/account/order/edit/') !== false;
     }
 
     protected function getReturnUrl(
@@ -489,7 +496,10 @@ class PaymentHandlerModern extends AbstractPaymentHandler
             if (strpos($finishUrl, 'http://') === 0 || strpos($finishUrl, 'https://') === 0) {
                 return $finishUrl;
             }
-            return rtrim($this->asyncPaymentService->urlService->forwardToRoute('frontend.home.page', []), "/") . (string)$finishUrl;
+            return rtrim(
+                $this->asyncPaymentService->urlService->forwardToRoute('frontend.home.page', []),
+                "/"
+            ) . (string)$finishUrl;
         }
         return $this->getDefaultReturnUrl($orderTransaction, $order, $dataBag);
     }
@@ -499,8 +509,9 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         OrderEntity $order,
         DataBag $dataBag
     ): string {
-        return $this->asyncPaymentService->urlService->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $order->getId()]);
+        return $this->asyncPaymentService->urlService->forwardToRoute(
+            'frontend.checkout.finish.page',
+            ['orderId' => $order->getId()]
+        );
     }
 }
-
-

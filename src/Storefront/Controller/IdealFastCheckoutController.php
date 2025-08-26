@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,7 +31,7 @@ class IdealFastCheckoutController extends AbstractPaymentController
     private LoggerInterface $logger;
     private SalesChannelContextPersister $contextPersister;
     private SalesChannelContextService $contextService;
-    private RegisterRoute $registerRoute;
+    private AbstractRegisterRoute $registerRoute;
 
     /**
      * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
@@ -47,7 +47,7 @@ class IdealFastCheckoutController extends AbstractPaymentController
         LoggerInterface $logger,
         SalesChannelContextPersister $contextPersister,
         SalesChannelContextService $contextService,
-        RegisterRoute $registerRoute,
+        AbstractRegisterRoute $registerRoute,
         EntityRepository $salutationRepository
     ) {
         parent::__construct($cartService, $customerService, $orderService, $settingsService, $paymentMethodRepository);

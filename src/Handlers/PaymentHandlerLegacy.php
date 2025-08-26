@@ -452,5 +452,3 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         // Default no-op
     }
 }
-
-

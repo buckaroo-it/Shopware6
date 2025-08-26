@@ -7,7 +7,7 @@ namespace Buckaroo\Shopware6\Service;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
@@ -24,9 +24,9 @@ class CartService
     private CartCalculator $cartCalculator;
 
     /**
-     * @var CartPersister
+     * @var AbstractCartPersister
      */
-    private CartPersister $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
     /**
      * @var LineItemFactoryRegistry
