@@ -9,7 +9,7 @@ use Buckaroo\Shopware6\PaymentMethods\Giftcards;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class GiftcardsPaymentHandler extends AsyncPaymentHandler
+class GiftcardsPaymentHandler extends PaymentHandler
 {
     protected string $paymentClass = Giftcards::class;
 

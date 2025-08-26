@@ -189,7 +189,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="Psr\Log\LoggerInterface"/>
         </service>
-        <service id="Buckaroo\Shopware6\Handlers\AsyncPaymentHandler">
+        <service id="Buckaroo\Shopware6\Handlers\PaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method" />
         </service>

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 
-class IdealQrPaymentHandler extends AsyncPaymentHandler
+class IdealQrPaymentHandler extends PaymentHandler
 {
     public const IDEAL_QR_INVOICE_PREFIX = 'iQR';
 

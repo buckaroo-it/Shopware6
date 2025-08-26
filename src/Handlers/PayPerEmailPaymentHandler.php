@@ -11,7 +11,7 @@ use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class PayPerEmailPaymentHandler extends AsyncPaymentHandler
+class PayPerEmailPaymentHandler extends PaymentHandler
 {
     protected string $paymentClass = PayPerEmail::class;
 

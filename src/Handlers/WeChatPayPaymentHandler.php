@@ -6,11 +6,10 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\WeChatPay;
-use Buckaroo\Shopware6\Handlers\AsyncPaymentHandler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class WeChatPayPaymentHandler extends AsyncPaymentHandler
+class WeChatPayPaymentHandler extends PaymentHandler
 {
     protected string $paymentClass = WeChatPay::class;
 

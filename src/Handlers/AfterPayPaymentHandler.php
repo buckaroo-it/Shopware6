@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
-class AfterPayPaymentHandler extends AsyncPaymentHandler
+class AfterPayPaymentHandler extends PaymentHandler
 {
     protected string $paymentClass = AfterPay::class;
 
@@ -41,25 +41,44 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         parent::__construct($asyncPaymentService);
         $this->afterPayOld = $afterPayOld;
     }
-    /** @inheritDoc */
-    public function pay(
-        Request $request,
-        PaymentTransactionStruct $transaction,
-        Context $context,
-        ?Struct $validateStruct
-    ): ?RedirectResponse {
+    /**
+     * Inject pre-pay behavior into both cores via hooks.
+     */
+    protected function beforePayLegacy(
+        \Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct $transaction,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext
+    ): void {
+        $order = $transaction->getOrder();
+        if ($order instanceof OrderEntity) {
+            $salesChannelId = $order->getSalesChannelId();
+            if ($this->isAuthorization($salesChannelId)) {
+                $this->asyncPaymentService
+                    ->checkoutHelper
+                    ->appendCustomFields(
+                        $order->getId(),
+                        [
+                            CaptureService::ORDER_IS_AUTHORIZED => true,
+                        ],
+                        $salesChannelContext->getContext()
+                    );
+            }
+        }
+    }
 
+    protected function beforePayModern(
+        PaymentTransactionStruct $transaction,
+        RequestDataBag $dataBag,
+        Context $context
+    ): void {
         $transactionId = $transaction->getOrderTransactionId();
         $orderTransaction = $this->asyncPaymentService->getTransaction($transactionId, $context);
-
         if ($orderTransaction === null) {
-            return parent::pay($request, $transaction, $context, $validateStruct);
+            return;
         }
-        
         $order = $orderTransaction->getOrder();
         if ($order instanceof OrderEntity) {
             $salesChannelId = $order->getSalesChannelId();
-            
             if ($this->isAuthorization($salesChannelId)) {
                 $this->asyncPaymentService
                     ->checkoutHelper
@@ -72,8 +91,6 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
                     );
             }
         }
-
-        return parent::pay($request, $transaction, $context, $validateStruct);
     }
 
     /**

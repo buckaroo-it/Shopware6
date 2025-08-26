@@ -8,7 +8,6 @@ use Buckaroo\Shopware6\PaymentMethods\Paypal;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
-use Buckaroo\Shopware6\Handlers\AsyncPaymentHandler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -16,7 +15,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 
-class PaypalPaymentHandler extends AsyncPaymentHandler
+class PaypalPaymentHandler extends PaymentHandler
 {
     protected string $paymentClass = Paypal::class;
 

@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 
-class CreditcardPaymentHandler extends AsyncPaymentHandler
+class CreditcardPaymentHandler extends PaymentHandler
 {
     protected string $paymentClass = Creditcard::class;
 
@@ -35,40 +35,28 @@ class CreditcardPaymentHandler extends AsyncPaymentHandler
 
 
     /**
-     * @param Request $request
-     * @param PaymentTransactionStruct $transaction
-     * @param Context $context
-     * @param Struct|null $validateStruct
-     * @return RedirectResponse|null
-     * @throws PaymentException
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * Hook before modern pay; updates issuer in customer profile.
      */
-    public function pay(
-        Request $request,
+    protected function beforePayModern(
         PaymentTransactionStruct $transaction,
-        Context $context,
-        ?Struct $validateStruct
-    ): ?RedirectResponse {
-        $dataBag = new RequestDataBag($request->request->all());
-        
-        // Get the order to access sales channel context
+        RequestDataBag $dataBag,
+        Context $context
+    ): void {
         $transactionId = $transaction->getOrderTransactionId();
         $orderTransaction = $this->asyncPaymentService->getTransaction($transactionId, $context);
-        
-        if ($orderTransaction !== null) {
-            $order = $orderTransaction->getOrder();
-            if ($order instanceof OrderEntity) {
-                $contextToken = $request->get('sw-context-token', '');
-                $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext(
-                    $context,
-                    $order->getSalesChannelId(),
-                    is_string($contextToken) ? $contextToken : ''
-                );
-                $this->updateCustomerIssuer($dataBag, $salesChannelContext);
-            }
+        if ($orderTransaction === null) {
+            return;
         }
-        
-        return parent::pay($request, $transaction, $context, $validateStruct);
+        $order = $orderTransaction->getOrder();
+        if ($order instanceof OrderEntity) {
+            $contextToken = $dataBag->get('sw-context-token', '');
+            $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext(
+                $context,
+                $order->getSalesChannelId(),
+                is_string($contextToken) ? $contextToken : ''
+            );
+            $this->updateCustomerIssuer($dataBag, $salesChannelContext);
+        }
     }
 
 

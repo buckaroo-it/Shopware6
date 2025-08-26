@@ -42,16 +42,19 @@ class PaymentStateService
     }
 
     public function finalizePayment(
-        PaymentTransactionStruct  $transaction,
+        PaymentTransactionStruct|\Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct $transaction,
         Request $request,
-        Context $context
+        Context|\Shopware\Core\System\SalesChannel\SalesChannelContext $context
     ): void {
 
         try {
-            $this->handlePaymentFinalization($request, $transaction, $context);
+            $frameworkContext = $context instanceof \Shopware\Core\System\SalesChannel\SalesChannelContext
+                ? $context->getContext()
+                : $context;
+            $this->handlePaymentFinalization($request, $transaction, $frameworkContext);
         } catch (PaymentException $e) {
             $this->logger->error('Payment finalization failed', [
-                'transactionId' => $transaction->getOrderTransactionId(),
+                'transactionId' => $this->getTransactionId($transaction),
                 'error' => $e->getMessage(),
                 'statusCode' => $this->getPaymentStatusCode($request),
                 'paymentMethod' => $request->get('brq_payment_method')
@@ -62,18 +65,19 @@ class PaymentStateService
 
     private function handlePaymentFinalization(
         Request $request,
-        PaymentTransactionStruct $transaction,
+        PaymentTransactionStruct|\Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct $transaction,
         Context $context,
     ): void {
         if ($this->shouldCancelPayment($request)) {
             throw PaymentException::asyncProcessInterrupted(
-                $transaction->getOrderTransactionId(),
+                $this->getTransactionId($transaction),
                 $this->translator->trans('buckaroo.userCanceled'),
                 new \Exception($this->translator->trans('buckaroo.userCanceled'))
             );
         }
-        $availableTransitions = $this->getAvailableTransitions($transaction->getOrderTransactionId(), $context);
-        $this->processPaymentState($request, $availableTransitions, $transaction->getOrderTransactionId(), $context);
+        $txId = $this->getTransactionId($transaction);
+        $availableTransitions = $this->getAvailableTransitions($txId, $context);
+        $this->processPaymentState($request, $availableTransitions, $txId, $context);
     }
 
     private function shouldCancelPayment(Request $request): bool
@@ -212,6 +216,23 @@ class PaymentStateService
     {
         $statusCode = $request->get('brq_statuscode');
         return is_string($statusCode) ? $statusCode : null;
+    }
+
+    /**
+     * @param PaymentTransactionStruct|\Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct $transaction
+     */
+    private function getTransactionId($transaction): string
+    {
+        if (\is_object($transaction) && \method_exists($transaction, 'getOrderTransactionId')) {
+            return (string) $transaction->getOrderTransactionId();
+        }
+        if (\is_object($transaction) && \method_exists($transaction, 'getOrderTransaction')) {
+            $ot = $transaction->getOrderTransaction();
+            if (\is_object($ot) && \method_exists($ot, 'getId')) {
+                return (string) $ot->getId();
+            }
+        }
+        return '';
     }
 
     /**

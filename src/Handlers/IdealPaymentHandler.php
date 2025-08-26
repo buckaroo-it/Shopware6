@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class IdealPaymentHandler extends AsyncPaymentHandler
+class IdealPaymentHandler extends PaymentHandler
 {
     protected string $paymentClass = Ideal::class;
 
