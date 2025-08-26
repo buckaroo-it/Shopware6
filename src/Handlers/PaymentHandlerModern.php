@@ -8,8 +8,6 @@ use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\PaymentMethods\AbstractPayment;
 use Buckaroo\Shopware6\Buckaroo\Client;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
-use Buckaroo\Shopware6\Events\AfterPaymentRequestEvent;
-use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Buckaroo\Shopware6\Service\Exceptions\BuckarooPaymentRejectException;
 use Buckaroo\Shopware6\Service\Exceptions\ClientInitException;
@@ -19,7 +17,6 @@ use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Context;
@@ -54,7 +51,7 @@ class PaymentHandlerModern extends AbstractPaymentHandler
     }
 
     public function supports(
-        PaymentHandlerType $type,
+        mixed $type,
         string $paymentMethodId,
         Context $context
     ): bool {

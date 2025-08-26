@@ -55,7 +55,7 @@ class CartService
      */
     public function __construct(
         CartCalculator $cartCalculator,
-        CartPersister $cartPersister,
+        AbstractCartPersister $cartPersister,
         LineItemFactoryRegistry $lineItemFactory,
         EventDispatcherInterface $eventDispatcher
     ) {
