@@ -63,7 +63,11 @@ class RiveryProductImageUrlService
         /** @var \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity */
         $thumbnail = $this->thumbnailRepository->search($criteria, $context)->first();
 
-        if ($this->legacyGenerator !== null && \is_object($this->legacyGenerator) && \method_exists($this->legacyGenerator, 'getAbsoluteThumbnailUrl')) {
+        if (
+            $this->legacyGenerator !== null &&
+            \is_object($this->legacyGenerator) &&
+            \method_exists($this->legacyGenerator, 'getAbsoluteThumbnailUrl')
+        ) {
             return $this->legacyGenerator->getAbsoluteThumbnailUrl($media, $thumbnail);
         }
         return $thumbnail ? $thumbnail->getUrl() : null;

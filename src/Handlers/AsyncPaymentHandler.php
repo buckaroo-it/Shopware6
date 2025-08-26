@@ -60,8 +60,6 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
         string $paymentMethodId,
         Context $context
     ): bool {
-        // Since PaymentHandlerType only has RECURRING and REFUND, 
-        // we'll support all types for now as this is a custom payment handler
         return true;
     }
     public function pay(
@@ -549,7 +547,11 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
      *
      * @return string
      */
-    protected function getReturnUrl(OrderTransactionEntity $orderTransaction, OrderEntity $order, RequestDataBag $dataBag): string
+    protected function getReturnUrl(
+        OrderTransactionEntity $orderTransaction,
+        OrderEntity $order,
+        RequestDataBag $dataBag
+    ): string
     {
         if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
             $finishUrl = (string)$dataBag->get('finishUrl');
@@ -580,7 +582,11 @@ class AsyncPaymentHandler extends AbstractPaymentHandler
      *
      * @return string
      */
-    protected function getDefaultReturnUrl(OrderTransactionEntity $orderTransaction, OrderEntity $order, DataBag $dataBag): string
+    protected function getDefaultReturnUrl(
+        OrderTransactionEntity $orderTransaction,
+        OrderEntity $order,
+        DataBag $dataBag
+    ): string
     {
         return $this->asyncPaymentService
             ->urlService

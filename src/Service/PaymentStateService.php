@@ -109,11 +109,19 @@ class PaymentStateService
         $errorMessage = $this->getStatusMessageByStatusCode($request);
         
         if ($this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)) {
-            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage, new \Exception($errorMessage));
+            throw PaymentException::asyncProcessInterrupted(
+                $transactionId,
+                $errorMessage,
+                new \Exception($errorMessage)
+            );
         }
 
         if ($this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_CANCEL)) {
-            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage, new \Exception($errorMessage));
+            throw PaymentException::asyncProcessInterrupted(
+                $transactionId,
+                $errorMessage,
+                new \Exception($errorMessage)
+            );
         }
     }
 
