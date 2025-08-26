@@ -38,9 +38,8 @@ class CancelPaymentService
     /**
      * Do a refund on hanging giftcards
      *
-     * @param PaymentTransactionStruct
- $transactionStruct
-     *
+     * @param PaymentTransactionStruct $transactionStruct
+     * @param OrderEntity $order
      * @return void
      */
     public function cancel(

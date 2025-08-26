@@ -49,18 +49,28 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         ?Struct $validateStruct
     ): ?RedirectResponse {
 
-        $salesChannelContext = $request->get('sw-sales-channel-context');
+        $transactionId = $transaction->getOrderTransactionId();
+        $orderTransaction = $this->asyncPaymentService->getTransaction($transactionId, $context);
 
-        if ($this->isAuthorization($salesChannelContext->getSalesChannelId())) {
-            $this->asyncPaymentService
-                ->checkoutHelper
-                ->appendCustomFields(
-                    $transaction->getOrder()->getId(),
-                    [
-                        CaptureService::ORDER_IS_AUTHORIZED => true,
-                    ],
-                    $context
-                );
+        if ($orderTransaction === null) {
+            return parent::pay($request, $transaction, $context, $validateStruct);
+        }
+        
+        $order = $orderTransaction->getOrder();
+        if ($order instanceof OrderEntity) {
+            $salesChannelId = $order->getSalesChannelId();
+            
+            if ($this->isAuthorization($salesChannelId)) {
+                $this->asyncPaymentService
+                    ->checkoutHelper
+                    ->appendCustomFields(
+                        $order->getId(),
+                        [
+                            CaptureService::ORDER_IS_AUTHORIZED => true,
+                        ],
+                        $context
+                    );
+            }
         }
 
         return parent::pay($request, $transaction, $context, $validateStruct);

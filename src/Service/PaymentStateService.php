@@ -10,13 +10,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
-use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Psr\Log\LoggerInterface;
 
 class PaymentStateService
@@ -68,7 +68,8 @@ class PaymentStateService
         if ($this->shouldCancelPayment($request)) {
             throw PaymentException::asyncProcessInterrupted(
                 $transaction->getOrderTransactionId(),
-                $this->translator->trans('buckaroo.userCanceled')
+                $this->translator->trans('buckaroo.userCanceled'),
+                new \Exception($this->translator->trans('buckaroo.userCanceled'))
             );
         }
         $availableTransitions = $this->getAvailableTransitions($transaction->getOrderTransactionId(), $context);
@@ -108,29 +109,15 @@ class PaymentStateService
         $errorMessage = $this->getStatusMessageByStatusCode($request);
         
         if ($this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_FAIL)) {
-            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage);
+            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage, new \Exception($errorMessage));
         }
 
         if ($this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_CANCEL)) {
-            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage);
+            throw PaymentException::asyncProcessInterrupted($transactionId, $errorMessage, new \Exception($errorMessage));
         }
     }
 
-    private function loginCustomer(?string $customerId, SalesChannelContext $salesChannelContext): void
-    {
-        if ($customerId === null) {
-            return;
-        }
-
-        try {
-            $this->accountService->loginById($customerId, $salesChannelContext);
-        } catch (\Throwable $e) {
-            $this->logger->warning('Failed to login customer', [
-                'customerId' => $customerId,
-                'error' => $e->getMessage()
-            ]);
-        }
-    }
+    
 
     /**
      * Check if its a canceled group transaction

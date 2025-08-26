@@ -25,9 +25,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
 use Buckaroo\Shopware6\Events\PushPaymentStateChangeEvent;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Buckaroo\Shopware6\Service\OrderService;
 use Buckaroo\Shopware6\Service\CustomerService;
@@ -352,10 +349,7 @@ class PushController extends StorefrontController
                         );
                     }
                 }
-            } catch (
-                InconsistentCriteriaIdsException | IllegalTransitionException | StateMachineNotFoundException
-                | StateMachineStateNotFoundException $exception
-            ) {
+            } catch (\Throwable $exception) {
                 $this->logger->info(__METHOD__ . "|55|");
                 throw PaymentException::asyncProcessInterrupted(
                     $orderTransactionId,

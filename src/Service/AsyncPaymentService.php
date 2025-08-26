@@ -26,6 +26,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class AsyncPaymentService
@@ -43,8 +44,7 @@ class AsyncPaymentService
         protected EventDispatcherInterface $eventDispatcher,
         protected CancelPaymentService $cancelPaymentService,
         protected EntityRepository $orderTransactionRepository,
-        protected SalesChannelContextService $salesChannelContextService,
-        private PaymentServiceDecorator $paymentServiceDecorator
+        protected SalesChannelContextService $salesChannelContextService
     ) {
     }
 
@@ -52,11 +52,11 @@ class AsyncPaymentService
 
     public function getSalesChannelContext(Context $context, string $salesChannelId, string $token): SalesChannelContext
     {
-        return $this->salesChannelContextService->get(
+        $params = new SalesChannelContextServiceParameters(
             $salesChannelId,
-            $token,
-            $context
+            $token
         );
+        return $this->salesChannelContextService->get($params);
     }
     public function getCustomer(OrderEntity $order): OrderCustomerEntity
     {
@@ -84,7 +84,7 @@ class AsyncPaymentService
             throw new \InvalidArgumentException('Deliveries cannot be null');
         }
 
-        $address = $deliveries->getShippingAddress()?->first();
+        $address = $deliveries->getShippingAddress()->first();
         if ($address === null) {
             $address = $this->getBillingAddress($order);
         }
@@ -121,7 +121,8 @@ class AsyncPaymentService
 
     public function isMobile(Request $request): bool
     {
-        $useragent = $request->server->get('HTTP_USER_AGENT') ?? '';
+        $ua = $request->server->get('HTTP_USER_AGENT');
+        $useragent = is_string($ua) ? $ua : '';
         $mobilePattern1 = '/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|' .
             'hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|' .
             'palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|' .
@@ -148,8 +149,8 @@ class AsyncPaymentService
             'veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|' .
             'w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i';
 
-        return preg_match($mobilePattern1, (string) $useragent) ||
-            preg_match($mobilePattern2, substr((string) $useragent, 0, 4)) === 1;
+        return preg_match($mobilePattern1, $useragent) === 1 ||
+            preg_match($mobilePattern2, substr($useragent, 0, 4)) === 1;
     }
     public function cancelPreviousPayments(PaymentTransactionStruct $transaction, OrderEntity $order): void
     {
@@ -157,8 +158,8 @@ class AsyncPaymentService
             $this->cancelPaymentService->cancel($transaction, $order);
         } catch (\Throwable $th) {
             $this->logger->error('Failed to cancel previous payments: ' . $th->getMessage(), [
-                'transactionId' => $transaction->getOrderTransaction()->getId(),
-                'orderId' => $transaction->getOrder()->getId(),
+                'transactionId' => $transaction->getOrderTransactionId(),
+                'orderId' => $order->getId(),
                 'exception' => $th
             ]);
         }

@@ -50,7 +50,24 @@ class CreditcardPaymentHandler extends AsyncPaymentHandler
         ?Struct $validateStruct
     ): ?RedirectResponse {
         $dataBag = new RequestDataBag($request->request->all());
-        $this->updateCustomerIssuer($dataBag, $this->asyncPaymentService->getSalesChannelContext($context));
+        
+        // Get the order to access sales channel context
+        $transactionId = $transaction->getOrderTransactionId();
+        $orderTransaction = $this->asyncPaymentService->getTransaction($transactionId, $context);
+        
+        if ($orderTransaction !== null) {
+            $order = $orderTransaction->getOrder();
+            if ($order instanceof OrderEntity) {
+                $contextToken = $request->get('sw-context-token', '');
+                $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext(
+                    $context,
+                    $order->getSalesChannelId(),
+                    is_string($contextToken) ? $contextToken : ''
+                );
+                $this->updateCustomerIssuer($dataBag, $salesChannelContext);
+            }
+        }
+        
         return parent::pay($request, $transaction, $context, $validateStruct);
     }
 

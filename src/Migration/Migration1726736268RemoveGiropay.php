@@ -3,13 +3,11 @@
 namespace Buckaroo\Shopware6\Migration;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
  */
-#[Package('core')]
 class Migration1726736268RemoveGiropay extends MigrationStep
 {
     public const HANDLER_IDENTIFIER = 'Buckaroo\\Shopware6\\Handlers\\GiropayPaymentHandler';

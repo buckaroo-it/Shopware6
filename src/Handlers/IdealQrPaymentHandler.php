@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Handlers;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Buckaroo\Shopware6\PaymentMethods\IdealQr;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -38,7 +39,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
     /**
      * Override parameters common, remove invoice field
      *
-     * @param mixed $orderTransaction
+     * @param OrderTransactionEntity $orderTransaction
      * @param OrderEntity $order
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
@@ -48,7 +49,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
      * @return array<mixed>
      */
     protected function getCommonRequestPayload(
-        $orderTransaction,
+        OrderTransactionEntity $orderTransaction,
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -118,8 +119,8 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
 
     protected function handleResponse(
         ClientResponseInterface $response,
-        $orderTransaction,
-        $order,
+        OrderTransactionEntity $orderTransaction,
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
@@ -164,7 +165,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
     }
 
     private function createIdealQrOrder(
-        $orderTransaction,
+        OrderTransactionEntity $orderTransaction,
         OrderEntity $order,
         SalesChannelContext $salesChannelContext
     ): void {

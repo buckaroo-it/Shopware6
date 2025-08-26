@@ -77,7 +77,8 @@ class OrderService
             return null;
         }
 
-        $transaction = $order->getTransactions()->last(); // or first(), depending on your setup
+        $transactions = $order->getTransactions();
+        $transaction = $transactions !== null ? $transactions->last() : null; // or first(), depending on your setup
         $paymentMethodId = $transaction?->getPaymentMethod()?->getId();
         $paymentMethodName = $transaction?->getPaymentMethod()?->getName();
 
@@ -124,10 +125,11 @@ class OrderService
             $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
         }
 
-        return $this->orderRepository->search(
+        $entity = $this->orderRepository->search(
             $criteria,
             $context
         )->first();
+        return $entity instanceof OrderEntity ? $entity : null;
     }
 
     public function setSaleChannelContext(SalesChannelContext $salesChannelContext): self

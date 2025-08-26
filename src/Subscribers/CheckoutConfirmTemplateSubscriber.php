@@ -31,7 +31,6 @@ use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 {
@@ -93,7 +92,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            AccountPaymentMethodPageLoadedEvent::class => 'hideNotEnabledPaymentMethods',
+            // Removed to avoid missing symbol in some Shopware versions
             AccountEditOrderPageLoadedEvent::class     => 'addBuckarooExtension',
             CheckoutConfirmPageLoadedEvent::class      => 'addBuckarooExtension',
             ProductPageLoadedEvent::class              => 'addBuckarooToProductPage',
@@ -117,7 +116,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         return $translation['customFields']['buckaroo_key'];
     }
     /**
-     * @param AccountEditOrderPageLoadedEvent|AccountPaymentMethodPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
+     * @param AccountEditOrderPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
      */
     public function hideNotEnabledPaymentMethods($event): void
     {
@@ -615,7 +614,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     /**
      * Check if we can display afterpay when b2b is enabled
      *
-     * @param AccountEditOrderPageLoadedEvent|AccountPaymentMethodPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
+     * @param AccountEditOrderPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
      *
      * @return boolean
      */

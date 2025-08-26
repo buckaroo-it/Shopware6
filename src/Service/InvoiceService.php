@@ -196,14 +196,15 @@ class InvoiceService
      * @param Context $context
      *
      * @return array<mixed>
-     * @throws InvalidDocumentException
+     * @throws \Throwable
      */
     private function getDocument(string $documentId, Context $context): array
     {
         $document = $this->documentGenerator->readDocument($documentId, $context);
 
         if ($document === null) {
-            throw new InvalidDocumentException($documentId);
+            // Fallback to generic exception to avoid phpstan missing class errors across versions
+            throw new \RuntimeException('Invalid document: ' . $documentId);
         }
 
         return [
