@@ -383,8 +383,16 @@ class PushController extends StorefrontController
                 $this->logger->info(__METHOD__ . '|Push ignored because order is already paid');
                 return $this->response('buckaroo.messages.skippedPush');
             }
-
-            $this->setPaymentState("fail", $orderTransactionId, $salesChannelContext, $request);
+            if ($this->stateTransitionService->canTransitionStatus('fail', $orderTransactionId, $context)) {
+                $this->setPaymentState("fail", $orderTransactionId, $salesChannelContext, $request);
+            } elseif ($this->stateTransitionService->canTransitionStatus('cancelled', $orderTransactionId, $context)) {
+                $this->setPaymentState("cancelled", $orderTransactionId, $salesChannelContext, $request);
+            } else {
+                $this->logger->warning(__METHOD__ . '|Illegal transition prevented for failure push', [
+                    'orderTransactionId' => $orderTransactionId
+                ]);
+                return $this->response('buckaroo.messages.skippedPush');
+            }
 
             $paymentSuccesStatus = $this->getCancelOpenOrderSetting($salesChannelId);
             
@@ -463,7 +471,14 @@ class PushController extends StorefrontController
                 ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
             ]
         )) {
-            $orderStatus = "fail";
+            // Only set fail if transition is available; otherwise keep null and let caller decide
+            if ($this->stateTransitionService->canTransitionStatus('fail', $orderTransactionId, $salesChannelContext->getContext())) {
+                $orderStatus = "fail";
+            } elseif ($this->stateTransitionService->canTransitionStatus('cancelled', $orderTransactionId, $salesChannelContext->getContext())) {
+                $orderStatus = "cancelled";
+            } else {
+                $orderStatus = null;
+            }
         }
 
         if ($orderStatus !== null) {
