@@ -199,7 +199,7 @@
             <tag name="shopware.payment.method" />
         </service>
 
-        <service id="Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler">
+        <service id="Buckaroo\Shopware6\Handlers\Payments\Modern\IdealQrPaymentHandlerModern">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <argument type="service" id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository"/>
             <tag name="shopware.payment.method" />
@@ -233,7 +233,7 @@
         </service>
 
 
-        <service id="Buckaroo\Shopware6\Handlers\PaypalPaymentHandler">
+        <service id="Buckaroo\Shopware6\Handlers\Payments\Modern\PaypalPaymentHandlerModern">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData" />
             <tag name="shopware.payment.method" />

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\PaypalPaymentHandler;
+use Buckaroo\Shopware6\Handlers\Payments\Modern\PaypalPaymentHandlerModern;
 
 class Paypal extends AbstractPayment
 {
@@ -53,7 +53,7 @@ class Paypal extends AbstractPayment
      */
     public function getPaymentHandler(): string
     {
-        return PaypalPaymentHandler::class;
+        return PaypalPaymentHandlerModern::class;
     }
 
     /**

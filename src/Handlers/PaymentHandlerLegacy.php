@@ -31,7 +31,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
     protected string $paymentClass;
     protected FormatRequestParamService $formatRequestParamService;
 
-    public function __construct(private AsyncPaymentService $asyncPaymentService)
+    public function __construct(protected AsyncPaymentService $asyncPaymentService)
     {
         $this->formatRequestParamService = $this->asyncPaymentService->formatRequestParamService;
     }

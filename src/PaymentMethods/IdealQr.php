@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler;
+use Buckaroo\Shopware6\Handlers\Payments\Modern\IdealQrPaymentHandlerModern;
 
 class IdealQr extends AbstractPayment
 {
@@ -51,7 +51,7 @@ class IdealQr extends AbstractPayment
      */
     public function getPaymentHandler(): string
     {
-        return IdealQrPaymentHandler::class;
+        return IdealQrPaymentHandlerModern::class;
     }
 
     /**
