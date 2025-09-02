@@ -9,7 +9,7 @@ use Buckaroo\Shopware6\Handlers\In3PaymentHandler;
 class In3 extends AbstractPayment
 {
 
-    public const DEFAULT_NAME = 'iDEAL In3';
+    public const DEFAULT_NAME = 'In3';
     public const V2_NAME = 'In3';
     /*
      * @return string
@@ -36,7 +36,7 @@ class In3 extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with iDEAL In3';
+        return 'Pay with In3';
     }
 
     /**
@@ -66,7 +66,7 @@ class In3 extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/in3-ideal.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/in3.svg';
     }
 
     /**
@@ -79,7 +79,7 @@ class In3 extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit iDEAL In3',
+                'description' => 'Bezahlen mit In3',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),

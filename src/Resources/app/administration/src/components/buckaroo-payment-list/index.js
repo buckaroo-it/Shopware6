@@ -76,7 +76,7 @@ Component.register("buckaroo-payment-list", {
                 },
                 {
                     code: "capayable",
-                    logo: "ideal-in3.svg"
+                    logo: "in3.svg"
                 },
                 {
                     code: "KBCPaymentButton",
