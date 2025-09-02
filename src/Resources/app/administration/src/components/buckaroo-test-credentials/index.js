@@ -3,6 +3,9 @@ import template from "./buckaroo-test-credentials.twig";
 
 Component.register("buckaroo-test-credentials", {
     template,
+    mixins: [
+        Shopware.Mixin.getByName('notification')
+    ],
     data() {
         return {
             isLoading: false,
@@ -38,14 +41,12 @@ Component.register("buckaroo-test-credentials", {
                     this.isLoading = false;
 
                     if (result.status == 'success') {
-                        this.$store.dispatch('notification/createNotification', {
-                            variant: 'success',
+                        this.createNotificationSuccess({
                             title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
                             message: this.$tc(result.message)
                         });
                     } else {
-                        this.$store.dispatch('notification/createNotification', {
-                            variant: 'error',
+                        this.createNotificationError({
                             title: this.$tc('buckaroo-payment.settingsForm.titleError'),
                             message: this.$tc(result.message)
                         });

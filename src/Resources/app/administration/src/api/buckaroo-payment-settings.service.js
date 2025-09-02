@@ -10,7 +10,6 @@ class BuckarooPaymentSettingsService extends ApiService {
         if (this.loginService && typeof this.loginService.getToken === 'function') {
             return super.getBasicHeaders();
         }
-
         return {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -87,6 +86,8 @@ class BuckarooPaymentSettingsService extends ApiService {
 
 Shopware.Service().register('BuckarooPaymentSettingsService', () => {
     const initContainer = Shopware.Application.getContainer('init');
-    return new BuckarooPaymentSettingsService(initContainer.httpClient, initContainer.loginService || null);
+    // Ensure we use the global loginService which always exists in admin
+    const loginService = Shopware.Service('loginService');
+    return new BuckarooPaymentSettingsService(initContainer.httpClient, loginService);
 });
 
