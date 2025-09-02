@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
+trait PaymentHandlerLegacy
 {
     use \Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
 
@@ -153,6 +153,16 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         }
 
         return $this->handlePaymentStatus($response, $transaction, $salesChannelContext, $returnUrl, $paymentCode);
+    }
+
+    protected function handleResponseLegacy(
+        ClientResponseInterface $response,
+        AsyncPaymentTransactionStruct $transaction,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): RedirectResponse {
+        return $this->handleResponse($response, $transaction, $dataBag, $salesChannelContext, $paymentCode);
     }
 
     private function storeTransactionInfo(

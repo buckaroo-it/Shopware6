@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class PaymentHandlerModern extends AbstractPaymentHandler
+trait PaymentHandlerModern
 {
     use \Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
     
@@ -375,6 +375,17 @@ class PaymentHandlerModern extends AbstractPaymentHandler
             return new RedirectResponse($response->getRedirectUrl());
         }
         return $this->handlePaymentStatus($response, $orderTransaction, $salesChannelContext, $returnUrl, $paymentCode);
+    }
+
+    protected function handleResponseModern(
+        ClientResponseInterface $response,
+        OrderTransactionEntity $orderTransaction,
+        OrderEntity $order,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): RedirectResponse {
+        return $this->handleResponse($response, $orderTransaction, $order, $dataBag, $salesChannelContext, $paymentCode);
     }
 
     private function storeTransactionInfo(
