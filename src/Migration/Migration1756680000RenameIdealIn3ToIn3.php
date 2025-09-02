@@ -46,5 +46,3 @@ class Migration1756680000RenameIdealIn3ToIn3 extends MigrationStep
         // no-op
     }
 }
-
-
