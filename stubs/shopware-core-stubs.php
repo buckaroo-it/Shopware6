@@ -97,14 +97,7 @@ namespace Shopware\Core\Checkout\Payment
     }
 }
 
-namespace Buckaroo\Shopware6\Handlers
-{
-    if (!class_exists(PaymentHandler::class)) {
-        class PaymentHandler extends PaymentHandlerModern
-        {
-        }
-    }
-}
+
 
 namespace Shopware\Core\Checkout\Cart\Event
 {
