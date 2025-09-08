@@ -206,8 +206,10 @@ class In3PaymentHandler extends AsyncPaymentHandler
             'country'     => $this->asyncPaymentService->getCountry($address)->getIso()
         ];
 
-        if (strlen($streetData['number_addition']) > 0) {
+        if (isset($streetData['number_addition']) && strlen($streetData['number_addition']) > 0) {
             $data['houseNumberAdditional'] = $streetData['number_addition'];
+        } elseif ($address->getAdditionalAddressLine2() !== null && strlen($address->getAdditionalAddressLine2()) > 0) {
+            $data['houseNumberAdditional'] = $address->getAdditionalAddressLine2();
         }
 
         return $data;
