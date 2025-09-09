@@ -231,7 +231,7 @@ class CheckoutHelper
      *
      * @return mixed
      */
-    public function getSettingsValue(string $value, string $salesChannelId = null)
+    public function getSettingsValue(string $value, ?string $salesChannelId = null)
     {
         return $this->settingsService->getSetting($value, $salesChannelId);
     }

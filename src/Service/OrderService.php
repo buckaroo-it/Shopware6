@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -35,18 +36,22 @@ class OrderService
 
     protected PaymentProcessor $paymentProcessor;
 
+    protected LoggerInterface $logger;
+
     public function __construct(
         OrderPersisterInterface $orderPersister,
         EntityRepository $orderRepository,
         EventDispatcherInterface $eventDispatcher,
         PaymentProcessor $paymentProcessor,
-        EntityRepository $orderAddressRepository
+        EntityRepository $orderAddressRepository,
+        LoggerInterface $logger
     ) {
         $this->orderPersister = $orderPersister;
         $this->orderRepository = $orderRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->paymentProcessor = $paymentProcessor;
         $this->orderAddressRepository = $orderAddressRepository;
+        $this->logger = $logger;
     }
 
     public function place(OrderEntity $orderEntity, RequestDataBag $data): ?string
@@ -95,9 +100,17 @@ class OrderService
 
             return $response instanceof RedirectResponse ? $response->getTargetUrl() : null;
         } catch (\Throwable $e) {
-            var_dump('Payment Error:', $e->getMessage());
-            var_dump('Trace:', $e->getTraceAsString());
-            die();
+            // Log the error with context for debugging without exposing to users
+            $this->logger->error('Payment processing failed', [
+                'orderId' => $orderId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'paymentMethodId' => $paymentMethodId ?? 'unknown',
+                'paymentMethodName' => $paymentMethodName ?? 'unknown'
+            ]);
+            
+            // Return null to indicate payment failure - let calling code handle the response
+            return null;
         }
     }
 

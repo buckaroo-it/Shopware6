@@ -219,7 +219,7 @@ class PaymentHandlerModernRefactored extends AbstractPaymentHandler
      * @param string|null $salesChannelId
      * @return mixed
      */
-    protected function getSetting(string $key, string $salesChannelId = null)
+    protected function getSetting(string $key, ?string $salesChannelId = null)
     {
         return $this->asyncPaymentService->settingsService->getSetting($key, $salesChannelId);
     }

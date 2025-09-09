@@ -23,6 +23,7 @@ class TransactionService
         $this->transactionRepository = $transactionRepository;
     }
     /**
+     * Save transaction data to custom fields
      *
      * @param string $orderTransactionId
      * @param Context $context
@@ -44,22 +45,24 @@ class TransactionService
         $customFields = $orderTransaction->getCustomFields() ?? [];
         $customFields = array_merge($customFields, $data);
 
-        $this->updateTransactionCustomFields($orderTransactionId, $customFields);
+        $this->updateTransactionCustomFields($orderTransactionId, $customFields, $context);
     }
     /**
+     * Update transaction custom fields using the provided context
      *
      * @param string $orderTransactionId
      * @param array<mixed> $customFields
+     * @param Context $context The context to use for the update operation
      *
      * @return void
      */
-    public function updateTransactionCustomFields(string $orderTransactionId, array $customFields): void
+    public function updateTransactionCustomFields(string $orderTransactionId, array $customFields, Context $context): void
     {
         $data = [
             'id'           => $orderTransactionId,
             'customFields' => $customFields,
         ];
-        $this->transactionRepository->update([$data], Context::createDefaultContext());
+        $this->transactionRepository->update([$data], $context);
     }
 
     /**

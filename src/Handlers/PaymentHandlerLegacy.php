@@ -174,7 +174,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         $this->asyncPaymentService->transactionService
             ->updateTransactionCustomFields($transaction->getOrderTransaction()->getId(), [
                 'originalTransactionKey' => $response->getTransactionKey()
-            ]);
+            ], $salesChannelContext->getContext());
 
         $this->applyFeeToOrder($transaction, $salesChannelContext, $paymentCode);
     }

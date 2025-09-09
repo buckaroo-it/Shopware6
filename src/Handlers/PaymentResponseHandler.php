@@ -70,7 +70,7 @@ class PaymentResponseHandler
         
         $this->asyncPaymentService->transactionService->updateTransactionCustomFields($orderTransaction->getId(), [
             'originalTransactionKey' => $response->getTransactionKey()
-        ]);
+        ], $salesChannelContext->getContext());
         
         $this->applyFeeToOrder($orderTransaction, $order, $salesChannelContext, $paymentCode);
     }

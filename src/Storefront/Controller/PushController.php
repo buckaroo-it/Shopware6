@@ -286,7 +286,7 @@ class PushController extends StorefrontController
                 if ($lastTransactionId) {
                     $this->transactionService->updateTransactionCustomFields($lastTransactionId, [
                         'originalTransactionKey'    => $originalTransactionKey
-                    ]);
+                    ], $context);
                 }
                 
 
@@ -549,7 +549,7 @@ class PushController extends StorefrontController
 
         $this->logger->info(__METHOD__ . "|pushHash|" . $pushHash);
         $customFields['pushHash'] = $calculated;
-        $this->transactionService->updateTransactionCustomFields($orderTransactionId, $customFields);
+        $this->transactionService->updateTransactionCustomFields($orderTransactionId, $customFields, $context);
         if ($pushHash == $calculated) {
             $this->logger->info(__METHOD__ . "|pushHash == calculated|");
             return false;
