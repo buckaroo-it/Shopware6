@@ -185,12 +185,12 @@ class PaymentStateService
     private function isPayPalPending(Request $request): bool
     {
         return $request->get('brq_payment_method') === 'paypal' &&
-            $request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING;
+            $this->isStatusCodeEqual($request, ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING);
     }
 
     private function isPendingPaymentRequest(Request $request): bool
     {
-        return $request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING;
+        return $this->isStatusCodeEqual($request, ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING);
     }
 
     private function isFailedPaymentRequest(Request $request): bool
@@ -209,7 +209,7 @@ class PaymentStateService
 
     private function isCanceledPaymentRequest(Request $request): bool
     {
-        return $request->get('brq_statuscode') == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
+        return $this->isStatusCodeEqual($request, ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER);
     }
 
     private function getPaymentStatusCode(Request $request): ?string
@@ -269,5 +269,25 @@ class PaymentStateService
         return isset($errorMessages[$statusCode])
             ? $this->translator->trans($errorMessages[$statusCode])
             : '';
+    }
+
+    /**
+     * Safely compare request status code with expected value using proper type validation
+     * 
+     * @param Request $request The HTTP request object
+     * @param string $expectedStatusCode The expected status code constant
+     * @return bool True if status codes match, false otherwise
+     */
+    private function isStatusCodeEqual(Request $request, string $expectedStatusCode): bool
+    {
+        $statusCode = $request->get('brq_statuscode');
+        
+        // Ensure we have a string value to prevent type juggling attacks
+        if (!is_string($statusCode)) {
+            return false;
+        }
+        
+        // Use strict comparison to prevent type coercion issues
+        return $statusCode === $expectedStatusCode;
     }
 }

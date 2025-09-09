@@ -437,14 +437,16 @@ class RefundService
             ];
         }
 
-        if ($customFields['canRefund'] == 0) {
+        // Check if refund is supported with proper existence check and strict comparison
+        if (!isset($customFields['canRefund']) || $customFields['canRefund'] === 0 || $customFields['canRefund'] === '0' || $customFields['canRefund'] === false) {
             return [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.refund.not_supported")
             ];
         }
 
-        if (!empty($customFields['refunded']) && ($customFields['refunded'] == 1)) {
+        // Check if already refunded with proper existence check and strict comparison
+        if (isset($customFields['refunded']) && ($customFields['refunded'] === 1 || $customFields['refunded'] === '1' || $customFields['refunded'] === true)) {
             return [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.refund.already_refunded")

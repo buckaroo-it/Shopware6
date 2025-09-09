@@ -173,7 +173,7 @@ class PayLinkService
             'merchantSendsEmail'    => true,
             'paymentMethodsAllowed' => $this->getPayPerEmailPaymentMethodsAllowed($salesChannelId),
             'customer'              => [
-                'gender'        => $salutation->getSalutationKey() == 'mr' ? 1 : 2,
+                'gender'        => $this->determineGender($salutation->getSalutationKey()),
                 'firstName'     => $customer->getFirstName(),
                 'lastName'      => $customer->getLastName()
             ],
@@ -286,5 +286,25 @@ class PayLinkService
             return join(',', $payperemailAllowed);
         }
         return '';
+    }
+
+    /**
+     * Determine customer gender from salutation key with proper type safety
+     * 
+     * @param mixed $salutationKey The salutation key from customer data
+     * @return int 1 for male (mr), 2 for female/other
+     */
+    private function determineGender($salutationKey): int
+    {
+        // Ensure we have a string and handle null/non-string values safely
+        if (!is_string($salutationKey)) {
+            return 2; // Default to female/other for non-string values
+        }
+        
+        // Trim whitespace and convert to lowercase for reliable comparison
+        $normalizedKey = trim(strtolower($salutationKey));
+        
+        // Use strict comparison to prevent type juggling issues
+        return $normalizedKey === 'mr' ? 1 : 2;
     }
 }
