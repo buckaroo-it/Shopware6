@@ -292,7 +292,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'applepayHostedPaymentPage' =>
-                $this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId) === 1,
+                $this->getSettingAsBool('applepayHostedPaymentPage', $salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'canShowPhone'          => $this->canShowPhone($customer),
@@ -300,7 +300,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'countryBillingIso'     => $this->getCountryBillingIso($customer),
             'countryShippingIso'    => $this->getCountryShippingIso($customer),
             'validHouseNumbers'     => $this->areValidHouseNumbers($event),
-            'afterpayOld' => $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true,
+            'afterpayOld' => $this->getSettingAsBool('afterpayEnabledold', $salesChannelId),
             'redirectBancontact' =>
                 $this->settingsService->getSetting('redirectBancontact', $salesChannelId) === 'enabledRedirect']);
 
@@ -410,13 +410,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct->assign([
             'applepayHostedPaymentPage' =>
-                $this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId) === 1,
+                $this->getSettingAsBool('applepayHostedPaymentPage', $salesChannelId),
             'showPaypalExpress'         => $this->showPaypalExpress($salesChannelId, 'cart'),
             'showIdealFastCheckout'     => $this->showIdealFastCheckout($salesChannelId, 'cart'),
             'paypalMerchantId'          => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId'        => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'                => $this->settingsService->getSetting('websiteKey', $salesChannelId),
-            'showApplePay'              => $this->settingsService->getSetting('applepayShowCart', $salesChannelId) == 1,
+            'showApplePay'              => $this->getSettingAsBool('applepayShowCart', $salesChannelId),
             'idealFastCheckoutLogo'     => $this->getIdealFastCheckoutLogo($salesChannelId)
         ]);
 
@@ -467,9 +467,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
         $struct->assign([
             'applepayShowProduct'       =>
-                $this->settingsService->getSetting('applepayShowProduct', $salesChannelId) == 1,
+                $this->getSettingAsBool('applepayShowProduct', $salesChannelId),
             'applepayHostedPaymentPage' =>
-                $this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId) === 1,
+                $this->getSettingAsBool('applepayHostedPaymentPage', $salesChannelId),
             'showPaypalExpress' => $this->showPaypalExpress($salesChannelId),
             'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
@@ -501,8 +501,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected function showIdealFastCheckout(string $salesChannelId, string $page = 'product'): bool
     {
         if (
-            $this->settingsService->getSetting('idealEnabled', $salesChannelId) &&
-            $this->settingsService->getSetting('idealFastCheckoutEnabled', $salesChannelId)
+            $this->getSettingAsBool('idealEnabled', $salesChannelId) &&
+            $this->getSettingAsBool('idealFastCheckoutEnabled', $salesChannelId)
         ) {
             $locations = $this->settingsService->getSetting('idealFastCheckoutVisibility', $salesChannelId);
             return is_array($locations) &&
@@ -775,5 +775,60 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
         
         return $country->getIso();
+    }
+
+    /**
+     * Helper method to safely cast setting values to boolean
+     * Handles different setting representations ('1', 1, true, '0', 0, false, null)
+     */
+    private function getSettingAsBool(string $key, string $salesChannelId, bool $default = false): bool
+    {
+        $value = $this->settingsService->getSetting($key, $salesChannelId);
+        
+        if ($value === null) {
+            return $default;
+        }
+        
+        // Convert various representations to boolean
+        if (is_bool($value)) {
+            return $value;
+        }
+        
+        if (is_int($value)) {
+            return $value === 1;
+        }
+        
+        if (is_string($value)) {
+            return $value === '1' || strtolower($value) === 'true';
+        }
+        
+        return $default;
+    }
+
+    /**
+     * Helper method to safely cast setting values to integer
+     * Provides default value if setting is null
+     */
+    private function getSettingAsInt(string $key, string $salesChannelId, int $default = 0): int
+    {
+        $value = $this->settingsService->getSetting($key, $salesChannelId);
+        
+        if ($value === null) {
+            return $default;
+        }
+        
+        if (is_int($value)) {
+            return $value;
+        }
+        
+        if (is_string($value) && is_numeric($value)) {
+            return (int)$value;
+        }
+        
+        if (is_bool($value)) {
+            return $value ? 1 : 0;
+        }
+        
+        return $default;
     }
 }

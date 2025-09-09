@@ -159,14 +159,14 @@ class PushController extends StorefrontController
         // end handle event
 
         if (
-            in_array($brqTransactionType, self::AUTHORIZE_REQUESTS)
+            in_array($brqTransactionType, self::AUTHORIZE_REQUESTS, true)
         ) {
             $this->setStatusAuthorized($orderTransactionId, $salesChannelContext, $request, $status);
         }
 
         //skip mutationType Informational except for group transactions
         if (
-            $mutationType == ResponseStatus::BUCKAROO_MUTATION_TYPE_INFORMATIONAL &&
+            $mutationType === ResponseStatus::BUCKAROO_MUTATION_TYPE_INFORMATIONAL &&
             $brqTransactionType !== "I150"
         ) {
             $this->logger->info(__METHOD__ . "|5.1|");
@@ -182,7 +182,7 @@ class PushController extends StorefrontController
         if (
             !empty($request->request->get('brq_transaction_method'))
             && ($request->request->get('brq_transaction_method') === 'paypal')
-            && ($status == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
+            && ($status === ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
         ) {
             $status = ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
         }
@@ -197,7 +197,7 @@ class PushController extends StorefrontController
             return $this->response('buckaroo.messages.pushAlreadySend', false);
         }
 
-        if ($brqTransactionType != ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION) {
+        if ($brqTransactionType !== ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION) {
             $this->logger->info(__METHOD__ . "|10|");
             $this->checkoutHelper->saveBuckarooTransaction($request, $context);
         }
@@ -208,8 +208,8 @@ class PushController extends StorefrontController
         if ($brqAmountCredit > 0) {
             $this->logger->info(__METHOD__ . "|15|", [$brqAmountCredit]);
             if (
-                $status != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS &&
-                $brqTransactionType == ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_CANCEL
+                $status !== ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS &&
+                $brqTransactionType === ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_CANCEL
             ) {
                 $this->logger->info(__METHOD__ . "|20|");
                 return $this->response('buckaroo.messages.paymentCancelled');
@@ -264,7 +264,7 @@ class PushController extends StorefrontController
             return $this->response('buckaroo.messages.giftcards.skippedPush');
         }
 
-        if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
+        if ($status === ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
             $this->logger->info(__METHOD__ . "|30|");
             try {
                 if ($this->stateTransitionService->isOrderState($order, ['cancel'])) {
@@ -295,7 +295,7 @@ class PushController extends StorefrontController
                 $alreadyPaid = round($brqAmount + ($customFields['alreadyPaid'] ?? 0), 2);
                 $paymentState        = ($alreadyPaid >= round($totalPrice, 2)) ? $paymentSuccesStatus : "pay_partially";
                 $data                = [];
-                if ($paymentMethod && (strtolower($paymentMethod) == 'klarnakp')) {
+                if ($paymentMethod && (strtolower($paymentMethod) === 'klarnakp')) {
                     $this->logger->info(__METHOD__ . "|42|");
                     $paymentState              = 'authorize';
                     $data['reservationNumber'] = $request->request->get('brq_SERVICE_klarnakp_ReservationNumber');
@@ -325,7 +325,7 @@ class PushController extends StorefrontController
 
                 $orderStatus = $this->checkoutHelper->getSettingsValue('orderStatus', $salesChannelId);
                 if (is_string($orderStatus)) {
-                    if ($orderStatus == 'complete') {
+                    if ($orderStatus === 'complete') {
                         $orderStatus = 'process';
                     }
                     $this->stateTransitionService->changeOrderStatus($order, $context, $orderStatus);
@@ -341,7 +341,7 @@ class PushController extends StorefrontController
                     )
                 ) {
                     $this->logger->info(__METHOD__ . "|50.2|");
-                    if (round($brqAmount, 2) == round($totalPrice, 2)) {
+                    if (round($brqAmount, 2) === round($totalPrice, 2)) {
                         $this->invoiceService->generateInvoice(
                             $order,
                             $context,
@@ -396,7 +396,7 @@ class PushController extends StorefrontController
 
             $paymentSuccesStatus = $this->getCancelOpenOrderSetting($salesChannelId);
             
-            if ($paymentSuccesStatus == 'enabled') {
+            if ($paymentSuccesStatus === 'enabled') {
                 $this->stateTransitionService->changeOrderStatus($order, $context, 'cancel');
                 $this->stateTransitionService->changeDeliveryStatus($order, $context, 'cancel');
             }
@@ -404,7 +404,7 @@ class PushController extends StorefrontController
             return $this->response('buckaroo.messages.orderCancelled');
         }
 
-        if ($status == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER) {
+        if ($status === ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER) {
             if (
                 $this->stateTransitionService->isTransitionPaymentState(
                     ['paid', 'pay_partially'],
@@ -454,7 +454,7 @@ class PushController extends StorefrontController
         }
 
         $orderStatus = null;
-        if ($status == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
+        if ($status === ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
             $orderStatus = $this->getSuccessAuthorizeStatus(
                 $request,
                 $salesChannelContext->getSalesChannelId()
@@ -550,8 +550,8 @@ class PushController extends StorefrontController
         $this->logger->info(__METHOD__ . "|pushHash|" . $pushHash);
         $customFields['pushHash'] = $calculated;
         $this->transactionService->updateTransactionCustomFields($orderTransactionId, $customFields, $context);
-        if ($pushHash == $calculated) {
-            $this->logger->info(__METHOD__ . "|pushHash == calculated|");
+        if ($pushHash === $calculated) {
+            $this->logger->info(__METHOD__ . "|pushHash === calculated|");
             return false;
         }
 
