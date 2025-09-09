@@ -13,6 +13,8 @@ use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 
 class PaymentServiceDecorator
 {
@@ -22,14 +24,18 @@ class PaymentServiceDecorator
 
     private EntityRepository $orderRepository;
 
+    private SalesChannelContextService $salesChannelContextService;
+
     public function __construct(
         OrderConverter $orderConverter,
         TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2,
-        EntityRepository $orderRepository
+        EntityRepository $orderRepository,
+        SalesChannelContextService $salesChannelContextService
     ) {
         $this->orderConverter = $orderConverter;
         $this->tokenFactoryInterfaceV2 = $tokenFactoryInterfaceV2;
         $this->orderRepository = $orderRepository;
+        $this->salesChannelContextService = $salesChannelContextService;
     }
 
     /**
@@ -117,8 +123,21 @@ class PaymentServiceDecorator
      */
     private function createSalesChannelAwareContext(string $salesChannelId, Context $baseContext): Context
     {
-        // Create a context that knows about the sales channel for permission checking
-        // This is still a minimal context but with sales channel awareness for security
-        return $baseContext;
+        // Create a proper sales channel context that enforces sales channel boundaries
+        // This ensures that data access is properly scoped to the specific sales channel
+        $salesChannelContextParams = new SalesChannelContextServiceParameters(
+            $salesChannelId,
+            'payment-token-context', // Use a specific token for payment contexts
+            null, // languageId - derive from context
+            null, // currencyId - derive from context
+            null, // domainId - derive from context
+            $baseContext // Use the base context to preserve permissions
+        );
+        
+        // Get the sales channel context and extract its underlying context
+        // This context will have proper sales channel awareness and security constraints
+        $salesChannelContext = $this->salesChannelContextService->get($salesChannelContextParams);
+        
+        return $salesChannelContext->getContext();
     }
 }

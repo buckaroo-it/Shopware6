@@ -197,10 +197,10 @@ class AsyncPaymentService
         return preg_match($mobilePattern1, $useragent) === 1 ||
             preg_match($mobilePattern2, substr($useragent, 0, 4)) === 1;
     }
-    public function cancelPreviousPayments(PaymentTransactionStruct $transaction, OrderEntity $order): void
+    public function cancelPreviousPayments(PaymentTransactionStruct $transaction, OrderEntity $order, Context $context): void
     {
         try {
-            $this->cancelPaymentService->cancel($transaction, $order);
+            $this->cancelPaymentService->cancel($transaction, $order, $context);
         } catch (\Throwable $th) {
             $this->logger->error('Failed to cancel previous payments: ' . $th->getMessage(), [
                 'transactionId' => $transaction->getOrderTransactionId(),

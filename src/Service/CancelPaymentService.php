@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Buckaroo\Client;
 use Buckaroo\Shopware6\Service\UrlService;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -36,19 +37,21 @@ class CancelPaymentService
 
 
     /**
-     * Do a refund on hanging giftcards
+     * Do a refund on hanging giftcards with required context for security
      *
      * @param PaymentTransactionStruct $transactionStruct
      * @param OrderEntity $order
+     * @param Context $context Required context for permission enforcement
      * @return void
      */
     public function cancel(
         PaymentTransactionStruct $transactionStruct,
-        OrderEntity $order
+        OrderEntity $order,
+        Context $context
     ): void {
 
         $orderTransactionId = $transactionStruct->getOrderTransactionId();
-        $transactions = $this->buckarooTransactionEntityRepository->findByOrderId($order->getId());
+        $transactions = $this->buckarooTransactionEntityRepository->findByOrderId($order->getId(), [], $context);
         foreach ($transactions as $transaction) {
             if ($transaction->get('statuscode') != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
                 continue;
@@ -86,14 +89,16 @@ class CancelPaymentService
                 );
             $this->handleResponse(
                 $client->execute(),
-                $transaction
+                $transaction,
+                $context
             );
         }
     }
 
     protected function handleResponse(
         ClientResponseInterface $response,
-        BuckarooTransactionEntity $transaction
+        BuckarooTransactionEntity $transaction,
+        Context $context
     ):void {
         if (!$response->isSuccess()) {
             return;
@@ -123,6 +128,8 @@ class CancelPaymentService
                 [
                     'amount_credit' => (string)((float)$amountCredit + (float)$transactionAmount)
                 ],
+                [],
+                $context
             );
     }
 

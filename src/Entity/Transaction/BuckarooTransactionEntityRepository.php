@@ -32,21 +32,17 @@ class BuckarooTransactionEntityRepository
 
 
     /**
-     * Create / update Buckaroo Transaction
+     * Create / update Buckaroo Transaction with required context for security
      *
      * @param string|null $id
-     * @param array<mixed> $data,
+     * @param array<mixed> $data
      * @param array<mixed> $additionalConditions
-     * @param Context $context Context for the operation
+     * @param Context $context Required context for permission enforcement
      *
      * @return string|null
      */
-    public function save(?string $id, array $data, array $additionalConditions = [], Context $context = null): ?string
+    public function save(?string $id, array $data, array $additionalConditions = [], Context $context): ?string
     {
-        if ($context === null) {
-            $context = Context::createDefaultContext();
-        }
-        
         if ($id !== null) {
             /** @var BuckarooTransactionEntity $buckarooTransactionEntity|null */
             $buckarooTransactionEntity = $this->baseRepository
@@ -69,20 +65,16 @@ class BuckarooTransactionEntityRepository
     }
 
     /**
-     * Returns BuckarooTransactionEntity by its id
+     * Returns BuckarooTransactionEntity by its id with required context for security
      *
      * @param string $id
-     * @param Context|null $context Context for the operation
+     * @param Context $context Required context for permission enforcement
      *
      * @return BuckarooTransactionEntity|null
      * @throws InconsistentCriteriaIdsException
      */
-    public function getById(string $id, Context $context = null): ?BuckarooTransactionEntity
+    public function getById(string $id, Context $context): ?BuckarooTransactionEntity
     {
-        if ($context === null) {
-            $context = Context::createDefaultContext();
-        }
-        
         /** @var BuckarooTransactionEntity|null */
         return $this->baseRepository
             ->search(new Criteria([$id]), $context)
@@ -90,20 +82,16 @@ class BuckarooTransactionEntityRepository
     }
 
     /**
-     * Returns buckarooTransaction item with latest buckarooTransactionTimestamp
+     * Returns buckarooTransaction item with latest buckarooTransactionTimestamp with required context for security
      *
      * @param string $type
-     * @param Context|null $context Context for the operation
+     * @param Context $context Required context for permission enforcement
      *
      * @return BuckarooTransactionEntity|null
      * @throws InconsistentCriteriaIdsException
      */
-    public function findLatestByType(string $type, Context $context = null): ?BuckarooTransactionEntity
+    public function findLatestByType(string $type, Context $context): ?BuckarooTransactionEntity
     {
-        if ($context === null) {
-            $context = Context::createDefaultContext();
-        }
-        
         $filter = ['type' => $type];
         $sortBy = ['buckarooTransactionTimestamp' => FieldSorting::DESCENDING];
 
@@ -117,13 +105,13 @@ class BuckarooTransactionEntityRepository
     }
 
     /**
-     * Returns all buckarooTransaction items which satisfy given condition
+     * Returns all buckarooTransaction items which satisfy given condition with required context for security
      *
      * @param array<mixed> $filterBy
      * @param array<mixed> $sortBy
      * @param int $start
      * @param int $limit
-     * @param Context|null $context Context for the operation
+     * @param Context $context Required context for permission enforcement
      *
      * @return BuckarooTransactionEntityCollection<BuckarooTransactionEntity>
      * @throws InconsistentCriteriaIdsException
@@ -133,12 +121,8 @@ class BuckarooTransactionEntityRepository
         array $sortBy = [],
         $start = 0,
         $limit = 10,
-        Context $context = null
+        Context $context
     ): EntityCollection {
-        if ($context === null) {
-            $context = Context::createDefaultContext();
-        }
-        
         /** @var BuckarooTransactionEntityCollection<BuckarooTransactionEntity> */
         $entities = $this->baseRepository
             ->search(
@@ -193,16 +177,12 @@ class BuckarooTransactionEntityRepository
     /**
      * @param string $id
      * @param array<mixed> $sortBy
-     * @param Context|null $context Context for the operation
+     * @param Context $context Required context for permission enforcement
      *
      * @return BuckarooTransactionEntityCollection<BuckarooTransactionEntity>
      */
-    public function findByOrderId(string $id, array $sortBy = [], Context $context = null): EntityCollection
+    public function findByOrderId(string $id, array $sortBy = [], Context $context): EntityCollection
     {
-        if ($context === null) {
-            $context = Context::createDefaultContext();
-        }
-        
         $filter = ['order_id' => $id];
 
         /** @var BuckarooTransactionEntityCollection<BuckarooTransactionEntity> */

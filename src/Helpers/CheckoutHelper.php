@@ -158,9 +158,9 @@ class CheckoutHelper
         return $this->orderRepository->search($orderCriteria, $context)->first();
     }
 
-    public function saveBuckarooTransaction(Request $request): ?string
+    public function saveBuckarooTransaction(Request $request, Context $context): ?string
     {
-        return $this->buckarooTransactionEntityRepository->save(null, $this->pusToArray($request), []);
+        return $this->buckarooTransactionEntityRepository->save(null, $this->pusToArray($request), [], $context);
     }
 
     /**
@@ -200,29 +200,51 @@ class CheckoutHelper
     }
 
     /**
-     * Sanitize request values to ensure consistent data types
+     * Sanitize request values with proper type safety and validation
      *
      * @param mixed $value
-     * @return mixed
+     * @return string|null
      */
-    private function sanitizeRequestValue($value)
+    private function sanitizeRequestValue($value): ?string
     {
-        // Convert empty strings to null for consistency
-        if ($value === '') {
-            return null;
-        }
-        
-        // Keep null values as null
+        // Handle null values
         if ($value === null) {
             return null;
         }
         
-        // For non-string values, convert to string for consistency with request data
-        if (!is_string($value)) {
+        // Handle empty strings
+        if ($value === '') {
+            return null;
+        }
+        
+        // Reject complex data types that cannot be safely converted to strings
+        if (is_array($value)) {
+            // Log warning for debugging - arrays should not be in request parameters
+            error_log('Warning: Array value found in request parameter, rejecting: ' . json_encode($value));
+            return null;
+        }
+        
+        if (is_object($value)) {
+            // Log warning for debugging - objects should not be in request parameters
+            error_log('Warning: Object value found in request parameter, rejecting: ' . get_class($value));
+            return null;
+        }
+        
+        if (is_resource($value)) {
+            // Resources cannot be safely converted to strings
+            error_log('Warning: Resource value found in request parameter, rejecting');
+            return null;
+        }
+        
+        // Handle scalar values (string, int, float, bool)
+        if (is_scalar($value)) {
+            // Convert to string with explicit type safety
             return (string)$value;
         }
         
-        return $value;
+        // Fallback for unexpected types
+        error_log('Warning: Unexpected value type in request parameter: ' . gettype($value));
+        return null;
     }
 
     /**

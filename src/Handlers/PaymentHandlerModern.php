@@ -85,7 +85,7 @@ class PaymentHandlerModernRefactored extends AbstractPaymentHandler
         $paymentClass = $this->getPayment($transactionId);
         $paymentCode = $paymentClass->getBuckarooKey();
 
-        $this->asyncPaymentService->cancelPreviousPayments($transaction, $order);
+        $this->asyncPaymentService->cancelPreviousPayments($transaction, $order, $context);
 
         try {
             $this->validateOrder($order);
