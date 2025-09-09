@@ -38,9 +38,23 @@ class CheckoutHelper
         $this->requestStack = $requestStack;
     }
 
+    /**
+     * Get the current session with proper null safety
+     * 
+     * @return SessionInterface
+     * @throws \RuntimeException When no session is active
+     */
     public function getSession(): SessionInterface
     {
-        return $this->requestStack->getSession();
+        $session = $this->requestStack->getSession();
+        
+        if ($session === null) {
+            throw new \RuntimeException(
+                'No active session found. Session is required for payment processing.'
+            );
+        }
+        
+        return $session;
     }
 
     /**

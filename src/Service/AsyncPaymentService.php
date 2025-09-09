@@ -96,9 +96,17 @@ class AsyncPaymentService
             throw new \InvalidArgumentException('Deliveries cannot be null');
         }
 
-        $address = $deliveries->getShippingAddress()->first();
+        // Get the first delivery and then its shipping address
+        $firstDelivery = $deliveries->first();
+        if ($firstDelivery === null) {
+            // No deliveries found, fallback to billing address
+            return $this->getBillingAddress($order);
+        }
+
+        $address = $firstDelivery->getShippingOrderAddress();
         if ($address === null) {
-            $address = $this->getBillingAddress($order);
+            // No shipping address on delivery, fallback to billing address
+            return $this->getBillingAddress($order);
         }
 
         return $address;
@@ -197,6 +205,7 @@ class AsyncPaymentService
         return preg_match($mobilePattern1, $useragent) === 1 ||
             preg_match($mobilePattern2, substr($useragent, 0, 4)) === 1;
     }
+
     public function cancelPreviousPayments(PaymentTransactionStruct $transaction, OrderEntity $order, Context $context): void
     {
         try {

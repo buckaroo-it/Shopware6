@@ -42,10 +42,11 @@ class PaymentServiceDecorator
      * Assemble sales channel context with proper context inheritance and security
      * 
      * @param string $paymentToken
+     * @param Context $validationContext Context with appropriate permissions for token validation
      * @return SalesChannelContext
      * @throws PaymentException
      */
-    public function assembleSalesChannelContext(string $paymentToken): SalesChannelContext
+    public function assembleSalesChannelContext(string $paymentToken, Context $validationContext): SalesChannelContext
     {
         $parsedToken = $this->tokenFactoryInterfaceV2->parseToken($paymentToken);
         $transactionId = $parsedToken->getTransactionId();
@@ -58,16 +59,14 @@ class PaymentServiceDecorator
             );
         }
 
-        // Step 1: Minimal order lookup to get sales channel ID with restricted privileges
-        // Using default context here is necessary as we don't yet have sales channel info
-        $initialContext = Context::createDefaultContext();
-        
+        // Step 1: Use the provided validation context for initial lookup
+        // This ensures the caller has proper permissions for this operation
         $minimalCriteria = new Criteria();
         $minimalCriteria->addFilter(new EqualsFilter('transactions.id', $transactionId));
         $minimalCriteria->addAssociation('salesChannel'); // Only load sales channel
         
         /** @var OrderEntity|null $minimalOrder */
-        $minimalOrder = $this->orderRepository->search($minimalCriteria, $initialContext)->first();
+        $minimalOrder = $this->orderRepository->search($minimalCriteria, $validationContext)->first();
 
         if ($minimalOrder === null) {
             throw PaymentException::asyncProcessInterrupted(
@@ -87,7 +86,7 @@ class PaymentServiceDecorator
         }
 
         // Step 2: Create context with sales channel constraints
-        $salesChannelAwareContext = $this->createSalesChannelAwareContext($salesChannel->getId(), $initialContext);
+        $salesChannelAwareContext = $this->createSalesChannelAwareContext($salesChannel->getId(), $validationContext);
         
         // Step 3: Re-query order with full data using sales channel aware context
         $fullCriteria = new Criteria();

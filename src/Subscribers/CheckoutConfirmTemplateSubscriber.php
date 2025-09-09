@@ -329,7 +329,14 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if (method_exists($event->getPage(), "getOrder")) {
             /** @var AccountEditOrderPageLoadedEvent $event */
             $billingAddress = $event->getPage()->getOrder()->getBillingAddress();
-            $shippingAddress = $event->getPage()->getOrder()->getDeliveries()?->getShippingAddress()->first();
+            $deliveries = $event->getPage()->getOrder()->getDeliveries();
+            $shippingAddress = null;
+            if ($deliveries !== null) {
+                $firstDelivery = $deliveries->first();
+                if ($firstDelivery !== null) {
+                    $shippingAddress = $firstDelivery->getShippingOrderAddress();
+                }
+            }
         } else {
             $billingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultBillingAddress();
             $shippingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultShippingAddress();
@@ -639,7 +646,11 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
             if ($order->getDeliveries() !== null) {
                 /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
-                $shippingAddress = $order->getDeliveries()->getShippingAddress()->first();
+                $shippingAddress = null;
+                $firstDelivery = $order->getDeliveries()->first();
+                if ($firstDelivery !== null) {
+                    $shippingAddress = $firstDelivery->getShippingOrderAddress();
+                }
                 if ($shippingAddress !== null) {
                     $shippingCompany = $shippingAddress->getCompany();
                 }
