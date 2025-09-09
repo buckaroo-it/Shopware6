@@ -7,12 +7,9 @@ namespace Buckaroo\Shopware6\Handlers;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\PaymentMethods\AbstractPayment;
 use Buckaroo\Shopware6\Buckaroo\Client;
-use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
-use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Buckaroo\Shopware6\Service\Exceptions\BuckarooPaymentRejectException;
 use Buckaroo\Shopware6\Service\Exceptions\ClientInitException;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
-use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -20,26 +17,25 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
-class PaymentHandlerModern extends AbstractPaymentHandler
+class PaymentHandlerModernRefactored extends AbstractPaymentHandler
 {
     use \Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
     
     protected string $paymentClass;
-    protected FormatRequestParamService $formatRequestParamService;
-    protected AsyncPaymentService $asyncPaymentService;
 
-    public function __construct(AsyncPaymentService $asyncPaymentService)
-    {
-        $this->asyncPaymentService = $asyncPaymentService;
-        $this->formatRequestParamService = $this->asyncPaymentService->formatRequestParamService;
+    public function __construct(
+        private readonly AsyncPaymentService $asyncPaymentService,
+        private readonly PaymentUrlGenerator $urlGenerator,
+        private readonly PaymentFeeCalculator $feeCalculator,
+        private readonly PaymentPayloadBuilder $payloadBuilder,
+        private readonly PaymentResponseHandler $responseHandler
+    ) {
     }
 
     /**
@@ -67,6 +63,7 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         $dataBag = new RequestDataBag($request->request->all());
 
         $this->beforePayModern($transaction, $dataBag, $context);
+        
         $transactionId = $transaction->getOrderTransactionId();
         $orderTransaction = $this->asyncPaymentService->getTransaction($transactionId, $context);
         if ($orderTransaction === null) {
@@ -84,20 +81,20 @@ class PaymentHandlerModern extends AbstractPaymentHandler
             $order->getSalesChannelId(),
             is_string($contextToken) ? $contextToken : ''
         );
+        
         $paymentClass = $this->getPayment($transactionId);
         $paymentCode = $paymentClass->getBuckarooKey();
-          
 
         $this->asyncPaymentService->cancelPreviousPayments($transaction, $order);
 
         try {
             $this->validateOrder($order);
 
-            if ($this->getOrderTotalWithFee($order, $order->getSalesChannelId(), $paymentCode) == 0) {
-                return $this->completeZeroAmountPayment($orderTransaction, $salesChannelContext);
+            if ($this->feeCalculator->getOrderTotalWithFee($order, $order->getSalesChannelId(), $paymentCode) == 0) {
+                return $this->responseHandler->handleZeroAmountPayment($orderTransaction, $salesChannelContext);
             }
 
-            $commonPayload = $this->getCommonRequestPayload(
+            $commonPayload = $this->payloadBuilder->buildCommonPayload(
                 $orderTransaction,
                 $order,
                 $dataBag,
@@ -105,35 +102,28 @@ class PaymentHandlerModern extends AbstractPaymentHandler
                 $paymentCode,
                 $transaction->getReturnUrl()
             );
+            
             $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
-
-            
-
             $payload = array_merge_recursive($commonPayload, $methodPayload);
-
-            
 
             $client = $this->getClient($paymentCode, $order->getSalesChannelId(), $dataBag)
                 ->setPayload($payload)
-                ->setAction(
-                    $this->getMethodAction($dataBag, $salesChannelContext, $paymentCode)
-                );
-            
+                ->setAction($this->getMethodAction($dataBag, $salesChannelContext, $paymentCode));
 
             if ($paymentCode === 'afterpay' && !$this->isAfterpayOld($salesChannelContext->getSalesChannelId())) {
                 $client->setServiceVersion(2);
             }
 
-      
             $response = $client->execute();
+            $returnUrl = $this->urlGenerator->getReturnUrl($orderTransaction, $order, $dataBag);
             
-            return $this->handleResponse(
+            return $this->responseHandler->handleResponse(
                 $response,
                 $orderTransaction,
                 $order,
-                $dataBag,
                 $salesChannelContext,
-                $paymentCode
+                $paymentCode,
+                $returnUrl
             );
         } catch (PaymentException $exception) {
             throw $exception;
@@ -220,7 +210,7 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         string $paymentCode,
         ?Context $context = null
     ): array {
-        return $this->formatRequestParamService->getOrderLinesArray($order, $paymentCode, $context);
+        return $this->asyncPaymentService->formatRequestParamService->getOrderLinesArray($order, $paymentCode, $context);
     }
 
     /**
@@ -240,65 +230,6 @@ class PaymentHandlerModern extends AbstractPaymentHandler
     protected function isAfterpayOld(string $salesChannelContextId): bool
     {
         return $this->getSetting('afterpayEnabledold', $salesChannelContextId) === true;
-    }
-
-    protected function getCommonRequestPayload(
-        OrderTransactionEntity $orderTransaction,
-        OrderEntity $order,
-        RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode,
-        ?string $returnUrl
-    ): array {
-        $salesChannelId = $salesChannelContext->getSalesChannelId();
-        return [
-            'order'         => $order->getOrderNumber(),
-            'invoice'       => $order->getOrderNumber(),
-            'amountDebit'   => $this->getOrderTotalWithFee($order, $salesChannelId, $paymentCode),
-            'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
-            'returnURL'     => $returnUrl ?: $this->getDefaultReturnUrl($orderTransaction, $order, $dataBag),
-            'cancelURL'     => sprintf(
-                '%s&cancel=1',
-                $returnUrl ?: $this->getDefaultReturnUrl($orderTransaction, $order, $dataBag)
-            ),
-            'pushURL'       => $this->asyncPaymentService->urlService->getReturnUrl('buckaroo.payment.push'),
-            'additionalParameters' => [
-                'orderTransactionId' => $orderTransaction->getId(),
-                'orderId' => $order->getId(),
-                'sw-context-token' => $salesChannelContext->getToken()
-            ],
-            'description' => $this->asyncPaymentService->settingsService->getParsedLabel(
-                $order,
-                $salesChannelId,
-                'transactionLabel'
-            ),
-            'clientIP' => $this->getIp(),
-        ];
-    }
-
-    private function getOrderTotalWithFee(OrderEntity $order, string $salesChannelId, string $paymentCode): float
-    {
-        $fee =  $this->getFee($paymentCode, $salesChannelId);
-        $existingFee = $order->getCustomFieldsValue('buckarooFee');
-        if ($existingFee !== null && is_scalar($existingFee)) {
-            $fee = $fee - (float)$existingFee;
-        }
-        return $order->getAmountTotal() + $fee;
-    }
-
-    private function getIp(): array
-    {
-        $request = Request::createFromGlobals();
-        $remoteIp = $request->getClientIp();
-        return [
-            'address'       => $remoteIp,
-            'type'          => IPProtocolVersion::getVersion($remoteIp)
-        ];
-    }
-
-    protected function getFee(string $paymentCode, string $salesChannelId): float
-    {
-        return $this->asyncPaymentService->settingsService->getBuckarooFee($paymentCode, $salesChannelId);
     }
 
     private function getClient(string $paymentCode, string $salesChannelId, RequestDataBag $dataBag): Client
@@ -327,188 +258,5 @@ class PaymentHandlerModern extends AbstractPaymentHandler
             );
         }
         return $paymentClass;
-    }
-
-    private function completeZeroAmountPayment(
-        OrderTransactionEntity $orderTransaction,
-        SalesChannelContext $salesChannelContext
-    ): RedirectResponse {
-        $this->asyncPaymentService->stateTransitionService->transitionPaymentState(
-            'paid',
-            $orderTransaction->getId(),
-            $salesChannelContext->getContext()
-        );
-        return $this->redirectToFinishPage($orderTransaction);
-    }
-
-    private function redirectToFinishPage(OrderTransactionEntity $orderTransaction): RedirectResponse
-    {
-        $order = $orderTransaction->getOrder();
-        if ($order === null) {
-            throw new \RuntimeException('Order not found for transaction');
-        }
-        return new RedirectResponse(
-            $this->asyncPaymentService->urlService->forwardToRoute(
-                'frontend.checkout.finish.page',
-                ['orderId' => $order->getId()]
-            )
-        );
-    }
-
-    protected function handleResponse(
-        ClientResponseInterface $response,
-        OrderTransactionEntity $orderTransaction,
-        OrderEntity $order,
-        RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
-    ): RedirectResponse {
-        $returnUrl = $this->getReturnUrl($orderTransaction, $order, $dataBag);
-        $this->storeTransactionInfo($orderTransaction, $order, $response, $salesChannelContext, $paymentCode);
-  
-        if ($response->isRejected()) {
-            throw new BuckarooPaymentRejectException($response->getSubCodeMessage());
-        }
-
-        if ($response->hasRedirect()) {
-            $this->handleRedirectResponse($orderTransaction);
-            return new RedirectResponse($response->getRedirectUrl());
-        }
-        return $this->handlePaymentStatus($response, $orderTransaction, $salesChannelContext, $returnUrl, $paymentCode);
-    }
-
-    private function storeTransactionInfo(
-        OrderTransactionEntity $orderTransaction,
-        OrderEntity $order,
-        ClientResponseInterface $response,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
-    ): void {
-        $this->asyncPaymentService->checkoutHelper->appendCustomFields(
-            $order->getId(),
-            [
-                'buckaroo_payment_in_test_mode' => $response->isTestMode(),
-            ],
-            $salesChannelContext->getContext()
-        );
-        $this->asyncPaymentService->transactionService->updateTransactionCustomFields($orderTransaction->getId(), [
-            'originalTransactionKey' => $response->getTransactionKey()
-        ]);
-        $this->applyFeeToOrder($orderTransaction, $order, $salesChannelContext, $paymentCode);
-    }
-
-    private function handlePaymentStatus(
-        ClientResponseInterface $response,
-        OrderTransactionEntity $orderTransaction,
-        SalesChannelContext $salesChannelContext,
-        string $returnUrl,
-        string $paymentCode
-    ): RedirectResponse {
-        if (
-            $response->isSuccess() ||
-            $response->isAwaitingConsumer() ||
-            $response->isPendingProcessing() ||
-            $response->isWaitingOnUserInput()
-        ) {
-            if (!$response->isSuccess()) {
-                $this->asyncPaymentService->stateTransitionService->transitionPaymentState(
-                    'pending',
-                    $orderTransaction->getId(),
-                    $salesChannelContext->getContext()
-                );
-            }
-            return $this->redirectToFinishPage($orderTransaction);
-        }
-
-        if ($response->isCanceled()) {
-            throw PaymentException::asyncProcessInterrupted(
-                $orderTransaction->getId(),
-                'Payment was canceled',
-                new \Exception('Payment was canceled')
-            );
-        }
-
-        return new RedirectResponse(
-            sprintf('%s&brq_payment_method=%s&brq_statuscode=%s', $returnUrl, $paymentCode, $response->getStatusCode())
-        );
-    }
-
-    private function handleRedirectResponse(OrderTransactionEntity $orderTransaction): void
-    {
-        $order = $orderTransaction->getOrder();
-        if ($order === null) {
-            return;
-        }
-        $this->asyncPaymentService
-            ->checkoutHelper
-            ->getSession()
-            ->set('buckaroo_latest_order', $order->getId());
-    }
-
-    private function applyFeeToOrder(
-        OrderTransactionEntity $orderTransaction,
-        OrderEntity $order,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
-    ): void {
-        $fee = $this->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
-        $this->asyncPaymentService
-            ->checkoutHelper
-            ->applyFeeToOrder($order->getId(), $fee, $salesChannelContext->getContext());
-    }
-
-    protected function getRequestBag(RequestDataBag $currentBag): RequestDataBag
-    {
-        if ($this->isUpdateOrder($currentBag)) {
-            $request = new Request($_GET, $_POST);
-            return new RequestDataBag($request->request->all());
-        }
-        return $currentBag;
-    }
-
-    protected function getDataBag(DataBag $currentBag): RequestDataBag
-    {
-        $requestDataBag = new RequestDataBag($currentBag->all());
-        if ($this->isUpdateOrder($requestDataBag)) {
-            $request = new Request($_GET, $_POST);
-            return new RequestDataBag($request->request->all());
-        }
-        return $requestDataBag;
-    }
-
-    protected function isUpdateOrder(RequestDataBag $bag): bool
-    {
-        return $bag->has('errorUrl') &&
-            is_scalar($bag->get('errorUrl')) &&
-            strstr((string)$bag->get('errorUrl'), '/account/order/edit/') !== false;
-    }
-
-    protected function getReturnUrl(
-        OrderTransactionEntity $orderTransaction,
-        OrderEntity $order,
-        RequestDataBag $dataBag
-    ): string {
-        if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
-            $finishUrl = (string)$dataBag->get('finishUrl');
-            if (strpos($finishUrl, 'http://') === 0 || strpos($finishUrl, 'https://') === 0) {
-                return $finishUrl;
-            }
-            return rtrim(
-                $this->asyncPaymentService->urlService->forwardToRoute('frontend.home.page', []),
-                "/"
-            ) . (string)$finishUrl;
-        }
-        return $this->getDefaultReturnUrl($orderTransaction, $order, $dataBag);
-    }
-
-    protected function getDefaultReturnUrl(
-        OrderTransactionEntity $orderTransaction,
-        OrderEntity $order,
-        DataBag $dataBag
-    ): string {
-        return $this->asyncPaymentService->urlService->forwardToRoute(
-            'frontend.checkout.finish.page',
-            ['orderId' => $order->getId()]
-        );
     }
 }
