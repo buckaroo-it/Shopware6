@@ -50,30 +50,36 @@ class CheckoutHelper
      * @param Context $context
      *
      * @return void
+     * @throws \Exception When order is not found or fee calculation fails
      */
     public function applyFeeToOrder(string $orderId, float $fee, Context $context): void
     {
+        if (empty($orderId)) {
+            throw new \InvalidArgumentException('Order ID cannot be empty');
+        }
+
         $order = $this->getOrderById($orderId, $context);
         if ($order === null) {
-            throw new \Exception("A valid order is required", 1);
+            throw new \Exception("Order with ID {$orderId} not found", 1);
         }
 
         $price = $order->getPrice();
-
-        $savedCustomFields = $order->getCustomFields();
-
-        if ($savedCustomFields === null) {
-            $savedCustomFields = [];
+        if ($price === null) {
+            throw new \Exception("Order price information is missing", 1);
         }
 
+        $savedCustomFields = $order->getCustomFields() ?? [];
         $buckarooFee = $fee;
 
-        if (isset($savedCustomFields['buckarooFee'])) {
-            $buckarooFee = $buckarooFee - $savedCustomFields['buckarooFee'];
+        // Adjust fee if there's already a buckaroo fee applied
+        if (isset($savedCustomFields['buckarooFee']) && is_numeric($savedCustomFields['buckarooFee'])) {
+            $buckarooFee = $buckarooFee - (float)$savedCustomFields['buckarooFee'];
         }
+        
         $savedCustomFields['buckarooFee'] = $fee;
 
-        if ($buckarooFee !== 0) {
+        // Only update if there's an actual fee change
+        if ($buckarooFee !== 0.0) {
             $data = [
                 'id'           => $orderId,
                 'customFields' => $savedCustomFields,
@@ -87,7 +93,7 @@ class CheckoutHelper
                 )
             ];
 
-            $this->orderRepository->update([$data], Context::createDefaultContext());
+            $this->orderRepository->update([$data], $context);
         }
     }
 
@@ -96,34 +102,47 @@ class CheckoutHelper
      *
      * @param string $orderId
      * @param array<mixed> $customFields
-     * @param Context|null $context
+     * @param Context $context
      *
      * @return void
+     * @throws \Exception When order is not found
+     * @throws \InvalidArgumentException When parameters are invalid
      */
-    public function appendCustomFields(string $orderId, array $customFields, Context $context = null)
+    public function appendCustomFields(string $orderId, array $customFields, Context $context): void
     {
+        if (empty($orderId)) {
+            throw new \InvalidArgumentException('Order ID cannot be empty');
+        }
+
+        if (empty($customFields)) {
+            return; // Nothing to update
+        }
+
         $order = $this->getOrderById($orderId, $context);
         if ($order === null) {
-            throw new \Exception("A valid order is required", 1);
+            throw new \Exception("Order with ID {$orderId} not found", 1);
         }
 
-        $savedCustomFields = $order->getCustomFields();
-
-        if ($savedCustomFields === null) {
-            $savedCustomFields = [];
-        }
+        $savedCustomFields = $order->getCustomFields() ?? [];
+        
         $this->orderRepository->update(
             [['id' => $orderId, 'customFields' => array_merge($savedCustomFields, $customFields)]],
-            Context::createDefaultContext()
+            $context
         );
     }
 
 
 
 
-    public function getOrderById(string $orderId, Context $context = null): ?OrderEntity
+    /**
+     * Get order by ID with proper context handling
+     *
+     * @param string $orderId
+     * @param Context $context
+     * @return OrderEntity|null
+     */
+    public function getOrderById(string $orderId, Context $context): ?OrderEntity
     {
-        $context       = $context !== null ? $context : Context::createDefaultContext();
         $orderCriteria = new Criteria([$orderId]);
         $orderCriteria->addAssociation('orderCustomer.salutation');
         $orderCriteria->addAssociation('stateMachineState');

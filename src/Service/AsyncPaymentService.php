@@ -110,13 +110,46 @@ class AsyncPaymentService
         return $currency;
     }
 
-    public function dispatchEvent(ShopwareSalesChannelEvent $event): void
+    /**
+     * Dispatch an event safely with proper error handling
+     * 
+     * @param ShopwareSalesChannelEvent $event
+     * @param bool $throwOnFailure Whether to throw exception on dispatch failure (default: false)
+     * @return bool True if event was dispatched successfully, false otherwise
+     * @throws \Throwable If $throwOnFailure is true and dispatch fails
+     */
+    public function dispatchEvent(ShopwareSalesChannelEvent $event, bool $throwOnFailure = false): bool
     {
         try {
             $this->eventDispatcher->dispatch($event);
+            return true;
         } catch (\Throwable $e) {
-            dd('Dispatch failed', $e->getMessage(), $e->getTraceAsString());
+            $this->logger->error('Failed to dispatch event: ' . $e->getMessage(), [
+                'event_class' => get_class($event),
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            if ($throwOnFailure) {
+                throw $e;
+            }
+            
+            // Don't rethrow by default to prevent breaking the payment flow
+            // The event dispatch failure should be logged but not interrupt the process
+            return false;
         }
+    }
+
+    /**
+     * Dispatch an event and throw exception on failure
+     * Use this when event dispatch is critical to the operation
+     * 
+     * @param ShopwareSalesChannelEvent $event
+     * @throws \Throwable If dispatch fails
+     */
+    public function dispatchEventOrFail(ShopwareSalesChannelEvent $event): void
+    {
+        $this->dispatchEvent($event, true);
     }
 
     public function isMobile(Request $request): bool
