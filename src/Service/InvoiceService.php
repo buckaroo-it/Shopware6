@@ -66,19 +66,28 @@ class InvoiceService
     public function isCreateInvoiceAfterShipment(
         $brqTransactionType = false,
         $serviceName = false,
-        string $salesChannelId = null
+        ?string $salesChannelId = null
     ): bool {
-        if ($brqTransactionType) {
+        // Validate input parameters to prevent type juggling attacks
+        if ($brqTransactionType !== false && !is_string($brqTransactionType)) {
+            return false;
+        }
+        
+        if ($serviceName !== false && !is_string($serviceName)) {
+            return false;
+        }
+        
+        if ($brqTransactionType !== false) {
             if (
-                ResponseStatus::BUCKAROO_BILLINK_CAPTURE_TYPE_ACCEPT == $brqTransactionType &&
+                ResponseStatus::BUCKAROO_BILLINK_CAPTURE_TYPE_ACCEPT === $brqTransactionType &&
                 $this->settingsService->getSetting('BillinkCreateInvoiceAfterShipment', $salesChannelId)
             ) {
                 return true;
             }
         } else {
             if (
-                $serviceName == 'Billink' &&
-                $this->settingsService->getSetting('BillinkMode', $salesChannelId) == 'authorize' &&
+                $serviceName === 'Billink' &&
+                $this->settingsService->getSetting('BillinkMode', $salesChannelId) === 'authorize' &&
                 $this->settingsService->getSetting('BillinkCreateInvoiceAfterShipment', $salesChannelId)
             ) {
                 return true;
@@ -90,7 +99,7 @@ class InvoiceService
     public function generateInvoice(
         OrderEntity $order,
         Context $context,
-        string $salesChannelId = null
+        ?string $salesChannelId = null
     ): ?DocumentIdStruct {
 
         $operation = new DocumentGenerateOperation($order->getId(), FileTypes::PDF);

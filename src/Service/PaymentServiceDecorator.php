@@ -124,9 +124,13 @@ class PaymentServiceDecorator
     {
         // Create a proper sales channel context that enforces sales channel boundaries
         // This ensures that data access is properly scoped to the specific sales channel
+        
+        // Generate a unique token to prevent context data sharing between concurrent requests
+        $uniqueToken = 'payment-context-' . bin2hex(random_bytes(16));
+        
         $salesChannelContextParams = new SalesChannelContextServiceParameters(
             $salesChannelId,
-            'payment-token-context', // Use a specific token for payment contexts
+            $uniqueToken, // Use unique token to prevent concurrent request interference
             null, // languageId - derive from context
             null, // currencyId - derive from context
             null, // domainId - derive from context

@@ -144,6 +144,9 @@ class PaymentStateService
     }
 
     /**
+     * Check if a specific transition is available in the list of available transitions
+     * Uses strict comparison to prevent type juggling vulnerabilities
+     * 
      * @param array<mixed> $availableTransitions
      * @param string $transition
      *
@@ -151,7 +154,7 @@ class PaymentStateService
      */
     private function canTransition(array $availableTransitions, string $transition): bool
     {
-        return in_array($transition, $availableTransitions);
+        return in_array($transition, $availableTransitions, true);
     }
 
     /**
