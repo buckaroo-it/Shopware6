@@ -237,6 +237,8 @@ class CheckoutHelper
     }
 
     /**
+     * Compare two amounts for equality with proper type safety and precision handling
+     * 
      * @param mixed $amount1
      * @param mixed $amount2
      *
@@ -248,10 +250,16 @@ class CheckoutHelper
             return false;
         }
 
-        if ($amount2 == 0) {
-            return $amount1 == $amount2;
-        } else {
-            return abs((floatval($amount1) - floatval($amount2)) / floatval($amount2)) < 0.00001;
+        // Convert to float with explicit type conversion to avoid type juggling
+        $float1 = (float)$amount1;
+        $float2 = (float)$amount2;
+
+        // Use strict equality for zero comparison to avoid type juggling
+        if ($float2 === 0.0) {
+            return $float1 === 0.0;
         }
+        
+        // For non-zero amounts, use relative precision comparison
+        return abs(($float1 - $float2) / $float2) < 0.00001;
     }
 }

@@ -109,7 +109,7 @@ class InvoiceService
             $mailTemplate = $this->getMailTemplate($context, $technicalName);
 
             if ($mailTemplate !== null) {
-                $context = Context::createDefaultContext();
+                // Preserve the original context to maintain locale, permissions, and sales channel state
                 $this->sendMail(
                     $context,
                     $mailTemplate,
