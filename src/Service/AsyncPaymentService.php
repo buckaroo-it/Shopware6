@@ -50,11 +50,23 @@ class AsyncPaymentService
 
 
 
+    /**
+     * Get sales channel context with proper context inheritance
+     * 
+     * @param Context $context The base context to derive from
+     * @param string $salesChannelId The sales channel ID
+     * @param string $token The context token
+     * @return SalesChannelContext
+     */
     public function getSalesChannelContext(Context $context, string $salesChannelId, string $token): SalesChannelContext
     {
         $params = new SalesChannelContextServiceParameters(
             $salesChannelId,
-            $token
+            $token,
+            null, // languageId - let it derive from context
+            null, // currencyId - let it derive from context  
+            null, // domainId - let it derive from context
+            $context // Pass the original context to preserve state
         );
         return $this->salesChannelContextService->get($params);
     }
