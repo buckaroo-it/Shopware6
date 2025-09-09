@@ -164,6 +164,7 @@ class CheckoutHelper
     }
 
     /**
+     * Convert push request to array format with robust type handling
      *
      * @param Request $request
      *
@@ -171,27 +172,57 @@ class CheckoutHelper
      */
     public function pusToArray(Request $request): array
     {
-        $now  = new \DateTime();
+        $now = new \DateTime();
         $type = 'push';
-        if ($request->request->get('brq_transaction_type') == 'I150') {
+        
+        // Use strict comparison to prevent type coercion issues
+        $transactionType = $request->request->get('brq_transaction_type');
+        if (is_string($transactionType) && $transactionType === 'I150') {
             $type = 'info';
         }
+        
         return [
-            'order_id'             => $request->request->get('ADD_orderId'),
-            'order_transaction_id' => $request->request->get('ADD_orderTransactionId'),
-            'amount'               => $request->request->get('brq_amount'),
-            'amount_credit'        => $request->request->get('brq_amount_credit'),
-            'currency'             => $request->request->get('brq_currency'),
-            'ordernumber'          => $request->request->get('brq_invoicenumber'),
-            'statuscode'           => $request->request->get('brq_statuscode'),
-            'transaction_method'   => $request->request->get('brq_transaction_method'),
-            'transaction_type'     => $request->request->get('brq_transaction_type'),
-            'transactions'         => $request->request->get('brq_transactions'),
-            'relatedtransaction'   => $request->request->get('brq_relatedtransaction_partialpayment'),
+            'order_id'             => $this->sanitizeRequestValue($request->request->get('ADD_orderId')),
+            'order_transaction_id' => $this->sanitizeRequestValue($request->request->get('ADD_orderTransactionId')),
+            'amount'               => $this->sanitizeRequestValue($request->request->get('brq_amount')),
+            'amount_credit'        => $this->sanitizeRequestValue($request->request->get('brq_amount_credit')),
+            'currency'             => $this->sanitizeRequestValue($request->request->get('brq_currency')),
+            'ordernumber'          => $this->sanitizeRequestValue($request->request->get('brq_invoicenumber')),
+            'statuscode'           => $this->sanitizeRequestValue($request->request->get('brq_statuscode')),
+            'transaction_method'   => $this->sanitizeRequestValue($request->request->get('brq_transaction_method')),
+            'transaction_type'     => $this->sanitizeRequestValue($transactionType),
+            'transactions'         => $this->sanitizeRequestValue($request->request->get('brq_transactions')),
+            'relatedtransaction'   => $this->sanitizeRequestValue($request->request->get('brq_relatedtransaction_partialpayment')),
             'type'                 => $type,
             'created_at'           => $now,
             'updated_at'           => $now,
         ];
+    }
+
+    /**
+     * Sanitize request values to ensure consistent data types
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    private function sanitizeRequestValue($value)
+    {
+        // Convert empty strings to null for consistency
+        if ($value === '') {
+            return null;
+        }
+        
+        // Keep null values as null
+        if ($value === null) {
+            return null;
+        }
+        
+        // For non-string values, convert to string for consistency with request data
+        if (!is_string($value)) {
+            return (string)$value;
+        }
+        
+        return $value;
     }
 
     /**
