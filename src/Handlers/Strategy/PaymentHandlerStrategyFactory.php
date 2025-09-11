@@ -43,7 +43,19 @@ class PaymentHandlerStrategyFactory
      */
     public function isModernStrategyAvailable(): bool
     {
-        return class_exists(\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler::class);
+        // First check if the Shopware abstract class exists
+        if (!class_exists('Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\AbstractPaymentHandler')) {
+            return false;
+        }
+        
+        // Then check if our modern handler class exists and can be loaded
+        $modernHandlerClass = 'Buckaroo\\Shopware6\\Handlers\\PaymentHandlerModern';
+        if (!class_exists($modernHandlerClass)) {
+            return false;
+        }
+        
+        // Additional safety check for the modern strategy classes
+        return class_exists('Buckaroo\\Shopware6\\Handlers\\Strategy\\ModernPaymentHandlerStrategy');
     }
 
     /**
@@ -51,7 +63,13 @@ class PaymentHandlerStrategyFactory
      */
     private function createModernStrategy(): PaymentHandlerStrategyInterface
     {
-        $modernHandler = new \Buckaroo\Shopware6\Handlers\PaymentHandlerModern(
+        $modernHandlerClass = 'Buckaroo\\Shopware6\\Handlers\\PaymentHandlerModern';
+        
+        if (!class_exists($modernHandlerClass)) {
+            throw new \RuntimeException('Modern payment handler class not available');
+        }
+        
+        $modernHandler = new $modernHandlerClass(
             $this->asyncPaymentService
         );
         
@@ -63,7 +81,13 @@ class PaymentHandlerStrategyFactory
      */
     private function createLegacyStrategy(): PaymentHandlerStrategyInterface
     {
-        $legacyHandler = new \Buckaroo\Shopware6\Handlers\PaymentHandlerLegacy(
+        $legacyHandlerClass = 'Buckaroo\\Shopware6\\Handlers\\PaymentHandlerLegacy';
+        
+        if (!class_exists($legacyHandlerClass)) {
+            throw new \RuntimeException('Legacy payment handler class not available');
+        }
+        
+        $legacyHandler = new $legacyHandlerClass(
             $this->asyncPaymentService
         );
         

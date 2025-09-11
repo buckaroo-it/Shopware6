@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-class PaymentHandlerModernRefactored extends AbstractPaymentHandler
+class PaymentHandlerModern extends AbstractPaymentHandler
 {
     use \Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
     
