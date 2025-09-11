@@ -7,7 +7,6 @@ namespace Buckaroo\Shopware6\Handlers;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class PaymentUrlGenerator
