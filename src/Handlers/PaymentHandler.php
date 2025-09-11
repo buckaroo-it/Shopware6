@@ -21,12 +21,18 @@ class PaymentHandler extends AbstractPaymentHandler
 {
     private PaymentHandlerContext $handlerContext;
     private PaymentHandlerStrategyFactory $strategyFactory;
+    protected string $paymentClass = '';
 
     public function __construct(AsyncPaymentService $asyncPaymentService)
     {
         $this->strategyFactory = new PaymentHandlerStrategyFactory($asyncPaymentService);
         $strategy = $this->strategyFactory->createStrategy();
         $this->handlerContext = new PaymentHandlerContext($strategy);
+        
+        // If this instance has a payment class set, transfer it to the strategy
+        if (!empty($this->paymentClass)) {
+            $this->handlerContext->setPaymentClass($this->paymentClass);
+        }
     }
 
     /**

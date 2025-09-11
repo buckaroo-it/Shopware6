@@ -246,6 +246,14 @@ class PaymentHandlerModern extends AbstractPaymentHandler
 
     private function getPayment(string $transactionId): AbstractPayment
     {
+        if (!isset($this->paymentClass) || empty($this->paymentClass)) {
+            throw PaymentException::asyncProcessInterrupted(
+                $transactionId,
+                'Payment class not set. Call setPaymentClass() before using the handler.',
+                new \Exception('Payment class not set. Call setPaymentClass() before using the handler.')
+            );
+        }
+        
         $paymentClass = null;
         if (class_exists($this->paymentClass)) {
             $paymentClass = new $this->paymentClass();
