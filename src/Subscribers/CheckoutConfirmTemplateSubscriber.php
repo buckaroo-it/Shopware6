@@ -293,7 +293,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'applepayHostedPaymentPage' =>
-                $this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId) === 1,
+                intval($this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId)) === 1,
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'canShowPhone'          => $this->canShowPhone($customer),
