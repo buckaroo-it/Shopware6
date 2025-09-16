@@ -161,6 +161,11 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\PaymentServiceDecorator"/>
         </service>
 
+        <!-- Notification Service Factory for version compatibility -->
+        <service id="Buckaroo\Shopware6\Service\NotificationServiceFactory">
+            <argument type="service" id="service_container"/>
+        </service>
+
         <service id="Buckaroo\Shopware6\Events\OrderStateChangeEvent">
             <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\InvoiceService"/>
@@ -168,7 +173,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\CaptureService"/>
-            <argument type="service" id="Shopware\Administration\Notification\NotificationService" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\NotificationServiceFactory" />
             <tag name="kernel.event_subscriber"/>
         </service>
 

@@ -14,7 +14,7 @@ use Buckaroo\Shopware6\Service\CaptureService;
 use Buckaroo\Shopware6\Service\InvoiceService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\TransactionService;
-use Shopware\Administration\Notification\NotificationService;
+use Buckaroo\Shopware6\Service\NotificationServiceFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 
@@ -30,7 +30,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
     protected CaptureService $captureService;
 
-    protected NotificationService $notificationService;
+    protected object $notificationService; // Can be either NotificationService
 
     /** @var LoggerInterface */
     protected $logger;
@@ -45,7 +45,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         OrderService $orderService,
         LoggerInterface $logger,
         CaptureService $captureService,
-        NotificationService $notificationService
+        NotificationServiceFactory $notificationServiceFactory
     ) {
         $this->transactionService = $transactionService;
         $this->invoiceService = $invoiceService;
@@ -53,7 +53,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $this->orderService = $orderService;
         $this->logger = $logger;
         $this->captureService = $captureService;
-        $this->notificationService = $notificationService;
+        $this->notificationService = $notificationServiceFactory->getNotificationService();
     }
 
     /**

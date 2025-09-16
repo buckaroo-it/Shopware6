@@ -16,7 +16,7 @@ use Buckaroo\Shopware6\Service\InvoiceService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\TransactionService;
 use Buckaroo\Shopware6\Events\OrderStateChangeEvent;
-use Shopware\Administration\Notification\NotificationService;
+use Buckaroo\Shopware6\Service\NotificationServiceFactory;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 
 class OrderStateChangeEventTest extends TestCase
@@ -37,7 +37,13 @@ class OrderStateChangeEventTest extends TestCase
         $this->settingsService = $this->createMock(SettingsService::class);
         $this->orderService = $this->createMock(OrderService::class);
         $this->captureService = $this->createMock(CaptureService::class);
-        $this->notificationService = $this->createMock(NotificationService::class);
+        
+        // Mock the factory and its return value
+        $notificationServiceFactory = $this->createMock(NotificationServiceFactory::class);
+        $mockNotificationService = $this->createMock(\stdClass::class);
+        $mockNotificationService->method('createNotification')->willReturn(null);
+        $notificationServiceFactory->method('getNotificationService')->willReturn($mockNotificationService);
+        
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->orderStateChangeEvent = new OrderStateChangeEvent(
@@ -47,7 +53,7 @@ class OrderStateChangeEventTest extends TestCase
             $this->orderService,
             $this->logger,
             $this->captureService,
-            $this->notificationService
+            $notificationServiceFactory
         );
     }
 
