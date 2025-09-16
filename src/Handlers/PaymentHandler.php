@@ -7,7 +7,6 @@ namespace Buckaroo\Shopware6\Handlers;
 use Buckaroo\Shopware6\Handlers\Strategy\PaymentHandlerContext;
 use Buckaroo\Shopware6\Handlers\Strategy\PaymentHandlerStrategyFactory;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
@@ -16,8 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Payment handler using Strategy pattern for version compatibility
+ * Does not extend AbstractPaymentHandler to maintain compatibility with Shopware < 6.7
  */
-class PaymentHandler extends AbstractPaymentHandler
+class PaymentHandler 
 {
     private PaymentHandlerContext $handlerContext;
     private PaymentHandlerStrategyFactory $strategyFactory;
