@@ -168,7 +168,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\CaptureService"/>
-            <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService" />
+            <argument type="service" id="Shopware\Administration\Notification\NotificationService" />
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -509,11 +509,16 @@
             <argument type="service" id="country.repository"/>
         </service>
 
+        <!-- Payment Service Factory for version compatibility -->
+        <service id="Buckaroo\Shopware6\Service\PaymentServiceFactory">
+            <argument type="service" id="service_container"/>
+        </service>
+
         <service id="Buckaroo\Shopware6\Service\OrderService">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\PaymentServiceFactory"/>
             <argument type="service" id="order_address.repository"/>
             <argument type="service" id="logger"/>
         </service>

@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
+use Buckaroo\Shopware6\Service\PaymentServiceFactory;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Checkout\Payment\PaymentService;
 
 class OrderService
 {
@@ -34,7 +34,7 @@ class OrderService
 
     protected EventDispatcherInterface $eventDispatcher;
 
-    protected PaymentService $paymentService;
+    protected object $paymentService; // Can be PaymentProcessor or PaymentService
 
     protected LoggerInterface $logger;
 
@@ -42,14 +42,14 @@ class OrderService
         OrderPersisterInterface $orderPersister,
         EntityRepository $orderRepository,
         EventDispatcherInterface $eventDispatcher,
-        PaymentService $paymentService,
+        PaymentServiceFactory $paymentServiceFactory,
         EntityRepository $orderAddressRepository,
         LoggerInterface $logger
     ) {
         $this->orderPersister = $orderPersister;
         $this->orderRepository = $orderRepository;
         $this->eventDispatcher = $eventDispatcher;
-        $this->paymentService = $paymentService;
+        $this->paymentService = $paymentServiceFactory->getPaymentService();
         $this->orderAddressRepository = $orderAddressRepository;
         $this->logger = $logger;
     }
@@ -90,13 +90,28 @@ class OrderService
         try {
             $request = new Request([], $data->all());
 
-            $response = $this->paymentService->handlePaymentByOrder(
-                $order->getId(),
-                $data,
-                $this->salesChannelContext,
-                $finishUrl,
-                $errorUrl
-            );
+            // Handle both PaymentProcessor (6.7+) and PaymentService (6.5-6.6)
+            if (method_exists($this->paymentService, 'pay')) {
+                // PaymentProcessor API (Shopware 6.7+)
+                $response = $this->paymentService->pay(
+                    $order->getId(),
+                    $request,
+                    $this->salesChannelContext,
+                    $finishUrl,
+                    $errorUrl
+                );
+            } elseif (method_exists($this->paymentService, 'handlePaymentByOrder')) {
+                // PaymentService API (Shopware 6.5-6.6)
+                $response = $this->paymentService->handlePaymentByOrder(
+                    $order->getId(),
+                    $data,
+                    $this->salesChannelContext,
+                    $finishUrl,
+                    $errorUrl
+                );
+            } else {
+                throw new \RuntimeException('Unknown payment service type: ' . get_class($this->paymentService));
+            }
 
             return $response instanceof RedirectResponse ? $response->getTargetUrl() : null;
         } catch (\Throwable $e) {
