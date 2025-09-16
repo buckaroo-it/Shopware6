@@ -2,7 +2,7 @@
     "name": "buckaroo/shopware6",
     "description": "Buckaroo payment provider plugin for Shopware 6",
     "type": "shopware-platform-plugin",
-    "version": "2.9.1",
+    "version": "2.10.0",
     "license": "proprietary",
     "minimum-stability": "stable",
     "require": {

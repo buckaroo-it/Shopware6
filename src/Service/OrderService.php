@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Checkout\Payment\PaymentProcessor;
+use Shopware\Core\Checkout\Payment\PaymentService;
 
 class OrderService
 {
@@ -34,7 +34,7 @@ class OrderService
 
     protected EventDispatcherInterface $eventDispatcher;
 
-    protected PaymentProcessor $paymentProcessor;
+    protected PaymentService $paymentService;
 
     protected LoggerInterface $logger;
 
@@ -42,14 +42,14 @@ class OrderService
         OrderPersisterInterface $orderPersister,
         EntityRepository $orderRepository,
         EventDispatcherInterface $eventDispatcher,
-        PaymentProcessor $paymentProcessor,
+        PaymentService $paymentService,
         EntityRepository $orderAddressRepository,
         LoggerInterface $logger
     ) {
         $this->orderPersister = $orderPersister;
         $this->orderRepository = $orderRepository;
         $this->eventDispatcher = $eventDispatcher;
-        $this->paymentProcessor = $paymentProcessor;
+        $this->paymentService = $paymentService;
         $this->orderAddressRepository = $orderAddressRepository;
         $this->logger = $logger;
     }
@@ -90,9 +90,9 @@ class OrderService
         try {
             $request = new Request([], $data->all());
 
-            $response = $this->paymentProcessor->pay(
+            $response = $this->paymentService->handlePaymentByOrder(
                 $order->getId(),
-                $request,
+                $data,
                 $this->salesChannelContext,
                 $finishUrl,
                 $errorUrl

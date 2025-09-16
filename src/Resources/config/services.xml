@@ -513,8 +513,9 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentProcessor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
             <argument type="service" id="order_address.repository"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber" >
