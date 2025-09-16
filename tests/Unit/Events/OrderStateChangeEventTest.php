@@ -16,7 +16,7 @@ use Buckaroo\Shopware6\Service\InvoiceService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\TransactionService;
 use Buckaroo\Shopware6\Events\OrderStateChangeEvent;
-use Shopware\Administration\Notification\NotificationService;
+use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 
 class OrderStateChangeEventTest extends TestCase
