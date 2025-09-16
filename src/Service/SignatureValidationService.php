@@ -21,7 +21,7 @@ class SignatureValidationService
      *
      * @return bool
      */
-    public function validateSignature(Request $request, string $salesChannelId = null)
+    public function validateSignature(Request $request, ?string $salesChannelId = null)
     {
         $postData = $request->request->all();
 

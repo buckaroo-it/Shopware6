@@ -27,7 +27,7 @@ class SettingsService
      * @param string $setting
      * @return mixed|null
      */
-    public function getSetting(string $setting, string $salesChannelId = null)
+    public function getSetting(string $setting, ?string $salesChannelId = null)
     {
         return $this->systemConfigService->get('BuckarooPayments.config.' . $setting, $salesChannelId);
     }

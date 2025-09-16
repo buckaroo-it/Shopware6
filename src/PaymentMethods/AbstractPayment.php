@@ -43,4 +43,21 @@ abstract class AbstractPayment implements PaymentMethodInterface
     {
         return false;
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return string
+     */
+    public function getTechnicalName(): string
+    {
+        $buckarooKey = $this->getBuckarooKey();
+        
+        // Handle special case for Bancontact
+        if ($buckarooKey === 'bancontactmrcash') {
+            return 'buckaroo_bancontact';
+        }
+        
+        return 'buckaroo_' . $buckarooKey;
+    }
 }

@@ -23,6 +23,7 @@ class TransactionService
         $this->transactionRepository = $transactionRepository;
     }
     /**
+     * Save transaction data to custom fields
      *
      * @param string $orderTransactionId
      * @param Context $context
@@ -44,23 +45,24 @@ class TransactionService
         $customFields = $orderTransaction->getCustomFields() ?? [];
         $customFields = array_merge($customFields, $data);
 
-        $this->updateTransactionCustomFields($orderTransactionId, $customFields);
+        $this->updateTransactionCustomFields($orderTransactionId, $customFields, $context);
     }
     /**
+     * Update transaction custom fields using the provided context
      *
      * @param string $orderTransactionId
      * @param array<mixed> $customFields
+     * @param Context $context The context to use for the update operation
      *
      * @return void
      */
-    public function updateTransactionCustomFields(string $orderTransactionId, array $customFields): void
+    public function updateTransactionCustomFields(string $orderTransactionId, array $customFields, Context $context): void
     {
         $data = [
             'id'           => $orderTransactionId,
             'customFields' => $customFields,
         ];
-
-        $this->transactionRepository->update([$data], Context::createDefaultContext());
+        $this->transactionRepository->update([$data], $context);
     }
 
     /**
@@ -133,12 +135,51 @@ class TransactionService
             str_replace('PaymentHandler', '', $paymentHandler)
         );
 
-        /** @var \Buckaroo\Shopware6\PaymentMethods\AbstractPayment */
-        $paymentMethod              = new $method_path();
-        $customField['canRefund']   = $paymentMethod->canRefund() ? 1 : 0;
-        $customField['canCapture']  = $paymentMethod->canCapture() ? 1 : 0;
-        $customField['serviceName'] = $paymentMethod->getBuckarooKey();
-        $customField['version']     = $paymentMethod->getVersion();
+        // Validate class existence and instantiate safely
+        $customField['canRefund'] = 0;
+        $customField['canCapture'] = 0;
+        $customField['serviceName'] = '';
+        $customField['version'] = '';
+
+        if (!empty($method_path) && class_exists($method_path)) {
+            try {
+                // Verify it's a valid payment method class before instantiation
+                $reflection = new \ReflectionClass($method_path);
+                
+                // Check if class is instantiable (not abstract/interface)
+                if ($reflection->isInstantiable()) {
+                    /** @var \Buckaroo\Shopware6\PaymentMethods\AbstractPayment */
+                    $paymentMethod = new $method_path();
+                    
+                    // Verify it has the expected methods before calling them
+                    if (method_exists($paymentMethod, 'canRefund')) {
+                        $customField['canRefund'] = $paymentMethod->canRefund() ? 1 : 0;
+                    }
+                    
+                    if (method_exists($paymentMethod, 'canCapture')) {
+                        $customField['canCapture'] = $paymentMethod->canCapture() ? 1 : 0;
+                    }
+                    
+                    if (method_exists($paymentMethod, 'getBuckarooKey')) {
+                        $customField['serviceName'] = $paymentMethod->getBuckarooKey();
+                    }
+                    
+                    if (method_exists($paymentMethod, 'getVersion')) {
+                        $customField['version'] = $paymentMethod->getVersion();
+                    }
+                } else {
+                    error_log("Warning: Payment method class {$method_path} is not instantiable (abstract/interface)");
+                }
+            } catch (\Throwable $e) {
+                // Log the error but don't crash the application
+                error_log("Error instantiating payment method class {$method_path}: " . $e->getMessage());
+            }
+        } else {
+            // Log missing class for debugging
+            if (!empty($method_path)) {
+                error_log("Warning: Payment method class {$method_path} does not exist");
+            }
+        }
 
         return $customField;
     }

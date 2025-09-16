@@ -281,10 +281,8 @@ export default class BuckarooPaymentHelper extends Plugin {
         const confirmButton = document.getElementById('confirmFormSubmit');
         if (confirmButton) {
             confirmButton.addEventListener('click', (event) => {
-                // Immediately disable to prevent double click spam
                 confirmButton.disabled = true;
 
-                // Allow some milliseconds to validate and potentially re-enable if needed
                 setTimeout(() => {
                     const notValid = this._CheckValidate();
                     if (notValid) {

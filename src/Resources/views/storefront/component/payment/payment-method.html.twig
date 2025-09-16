@@ -55,6 +55,75 @@
                 </div>
             {% endif %}
 
+            {% if payment.translated.customFields.is_buckaroo and payment.id is same as(selectedPaymentMethodId) %}
+                {% set buckarooKey = payment.translated.customFields.buckaroo_key %}
+                {% set methodsWithFinancialWarning = page.extensions.buckaroo.methodsWithFinancialWarning %}
+                {% set paymentMethodName = page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name %}
+                {% set countryBillingIso = page.extensions.buckaroo.countryBillingIso %}
+                {% set countryShippingIso = page.extensions.buckaroo.countryShippingIso %}
+                <div class="buckaroo-payment-inputs" style="margin-top: 15px;">
+                    {% if buckarooKey == 'bancontactmrcash' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/bancontactmrcash.html.twig' %}
+                    {% elseif buckarooKey == 'creditcard' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/creditcard.html.twig' %}
+                    {% elseif buckarooKey == 'creditcards' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/creditcards.html.twig' %}
+                    {% elseif buckarooKey == 'afterpay' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/afterpay.html.twig' %}
+                    {% elseif buckarooKey == 'Billink' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/billink.html.twig' %}
+                    {% elseif buckarooKey == 'capayable' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/capayable.html.twig' %}
+                    {% elseif buckarooKey == 'sepadirectdebit' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/sepadirectdebit.html.twig' %}
+                    {% elseif buckarooKey == 'klarna' or buckarooKey == 'klarnain' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/klarna.html.twig' %}
+                    {% elseif buckarooKey == 'klarnakp' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/klarnakp.html.twig' %}
+                    {% elseif buckarooKey == 'payperemail' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/payperemail.html.twig' %}
+                    {% elseif buckarooKey == 'ideal' or buckarooKey == 'idealprocessing' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/ideal.html.twig' %}
+                    {% elseif buckarooKey == 'paybybank' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/paybybank.html.twig' %}
+                    {% elseif buckarooKey == 'blik' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/blik.html.twig' %}
+                    {% elseif buckarooKey == 'eps' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/eps.html.twig' %}
+                    {% elseif buckarooKey == 'kbc' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/kbc.html.twig' %}
+                    {% elseif buckarooKey == 'p24' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/p24.html.twig' %}
+                    {% elseif buckarooKey == 'mbway' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/mbway.html.twig' %}
+                    {% elseif buckarooKey == 'alipay' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/alipay.html.twig' %}
+                    {% elseif buckarooKey == 'paypal' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/paypal.html.twig' %}
+                    {% elseif buckarooKey == 'belfius' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/belfius.html.twig' %}
+                    {% elseif buckarooKey == 'idealqr' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/idealqr.html.twig' %}
+                    {% elseif buckarooKey == 'trustly' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/trustly.html.twig' %}
+                    {% elseif buckarooKey == 'applepay' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/applepay.html.twig' %}
+                    {% elseif buckarooKey == 'payconiq' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/payconiq.html.twig' %}
+                    {% elseif buckarooKey == 'transfer' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/transfer.html.twig' %}
+                    {% elseif buckarooKey == 'giftcards' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/giftcards.html.twig' %}
+                    {% elseif buckarooKey == 'wechatpay' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/wechatpay.html.twig' %}
+                    {% elseif buckarooKey == 'multibanco' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/multibanco.html.twig' %}
+                    {% elseif buckarooKey == 'knaken' %}
+                        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/knaken.html.twig' %}
+                    {% endif %}
+                </div>
+            {% endif %}
+
         </div>
     {% else %}
         {{ parent() }}
@@ -62,12 +131,5 @@
 {% endblock %}
 
 {% block component_payment_fieldset_template %}
-    {% if payment.translated.customFields.is_buckaroo %}
-        {% sw_include '@BuckarooPayments/storefront/buckaroo/payment_methods.html.twig' %}
-
-        {% if payment.translated.customFields.template %}
-            {% sw_include payment.translated.customFields.template ignore missing %}
-        {% endif %}
-    {% endif %}
     {{ parent() }}
 {% endblock %}

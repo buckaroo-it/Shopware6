@@ -8,9 +8,10 @@ use Buckaroo\Shopware6\PaymentMethods\Ideal;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class IdealPaymentHandler extends AsyncPaymentHandler
+class IdealPaymentHandler extends PaymentHandler
 {
     protected string $paymentClass = Ideal::class;
 
@@ -34,8 +35,8 @@ class IdealPaymentHandler extends AsyncPaymentHandler
     ): array {
         if ($dataBag->get('idealFastCheckoutInfo')) {
             $shippingCost = 0;
-
             $firstDelivery = $order->getDeliveries()?->first();
+
             if ($firstDelivery && $firstDelivery->getShippingCosts()) {
                 $shippingCost = $firstDelivery->getShippingCosts()->getTotalPrice();
             }
@@ -74,9 +75,6 @@ class IdealPaymentHandler extends AsyncPaymentHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): string {
-        if ($dataBag->get('idealFastCheckoutInfo')) {
-            return 'payFastCheckout';
-        }
-        return 'pay';
+        return $dataBag->get('idealFastCheckoutInfo') ? 'payFastCheckout' : 'pay';
     }
 }

@@ -9,7 +9,7 @@ use Buckaroo\Shopware6\PaymentMethods\Trustly;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class TrustlyPaymentHandler extends AsyncPaymentHandler
+class TrustlyPaymentHandler extends PaymentHandler
 {
     protected string $paymentClass = Trustly::class;
 

@@ -9,7 +9,7 @@ use Buckaroo\Shopware6\PaymentMethods\Creditcards;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class CreditcardsPaymentHandler extends AsyncPaymentHandler
+class CreditcardsPaymentHandler extends PaymentHandler
 {
     protected string $paymentClass = Creditcards::class;
 

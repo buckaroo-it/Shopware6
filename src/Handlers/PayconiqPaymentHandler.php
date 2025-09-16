@@ -6,7 +6,7 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Payconiq;
 
-class PayconiqPaymentHandler extends AsyncPaymentHandler
+class PayconiqPaymentHandler extends PaymentHandler
 {
     protected string $paymentClass = Payconiq::class;
 }

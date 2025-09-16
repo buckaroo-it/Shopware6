@@ -34,7 +34,7 @@ class ClientService
      * @return Client
      * @throws ClientInitException
      */
-    public function get(string $configMethodCode, string $salesChannelId = null): Client
+    public function get(string $configMethodCode, ?string $salesChannelId = null): Client
     {
         $mode = $this->settingsService->getEnvironment($configMethodCode, $salesChannelId);
 

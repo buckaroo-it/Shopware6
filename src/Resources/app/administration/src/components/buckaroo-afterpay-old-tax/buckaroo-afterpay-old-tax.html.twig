@@ -7,7 +7,9 @@
             label-property="name"
             value-property="id"
             :options="afterpayTaxes"
-            @change="setTaxAssociation(tax.id, $event)"
+            @change="(value) => setTaxAssociation(tax.id, value)"
+            @input="(value) => setTaxAssociation(tax.id, value)"
+            @update:value="(value) => setTaxAssociation(tax.id, value)"
             :value="getSelectValue(tax.id)"
             ></sw-select-field>
         </div>

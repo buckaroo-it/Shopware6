@@ -9,7 +9,6 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
             this._toggleApplePay();
             this._getActivePayByBankLogo();
         } catch (e) {
-            // do nothing
             console.log('init error', e);
         }
     }

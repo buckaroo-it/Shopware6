@@ -38,9 +38,23 @@ class CheckoutHelper
         $this->requestStack = $requestStack;
     }
 
+    /**
+     * Get the current session with proper null safety
+     * 
+     * @return SessionInterface
+     * @throws \RuntimeException When no session is active
+     */
     public function getSession(): SessionInterface
     {
-        return $this->requestStack->getSession();
+        $session = $this->requestStack->getSession();
+        
+        if ($session === null) {
+            throw new \RuntimeException(
+                'No active session found. Session is required for payment processing.'
+            );
+        }
+        
+        return $session;
     }
 
     /**
@@ -50,30 +64,36 @@ class CheckoutHelper
      * @param Context $context
      *
      * @return void
+     * @throws \Exception When order is not found or fee calculation fails
      */
     public function applyFeeToOrder(string $orderId, float $fee, Context $context): void
     {
+        if (empty($orderId)) {
+            throw new \InvalidArgumentException('Order ID cannot be empty');
+        }
+
         $order = $this->getOrderById($orderId, $context);
         if ($order === null) {
-            throw new \Exception("A valid order is required", 1);
+            throw new \Exception("Order with ID {$orderId} not found", 1);
         }
 
         $price = $order->getPrice();
-
-        $savedCustomFields = $order->getCustomFields();
-
-        if ($savedCustomFields === null) {
-            $savedCustomFields = [];
+        if ($price === null) {
+            throw new \Exception("Order price information is missing", 1);
         }
 
+        $savedCustomFields = $order->getCustomFields() ?? [];
         $buckarooFee = $fee;
 
-        if (isset($savedCustomFields['buckarooFee'])) {
-            $buckarooFee = $buckarooFee - $savedCustomFields['buckarooFee'];
+        // Adjust fee if there's already a buckaroo fee applied
+        if (isset($savedCustomFields['buckarooFee']) && is_numeric($savedCustomFields['buckarooFee'])) {
+            $buckarooFee = $buckarooFee - (float)$savedCustomFields['buckarooFee'];
         }
+        
         $savedCustomFields['buckarooFee'] = $fee;
 
-        if ($buckarooFee !== 0) {
+        // Only update if there's an actual fee change
+        if ($buckarooFee !== 0.0) {
             $data = [
                 'id'           => $orderId,
                 'customFields' => $savedCustomFields,
@@ -87,7 +107,7 @@ class CheckoutHelper
                 )
             ];
 
-            $this->orderRepository->update([$data], Context::createDefaultContext());
+            $this->orderRepository->update([$data], $context);
         }
     }
 
@@ -96,34 +116,47 @@ class CheckoutHelper
      *
      * @param string $orderId
      * @param array<mixed> $customFields
-     * @param Context|null $context
+     * @param Context $context
      *
      * @return void
+     * @throws \Exception When order is not found
+     * @throws \InvalidArgumentException When parameters are invalid
      */
-    public function appendCustomFields(string $orderId, array $customFields, Context $context = null)
+    public function appendCustomFields(string $orderId, array $customFields, Context $context): void
     {
+        if (empty($orderId)) {
+            throw new \InvalidArgumentException('Order ID cannot be empty');
+        }
+
+        if (empty($customFields)) {
+            return; // Nothing to update
+        }
+
         $order = $this->getOrderById($orderId, $context);
         if ($order === null) {
-            throw new \Exception("A valid order is required", 1);
+            throw new \Exception("Order with ID {$orderId} not found", 1);
         }
 
-        $savedCustomFields = $order->getCustomFields();
-
-        if ($savedCustomFields === null) {
-            $savedCustomFields = [];
-        }
+        $savedCustomFields = $order->getCustomFields() ?? [];
+        
         $this->orderRepository->update(
             [['id' => $orderId, 'customFields' => array_merge($savedCustomFields, $customFields)]],
-            Context::createDefaultContext()
+            $context
         );
     }
 
 
 
 
-    public function getOrderById(string $orderId, Context $context = null): ?OrderEntity
+    /**
+     * Get order by ID with proper context handling
+     *
+     * @param string $orderId
+     * @param Context $context
+     * @return OrderEntity|null
+     */
+    public function getOrderById(string $orderId, Context $context): ?OrderEntity
     {
-        $context       = $context !== null ? $context : Context::createDefaultContext();
         $orderCriteria = new Criteria([$orderId]);
         $orderCriteria->addAssociation('orderCustomer.salutation');
         $orderCriteria->addAssociation('stateMachineState');
@@ -139,12 +172,13 @@ class CheckoutHelper
         return $this->orderRepository->search($orderCriteria, $context)->first();
     }
 
-    public function saveBuckarooTransaction(Request $request): ?string
+    public function saveBuckarooTransaction(Request $request, Context $context): ?string
     {
-        return $this->buckarooTransactionEntityRepository->save(null, $this->pusToArray($request), []);
+        return $this->buckarooTransactionEntityRepository->save(null, $this->pusToArray($request), [], $context);
     }
 
     /**
+     * Convert push request to array format with robust type handling
      *
      * @param Request $request
      *
@@ -152,27 +186,79 @@ class CheckoutHelper
      */
     public function pusToArray(Request $request): array
     {
-        $now  = new \DateTime();
+        $now = new \DateTime();
         $type = 'push';
-        if ($request->request->get('brq_transaction_type') == 'I150') {
+        
+        // Use strict comparison to prevent type coercion issues
+        $transactionType = $request->request->get('brq_transaction_type');
+        if (is_string($transactionType) && $transactionType === 'I150') {
             $type = 'info';
         }
+        
         return [
-            'order_id'             => $request->request->get('ADD_orderId'),
-            'order_transaction_id' => $request->request->get('ADD_orderTransactionId'),
-            'amount'               => $request->request->get('brq_amount'),
-            'amount_credit'        => $request->request->get('brq_amount_credit'),
-            'currency'             => $request->request->get('brq_currency'),
-            'ordernumber'          => $request->request->get('brq_invoicenumber'),
-            'statuscode'           => $request->request->get('brq_statuscode'),
-            'transaction_method'   => $request->request->get('brq_transaction_method'),
-            'transaction_type'     => $request->request->get('brq_transaction_type'),
-            'transactions'         => $request->request->get('brq_transactions'),
-            'relatedtransaction'   => $request->request->get('brq_relatedtransaction_partialpayment'),
+            'order_id'             => $this->sanitizeRequestValue($request->request->get('ADD_orderId')),
+            'order_transaction_id' => $this->sanitizeRequestValue($request->request->get('ADD_orderTransactionId')),
+            'amount'               => $this->sanitizeRequestValue($request->request->get('brq_amount')),
+            'amount_credit'        => $this->sanitizeRequestValue($request->request->get('brq_amount_credit')),
+            'currency'             => $this->sanitizeRequestValue($request->request->get('brq_currency')),
+            'ordernumber'          => $this->sanitizeRequestValue($request->request->get('brq_invoicenumber')),
+            'statuscode'           => $this->sanitizeRequestValue($request->request->get('brq_statuscode')),
+            'transaction_method'   => $this->sanitizeRequestValue($request->request->get('brq_transaction_method')),
+            'transaction_type'     => $this->sanitizeRequestValue($transactionType),
+            'transactions'         => $this->sanitizeRequestValue($request->request->get('brq_transactions')),
+            'relatedtransaction'   => $this->sanitizeRequestValue($request->request->get('brq_relatedtransaction_partialpayment')),
             'type'                 => $type,
             'created_at'           => $now,
             'updated_at'           => $now,
         ];
+    }
+
+    /**
+     * Sanitize request values with proper type safety and validation
+     *
+     * @param mixed $value
+     * @return string|null
+     */
+    private function sanitizeRequestValue($value): ?string
+    {
+        // Handle null values
+        if ($value === null) {
+            return null;
+        }
+        
+        // Handle empty strings
+        if ($value === '') {
+            return null;
+        }
+        
+        // Reject complex data types that cannot be safely converted to strings
+        if (is_array($value)) {
+            // Log warning for debugging - arrays should not be in request parameters
+            error_log('Warning: Array value found in request parameter, rejecting: ' . json_encode($value));
+            return null;
+        }
+        
+        if (is_object($value)) {
+            // Log warning for debugging - objects should not be in request parameters
+            error_log('Warning: Object value found in request parameter, rejecting: ' . get_class($value));
+            return null;
+        }
+        
+        if (is_resource($value)) {
+            // Resources cannot be safely converted to strings
+            error_log('Warning: Resource value found in request parameter, rejecting');
+            return null;
+        }
+        
+        // Handle scalar values (string, int, float, bool)
+        if (is_scalar($value)) {
+            // Convert to string with explicit type safety
+            return (string)$value;
+        }
+        
+        // Fallback for unexpected types
+        error_log('Warning: Unexpected value type in request parameter: ' . gettype($value));
+        return null;
     }
 
     /**
@@ -181,12 +267,14 @@ class CheckoutHelper
      *
      * @return mixed
      */
-    public function getSettingsValue(string $value, string $salesChannelId = null)
+    public function getSettingsValue(string $value, ?string $salesChannelId = null)
     {
         return $this->settingsService->getSetting($value, $salesChannelId);
     }
 
     /**
+     * Compare two amounts for equality with proper type safety and precision handling
+     * 
      * @param mixed $amount1
      * @param mixed $amount2
      *
@@ -198,10 +286,16 @@ class CheckoutHelper
             return false;
         }
 
-        if ($amount2 == 0) {
-            return $amount1 == $amount2;
-        } else {
-            return abs((floatval($amount1) - floatval($amount2)) / floatval($amount2)) < 0.00001;
+        // Convert to float with explicit type conversion to avoid type juggling
+        $float1 = (float)$amount1;
+        $float2 = (float)$amount2;
+
+        // Use strict equality for zero comparison to avoid type juggling
+        if ($float2 === 0.0) {
+            return $float1 === 0.0;
         }
+        
+        // For non-zero amounts, use relative precision comparison
+        return abs(($float1 - $float2) / $float2) < 0.00001;
     }
 }

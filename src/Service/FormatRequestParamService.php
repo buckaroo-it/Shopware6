@@ -32,7 +32,7 @@ class FormatRequestParamService
      * @param OrderEntity $order
      * @return array<array>
      */
-    public function getOrderLinesArray(OrderEntity $order, string $paymentCode = null, ?Context $context = null)
+    public function getOrderLinesArray(OrderEntity $order, ?string $paymentCode = null, ?Context $context = null)
     {
         // Variables
         $lines     = [];

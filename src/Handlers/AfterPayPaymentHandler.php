@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Handlers;
 
 use Shopware\Core\Framework\Context;
-use Buckaroo\Shopware6\Handlers\AfterPayOld;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\Service\CaptureService;
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 use Buckaroo\Resources\Constants\RecipientCategory;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
-class AfterPayPaymentHandler extends AsyncPaymentHandler
+class AfterPayPaymentHandler extends PaymentHandler
 {
     protected string $paymentClass = AfterPay::class;
 
@@ -40,25 +41,56 @@ class AfterPayPaymentHandler extends AsyncPaymentHandler
         parent::__construct($asyncPaymentService);
         $this->afterPayOld = $afterPayOld;
     }
-
-    /** @inheritDoc */
-    public function pay(
-        AsyncPaymentTransactionStruct $transaction,
+    /**
+     * Inject pre-pay behavior into both cores via hooks.
+     */
+    protected function beforePayLegacy(
+        \Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext
-    ): RedirectResponse {
-        if ($this->isAuthorization($salesChannelContext->getSalesChannelId())) {
-            $this->asyncPaymentService
-                ->checkoutHelper
-                ->appendCustomFields(
-                    $transaction->getOrder()->getId(),
-                    [
-                        CaptureService::ORDER_IS_AUTHORIZED => true,
-                    ],
-                    $salesChannelContext->getContext()
-                );
+    ): void {
+        $order = $transaction->getOrder();
+        if ($order instanceof OrderEntity) {
+            $salesChannelId = $order->getSalesChannelId();
+            if ($this->isAuthorization($salesChannelId)) {
+                $this->asyncPaymentService
+                    ->checkoutHelper
+                    ->appendCustomFields(
+                        $order->getId(),
+                        [
+                            CaptureService::ORDER_IS_AUTHORIZED => true,
+                        ],
+                        $salesChannelContext->getContext()
+                    );
+            }
         }
-        return parent::pay($transaction, $dataBag, $salesChannelContext);
+    }
+
+    protected function beforePayModern(
+        PaymentTransactionStruct $transaction,
+        RequestDataBag $dataBag,
+        Context $context
+    ): void {
+        $transactionId = $transaction->getOrderTransactionId();
+        $orderTransaction = $this->asyncPaymentService->getTransaction($transactionId, $context);
+        if ($orderTransaction === null) {
+            return;
+        }
+        $order = $orderTransaction->getOrder();
+        if ($order instanceof OrderEntity) {
+            $salesChannelId = $order->getSalesChannelId();
+            if ($this->isAuthorization($salesChannelId)) {
+                $this->asyncPaymentService
+                    ->checkoutHelper
+                    ->appendCustomFields(
+                        $order->getId(),
+                        [
+                            CaptureService::ORDER_IS_AUTHORIZED => true,
+                        ],
+                        $context
+                    );
+            }
+        }
     }
 
     /**

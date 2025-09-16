@@ -1995,7 +1995,7 @@
             <options>
                 <option>
                     <id>v3</id>
-                    <name>V3 (iDEAL In3)</name>
+                    <name>V3 (In3)</name>
                 </option>
                 <option>
                     <id>v2</id>
@@ -2014,7 +2014,7 @@
 			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
 			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
 			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
-            <defaultValue>iDEAL In3</defaultValue>
+            <defaultValue>In3</defaultValue>
         </input-field>
 
         <input-field type="float">

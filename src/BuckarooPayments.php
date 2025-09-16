@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6;
 
-if (file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
-    require_once dirname(__DIR__) . '/vendor/autoload.php';
-}
-
-
 use Buckaroo\Shopware6\Installers\MediaInstaller;
 use Buckaroo\Shopware6\Installers\PaymentMethodsInstaller;
 use Shopware\Core\Framework\Plugin;

@@ -16,7 +16,12 @@ trait ValidateOrderTrait
             throw new \InvalidArgumentException('Deliveries cannot be null');
         }
 
-        $shippingAddress = $deliveries->getShippingAddress()->first();
+        $shippingAddress = null;
+        $firstDelivery = $deliveries->first();
+        if ($firstDelivery !== null) {
+            $shippingAddress = $firstDelivery->getShippingOrderAddress();
+        }
+        
         if ($shippingAddress === null) {
             $shippingAddress = $order->getBillingAddress();
         }

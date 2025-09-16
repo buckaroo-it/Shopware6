@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
-class KlarnaPaymentHandler extends AsyncPaymentHandler
+class KlarnaPaymentHandler extends PaymentHandler
 {
     protected string $paymentClass = Klarna::class;
 
