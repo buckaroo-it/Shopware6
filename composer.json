@@ -12,7 +12,7 @@
         "ext-pcre": "*",
         "ext-fileinfo": "*",
         "buckaroo/sdk": "^1.18.0",
-        "shopware/core": ">=6.5.0 <6.7.1"
+        "shopware/core": ">=6.5.0 <6.7.*"
     },
     "authors": [{
         "name": "Buckaroo",
