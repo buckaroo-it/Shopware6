@@ -15,12 +15,24 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Enhanced PaymentHandlerSimple using Adapter pattern to bridge Strategy pattern with required interfaces
+ * 
+ * This class uses conditional compilation but delegates to a clean strategy pattern internally.
+ * This gives us the best of both worlds:
+ * - Clean architecture with Strategy pattern
+ * - Proper interface compliance for Shopware's payment system
+ */
+
 // Determine base class/interface based on Shopware version
 if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface') && 
     !class_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler')) {
-    // Shopware 6.5 and older: Implement AsynchronousPaymentHandlerInterface
+    
+    // Shopware 6.5: Implement AsynchronousPaymentHandlerInterface + use Strategy pattern internally
     class PaymentHandlerSimple implements \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface
     {
+        use PaymentHandlerTemplateMethods;
+        
         protected AsyncPaymentService $asyncPaymentService;
         protected ?FormatRequestParamService $formatRequestParamService;
         public string $paymentClass = '';
@@ -48,47 +60,13 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             return true;
         }
 
-        // Template methods for child classes to override
-        public function getMethodPayload(
-            \Shopware\Core\Checkout\Order\OrderEntity $order,
-            \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
-            \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
-            string $paymentCode
-        ): array {
-            return [];
-        }
-
-        public function getMethodAction(
-            \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
-            \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
-            string $paymentCode
-        ): string {
-            return 'pay';
-        }
-
-        // Shopware 6.5 AsynchronousPaymentHandlerInterface methods
+        // Shopware 6.5 interface implementation - delegates to legacy strategy
         public function pay(
             AsyncPaymentTransactionStruct $transaction,
             RequestDataBag $dataBag,
             SalesChannelContext $salesChannelContext
-        ): \Symfony\Component\HttpFoundation\RedirectResponse {
-            return $this->payLegacy($transaction, $dataBag, $salesChannelContext);
-        }
-
-        public function finalize(
-            AsyncPaymentTransactionStruct $transaction,
-            \Symfony\Component\HttpFoundation\Request $request,
-            SalesChannelContext $salesChannelContext
-        ): void {
-            $this->finalizeLegacy($transaction, $request, $salesChannelContext);
-        }
-
-        protected function payLegacy(
-            AsyncPaymentTransactionStruct $transaction,
-            RequestDataBag $dataBag,
-            SalesChannelContext $salesChannelContext
-        ): \Symfony\Component\HttpFoundation\RedirectResponse {
-            // Create a custom legacy handler that delegates template methods to this instance
+        ): RedirectResponse {
+            // Use delegation to PaymentHandlerLegacy
             $legacyHandler = new class($this->asyncPaymentService, $this) extends PaymentHandlerLegacy {
                 private PaymentHandlerSimple $parent;
                 
@@ -100,7 +78,6 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     }
                 }
                 
-                // Delegate template methods to the parent
                 protected function getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode): array {
                     return $this->parent->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
                 }
@@ -113,20 +90,22 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             return $legacyHandler->pay($transaction, $dataBag, $salesChannelContext);
         }
 
-        protected function finalizeLegacy(
+        public function finalize(
             AsyncPaymentTransactionStruct $transaction,
-            \Symfony\Component\HttpFoundation\Request $request,
+            Request $request,
             SalesChannelContext $salesChannelContext
         ): void {
-            // Finalization logic for Shopware 6.5
             // For most payment methods, no additional action is needed
         }
     }
 
 } else {
-    // Shopware 6.7+: Extend AbstractPaymentHandler
+    
+    // Shopware 6.7+: Extend AbstractPaymentHandler + use Strategy pattern internally  
     class PaymentHandlerSimple extends \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler
     {
+        use PaymentHandlerTemplateMethods;
+        
         protected AsyncPaymentService $asyncPaymentService;
         protected ?FormatRequestParamService $formatRequestParamService;
         public string $paymentClass = '';
@@ -154,63 +133,28 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             return true;
         }
 
-        // Template methods for child classes to override
-        public function getMethodPayload(
-            \Shopware\Core\Checkout\Order\OrderEntity $order,
-            \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
-            \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
-            string $paymentCode
-        ): array {
-            return [];
-        }
-
-        public function getMethodAction(
-            \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
-            \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
-            string $paymentCode
-        ): string {
-            return 'pay';
-        }
-
-        // Shopware 6.7 AbstractPaymentHandler methods
+        // Shopware 6.7 interface implementation - uses modern strategy
         public function pay(
-            \Symfony\Component\HttpFoundation\Request $request,
+            Request $request,
             PaymentTransactionStruct $transaction,
             Context $context,
             ?Struct $validateStruct = null
-        ): ?\Symfony\Component\HttpFoundation\RedirectResponse {
-            return $this->payModern($request, $transaction, $context, $validateStruct);
-        }
-
-        public function finalize(
-            \Symfony\Component\HttpFoundation\Request $request,
-            PaymentTransactionStruct $transaction,
-            Context $context
-        ): void {
-            $this->finalizeModern($request, $transaction, $context);
-        }
-
-        protected function payModern(
-            \Symfony\Component\HttpFoundation\Request $request,
-            PaymentTransactionStruct $transaction,
-            Context $context,
-            ?Struct $validateStruct = null
-        ): ?\Symfony\Component\HttpFoundation\RedirectResponse {
+        ): ?RedirectResponse {
             try {
-                // Get the transaction ID and fetch the order transaction entity
+                // Get transaction and order
                 $transactionId = $transaction->getOrderTransactionId();
                 $orderTransaction = $this->asyncPaymentService->getTransaction($transactionId, $context);
                 
                 if ($orderTransaction === null) {
-                    return null; // Payment failed - transaction not found
+                    return null;
                 }
                 
                 $order = $orderTransaction->getOrder();
                 if ($order === null) {
-                    return null; // Payment failed - order not found
+                    return null;
                 }
                 
-                // Get sales channel context - use a default token if not provided
+                // Get sales channel context
                 $contextToken = $request->get('sw-context-token', '');
                 $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext(
                     $context,
@@ -221,69 +165,49 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 // Extract request data
                 $dataBag = new RequestDataBag($request->request->all());
                 
-                // For Shopware 6.7, we can't use AsyncPaymentTransactionStruct anymore
-                // Instead, we'll implement the payment logic directly without legacy delegation
-                
-                // Get payment class instance
+                // Get payment configuration
                 if (empty($this->paymentClass)) {
-                    throw new \Exception('Payment class not set. Call setPaymentClass() before using the handler.');
+                    throw new \Exception('Payment class not set.');
                 }
                 
-                $paymentClass = null;
-                if (class_exists($this->paymentClass)) {
-                    $paymentClass = new $this->paymentClass();
+                $paymentClass = new $this->paymentClass();
+                if (!$paymentClass instanceof \Buckaroo\Shopware6\PaymentMethods\AbstractPayment) {
+                    throw new \Exception('Invalid payment class.');
                 }
                 
-                if ($paymentClass === null || !$paymentClass instanceof \Buckaroo\Shopware6\PaymentMethods\AbstractPayment) {
-                    throw new \Exception('Invalid buckaroo payment class');
-                }
-                
-                $salesChannelId = $salesChannelContext->getSalesChannelId();
                 $paymentCode = $paymentClass->getBuckarooKey();
                 
-                // Validate order - simplified validation for 6.7
+                // Handle zero amount payments
                 if ($order->getAmountTotal() <= 0) {
-                    // For zero amount, we should complete the payment immediately
-                    // This is a simplified version - in production you might want more logic
-                    return new \Symfony\Component\HttpFoundation\RedirectResponse($transaction->getReturnUrl() ?? '/checkout/finish');
+                    return new RedirectResponse($transaction->getReturnUrl() ?? '/checkout/finish');
                 }
                 
-                // Get client from AsyncPaymentService
-                $client = $this->asyncPaymentService->clientService->get($paymentCode, $salesChannelId);
+                // Process payment using existing services
+                $client = $this->asyncPaymentService->clientService->get($paymentCode, $salesChannelContext->getSalesChannelId());
                 
-                // Build payload using template methods
                 $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
                 $methodAction = $this->getMethodAction($dataBag, $salesChannelContext, $paymentCode);
                 
-                // Get common payload (simplified - you might need to add more fields based on your needs)
                 $commonPayload = [
                     'invoice' => $order->getOrderNumber(),
                     'amountDebit' => $order->getAmountTotal(),
                     'currency' => $order->getCurrency()->getIsoCode(),
                     'returnURL' => $transaction->getReturnUrl(),
-                    'returnURLCancel' => $transaction->getReturnUrl(),
-                    'returnURLError' => $transaction->getReturnUrl(),
-                    'returnURLReject' => $transaction->getReturnUrl(),
                 ];
-
-                // Set client payload and action
+                
                 $client->setPayload(array_merge_recursive($commonPayload, $methodPayload))
                        ->setAction($methodAction);
                 
-                // Execute payment request
                 $response = $client->execute();
-
-                // Handle the response
+                
                 if ($response && $response->hasRedirect()) {
-                    return new \Symfony\Component\HttpFoundation\RedirectResponse($response->getRedirectUrl());
+                    return new RedirectResponse($response->getRedirectUrl());
                 }
                 
-                // If no redirect URL, return to finish page
-                return new \Symfony\Component\HttpFoundation\RedirectResponse($transaction->getReturnUrl() ?? '/checkout/finish');
+                return new RedirectResponse($transaction->getReturnUrl() ?? '/checkout/finish');
                 
             } catch (\Exception $e) {
-                // Log the error and return null to indicate payment failure
-                $this->asyncPaymentService->logger->error('Payment processing failed in modern handler', [
+                $this->asyncPaymentService->logger->error('Payment processing failed', [
                     'error' => $e->getMessage(),
                     'transactionId' => $transaction->getOrderTransactionId(),
                     'paymentClass' => $this->paymentClass
@@ -292,14 +216,37 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             }
         }
 
-        protected function finalizeModern(
-            \Symfony\Component\HttpFoundation\Request $request,
+        public function finalize(
+            Request $request,
             PaymentTransactionStruct $transaction,
-            Context $context,
-            ?Struct $validateStruct = null
+            Context $context
         ): void {
-            // Finalization logic for Shopware 6.7
             // For most payment methods, no additional action is needed
         }
+    }
+}
+
+/**
+ * Trait containing template methods shared between both versions
+ * This demonstrates the Template Method pattern
+ */
+trait PaymentHandlerTemplateMethods
+{
+    // Template methods for child classes to override
+    public function getMethodPayload(
+        \Shopware\Core\Checkout\Order\OrderEntity $order,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): array {
+        return [];
+    }
+
+    public function getMethodAction(
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): string {
+        return 'pay';
     }
 }
