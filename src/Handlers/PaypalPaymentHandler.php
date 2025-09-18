@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 
-class PaypalPaymentHandler extends PaymentHandler
+class PaypalPaymentHandler extends PaymentHandlerSimple
 {
     protected string $paymentClass = Paypal::class;
 

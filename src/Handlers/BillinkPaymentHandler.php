@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
-class BillinkPaymentHandler extends PaymentHandler
+class BillinkPaymentHandler extends PaymentHandlerSimple
 {
     protected string $paymentClass = Billink::class;
 

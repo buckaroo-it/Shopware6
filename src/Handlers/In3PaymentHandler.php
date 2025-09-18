@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
-class In3PaymentHandler extends PaymentHandler
+class In3PaymentHandler extends PaymentHandlerSimple
 {
     protected string $paymentClass = In3::class;
 

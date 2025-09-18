@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 
-class CreditcardPaymentHandler extends PaymentHandler
+class CreditcardPaymentHandler extends PaymentHandlerSimple
 {
     protected string $paymentClass = Creditcard::class;
 

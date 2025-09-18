@@ -9,7 +9,7 @@ use Buckaroo\Shopware6\PaymentMethods\ApplePay;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class ApplePayPaymentHandler extends PaymentHandler
+class ApplePayPaymentHandler extends PaymentHandlerSimple
 {
     protected string $paymentClass = ApplePay::class;
 

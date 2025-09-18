@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class BancontactPaymentHandler extends PaymentHandler
+class BancontactPaymentHandler extends PaymentHandlerSimple
 {
     protected string $paymentClass = Bancontact::class;
 

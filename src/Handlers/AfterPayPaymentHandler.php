@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
-class AfterPayPaymentHandler extends PaymentHandler
+class AfterPayPaymentHandler extends PaymentHandlerSimple
 {
     protected string $paymentClass = AfterPay::class;
 

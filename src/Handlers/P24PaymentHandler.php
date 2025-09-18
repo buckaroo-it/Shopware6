@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class P24PaymentHandler extends PaymentHandler
+class P24PaymentHandler extends PaymentHandlerSimple
 {
     protected string $paymentClass = P24::class;
 

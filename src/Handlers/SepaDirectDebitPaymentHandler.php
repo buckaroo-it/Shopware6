@@ -9,7 +9,7 @@ use Buckaroo\Shopware6\PaymentMethods\SepaDirectDebit;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class SepaDirectDebitPaymentHandler extends PaymentHandler
+class SepaDirectDebitPaymentHandler extends PaymentHandlerSimple
 {
     protected string $paymentClass = SepaDirectDebit::class;
 

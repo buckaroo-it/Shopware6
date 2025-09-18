@@ -9,7 +9,7 @@ use Buckaroo\Shopware6\PaymentMethods\Transfer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class TransferPaymentHandler extends PaymentHandler
+class TransferPaymentHandler extends PaymentHandlerSimple
 {
     protected string $paymentClass = Transfer::class;
 

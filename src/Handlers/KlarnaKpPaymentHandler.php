@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
-class KlarnaKpPaymentHandler extends PaymentHandler
+class KlarnaKpPaymentHandler extends PaymentHandlerSimple
 {
     protected string $paymentClass = KlarnaKp::class;
     public const ARTICLE_TYPE_GENERAL = 'General';

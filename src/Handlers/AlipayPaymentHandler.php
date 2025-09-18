@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class AlipayPaymentHandler extends PaymentHandler
+class AlipayPaymentHandler extends PaymentHandlerSimple
 {
     protected string $paymentClass = Alipay::class;
 

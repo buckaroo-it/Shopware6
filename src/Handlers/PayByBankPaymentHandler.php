@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 
-class PayByBankPaymentHandler extends PaymentHandler
+class PayByBankPaymentHandler extends PaymentHandlerSimple
 {
     protected string $paymentClass = PayByBank::class;
 
