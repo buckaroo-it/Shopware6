@@ -15,130 +15,108 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-// Create version-specific wrapper classes instead of trying to implement both interfaces
-if (class_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler')) {
-    // Shopware 6.7+: Create a class that extends AbstractPaymentHandler
-    abstract class PaymentHandlerSimpleBase extends \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler {}
-} else {
-    // Shopware 6.5 and older: Use a basic class
-    abstract class PaymentHandlerSimpleBase {}
-}
-
 /**
- * Simplified Payment Handler using composition with version compatibility
- * - Shopware 6.7+: Extends AbstractPaymentHandler for unified registry
- * - Shopware 6.5: Implements AsynchronousPaymentHandlerInterface via dynamic registration
- * - Older versions: Basic composition pattern
+ * Simplified Payment Handler that provides version compatibility
+ * Uses method overloading to handle both Shopware 6.5 and 6.7 signatures
  */
-class PaymentHandlerSimple extends PaymentHandlerSimpleBase implements \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface
+class PaymentHandlerSimple
 {
-    private object $handler;
-    private string $handlerType;
+    protected string $paymentClass;
     
-    // Expose services that child payment handlers expect
     protected AsyncPaymentService $asyncPaymentService;
     protected ?FormatRequestParamService $formatRequestParamService = null;
 
-    public function __construct(AsyncPaymentService $asyncPaymentService)
-    {
+    public function __construct(
+        AsyncPaymentService $asyncPaymentService,
+        ?FormatRequestParamService $formatRequestParamService = null
+    ) {
         $this->asyncPaymentService = $asyncPaymentService;
-        
-        if ($this->isModernHandlerAvailable()) {
-            // For modern handler, we'll use the original PaymentHandler with strategy pattern
-            // but make it work with AbstractPaymentHandler
-            $this->handler = new PaymentHandler($asyncPaymentService);
-            $this->handlerType = 'modern';
-        } else {
-            $this->handler = new PaymentHandlerLegacy($asyncPaymentService);
-            $this->handlerType = 'legacy';
-            $this->formatRequestParamService = $this->handler->formatRequestParamService ?? null;
-        }
-        
-        // Transfer payment class from child class to underlying handler if it exists
-        if (property_exists($this, 'paymentClass')) {
-            $reflection = new \ReflectionClass($this);
-            if ($reflection->hasProperty('paymentClass')) {
-                $property = $reflection->getProperty('paymentClass');
-                if ($property->isInitialized($this)) {
-                    $paymentClass = $property->getValue($this);
-                    if (!empty($paymentClass)) {
-                        $this->handler->setPaymentClass($paymentClass);
-                    }
-                }
-            }
-        }
+        $this->formatRequestParamService = $formatRequestParamService;
     }
 
-    /**
-     * Expose a way for specific method handlers to set their Buckaroo class.
-     */
     public function setPaymentClass(string $paymentClass): void
     {
-        $this->handler->setPaymentClass($paymentClass);
+        $this->paymentClass = $paymentClass;
     }
 
-    // Version-specific method implementations
-    // In 6.7+: These will be overridden by AbstractPaymentHandler methods
-    // In 6.5: These will be the actual interface implementations for AsynchronousPaymentHandlerInterface
-    
-    public function supports(
-        mixed $type,
-        string $paymentMethodId,
-        Context $context
-    ): bool {
-        return $this->handler->supports($type, $paymentMethodId, $context);
+    protected function getPaymentClass(): string
+    {
+        return $this->paymentClass ?? '';
     }
 
-    // This method signature works for 6.5 AsynchronousPaymentHandlerInterface
-    // In 6.7+, AbstractPaymentHandler will override this with its own signature
-    public function pay(
+    public function supports(mixed $type, string $paymentMethodId, Context $context): bool
+    {
+        return true;
+    }
+
+    // Handle method calls dynamically to support both versions
+    public function __call(string $method, array $args)
+    {
+        if ($method === 'pay') {
+            return $this->handlePay($args);
+        } elseif ($method === 'finalize') {
+            return $this->handleFinalize($args);
+        }
+        
+        throw new \BadMethodCallException("Method {$method} not found");
+    }
+
+    private function handlePay(array $args)
+    {
+        if (count($args) === 4 && $args[0] instanceof Request) {
+            // Shopware 6.7+ signature: pay(Request, PaymentTransactionStruct, Context, ?Struct)
+            return $this->payModern($args[0], $args[1], $args[2], $args[3]);
+        } elseif (count($args) === 3 && $args[0] instanceof AsyncPaymentTransactionStruct) {
+            // Shopware 6.5 signature: pay(AsyncPaymentTransactionStruct, RequestDataBag, SalesChannelContext)
+            return $this->payLegacy($args[0], $args[1], $args[2]);
+        }
+        
+        throw new \InvalidArgumentException('Invalid pay method arguments');
+    }
+
+    private function handleFinalize(array $args): void
+    {
+        if (count($args) === 3 && $args[0] instanceof Request) {
+            // Shopware 6.7+ signature: finalize(Request, PaymentTransactionStruct, Context)
+            $this->finalizeModern($args[0], $args[1], $args[2]);
+        } elseif (count($args) === 3 && $args[0] instanceof AsyncPaymentTransactionStruct) {
+            // Shopware 6.5 signature: finalize(AsyncPaymentTransactionStruct, Request, SalesChannelContext)
+            $this->finalizeLegacy($args[0], $args[1], $args[2]);
+        } else {
+            throw new \InvalidArgumentException('Invalid finalize method arguments');
+        }
+    }
+
+    protected function payModern(
+        Request $request, 
+        PaymentTransactionStruct $transaction, 
+        Context $context, 
+        ?Struct $validateStruct
+    ): ?RedirectResponse {
+        throw new \BadMethodCallException('payModern method must be implemented by child classes');
+    }
+
+    protected function payLegacy(
         AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext
     ): RedirectResponse {
-        if (method_exists($this->handler, 'pay')) {
-            return $this->handler->pay($transaction, $dataBag, $salesChannelContext);
-        }
-        
-        throw new \BadMethodCallException('Pay method not available');
+        throw new \BadMethodCallException('payLegacy method must be implemented by child classes');
     }
 
-    // This method signature works for 6.5 AsynchronousPaymentHandlerInterface  
-    // In 6.7+, AbstractPaymentHandler will override this with its own signature
-    public function finalize(
+    protected function finalizeModern(
+        Request $request,
+        PaymentTransactionStruct $transaction,
+        Context $context
+    ): void {
+        // No-op by default
+    }
+
+    protected function finalizeLegacy(
         AsyncPaymentTransactionStruct $transaction,
         Request $request,
         SalesChannelContext $salesChannelContext
     ): void {
-        if (method_exists($this->handler, 'finalize')) {
-            $this->handler->finalize($transaction, $request, $salesChannelContext);
-            return;
-        }
-        
-        throw new \BadMethodCallException('Finalize method not available');
-    }
-
-    /**
-     * Get the type of handler being used
-     */
-    public function getHandlerType(): string
-    {
-        return $this->handlerType;
-    }
-
-    /**
-     * Check if modern handler is available
-     */
-    public function isModernHandlerAvailable(): bool
-    {
-        return class_exists(\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler::class);
-    }
-
-    /**
-     * Get the underlying handler instance (for advanced use cases)
-     */
-    public function getHandler(): object
-    {
-        return $this->handler;
+        // No-op by default
     }
 }
