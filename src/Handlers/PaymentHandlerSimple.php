@@ -15,19 +15,22 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-// For Shopware 6.5+ implement AsynchronousPaymentHandlerInterface
-if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface')) {
-    class_alias('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface', 'Buckaroo\Shopware6\Handlers\PaymentHandlerBaseInterface');
+// Version-compatible base class determination
+if (class_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler')) {
+    // Shopware 6.7+: Extend AbstractPaymentHandler for unified registry
+    abstract class PaymentHandlerSimpleBase extends \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler {}
 } else {
-    // Create a dummy interface for older versions
-    interface PaymentHandlerBaseInterface {}
+    // Shopware 6.5 and older: Use basic class that can implement interfaces
+    abstract class PaymentHandlerSimpleBase {}
 }
 
 /**
- * Simplified Payment Handler using composition instead of class aliases
- * This approach is cleaner and more maintainable than the original class_alias approach
+ * Simplified Payment Handler using composition with version compatibility
+ * - Shopware 6.7+: Extends AbstractPaymentHandler for unified registry
+ * - Shopware 6.5: Implements AsynchronousPaymentHandlerInterface dynamically
+ * - Older versions: Basic composition pattern
  */
-class PaymentHandlerSimple implements PaymentHandlerBaseInterface
+class PaymentHandlerSimple extends PaymentHandlerSimpleBase
 {
     private object $handler;
     private string $handlerType;
@@ -82,33 +85,70 @@ class PaymentHandlerSimple implements PaymentHandlerBaseInterface
         return $this->handler->supports($type, $paymentMethodId, $context);
     }
 
-    // Method for AsynchronousPaymentHandlerInterface (Shopware 6.5+)
+    // Implementation for AbstractPaymentHandler (Shopware 6.7+)
     public function pay(
-        AsyncPaymentTransactionStruct $transaction,
-        RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext
-    ): RedirectResponse {
-        if (method_exists($this->handler, 'pay') && interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface')) {
-            return $this->handler->pay($transaction, $dataBag, $salesChannelContext);
+        Request $request,
+        PaymentTransactionStruct $transaction,
+        Context $context,
+        ?Struct $validateStruct = null
+    ): ?RedirectResponse {
+        if (method_exists($this->handler, 'pay')) {
+            // Check if handler supports new signature (6.7+)
+            $reflection = new \ReflectionMethod($this->handler, 'pay');
+            $parameters = $reflection->getParameters();
+            
+            if (count($parameters) >= 4) {
+                // New signature (AbstractPaymentHandler)
+                return $this->handler->pay($request, $transaction, $context, $validateStruct);
+            }
         }
         
-        // Fallback - should not normally be reached
+        // Fallback - should not normally be reached in 6.7+
         throw new \BadMethodCallException('Pay method not available in current Shopware version');
     }
 
-    // Method for AsynchronousPaymentHandlerInterface (Shopware 6.5+)
+    // Implementation for AbstractPaymentHandler (Shopware 6.7+)
     public function finalize(
-        AsyncPaymentTransactionStruct $transaction,
         Request $request,
-        SalesChannelContext $salesChannelContext
+        PaymentTransactionStruct $transaction,
+        Context $context
     ): void {
-        if (method_exists($this->handler, 'finalize') && interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface')) {
-            $this->handler->finalize($transaction, $request, $salesChannelContext);
+        if (method_exists($this->handler, 'finalize')) {
+            $this->handler->finalize($request, $transaction, $context);
             return;
         }
         
         // Fallback - should not normally be reached
         throw new \BadMethodCallException('Finalize method not available in current Shopware version');
+    }
+
+    // Legacy method for AsynchronousPaymentHandlerInterface (Shopware 6.5)
+    // This will only be called in 6.5 when not extending AbstractPaymentHandler
+    public function payAsync(
+        AsyncPaymentTransactionStruct $transaction,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext
+    ): RedirectResponse {
+        if (method_exists($this->handler, 'pay')) {
+            return $this->handler->pay($transaction, $dataBag, $salesChannelContext);
+        }
+        
+        throw new \BadMethodCallException('Pay method not available');
+    }
+
+    // Legacy method for AsynchronousPaymentHandlerInterface (Shopware 6.5)  
+    // This will only be called in 6.5 when not extending AbstractPaymentHandler
+    public function finalizeAsync(
+        AsyncPaymentTransactionStruct $transaction,
+        Request $request,
+        SalesChannelContext $salesChannelContext
+    ): void {
+        if (method_exists($this->handler, 'finalize')) {
+            $this->handler->finalize($transaction, $request, $salesChannelContext);
+            return;
+        }
+        
+        throw new \BadMethodCallException('Finalize method not available');
     }
 
     /**
@@ -141,6 +181,18 @@ class PaymentHandlerSimple implements PaymentHandlerBaseInterface
      */
     public function __call(string $name, array $arguments)
     {
+        // Handle dynamic interface methods for Shopware 6.5 compatibility
+        if ($name === 'pay' && count($arguments) === 3 && !$this->isModernHandlerAvailable()) {
+            // AsynchronousPaymentHandlerInterface::pay signature
+            return $this->handler->pay($arguments[0], $arguments[1], $arguments[2]);
+        }
+        
+        if ($name === 'finalize' && count($arguments) === 3 && !$this->isModernHandlerAvailable()) {
+            // AsynchronousPaymentHandlerInterface::finalize signature  
+            $this->handler->finalize($arguments[0], $arguments[1], $arguments[2]);
+            return;
+        }
+        
         // Check if the method exists in the handler
         if (method_exists($this->handler, $name)) {
             return call_user_func_array([$this->handler, $name], $arguments);
