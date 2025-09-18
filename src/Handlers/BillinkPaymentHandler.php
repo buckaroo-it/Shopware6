@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
 class BillinkPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Billink::class;
+    public string $paymentClass = Billink::class;
 
 
     /**
@@ -25,7 +25,7 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -49,7 +49,7 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode

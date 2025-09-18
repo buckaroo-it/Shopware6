@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class IdealPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Ideal::class;
+    public string $paymentClass = Ideal::class;
 
     public const IDEAL_PROCESSING = 'idealProcessing';
 
@@ -27,7 +27,7 @@ class IdealPaymentHandler extends PaymentHandlerSimple
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -70,7 +70,7 @@ class IdealPaymentHandler extends PaymentHandlerSimple
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode

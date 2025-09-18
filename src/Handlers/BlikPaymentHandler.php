@@ -8,5 +8,5 @@ use Buckaroo\Shopware6\PaymentMethods\Blik;
 
 class BlikPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Blik::class;
+    public string $paymentClass = Blik::class;
 }

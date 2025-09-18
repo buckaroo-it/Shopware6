@@ -20,7 +20,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
 class AfterPayPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = AfterPay::class;
+    public string $paymentClass = AfterPay::class;
 
     public const CUSTOMER_TYPE_B2C = 'b2c';
     public const CUSTOMER_TYPE_B2B = 'b2b';
@@ -103,7 +103,7 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -126,7 +126,7 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
     }
 
     /** @inheritDoc */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode

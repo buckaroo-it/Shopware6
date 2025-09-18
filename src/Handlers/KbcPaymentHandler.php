@@ -8,5 +8,5 @@ use Buckaroo\Shopware6\PaymentMethods\Kbc;
 
 class KbcPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Kbc::class;
+    public string $paymentClass = Kbc::class;
 }

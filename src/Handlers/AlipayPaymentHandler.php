@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class AlipayPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Alipay::class;
+    public string $paymentClass = Alipay::class;
 
     /**
      * Get parameters for specific payment method
@@ -24,7 +24,7 @@ class AlipayPaymentHandler extends PaymentHandlerSimple
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

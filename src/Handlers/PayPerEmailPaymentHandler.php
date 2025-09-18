@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class PayPerEmailPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = PayPerEmail::class;
+    public string $paymentClass = PayPerEmail::class;
 
     protected PayLinkService $payLinkService;
 
@@ -38,7 +38,7 @@ class PayPerEmailPaymentHandler extends PaymentHandlerSimple
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -84,7 +84,7 @@ class PayPerEmailPaymentHandler extends PaymentHandlerSimple
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode

@@ -8,5 +8,5 @@ use Buckaroo\Shopware6\PaymentMethods\MBWay;
 
 class MBWayPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = MBWay::class;
+    public string $paymentClass = MBWay::class;
 }

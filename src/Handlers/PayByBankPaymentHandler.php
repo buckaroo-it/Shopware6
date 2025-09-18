@@ -19,7 +19,7 @@ use Shopware\Core\Checkout\Payment\PaymentException;
 
 class PayByBankPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = PayByBank::class;
+    public string $paymentClass = PayByBank::class;
 
     public const ISSUER_LABEL = 'buckaroo_last_used_paybybank_issuer';
 
@@ -68,7 +68,7 @@ class PayByBankPaymentHandler extends PaymentHandlerSimple
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

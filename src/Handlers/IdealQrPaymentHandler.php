@@ -19,7 +19,7 @@ class IdealQrPaymentHandler extends PaymentHandlerSimple
 {
     public const IDEAL_QR_INVOICE_PREFIX = 'iQR';
 
-    protected string $paymentClass = IdealQr::class;
+    public string $paymentClass = IdealQr::class;
 
     protected int $invoice;
 
@@ -78,7 +78,7 @@ class IdealQrPaymentHandler extends PaymentHandlerSimple
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -109,7 +109,7 @@ class IdealQrPaymentHandler extends PaymentHandlerSimple
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode

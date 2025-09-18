@@ -14,7 +14,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
 class In3PaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = In3::class;
+    public string $paymentClass = In3::class;
 
     public const V2 = 'v2';
 
@@ -44,7 +44,7 @@ class In3PaymentHandler extends PaymentHandlerSimple
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -82,7 +82,7 @@ class In3PaymentHandler extends PaymentHandlerSimple
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode

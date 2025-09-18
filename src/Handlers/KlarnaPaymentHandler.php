@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
 class KlarnaPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Klarna::class;
+    public string $paymentClass = Klarna::class;
 
     /**
      * Get parameters for specific payment method
@@ -24,7 +24,7 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

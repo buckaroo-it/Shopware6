@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class GiftcardsPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Giftcards::class;
+    public string $paymentClass = Giftcards::class;
 
     /**
      * Get parameters for specific payment method
@@ -23,7 +23,7 @@ class GiftcardsPaymentHandler extends PaymentHandlerSimple
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -46,7 +46,7 @@ class GiftcardsPaymentHandler extends PaymentHandlerSimple
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode

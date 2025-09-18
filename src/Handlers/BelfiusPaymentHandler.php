@@ -8,5 +8,5 @@ use Buckaroo\Shopware6\PaymentMethods\Belfius;
 
 class BelfiusPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Belfius::class;
+    public string $paymentClass = Belfius::class;
 }

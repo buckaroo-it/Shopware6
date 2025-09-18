@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class SepaDirectDebitPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = SepaDirectDebit::class;
+    public string $paymentClass = SepaDirectDebit::class;
 
     /**
      * Get parameters for specific payment method
@@ -23,7 +23,7 @@ class SepaDirectDebitPaymentHandler extends PaymentHandlerSimple
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

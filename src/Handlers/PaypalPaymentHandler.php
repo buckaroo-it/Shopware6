@@ -17,7 +17,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 
 class PaypalPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Paypal::class;
+    public string $paymentClass = Paypal::class;
 
     /**
      * @var \Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData
@@ -45,7 +45,7 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -72,7 +72,7 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode

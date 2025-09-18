@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class WeChatPayPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = WeChatPay::class;
+    public string $paymentClass = WeChatPay::class;
 
     /**
      * Get parameters for specific payment method
@@ -23,7 +23,7 @@ class WeChatPayPaymentHandler extends PaymentHandlerSimple
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

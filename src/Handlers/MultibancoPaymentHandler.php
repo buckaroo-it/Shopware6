@@ -8,5 +8,5 @@ use Buckaroo\Shopware6\PaymentMethods\Multibanco;
 
 class MultibancoPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Multibanco::class;
+    public string $paymentClass = Multibanco::class;
 }
