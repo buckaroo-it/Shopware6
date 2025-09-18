@@ -196,30 +196,100 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             Context $context,
             ?Struct $validateStruct = null
         ): ?\Symfony\Component\HttpFoundation\RedirectResponse {
-            // For Shopware 6.7, we need to implement a simpler approach
-            // since we don't have the complex dependencies of PaymentHandlerModern
-            
-            // Extract basic data from the request
-            $dataBag = new RequestDataBag($request->request->all());
-            
-            // For now, return a simple redirect since we don't have proper sales channel context
-            // In a real implementation, you would need to inject the proper dependencies
-            // to construct a valid SalesChannelContext and order repository
-            
-            // Get payment configuration with minimal data
-            $paymentCode = 'pay'; // Default action without calling child methods
-            
-            // For PaymentTransactionStruct in 6.7, we need to get order through a different approach
-            // The transaction only has getOrderTransactionId(), so we need to construct order data differently
-            // For now, pass null as order since we don't have access to repository here
-            $order = null; // In real implementation, you would need to inject order repository
-            $salesChannelContext = null; // This would need proper construction
-            
-            // Since we can't call template methods without proper context, return a basic redirect
-            // Child classes should override this method to provide proper implementation
-            
-            // For now, return a simple redirect (implement according to your needs)
-            return new \Symfony\Component\HttpFoundation\RedirectResponse('/buckaroo/payment/process');
+            try {
+                // Get the transaction ID and fetch the order transaction entity
+                $transactionId = $transaction->getOrderTransactionId();
+                $orderTransaction = $this->asyncPaymentService->getTransaction($transactionId, $context);
+                
+                if ($orderTransaction === null) {
+                    return null; // Payment failed - transaction not found
+                }
+                
+                $order = $orderTransaction->getOrder();
+                if ($order === null) {
+                    return null; // Payment failed - order not found
+                }
+                
+                // Get sales channel context - use a default token if not provided
+                $contextToken = $request->get('sw-context-token', '');
+                $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext(
+                    $context,
+                    $order->getSalesChannelId(),
+                    is_string($contextToken) ? $contextToken : ''
+                );
+                
+                // Extract request data
+                $dataBag = new RequestDataBag($request->request->all());
+                
+                // For Shopware 6.7, we can't use AsyncPaymentTransactionStruct anymore
+                // Instead, we'll implement the payment logic directly without legacy delegation
+                
+                // Get payment class instance
+                if (empty($this->paymentClass)) {
+                    throw new \Exception('Payment class not set. Call setPaymentClass() before using the handler.');
+                }
+                
+                $paymentClass = null;
+                if (class_exists($this->paymentClass)) {
+                    $paymentClass = new $this->paymentClass();
+                }
+                
+                if ($paymentClass === null || !$paymentClass instanceof \Buckaroo\Shopware6\PaymentMethods\AbstractPayment) {
+                    throw new \Exception('Invalid buckaroo payment class');
+                }
+                
+                $salesChannelId = $salesChannelContext->getSalesChannelId();
+                $paymentCode = $paymentClass->getBuckarooKey();
+                
+                // Validate order - simplified validation for 6.7
+                if ($order->getAmountTotal() <= 0) {
+                    // For zero amount, we should complete the payment immediately
+                    // This is a simplified version - in production you might want more logic
+                    return new \Symfony\Component\HttpFoundation\RedirectResponse($transaction->getReturnUrl() ?? '/checkout/finish');
+                }
+                
+                // Get client from AsyncPaymentService
+                $client = $this->asyncPaymentService->clientService->get($paymentCode, $salesChannelId);
+                
+                // Build payload using template methods
+                $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
+                $methodAction = $this->getMethodAction($dataBag, $salesChannelContext, $paymentCode);
+                
+                // Get common payload (simplified - you might need to add more fields based on your needs)
+                $commonPayload = [
+                    'invoice' => $order->getOrderNumber(),
+                    'amountDebit' => $order->getAmountTotal(),
+                    'currency' => $order->getCurrency()->getIsoCode(),
+                    'returnURL' => $transaction->getReturnUrl(),
+                    'returnURLCancel' => $transaction->getReturnUrl(),
+                    'returnURLError' => $transaction->getReturnUrl(),
+                    'returnURLReject' => $transaction->getReturnUrl(),
+                ];
+
+                // Set client payload and action
+                $client->setPayload(array_merge_recursive($commonPayload, $methodPayload))
+                       ->setAction($methodAction);
+                
+                // Execute payment request
+                $response = $client->execute();
+
+                // Handle the response
+                if ($response && $response->hasRedirect()) {
+                    return new \Symfony\Component\HttpFoundation\RedirectResponse($response->getRedirectUrl());
+                }
+                
+                // If no redirect URL, return to finish page
+                return new \Symfony\Component\HttpFoundation\RedirectResponse($transaction->getReturnUrl() ?? '/checkout/finish');
+                
+            } catch (\Exception $e) {
+                // Log the error and return null to indicate payment failure
+                $this->asyncPaymentService->logger->error('Payment processing failed in modern handler', [
+                    'error' => $e->getMessage(),
+                    'transactionId' => $transaction->getOrderTransactionId(),
+                    'paymentClass' => $this->paymentClass
+                ]);
+                return null;
+            }
         }
 
         protected function finalizeModern(
