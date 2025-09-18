@@ -7,24 +7,27 @@ namespace Buckaroo\Shopware6\Handlers;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-// Conditionally import AbstractPaymentHandler only if it exists
-if (class_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler')) {
-    abstract class PaymentHandlerSimpleBase extends \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler {}
+// For Shopware 6.5+ implement AsynchronousPaymentHandlerInterface
+if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface')) {
+    class_alias('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface', 'Buckaroo\Shopware6\Handlers\PaymentHandlerBaseInterface');
 } else {
-    // Fallback for older Shopware versions - create empty base class
-    abstract class PaymentHandlerSimpleBase {}
+    // Create a dummy interface for older versions
+    interface PaymentHandlerBaseInterface {}
 }
 
 /**
  * Simplified Payment Handler using composition instead of class aliases
  * This approach is cleaner and more maintainable than the original class_alias approach
  */
-class PaymentHandlerSimple extends PaymentHandlerSimpleBase
+class PaymentHandlerSimple implements PaymentHandlerBaseInterface
 {
     private object $handler;
     private string $handlerType;
@@ -65,21 +68,33 @@ class PaymentHandlerSimple extends PaymentHandlerSimpleBase
         return $this->handler->supports($type, $paymentMethodId, $context);
     }
 
+    // Method for AsynchronousPaymentHandlerInterface (Shopware 6.5+)
     public function pay(
-        Request $request,
-        PaymentTransactionStruct $transaction,
-        Context $context,
-        ?Struct $validateStruct = null
-    ): ?RedirectResponse {
-        return $this->handler->pay($request, $transaction, $context, $validateStruct);
+        AsyncPaymentTransactionStruct $transaction,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext
+    ): RedirectResponse {
+        if (method_exists($this->handler, 'pay') && interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface')) {
+            return $this->handler->pay($transaction, $dataBag, $salesChannelContext);
+        }
+        
+        // Fallback - should not normally be reached
+        throw new \BadMethodCallException('Pay method not available in current Shopware version');
     }
 
+    // Method for AsynchronousPaymentHandlerInterface (Shopware 6.5+)
     public function finalize(
+        AsyncPaymentTransactionStruct $transaction,
         Request $request,
-        PaymentTransactionStruct $transaction,
-        Context $context
+        SalesChannelContext $salesChannelContext
     ): void {
-        $this->handler->finalize($request, $transaction, $context);
+        if (method_exists($this->handler, 'finalize') && interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface')) {
+            $this->handler->finalize($transaction, $request, $salesChannelContext);
+            return;
+        }
+        
+        // Fallback - should not normally be reached
+        throw new \BadMethodCallException('Finalize method not available in current Shopware version');
     }
 
     /**
