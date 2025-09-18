@@ -50,6 +50,20 @@ class PaymentHandlerSimple implements PaymentHandlerBaseInterface
             $this->handlerType = 'legacy';
             $this->formatRequestParamService = $this->handler->formatRequestParamService ?? null;
         }
+        
+        // Transfer payment class from child class to underlying handler if it exists
+        if (property_exists($this, 'paymentClass')) {
+            $reflection = new \ReflectionClass($this);
+            if ($reflection->hasProperty('paymentClass')) {
+                $property = $reflection->getProperty('paymentClass');
+                if ($property->isInitialized($this)) {
+                    $paymentClass = $property->getValue($this);
+                    if (!empty($paymentClass)) {
+                        $this->handler->setPaymentClass($paymentClass);
+                    }
+                }
+            }
+        }
     }
 
     /**

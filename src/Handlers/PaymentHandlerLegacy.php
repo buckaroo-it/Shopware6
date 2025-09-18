@@ -28,7 +28,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
 {
     use \Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
 
-    protected string $paymentClass;
+    protected ?string $paymentClass = null;
     protected FormatRequestParamService $formatRequestParamService;
 
     public function __construct(private AsyncPaymentService $asyncPaymentService)
@@ -355,6 +355,13 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
 
     private function getPayment(string $transactionId): AbstractPayment
     {
+        if ($this->paymentClass === null) {
+            throw PaymentException::asyncProcessInterrupted(
+                $transactionId,
+                'Payment class not set. Call setPaymentClass() before using payment handler.'
+            );
+        }
+        
         $paymentClass = null;
         if (class_exists($this->paymentClass)) {
             $paymentClass = new $this->paymentClass();
