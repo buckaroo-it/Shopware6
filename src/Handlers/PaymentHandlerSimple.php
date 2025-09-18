@@ -15,22 +15,22 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-// Version-compatible base class determination
+// Create version-specific wrapper classes instead of trying to implement both interfaces
 if (class_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler')) {
-    // Shopware 6.7+: Extend AbstractPaymentHandler for unified registry
+    // Shopware 6.7+: Create a class that extends AbstractPaymentHandler
     abstract class PaymentHandlerSimpleBase extends \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler {}
 } else {
-    // Shopware 6.5 and older: Use basic class that can implement interfaces
+    // Shopware 6.5 and older: Use a basic class
     abstract class PaymentHandlerSimpleBase {}
 }
 
 /**
  * Simplified Payment Handler using composition with version compatibility
  * - Shopware 6.7+: Extends AbstractPaymentHandler for unified registry
- * - Shopware 6.5: Implements AsynchronousPaymentHandlerInterface dynamically
+ * - Shopware 6.5: Implements AsynchronousPaymentHandlerInterface via dynamic registration
  * - Older versions: Basic composition pattern
  */
-class PaymentHandlerSimple extends PaymentHandlerSimpleBase
+class PaymentHandlerSimple extends PaymentHandlerSimpleBase implements \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface
 {
     private object $handler;
     private string $handlerType;
@@ -77,6 +77,10 @@ class PaymentHandlerSimple extends PaymentHandlerSimpleBase
         $this->handler->setPaymentClass($paymentClass);
     }
 
+    // Version-specific method implementations
+    // In 6.7+: These will be overridden by AbstractPaymentHandler methods
+    // In 6.5: These will be the actual interface implementations for AsynchronousPaymentHandlerInterface
+    
     public function supports(
         mixed $type,
         string $paymentMethodId,
@@ -85,46 +89,9 @@ class PaymentHandlerSimple extends PaymentHandlerSimpleBase
         return $this->handler->supports($type, $paymentMethodId, $context);
     }
 
-    // Implementation for AbstractPaymentHandler (Shopware 6.7+)
+    // This method signature works for 6.5 AsynchronousPaymentHandlerInterface
+    // In 6.7+, AbstractPaymentHandler will override this with its own signature
     public function pay(
-        Request $request,
-        PaymentTransactionStruct $transaction,
-        Context $context,
-        ?Struct $validateStruct = null
-    ): ?RedirectResponse {
-        if (method_exists($this->handler, 'pay')) {
-            // Check if handler supports new signature (6.7+)
-            $reflection = new \ReflectionMethod($this->handler, 'pay');
-            $parameters = $reflection->getParameters();
-            
-            if (count($parameters) >= 4) {
-                // New signature (AbstractPaymentHandler)
-                return $this->handler->pay($request, $transaction, $context, $validateStruct);
-            }
-        }
-        
-        // Fallback - should not normally be reached in 6.7+
-        throw new \BadMethodCallException('Pay method not available in current Shopware version');
-    }
-
-    // Implementation for AbstractPaymentHandler (Shopware 6.7+)
-    public function finalize(
-        Request $request,
-        PaymentTransactionStruct $transaction,
-        Context $context
-    ): void {
-        if (method_exists($this->handler, 'finalize')) {
-            $this->handler->finalize($request, $transaction, $context);
-            return;
-        }
-        
-        // Fallback - should not normally be reached
-        throw new \BadMethodCallException('Finalize method not available in current Shopware version');
-    }
-
-    // Legacy method for AsynchronousPaymentHandlerInterface (Shopware 6.5)
-    // This will only be called in 6.5 when not extending AbstractPaymentHandler
-    public function payAsync(
         AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext
@@ -136,9 +103,9 @@ class PaymentHandlerSimple extends PaymentHandlerSimpleBase
         throw new \BadMethodCallException('Pay method not available');
     }
 
-    // Legacy method for AsynchronousPaymentHandlerInterface (Shopware 6.5)  
-    // This will only be called in 6.5 when not extending AbstractPaymentHandler
-    public function finalizeAsync(
+    // This method signature works for 6.5 AsynchronousPaymentHandlerInterface  
+    // In 6.7+, AbstractPaymentHandler will override this with its own signature
+    public function finalize(
         AsyncPaymentTransactionStruct $transaction,
         Request $request,
         SalesChannelContext $salesChannelContext
@@ -173,31 +140,5 @@ class PaymentHandlerSimple extends PaymentHandlerSimpleBase
     public function getHandler(): object
     {
         return $this->handler;
-    }
-
-    /**
-     * Magic method to delegate calls to the underlying handler
-     * This ensures compatibility with methods expected by child payment handlers
-     */
-    public function __call(string $name, array $arguments)
-    {
-        // Handle dynamic interface methods for Shopware 6.5 compatibility
-        if ($name === 'pay' && count($arguments) === 3 && !$this->isModernHandlerAvailable()) {
-            // AsynchronousPaymentHandlerInterface::pay signature
-            return $this->handler->pay($arguments[0], $arguments[1], $arguments[2]);
-        }
-        
-        if ($name === 'finalize' && count($arguments) === 3 && !$this->isModernHandlerAvailable()) {
-            // AsynchronousPaymentHandlerInterface::finalize signature  
-            $this->handler->finalize($arguments[0], $arguments[1], $arguments[2]);
-            return;
-        }
-        
-        // Check if the method exists in the handler
-        if (method_exists($this->handler, $name)) {
-            return call_user_func_array([$this->handler, $name], $arguments);
-        }
-
-        throw new \BadMethodCallException("Method {$name} does not exist in " . get_class($this->handler));
     }
 }
