@@ -27,7 +27,9 @@ class PaymentHandlerStrategyFactory
      */
     public function createStrategy(): PaymentHandlerStrategyInterface
     {
-        if ($this->isModernStrategyAvailable()) {
+        $isModernAvailable = $this->isModernStrategyAvailable();
+
+        if ($isModernAvailable) {
             return $this->createModernStrategy();
         }
         
@@ -53,7 +55,7 @@ class PaymentHandlerStrategyFactory
         }
         
         // Fallback to class existence checks for older versions
-        // First check if the Shopware abstract class exists
+        // Check if the AbstractPaymentHandler class exists (indicates Shopware 6.7+)
         if (!class_exists('Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\AbstractPaymentHandler')) {
             return false;
         }

@@ -13,7 +13,6 @@ use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Context;
@@ -23,7 +22,12 @@ use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-class PaymentHandlerModern extends AbstractPaymentHandler
+/**
+ * Modern payment handler for Shopware 6.7+
+ * Does not extend AbstractPaymentHandler to maintain compatibility with Shopware 6.6
+ * Works through the strategy pattern instead
+ */
+class PaymentHandlerModern
 {
     use \Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
     
@@ -60,6 +64,17 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         Context $context,
         ?Struct $validateStruct
     ): ?RedirectResponse {
+        dd([
+            'method' => 'PaymentHandlerModern::pay',
+            'transactionId' => $transaction->getOrderTransactionId(),
+            'returnUrl' => $transaction->getReturnUrl(),
+            'requestData' => $request->request->all(),
+            'requestQuery' => $request->query->all(),
+            'paymentClass' => $this->paymentClass ?? 'not set',
+            'validateStruct' => $validateStruct ? get_class($validateStruct) : 'null',
+            'POST_data' => $_POST ?? 'no POST data'
+        ]);
+        
         $dataBag = new RequestDataBag($request->request->all());
 
         $this->beforePayModern($transaction, $dataBag, $context);
