@@ -292,7 +292,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'applepayHostedPaymentPage' =>
-                $this->getSettingAsBool('applepayHostedPaymentPage', $salesChannelId),
+                intval($this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId)) === 1,
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'canShowPhone'          => $this->canShowPhone($customer),
@@ -410,7 +410,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct->assign([
             'applepayHostedPaymentPage' =>
-                $this->getSettingAsBool('applepayHostedPaymentPage', $salesChannelId),
+                intval($this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId)) === 1,
             'showPaypalExpress'         => $this->showPaypalExpress($salesChannelId, 'cart'),
             'showIdealFastCheckout'     => $this->showIdealFastCheckout($salesChannelId, 'cart'),
             'paypalMerchantId'          => $this->getPaypalExpressMerchantId($salesChannelId),
@@ -469,7 +469,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'applepayShowProduct'       =>
                 $this->getSettingAsBool('applepayShowProduct', $salesChannelId),
             'applepayHostedPaymentPage' =>
-                $this->getSettingAsBool('applepayHostedPaymentPage', $salesChannelId),
+                intval($this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId)) === 1,
             'showPaypalExpress' => $this->showPaypalExpress($salesChannelId),
             'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
