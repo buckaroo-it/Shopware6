@@ -15,9 +15,9 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 
-class PaypalPaymentHandler extends PaymentHandler
+class PaypalPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Paypal::class;
+    public string $paymentClass = Paypal::class;
 
     /**
      * @var \Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData
@@ -45,7 +45,7 @@ class PaypalPaymentHandler extends PaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -72,21 +72,27 @@ class PaypalPaymentHandler extends PaymentHandler
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
-        if ($this->isSellerProtection($salesChannelContext) && !$dataBag->has('orderId')) {
+        $needsExtraInfo = $salesChannelContext !== null
+            && $this->isSellerProtection($salesChannelContext)
+            && !$dataBag->has('orderId');
+        if ($needsExtraInfo) {
             return 'extraInfo';
         }
         return 'pay';
     }
 
 
+    /**
+     * @param mixed $orderTransaction
+     */
     protected function handleResponse(
         ClientResponseInterface $response,
-        OrderTransactionEntity $orderTransaction,
+        $orderTransaction,
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

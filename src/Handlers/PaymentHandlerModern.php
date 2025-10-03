@@ -210,7 +210,11 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         string $paymentCode,
         ?Context $context = null
     ): array {
-        return $this->asyncPaymentService->formatRequestParamService->getOrderLinesArray($order, $paymentCode, $context);
+        return $this->asyncPaymentService->formatRequestParamService->getOrderLinesArray(
+            $order,
+            $paymentCode,
+            $context
+        );
     }
 
     /**

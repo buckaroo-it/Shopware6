@@ -6,7 +6,7 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Eps;
 
-class EpsPaymentHandler extends PaymentHandler
+class EpsPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Eps::class;
+    public string $paymentClass = Eps::class;
 }

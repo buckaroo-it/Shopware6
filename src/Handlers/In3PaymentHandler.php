@@ -12,9 +12,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
-class In3PaymentHandler extends PaymentHandler
+class In3PaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = In3::class;
+    public string $paymentClass = In3::class;
 
     public const V2 = 'v2';
 
@@ -44,7 +44,7 @@ class In3PaymentHandler extends PaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -82,10 +82,10 @@ class In3PaymentHandler extends PaymentHandler
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
 
         if ($this->isV2()) {

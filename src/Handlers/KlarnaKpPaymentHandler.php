@@ -10,9 +10,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
-class KlarnaKpPaymentHandler extends PaymentHandler
+class KlarnaKpPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = KlarnaKp::class;
+    public string $paymentClass = KlarnaKp::class;
     public const ARTICLE_TYPE_GENERAL = 'General';
     public const ARTICLE_TYPE_HANDLING_FEE = 'HandlingFee';
     public const ARTICLE_TYPE_SHIPMENT_FEE = 'ShipmentFee';
@@ -28,7 +28,7 @@ class KlarnaKpPaymentHandler extends PaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -56,10 +56,10 @@ class KlarnaKpPaymentHandler extends PaymentHandler
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
         return 'reserve';
     }

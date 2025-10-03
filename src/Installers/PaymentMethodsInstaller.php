@@ -40,7 +40,7 @@ class PaymentMethodsInstaller implements InstallerInterface
      * PaymentMethodsInstaller constructor.
      * @param ContainerInterface $container
      */
-    public function __construct(ContainerInterface $container = null)
+    public function __construct(?ContainerInterface $container = null)
     {
         if ($container === null) {
             throw new \Exception("Container is null", 1);

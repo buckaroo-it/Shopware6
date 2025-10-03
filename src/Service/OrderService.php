@@ -34,7 +34,7 @@ class OrderService
 
     protected EventDispatcherInterface $eventDispatcher;
 
-    protected object $paymentService; // Can be PaymentProcessor or PaymentService
+    protected ?object $paymentService = null; // Can be PaymentProcessor or PaymentService
 
     protected LoggerInterface $logger;
 
@@ -49,7 +49,7 @@ class OrderService
         $this->orderPersister = $orderPersister;
         $this->orderRepository = $orderRepository;
         $this->eventDispatcher = $eventDispatcher;
-        $this->paymentService = $paymentServiceFactory->getPaymentService();
+        $this->paymentServiceFactory = $paymentServiceFactory;
         $this->orderAddressRepository = $orderAddressRepository;
         $this->logger = $logger;
     }
@@ -91,6 +91,11 @@ class OrderService
             $request = new Request([], $data->all());
 
             // Handle both PaymentProcessor (6.7+) and PaymentService (6.5-6.6)
+            $this->ensurePaymentServiceResolved();
+            if (!is_object($this->paymentService)) {
+                throw new \RuntimeException('Payment service is not available');
+            }
+
             if (method_exists($this->paymentService, 'pay')) {
                 // PaymentProcessor API (Shopware 6.7+)
                 $response = $this->paymentService->pay(
@@ -129,6 +134,15 @@ class OrderService
         }
     }
 
+    private PaymentServiceFactory $paymentServiceFactory;
+
+    private function ensurePaymentServiceResolved(): void
+    {
+        if ($this->paymentService === null) {
+            $this->paymentService = $this->paymentServiceFactory->getPaymentService();
+        }
+    }
+
     public function persist(Cart $cart): ?OrderEntity
     {
         $this->validateSaleChannelContext();
@@ -141,7 +155,7 @@ class OrderService
         array $associations = ['lineItems'],
         Context $context = null
     ): ?OrderEntity {
-        if ($context === null) {
+        if (!$context instanceof Context) {
             $this->validateSaleChannelContext();
             $context = $this->salesChannelContext->getContext();
         }

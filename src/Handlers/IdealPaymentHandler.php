@@ -11,9 +11,9 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class IdealPaymentHandler extends PaymentHandler
+class IdealPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Ideal::class;
+    public string $paymentClass = Ideal::class;
 
     public const IDEAL_PROCESSING = 'idealProcessing';
 
@@ -27,7 +27,7 @@ class IdealPaymentHandler extends PaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -70,10 +70,10 @@ class IdealPaymentHandler extends PaymentHandler
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
         return $dataBag->get('idealFastCheckoutInfo') ? 'payFastCheckout' : 'pay';
     }

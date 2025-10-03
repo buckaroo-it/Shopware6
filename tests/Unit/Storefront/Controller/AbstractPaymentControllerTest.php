@@ -15,17 +15,6 @@ use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 
-/**
- * Concrete implementation of AbstractPaymentController for testing
- */
-class TestableAbstractPaymentController extends AbstractPaymentController
-{
-    public function testGetProductData(DataBag $formData): array
-    {
-        return $this->getProductData($formData);
-    }
-}
-
 class AbstractPaymentControllerTest extends TestCase
 {
     private TestableAbstractPaymentController $controller;
@@ -135,7 +124,10 @@ class AbstractPaymentControllerTest extends TestCase
 
         // Assert
         $this->expectException(InvalidParameterException::class);
-        $this->expectExceptionMessage('Missing required product parameters: id, quantity, referencedId, removable, stackable, type');
+        $this->expectExceptionMessage(
+            'Missing required product parameters: '
+            . 'id, quantity, referencedId, removable, stackable, type'
+        );
 
         // Act
         $this->controller->testGetProductData($formData);
@@ -270,7 +262,10 @@ class AbstractPaymentControllerTest extends TestCase
 
         // Assert
         $this->expectException(InvalidParameterException::class);
-        $this->expectExceptionMessage('Missing required product parameters: id, quantity, referencedId, removable, stackable, type');
+        $this->expectExceptionMessage(
+            'Missing required product parameters: '
+            . 'id, quantity, referencedId, removable, stackable, type'
+        );
 
         // Act
         $this->controller->testGetProductData($formData);

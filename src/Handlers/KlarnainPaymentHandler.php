@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class KlarnainPaymentHandler extends KlarnaPaymentHandler
 {
-    protected string $paymentClass = Klarnain::class;
+    public string $paymentClass = Klarnain::class;
 
     /**
     * Get method action for specific payment method
@@ -22,10 +22,10 @@ class KlarnainPaymentHandler extends KlarnaPaymentHandler
     *
     * @return string
     */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
         return 'payInInstallments';
     }

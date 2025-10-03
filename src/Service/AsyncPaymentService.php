@@ -52,7 +52,7 @@ class AsyncPaymentService
 
     /**
      * Get sales channel context with proper context inheritance
-     * 
+     *
      * @param Context $context The base context to derive from
      * @param string $salesChannelId The sales channel ID
      * @param string $token The context token
@@ -64,7 +64,7 @@ class AsyncPaymentService
             $salesChannelId,
             $token,
             null, // languageId - let it derive from context
-            null, // currencyId - let it derive from context  
+            null, // currencyId - let it derive from context
             null, // domainId - let it derive from context
             $context // Pass the original context to preserve state
         );
@@ -132,7 +132,7 @@ class AsyncPaymentService
 
     /**
      * Dispatch an event safely with proper error handling
-     * 
+     *
      * @param ShopwareSalesChannelEvent $event
      * @param bool $throwOnFailure Whether to throw exception on dispatch failure (default: false)
      * @return bool True if event was dispatched successfully, false otherwise
@@ -163,7 +163,7 @@ class AsyncPaymentService
     /**
      * Dispatch an event and throw exception on failure
      * Use this when event dispatch is critical to the operation
-     * 
+     *
      * @param ShopwareSalesChannelEvent $event
      * @throws \Throwable If dispatch fails
      */
@@ -206,8 +206,11 @@ class AsyncPaymentService
             preg_match($mobilePattern2, substr($useragent, 0, 4)) === 1;
     }
 
-    public function cancelPreviousPayments(PaymentTransactionStruct $transaction, OrderEntity $order, Context $context): void
-    {
+    public function cancelPreviousPayments(
+        PaymentTransactionStruct $transaction,
+        OrderEntity $order,
+        Context $context
+    ): void {
         try {
             $this->cancelPaymentService->cancel($transaction, $order, $context);
         } catch (\Throwable $th) {

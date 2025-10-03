@@ -9,9 +9,9 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class BancontactPaymentHandler extends PaymentHandler
+class BancontactPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Bancontact::class;
+    public string $paymentClass = Bancontact::class;
 
     private function isEncripted(RequestDataBag $dataBag): bool
     {
@@ -28,7 +28,7 @@ class BancontactPaymentHandler extends PaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -50,10 +50,10 @@ class BancontactPaymentHandler extends PaymentHandler
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
         if ($this->isEncripted($dataBag)) {
             return 'payEncrypted';

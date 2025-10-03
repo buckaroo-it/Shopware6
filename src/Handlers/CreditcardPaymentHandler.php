@@ -17,9 +17,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 
-class CreditcardPaymentHandler extends PaymentHandler
+class CreditcardPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Creditcard::class;
+    public string $paymentClass = Creditcard::class;
 
     public const ISSUER_LABEL = 'last_used_creditcard';
 
@@ -70,7 +70,7 @@ class CreditcardPaymentHandler extends PaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

@@ -6,7 +6,7 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Multibanco;
 
-class MultibancoPaymentHandler extends PaymentHandler
+class MultibancoPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Multibanco::class;
+    public string $paymentClass = Multibanco::class;
 }

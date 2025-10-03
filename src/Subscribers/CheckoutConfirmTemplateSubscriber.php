@@ -804,31 +804,4 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         
         return $default;
     }
-
-    /**
-     * Helper method to safely cast setting values to integer
-     * Provides default value if setting is null
-     */
-    private function getSettingAsInt(string $key, string $salesChannelId, int $default = 0): int
-    {
-        $value = $this->settingsService->getSetting($key, $salesChannelId);
-        
-        if ($value === null) {
-            return $default;
-        }
-        
-        if (is_int($value)) {
-            return $value;
-        }
-        
-        if (is_string($value) && is_numeric($value)) {
-            return (int)$value;
-        }
-        
-        if (is_bool($value)) {
-            return $value ? 1 : 0;
-        }
-        
-        return $default;
-    }
 }

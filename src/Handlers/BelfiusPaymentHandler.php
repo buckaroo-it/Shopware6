@@ -6,7 +6,7 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Belfius;
 
-class BelfiusPaymentHandler extends PaymentHandler
+class BelfiusPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Belfius::class;
+    public string $paymentClass = Belfius::class;
 }

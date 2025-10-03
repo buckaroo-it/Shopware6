@@ -290,7 +290,7 @@ class PayLinkService
 
     /**
      * Determine customer gender from salutation key with proper type safety
-     * 
+     *
      * @param mixed $salutationKey The salutation key from customer data
      * @return int 1 for male (mr), 2 for female/other
      */

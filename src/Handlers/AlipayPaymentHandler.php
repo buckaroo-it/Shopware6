@@ -10,9 +10,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class AlipayPaymentHandler extends PaymentHandler
+class AlipayPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Alipay::class;
+    public string $paymentClass = Alipay::class;
 
     /**
      * Get parameters for specific payment method
@@ -24,7 +24,7 @@ class AlipayPaymentHandler extends PaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

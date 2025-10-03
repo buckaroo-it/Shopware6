@@ -146,7 +146,7 @@ class PaymentStateService
     /**
      * Check if a specific transition is available in the list of available transitions
      * Uses strict comparison to prevent type juggling vulnerabilities
-     * 
+     *
      * @param array<mixed> $availableTransitions
      * @param string $transition
      *
@@ -276,7 +276,7 @@ class PaymentStateService
 
     /**
      * Safely compare request status code with expected value using proper type validation
-     * 
+     *
      * @param Request $request The HTTP request object
      * @param string $expectedStatusCode The expected status code constant
      * @return bool True if status codes match, false otherwise

@@ -40,7 +40,7 @@ class CheckoutHelper
 
     /**
      * Get the current session with proper null safety
-     * 
+     *
      * @return SessionInterface
      * @throws \RuntimeException When no session is active
      */
@@ -48,7 +48,7 @@ class CheckoutHelper
     {
         $session = $this->requestStack->getSession();
         
-        if ($session === null) {
+        if (!($session instanceof SessionInterface)) {
             throw new \RuntimeException(
                 'No active session found. Session is required for payment processing.'
             );
@@ -78,7 +78,7 @@ class CheckoutHelper
         }
 
         $price = $order->getPrice();
-        if ($price === null) {
+        if (!($price instanceof CartPrice)) {
             throw new \Exception("Order price information is missing", 1);
         }
 
@@ -174,7 +174,7 @@ class CheckoutHelper
 
     public function saveBuckarooTransaction(Request $request, Context $context): ?string
     {
-        return $this->buckarooTransactionEntityRepository->save(null, $this->pusToArray($request), [], $context);
+        return $this->buckarooTransactionEntityRepository->save(null, $this->pusToArray($request), $context, []);
     }
 
     /**
@@ -206,7 +206,9 @@ class CheckoutHelper
             'transaction_method'   => $this->sanitizeRequestValue($request->request->get('brq_transaction_method')),
             'transaction_type'     => $this->sanitizeRequestValue($transactionType),
             'transactions'         => $this->sanitizeRequestValue($request->request->get('brq_transactions')),
-            'relatedtransaction'   => $this->sanitizeRequestValue($request->request->get('brq_relatedtransaction_partialpayment')),
+            'relatedtransaction'   => $this->sanitizeRequestValue(
+                $request->request->get('brq_relatedtransaction_partialpayment')
+            ),
             'type'                 => $type,
             'created_at'           => $now,
             'updated_at'           => $now,
@@ -274,7 +276,7 @@ class CheckoutHelper
 
     /**
      * Compare two amounts for equality with proper type safety and precision handling
-     * 
+     *
      * @param mixed $amount1
      * @param mixed $amount2
      *

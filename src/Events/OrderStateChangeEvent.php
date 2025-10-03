@@ -103,7 +103,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         }
         
         // Guard against null sales channel ID for Billink processing
-        if ($salesChannelId === null) {
+        if (!is_string($salesChannelId) || $salesChannelId === '') {
             $this->logger->warning('Cannot process order state change: sales channel ID is null', [
                 'orderId' => $order->getId()
             ]);
@@ -111,6 +111,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         }
         
         if (
+            isset($customFields['brqPaymentMethod']) &&
             $customFields['brqPaymentMethod'] === 'Billink' &&
             $this->settingsService->getSetting('BillinkMode', $salesChannelId) === 'authorize' &&
             $this->settingsService->getSetting('BillinkCreateInvoiceAfterShipment', $salesChannelId)
@@ -184,8 +185,9 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             $message = $result['message'];
         }
 
-        $this->notificationService->createNotification(
-            [
+        if (is_object($this->notificationService) && method_exists($this->notificationService, 'createNotification')) {
+            $this->notificationService->createNotification(
+                [
                 'id' => Uuid::randomHex(),
                 'status' => $status,
                 'message' => $message,
@@ -193,8 +195,9 @@ class OrderStateChangeEvent implements EventSubscriberInterface
                 'requiredPrivileges' => [],
                 'createdByIntegrationId' => null,
                 'createdByUserId' => null,
-            ],
-            $context
-        );
+                ],
+                $context
+            );
+        }
     }
 }

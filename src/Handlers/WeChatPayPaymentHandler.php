@@ -9,9 +9,9 @@ use Buckaroo\Shopware6\PaymentMethods\WeChatPay;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class WeChatPayPaymentHandler extends PaymentHandler
+class WeChatPayPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = WeChatPay::class;
+    public string $paymentClass = WeChatPay::class;
 
     /**
      * Get parameters for specific payment method
@@ -23,7 +23,7 @@ class WeChatPayPaymentHandler extends PaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

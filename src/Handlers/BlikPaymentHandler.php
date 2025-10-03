@@ -6,7 +6,7 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Blik;
 
-class BlikPaymentHandler extends PaymentHandler
+class BlikPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Blik::class;
+    public string $paymentClass = Blik::class;
 }

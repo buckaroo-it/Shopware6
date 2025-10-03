@@ -291,8 +291,8 @@ class RefundService
                             'refunded_items' => json_encode($orderItemsRefunded),
                             'amount_credit' => (string)($amountCredit + $amount)
                         ],
-                        [],
-                        $context
+                        $context,
+                        []
                     );
             }
 
@@ -438,7 +438,11 @@ class RefundService
         }
 
         // Check if refund is supported with proper existence check and strict comparison
-        if (!isset($customFields['canRefund']) || $customFields['canRefund'] === 0 || $customFields['canRefund'] === '0' || $customFields['canRefund'] === false) {
+        if (!isset($customFields['canRefund']) ||
+            $customFields['canRefund'] === 0 ||
+            $customFields['canRefund'] === '0' ||
+            $customFields['canRefund'] === false
+        ) {
             return [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.refund.not_supported")
@@ -446,7 +450,11 @@ class RefundService
         }
 
         // Check if already refunded with proper existence check and strict comparison
-        if (isset($customFields['refunded']) && ($customFields['refunded'] === 1 || $customFields['refunded'] === '1' || $customFields['refunded'] === true)) {
+        if (isset($customFields['refunded']) &&
+            ($customFields['refunded'] === 1 ||
+            $customFields['refunded'] === '1' ||
+            $customFields['refunded'] === true)
+        ) {
             return [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.refund.already_refunded")

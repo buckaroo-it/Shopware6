@@ -190,7 +190,7 @@ abstract class AbstractPaymentController extends StorefrontController
         $missingKeys = array_diff($keysRequired, array_keys($productData));
         if (!empty($missingKeys)) {
             throw new InvalidParameterException(
-                "Missing required product parameters: " . implode(', ', $missingKeys), 
+                "Missing required product parameters: " . implode(', ', $missingKeys),
                 1
             );
         }

@@ -18,9 +18,9 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
-class AfterPayPaymentHandler extends PaymentHandler
+class AfterPayPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = AfterPay::class;
+    public string $paymentClass = AfterPay::class;
 
     public const CUSTOMER_TYPE_B2C = 'b2c';
     public const CUSTOMER_TYPE_B2B = 'b2b';
@@ -103,7 +103,7 @@ class AfterPayPaymentHandler extends PaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -126,12 +126,12 @@ class AfterPayPaymentHandler extends PaymentHandler
     }
 
     /** @inheritDoc */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
-        if ($this->isAuthorization($salesChannelContext->getSalesChannelId())) {
+        if ($salesChannelContext !== null && $this->isAuthorization($salesChannelContext->getSalesChannelId())) {
             return 'Authorize';
         }
         return parent::getMethodAction($dataBag, $salesChannelContext, $paymentCode);

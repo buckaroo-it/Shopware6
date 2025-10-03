@@ -15,11 +15,11 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 
-class IdealQrPaymentHandler extends PaymentHandler
+class IdealQrPaymentHandler extends PaymentHandlerSimple
 {
     public const IDEAL_QR_INVOICE_PREFIX = 'iQR';
 
-    protected string $paymentClass = IdealQr::class;
+    public string $paymentClass = IdealQr::class;
 
     protected int $invoice;
 
@@ -49,7 +49,7 @@ class IdealQrPaymentHandler extends PaymentHandler
      * @return array<mixed>
      */
     protected function getCommonRequestPayload(
-        OrderTransactionEntity $orderTransaction,
+        $orderTransaction,
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -78,7 +78,7 @@ class IdealQrPaymentHandler extends PaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -109,17 +109,20 @@ class IdealQrPaymentHandler extends PaymentHandler
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
         return 'generate';
     }
 
+    /**
+     * @param mixed $orderTransaction
+     */
     protected function handleResponse(
         ClientResponseInterface $response,
-        OrderTransactionEntity $orderTransaction,
+        $orderTransaction,
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
