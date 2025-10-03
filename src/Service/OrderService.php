@@ -49,7 +49,7 @@ class OrderService
         $this->orderPersister = $orderPersister;
         $this->orderRepository = $orderRepository;
         $this->eventDispatcher = $eventDispatcher;
-        $this->paymentService = $paymentServiceFactory->getPaymentService();
+        $this->paymentServiceFactory = $paymentServiceFactory;
         $this->orderAddressRepository = $orderAddressRepository;
         $this->logger = $logger;
     }
@@ -91,6 +91,8 @@ class OrderService
             $request = new Request([], $data->all());
 
             // Handle both PaymentProcessor (6.7+) and PaymentService (6.5-6.6)
+            $this->ensurePaymentServiceResolved();
+
             if (method_exists($this->paymentService, 'pay')) {
                 // PaymentProcessor API (Shopware 6.7+)
                 $response = $this->paymentService->pay(
@@ -126,6 +128,15 @@ class OrderService
             
             // Return null to indicate payment failure - let calling code handle the response
             return null;
+        }
+    }
+
+    private PaymentServiceFactory $paymentServiceFactory;
+
+    private function ensurePaymentServiceResolved(): void
+    {
+        if ($this->paymentService === null) {
+            $this->paymentService = $this->paymentServiceFactory->getPaymentService();
         }
     }
 
