@@ -23,5 +23,6 @@ class ResponseStatus
     public const BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION = 'I150';
 
     public const BUCKAROO_MUTATION_TYPE_INFORMATIONAL      = 'Informational';
+    public const BUCKAROO_MUTATION_TYPE_PROCESSING         = 'Processing';
     public const BUCKAROO_BILLINK_CAPTURE_TYPE_ACCEPT      = 'C073';
 }
