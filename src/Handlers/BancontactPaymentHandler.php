@@ -52,8 +52,8 @@ class BancontactPaymentHandler extends PaymentHandlerSimple
      */
     public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
         if ($this->isEncripted($dataBag)) {
             return 'payEncrypted';

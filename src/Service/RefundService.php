@@ -291,8 +291,8 @@ class RefundService
                             'refunded_items' => json_encode($orderItemsRefunded),
                             'amount_credit' => (string)($amountCredit + $amount)
                         ],
-                        [],
-                        $context
+                        $context,
+                        []
                     );
             }
 

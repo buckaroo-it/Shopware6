@@ -128,8 +128,8 @@ class CancelPaymentService
                 [
                     'amount_credit' => (string)((float)$amountCredit + (float)$transactionAmount)
                 ],
-                [],
-                $context
+                $context,
+                []
             );
     }
 

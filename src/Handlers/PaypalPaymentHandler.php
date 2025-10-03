@@ -74,10 +74,13 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
      */
     public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
-        if ($this->isSellerProtection($salesChannelContext) && !$dataBag->has('orderId')) {
+        $needsExtraInfo = $salesChannelContext !== null
+            && $this->isSellerProtection($salesChannelContext)
+            && !$dataBag->has('orderId');
+        if ($needsExtraInfo) {
             return 'extraInfo';
         }
         return 'pay';

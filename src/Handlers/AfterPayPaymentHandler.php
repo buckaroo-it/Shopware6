@@ -128,10 +128,10 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
     /** @inheritDoc */
     public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
-        if ($this->isAuthorization($salesChannelContext->getSalesChannelId())) {
+        if ($salesChannelContext !== null && $this->isAuthorization($salesChannelContext->getSalesChannelId())) {
             return 'Authorize';
         }
         return parent::getMethodAction($dataBag, $salesChannelContext, $paymentCode);
