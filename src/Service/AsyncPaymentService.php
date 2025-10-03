@@ -206,7 +206,11 @@ class AsyncPaymentService
             preg_match($mobilePattern2, substr($useragent, 0, 4)) === 1;
     }
 
-    public function cancelPreviousPayments(PaymentTransactionStruct $transaction, OrderEntity $order, Context $context): void
+    public function cancelPreviousPayments(
+        PaymentTransactionStruct $transaction,
+        OrderEntity $order,
+        Context $context
+    ): void
     {
         try {
             $this->cancelPaymentService->cancel($transaction, $order, $context);

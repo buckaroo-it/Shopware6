@@ -280,7 +280,11 @@ class PushControllerTest extends TestCase
         return $request;
     }
 
-    private function createReflectionAndMockPrivateMethod(string $methodName, $returnValue, int $expectedCalls = null): void
+    private function createReflectionAndMockPrivateMethod(
+        string $methodName,
+        $returnValue,
+        int $expectedCalls = null
+    ): void
     {
         $reflection = new \ReflectionClass($this->pushController);
         $method = $reflection->getMethod($methodName);
