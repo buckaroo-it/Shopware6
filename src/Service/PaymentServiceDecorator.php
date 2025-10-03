@@ -40,7 +40,7 @@ class PaymentServiceDecorator
 
     /**
      * Assemble sales channel context with proper context inheritance and security
-     * 
+     *
      * @param string $paymentToken
      * @param Context $validationContext Context with appropriate permissions for token validation
      * @return SalesChannelContext
@@ -115,7 +115,7 @@ class PaymentServiceDecorator
 
     /**
      * Create a context that's aware of the sales channel for security constraints
-     * 
+     *
      * @param string $salesChannelId
      * @param Context $baseContext
      * @return Context

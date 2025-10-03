@@ -56,8 +56,11 @@ class TransactionService
      *
      * @return void
      */
-    public function updateTransactionCustomFields(string $orderTransactionId, array $customFields, Context $context): void
-    {
+    public function updateTransactionCustomFields(
+        string $orderTransactionId,
+        array $customFields,
+        Context $context
+    ): void {
         $data = [
             'id'           => $orderTransactionId,
             'customFields' => $customFields,

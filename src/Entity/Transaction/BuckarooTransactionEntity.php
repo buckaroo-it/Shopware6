@@ -83,7 +83,7 @@ class BuckarooTransactionEntity extends Entity
 
     /**
      * Validates if data can be safely JSON encoded
-     * 
+     *
      * @param mixed $data
      * @return bool
      */
@@ -114,7 +114,7 @@ class BuckarooTransactionEntity extends Entity
 
     /**
      * Validates the integrity of the refunded items data and repairs if necessary
-     * 
+     *
      * @return bool True if data is valid or was successfully repaired
      */
     public function validateAndRepairRefundedItems(): bool
@@ -148,7 +148,7 @@ class BuckarooTransactionEntity extends Entity
 
     /**
      * Get the raw JSON string of refunded items (for debugging purposes)
-     * 
+     *
      * @return string
      */
     public function getRefundedItemsRaw(): string
@@ -158,7 +158,7 @@ class BuckarooTransactionEntity extends Entity
 
     /**
      * Check if refunded items data is valid JSON
-     * 
+     *
      * @return bool
      */
     public function hasValidRefundedItemsData(): bool

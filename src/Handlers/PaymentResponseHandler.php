@@ -30,7 +30,9 @@ class PaymentResponseHandler
         $this->storeTransactionInfo($orderTransaction, $order, $response, $salesChannelContext, $paymentCode);
 
         if ($response->isRejected()) {
-            throw new \Buckaroo\Shopware6\Service\Exceptions\BuckarooPaymentRejectException($response->getSubCodeMessage());
+            throw new \Buckaroo\Shopware6\Service\Exceptions\BuckarooPaymentRejectException(
+                $response->getSubCodeMessage()
+            );
         }
 
         if ($response->hasRedirect()) {

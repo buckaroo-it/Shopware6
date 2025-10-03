@@ -174,7 +174,7 @@ class CheckoutHelper
 
     public function saveBuckarooTransaction(Request $request, Context $context): ?string
     {
-        return $this->buckarooTransactionEntityRepository->save(null, $this->pusToArray($request), [], $context);
+        return $this->buckarooTransactionEntityRepository->save(null, $this->pusToArray($request), $context, []);
     }
 
     /**

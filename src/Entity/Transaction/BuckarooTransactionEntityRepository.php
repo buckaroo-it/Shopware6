@@ -41,7 +41,7 @@ class BuckarooTransactionEntityRepository
      *
      * @return string|null
      */
-    public function save(?string $id, array $data, array $additionalConditions = [], Context $context): ?string
+    public function save(?string $id, array $data, Context $context, array $additionalConditions = []): ?string
     {
         if ($id !== null) {
             /** @var BuckarooTransactionEntity $buckarooTransactionEntity|null */
@@ -117,11 +117,11 @@ class BuckarooTransactionEntityRepository
      * @throws InconsistentCriteriaIdsException
      */
     public function findAll(
+        Context $context,
         array $filterBy = [],
         array $sortBy = [],
         $start = 0,
-        $limit = 10,
-        Context $context
+        $limit = 10
     ): EntityCollection {
         /** @var BuckarooTransactionEntityCollection<BuckarooTransactionEntity> */
         $entities = $this->baseRepository
@@ -181,7 +181,7 @@ class BuckarooTransactionEntityRepository
      *
      * @return BuckarooTransactionEntityCollection<BuckarooTransactionEntity>
      */
-    public function findByOrderId(string $id, array $sortBy = [], Context $context): EntityCollection
+    public function findByOrderId(string $id, Context $context, array $sortBy = []): EntityCollection
     {
         $filter = ['order_id' => $id];
 

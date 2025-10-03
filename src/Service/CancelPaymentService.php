@@ -51,7 +51,7 @@ class CancelPaymentService
     ): void {
 
         $orderTransactionId = $transactionStruct->getOrderTransactionId();
-        $transactions = $this->buckarooTransactionEntityRepository->findByOrderId($order->getId(), [], $context);
+        $transactions = $this->buckarooTransactionEntityRepository->findByOrderId($order->getId(), $context, []);
         foreach ($transactions as $transaction) {
             if ($transaction->get('statuscode') != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
                 continue;

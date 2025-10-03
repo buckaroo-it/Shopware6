@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
+
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
@@ -104,8 +106,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
 
 } else {
     // Shopware 6.7+: Extend AbstractPaymentHandler + use Strategy pattern internally
-    class PaymentHandlerSimple extends
-        \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler
+    class PaymentHandlerSimple extends \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler
     {
         use PaymentHandlerTemplateMethods;
         
@@ -230,4 +231,3 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
         }
     }
 }
-
