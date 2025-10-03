@@ -36,7 +36,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
         use PaymentHandlerTemplateMethods;
         
         protected AsyncPaymentService $asyncPaymentService;
-        protected ?FormatRequestParamService $formatRequestParamService;
+        protected FormatRequestParamService $formatRequestParamService;
         public string $paymentClass = '';
 
         public function __construct(
@@ -44,7 +44,8 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             ?FormatRequestParamService $formatRequestParamService = null
         ) {
             $this->asyncPaymentService = $asyncPaymentService;
-            $this->formatRequestParamService = $formatRequestParamService;
+            $this->formatRequestParamService =
+                $formatRequestParamService ?? $asyncPaymentService->formatRequestParamService;
         }
 
         public function setPaymentClass(string $paymentClass): void
@@ -81,13 +82,20 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     }
                 }
                 
-                protected function getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode): array
-                {
+                protected function getMethodPayload(
+                    \Shopware\Core\Checkout\Order\OrderEntity $order,
+                    \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
+                    \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
+                    string $paymentCode
+                ): array {
                     return $this->parent->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
                 }
                 
-                protected function getMethodAction($dataBag, $salesChannelContext = null, $paymentCode = null): string
-                {
+                protected function getMethodAction(
+                    \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
+                    ?\Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext = null,
+                    ?string $paymentCode = null
+                ): string {
                     return $this->parent->getMethodAction($dataBag, $salesChannelContext, $paymentCode);
                 }
             };
@@ -102,6 +110,79 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
         ): void {
             // For most payment methods, no additional action is needed
         }
+        
+        /**
+         * Helper accessors used by child handlers
+         */
+        protected function getSetting(string $key, ?string $salesChannelId = null): mixed
+        {
+            return $this->asyncPaymentService->settingsService->getSetting($key, $salesChannelId);
+        }
+
+        /** @return array<mixed> */
+        protected function getOrderLinesArray(
+            \Shopware\Core\Checkout\Order\OrderEntity $order,
+            string $paymentCode,
+            ?\Shopware\Core\Framework\Context $context = null
+        ): array {
+            return $this->asyncPaymentService->formatRequestParamService->getOrderLinesArray(
+                $order,
+                $paymentCode,
+                $context
+            );
+        }
+
+        protected function getFee(string $paymentCode, string $salesChannelId): float
+        {
+            return $this->asyncPaymentService->settingsService->getBuckarooFee($paymentCode, $salesChannelId);
+        }
+
+        /**
+         * Legacy-compatible hook stub used by children like IdealQrPaymentHandler.
+         * @return array<mixed>
+         */
+        /**
+         * @param mixed $orderTransaction
+         * @return array<mixed>
+         */
+        protected function getCommonRequestPayload(
+            $orderTransaction,
+            \Shopware\Core\Checkout\Order\OrderEntity $order,
+            \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
+            \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
+            string $paymentCode,
+            ?string $returnUrl
+        ): array {
+            return [
+                'order' => $order->getOrderNumber(),
+                'invoice' => $order->getOrderNumber(),
+                'amountDebit' => $order->getAmountTotal(),
+                'currency' => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
+                'returnURL' => $returnUrl ?? ''
+            ];
+        }
+
+        /**
+         * @param mixed $orderTransaction
+         */
+        protected function handleResponse(
+            \Buckaroo\Shopware6\Buckaroo\ClientResponseInterface $response,
+            $orderTransaction,
+            \Shopware\Core\Checkout\Order\OrderEntity $order,
+            \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
+            \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
+            string $paymentCode
+        ): RedirectResponse {
+            if ($response->hasRedirect()) {
+                return new RedirectResponse($response->getRedirectUrl());
+            }
+            return new RedirectResponse('/checkout/finish');
+        }
+
+        protected function isAfterpayOld(string $salesChannelContextId): bool
+        {
+            return $this->getSetting('afterpayEnabledold', $salesChannelContextId) === true;
+        }
     }
 
 } else {
@@ -111,7 +192,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
         use PaymentHandlerTemplateMethods;
         
         protected AsyncPaymentService $asyncPaymentService;
-        protected ?FormatRequestParamService $formatRequestParamService;
+        protected FormatRequestParamService $formatRequestParamService;
         public string $paymentClass = '';
 
         public function __construct(
@@ -119,7 +200,8 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             ?FormatRequestParamService $formatRequestParamService = null
         ) {
             $this->asyncPaymentService = $asyncPaymentService;
-            $this->formatRequestParamService = $formatRequestParamService;
+            $this->formatRequestParamService =
+                $formatRequestParamService ?? $asyncPaymentService->formatRequestParamService;
         }
 
         public function setPaymentClass(string $paymentClass): void
@@ -183,7 +265,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 
                 // Handle zero amount payments
                 if ($order->getAmountTotal() <= 0) {
-                    return new RedirectResponse($transaction->getReturnUrl() ?? '/checkout/finish');
+                    return new RedirectResponse($transaction->getReturnUrl());
                 }
                 
                 // Process payment using existing services
@@ -195,10 +277,14 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
                 $methodAction = $this->getMethodAction($dataBag, $salesChannelContext, $paymentCode);
                 
+                $currency = $order->getCurrency();
+                if ($currency === null) {
+                    throw new \Exception('Order currency not loaded.');
+                }
                 $commonPayload = [
                     'invoice' => $order->getOrderNumber(),
                     'amountDebit' => $order->getAmountTotal(),
-                    'currency' => $order->getCurrency()->getIsoCode(),
+                    'currency' => $currency->getIsoCode(),
                     'returnURL' => $transaction->getReturnUrl(),
                 ];
                 
@@ -207,11 +293,11 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 
                 $response = $client->execute();
                 
-                if ($response && $response->hasRedirect()) {
+                if ($response->hasRedirect()) {
                     return new RedirectResponse($response->getRedirectUrl());
                 }
                 
-                return new RedirectResponse($transaction->getReturnUrl() ?? '/checkout/finish');
+                return new RedirectResponse($transaction->getReturnUrl());
             } catch (\Exception $e) {
                 $this->asyncPaymentService->logger->error('Payment processing failed', [
                     'error' => $e->getMessage(),
@@ -220,6 +306,53 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 ]);
                 return null;
             }
+        }
+
+        /**
+         * Helper accessors used by child handlers
+         */
+        protected function getSetting(string $key, ?string $salesChannelId = null): mixed
+        {
+            return $this->asyncPaymentService->settingsService->getSetting($key, $salesChannelId);
+        }
+
+        /** @return array<mixed> */
+        protected function getOrderLinesArray(
+            \Shopware\Core\Checkout\Order\OrderEntity $order,
+            string $paymentCode,
+            ?\Shopware\Core\Framework\Context $context = null
+        ): array {
+            return $this->asyncPaymentService->formatRequestParamService->getOrderLinesArray(
+                $order,
+                $paymentCode,
+                $context
+            );
+        }
+
+        protected function getFee(string $paymentCode, string $salesChannelId): float
+        {
+            return $this->asyncPaymentService->settingsService->getBuckarooFee($paymentCode, $salesChannelId);
+        }
+
+        /**
+         * @param mixed $orderTransaction
+         */
+        /**
+         * @param mixed $orderTransaction
+         */
+        protected function handleResponse(
+            \Buckaroo\Shopware6\Buckaroo\ClientResponseInterface $response,
+            $orderTransaction,
+            \Shopware\Core\Checkout\Order\OrderEntity $order,
+            \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
+            \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
+            string $paymentCode
+        ): RedirectResponse {
+            // Minimal default: redirect if response has redirect, otherwise finish
+            if ($response->hasRedirect()) {
+                return new RedirectResponse($response->getRedirectUrl());
+            }
+            return new RedirectResponse('/checkout/finish');
         }
 
         public function finalize(

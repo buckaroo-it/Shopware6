@@ -34,7 +34,7 @@ class OrderService
 
     protected EventDispatcherInterface $eventDispatcher;
 
-    protected object $paymentService; // Can be PaymentProcessor or PaymentService
+    protected ?object $paymentService = null; // Can be PaymentProcessor or PaymentService
 
     protected LoggerInterface $logger;
 
@@ -92,6 +92,9 @@ class OrderService
 
             // Handle both PaymentProcessor (6.7+) and PaymentService (6.5-6.6)
             $this->ensurePaymentServiceResolved();
+            if (!is_object($this->paymentService)) {
+                throw new \RuntimeException('Payment service is not available');
+            }
 
             if (method_exists($this->paymentService, 'pay')) {
                 // PaymentProcessor API (Shopware 6.7+)
@@ -152,7 +155,7 @@ class OrderService
         array $associations = ['lineItems'],
         Context $context = null
     ): ?OrderEntity {
-        if ($context === null) {
+        if (!$context instanceof Context) {
             $this->validateSaleChannelContext();
             $context = $this->salesChannelContext->getContext();
         }

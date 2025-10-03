@@ -49,7 +49,7 @@ class IdealQrPaymentHandler extends PaymentHandlerSimple
      * @return array<mixed>
      */
     protected function getCommonRequestPayload(
-        OrderTransactionEntity $orderTransaction,
+        $orderTransaction,
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -117,9 +117,12 @@ class IdealQrPaymentHandler extends PaymentHandlerSimple
         return 'generate';
     }
 
+    /**
+     * @param mixed $orderTransaction
+     */
     protected function handleResponse(
         ClientResponseInterface $response,
-        OrderTransactionEntity $orderTransaction,
+        $orderTransaction,
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

@@ -48,7 +48,7 @@ class CheckoutHelper
     {
         $session = $this->requestStack->getSession();
         
-        if ($session === null) {
+        if (!($session instanceof SessionInterface)) {
             throw new \RuntimeException(
                 'No active session found. Session is required for payment processing.'
             );
@@ -78,7 +78,7 @@ class CheckoutHelper
         }
 
         $price = $order->getPrice();
-        if ($price === null) {
+        if (!($price instanceof CartPrice)) {
             throw new \Exception("Order price information is missing", 1);
         }
 

@@ -127,7 +127,10 @@ class PaymentHandlerStrategyFactory
                 if ($reflection->hasConstant('SHOPWARE_FALLBACK_VERSION')) {
                     $shopwareVersion = $reflection->getConstant('SHOPWARE_FALLBACK_VERSION');
 
-                    return version_compare($shopwareVersion, $minVersion, '>=');
+                    if (is_string($shopwareVersion)) {
+                        return version_compare($shopwareVersion, $minVersion, '>=');
+                    }
+                    return false;
                 }
             } catch (\Throwable $e) {
                 // If we can't determine the version, fall back to class existence checks
@@ -139,7 +142,7 @@ class PaymentHandlerStrategyFactory
             try {
                 $installedVersionsClass = 'Composer\\InstalledVersions';
                 $version = call_user_func([$installedVersionsClass, 'getVersion'], 'shopware/core');
-                if ($version !== null) {
+                if ($version !== null && is_string($version)) {
                     // Remove any version prefix like 'v' and extract just the version number
                     $version = ltrim($version, 'v');
                     // Handle dev versions by taking only the numeric part

@@ -87,9 +87,12 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
     }
 
 
+    /**
+     * @param mixed $orderTransaction
+     */
     protected function handleResponse(
         ClientResponseInterface $response,
-        OrderTransactionEntity $orderTransaction,
+        $orderTransaction,
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

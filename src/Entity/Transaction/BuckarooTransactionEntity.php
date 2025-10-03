@@ -95,7 +95,7 @@ class BuckarooTransactionEntity extends Entity
         }
         
         // For arrays and objects, recursively check all values
-        if (is_array($data) || is_object($data)) {
+        if (is_iterable($data)) {
             foreach ($data as $value) {
                 if (!$this->isJsonEncodable($value)) {
                     return false;
