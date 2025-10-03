@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
  * Payment handler using Strategy pattern for version compatibility
  * Does not extend AbstractPaymentHandler to maintain compatibility with Shopware < 6.7
  */
-class PaymentHandler 
+class PaymentHandler
 {
     private PaymentHandlerContext $handlerContext;
     private PaymentHandlerStrategyFactory $strategyFactory;
@@ -90,8 +90,8 @@ class PaymentHandler
     public function switchToStrategy(string $strategyName): void
     {
         $strategy = match ($strategyName) {
-            'modern' => $this->strategyFactory->isModernStrategyAvailable() 
-                ? $this->strategyFactory->createStrategy() 
+            'modern' => $this->strategyFactory->isModernStrategyAvailable()
+                ? $this->strategyFactory->createStrategy()
                 : throw new \InvalidArgumentException('Modern strategy is not available'),
             'legacy' => $this->strategyFactory->createStrategy(), // Will create legacy if modern not available
             default => throw new \InvalidArgumentException("Unknown strategy: $strategyName")

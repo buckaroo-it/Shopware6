@@ -284,8 +284,7 @@ class PushControllerTest extends TestCase
         string $methodName,
         $returnValue,
         int $expectedCalls = null
-    ): void
-    {
+    ): void {
         $reflection = new \ReflectionClass($this->pushController);
         $method = $reflection->getMethod($methodName);
         $method->setAccessible(true);

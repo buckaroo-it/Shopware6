@@ -40,7 +40,7 @@ class CheckoutHelper
 
     /**
      * Get the current session with proper null safety
-     * 
+     *
      * @return SessionInterface
      * @throws \RuntimeException When no session is active
      */
@@ -206,7 +206,9 @@ class CheckoutHelper
             'transaction_method'   => $this->sanitizeRequestValue($request->request->get('brq_transaction_method')),
             'transaction_type'     => $this->sanitizeRequestValue($transactionType),
             'transactions'         => $this->sanitizeRequestValue($request->request->get('brq_transactions')),
-            'relatedtransaction'   => $this->sanitizeRequestValue($request->request->get('brq_relatedtransaction_partialpayment')),
+            'relatedtransaction'   => $this->sanitizeRequestValue(
+                $request->request->get('brq_relatedtransaction_partialpayment')
+            ),
             'type'                 => $type,
             'created_at'           => $now,
             'updated_at'           => $now,
@@ -274,7 +276,7 @@ class CheckoutHelper
 
     /**
      * Compare two amounts for equality with proper type safety and precision handling
-     * 
+     *
      * @param mixed $amount1
      * @param mixed $amount2
      *

@@ -336,7 +336,11 @@ class CheckoutConfirmTemplateSubscriberTest extends TestCase
         $page->method('addExtension')->willReturnSelf();
         $page->method('getExtension')->willReturn(new BuckarooStruct());
         
-        return new CheckoutCartPageLoadedEvent($page, $salesChannelContext, $this->createMock(\Symfony\Component\HttpFoundation\Request::class));
+        return new CheckoutCartPageLoadedEvent(
+            $page,
+            $salesChannelContext,
+            $this->createMock(\Symfony\Component\HttpFoundation\Request::class)
+        );
     }
 
     private function createProductPageLoadedEvent(string $salesChannelId): ProductPageLoadedEvent
@@ -348,6 +352,10 @@ class CheckoutConfirmTemplateSubscriberTest extends TestCase
         $page->method('addExtension')->willReturnSelf();
         $page->method('getExtension')->willReturn(new BuckarooStruct());
         
-        return new ProductPageLoadedEvent($page, $salesChannelContext, $this->createMock(\Symfony\Component\HttpFoundation\Request::class));
+        return new ProductPageLoadedEvent(
+            $page,
+            $salesChannelContext,
+            $this->createMock(\Symfony\Component\HttpFoundation\Request::class)
+        );
     }
 }

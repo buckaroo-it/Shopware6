@@ -15,19 +15,6 @@ use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 
-// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
-/**
- * Concrete implementation of AbstractPaymentController for testing
- */
-class TestableAbstractPaymentController extends AbstractPaymentController
-{
-    public function testGetProductData(DataBag $formData): array
-    {
-        return $this->getProductData($formData);
-    }
-}
-// phpcs:enable PSR1.Classes.ClassDeclaration.MultipleClasses
-
 class AbstractPaymentControllerTest extends TestCase
 {
     private TestableAbstractPaymentController $controller;
