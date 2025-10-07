@@ -239,13 +239,12 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 if ($order === null) {
                     return null;
                 }
-                
-                // Get sales channel context
-                $contextToken = $request->get('sw-context-token', '');
+
+                $contextToken = $this->getContextTokenFromRequest($request);
                 $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext(
                     $context,
                     $order->getSalesChannelId(),
-                    is_string($contextToken) ? $contextToken : ''
+                    $contextToken
                 );
                 
                 // Extract request data
@@ -267,26 +266,39 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 if ($order->getAmountTotal() <= 0) {
                     return new RedirectResponse($transaction->getReturnUrl());
                 }
+
+                $urlGenerator = new PaymentUrlGenerator($this->asyncPaymentService);
+                $feeCalculator = new PaymentFeeCalculator($this->asyncPaymentService);
+                $payloadBuilder = new PaymentPayloadBuilder(
+                    $this->asyncPaymentService,
+                    $urlGenerator,
+                    $feeCalculator
+                );
+                
+                // Build common payload with all required fields
+                $commonPayload = $payloadBuilder->buildCommonPayload(
+                    $orderTransaction,
+                    $order,
+                    $dataBag,
+                    $salesChannelContext,
+                    $paymentCode,
+                    $transaction->getReturnUrl()
+                );
+                
+                $this->asyncPaymentService->logger->info('Shopware 6.7 - Payload built', [
+                    'orderId' => $order->getId(),
+                    'pushURL' => $commonPayload['pushURL'] ?? '(missing)',
+                    'additionalParameters' => !empty($commonPayload['additionalParameters']) ? 'present' : 'missing'
+                ]);
+                
+                $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
+                $methodAction = $this->getMethodAction($dataBag, $salesChannelContext, $paymentCode);
                 
                 // Process payment using existing services
                 $client = $this->asyncPaymentService->clientService->get(
                     $paymentCode,
                     $salesChannelContext->getSalesChannelId()
                 );
-                
-                $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
-                $methodAction = $this->getMethodAction($dataBag, $salesChannelContext, $paymentCode);
-                
-                $currency = $order->getCurrency();
-                if ($currency === null) {
-                    throw new \Exception('Order currency not loaded.');
-                }
-                $commonPayload = [
-                    'invoice' => $order->getOrderNumber(),
-                    'amountDebit' => $order->getAmountTotal(),
-                    'currency' => $currency->getIsoCode(),
-                    'returnURL' => $transaction->getReturnUrl(),
-                ];
                 
                 $client->setPayload(array_merge_recursive($commonPayload, $methodPayload))
                        ->setAction($methodAction);
@@ -361,6 +373,21 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             Context $context
         ): void {
             // For most payment methods, no additional action is needed
+        }
+
+        /**
+         * Extract context token from request (headers first, then parameters)
+         */
+        private function getContextTokenFromRequest(Request $request): string
+        {
+            $contextToken = $request->headers->get('sw-context-token', '');
+            if (empty($contextToken)) {
+                $contextToken = $request->get('sw-context-token', '');
+            }
+            if (empty($contextToken) || !is_string($contextToken)) {
+                return '';
+            }
+            return $contextToken;
         }
     }
 }
