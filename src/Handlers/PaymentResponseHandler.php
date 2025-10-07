@@ -108,6 +108,14 @@ class PaymentResponseHandler
             );
         }
 
+        if ($response->isFailed() || $response->isValidationFailure()) {
+            throw \Shopware\Core\Checkout\Payment\PaymentException::asyncProcessInterrupted(
+                $orderTransaction->getId(),
+                'Payment failed: ' . $response->getSomeError(),
+                new \Exception('Payment failed with status code: ' . $response->getStatusCode())
+            );
+        }
+
         return new RedirectResponse(
             sprintf('%s&brq_payment_method=%s&brq_statuscode=%s', $returnUrl, $paymentCode, $response->getStatusCode())
         );
