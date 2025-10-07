@@ -33,4 +33,16 @@ trait PaymentHandlerTemplateMethods
         // Default implementation - should be overridden by specific payment handlers
         return 'pay';
     }
+
+    /**
+     * Extract context token from data bag
+     */
+    protected function getContextTokenFromDataBag(RequestDataBag $dataBag): string
+    {
+        $contextToken = $dataBag->get('sw-context-token', '');
+        if (empty($contextToken) || !is_string($contextToken)) {
+            return '';
+        }
+        return $contextToken;
+    }
 }
