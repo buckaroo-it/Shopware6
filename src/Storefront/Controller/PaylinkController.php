@@ -40,7 +40,7 @@ class PaylinkController extends StorefrontController
      *
      * @return JsonResponse
      */
-    #[Route(path: "/api/_action/buckaroo/paylink", defaults: ['_routeScope' => ['api']], name: "api.action.buckaroo.paylink", methods: ["POST"])]
+    #[Route(path: "/api/_action/buckaroo/paylink", defaults: ['_routeScope' => ['api'], 'auth_required' => true], name: "api.action.buckaroo.paylink", methods: ["POST"])]
     public function paylinkBuckaroo(Request $request, Context $context): JsonResponse
     {
 
