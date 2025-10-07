@@ -108,7 +108,11 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             Request $request,
             SalesChannelContext $salesChannelContext
         ): void {
-            // For most payment methods, no additional action is needed
+            $this->asyncPaymentService->paymentStateService->finalizePayment(
+                $transaction,
+                $request,
+                $salesChannelContext
+            );
         }
         
         /**
@@ -305,18 +309,48 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 
                 $response = $client->execute();
                 
+                // Check for rejected payments
+                if ($response->isRejected()) {
+                    throw \Shopware\Core\Checkout\Payment\PaymentException::asyncProcessInterrupted(
+                        $transactionId,
+                        'Payment was rejected: ' . $response->getSubCodeMessage()
+                    );
+                }
+                
+                // Check for failed payments
+                if ($response->isFailed() || $response->isValidationFailure()) {
+                    throw \Shopware\Core\Checkout\Payment\PaymentException::asyncProcessInterrupted(
+                        $transactionId,
+                        'Payment failed: ' . $response->getSomeError()
+                    );
+                }
+                
+                // Check for canceled payments
+                if ($response->isCanceled()) {
+                    throw \Shopware\Core\Checkout\Payment\PaymentException::asyncProcessInterrupted(
+                        $transactionId,
+                        'Payment was canceled'
+                    );
+                }
+                
                 if ($response->hasRedirect()) {
                     return new RedirectResponse($response->getRedirectUrl());
                 }
                 
                 return new RedirectResponse($transaction->getReturnUrl());
+            } catch (\Shopware\Core\Checkout\Payment\PaymentException $e) {
+                // Re-throw payment exceptions so they trigger error redirect
+                throw $e;
             } catch (\Exception $e) {
                 $this->asyncPaymentService->logger->error('Payment processing failed', [
                     'error' => $e->getMessage(),
                     'transactionId' => $transaction->getOrderTransactionId(),
                     'paymentClass' => $this->paymentClass
                 ]);
-                return null;
+                throw \Shopware\Core\Checkout\Payment\PaymentException::asyncProcessInterrupted(
+                    $transaction->getOrderTransactionId(),
+                    'Payment processing failed: ' . $e->getMessage()
+                );
             }
         }
 
@@ -372,7 +406,11 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             PaymentTransactionStruct $transaction,
             Context $context
         ): void {
-            // For most payment methods, no additional action is needed
+            $this->asyncPaymentService->paymentStateService->finalizePayment(
+                $transaction,
+                $request,
+                $context
+            );
         }
 
         /**

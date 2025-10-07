@@ -127,6 +127,19 @@ class PaymentStateService
                 new \Exception($errorMessage)
             );
         }
+
+        // If no valid transition is available, still throw an exception to prevent redirect to success page
+        $this->logger->warning('Payment failed but no valid state transition available', [
+            'transactionId' => $transactionId,
+            'statusCode' => $this->getPaymentStatusCode($request),
+            'availableTransitions' => $availableTransitions
+        ]);
+        
+        throw PaymentException::asyncProcessInterrupted(
+            $transactionId,
+            $errorMessage ?: $this->translator->trans('buckaroo.statuscode_failed'),
+            new \Exception('Payment failed with status code: ' . $this->getPaymentStatusCode($request))
+        );
     }
 
     
@@ -206,7 +219,9 @@ class PaymentStateService
         return in_array($statusCode, [
             ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
             ResponseStatus::BUCKAROO_STATUSCODE_REJECTED,
-            ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE
+            ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE,
+            ResponseStatus::BUCKAROO_STATUSCODE_TECHNICAL_ERROR,
+            ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT
         ]);
     }
 

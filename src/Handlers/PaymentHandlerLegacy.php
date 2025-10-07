@@ -220,6 +220,13 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             );
         }
 
+        if ($response->isFailed() || $response->isValidationFailure()) {
+            throw PaymentException::asyncProcessInterrupted(
+                $transaction->getOrderTransaction()->getId(),
+                'Payment failed: ' . $response->getSomeError()
+            );
+        }
+
         return new RedirectResponse(
             sprintf(
                 "%s&brq_payment_method={$paymentCode}&brq_statuscode=" . $response->getStatusCode(),
