@@ -59,12 +59,7 @@ export default class BuckarooCreditCards extends Plugin {
                 );
 
                 if (payButton) {
-                    const disabled = !this.sdkClient.formIsValid();
-                    payButton.disabled = disabled;
-
-                    payButton.style.backgroundColor = disabled ? "#ff5555" : "";
-                    payButton.style.cursor = disabled ? "not-allowed" : "";
-                    payButton.style.opacity = disabled ? "0.5" : "";
+                    this._updateButtonState(payButton);
                 }
 
                 service = this.sdkClient.getService();
@@ -153,6 +148,33 @@ export default class BuckarooCreditCards extends Plugin {
         if (submitButton) {
             submitButton.addEventListener("click", this._handleSubmit.bind(this));
         }
+
+        // Listen to TOS checkbox changes
+        const tosCheckbox = document.getElementById("tos") || document.querySelector(".checkout-confirm-tos-checkbox");
+        if (tosCheckbox && submitButton) {
+            tosCheckbox.addEventListener("change", () => {
+                this._updateButtonState(submitButton);
+            });
+        }
+    }
+
+    _updateButtonState(payButton) {
+        if (!payButton) return;
+
+        // Check if hosted fields form is valid
+        const formIsValid = this.sdkClient && this.sdkClient.formIsValid();
+        
+        // Check if TOS checkbox is checked
+        const tosCheckbox = document.getElementById("tos") || document.querySelector(".checkout-confirm-tos-checkbox");
+        const tosIsChecked = tosCheckbox ? tosCheckbox.checked : true; // If no TOS checkbox, don't block
+        
+        // Button should only be enabled if both conditions are met
+        const disabled = !formIsValid || !tosIsChecked;
+        
+        payButton.disabled = disabled;
+        payButton.style.backgroundColor = disabled ? "#ff5555" : "";
+        payButton.style.cursor = disabled ? "not-allowed" : "";
+        payButton.style.opacity = disabled ? "0.5" : "";
     }
     async _getOrRefreshToken() {
         const now = Date.now();
