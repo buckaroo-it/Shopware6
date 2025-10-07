@@ -6,6 +6,16 @@ class BuckarooPaymentService extends ApiService {
         super(httpClient, loginService, apiEndpoint);
     }
 
+    getBasicHeaders() {
+        if (this.loginService && typeof this.loginService.getToken === 'function') {
+            return super.getBasicHeaders();
+        }
+        return {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+    }
+
     getBuckarooTransaction(transaction)
     {
         const apiRoute = `_action/${this.getApiBasePath()}/getBuckarooTransaction`;
