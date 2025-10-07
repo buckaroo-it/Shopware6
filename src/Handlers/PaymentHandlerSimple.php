@@ -239,13 +239,12 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 if ($order === null) {
                     return null;
                 }
-                
-                // Get sales channel context
-                $contextToken = $request->get('sw-context-token', '');
+
+                $contextToken = $this->getContextTokenFromRequest($request);
                 $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext(
                     $context,
                     $order->getSalesChannelId(),
-                    is_string($contextToken) ? $contextToken : ''
+                    $contextToken
                 );
                 
                 // Extract request data
@@ -374,6 +373,21 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             Context $context
         ): void {
             // For most payment methods, no additional action is needed
+        }
+
+        /**
+         * Extract context token from request (headers first, then parameters)
+         */
+        private function getContextTokenFromRequest(Request $request): string
+        {
+            $contextToken = $request->headers->get('sw-context-token', '');
+            if (empty($contextToken)) {
+                $contextToken = $request->get('sw-context-token', '');
+            }
+            if (empty($contextToken) || !is_string($contextToken)) {
+                return '';
+            }
+            return $contextToken;
         }
     }
 }

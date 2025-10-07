@@ -75,11 +75,11 @@ class PaymentHandlerModern extends AbstractPaymentHandler
             throw new InvalidParameterException('Order not found');
         }
 
-        $contextToken = $request->get('sw-context-token', '');
+        $contextToken = $this->getContextTokenFromRequest($request);
         $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext(
             $context,
             $order->getSalesChannelId(),
-            is_string($contextToken) ? $contextToken : ''
+            $contextToken
         );
         
         $paymentClass = $this->getPayment($transactionId);
@@ -246,6 +246,33 @@ class PaymentHandlerModern extends AbstractPaymentHandler
             $paymentCode = 'ideal';
         }
         return $this->asyncPaymentService->clientService->get($paymentCode, $salesChannelId);
+    }
+
+    /**
+     * Extract context token from request (headers first, then parameters)
+     */
+    protected function getContextTokenFromRequest(Request $request): string
+    {
+        $contextToken = $request->headers->get('sw-context-token', '');
+        if (empty($contextToken)) {
+            $contextToken = $request->get('sw-context-token', '');
+        }
+        if (empty($contextToken) || !is_string($contextToken)) {
+            return '';
+        }
+        return $contextToken;
+    }
+
+    /**
+     * Extract context token from data bag
+     */
+    protected function getContextTokenFromDataBag(RequestDataBag $dataBag): string
+    {
+        $contextToken = $dataBag->get('sw-context-token', '');
+        if (empty($contextToken) || !is_string($contextToken)) {
+            return '';
+        }
+        return $contextToken;
     }
 
     private function getPayment(string $transactionId): AbstractPayment

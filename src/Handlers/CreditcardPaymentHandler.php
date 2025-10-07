@@ -49,11 +49,11 @@ class CreditcardPaymentHandler extends PaymentHandlerSimple
         }
         $order = $orderTransaction->getOrder();
         if ($order instanceof OrderEntity) {
-            $contextToken = $dataBag->get('sw-context-token', '');
+            $contextToken = $this->getContextTokenFromDataBag($dataBag);
             $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext(
                 $context,
                 $order->getSalesChannelId(),
-                is_string($contextToken) ? $contextToken : ''
+                $contextToken
             );
             $this->updateCustomerIssuer($dataBag, $salesChannelContext);
         }
