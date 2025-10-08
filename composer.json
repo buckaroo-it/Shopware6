@@ -59,6 +59,9 @@
         ],
         "phpstan": [
             "vendor/bin/phpstan analyze"
+        ],
+        "post-build": [
+            "php bin/copy-admin-static-assets.php"
         ]
     },
     "config": {

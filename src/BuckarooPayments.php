@@ -6,6 +6,7 @@ namespace Buckaroo\Shopware6;
 
 use Buckaroo\Shopware6\Installers\MediaInstaller;
 use Buckaroo\Shopware6\Installers\PaymentMethodsInstaller;
+use Buckaroo\Shopware6\Installers\StaticAssetInstaller;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -65,6 +66,7 @@ class BuckarooPayments extends Plugin
     {
         (new MediaInstaller($this->container))->install($installContext);
         (new PaymentMethodsInstaller($this->container))->install($installContext);
+        (new StaticAssetInstaller($this->getPath()))->install($installContext);
         parent::install($installContext);
     }
 
@@ -74,6 +76,7 @@ class BuckarooPayments extends Plugin
     public function activate(ActivateContext $activateContext): void
     {
         (new PaymentMethodsInstaller($this->container))->activate($activateContext);
+        (new StaticAssetInstaller($this->getPath()))->activate($activateContext);
         parent::activate($activateContext);
     }
 
@@ -107,6 +110,7 @@ class BuckarooPayments extends Plugin
     {
         (new PaymentMethodsInstaller($this->container))->update($updateContext);
         (new MediaInstaller($this->container))->update($updateContext);
+        (new StaticAssetInstaller($this->getPath()))->update($updateContext);
         parent::update($updateContext);
     }
 
