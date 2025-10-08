@@ -141,6 +141,21 @@ Component.register("buckaroo-payment-list", {
             ]
         };
     },
+    computed: {
+        isShopware67OrNewer() {
+            try {
+                const version = Shopware.Context.app.config.version || '';
+                const versionParts = version.split('.');
+                const majorVersion = parseInt(versionParts[0], 10);
+                const minorVersion = parseInt(versionParts[1], 10);
+                
+                return majorVersion > 6 || (majorVersion === 6 && minorVersion >= 7);
+            } catch (error) {
+                return true;
+            }
+        }
+    },
+
     methods: {
         getPaymentTitle(code) {
             if (this.configSettings && Array.isArray(this.configSettings)) {
@@ -186,6 +201,15 @@ Component.register("buckaroo-payment-list", {
         },
         assetFilter(path) {
             return Filter.getByName('asset')(path);
+        },
+        getPaymentImagePath(logo) {
+            // Try both paths - Shopware's asset system will resolve to the correct one
+            // For 6.7+: bundles/buckaroopayments/static/
+            // For <6.7: bundles/buckaroopayments/administration/static/
+            const basePath = this.isShopware67OrNewer 
+                ? 'buckaroopayments/static/' 
+                : 'bundles/buckaroopayments/administration/static/';
+            return this.assetFilter(basePath + logo);
         }
     }
 });
