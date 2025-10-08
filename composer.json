@@ -62,6 +62,15 @@
         ],
         "post-build": [
             "php bin/copy-admin-static-assets.php"
+        ],
+        "post-install-cmd": [
+            "@copy-assets"
+        ],
+        "post-update-cmd": [
+            "@copy-assets"
+        ],
+        "copy-assets": [
+            "php bin/composer-post-install.php"
         ]
     },
     "config": {

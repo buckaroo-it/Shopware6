@@ -32,6 +32,8 @@ class StaticAssetInstaller implements InstallerInterface
 
     public function update(UpdateContext $updateContext): void
     {
+        // Copy static assets for cross-version compatibility
+        // This ensures assets work on both Shopware <6.7 and >=6.7
         $this->copyStaticAssets();
     }
 

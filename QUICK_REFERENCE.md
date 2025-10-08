@@ -27,6 +27,33 @@ bin/console cache:clear
 
 ---
 
+## 🔄 Updating Existing Installation
+
+### Via Composer (Recommended)
+```bash
+composer update buckaroo/shopware6  # ✅ Auto-copies assets
+bin/console assets:install
+bin/console cache:clear
+```
+
+### Via CLI
+```bash
+bin/console plugin:update BuckaroPayments  # ✅ Auto-copies assets
+bin/console assets:install
+bin/console cache:clear
+```
+
+### Via Admin GUI
+Extensions > Update > Then run:
+```bash
+bin/console assets:install
+bin/console cache:clear
+```
+
+**All methods automatically copy assets!** ✅
+
+---
+
 ## 🔧 If Assets Don't Show (Permission Issues)
 
 ```bash
@@ -117,9 +144,11 @@ ls custom/plugins/BuckaroPayments/src/Resources/app/administration/static/
 ## 📖 Detailed Documentation
 
 - `INSTALL_GUIDE.md` - Full installation instructions
+- `UPDATE_GUIDE.md` - Migration guide for existing clients
 - `PERMISSION_GUIDE.md` - File permission handling for all scenarios
 - `SHOPWARE_VERSION_COMPATIBILITY.md` - Technical details on version compatibility
 - `IMPLEMENTATION_SUMMARY.md` - Implementation details and workflow
+- `README_ASSET_SOLUTION.md` - Complete solution summary
 
 ---
 
