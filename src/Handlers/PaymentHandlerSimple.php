@@ -266,13 +266,28 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 
                 $paymentCode = $paymentClass->getBuckarooKey();
                 
+                // Apply fee to order BEFORE sending payment request
+                $feeCalculator = new PaymentFeeCalculator($this->asyncPaymentService);
+                $fee = $feeCalculator->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
+                if ($fee > 0) {
+                    $feeCalculator->applyFeeToOrder($order->getId(), $fee, $context);
+                    // Reload order to get updated total
+                    $order = $this->asyncPaymentService->getOrder($order->getId(), $context);
+                    if ($order === null) {
+                        throw new \Exception('Failed to reload order after applying fee');
+                    }
+                    $orderTransaction = $this->asyncPaymentService->getTransaction($transactionId, $context);
+                    if ($orderTransaction === null) {
+                        throw new \Exception('Failed to reload transaction after applying fee');
+                    }
+                }
+                
                 // Handle zero amount payments
                 if ($order->getAmountTotal() <= 0) {
                     return new RedirectResponse($transaction->getReturnUrl());
                 }
 
                 $urlGenerator = new PaymentUrlGenerator($this->asyncPaymentService);
-                $feeCalculator = new PaymentFeeCalculator($this->asyncPaymentService);
                 $payloadBuilder = new PaymentPayloadBuilder(
                     $this->asyncPaymentService,
                     $urlGenerator,

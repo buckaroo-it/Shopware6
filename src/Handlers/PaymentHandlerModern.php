@@ -92,6 +92,14 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         try {
             $this->validateOrder($order);
 
+            // Apply fee to order BEFORE sending payment request
+            $fee = $this->feeCalculator->getFee($paymentCode, $order->getSalesChannelId());
+            if ($fee > 0) {
+                $this->feeCalculator->applyFeeToOrder($order->getId(), $fee, $salesChannelContext->getContext());
+                // Reload order to get updated total
+                $order = $this->asyncPaymentService->getOrder($order->getId(), $salesChannelContext->getContext());
+            }
+
             if ($this->feeCalculator->getOrderTotalWithFee($order, $order->getSalesChannelId(), $paymentCode) == 0) {
                 return $this->responseHandler->handleZeroAmountPayment($orderTransaction, $salesChannelContext);
             }
