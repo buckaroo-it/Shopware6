@@ -148,9 +148,15 @@ class PayLinkService
             throw new \UnexpectedValueException("Cannot find salutation on customer", 1);
         }
 
-        $returnUrl = $this->urlService->generateReturnUrl(
-            $transaction,
-            $this->getExpireDays($salesChannelId) * 24 * 60
+        // For PayPerEmail, use custom return endpoint that accepts both GET and POST
+        // because the customer pays later via email link and Buckaroo POSTs the response
+        $returnUrl = $this->urlService->forwardToRoute(
+            'buckaroo.payperemail.return',
+            ['orderId' => $order->getId()]
+        );
+        $cancelUrl = $this->urlService->forwardToRoute(
+            'buckaroo.payperemail.return',
+            ['orderId' => $order->getId(), 'cancel' => '1']
         );
 
         return [
@@ -160,8 +166,8 @@ class PayLinkService
             'currency'               => $currency->getIsoCode(),
             'pushURL'                => $this->urlService->getReturnUrl('buckaroo.payment.push'),
             'clientIP'               => $this->getIp($request),
-            'returnURL'              => $returnUrl,
-            'cancelURL'              => sprintf('%s&cancel=1', $returnUrl),
+            'returnURL'              => $this->urlService->getSaleBaseUrl() . $returnUrl,
+            'cancelURL'              => $this->urlService->getSaleBaseUrl() . $cancelUrl,
             'additionalParameters'   => [
                 'orderTransactionId' => $transaction->getId(),
                 'orderId' => $order->getId(),
