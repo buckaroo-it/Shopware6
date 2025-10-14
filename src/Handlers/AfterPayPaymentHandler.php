@@ -442,4 +442,23 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
     {
         return $this->getSetting('afterpayEnabledold', $salesChannelId) === true;
     }
+
+    /**
+     * Configure client for AfterPay/Riverty payments
+     * Sets service version to 2 when not using the old version
+     *
+     * @param \Buckaroo\Shopware6\Buckaroo\Client $client
+     * @param string $paymentCode
+     * @param \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext
+     * @return void
+     */
+    protected function configureClient(
+        $client,
+        string $paymentCode,
+        $salesChannelContext
+    ): void {
+        if ($paymentCode === 'afterpay' && !$this->isAfterpayOld($salesChannelContext->getSalesChannelId())) {
+            $client->setServiceVersion(2);
+        }
+    }
 }

@@ -317,6 +317,9 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 $client->setPayload(array_merge_recursive($commonPayload, $methodPayload))
                        ->setAction($methodAction);
 
+                // Allow specific payment handlers to configure the client
+                $this->configureClient($client, $paymentCode, $salesChannelContext);
+
                 $response = $client->execute();
 
                 // Check for rejected payments
@@ -436,6 +439,24 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 return '';
             }
             return $contextToken;
+        }
+
+        /**
+         * Hook for specific payment handlers to configure the client before execution.
+         * Override this method in child classes to customize client configuration.
+         *
+         * @param \Buckaroo\Shopware6\Buckaroo\Client $client
+         * @param string $paymentCode
+         * @param \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext
+         * @return void
+         */
+        protected function configureClient(
+            $client,
+            string $paymentCode,
+            $salesChannelContext
+        ): void {
+            // Default implementation - do nothing
+            // Child classes can override this to configure the client
         }
     }
 }
