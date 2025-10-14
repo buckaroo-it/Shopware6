@@ -14,8 +14,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class PaymentResponseHandler
 {
     public function __construct(
-        private readonly AsyncPaymentService $asyncPaymentService,
-        private readonly PaymentFeeCalculator $feeCalculator
+        private readonly AsyncPaymentService $asyncPaymentService
     ) {
     }
 
@@ -74,7 +73,8 @@ class PaymentResponseHandler
             'originalTransactionKey' => $response->getTransactionKey()
         ], $salesChannelContext->getContext());
         
-        $this->applyFeeToOrder($orderTransaction, $order, $salesChannelContext, $paymentCode);
+        // Fee is now applied before payment request, not after response
+        // This ensures the order total in Shopware matches the amount sent to Buckaroo
     }
 
     private function handlePaymentStatus(
@@ -131,16 +131,6 @@ class PaymentResponseHandler
             ->checkoutHelper
             ->getSession()
             ->set('buckaroo_latest_order', $order->getId());
-    }
-
-    private function applyFeeToOrder(
-        OrderTransactionEntity $orderTransaction,
-        OrderEntity $order,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
-    ): void {
-        $fee = $this->feeCalculator->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
-        $this->feeCalculator->applyFeeToOrder($order->getId(), $fee, $salesChannelContext->getContext());
     }
 
     private function redirectToFinishPage(OrderTransactionEntity $orderTransaction): RedirectResponse

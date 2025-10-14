@@ -83,7 +83,7 @@ class PaymentHandlerStrategyFactory
         $urlGenerator = new PaymentUrlGenerator($this->asyncPaymentService);
         $feeCalculator = new PaymentFeeCalculator($this->asyncPaymentService);
         $payloadBuilder = new PaymentPayloadBuilder($this->asyncPaymentService, $urlGenerator, $feeCalculator);
-        $responseHandler = new PaymentResponseHandler($this->asyncPaymentService, $feeCalculator);
+        $responseHandler = new PaymentResponseHandler($this->asyncPaymentService);
         
         $modernHandler = new $modernHandlerClass(
             $this->asyncPaymentService,
