@@ -97,7 +97,10 @@ class PaymentHandlerModern extends AbstractPaymentHandler
             if ($fee > 0) {
                 $this->feeCalculator->applyFeeToOrder($order->getId(), $fee, $salesChannelContext->getContext());
                 // Reload order to get updated total
-                $order = $this->asyncPaymentService->checkoutHelper->getOrderById($order->getId(), $salesChannelContext->getContext());
+                $order = $this->asyncPaymentService->checkoutHelper->getOrderById(
+                    $order->getId(),
+                    $salesChannelContext->getContext()
+                );
             }
 
             if ($this->feeCalculator->getOrderTotalWithFee($order, $order->getSalesChannelId(), $paymentCode) == 0) {
