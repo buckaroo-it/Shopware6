@@ -14,8 +14,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class PaymentResponseHandler
 {
     public function __construct(
-        private readonly AsyncPaymentService $asyncPaymentService,
-        private readonly PaymentFeeCalculator $feeCalculator
+        private readonly AsyncPaymentService $asyncPaymentService
     ) {
     }
 
