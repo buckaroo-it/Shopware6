@@ -63,7 +63,6 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         ?Struct $validateStruct
     ): ?RedirectResponse {
         $dataBag = new RequestDataBag($request->request->all());
-
         $this->beforePayModern($transaction, $dataBag, $context);
         
         $transactionId = $transaction->getOrderTransactionId();
@@ -127,9 +126,8 @@ class PaymentHandlerModern extends AbstractPaymentHandler
                 ->setPayload($payload)
                 ->setAction($this->getMethodAction($dataBag, $salesChannelContext, $paymentCode));
 
-            if ($paymentCode === 'afterpay' && !$this->isAfterpayOld($salesChannelContext->getSalesChannelId())) {
-                $client->setServiceVersion(2);
-            }
+            // Allow specific payment handlers to configure the client
+            $this->configureClient($client, $paymentCode, $salesChannelContext);
 
             $response = $client->execute();
             $returnUrl = $this->urlGenerator->getReturnUrl($orderTransaction, $order, $dataBag);
@@ -246,11 +244,21 @@ class PaymentHandlerModern extends AbstractPaymentHandler
     }
 
     /**
-     * AfterPay version toggle based on settings.
+     * Hook for specific payment handlers to configure the client before execution.
+     * Override this method in child classes to customize client configuration.
+     *
+     * @param Client $client
+     * @param string $paymentCode
+     * @param SalesChannelContext $salesChannelContext
+     * @return void
      */
-    protected function isAfterpayOld(string $salesChannelContextId): bool
-    {
-        return $this->getSetting('afterpayEnabledold', $salesChannelContextId) === true;
+    protected function configureClient(
+        Client $client,
+        string $paymentCode,
+        SalesChannelContext $salesChannelContext
+    ): void {
+        // Default implementation - do nothing
+        // Child classes can override this to configure the client
     }
 
     private function getClient(string $paymentCode, string $salesChannelId, RequestDataBag $dataBag): Client

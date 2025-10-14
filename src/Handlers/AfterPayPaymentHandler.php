@@ -10,6 +10,7 @@ use Buckaroo\Shopware6\Service\CaptureService;
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 use Buckaroo\Resources\Constants\RecipientCategory;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
+use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -40,6 +41,10 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
     ) {
         parent::__construct($asyncPaymentService);
         $this->afterPayOld = $afterPayOld;
+        // Ensure formatRequestParamService is accessible
+        if (!isset($this->formatRequestParamService)) {
+            $this->formatRequestParamService = $asyncPaymentService->formatRequestParamService;
+        }
     }
     /**
      * Inject pre-pay behavior into both cores via hooks.
@@ -109,20 +114,30 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        if ($this->isAfterpayOld(($salesChannelContext->getSalesChannelId()))) {
-            return $this->afterPayOld->buildPayParameters(
-                $order,
-                $salesChannelContext,
-                $dataBag,
-                $paymentCode
-            );
-        }
+        try {
+            if ($this->isAfterpayOld(($salesChannelContext->getSalesChannelId()))) {
+                return $this->afterPayOld->buildPayParameters(
+                    $order,
+                    $salesChannelContext,
+                    $dataBag,
+                    $paymentCode
+                );
+            }
 
-        return array_merge_recursive(
-            $this->getBillingData($order, $dataBag, $salesChannelContext->getSalesChannelId()),
-            $this->getShippingData($order, $dataBag, $salesChannelContext->getSalesChannelId()),
-            $this->getArticles($order, $paymentCode, $salesChannelContext->getContext())
-        );
+            return array_merge_recursive(
+                $this->getBillingData($order, $dataBag, $salesChannelContext->getSalesChannelId()),
+                $this->getShippingData($order, $dataBag, $salesChannelContext->getSalesChannelId()),
+                $this->getArticles($order, $paymentCode, $salesChannelContext->getContext())
+            );
+        } catch (\Throwable $e) {
+            $this->asyncPaymentService->logger->error('Riverty getMethodPayload failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'orderId' => $order->getId(),
+                'paymentCode' => $paymentCode,
+            ]);
+            throw $e;
+        }
     }
 
     /** @inheritDoc */
@@ -414,5 +429,36 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
     public function isCompanyEmpty(string $company = null): bool
     {
         return null === $company || strlen(trim($company)) === 0;
+    }
+
+    /**
+     * Check if AfterPay Old version is enabled
+     *
+     * @param string $salesChannelId
+     *
+     * @return bool
+     */
+    protected function isAfterpayOld(string $salesChannelId): bool
+    {
+        return $this->getSetting('afterpayEnabledold', $salesChannelId) === true;
+    }
+
+    /**
+     * Configure client for AfterPay/Riverty payments
+     * Sets service version to 2 when not using the old version
+     *
+     * @param \Buckaroo\Shopware6\Buckaroo\Client $client
+     * @param string $paymentCode
+     * @param \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext
+     * @return void
+     */
+    protected function configureClient(
+        $client,
+        string $paymentCode,
+        $salesChannelContext
+    ): void {
+        if ($paymentCode === 'afterpay' && !$this->isAfterpayOld($salesChannelContext->getSalesChannelId())) {
+            $client->setServiceVersion(2);
+        }
     }
 }

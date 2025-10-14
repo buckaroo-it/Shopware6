@@ -182,11 +182,6 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             }
             return new RedirectResponse('/checkout/finish');
         }
-
-        protected function isAfterpayOld(string $salesChannelContextId): bool
-        {
-            return $this->getSetting('afterpayEnabledold', $salesChannelContextId) === true;
-        }
     }
 
 } else {
@@ -265,7 +260,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 }
                 
                 $paymentCode = $paymentClass->getBuckarooKey();
-                
+
                 // Apply fee to order BEFORE sending payment request
                 $feeCalculator = new PaymentFeeCalculator($this->asyncPaymentService);
                 $fee = $feeCalculator->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
@@ -309,10 +304,10 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     'pushURL' => $commonPayload['pushURL'] ?? '(missing)',
                     'additionalParameters' => !empty($commonPayload['additionalParameters']) ? 'present' : 'missing'
                 ]);
-                
+
                 $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
                 $methodAction = $this->getMethodAction($dataBag, $salesChannelContext, $paymentCode);
-                
+
                 // Process payment using existing services
                 $client = $this->asyncPaymentService->clientService->get(
                     $paymentCode,
@@ -321,9 +316,12 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 
                 $client->setPayload(array_merge_recursive($commonPayload, $methodPayload))
                        ->setAction($methodAction);
-                
+
+                // Allow specific payment handlers to configure the client
+                $this->configureClient($client, $paymentCode, $salesChannelContext);
+
                 $response = $client->execute();
-                
+
                 // Check for rejected payments
                 if ($response->isRejected()) {
                     throw \Shopware\Core\Checkout\Payment\PaymentException::asyncProcessInterrupted(
@@ -441,6 +439,24 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 return '';
             }
             return $contextToken;
+        }
+
+        /**
+         * Hook for specific payment handlers to configure the client before execution.
+         * Override this method in child classes to customize client configuration.
+         *
+         * @param \Buckaroo\Shopware6\Buckaroo\Client $client
+         * @param string $paymentCode
+         * @param \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext
+         * @return void
+         */
+        protected function configureClient(
+            $client,
+            string $paymentCode,
+            $salesChannelContext
+        ): void {
+            // Default implementation - do nothing
+            // Child classes can override this to configure the client
         }
     }
 }
