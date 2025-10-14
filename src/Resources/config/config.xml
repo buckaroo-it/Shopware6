@@ -237,6 +237,7 @@
             <name>creditcardFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -354,6 +355,7 @@
             <name>creditcardsFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -445,6 +447,7 @@
             <name>idealqrFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -526,6 +529,7 @@
             <name>idealFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -714,6 +718,7 @@
             <name>bancontactmrcashFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -794,10 +799,11 @@
             <name>blikFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
-            <label lang="fr-FR">Frais de buckaroo</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
 
 
@@ -897,6 +903,7 @@
             <name>afterpayFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -976,6 +983,7 @@
             <name>paypalFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -1069,6 +1077,7 @@
             <name>transferFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -1165,6 +1174,7 @@
             <name>KBCPaymentButtonFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -1219,6 +1229,7 @@
             <name>knakenFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -1272,6 +1283,7 @@
             <name>sepadirectdebitFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -1326,6 +1338,7 @@
             <name>payconiqFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -1380,6 +1393,7 @@
             <name>applepayFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2021,6 +2035,7 @@
             <name>capayableFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2075,6 +2090,7 @@
             <name>epsFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2129,6 +2145,7 @@
             <name>mbwayFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2183,6 +2200,7 @@
             <name>multibancoFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2237,6 +2255,7 @@
             <name>Przelewy24Fee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2291,6 +2310,7 @@
             <name>AlipayFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2345,6 +2365,7 @@
             <name>WeChatPayFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2399,6 +2420,7 @@
             <name>TrustlyFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2463,6 +2485,7 @@
             <name>klarnakpFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2553,6 +2576,7 @@
             <name>BillinkFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2607,6 +2631,7 @@
             <name>belfiusFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2661,6 +2686,7 @@
             <name>payperemailFee</name>
             <min>0</min>
             <max>1000</max>
+            <step>0.01</step>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>

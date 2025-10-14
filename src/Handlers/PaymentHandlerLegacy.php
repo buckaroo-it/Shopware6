@@ -58,6 +58,14 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             $order = $transaction->getOrder();
             $this->validateOrder($order);
 
+            // Apply fee to order BEFORE sending payment request
+            $fee = $this->getFee($paymentCode, $salesChannelId);
+            if ($fee > 0) {
+                $this->asyncPaymentService
+                    ->checkoutHelper
+                    ->applyFeeToOrder($order->getId(), $fee, $salesChannelContext->getContext());
+            }
+
             if ($this->getOrderTotalWithFee(
                 $order,
                 $salesChannelId,
@@ -176,7 +184,8 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
                 'originalTransactionKey' => $response->getTransactionKey()
             ], $salesChannelContext->getContext());
 
-        $this->applyFeeToOrder($transaction, $salesChannelContext, $paymentCode);
+        // Fee is now applied before payment request, not after response
+        // This ensures the order total in Shopware matches the amount sent to Buckaroo
     }
 
     private function handleRedirectResponse(
@@ -380,17 +389,6 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             );
         }
         return $paymentClass;
-    }
-
-    private function applyFeeToOrder(
-        AsyncPaymentTransactionStruct $transaction,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
-    ): void {
-        $fee = $this->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
-        $this->asyncPaymentService
-            ->checkoutHelper
-            ->applyFeeToOrder($transaction->getOrder()->getId(), $fee, $salesChannelContext->getContext());
     }
 
     public function finalize(
