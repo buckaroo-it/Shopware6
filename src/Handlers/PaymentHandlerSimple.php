@@ -272,7 +272,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 if ($fee > 0) {
                     $feeCalculator->applyFeeToOrder($order->getId(), $fee, $context);
                     // Reload order to get updated total
-                    $order = $this->asyncPaymentService->getOrder($order->getId(), $context);
+                    $order = $this->asyncPaymentService->checkoutHelper->getOrderById($order->getId(), $context);
                     if ($order === null) {
                         throw new \Exception('Failed to reload order after applying fee');
                     }
@@ -281,7 +281,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                         throw new \Exception('Failed to reload transaction after applying fee');
                     }
                 }
-                
+
                 // Handle zero amount payments
                 if ($order->getAmountTotal() <= 0) {
                     return new RedirectResponse($transaction->getReturnUrl());
@@ -303,7 +303,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     $paymentCode,
                     $transaction->getReturnUrl()
                 );
-                
+
                 $this->asyncPaymentService->logger->info('Shopware 6.7 - Payload built', [
                     'orderId' => $order->getId(),
                     'pushURL' => $commonPayload['pushURL'] ?? '(missing)',

@@ -159,6 +159,7 @@ class CheckoutHelper
     {
         $orderCriteria = new Criteria([$orderId]);
         $orderCriteria->addAssociation('orderCustomer.salutation');
+        $orderCriteria->addAssociation('orderCustomer.customer');
         $orderCriteria->addAssociation('stateMachineState');
         $orderCriteria->addAssociation('lineItems');
         $orderCriteria->addAssociation('transactions');
@@ -167,6 +168,11 @@ class CheckoutHelper
         $orderCriteria->addAssociation('transactions.paymentMethod.plugin');
         $orderCriteria->addAssociation('salesChannel');
         $orderCriteria->addAssociation('deliveries');
+        $orderCriteria->addAssociation('deliveries.shippingOrderAddress');
+        $orderCriteria->addAssociation('deliveries.shippingOrderAddress.country');
+        $orderCriteria->addAssociation('currency');
+        $orderCriteria->addAssociation('billingAddress');
+        $orderCriteria->addAssociation('billingAddress.country');
 
         /** @var \Shopware\Core\Checkout\Order\OrderEntity|null */
         return $this->orderRepository->search($orderCriteria, $context)->first();
