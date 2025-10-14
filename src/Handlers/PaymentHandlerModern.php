@@ -63,7 +63,6 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         ?Struct $validateStruct
     ): ?RedirectResponse {
         $dataBag = new RequestDataBag($request->request->all());
-
         $this->beforePayModern($transaction, $dataBag, $context);
         
         $transactionId = $transaction->getOrderTransactionId();
@@ -231,11 +230,11 @@ class PaymentHandlerModern extends AbstractPaymentHandler
     }
 
     /**
-     * AfterPay version toggle based on settings.
+     * Check if AfterPay Old version is enabled
      */
-    protected function isAfterpayOld(string $salesChannelContextId): bool
+    protected function isAfterpayOld(string $salesChannelId): bool
     {
-        return $this->getSetting('afterpayEnabledold', $salesChannelContextId) === true;
+        return $this->getSetting('afterpayEnabledold', $salesChannelId) === true;
     }
 
     private function getClient(string $paymentCode, string $salesChannelId, RequestDataBag $dataBag): Client

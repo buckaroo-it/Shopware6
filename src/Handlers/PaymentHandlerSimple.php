@@ -182,11 +182,6 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             }
             return new RedirectResponse('/checkout/finish');
         }
-
-        protected function isAfterpayOld(string $salesChannelContextId): bool
-        {
-            return $this->getSetting('afterpayEnabledold', $salesChannelContextId) === true;
-        }
     }
 
 } else {
@@ -265,7 +260,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 }
                 
                 $paymentCode = $paymentClass->getBuckarooKey();
-                
+
                 // Handle zero amount payments
                 if ($order->getAmountTotal() <= 0) {
                     return new RedirectResponse($transaction->getReturnUrl());
@@ -278,7 +273,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     $urlGenerator,
                     $feeCalculator
                 );
-                
+
                 // Build common payload with all required fields
                 $commonPayload = $payloadBuilder->buildCommonPayload(
                     $orderTransaction,
@@ -294,10 +289,10 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     'pushURL' => $commonPayload['pushURL'] ?? '(missing)',
                     'additionalParameters' => !empty($commonPayload['additionalParameters']) ? 'present' : 'missing'
                 ]);
-                
+
                 $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
                 $methodAction = $this->getMethodAction($dataBag, $salesChannelContext, $paymentCode);
-                
+
                 // Process payment using existing services
                 $client = $this->asyncPaymentService->clientService->get(
                     $paymentCode,
@@ -306,9 +301,9 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 
                 $client->setPayload(array_merge_recursive($commonPayload, $methodPayload))
                        ->setAction($methodAction);
-                
+
                 $response = $client->execute();
-                
+
                 // Check for rejected payments
                 if ($response->isRejected()) {
                     throw \Shopware\Core\Checkout\Payment\PaymentException::asyncProcessInterrupted(
