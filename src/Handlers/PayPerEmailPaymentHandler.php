@@ -178,8 +178,10 @@ class PayPerEmailPaymentHandler extends PaymentHandlerSimple
      * @param \Shopware\Core\Checkout\Order\OrderEntity $order
      * @return void
      */
-    private function replaceUrlsWithNonTokenized(array &$payload, \Shopware\Core\Checkout\Order\OrderEntity $order): void
-    {
+    private function replaceUrlsWithNonTokenized(
+        array &$payload,
+        \Shopware\Core\Checkout\Order\OrderEntity $order
+    ): void {
         $returnUrl = $this->asyncPaymentService->urlService->forwardToRoute(
             'buckaroo.payperemail.return',
             ['orderId' => $order->getId()]

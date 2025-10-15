@@ -106,9 +106,9 @@ class PaylinkController extends StorefrontController
      * @return Response
      */
     #[Route(
-        path: "/buckaroo/payperemail/return", 
-        defaults: ['_routeScope' => ['storefront']], 
-        name: "buckaroo.payperemail.return", 
+        path: "/buckaroo/payperemail/return",
+        defaults: ['_routeScope' => ['storefront']],
+        name: "buckaroo.payperemail.return",
         options: ["seo" => false],
         methods: ["GET", "POST"]
     )]
