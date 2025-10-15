@@ -11,6 +11,18 @@
             "captured_amount": "Betrag erfolgreich erfasst: %amount% %currency%",
             "general_capture_error": "Leider ist ein Fehler bei der Verarbeitung Ihrer Erfassung aufgetreten. Bitte versuchen Sie es erneut."
         },
-        "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available"
+        "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available",
+        "payperemail": {
+            "thank_you": "Vielen Dank für Ihre Zahlung!",
+            "payment_received": "Ihre Zahlung ist eingegangen und Ihre Bestellung wird bearbeitet.",
+            "order_number": "Bestellnummer",
+            "confirmation_email": "Eine Bestätigungs-E-Mail mit den Bestelldetails wird Ihnen in Kürze zugesandt.",
+            "view_order": "Bestelldetails anzeigen",
+            "continue_shopping": "Weiter einkaufen",
+            "payment_cancelled": "Zahlung abgebrochen",
+            "payment_not_completed": "Die Zahlung wurde nicht abgeschlossen. Ihre Bestellung ist noch ausstehend.",
+            "can_retry": "Sie können die Zahlung später von Ihrem Konto aus abschließen oder uns für Unterstützung kontaktieren.",
+            "back_to_shop": "Zurück zum Shop"
+        }
     }
 }
