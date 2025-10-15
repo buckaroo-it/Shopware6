@@ -233,15 +233,18 @@
             <defaultValue>Buckaroo Creditcard and Debit Card</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>creditcardFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
 			<label lang="fr-FR">Frais de buckaroo</label>
+            <helpText lang="en-GB">Enter a decimal value (e.g., 2.50)</helpText>
+            <helpText lang="nl-NL">Voer een decimale waarde in (bijv. 2,50)</helpText>
+            <helpText lang="de-DE">Geben Sie einen Dezimalwert ein (z. B. 2,50)</helpText>
+            <helpText lang="fr-FR">Entrez une valeur décimale (par exemple 2,50)</helpText>
         </input-field>
 
         <input-field type="multi-select">
@@ -351,11 +354,10 @@
             <defaultValue>Buckaroo Creditcards</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>creditcardsFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -443,11 +445,10 @@
             <defaultValue>iDEAL QR</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>idealqrFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -525,11 +526,10 @@
             <defaultValue>iDEAL</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>idealFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -714,11 +714,10 @@
             <defaultValue>Bancontact</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>bancontactmrcashFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -795,11 +794,10 @@
             <defaultValue>Blik</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>blikFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -899,11 +897,10 @@
             <defaultValue>Riverty</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>afterpayFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -979,11 +976,10 @@
             <defaultValue>PayPal</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>paypalFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -1073,11 +1069,10 @@
             <defaultValue>Bank Transfer</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>transferFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -1170,11 +1165,10 @@
             <defaultValue>KBC</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>KBCPaymentButtonFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -1225,11 +1219,10 @@
             <defaultValue>KBC</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>knakenFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -1279,11 +1272,10 @@
             <defaultValue>Sepa Direct Debit</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>sepadirectdebitFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -1334,11 +1326,10 @@
             <defaultValue>Payconiq</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>payconiqFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -1389,11 +1380,10 @@
             <defaultValue>Apple Pay</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>applepayFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2031,11 +2021,10 @@
             <defaultValue>In3</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>capayableFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2086,11 +2075,10 @@
             <defaultValue>EPS</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>epsFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2141,11 +2129,10 @@
             <defaultValue>MWPay</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>mbwayFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2196,11 +2183,10 @@
             <defaultValue>Multibanco</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>multibancoFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2251,11 +2237,10 @@
             <defaultValue>Przelewy24</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>Przelewy24Fee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2306,11 +2291,10 @@
             <defaultValue>Alipay</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>AlipayFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2361,11 +2345,10 @@
             <defaultValue>WeChatPay</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>WeChatPayFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2416,11 +2399,10 @@
             <defaultValue>Trustly</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>TrustlyFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2481,11 +2463,10 @@
             <defaultValue>Klarna: Pay later</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>klarnakpFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2572,11 +2553,10 @@
             <defaultValue>Billink - achteraf betalen</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>BillinkFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2627,11 +2607,10 @@
             <defaultValue>Belfius</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>belfiusFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
@@ -2682,11 +2661,10 @@
             <defaultValue>Belfius</defaultValue>
         </input-field>
 
-        <input-field type="float">
+        <input-field type="text">
             <name>payperemailFee</name>
-            <min>0</min>
-            <max>1000</max>
-            <step>0.01</step>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
