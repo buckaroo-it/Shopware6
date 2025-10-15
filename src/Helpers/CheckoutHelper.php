@@ -14,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 class CheckoutHelper
 {
@@ -173,6 +175,38 @@ class CheckoutHelper
         $orderCriteria->addAssociation('currency');
         $orderCriteria->addAssociation('billingAddress');
         $orderCriteria->addAssociation('billingAddress.country');
+
+        /** @var \Shopware\Core\Checkout\Order\OrderEntity|null */
+        return $this->orderRepository->search($orderCriteria, $context)->first();
+    }
+
+    /**
+     * Get order by order number with proper context handling
+     *
+     * @param string $orderNumber
+     * @param Context $context
+     * @return OrderEntity|null
+     */
+    public function getOrderByOrderNumber(string $orderNumber, Context $context): ?OrderEntity
+    {
+        $orderCriteria = new Criteria();
+        $orderCriteria->addFilter(new EqualsFilter('orderNumber', $orderNumber));
+        $orderCriteria->addAssociation('orderCustomer.salutation');
+        $orderCriteria->addAssociation('orderCustomer.customer');
+        $orderCriteria->addAssociation('stateMachineState');
+        $orderCriteria->addAssociation('lineItems');
+        $orderCriteria->addAssociation('transactions');
+        $orderCriteria->addAssociation('transactions.stateMachineState');
+        $orderCriteria->addAssociation('transactions.paymentMethod');
+        $orderCriteria->addAssociation('transactions.paymentMethod.plugin');
+        $orderCriteria->addAssociation('salesChannel');
+        $orderCriteria->addAssociation('deliveries');
+        $orderCriteria->addAssociation('deliveries.shippingOrderAddress');
+        $orderCriteria->addAssociation('deliveries.shippingOrderAddress.country');
+        $orderCriteria->addAssociation('currency');
+        $orderCriteria->addAssociation('billingAddress');
+        $orderCriteria->addAssociation('billingAddress.country');
+        $orderCriteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
 
         /** @var \Shopware\Core\Checkout\Order\OrderEntity|null */
         return $this->orderRepository->search($orderCriteria, $context)->first();

@@ -131,7 +131,24 @@ class PushController extends StorefrontController
             }
         }
 
+        // Fallback: If orderId or orderTransactionId are missing, try to lookup by order number
         if (empty($brqOrderId) || empty($orderTransactionId)) {
+            if (!empty($brqInvoicenumber)) {
+                $this->logger->info(__METHOD__ . "|Attempting order lookup by invoice number|" . $brqInvoicenumber);
+                $order = $this->checkoutHelper->getOrderByOrderNumber($brqInvoicenumber, $context);
+                if ($order !== null) {
+                    $brqOrderId = $order->getId();
+                    $lastTransactionId = $this->transactionService->getLastTransactionId($order);
+                    if ($lastTransactionId !== null) {
+                        $orderTransactionId = $lastTransactionId;
+                        $this->logger->info(__METHOD__ . "|Order found by invoice number|orderId:" . $brqOrderId . "|transactionId:" . $orderTransactionId);
+                    }
+                }
+            }
+        }
+
+        if (empty($brqOrderId) || empty($orderTransactionId)) {
+            $this->logger->warning(__METHOD__ . "|Missing order or transaction ID|orderId:" . $brqOrderId . "|transactionId:" . $orderTransactionId . "|invoice:" . $brqInvoicenumber);
             return $this->response('buckaroo.messages.paymentError', false);
         }
 
