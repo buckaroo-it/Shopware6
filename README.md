@@ -54,6 +54,24 @@ composer update buckaroo/shopware6
 plugin:update BuckarooPayments
 ```
 
+### Administration payment icons (Shopware 6.6 vs 6.7+)
+
+- Shopware 6.6 and below: admin icons are served from `src/Resources/public/administration/static`.
+- Shopware 6.7 and above: admin icons are served from `src/Resources/public/static`.
+
+This plugin runs a small script on composer install/update to keep paths correct.
+
+Run manually (if needed):
+
+```
+cd custom/plugins/BuckaroPayments
+php bin/copy-admin-static-assets.php
+```
+
+What it does:
+- On Shopware < 6.7: it leaves files in `public/administration/static` and runs `assets:install` + `theme:compile`.
+- On Shopware ≥ 6.7: it moves files from `public/administration/static` to `public/static`, deletes the originals, then runs `assets:install` + `theme:compile`.
+
 ### Configuration
 
 For the configuration of the plugin, please refer to our [Dutch](https://support.buckaroo.nl/categorieen/plugins/shopware-6) or [English](https://support.buckaroo.eu/categories/plugins) support website.
