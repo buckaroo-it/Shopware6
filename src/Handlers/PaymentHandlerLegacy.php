@@ -64,6 +64,16 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
                 $this->asyncPaymentService
                     ->checkoutHelper
                     ->applyFeeToOrder($order->getId(), $fee, $salesChannelContext->getContext());
+                
+                // Reload order to get updated custom fields with the fee
+                $reloadedOrder = $this->asyncPaymentService->checkoutHelper->getOrderById(
+                    $order->getId(),
+                    $salesChannelContext->getContext()
+                );
+                if ($reloadedOrder === null) {
+                    throw new \Exception('Failed to reload order after applying fee');
+                }
+                $order = $reloadedOrder;
             }
 
             if ($this->getOrderTotalWithFee(
