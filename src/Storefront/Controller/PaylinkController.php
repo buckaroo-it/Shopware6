@@ -12,7 +12,9 @@ use Buckaroo\Shopware6\Service\PayLinkService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Storefront\Controller\StorefrontController;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  */
@@ -92,5 +94,74 @@ class PaylinkController extends StorefrontController
                 Response::HTTP_BAD_REQUEST
             );
         }
+    }
+
+    /**
+     * Handle POST return from Buckaroo for PayPerEmail
+     * Buckaroo sends POST data when customer pays via email link
+     * Shows a thank you page accessible without login
+     *
+     * @param Request $request
+     * @param SalesChannelContext $salesChannelContext
+     * @return Response
+     */
+    #[Route(
+        path: "/buckaroo/payperemail/return",
+        defaults: ['_routeScope' => ['storefront']],
+        name: "buckaroo.payperemail.return",
+        options: ["seo" => false],
+        methods: ["GET", "POST"]
+    )]
+    public function payPerEmailReturn(Request $request, SalesChannelContext $salesChannelContext): Response
+    {
+        $this->logger->info('PayPerEmail return called', [
+            'method' => $request->getMethod(),
+            'orderId' => $request->get('orderId'),
+            'brq_statuscode' => $request->get('brq_statuscode'),
+        ]);
+
+        // Get orderId from request (either query param or POST data)
+        $orderId = $request->get('orderId');
+        
+        if (empty($orderId) || !is_string($orderId)) {
+            $this->logger->error('PayPerEmail return: Missing orderId');
+            return $this->redirectToRoute('frontend.home.page');
+        }
+
+        // Load order with deepLinkCode for guest access
+        $order = $this->orderService->getOrderById(
+            $orderId,
+            ['orderCustomer'],
+            $salesChannelContext->getContext()
+        );
+
+        if ($order === null) {
+            $this->logger->error('PayPerEmail return: Order not found', ['orderId' => $orderId]);
+            return $this->redirectToRoute('frontend.home.page');
+        }
+
+        // Check if payment was cancelled
+        $statusCode = $request->get('brq_statuscode');
+        $cancel = $request->query->get('cancel');
+        
+        if ($cancel === '1' || $statusCode === '890') {
+            $this->logger->info('PayPerEmail return: Payment cancelled', ['orderId' => $orderId]);
+            
+            // Show cancellation message
+            return $this->renderStorefront('@BuckarooPayments/storefront/buckaroo/payperemail-cancelled.html.twig', [
+                'order' => $order,
+                'orderNumber' => $order->getOrderNumber(),
+            ]);
+        }
+
+        // Show success confirmation page
+        // The actual payment status update happens via push notification
+        $this->logger->info('PayPerEmail return: Showing confirmation', ['orderId' => $orderId]);
+        
+        return $this->renderStorefront('@BuckarooPayments/storefront/buckaroo/payperemail-confirmation.html.twig', [
+            'order' => $order,
+            'orderNumber' => $order->getOrderNumber(),
+            'orderDeepLink' => $order->getDeepLinkCode(),
+        ]);
     }
 }

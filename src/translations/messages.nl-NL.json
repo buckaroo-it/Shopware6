@@ -11,6 +11,18 @@
             "captured_amount": "Succesvol gecaptured bedrag van %amount% %currency%",
             "general_capture_error": "Helaas is er een fout opgetreden bij het verwerken van uw capture. Probeer het opnieuw."
         },
-        "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available"
+        "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available",
+        "payperemail": {
+            "thank_you": "Bedankt voor uw betaling!",
+            "payment_received": "Uw betaling is ontvangen en uw bestelling wordt verwerkt.",
+            "order_number": "Bestelnummer",
+            "confirmation_email": "Een bevestigingsmail met de bestelgegevens wordt u spoedig toegestuurd.",
+            "view_order": "Bestelgegevens bekijken",
+            "continue_shopping": "Verder winkelen",
+            "payment_cancelled": "Betaling geannuleerd",
+            "payment_not_completed": "De betaling is niet voltooid. Uw bestelling is nog in behandeling.",
+            "can_retry": "U kunt de betaling later voltooien vanuit uw account of contact met ons opnemen voor assistentie.",
+            "back_to_shop": "Terug naar de winkel"
+        }
     }
 }

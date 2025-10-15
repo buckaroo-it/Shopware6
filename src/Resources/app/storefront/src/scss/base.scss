@@ -363,3 +363,63 @@
     box-shadow: none;
     pointer-events: none;
 }
+
+// Buckaroo PayPerEmail shared styles (used across Shopware 6.5 - 6.7)
+.bkr-payperemail {
+    max-width: 720px;
+    margin: 0 auto;
+
+    .bkr-card {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: .5rem;
+    }
+
+    .bkr-card-body {
+        padding: 2rem;
+    }
+
+    .bkr-icon {
+        display: inline-flex;
+        width: 80px;
+        height: 80px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #e9f7ef;
+        color: #198754;
+        margin-bottom: 1rem;
+    }
+
+    .bkr-title {
+        font-weight: 700;
+        font-size: 1.5rem;
+        text-align: center;
+        margin-bottom: .5rem;
+    }
+
+    .bkr-subtitle {
+        color: #6c757d;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .bkr-badge {
+        background: #e9f2fb;
+        border: 1px solid #cfe2ff;
+        color: #0d6efd;
+        border-radius: .375rem;
+        padding: .5rem .75rem;
+        display: inline-block;
+        margin: .25rem 0 1rem;
+    }
+
+    .bkr-actions {
+        .btn {
+            width: 100%;
+        }
+        .btn + .btn {
+            margin-top: .5rem;
+        }
+    }
+}

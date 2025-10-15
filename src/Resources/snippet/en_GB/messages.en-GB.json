@@ -87,7 +87,6 @@
         "selectMonth": "Select a month",
         "year": "Year",
         "selectYear": "Select a year",
-        "securityCode": "CVC/VV",
         "expiration": "Expiration",
         "securityCode": "CVC/VV",
         "payButton": "Pay"
@@ -115,6 +114,18 @@
       "lessBanks": "Less banks",
       "cancel": "Cancel",
       "scanQr": "Please scan the following qr code"
+    },
+    "payperemail": {
+      "thank_you": "Thank you for your payment!",
+      "payment_received": "Your payment has been received and your order is being processed.",
+      "order_number": "Order number",
+      "confirmation_email": "A confirmation email will be sent to you shortly with the order details.",
+      "view_order": "View Order Details",
+      "continue_shopping": "Continue Shopping",
+      "payment_cancelled": "Payment Cancelled",
+      "payment_not_completed": "The payment was not completed. Your order is still pending.",
+      "can_retry": "You can complete the payment later from your account or contact us for assistance.",
+      "back_to_shop": "Back to Shop"
     }
   },
   "bkr-applepay": {
