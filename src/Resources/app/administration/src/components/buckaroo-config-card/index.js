@@ -107,7 +107,6 @@ Component.register('buckaroo-config-card', {
             const currentValue = this.getValueForName(fieldName);
             
             baseBinding.value = currentValue;
-
             
             return baseBinding;
         },
