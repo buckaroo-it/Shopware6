@@ -340,3 +340,12 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 - BP-4426-Refactor-Shopware-6-Frontend
 - BP-4495 (Migration Fix)
+
+# 3.0.0
+
+- BP-4373 Add support for Shopware 6.7.2.2
+- BP-4542 “iDEAL In3” is being rebranded back to “In3”.
+- BP-4574 Fix: Input fields are not showed for some payment methods (related to adding support for SW 6.7).
+- BP-4584 Fix: Consumer financial warning not showing for BNPL methods (related to adding support for SW 6.7).
+- BP-4586 Fix: Unable to place order when authorize/capture flow is enabled for Riverty (related to adding support for SW 6.7).
+- BP-4594 Fix: In3 TypeError and add additionalAddressLine2 fallback #317
