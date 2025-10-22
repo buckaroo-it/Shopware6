@@ -6,3 +6,5 @@ parameters:
         - identifier: missingType.iterableValue
         - identifier: missingType.generics
     treatPhpDocTypesAsCertain: false
+    scanFiles:
+        - ./stubs/shopware-core-stubs.php

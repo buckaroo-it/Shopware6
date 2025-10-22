@@ -19,6 +19,9 @@ xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_C
         <!-- Exclude Css files. -->
     <exclude-pattern>*.css</exclude-pattern>
 
+    <!-- Exclude the stubs file from PHPCS checks -->
+    <exclude-pattern>./stubs/shopware-core-stubs.php</exclude-pattern>
+
     <!-- Only 3 indentation level per function/method -->
     <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
         <exclude-pattern>*/src/BuckaroPayments.php</exclude-pattern>
