@@ -27,7 +27,7 @@ Start accepting payments within a few minutes.
 
 To use the Buckaroo plugin, please be aware of the following minimum requirements:
 - A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
-- Shopware 6.5.0 up to 6.6.9.0
+- Shopware 6.5.0 up to 6.7.2.2
 - PHP 8.1, 8.2, 8.3
 
 ### Installation
