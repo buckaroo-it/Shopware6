@@ -8,15 +8,18 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\PaymentMethods\Creditcard;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
+use Shopware\Core\Framework\Context;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 
-class CreditcardPaymentHandler extends AsyncPaymentHandler
+class CreditcardPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Creditcard::class;
+    public string $paymentClass = Creditcard::class;
 
     public const ISSUER_LABEL = 'last_used_creditcard';
 
@@ -31,23 +34,31 @@ class CreditcardPaymentHandler extends AsyncPaymentHandler
     }
 
 
-     /**
-     * @param AsyncPaymentTransactionStruct $transaction
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @return RedirectResponse
-     * @throws PaymentException
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+    /**
+     * Hook before modern pay; updates issuer in customer profile.
      */
-    public function pay(
-        AsyncPaymentTransactionStruct $transaction,
+    protected function beforePayModern(
+        PaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $this->updateCustomerIssuer($dataBag, $salesChannelContext);
-        return parent::pay($transaction, $dataBag, $salesChannelContext);
+        Context $context
+    ): void {
+        $transactionId = $transaction->getOrderTransactionId();
+        $orderTransaction = $this->asyncPaymentService->getTransaction($transactionId, $context);
+        if ($orderTransaction === null) {
+            return;
+        }
+        $order = $orderTransaction->getOrder();
+        if ($order instanceof OrderEntity) {
+            $contextToken = $this->getContextTokenFromDataBag($dataBag);
+            $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext(
+                $context,
+                $order->getSalesChannelId(),
+                $contextToken
+            );
+            $this->updateCustomerIssuer($dataBag, $salesChannelContext);
+        }
     }
+
 
     /**
      * Get parameters for specific payment method
@@ -59,7 +70,7 @@ class CreditcardPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

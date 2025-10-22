@@ -10,9 +10,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
-class KlarnaPaymentHandler extends AsyncPaymentHandler
+class KlarnaPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Klarna::class;
+    public string $paymentClass = Klarna::class;
 
     /**
      * Get parameters for specific payment method
@@ -24,7 +24,7 @@ class KlarnaPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

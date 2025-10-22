@@ -98,8 +98,10 @@ class In3V2
             ]
         ];
 
-        if (strlen($streetData['number_addition']) > 0) {
+        if (isset($streetData['number_addition']) && strlen($streetData['number_addition']) > 0) {
             $data['address']['houseNumberAdditional'] = $streetData['number_addition'];
+        } elseif ($address->getAdditionalAddressLine2() !== null && strlen($address->getAdditionalAddressLine2()) > 0) {
+            $data['address']['houseNumberAdditional'] = $address->getAdditionalAddressLine2();
         }
 
         return $data;

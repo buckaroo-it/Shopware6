@@ -22,6 +22,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 
 class StateTransitionService
 {
@@ -327,5 +328,48 @@ class StateTransitionService
         }
 
         return false;
+    }
+
+    /**
+     * Check if a given status transition is currently allowed for the transaction.
+     *
+     * @param string $status One of the high-level statuses handled by getCorrectTransitionAction
+     * @param string $orderTransactionId
+     * @param Context $context
+     */
+    public function canTransitionStatus(string $status, string $orderTransactionId, Context $context): bool
+    {
+        $action = $this->getCorrectTransitionAction($status);
+        if ($action === null) {
+            return false;
+        }
+        $available = $this->getAvailableTransitions($orderTransactionId, $context);
+        return in_array($action, $available, true);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function getAvailableTransitions(string $orderTransactionId, Context $context): array
+    {
+        try {
+            $availableTransitions = $this->stateMachineRegistry->getAvailableTransitions(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $orderTransactionId,
+                'stateId',
+                $context
+            );
+
+            return array_map(function ($transition) {
+                /** @var \Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity $transition */
+                return $transition->getActionName();
+            }, $availableTransitions);
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed to get available transitions', [
+                'transactionId' => $orderTransactionId,
+                'error' => $e->getMessage()
+            ]);
+            return [];
+        }
     }
 }

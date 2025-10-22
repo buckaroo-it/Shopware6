@@ -75,7 +75,11 @@ class BuckarooTransactionService
 
         $orderRefundedItems = [];
 
-        $collection = $this->buckarooTransactionEntityRepository->findByOrderId($orderId, ['created_at' => 'DESC']);
+        $collection = $this->buckarooTransactionEntityRepository->findByOrderId(
+            $orderId,
+            $context,
+            ['created_at' => 'DESC']
+        );
         foreach ($collection as $buckarooTransactionEntity) {
             $refunded_items = $buckarooTransactionEntity->get("refunded_items");
             if (is_scalar($refunded_items)) {

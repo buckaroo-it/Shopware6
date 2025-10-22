@@ -1,0 +1,25 @@
+{
+  "base": "/bundles/buckaroopayments/administration/",
+  "entryPoints": {
+    "buckaroo-payments": {
+      "css": [
+        "/bundles/buckaroopayments/administration/assets/buckaroo-payments-BKf8MdOb.css"
+      ],
+      "dynamic": [],
+      "js": [
+        "/bundles/buckaroopayments/administration/assets/buckaroo-payments-cTr6D9wC.js"
+      ],
+      "legacy": false,
+      "preload": []
+    }
+  },
+  "legacy": false,
+  "metadatas": {},
+  "version": [
+    "7.1.0",
+    7,
+    1,
+    0
+  ],
+  "viteServer": null
+}

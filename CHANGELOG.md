@@ -340,3 +340,23 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 - BP-4426-Refactor-Shopware-6-Frontend
 - BP-4495 (Migration Fix)
+
+# 3.0.0
+
+- BP-4373 Add compatibility with Shopware version 6.7.2.2.
+- BP-4542 Rename “iDEAL In3” back to “In3”.
+- BP-5011 Enable Plaza captures to correctly reflect back in Shopware.
+- BP-5006 Improve Buckaroo Hosted Fields.
+- BP-4509 Improve transaction processing time.
+- BP-4574 Fix issue where input fields were missing for certain payment methods in SW 6.7.
+- BP-4584 Fix missing consumer financial warning for BNPL methods in SW 6.7.
+- BP-4586 Fix order placement failure for Riverty with authorize/capture flow in SW 6.7.
+- BP-4588 Remove unwanted system text for payment methods without input fields.
+- BP-4594 Fix In3 TypeError and add fallback for additionalAddressLine2 (#317).
+- BP-5016 Fix error when In3 transactions include a configured payment fee.
+- BP-5015 Fix issue where payment fees were not always included in total price.
+- BP-5014 Fix “CHECKOUT__PAYMENT_TOKEN_INVALIDATED” error after PayPerEmail completion.
+- BP-5009 Fix no checkout error is displayed for failed orders.
+- BP-5007 Fix issue where COC number and company name were incorrectly displayed on private In3 orders.
+- BP-5005 Fix issue where payment push failed due to missing or invalid URL configuration.
+- BP-4615 Resolve an display issue with credit card logo’s.

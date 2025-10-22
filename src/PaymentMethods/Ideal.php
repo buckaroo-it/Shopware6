@@ -33,7 +33,6 @@ class Ideal extends AbstractPayment
     {
         return 'iDEAL';
     }
-
     /**
      * {@inheritDoc}
      *

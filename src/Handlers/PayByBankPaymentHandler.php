@@ -8,16 +8,18 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\PaymentMethods\PayByBank;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
-use Buckaroo\Shopware6\Handlers\AsyncPaymentHandler;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 
-class PayByBankPaymentHandler extends AsyncPaymentHandler
+class PayByBankPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = PayByBank::class;
+    public string $paymentClass = PayByBank::class;
 
     public const ISSUER_LABEL = 'buckaroo_last_used_paybybank_issuer';
 
@@ -32,22 +34,29 @@ class PayByBankPaymentHandler extends AsyncPaymentHandler
     }
 
 
-     /**
-     * @param AsyncPaymentTransactionStruct $transaction
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @return RedirectResponse
-     * @throws PaymentException
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+    /**
+     * Hook before modern pay; updates issuer in customer profile.
      */
-    public function pay(
-        AsyncPaymentTransactionStruct $transaction,
+    protected function beforePayModern(
+        PaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext
-    ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $this->updateCustomerIssuer($dataBag, $salesChannelContext);
-        return parent::pay($transaction, $dataBag, $salesChannelContext);
+        Context $context
+    ): void {
+        $transactionId = $transaction->getOrderTransactionId();
+        $orderTransaction = $this->asyncPaymentService->getTransaction($transactionId, $context);
+        if ($orderTransaction === null) {
+            return;
+        }
+        $order = $orderTransaction->getOrder();
+        if ($order instanceof OrderEntity) {
+            $contextToken = $this->getContextTokenFromDataBag($dataBag);
+            $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext(
+                $context,
+                $order->getSalesChannelId(),
+                $contextToken
+            );
+            $this->updateCustomerIssuer($dataBag, $salesChannelContext);
+        }
     }
     /**
      * Get parameters for specific payment method
@@ -59,7 +68,7 @@ class PayByBankPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

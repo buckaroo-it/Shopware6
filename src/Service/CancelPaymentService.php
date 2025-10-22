@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Buckaroo\Client;
 use Buckaroo\Shopware6\Service\UrlService;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -13,7 +14,7 @@ use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntity;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
 
 class CancelPaymentService
@@ -36,25 +37,26 @@ class CancelPaymentService
 
 
     /**
-     * Do a refund on hanging giftcards
+     * Do a refund on hanging giftcards with required context for security
      *
-     * @param AsyncPaymentTransactionStruct $transactionStruct
-     *
+     * @param PaymentTransactionStruct $transactionStruct
+     * @param OrderEntity $order
+     * @param Context $context Required context for permission enforcement
      * @return void
      */
     public function cancel(
-        AsyncPaymentTransactionStruct $transactionStruct
+        PaymentTransactionStruct $transactionStruct,
+        OrderEntity $order,
+        Context $context
     ): void {
 
-        $orderTransaction = $transactionStruct->getOrderTransaction();
-        $transactions = $this->buckarooTransactionEntityRepository->findByOrderId($orderTransaction->getOrderId());
-
+        $orderTransactionId = $transactionStruct->getOrderTransactionId();
+        $transactions = $this->buckarooTransactionEntityRepository->findByOrderId($order->getId(), $context, []);
         foreach ($transactions as $transaction) {
             if ($transaction->get('statuscode') != ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
                 continue;
             }
 
-            $order = $transactionStruct->getOrder();
             $amount = $transaction->get('amount');
             $paymentCode = $transaction->get('transaction_method');
 
@@ -80,21 +82,23 @@ class CancelPaymentService
                     $this->getPayload(
                         $order,
                         $bkTransactionId,
-                        $orderTransaction->getId(),
+                        $orderTransactionId,
                         (float)$amount,
                         $paymentCode
                     )
                 );
             $this->handleResponse(
                 $client->execute(),
-                $transaction
+                $transaction,
+                $context
             );
         }
     }
 
     protected function handleResponse(
         ClientResponseInterface $response,
-        BuckarooTransactionEntity $transaction
+        BuckarooTransactionEntity $transaction,
+        Context $context
     ):void {
         if (!$response->isSuccess()) {
             return;
@@ -124,6 +128,8 @@ class CancelPaymentService
                 [
                     'amount_credit' => (string)((float)$amountCredit + (float)$transactionAmount)
                 ],
+                $context,
+                []
             );
     }
 

@@ -59,9 +59,26 @@ Component.register('buckaroo-afterpay-old-tax', {
 
                 },
                 methods: {
-                    setTaxAssociation(taxId, value) {
-                        this.taxAssociation[taxId] = value;
-                        this.$emit('change', {...this.value, ...this.taxAssociation});
+                    setTaxAssociation(taxId, eventOrValue) {
+                        
+                        try {
+                            let actualValue = eventOrValue;
+                            
+                            if (eventOrValue && typeof eventOrValue === 'object') {
+                                if (eventOrValue.target) {
+                                    actualValue = eventOrValue.target.value;
+                                } else if (eventOrValue.hasOwnProperty('value')) {
+                                    actualValue = eventOrValue.value;
+                                } else if (eventOrValue.hasOwnProperty('id')) {
+                                    actualValue = eventOrValue.id;
+                                }
+                            }
+                            this.taxAssociation[taxId] = actualValue;
+                            this.$emit('change', {...this.value, ...this.taxAssociation});
+                            
+                        } catch (error) {
+                            console.error('Error in setTaxAssociation:', error);
+                        }
                     },
                     getSelectValue(taxId) {
                         if (this.value[taxId]) {

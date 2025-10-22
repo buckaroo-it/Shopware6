@@ -11,6 +11,18 @@
             "captured_amount": "Successfully captured amount %amount% %currency%",
             "general_capture_error": "Unfortunately an error occurred while processing your capture. Please try again."
         },
-        "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available"
+        "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available",
+        "payperemail": {
+            "thank_you": "Thank you for your payment!",
+            "payment_received": "Your payment has been received and your order is being processed.",
+            "order_number": "Order number",
+            "confirmation_email": "A confirmation email will be sent to you shortly with the order details.",
+            "view_order": "View Order Details",
+            "continue_shopping": "Continue Shopping",
+            "payment_cancelled": "Payment Cancelled",
+            "payment_not_completed": "The payment was not completed. Your order is still pending.",
+            "can_retry": "You can complete the payment later from your account or contact us for assistance.",
+            "back_to_shop": "Back to Shop"
+        }
     }
 }

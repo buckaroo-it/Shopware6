@@ -148,9 +148,15 @@ class PayLinkService
             throw new \UnexpectedValueException("Cannot find salutation on customer", 1);
         }
 
-        $returnUrl = $this->urlService->generateReturnUrl(
-            $transaction,
-            $this->getExpireDays($salesChannelId) * 24 * 60
+        // For PayPerEmail, use custom return endpoint that accepts both GET and POST
+        // because the customer pays later via email link and Buckaroo POSTs the response
+        $returnUrl = $this->urlService->forwardToRoute(
+            'buckaroo.payperemail.return',
+            ['orderId' => $order->getId()]
+        );
+        $cancelUrl = $this->urlService->forwardToRoute(
+            'buckaroo.payperemail.return',
+            ['orderId' => $order->getId(), 'cancel' => '1']
         );
 
         return [
@@ -160,8 +166,8 @@ class PayLinkService
             'currency'               => $currency->getIsoCode(),
             'pushURL'                => $this->urlService->getReturnUrl('buckaroo.payment.push'),
             'clientIP'               => $this->getIp($request),
-            'returnURL'              => $returnUrl,
-            'cancelURL'              => sprintf('%s&cancel=1', $returnUrl),
+            'returnURL'              => $this->urlService->getSaleBaseUrl() . $returnUrl,
+            'cancelURL'              => $this->urlService->getSaleBaseUrl() . $cancelUrl,
             'additionalParameters'   => [
                 'orderTransactionId' => $transaction->getId(),
                 'orderId' => $order->getId(),
@@ -173,7 +179,7 @@ class PayLinkService
             'merchantSendsEmail'    => true,
             'paymentMethodsAllowed' => $this->getPayPerEmailPaymentMethodsAllowed($salesChannelId),
             'customer'              => [
-                'gender'        => $salutation->getSalutationKey() == 'mr' ? 1 : 2,
+                'gender'        => $this->determineGender($salutation->getSalutationKey()),
                 'firstName'     => $customer->getFirstName(),
                 'lastName'      => $customer->getLastName()
             ],
@@ -286,5 +292,25 @@ class PayLinkService
             return join(',', $payperemailAllowed);
         }
         return '';
+    }
+
+    /**
+     * Determine customer gender from salutation key with proper type safety
+     *
+     * @param mixed $salutationKey The salutation key from customer data
+     * @return int 1 for male (mr), 2 for female/other
+     */
+    private function determineGender($salutationKey): int
+    {
+        // Ensure we have a string and handle null/non-string values safely
+        if (!is_string($salutationKey)) {
+            return 2; // Default to female/other for non-string values
+        }
+        
+        // Trim whitespace and convert to lowercase for reliable comparison
+        $normalizedKey = trim(strtolower($salutationKey));
+        
+        // Use strict comparison to prevent type juggling issues
+        return $normalizedKey === 'mr' ? 1 : 2;
     }
 }

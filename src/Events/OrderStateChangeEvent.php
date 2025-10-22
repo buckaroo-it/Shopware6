@@ -14,7 +14,7 @@ use Buckaroo\Shopware6\Service\CaptureService;
 use Buckaroo\Shopware6\Service\InvoiceService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\TransactionService;
-use Shopware\Administration\Notification\NotificationService;
+use Buckaroo\Shopware6\Service\NotificationServiceFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 
@@ -30,7 +30,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
     protected CaptureService $captureService;
 
-    protected NotificationService $notificationService;
+    protected object $notificationService; // Can be either NotificationService
 
     /** @var LoggerInterface */
     protected $logger;
@@ -45,7 +45,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         OrderService $orderService,
         LoggerInterface $logger,
         CaptureService $captureService,
-        NotificationService $notificationService
+        NotificationServiceFactory $notificationServiceFactory
     ) {
         $this->transactionService = $transactionService;
         $this->invoiceService = $invoiceService;
@@ -53,7 +53,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $this->orderService = $orderService;
         $this->logger = $logger;
         $this->captureService = $captureService;
-        $this->notificationService = $notificationService;
+        $this->notificationService = $notificationServiceFactory->getNotificationService();
     }
 
     /**
@@ -87,14 +87,33 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             return false;
         }
         $customFields = $this->transactionService->getCustomFields($order, $context);
-        $salesChannelId =  $event->getSalesChannelId();
+        $salesChannelId = $event->getSalesChannelId();
 
         if (!isset($customFields['brqPaymentMethod'])) {
             return false;
         }
+        
+        // Validate payment method type to prevent type juggling attacks
+        if (!is_string($customFields['brqPaymentMethod'])) {
+            $this->logger->warning('Invalid brqPaymentMethod type detected', [
+                'type' => gettype($customFields['brqPaymentMethod']),
+                'value' => $customFields['brqPaymentMethod']
+            ]);
+            return false;
+        }
+        
+        // Guard against null sales channel ID for Billink processing
+        if (!is_string($salesChannelId) || $salesChannelId === '') {
+            $this->logger->warning('Cannot process order state change: sales channel ID is null', [
+                'orderId' => $order->getId()
+            ]);
+            return false;
+        }
+        
         if (
-            $customFields['brqPaymentMethod'] == 'Billink' &&
-            $this->settingsService->getSetting('BillinkMode', $salesChannelId) == 'authorize' &&
+            isset($customFields['brqPaymentMethod']) &&
+            $customFields['brqPaymentMethod'] === 'Billink' &&
+            $this->settingsService->getSetting('BillinkMode', $salesChannelId) === 'authorize' &&
             $this->settingsService->getSetting('BillinkCreateInvoiceAfterShipment', $salesChannelId)
         ) {
             $this->invoiceService->generateInvoice($eventOrder, $context, $salesChannelId);
@@ -115,10 +134,20 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     private function canCaptureAfterpay(
         array $customFields,
         ?array $orderCustomFields,
-        string $salesChannelId
+        ?string $salesChannelId
     ): bool {
-        return isset($customFields['brqPaymentMethod']) &&
-            $customFields['brqPaymentMethod'] == 'afterpay' &&
+        // Validate payment method exists and is string type
+        if (!isset($customFields['brqPaymentMethod']) || !is_string($customFields['brqPaymentMethod'])) {
+            return false;
+        }
+        
+        // Guard against null sales channel ID - cannot determine capture settings without it
+        if ($salesChannelId === null) {
+            $this->logger->warning('Cannot determine afterpay capture settings: sales channel ID is null');
+            return false;
+        }
+        
+        return $customFields['brqPaymentMethod'] === 'afterpay' &&
             !isset($customFields['captured']) &&
             $this->settingsService->getSetting('afterpayCaptureonshippent', $salesChannelId) &&
             isset($orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED]) &&
@@ -156,8 +185,9 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             $message = $result['message'];
         }
 
-        $this->notificationService->createNotification(
-            [
+        if (is_object($this->notificationService) && method_exists($this->notificationService, 'createNotification')) {
+            $this->notificationService->createNotification(
+                [
                 'id' => Uuid::randomHex(),
                 'status' => $status,
                 'message' => $message,
@@ -165,8 +195,9 @@ class OrderStateChangeEvent implements EventSubscriberInterface
                 'requiredPrivileges' => [],
                 'createdByIntegrationId' => null,
                 'createdByUserId' => null,
-            ],
-            $context
-        );
+                ],
+                $context
+            );
+        }
     }
 }

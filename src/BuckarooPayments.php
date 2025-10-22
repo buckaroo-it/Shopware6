@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6;
 
-if (file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
-    require_once dirname(__DIR__) . '/vendor/autoload.php';
-}
-
-
 use Buckaroo\Shopware6\Installers\MediaInstaller;
 use Buckaroo\Shopware6\Installers\PaymentMethodsInstaller;
 use Shopware\Core\Framework\Plugin;
@@ -30,8 +25,37 @@ class BuckarooPayments extends Plugin
     {
         parent::build($container);
 
+        // Handle class aliasing for Shopware 6.5+ compatibility
+        $this->handlePaymentHandlerCompatibility();
+
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/Resources/config'));
         $loader->load('services.xml');
+    }
+
+    /**
+     * Handle payment handler compatibility for different Shopware versions
+     */
+    private function handlePaymentHandlerCompatibility(): void
+    {
+        // Check if AbstractPaymentHandler is available (Shopware 6.5+)
+        if (class_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler')) {
+            // For Shopware 6.5+, alias PaymentHandler to PaymentHandlerSimple
+            // which extends AbstractPaymentHandler and will be properly registered
+            if (!class_exists('Buckaroo\Shopware6\Handlers\PaymentHandlerCompat')) {
+                class_alias(
+                    'Buckaroo\Shopware6\Handlers\PaymentHandlerSimple',
+                    'Buckaroo\Shopware6\Handlers\PaymentHandlerCompat'
+                );
+            }
+        } else {
+            // For older Shopware versions, use the original PaymentHandler
+            if (!class_exists('Buckaroo\Shopware6\Handlers\PaymentHandlerCompat')) {
+                class_alias(
+                    'Buckaroo\Shopware6\Handlers\PaymentHandler',
+                    'Buckaroo\Shopware6\Handlers\PaymentHandlerCompat'
+                );
+            }
+        }
     }
 
     /**

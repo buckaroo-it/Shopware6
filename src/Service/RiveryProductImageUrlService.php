@@ -6,7 +6,6 @@ namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -21,12 +20,13 @@ class RiveryProductImageUrlService
 
     private EntityRepository $thumbnailRepository;
 
-    private ?UrlGeneratorInterface $legacyGenerator;
+    /** @var object|null */
+    private $legacyGenerator;
 
     public function __construct(
         EntityRepository $productRepository,
         EntityRepository $thumbnailRepository,
-        ?UrlGeneratorInterface $legacyGenerator
+        ?object $legacyGenerator = null
     ) {
         $this->productRepository = $productRepository;
         $this->thumbnailRepository = $thumbnailRepository;
@@ -63,10 +63,14 @@ class RiveryProductImageUrlService
         /** @var \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity */
         $thumbnail = $this->thumbnailRepository->search($criteria, $context)->first();
 
-        if ($this->legacyGenerator !== null) {
+        if (
+            $this->legacyGenerator !== null &&
+            \is_object($this->legacyGenerator) &&
+            \method_exists($this->legacyGenerator, 'getAbsoluteThumbnailUrl')
+        ) {
             return $this->legacyGenerator->getAbsoluteThumbnailUrl($media, $thumbnail);
         }
-        return $thumbnail->getUrl();
+        return $thumbnail ? $thumbnail->getUrl() : null;
     }
 
     private function getMedia(string $productId, Context $context): ?MediaEntity

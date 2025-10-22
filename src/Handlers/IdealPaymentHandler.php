@@ -8,11 +8,12 @@ use Buckaroo\Shopware6\PaymentMethods\Ideal;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class IdealPaymentHandler extends AsyncPaymentHandler
+class IdealPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Ideal::class;
+    public string $paymentClass = Ideal::class;
 
     public const IDEAL_PROCESSING = 'idealProcessing';
 
@@ -26,7 +27,7 @@ class IdealPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -34,8 +35,8 @@ class IdealPaymentHandler extends AsyncPaymentHandler
     ): array {
         if ($dataBag->get('idealFastCheckoutInfo')) {
             $shippingCost = 0;
-
             $firstDelivery = $order->getDeliveries()?->first();
+
             if ($firstDelivery && $firstDelivery->getShippingCosts()) {
                 $shippingCost = $firstDelivery->getShippingCosts()->getTotalPrice();
             }
@@ -69,14 +70,11 @@ class IdealPaymentHandler extends AsyncPaymentHandler
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
-        if ($dataBag->get('idealFastCheckoutInfo')) {
-            return 'payFastCheckout';
-        }
-        return 'pay';
+        return $dataBag->get('idealFastCheckoutInfo') ? 'payFastCheckout' : 'pay';
     }
 }

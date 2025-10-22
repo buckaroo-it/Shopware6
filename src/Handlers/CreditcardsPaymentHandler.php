@@ -9,9 +9,9 @@ use Buckaroo\Shopware6\PaymentMethods\Creditcards;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class CreditcardsPaymentHandler extends AsyncPaymentHandler
+class CreditcardsPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Creditcards::class;
+    public string $paymentClass = Creditcards::class;
 
     /**
      * Get parameters for specific payment method
@@ -23,7 +23,7 @@ class CreditcardsPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -47,10 +47,10 @@ class CreditcardsPaymentHandler extends AsyncPaymentHandler
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
         return 'PayWithToken';
     }

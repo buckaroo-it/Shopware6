@@ -133,9 +133,14 @@ export default class BuckarooPaymentHelper extends Plugin {
 
     _handleCheckMobile(field)
     {
-        document.getElementById('buckarooMobilePhoneError').style.display = 'none';
+        const errorElement = document.getElementById('buckarooMobilePhoneError');
+        if (errorElement) {
+            errorElement.style.display = 'none';
+        }
         if (!field.value.match(/^\d{10}$/)) {
-            document.getElementById('buckarooMobilePhoneError').style.display = 'block';
+            if (errorElement) {
+                errorElement.style.display = 'block';
+            }
             return false;
         }
         return true;
@@ -143,15 +148,22 @@ export default class BuckarooPaymentHelper extends Plugin {
 
     _handleCheckDoB(field)
     {
-        document.getElementById('buckarooDoBError').style.display = 'none';
+        const errorElement = document.getElementById('buckarooDoBError');
+        if (errorElement) {
+            errorElement.style.display = 'none';
+        }
         const x = new Date(Date.parse(field.value));
         if (x == 'Invalid Date') {
-            document.getElementById('buckarooDoBError').style.display = 'block';
+            if (errorElement) {
+                errorElement.style.display = 'block';
+            }
             return false;
         }
         const Cnow = new Date();
         if ((Cnow.getFullYear() - x.getFullYear() < 18) || x.getFullYear() < 1900) {
-            document.getElementById('buckarooDoBError').style.display = 'block';
+            if (errorElement) {
+                errorElement.style.display = 'block';
+            }
             return false;
         }
 
@@ -281,10 +293,8 @@ export default class BuckarooPaymentHelper extends Plugin {
         const confirmButton = document.getElementById('confirmFormSubmit');
         if (confirmButton) {
             confirmButton.addEventListener('click', (event) => {
-                // Immediately disable to prevent double click spam
                 confirmButton.disabled = true;
 
-                // Allow some milliseconds to validate and potentially re-enable if needed
                 setTimeout(() => {
                     const notValid = this._CheckValidate();
                     if (notValid) {

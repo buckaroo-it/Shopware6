@@ -9,9 +9,9 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class P24PaymentHandler extends AsyncPaymentHandler
+class P24PaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = P24::class;
+    public string $paymentClass = P24::class;
 
 
     /**
@@ -24,7 +24,7 @@ class P24PaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

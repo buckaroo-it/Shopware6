@@ -12,9 +12,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 
-class In3PaymentHandler extends AsyncPaymentHandler
+class In3PaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = In3::class;
+    public string $paymentClass = In3::class;
 
     public const V2 = 'v2';
 
@@ -44,7 +44,7 @@ class In3PaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -82,10 +82,10 @@ class In3PaymentHandler extends AsyncPaymentHandler
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
 
         if ($this->isV2()) {
@@ -206,8 +206,10 @@ class In3PaymentHandler extends AsyncPaymentHandler
             'country'     => $this->asyncPaymentService->getCountry($address)->getIso()
         ];
 
-        if (strlen($streetData['number_addition']) > 0) {
+        if (isset($streetData['number_addition']) && strlen($streetData['number_addition']) > 0) {
             $data['houseNumberAdditional'] = $streetData['number_addition'];
+        } elseif ($address->getAdditionalAddressLine2() !== null && strlen($address->getAdditionalAddressLine2()) > 0) {
+            $data['houseNumberAdditional'] = $address->getAdditionalAddressLine2();
         }
 
         return $data;

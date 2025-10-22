@@ -11,9 +11,9 @@ use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class PayPerEmailPaymentHandler extends AsyncPaymentHandler
+class PayPerEmailPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = PayPerEmail::class;
+    public string $paymentClass = PayPerEmail::class;
 
     protected PayLinkService $payLinkService;
 
@@ -38,7 +38,7 @@ class PayPerEmailPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -84,10 +84,10 @@ class PayPerEmailPaymentHandler extends AsyncPaymentHandler
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
         return 'paymentInvitation';
     }
@@ -104,5 +104,94 @@ class PayPerEmailPaymentHandler extends AsyncPaymentHandler
         }
 
         return date('Y-m-d', time() + (int)$payperemailExpireDays * 86400);
+    }
+
+    /**
+     * Override getCommonRequestPayload for PayPerEmail to use non-tokenized URLs (Shopware 6.5)
+     * This is necessary because payment tokens are single-use and get invalidated,
+     * but PayPerEmail payments happen asynchronously when customer pays via email link
+     *
+     * @param mixed $orderTransaction
+     * @return array<mixed>
+     */
+    protected function getCommonRequestPayload(
+        $orderTransaction,
+        \Shopware\Core\Checkout\Order\OrderEntity $order,
+        \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
+        \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
+        string $paymentCode,
+        ?string $returnUrl
+    ): array {
+        // Build base payload from parent
+        $payload = parent::getCommonRequestPayload(
+            $orderTransaction,
+            $order,
+            $dataBag,
+            $salesChannelContext,
+            $paymentCode,
+            $returnUrl
+        );
+
+        // Override returnURL and cancelURL with non-tokenized versions
+        $this->replaceUrlsWithNonTokenized($payload, $order);
+
+        return $payload;
+    }
+
+    /**
+     * Override configureClient to modify payload before sending to Buckaroo (Shopware 6.7+)
+     * Replace tokenized returnURL and cancelURL with non-tokenized versions
+     *
+     * @param \Buckaroo\Shopware6\Buckaroo\Client $client
+     * @param string $paymentCode
+     * @param \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext
+     * @return void
+     */
+    protected function configureClient(
+        $client,
+        string $paymentCode,
+        $salesChannelContext
+    ): void {
+        // Get current payload
+        $payload = $client->getPayload();
+        
+        // Get order from payload to build non-tokenized URLs
+        if (isset($payload['additionalParameters']['orderId'])) {
+            $orderId = $payload['additionalParameters']['orderId'];
+            $order = $this->asyncPaymentService->checkoutHelper->getOrderById(
+                $orderId,
+                $salesChannelContext->getContext()
+            );
+            
+            if ($order !== null) {
+                $this->replaceUrlsWithNonTokenized($payload, $order);
+                $client->setPayload($payload);
+            }
+        }
+    }
+
+    /**
+     * Replace tokenized URLs with non-tokenized versions
+     * Uses custom PayPerEmail return endpoint that accepts both GET and POST
+     *
+     * @param array<mixed> &$payload
+     * @param \Shopware\Core\Checkout\Order\OrderEntity $order
+     * @return void
+     */
+    private function replaceUrlsWithNonTokenized(
+        array &$payload,
+        \Shopware\Core\Checkout\Order\OrderEntity $order
+    ): void {
+        $returnUrl = $this->asyncPaymentService->urlService->forwardToRoute(
+            'buckaroo.payperemail.return',
+            ['orderId' => $order->getId()]
+        );
+        $cancelUrl = $this->asyncPaymentService->urlService->forwardToRoute(
+            'buckaroo.payperemail.return',
+            ['orderId' => $order->getId(), 'cancel' => '1']
+        );
+
+        $payload['returnURL'] = $this->asyncPaymentService->urlService->getSaleBaseUrl() . $returnUrl;
+        $payload['cancelURL'] = $this->asyncPaymentService->urlService->getSaleBaseUrl() . $cancelUrl;
     }
 }

@@ -9,9 +9,9 @@ use Buckaroo\Shopware6\PaymentMethods\ApplePay;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class ApplePayPaymentHandler extends AsyncPaymentHandler
+class ApplePayPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = ApplePay::class;
+    public string $paymentClass = ApplePay::class;
 
     /**
      * Get parameters for specific payment method
@@ -23,7 +23,7 @@ class ApplePayPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

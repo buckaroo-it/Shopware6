@@ -252,7 +252,7 @@ class RefundService
                 $refunded_items = '';
 
                 $bkTransaction = $this->buckarooTransactionEntityRepository
-                    ->getById($transactionId);
+                    ->getById($transactionId, $context);
                 if ($bkTransaction !== null) {
                     $refunded_items = $bkTransaction->get("refunded_items");
                 }
@@ -278,7 +278,7 @@ class RefundService
                 }
 
                 $amountCredit = 0;
-                $transaction = $this->buckarooTransactionEntityRepository->getById($transactionId);
+                $transaction = $this->buckarooTransactionEntityRepository->getById($transactionId, $context);
                 if ($transaction !== null && is_scalar($transaction->get('amount_credit'))) {
                     $amountCredit = (float)$transaction->get('amount_credit');
                 }
@@ -291,6 +291,8 @@ class RefundService
                             'refunded_items' => json_encode($orderItemsRefunded),
                             'amount_credit' => (string)($amountCredit + $amount)
                         ],
+                        $context,
+                        []
                     );
             }
 
@@ -435,14 +437,24 @@ class RefundService
             ];
         }
 
-        if ($customFields['canRefund'] == 0) {
+        // Check if refund is supported with proper existence check and strict comparison
+        if (!isset($customFields['canRefund']) ||
+            $customFields['canRefund'] === 0 ||
+            $customFields['canRefund'] === '0' ||
+            $customFields['canRefund'] === false
+        ) {
             return [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.refund.not_supported")
             ];
         }
 
-        if (!empty($customFields['refunded']) && ($customFields['refunded'] == 1)) {
+        // Check if already refunded with proper existence check and strict comparison
+        if (isset($customFields['refunded']) &&
+            ($customFields['refunded'] === 1 ||
+            $customFields['refunded'] === '1' ||
+            $customFields['refunded'] === true)
+        ) {
             return [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo-payment.refund.already_refunded")

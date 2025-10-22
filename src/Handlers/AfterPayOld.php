@@ -122,7 +122,17 @@ class AfterPayOld
         }
 
         /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity|null */
-        $address = $deliveries->getShippingAddress()->first();
+        $firstDelivery = $deliveries->first();
+        $address = null;
+        if ($firstDelivery !== null) {
+            // Handle Shopware versions where getShippingOrderAddress may not exist
+            if (method_exists($firstDelivery, 'getShippingOrderAddress')) {
+                $address = $firstDelivery->getShippingOrderAddress();
+            } elseif (method_exists($firstDelivery, 'getShippingAddress')) {
+                $address = $firstDelivery->getShippingAddress();
+            }
+        }
+        
         if ($address === null) {
             $address = $order->getBillingAddress();
         }

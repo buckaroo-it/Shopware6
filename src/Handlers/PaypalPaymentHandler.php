@@ -6,18 +6,18 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Paypal;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
-use Buckaroo\Shopware6\Handlers\AsyncPaymentHandler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 
-class PaypalPaymentHandler extends AsyncPaymentHandler
+class PaypalPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Paypal::class;
+    public string $paymentClass = Paypal::class;
 
     /**
      * @var \Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData
@@ -45,7 +45,7 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -72,30 +72,38 @@ class PaypalPaymentHandler extends AsyncPaymentHandler
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
-        if ($this->isSellerProtection($salesChannelContext) && !$dataBag->has('orderId')) {
+        $needsExtraInfo = $salesChannelContext !== null
+            && $this->isSellerProtection($salesChannelContext)
+            && !$dataBag->has('orderId');
+        if ($needsExtraInfo) {
             return 'extraInfo';
         }
         return 'pay';
     }
 
 
+    /**
+     * @param mixed $orderTransaction
+     */
     protected function handleResponse(
         ClientResponseInterface $response,
-        AsyncPaymentTransactionStruct $transaction,
+        $orderTransaction,
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): RedirectResponse {
-        $this->orderUpdater->update($response, $transaction->getOrder(), $salesChannelContext);
+        $this->orderUpdater->update($response, $order, $salesChannelContext);
 
         return parent::handleResponse(
             $response,
-            $transaction,
+            $orderTransaction,
+            $order,
             $dataBag,
             $salesChannelContext,
             $paymentCode

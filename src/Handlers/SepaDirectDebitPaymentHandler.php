@@ -9,9 +9,9 @@ use Buckaroo\Shopware6\PaymentMethods\SepaDirectDebit;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class SepaDirectDebitPaymentHandler extends AsyncPaymentHandler
+class SepaDirectDebitPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = SepaDirectDebit::class;
+    public string $paymentClass = SepaDirectDebit::class;
 
     /**
      * Get parameters for specific payment method
@@ -23,7 +23,7 @@ class SepaDirectDebitPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,

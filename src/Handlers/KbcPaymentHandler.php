@@ -6,7 +6,7 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Kbc;
 
-class KbcPaymentHandler extends AsyncPaymentHandler
+class KbcPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Kbc::class;
+    public string $paymentClass = Kbc::class;
 }

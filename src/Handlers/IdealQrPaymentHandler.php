@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Handlers;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Buckaroo\Shopware6\PaymentMethods\IdealQr;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -12,13 +13,13 @@ use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 
-class IdealQrPaymentHandler extends AsyncPaymentHandler
+class IdealQrPaymentHandler extends PaymentHandlerSimple
 {
     public const IDEAL_QR_INVOICE_PREFIX = 'iQR';
 
-    protected string $paymentClass = IdealQr::class;
+    public string $paymentClass = IdealQr::class;
 
     protected int $invoice;
 
@@ -38,21 +39,32 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
     /**
      * Override parameters common, remove invoice field
      *
-     * @param AsyncPaymentTransactionStruct $transaction
+     * @param OrderTransactionEntity $orderTransaction
+     * @param OrderEntity $order
      * @param RequestDataBag $dataBag
      * @param SalesChannelContext $salesChannelContext
      * @param string $paymentCode
+     * @param string|null $returnUrl
      *
      * @return array<mixed>
      */
     protected function getCommonRequestPayload(
-        AsyncPaymentTransactionStruct $transaction,
+        $orderTransaction,
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        string $paymentCode,
+        ?string $returnUrl
     ): array {
-        $this->createIdealQrOrder($transaction, $salesChannelContext);
-        $payload = parent::getCommonRequestPayload($transaction, $dataBag, $salesChannelContext, $paymentCode);
+        $this->createIdealQrOrder($orderTransaction, $order, $salesChannelContext);
+        $payload = parent::getCommonRequestPayload(
+            $orderTransaction,
+            $order,
+            $dataBag,
+            $salesChannelContext,
+            $paymentCode,
+            $returnUrl
+        );
         unset($payload['invoice']);
         return $payload;
     }
@@ -66,7 +78,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
@@ -97,27 +109,30 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
      *
      * @return string
      */
-    protected function getMethodAction(
+    public function getMethodAction(
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
     ): string {
         return 'generate';
     }
 
+    /**
+     * @param mixed $orderTransaction
+     */
     protected function handleResponse(
         ClientResponseInterface $response,
-        AsyncPaymentTransactionStruct $transaction,
+        $orderTransaction,
+        OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): RedirectResponse {
 
-
-
         $redirect = parent::handleResponse(
             $response,
-            $transaction,
+            $orderTransaction,
+            $order,
             $dataBag,
             $salesChannelContext,
             $paymentCode
@@ -133,7 +148,7 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
                 $this->getReturnPageUrl(
                     $serviceParameters['qrimageurl'],
                     $response->getTransactionKey(),
-                    $transaction->getOrder()->getId()
+                    $order->getId()
                 )
             );
         }
@@ -153,10 +168,11 @@ class IdealQrPaymentHandler extends AsyncPaymentHandler
     }
 
     private function createIdealQrOrder(
-        AsyncPaymentTransactionStruct $transaction,
+        OrderTransactionEntity $orderTransaction,
+        OrderEntity $order,
         SalesChannelContext $salesChannelContext
     ): void {
-        $entity = $this->idealQrRepository->create($transaction->getOrderTransaction(), $salesChannelContext);
+        $entity = $this->idealQrRepository->create($orderTransaction, $salesChannelContext);
         if ($entity !== null) {
             $this->invoice = $entity->getInvoice();
         }

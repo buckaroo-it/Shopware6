@@ -31,7 +31,6 @@ use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 {
@@ -93,7 +92,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            AccountPaymentMethodPageLoadedEvent::class => 'hideNotEnabledPaymentMethods',
+            // Removed to avoid missing symbol in some Shopware versions
             AccountEditOrderPageLoadedEvent::class     => 'addBuckarooExtension',
             CheckoutConfirmPageLoadedEvent::class      => 'addBuckarooExtension',
             ProductPageLoadedEvent::class              => 'addBuckarooToProductPage',
@@ -117,7 +116,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         return $translation['customFields']['buckaroo_key'];
     }
     /**
-     * @param AccountEditOrderPageLoadedEvent|AccountPaymentMethodPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
+     * @param AccountEditOrderPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
      */
     public function hideNotEnabledPaymentMethods($event): void
     {
@@ -293,13 +292,15 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'applepayHostedPaymentPage' =>
-                intval($this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId)) === 1,
+                $this->getSettingAsInt('applepayHostedPaymentPage', $salesChannelId) === 1,
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'canShowPhone'          => $this->canShowPhone($customer),
             'methodsWithFinancialWarning' => $this->getMethodsWithFinancialWarning($salesChannelId),
+            'countryBillingIso'     => $this->getCountryBillingIso($customer),
+            'countryShippingIso'    => $this->getCountryShippingIso($customer),
             'validHouseNumbers'     => $this->areValidHouseNumbers($event),
-            'afterpayOld' => $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true,
+            'afterpayOld' => $this->getSettingAsBool('afterpayEnabledold', $salesChannelId),
             'redirectBancontact' =>
                 $this->settingsService->getSetting('redirectBancontact', $salesChannelId) === 'enabledRedirect']);
 
@@ -328,7 +329,14 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if (method_exists($event->getPage(), "getOrder")) {
             /** @var AccountEditOrderPageLoadedEvent $event */
             $billingAddress = $event->getPage()->getOrder()->getBillingAddress();
-            $shippingAddress = $event->getPage()->getOrder()->getDeliveries()?->getShippingAddress()->first();
+            $deliveries = $event->getPage()->getOrder()->getDeliveries();
+            $shippingAddress = null;
+            if ($deliveries !== null) {
+                $firstDelivery = $deliveries->first();
+                if ($firstDelivery !== null) {
+                    $shippingAddress = $firstDelivery->getShippingOrderAddress();
+                }
+            }
         } else {
             $billingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultBillingAddress();
             $shippingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultShippingAddress();
@@ -402,13 +410,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $struct->assign([
             'applepayHostedPaymentPage' =>
-                intval($this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId)) === 1,
+                $this->getSettingAsInt('applepayHostedPaymentPage', $salesChannelId) === 1,
             'showPaypalExpress'         => $this->showPaypalExpress($salesChannelId, 'cart'),
             'showIdealFastCheckout'     => $this->showIdealFastCheckout($salesChannelId, 'cart'),
             'paypalMerchantId'          => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId'        => $this->getAppleMerchantId($salesChannelId),
             'websiteKey'                => $this->settingsService->getSetting('websiteKey', $salesChannelId),
-            'showApplePay'              => $this->settingsService->getSetting('applepayShowCart', $salesChannelId) == 1,
+            'showApplePay'              => $this->getSettingAsBool('applepayShowCart', $salesChannelId),
             'idealFastCheckoutLogo'     => $this->getIdealFastCheckoutLogo($salesChannelId)
         ]);
 
@@ -459,9 +467,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
         $struct->assign([
             'applepayShowProduct'       =>
-                $this->settingsService->getSetting('applepayShowProduct', $salesChannelId) == 1,
+                $this->getSettingAsBool('applepayShowProduct', $salesChannelId),
             'applepayHostedPaymentPage' =>
-                intval($this->settingsService->getSetting('applepayHostedPaymentPage', $salesChannelId)) === 1,
+                $this->getSettingAsInt('applepayHostedPaymentPage', $salesChannelId) === 1,
             'showPaypalExpress' => $this->showPaypalExpress($salesChannelId),
             'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
@@ -493,8 +501,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected function showIdealFastCheckout(string $salesChannelId, string $page = 'product'): bool
     {
         if (
-            $this->settingsService->getSetting('idealEnabled', $salesChannelId) &&
-            $this->settingsService->getSetting('idealFastCheckoutEnabled', $salesChannelId)
+            $this->getSettingAsBool('idealEnabled', $salesChannelId) &&
+            $this->getSettingAsBool('idealFastCheckoutEnabled', $salesChannelId)
         ) {
             $locations = $this->settingsService->getSetting('idealFastCheckoutVisibility', $salesChannelId);
             return is_array($locations) &&
@@ -613,7 +621,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     /**
      * Check if we can display afterpay when b2b is enabled
      *
-     * @param AccountEditOrderPageLoadedEvent|AccountPaymentMethodPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
+     * @param AccountEditOrderPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
      *
      * @return boolean
      */
@@ -638,7 +646,11 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
             if ($order->getDeliveries() !== null) {
                 /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
-                $shippingAddress = $order->getDeliveries()->getShippingAddress()->first();
+                $shippingAddress = null;
+                $firstDelivery = $order->getDeliveries()->first();
+                if ($firstDelivery !== null) {
+                    $shippingAddress = $firstDelivery->getShippingOrderAddress();
+                }
                 if ($shippingAddress !== null) {
                     $shippingCompany = $shippingAddress->getCompany();
                 }
@@ -715,5 +727,108 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
 
         return $address->getPhoneNumber() === null || strlen(trim($address->getPhoneNumber())) === 0;
+    }
+
+    /**
+     * Get billing country ISO code
+     *
+     * @param CustomerEntity $customer
+     *
+     * @return string|null
+     */
+    private function getCountryBillingIso(CustomerEntity $customer): ?string
+    {
+        $billingAddress = $customer->getActiveBillingAddress();
+        
+        if ($billingAddress === null) {
+            return null;
+        }
+        
+        $country = $billingAddress->getCountry();
+        
+        if ($country === null) {
+            return null;
+        }
+        
+        return $country->getIso();
+    }
+
+    /**
+     * Get shipping country ISO code
+     *
+     * @param CustomerEntity $customer
+     *
+     * @return string|null
+     */
+    private function getCountryShippingIso(CustomerEntity $customer): ?string
+    {
+        $shippingAddress = $customer->getActiveShippingAddress();
+        
+        if ($shippingAddress === null) {
+            return null;
+        }
+        
+        $country = $shippingAddress->getCountry();
+        
+        if ($country === null) {
+            return null;
+        }
+        
+        return $country->getIso();
+    }
+
+    /**
+     * Helper method to safely cast setting values to boolean
+     * Handles different setting representations ('1', 1, true, '0', 0, false, null)
+     */
+    private function getSettingAsBool(string $key, string $salesChannelId, bool $default = false): bool
+    {
+        $value = $this->settingsService->getSetting($key, $salesChannelId);
+        
+        if ($value === null) {
+            return $default;
+        }
+        
+        // Convert various representations to boolean
+        if (is_bool($value)) {
+            return $value;
+        }
+        
+        if (is_int($value)) {
+            return $value === 1;
+        }
+        
+        if (is_string($value)) {
+            return $value === '1' || strtolower($value) === 'true';
+        }
+        
+        return $default;
+    }
+
+    /**
+     * Helper method to safely cast setting values to integer
+     * Handles different setting representations and validates type before conversion
+     */
+    private function getSettingAsInt(string $key, string $salesChannelId, int $default = 0): int
+    {
+        $value = $this->settingsService->getSetting($key, $salesChannelId);
+        
+        if ($value === null) {
+            return $default;
+        }
+        
+        if (is_int($value)) {
+            return $value;
+        }
+        
+        if (is_bool($value)) {
+            return $value ? 1 : 0;
+        }
+        
+        if (is_string($value) || is_float($value)) {
+            return intval($value);
+        }
+        
+        return $default;
     }
 }

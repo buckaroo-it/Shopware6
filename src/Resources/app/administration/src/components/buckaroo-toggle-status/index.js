@@ -1,4 +1,4 @@
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 import template from "./buckaroo-toggle-status.html.twig";
 import './style.scss'
 
@@ -16,41 +16,97 @@ Component.register("buckaroo-toggle-status", {
             required: true,
         }
     },
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+
+    emits: ['input'],
+
     inject: ['systemConfigApiService'],
     data() {
         return {
-            status: this.getStatus(),
+            status: 'disabled',
             isLoading: false,
         }
     },
 
+    mounted() {
+        this.status = this.getStatus();
+    },
+
     watch: {
-        value() {
-            this.status = this.getStatus()
+        value: {
+            handler(newVal) {
+                this.status = this.getStatus();
+            },
+            deep: true,
+            immediate: true
         }
     },
     methods: {
         getStatus() {
-            if (!this.isActive()) {
-                return 'disabled'
-            }
-            return this.getEnvironment()
+            const isActive = this.isActive();
+            const environment = this.getEnvironment();
+            return isActive ? environment : 'disabled';
         },
         isActive() {
-            return this.getValueForName(`${this.method}Enabled`);
+            const enabled = this.getValueForName(`${this.method}Enabled`);
+            if (typeof enabled === 'string') {
+                return enabled.toLowerCase() === 'true';
+            }
+            return Boolean(enabled);
         },
         getEnvironment() {
             const env = this.getValueForName(`${this.method}Environment`);
-            if (env === undefined) {
+            
+            if (env === undefined || env === null || env === '') {
                 return 'test';
             }
-            return env;
+            const validEnvs = ['test', 'live'];
+            return validEnvs.includes(env) ? env : 'test';
         },
         getValueForName(name) {
-            return this.value?.[`BuckarooPayments.config.${name}`];
+            const key = `BuckarooPayments.config.${name}`;
+            if (!this.value || typeof this.value !== 'object') {
+                return null;
+            }
+
+            let val = undefined;
+
+            if (this.value[key] !== undefined) {
+                val = this.value[key];
+            }
+            else if (this.value[name] !== undefined) {
+                val = this.value[name];
+            }
+            else if (this.value['BuckarooPayments.config'] && typeof this.value['BuckarooPayments.config'] === 'object') {
+                if (this.value['BuckarooPayments.config'][name] !== undefined) {
+                    val = this.value['BuckarooPayments.config'][name];
+                }
+            }
+            else {
+                const variations = [
+                    name,
+                    name.toLowerCase(),
+                    name.charAt(0).toLowerCase() + name.slice(1),
+                    name.charAt(0).toUpperCase() + name.slice(1)
+                ];
+                
+                for (const variation of variations) {
+                    const variationKey = `BuckarooPayments.config.${variation}`;
+                    if (this.value[variationKey] !== undefined) {
+                        val = this.value[variationKey];
+                        break;
+                    }
+                    if (this.value[variation] !== undefined) {
+                        val = this.value[variation];
+                        break;
+                    }
+                }
+            }
+
+            if (val && typeof val === 'object' && val.hasOwnProperty('_value')) {
+                val = val._value;
+            }
+            
+            return val;
         },
         setStatus(status) {
             this.status = status;
@@ -64,17 +120,19 @@ Component.register("buckaroo-toggle-status", {
             const environmentKey = `BuckarooPayments.config.${this.method}Environment`;
 
             let data = {[enabledKey]: false};
-            this.$set(this.value, enabledKey, false )
+            const updatedValue = { ...this.value };
+            updatedValue[enabledKey] = false;
 
             if (['live', 'test'].indexOf(this.status) !== -1) {
                 data = {
                     [enabledKey]: true,
                     [environmentKey]: this.status
                 }
-            this.$set(this.value, enabledKey, true )
-            this.$set(this.value, environmentKey, this.status )
-
+                updatedValue[enabledKey] = true;
+                updatedValue[environmentKey] = this.status;
             }
+
+            this.$emit('input', updatedValue);
 
             this.isLoading = true;
             try {
@@ -90,14 +148,16 @@ Component.register("buckaroo-toggle-status", {
            
         },
         renderSuccess() {
-            this.createNotificationSuccess({
+            this.$store.dispatch('notification/createNotification', {
+                variant: 'success',
                 message: this.$tc('sw-extension-store.component.sw-extension-config.messageSaveSuccess'),
             });
         },
 
         renderError(err) {
-            this.createNotificationError({
-                message: err ,
+            this.$store.dispatch('notification/createNotification', {
+                variant: 'error',
+                message: err,
             });
         }
     }

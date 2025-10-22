@@ -1,12 +1,10 @@
-const { Component, Mixin} = Shopware;
+const { Component } = Shopware;
 import template from "./buckaroo-test-credentials.twig";
 
 Component.register("buckaroo-test-credentials", {
     template,
-
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet')
+        Shopware.Mixin.getByName('notification')
     ],
     data() {
         return {

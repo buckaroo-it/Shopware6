@@ -6,7 +6,7 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Knaken;
 
-class KnakenPaymentHandler extends AsyncPaymentHandler
+class KnakenPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Knaken::class;
+    public string $paymentClass = Knaken::class;
 }

@@ -9,9 +9,9 @@ use Buckaroo\Shopware6\PaymentMethods\Trustly;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
-class TrustlyPaymentHandler extends AsyncPaymentHandler
+class TrustlyPaymentHandler extends PaymentHandlerSimple
 {
-    protected string $paymentClass = Trustly::class;
+    public string $paymentClass = Trustly::class;
 
     /**
      * Get parameters for specific payment method
@@ -23,7 +23,7 @@ class TrustlyPaymentHandler extends AsyncPaymentHandler
      *
      * @return array<mixed>
      */
-    protected function getMethodPayload(
+    public function getMethodPayload(
         OrderEntity $order,
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
