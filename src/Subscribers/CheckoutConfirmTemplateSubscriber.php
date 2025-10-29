@@ -128,9 +128,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             if ($buckarooKey === null) {
                 continue;
             }
-//var_dump('Key:'.$buckarooKey. ' value : '. !$this->settingsService->getEnabled(
-//        $buckarooKey,
-//        $event->getSalesChannelContext()->getSalesChannelId()));
             if (!$this->settingsService->getEnabled(
                 $buckarooKey,
                 $event->getSalesChannelContext()->getSalesChannelId()
