@@ -121,6 +121,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     public function hideNotEnabledPaymentMethods($event): void
     {
         $paymentMethods = $event->getPage()->getPaymentMethods();
+        $currency = $this->getCurrency($event);
+        
         foreach ($paymentMethods as $paymentMethod) {
             $buckarooKey = $this->getBuckarooKey($paymentMethod->getTranslated());
             if ($buckarooKey === null) {
@@ -144,6 +146,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             }
 
             if ($buckarooKey === 'afterpay' && !$this->canShowAfterpay($event)) {
+                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
+            }
+
+            if ($buckarooKey === 'twint' && $currency->getIsoCode() !== 'CHF') {
                 $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
             }
         }
