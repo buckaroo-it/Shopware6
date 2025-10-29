@@ -10,4 +10,3 @@ class SwishPaymentHandler extends PaymentHandlerSimple
 {
     public string $paymentClass = Swish::class;
 }
-
