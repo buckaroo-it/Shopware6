@@ -122,20 +122,21 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $paymentMethods = $event->getPage()->getPaymentMethods();
         $currency = $this->getCurrency($event);
-        
+
         foreach ($paymentMethods as $paymentMethod) {
             $buckarooKey = $this->getBuckarooKey($paymentMethod->getTranslated());
             if ($buckarooKey === null) {
                 continue;
             }
-
+//var_dump('Key:'.$buckarooKey. ' value : '. !$this->settingsService->getEnabled(
+//        $buckarooKey,
+//        $event->getSalesChannelContext()->getSalesChannelId()));
             if (!$this->settingsService->getEnabled(
                 $buckarooKey,
                 $event->getSalesChannelContext()->getSalesChannelId()
             )) {
                 $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
             }
-
             if (
                 $buckarooKey === 'payperemail' &&
                 $this->isPayPermMailDisabledInFrontend(
