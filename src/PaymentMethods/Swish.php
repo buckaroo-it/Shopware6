@@ -13,7 +13,7 @@ class Swish extends AbstractPayment
      */
     public function getBuckarooKey(): string
     {
-        return 'Swish';
+        return 'swish';
     }
 
     /**
