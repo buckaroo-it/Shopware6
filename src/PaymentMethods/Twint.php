@@ -101,5 +101,3 @@ class Twint extends AbstractPayment
         return 'redirect';
     }
 }
-
-

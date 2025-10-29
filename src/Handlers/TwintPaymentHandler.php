@@ -10,5 +10,3 @@ class TwintPaymentHandler extends PaymentHandlerSimple
 {
     public string $paymentClass = Twint::class;
 }
-
-
