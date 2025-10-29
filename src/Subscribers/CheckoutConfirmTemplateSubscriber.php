@@ -152,6 +152,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             if ($buckarooKey === 'twint' && $currency->getIsoCode() !== 'CHF') {
                 $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
             }
+            if ($buckarooKey === 'swish' && $currency->getIsoCode() !== 'SEK') {
+                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
+            }
         }
         $event->getPage()->setPaymentMethods($paymentMethods);
     }

@@ -135,12 +135,16 @@ Component.register("buckaroo-payment-list", {
                     logo: "trustly.svg"
                 },
                 {
-                    code: "twint",
-                    logo: "twint.svg"
-                },
-                {
                     code: "WeChatPay",
                     logo: "wechatpay.svg"
+                },
+                {
+                    code: "swish",
+                    logo: "swish.svg"
+                },
+                {
+                    code: "twint",
+                    logo: "twint.svg"
                 }
             ]
         };
