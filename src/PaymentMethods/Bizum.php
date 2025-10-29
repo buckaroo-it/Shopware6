@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\SwishPaymentHandler;
+use Buckaroo\Shopware6\Handlers\BizumPaymentHandler;
 
-class Swish extends AbstractPayment
+class Bizum extends AbstractPayment
 {
     /**
      * @return string
      */
     public function getBuckarooKey(): string
     {
-        return 'Swish';
+        return 'Bizum';
     }
 
     /**
@@ -23,7 +23,7 @@ class Swish extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Swish';
+        return 'Bizum';
     }
 
     /**
@@ -33,7 +33,7 @@ class Swish extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with Swish';
+        return 'Pay with Bizum';
     }
 
     /**
@@ -43,7 +43,7 @@ class Swish extends AbstractPayment
      */
     public function getPaymentHandler(): string
     {
-        return SwishPaymentHandler::class;
+        return BizumPaymentHandler::class;
     }
 
     /**
@@ -63,7 +63,7 @@ class Swish extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/swish.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/bizum.svg';
     }
 
     /**
@@ -76,7 +76,7 @@ class Swish extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit Swish',
+                'description' => 'Bezahlen mit Bizum',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),
@@ -84,11 +84,11 @@ class Swish extends AbstractPayment
             ],
             'nl-NL' => [
                 'name'        => $this->getName(),
-                'description' => 'Betalen met Swish',
+                'description' => 'Betalen met Bizum',
             ],
             'fr-FR' => [
                 'name'        => $this->getName(),
-                'description' => 'Payer avec Swish',
+                'description' => 'Payer avec Bizum',
             ],
         ];
     }

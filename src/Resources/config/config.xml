@@ -2463,6 +2463,60 @@
 			<label lang="fr-FR">Frais de buckaroo</label>
         </input-field>
     </card>
+    
+    <card>
+        <title>Bizum</title>
+        <name>Bizum</name>
+        <input-field type="bool">
+            <name>BizumEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+			<label lang="fr-FR">Activé</label>
+        </input-field>
+       
+        <input-field type="single-select">
+            <name>BizumEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+			<label lang="fr-FR">Tester ou Vivre:</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>BizumLabel</name>
+            <label lang="en-GB">Frontend label</label>
+			<label lang="de-DE">Frontend-Label</label>
+			<label lang="nl-NL">Frontend label</label>
+			<label lang="fr-FR">Étiquette frontale</label>
+			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
+            <defaultValue>Bizum</defaultValue>
+        </input-field>
+
+        <input-field type="text">
+            <name>BizumFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+			<label lang="fr-FR">Frais de buckaroo</label>
+        </input-field>
+    </card>
 
     <card>
         <title>Klarna</title>
@@ -2619,7 +2673,7 @@
     </card>
 
     <card>
-        <title>TWINT</title>
+        <title>Twint</title>
         <name>twint</name>
         <input-field type="bool">
             <name>twintEnabled</name>
@@ -2886,8 +2940,12 @@
                     <name>Trustly</name>
                 </option>
                 <option>
-                    <id>swish</id>
+                    <id>Swish</id>
                     <name>Swish</name>
+                </option>
+                <option>
+                    <id>Bizum</id>
+                    <name>Bizum</name>
                 </option>
                 <option>
                     <id>tinka</id>
