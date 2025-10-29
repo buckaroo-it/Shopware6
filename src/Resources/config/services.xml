@@ -419,6 +419,13 @@
 
             <tag name="shopware.payment.method.async" />
         </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\TwintPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
         <!-- /Payment methods -->
 
         <!-- Controllers -->

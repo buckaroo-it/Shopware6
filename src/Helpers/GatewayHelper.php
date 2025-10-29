@@ -34,6 +34,7 @@ use Buckaroo\Shopware6\PaymentMethods\Creditcards;
 use Buckaroo\Shopware6\PaymentMethods\PayPerEmail;
 use Buckaroo\Shopware6\PaymentMethods\Knaken;
 use Buckaroo\Shopware6\PaymentMethods\SepaDirectDebit;
+use Buckaroo\Shopware6\PaymentMethods\Twint;
 
 class GatewayHelper
 {
@@ -67,6 +68,7 @@ class GatewayHelper
         IdealQr::class,
         MBWay::class,
         Multibanco::class,
-        Knaken::class
+        Knaken::class,
+        Twint::class
     ];
 }
