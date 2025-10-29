@@ -13,7 +13,7 @@ class Bizum extends AbstractPayment
      */
     public function getBuckarooKey(): string
     {
-        return 'Bizum';
+        return 'bizum';
     }
 
     /**
