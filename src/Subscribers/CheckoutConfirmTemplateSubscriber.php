@@ -217,6 +217,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                         $currency,
                         $salesChannelId,
                         $label,
+                        $cartTotal
                     ),
                     'code' => $value,
                 ];
@@ -242,6 +243,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                         $currency,
                         $salesChannelId,
                         $label,
+                        $cartTotal
                     ),
                     'code' => $value,
                 ];
@@ -266,7 +268,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $paymentLabels[$buckarooPaymentKey] = $this->getBuckarooFeeLabel(
                     $buckarooPaymentKey,
                     $currency,
-                    $salesChannelId
+                    $salesChannelId,
+                    null,
+                    $cartTotal
                 );
             }
         }
@@ -552,7 +556,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         string $buckarooKey,
         CurrencyEntity $currency,
         string $salesChannelId = null,
-        string $label = null
+        string $label = null,
+        float $cartTotal = 0.0
     ): string {
         if ($label === null) {
             $label = $this->settingsService->getSettingAsString($buckarooKey . 'Label', $salesChannelId);
@@ -566,19 +571,14 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             $label = In3::V2_NAME;
         }
 
-        $feeRaw = $this->settingsService->getBuckarooFeeRaw($buckarooKey, $salesChannelId);
-        if (!empty($feeRaw)) {
-            if ($this->settingsService->isBuckarooFeePercentage($buckarooKey, $salesChannelId)) {
-                // Display as percentage
-                $label .= ' +' . $feeRaw;
-            } else {
-                // Display as fixed amount
-                $buckarooFee = $this->settingsService->getBuckarooFee($buckarooKey, $salesChannelId);
-                if ($buckarooFee > 0) {
-                    $label .= ' +' . $currency->getSymbol() . $buckarooFee;
-                }
+        // Calculate and append the actual fee amount (works for both percentage and fixed fees)
+        if ($cartTotal > 0) {
+            $calculatedFee = $this->settingsService->calculateBuckarooFee($buckarooKey, $cartTotal, $salesChannelId);
+            if ($calculatedFee > 0) {
+                $label .= ' +' . $currency->getSymbol() . number_format($calculatedFee, 2, '.', '');
             }
         }
+        
         return $label;
     }
 
