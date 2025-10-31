@@ -136,6 +136,63 @@ class SettingsService
         return 0;
     }
 
+    /**
+     * Get the raw fee value (which may include % symbol)
+     *
+     * @param string $buckarooKey
+     * @param string|null $salesChannelId
+     * @return string
+     */
+    public function getBuckarooFeeRaw(string $buckarooKey, string $salesChannelId = null): string
+    {
+        $buckarooFee = $this->getSetting($buckarooKey . 'Fee', $salesChannelId);
+        if (is_scalar($buckarooFee)) {
+            return trim((string)$buckarooFee);
+        }
+        return '';
+    }
+
+    /**
+     * Check if the fee is a percentage
+     *
+     * @param string $buckarooKey
+     * @param string|null $salesChannelId
+     * @return bool
+     */
+    public function isBuckarooFeePercentage(string $buckarooKey, string $salesChannelId = null): bool
+    {
+        $feeRaw = $this->getBuckarooFeeRaw($buckarooKey, $salesChannelId);
+        return strpos($feeRaw, '%') !== false;
+    }
+
+    /**
+     * Calculate the actual fee amount based on cart/order total
+     * Handles both fixed amounts and percentage-based fees
+     *
+     * @param string $buckarooKey
+     * @param float $orderTotal
+     * @param string|null $salesChannelId
+     * @return float
+     */
+    public function calculateBuckarooFee(string $buckarooKey, float $orderTotal, string $salesChannelId = null): float
+    {
+        $feeRaw = $this->getBuckarooFeeRaw($buckarooKey, $salesChannelId);
+        
+        if (empty($feeRaw)) {
+            return 0;
+        }
+
+        // Check if it's a percentage fee
+        if ($this->isBuckarooFeePercentage($buckarooKey, $salesChannelId)) {
+            // Extract percentage value and calculate
+            $percentageValue = (float)str_replace(['%', ',', ' '], ['', '.', ''], $feeRaw);
+            return round(($orderTotal * $percentageValue) / 100, 2);
+        }
+
+        // It's a fixed fee
+        return $this->getBuckarooFee($buckarooKey, $salesChannelId);
+    }
+
     public function getEnabled(string $method = '', string $salesChannelId = null): bool
     {
         return $this->getSetting($method . 'Enabled', $salesChannelId) != 0;
