@@ -59,7 +59,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             $this->validateOrder($order);
 
             // Apply fee to order BEFORE sending payment request
-            $fee = $this->getFee($paymentCode, $salesChannelId);
+            $fee = $this->asyncPaymentService->settingsService->calculateBuckarooFee($paymentCode, $order->getAmountTotal(), $salesChannelId);
             if ($fee > 0) {
                 $this->asyncPaymentService
                     ->checkoutHelper

@@ -186,6 +186,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
 
         $currency = $this->getCurrency($event);
+        
+        // Get cart or order total for fee calculation
+        $cartTotal = $this->getCartOrOrderTotal($event);
 
 
         $struct             = new BuckarooStruct();
@@ -291,7 +294,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'last_used_creditcard'     => $lastUsedCreditcard,
             'payment_labels'           => $paymentLabels,
             'payment_media'            => $lastUsedCreditcard . '.png',
-            'buckarooFee'              => $this->settingsService->getBuckarooFee($buckarooKey, $salesChannelId),
+            'buckarooFee'              => $this->settingsService->calculateBuckarooFee($buckarooKey, $cartTotal, $salesChannelId),
+            'buckarooFeeRaw'           => $this->settingsService->getBuckarooFeeRaw($buckarooKey, $salesChannelId),
+            'buckarooFeeIsPercentage'  => $this->settingsService->isBuckarooFeePercentage($buckarooKey, $salesChannelId),
             'BillinkBusiness'          => $this->getBillinkPaymentType($customer),
             'backLink'                 => $backUrl,
             'afterpay_customer_type'   => $this->settingsService->getSetting('afterpayCustomerType', $salesChannelId),
@@ -561,10 +566,51 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             $label = In3::V2_NAME;
         }
 
-        if ($buckarooFee = (string)$this->settingsService->getBuckarooFee($buckarooKey, $salesChannelId)) {
-            $label .= ' +' . $currency->getSymbol() . $buckarooFee;
+        $feeRaw = $this->settingsService->getBuckarooFeeRaw($buckarooKey, $salesChannelId);
+        if (!empty($feeRaw)) {
+            if ($this->settingsService->isBuckarooFeePercentage($buckarooKey, $salesChannelId)) {
+                // Display as percentage
+                $label .= ' +' . $feeRaw;
+            } else {
+                // Display as fixed amount
+                $buckarooFee = $this->settingsService->getBuckarooFee($buckarooKey, $salesChannelId);
+                if ($buckarooFee > 0) {
+                    $label .= ' +' . $currency->getSymbol() . $buckarooFee;
+                }
+            }
         }
         return $label;
+    }
+
+    /**
+     * Get the cart or order total from the event
+     *
+     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
+     * @return float
+     */
+    private function getCartOrOrderTotal($event): float
+    {
+        // For AccountEditOrderPageLoadedEvent, we have an order
+        if ($event instanceof AccountEditOrderPageLoadedEvent) {
+            $order = $event->getPage()->getOrder();
+            if ($order !== null) {
+                return $order->getAmountTotal();
+            }
+        }
+        
+        // For CheckoutConfirmPageLoadedEvent, we have a cart
+        if ($event instanceof CheckoutConfirmPageLoadedEvent) {
+            $page = $event->getPage();
+            if (method_exists($page, 'getCart')) {
+                $cart = $page->getCart();
+                if ($cart !== null) {
+                    return $cart->getPrice()->getTotalPrice();
+                }
+            }
+        }
+        
+        // Fallback: return 0 if we can't determine the total
+        return 0.0;
     }
 
     /**
