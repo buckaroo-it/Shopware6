@@ -298,9 +298,19 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'last_used_creditcard'     => $lastUsedCreditcard,
             'payment_labels'           => $paymentLabels,
             'payment_media'            => $lastUsedCreditcard . '.png',
-            'buckarooFee'              => $this->settingsService->calculateBuckarooFee($buckarooKey, $cartTotal, $salesChannelId),
-            'buckarooFeeRaw'           => $this->settingsService->getBuckarooFeeRaw($buckarooKey, $salesChannelId),
-            'buckarooFeeIsPercentage'  => $this->settingsService->isBuckarooFeePercentage($buckarooKey, $salesChannelId),
+            'buckarooFee'              => $this->settingsService->calculateBuckarooFee(
+                $buckarooKey,
+                $cartTotal,
+                $salesChannelId
+            ),
+            'buckarooFeeRaw'           => $this->settingsService->getBuckarooFeeRaw(
+                $buckarooKey,
+                $salesChannelId
+            ),
+            'buckarooFeeIsPercentage'  => $this->settingsService->isBuckarooFeePercentage(
+                $buckarooKey,
+                $salesChannelId
+            ),
             'BillinkBusiness'          => $this->getBillinkPaymentType($customer),
             'backLink'                 => $backUrl,
             'afterpay_customer_type'   => $this->settingsService->getSetting('afterpayCustomerType', $salesChannelId),
