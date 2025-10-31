@@ -560,9 +560,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         ) {
             $label = In3::V2_NAME;
         }
-
         if ($buckarooFee = (string)$this->settingsService->getBuckarooFee($buckarooKey, $salesChannelId)) {
-            $label .= ' +' . $currency->getSymbol() . $buckarooFee;
+            $commonCurrencies = ['EUR', 'USD', 'GBP'];
+            if (in_array($currency->getIsoCode(), $commonCurrencies)) {
+                $label .= ' + ' . $currency->getSymbol() . ' '. $buckarooFee;
+            } else {
+                $label .= ' + ' . $currency->getIsoCode(). ' ' . $buckarooFee;
+            }
         }
         return $label;
     }
