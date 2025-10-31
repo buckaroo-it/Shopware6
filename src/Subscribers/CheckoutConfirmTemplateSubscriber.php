@@ -585,7 +585,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if ($cartTotal > 0) {
             $calculatedFee = $this->settingsService->calculateBuckarooFee($buckarooKey, $cartTotal, $salesChannelId);
             if ($calculatedFee > 0) {
-                $label .= ' +' . $currency->getSymbol() . number_format($calculatedFee, 2, '.', '');
+                $commonCurrencies = ['EUR', 'USD', 'GBP'];
+                if (in_array($currency->getIsoCode(), $commonCurrencies)) {
+                    $label .= ' + ' . $currency->getSymbol() . ' '.  number_format($calculatedFee, 2, '.', '');
+                } else {
+                    $label .= ' + ' . $currency->getIsoCode(). ' ' . number_format($calculatedFee, 2, '.', '');
+                }
             }
         }
         
