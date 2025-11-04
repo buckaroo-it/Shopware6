@@ -172,23 +172,28 @@ class BuckarooTransactionService
     /**
      * Calculate refund totals from order items
      * This is the single source of truth for refund amounts
-     * 
+     *
      * @param array<mixed> $orderItems
      * @return array<string, float>
      */
     private function calculateRefundTotals(array $orderItems): array
     {
         $totalAmount = 0;
-        
+
         foreach ($orderItems as $item) {
             if (isset($item['totalAmount']['value'])) {
                 $totalAmount += (float)$item['totalAmount']['value'];
             }
         }
-        
+
+        $currency = 'EUR';
+        if (isset($orderItems[0]['totalAmount']['currency'])) {
+            $currency = $orderItems[0]['totalAmount']['currency'];
+        }
+
         return [
             'totalAmount' => round($totalAmount, 2),
-            'currency' => isset($orderItems[0]['totalAmount']['currency']) ? $orderItems[0]['totalAmount']['currency'] : 'EUR'
+            'currency' => $currency
         ];
     }
 }
