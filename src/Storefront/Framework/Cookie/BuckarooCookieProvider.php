@@ -6,6 +6,13 @@ namespace Buckaroo\Shopware6\Storefront\Framework\Cookie;
 
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 
+/**
+ * @deprecated since Shopware 6.7 - Use CookieCollectSubscriber instead
+ * This class uses the deprecated CookieProviderInterface which will be removed in Shopware 6.8.
+ * Cookie registration is now handled via the CookieGroupCollectEvent in CookieCollectSubscriber.
+ * 
+ * @see \Buckaroo\Shopware6\Subscribers\CookieCollectSubscriber
+ */
 class BuckarooCookieProvider implements CookieProviderInterface
 {
     private CookieProviderInterface $originalService;

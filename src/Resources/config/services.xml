@@ -647,10 +647,16 @@
             <tag name="shopware.snippet.file"/>
         </service>
 
-        <service id="Buckaroo\Shopware6\Storefront\Framework\Cookie\BuckarooCookieProvider"
+        <!-- Deprecated: Cookie provider replaced with event subscriber for Shopware 6.7+ compatibility -->
+        <!-- <service id="Buckaroo\Shopware6\Storefront\Framework\Cookie\BuckarooCookieProvider"
                 decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
              <argument type="service" 
                        id="Buckaroo\Shopware6\Storefront\Framework\Cookie\BuckarooCookieProvider.inner" />
+        </service> -->
+
+        <!-- Cookie registration subscriber for Shopware 6.7+ -->
+        <service id="Buckaroo\Shopware6\Subscribers\CookieCollectSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
 
     </services>
