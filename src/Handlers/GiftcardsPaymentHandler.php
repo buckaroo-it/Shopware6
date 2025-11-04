@@ -29,12 +29,22 @@ class GiftcardsPaymentHandler extends PaymentHandlerSimple
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        return [
+        $orderCustomer = $order->getOrderCustomer();
+        $email = $orderCustomer?->getEmail();
+
+        $payload = [
             'continueOnIncomplete' => 'RedirectToHTML',
             'servicesSelectableByClient' => $this->getAllowedGiftcards(
                 $salesChannelContext->getSalesChannelId()
             )
         ];
+
+        // Add email for Intersolve gift card refund functionality
+        if ($email) {
+            $payload['email'] = $email;
+        }
+
+        return $payload;
     }
 
     /**
