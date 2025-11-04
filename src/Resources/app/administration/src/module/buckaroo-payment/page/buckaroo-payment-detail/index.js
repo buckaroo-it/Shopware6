@@ -119,8 +119,6 @@ Component.register('buckaroo-payment-detail', {
 
     methods: {
         recalculateOrderItems() {
-            // This is ONLY for UI display when user changes quantities
-            // Backend will recalculate from Shopware data during actual refund
             this.buckaroo_refund_amount = 0;
             for (const key in this.orderItems) {
                 this.orderItems[key]['totalAmount'] = parseFloat(parseFloat(this.orderItems[key]['unitPrice']) * parseFloat(this.orderItems[key]['quantity'] || 0)).toFixed(2);
