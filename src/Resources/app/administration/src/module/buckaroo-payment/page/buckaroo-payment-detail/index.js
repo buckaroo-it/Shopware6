@@ -119,6 +119,8 @@ Component.register('buckaroo-payment-detail', {
 
     methods: {
         recalculateOrderItems() {
+            // This is ONLY for UI display when user changes quantities
+            // Backend will recalculate from Shopware data during actual refund
             this.buckaroo_refund_amount = 0;
             for (const key in this.orderItems) {
                 this.orderItems[key]['totalAmount'] = parseFloat(parseFloat(this.orderItems[key]['unitPrice']) * parseFloat(this.orderItems[key]['quantity'] || 0)).toFixed(2);
@@ -191,6 +193,7 @@ Component.register('buckaroo-payment-detail', {
                     that.relatedResources = [];
 
                     this.$emit('loading-change', false);
+                    
                     response.orderItems.forEach((element) => {
                         that.orderItems.push({
                             id: element.id,
@@ -202,7 +205,10 @@ Component.register('buckaroo-payment-detail', {
                             variations: element.variations || [],
                         });
                     })
-                    that.recalculateOrderItems();
+                    
+                    // Use backend-calculated total (single source of truth)
+                    that.buckaroo_refund_amount = response.refundTotals ? response.refundTotals.totalAmount : 0;
+                    that.currency = response.refundTotals ? response.refundTotals.currency : 'EUR';
 
                     response.transactionsToRefund.forEach((element) => {
                         that.transactionsToRefund.push({
