@@ -37,7 +37,9 @@ class GiftcardsPaymentHandler extends PaymentHandlerSimple
             'servicesSelectableByClient' => $this->getAllowedGiftcards(
                 $salesChannelContext->getSalesChannelId()
             ),
-            'email' => $email
+            'additionalParameters' => [
+                'email' => $email
+            ]
         ];
 
         return $payload;
