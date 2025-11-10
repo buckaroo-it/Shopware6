@@ -350,7 +350,13 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             return $order->getAmountTotal();
         }
 
-        $fee =  $this->getFee($paymentCode, $salesChannelId);
+        $fee = $this->asyncPaymentService
+            ->settingsService
+            ->calculateBuckarooFee(
+                $paymentCode,
+                $order->getAmountTotal(),
+                $salesChannelId
+            );
 
         if ($fee === 0.0) {
             return $order->getAmountTotal();
