@@ -122,20 +122,18 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $paymentMethods = $event->getPage()->getPaymentMethods();
         $currency = $this->getCurrency($event);
-        
+
         foreach ($paymentMethods as $paymentMethod) {
             $buckarooKey = $this->getBuckarooKey($paymentMethod->getTranslated());
             if ($buckarooKey === null) {
                 continue;
             }
-
             if (!$this->settingsService->getEnabled(
                 $buckarooKey,
                 $event->getSalesChannelContext()->getSalesChannelId()
             )) {
                 $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
             }
-
             if (
                 $buckarooKey === 'payperemail' &&
                 $this->isPayPermMailDisabledInFrontend(
@@ -188,6 +186,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
 
         $currency = $this->getCurrency($event);
+        
+        // Get cart or order total for fee calculation
+        $cartTotal = $this->getCartOrOrderTotal($event);
 
 
         $struct             = new BuckarooStruct();
@@ -216,6 +217,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                         $currency,
                         $salesChannelId,
                         $label,
+                        $cartTotal
                     ),
                     'code' => $value,
                 ];
@@ -241,6 +243,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                         $currency,
                         $salesChannelId,
                         $label,
+                        $cartTotal
                     ),
                     'code' => $value,
                 ];
@@ -265,7 +268,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $paymentLabels[$buckarooPaymentKey] = $this->getBuckarooFeeLabel(
                     $buckarooPaymentKey,
                     $currency,
-                    $salesChannelId
+                    $salesChannelId,
+                    null,
+                    $cartTotal
                 );
             }
         }
@@ -293,7 +298,19 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'last_used_creditcard'     => $lastUsedCreditcard,
             'payment_labels'           => $paymentLabels,
             'payment_media'            => $lastUsedCreditcard . '.png',
-            'buckarooFee'              => $this->settingsService->getBuckarooFee($buckarooKey, $salesChannelId),
+            'buckarooFee'              => $this->settingsService->calculateBuckarooFee(
+                $buckarooKey,
+                $cartTotal,
+                $salesChannelId
+            ),
+            'buckarooFeeRaw'           => $this->settingsService->getBuckarooFeeRaw(
+                $buckarooKey,
+                $salesChannelId
+            ),
+            'buckarooFeeIsPercentage'  => $this->settingsService->isBuckarooFeePercentage(
+                $buckarooKey,
+                $salesChannelId
+            ),
             'BillinkBusiness'          => $this->getBillinkPaymentType($customer),
             'backLink'                 => $backUrl,
             'afterpay_customer_type'   => $this->settingsService->getSetting('afterpayCustomerType', $salesChannelId),
@@ -549,7 +566,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         string $buckarooKey,
         CurrencyEntity $currency,
         string $salesChannelId = null,
-        string $label = null
+        string $label = null,
+        float $cartTotal = 0.0
     ): string {
         if ($label === null) {
             $label = $this->settingsService->getSettingAsString($buckarooKey . 'Label', $salesChannelId);
@@ -563,10 +581,51 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             $label = In3::V2_NAME;
         }
 
-        if ($buckarooFee = (string)$this->settingsService->getBuckarooFee($buckarooKey, $salesChannelId)) {
-            $label .= ' +' . $currency->getSymbol() . $buckarooFee;
+        // Calculate and append the actual fee amount (works for both percentage and fixed fees)
+        if ($cartTotal > 0) {
+            $calculatedFee = $this->settingsService->calculateBuckarooFee($buckarooKey, $cartTotal, $salesChannelId);
+            if ($calculatedFee > 0) {
+                $commonCurrencies = ['EUR', 'USD', 'GBP'];
+                if (in_array($currency->getIsoCode(), $commonCurrencies)) {
+                    $label .= ' + ' . $currency->getSymbol() . ' '.  number_format($calculatedFee, 2, '.', '');
+                } else {
+                    $label .= ' + ' . $currency->getIsoCode(). ' ' . number_format($calculatedFee, 2, '.', '');
+                }
+            }
         }
+        
         return $label;
+    }
+
+    /**
+     * Get the cart or order total from the event
+     *
+     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
+     * @return float
+     */
+    private function getCartOrOrderTotal($event): float
+    {
+        // For AccountEditOrderPageLoadedEvent, we have an order
+        if ($event instanceof AccountEditOrderPageLoadedEvent) {
+            $order = $event->getPage()->getOrder();
+            if ($order !== null) {
+                return $order->getAmountTotal();
+            }
+        }
+        
+        // For CheckoutConfirmPageLoadedEvent, we have a cart
+        if ($event instanceof CheckoutConfirmPageLoadedEvent) {
+            $page = $event->getPage();
+            if (method_exists($page, 'getCart')) {
+                $cart = $page->getCart();
+                if ($cart !== null) {
+                    return $cart->getPrice()->getTotalPrice();
+                }
+            }
+        }
+        
+        // Fallback: return 0 if we can't determine the total
+        return 0.0;
     }
 
     /**

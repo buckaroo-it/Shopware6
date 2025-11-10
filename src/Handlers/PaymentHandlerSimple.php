@@ -263,7 +263,11 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
 
                 // Apply fee to order BEFORE sending payment request
                 $feeCalculator = new PaymentFeeCalculator($this->asyncPaymentService);
-                $fee = $feeCalculator->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
+                $fee = $feeCalculator->calculateFee(
+                    $paymentCode,
+                    $order->getAmountTotal(),
+                    $salesChannelContext->getSalesChannelId()
+                );
                 if ($fee > 0) {
                     $feeCalculator->applyFeeToOrder($order->getId(), $fee, $context);
                     // Reload order to get updated total

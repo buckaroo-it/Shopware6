@@ -2,6 +2,8 @@
 
 
     {% set buckarooFee = page.extensions.buckaroo.buckarooFee  %}
+    {% set buckarooFeeIsPercentage = page.extensions.buckaroo.buckarooFeeIsPercentage %}
+    {% set buckarooFeeRaw = page.extensions.buckaroo.buckarooFeeRaw %}
     {% if page.extensions.buckaroo === null %}
         {% set buckarooFee = page.order.customFields.buckarooFee  %}
     {% endif %}
@@ -10,7 +12,7 @@
             {{ "buckaroo.fee"|trans|sw_sanitize }}
         </dt>
         <dd class="col-5 checkout-aside-summary-value">
-            {{ buckarooFee|currency }}{{ "general.star"|trans|sw_sanitize }}
+            {{ buckarooFee|currency }}{% if buckarooFeeIsPercentage and buckarooFeeRaw %} ({{ buckarooFeeRaw }}){% endif %}{{ "general.star"|trans|sw_sanitize }}
         </dd>
     {% endif %}
 {% endblock %}

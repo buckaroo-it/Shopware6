@@ -68,7 +68,8 @@ class BuckarooTransactionService
             $ii++;
         }
 
-        $items['orderItems'] = $this->formatRequestParamService->getOrderLinesArray($order);
+        $orderItems = $this->formatRequestParamService->getOrderLinesArray($order);
+        $items['orderItems'] = $orderItems;
 
         $shipping       = $order->getShippingCosts();
         $shipping_costs = $shipping->getTotalPrice();
@@ -161,6 +162,50 @@ class BuckarooTransactionService
                 }
             }
         }
+        
+        // Calculate refund totals on backend - frontend should not calculate
+        $items['refundTotals'] = $this->calculateRefundTotals($items['orderItems']);
+        
         return $items;
+    }
+
+    /**
+     * Calculate refund totals from order items
+     * This is the single source of truth for refund amounts
+     *
+     * @param array<mixed> $orderItems
+     * @return array<string, mixed>
+     */
+    private function calculateRefundTotals(array $orderItems): array
+    {
+        $totalAmount = 0.0;
+        $currency = 'EUR';
+
+        foreach ($orderItems as $item) {
+            if (
+                is_array($item) &&
+                isset($item['totalAmount']) &&
+                is_array($item['totalAmount']) &&
+                isset($item['totalAmount']['value'])
+            ) {
+                $totalAmount += (float)$item['totalAmount']['value'];
+            }
+        }
+
+        if (
+            isset($orderItems[0]) &&
+            is_array($orderItems[0]) &&
+            isset($orderItems[0]['totalAmount']) &&
+            is_array($orderItems[0]['totalAmount']) &&
+            isset($orderItems[0]['totalAmount']['currency']) &&
+            is_string($orderItems[0]['totalAmount']['currency'])
+        ) {
+            $currency = $orderItems[0]['totalAmount']['currency'];
+        }
+
+        return [
+            'totalAmount' => round($totalAmount, 2),
+            'currency' => $currency
+        ];
     }
 }

@@ -241,10 +241,10 @@
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
 			<label lang="fr-FR">Frais de buckaroo</label>
-            <helpText lang="en-GB">Enter a decimal value (e.g., 2.50)</helpText>
-            <helpText lang="nl-NL">Voer een decimale waarde in (bijv. 2,50)</helpText>
-            <helpText lang="de-DE">Geben Sie einen Dezimalwert ein (z. B. 2,50)</helpText>
-            <helpText lang="fr-FR">Entrez une valeur décimale (par exemple 2,50)</helpText>
+            <helpText lang="en-GB">Enter a fixed amount (e.g., 2.50) or a percentage (e.g., 3%)</helpText>
+            <helpText lang="nl-NL">Voer een vast bedrag in (bijv. 2,50) of een percentage (bijv. 3%)</helpText>
+            <helpText lang="de-DE">Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz (z. B. 3 %) ein</helpText>
+            <helpText lang="fr-FR">Entrez un montant fixe (par exemple 2,50) ou un pourcentage (par exemple 3%)</helpText>
         </input-field>
 
         <input-field type="multi-select">
@@ -534,6 +534,10 @@
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
 			<label lang="fr-FR">Frais de buckaroo</label>
+            <helpText lang="en-GB">Enter a fixed amount (e.g., 2.50) or a percentage (e.g., 3%)</helpText>
+            <helpText lang="nl-NL">Voer een vast bedrag in (bijv. 2,50) of een percentage (bijv. 3%)</helpText>
+            <helpText lang="de-DE">Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz (z. B. 3 %) ein</helpText>
+            <helpText lang="fr-FR">Entrez un montant fixe (par exemple 2,50) ou un pourcentage (par exemple 3%)</helpText>
         </input-field>
 
 
@@ -2414,7 +2418,7 @@
         <title>Swish</title>
         <name>Swish</name>
         <input-field type="bool">
-            <name>SwishEnabled</name>
+            <name>swishEnabled</name>
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
@@ -2422,7 +2426,7 @@
         </input-field>
        
         <input-field type="single-select">
-            <name>SwishEnvironment</name>
+            <name>swishEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live:</label>
             <label lang="nl-NL">Test of Live:</label>
@@ -2441,7 +2445,7 @@
         </input-field>
 
         <input-field>
-            <name>SwishLabel</name>
+            <name>swishLabel</name>
             <label lang="en-GB">Frontend label</label>
 			<label lang="de-DE">Frontend-Label</label>
 			<label lang="nl-NL">Frontend label</label>
@@ -2454,7 +2458,7 @@
         </input-field>
 
         <input-field type="text">
-            <name>SwishFee</name>
+            <name>swishFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
@@ -2468,7 +2472,7 @@
         <title>Bizum</title>
         <name>Bizum</name>
         <input-field type="bool">
-            <name>BizumEnabled</name>
+            <name>bizumEnabled</name>
             <label lang="en-GB">Enabled</label>
             <label lang="nl-NL">Ingeschakeld</label>
             <label lang="de-DE">Aktiviert</label>
@@ -2476,7 +2480,7 @@
         </input-field>
        
         <input-field type="single-select">
-            <name>BizumEnvironment</name>
+            <name>bizumEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
             <label lang="de-DE">Test oder Live:</label>
             <label lang="nl-NL">Test of Live:</label>
@@ -2495,7 +2499,7 @@
         </input-field>
 
         <input-field>
-            <name>BizumLabel</name>
+            <name>bizumLabel</name>
             <label lang="en-GB">Frontend label</label>
 			<label lang="de-DE">Frontend-Label</label>
 			<label lang="nl-NL">Frontend label</label>
@@ -2508,7 +2512,7 @@
         </input-field>
 
         <input-field type="text">
-            <name>BizumFee</name>
+            <name>bizumFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
             <label lang="en-GB">Buckaroo Fee</label>
