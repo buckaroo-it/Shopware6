@@ -344,11 +344,18 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         string $salesChannelId,
         string $paymentCode
     ): float {
-        $fee =  $this->getFee($paymentCode, $salesChannelId);
         $existingFee = $order->getCustomFieldsValue('buckarooFee');
-        if ($existingFee !== null && is_scalar($existingFee)) {
-            $fee = $fee - (float)$existingFee;
+
+        if ($existingFee !== null && is_numeric($existingFee)) {
+            return $order->getAmountTotal();
         }
+
+        $fee =  $this->getFee($paymentCode, $salesChannelId);
+
+        if ($fee === 0.0) {
+            return $order->getAmountTotal();
+        }
+
         return $order->getAmountTotal() + $fee;
     }
 

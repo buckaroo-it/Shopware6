@@ -61,13 +61,18 @@ class PaymentFeeCalculator
 
     public function getOrderTotalWithFee(OrderEntity $order, string $salesChannelId, string $paymentCode): float
     {
-        $fee = $this->calculateFee($paymentCode, $order->getAmountTotal(), $salesChannelId);
         $existingFee = $order->getCustomFieldsValue('buckarooFee');
-        
-        if ($existingFee !== null && is_scalar($existingFee)) {
-            $fee = $fee - (float)$existingFee;
+
+        if ($existingFee !== null && is_numeric($existingFee)) {
+            return $order->getAmountTotal();
         }
-        
+
+        $fee = $this->calculateFee($paymentCode, $order->getAmountTotal(), $salesChannelId);
+
+        if ($fee === 0.0) {
+            return $order->getAmountTotal();
+        }
+
         return $order->getAmountTotal() + $fee;
     }
 
