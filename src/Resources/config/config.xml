@@ -2416,7 +2416,7 @@
     
     <card>
         <title>Swish</title>
-        <name>Swish</name>
+        <name>swish</name>
         <input-field type="bool">
             <name>swishEnabled</name>
             <label lang="en-GB">Enabled</label>
@@ -2470,7 +2470,7 @@
     
     <card>
         <title>Bizum</title>
-        <name>Bizum</name>
+        <name>bizum</name>
         <input-field type="bool">
             <name>bizumEnabled</name>
             <label lang="en-GB">Enabled</label>
