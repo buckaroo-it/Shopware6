@@ -20,6 +20,7 @@ use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
 use Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -609,7 +610,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if ($event instanceof AccountEditOrderPageLoadedEvent) {
             $order = $event->getPage()->getOrder();
             if ($order !== null) {
-                return $order->getAmountTotal();
+                return $this->getOrderAmountExcludingExistingFee($order);
             }
         }
         
@@ -626,6 +627,28 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         
         // Fallback: return 0 if we can't determine the total
         return 0.0;
+    }
+
+    /**
+     * Return the order amount excluding any previously persisted Buckaroo fee.
+     *
+     * @param OrderEntity $order
+     * @return float
+     */
+    private function getOrderAmountExcludingExistingFee(OrderEntity $order): float
+    {
+        $amount = $order->getAmountTotal();
+        $existingFee = $order->getCustomFieldsValue('buckarooFee');
+
+        if ($existingFee !== null && is_numeric($existingFee)) {
+            $amount -= (float) $existingFee;
+        }
+
+        if ($amount < 0.0) {
+            return 0.0;
+        }
+
+        return $amount;
     }
 
     /**

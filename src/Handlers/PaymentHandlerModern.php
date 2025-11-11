@@ -92,9 +92,9 @@ class PaymentHandlerModern extends AbstractPaymentHandler
             $this->validateOrder($order);
 
             // Apply fee to order BEFORE sending payment request
-            $fee = $this->feeCalculator->calculateFee(
+            $fee = $this->feeCalculator->calculateFeeForOrder(
+                $order,
                 $paymentCode,
-                $order->getAmountTotal(),
                 $order->getSalesChannelId()
             );
             if ($fee > 0) {

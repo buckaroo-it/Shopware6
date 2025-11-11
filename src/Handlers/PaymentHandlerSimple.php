@@ -263,9 +263,9 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
 
                 // Apply fee to order BEFORE sending payment request
                 $feeCalculator = new PaymentFeeCalculator($this->asyncPaymentService);
-                $fee = $feeCalculator->calculateFee(
+                $fee = $feeCalculator->calculateFeeForOrder(
+                    $order,
                     $paymentCode,
-                    $order->getAmountTotal(),
                     $salesChannelContext->getSalesChannelId()
                 );
                 if ($fee > 0) {
