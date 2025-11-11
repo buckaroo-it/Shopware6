@@ -414,8 +414,7 @@ class FormatRequestParamService
         OrderEntity $order,
         ?string $paymentCode,
         float $buckarooFee
-    ): float
-    {
+    ): float {
         if ($paymentCode !== null) {
             $salesChannelId = $order->getSalesChannelId();
             if (
@@ -470,4 +469,3 @@ class FormatRequestParamService
         return round($grossAmount - $netAmount, 2);
     }
 }
-
