@@ -102,6 +102,7 @@ class FormatRequestParamService
         $lines[] = $this->getShippingItemArray($order);
 
         $fee = $this->getBuckarooFeeArray($order, $paymentCode);
+
         if (count($fee)) {
             $lines[] = $fee;
         }
@@ -294,18 +295,16 @@ class FormatRequestParamService
     protected function getBuckarooFeeArray(OrderEntity $order, string $paymentCode = null): array
     {
         $line = [];
+        $buckarooFeeValue = $order->getCustomFieldsValue('buckarooFee');
 
-        if ($paymentCode === null) {
-            $buckarooFee = $order->getCustomFieldsValue('buckarooFee');
-            if ($buckarooFee === null) {
-                return $line;
-            }
-        } else {
-            $buckarooFee = $this->settingsService->getBuckarooFee($paymentCode, $order->getSalesChannelId());
+        if (!is_numeric($buckarooFeeValue)) {
+            return $line;
         }
 
+        $buckarooFee = (float)$buckarooFeeValue;
 
-        if (!is_float($buckarooFee) || $buckarooFee <= 0) {
+        
+        if ($buckarooFee <= 0) {
             return $line;
         }
 
@@ -313,7 +312,9 @@ class FormatRequestParamService
         $currency     = $order->getCurrency();
         $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
 
-
+        $feeVatPercentage = $this->resolveBuckarooFeeVatPercentage($order, $paymentCode, $buckarooFee);
+        $feeVatAmount = $this->calculateVatAmountFromGross($buckarooFee, $feeVatPercentage);
+       
         // Build the order line array
         $line = [
             'id'          => 'buckarooFee',
@@ -322,13 +323,12 @@ class FormatRequestParamService
             'quantity'    => 1,
             'unitPrice'   => $this->getPriceArray($currencyCode, $buckarooFee),
             'totalAmount' => $this->getPriceArray($currencyCode, $buckarooFee),
-            'vatRate'     => 0,
-            'vatAmount'   => $this->getPriceArray($currencyCode, 0),
+            'vatRate'     => number_format($feeVatPercentage, 2, '.', ''),
+            'vatAmount'   => $this->getPriceArray($currencyCode, $feeVatAmount),
             'sku'         => 'BuckarooFee',
             'imageUrl'    => null,
             'productUrl'  => null,
         ];
-
         return $line;
     }
 
@@ -408,5 +408,58 @@ class FormatRequestParamService
             }
         }
         return $format;
+    }
+
+    private function resolveBuckarooFeeVatPercentage(OrderEntity $order, ?string $paymentCode, float $buckarooFee): float
+    {
+        if ($paymentCode !== null) {
+            $salesChannelId = $order->getSalesChannelId();
+            if ($salesChannelId !== null && $this->settingsService->isBuckarooFeePercentage($paymentCode, $salesChannelId)) {
+                $rawPercentage = $this->settingsService->getBuckarooFeeRaw($paymentCode, $salesChannelId);
+                if (!empty($rawPercentage)) {
+                    $percentageValue = (float)str_replace(['%', ',', ' '], ['', '.', ''], $rawPercentage);
+                    if ($percentageValue >= 0) {
+                        return round($percentageValue, 2);
+                    }
+                }
+            }
+        }
+
+        $baseAmount = $this->getOrderTotalExcludingFee($order, $buckarooFee);
+        if ($baseAmount <= 0.0) {
+            return 0.0;
+        }
+
+        return round(($buckarooFee / $baseAmount) * 100, 2);
+    }
+
+    private function getOrderTotalExcludingFee(OrderEntity $order, float $buckarooFee): float
+    {
+        $orderTotal = $order->getAmountTotal();
+        if (!is_float($orderTotal) && !is_int($orderTotal)) {
+            return 0.0;
+        }
+
+        $baseAmount = (float)$orderTotal - $buckarooFee;
+        if ($baseAmount <= 0.0) {
+            return max((float)$orderTotal, 0.0);
+        }
+
+        return $baseAmount;
+    }
+
+    private function calculateVatAmountFromGross(float $grossAmount, float $vatPercentage): float
+    {
+        if ($vatPercentage <= 0.0) {
+            return 0.0;
+        }
+
+        $divider = 1 + ($vatPercentage / 100);
+        if ($divider === 0.0) {
+            return 0.0;
+        }
+
+        $netAmount = $grossAmount / $divider;
+        return round($grossAmount - $netAmount, 2);
     }
 }
