@@ -410,11 +410,18 @@ class FormatRequestParamService
         return $format;
     }
 
-    private function resolveBuckarooFeeVatPercentage(OrderEntity $order, ?string $paymentCode, float $buckarooFee): float
+    private function resolveBuckarooFeeVatPercentage(
+        OrderEntity $order,
+        ?string $paymentCode,
+        float $buckarooFee
+    ): float
     {
         if ($paymentCode !== null) {
             $salesChannelId = $order->getSalesChannelId();
-            if ($salesChannelId !== null && $this->settingsService->isBuckarooFeePercentage($paymentCode, $salesChannelId)) {
+            if (
+                $salesChannelId !== null
+                && $this->settingsService->isBuckarooFeePercentage($paymentCode, $salesChannelId)
+            ) {
                 $rawPercentage = $this->settingsService->getBuckarooFeeRaw($paymentCode, $salesChannelId);
                 if (!empty($rawPercentage)) {
                     $percentageValue = (float)str_replace(['%', ',', ' '], ['', '.', ''], $rawPercentage);
@@ -463,3 +470,4 @@ class FormatRequestParamService
         return round($grossAmount - $netAmount, 2);
     }
 }
+
