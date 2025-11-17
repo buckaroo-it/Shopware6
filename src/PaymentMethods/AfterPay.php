@@ -77,6 +77,6 @@ class AfterPay extends AbstractPayment
 
     public function canCapture(): bool
     {
-        return false;
+        return true;
     }
 }
