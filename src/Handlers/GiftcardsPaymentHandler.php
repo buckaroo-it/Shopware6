@@ -29,12 +29,20 @@ class GiftcardsPaymentHandler extends PaymentHandlerSimple
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        return [
+        $orderCustomer = $order->getOrderCustomer();
+        $email = $orderCustomer?->getEmail();
+
+        $payload = [
             'continueOnIncomplete' => 'RedirectToHTML',
             'servicesSelectableByClient' => $this->getAllowedGiftcards(
                 $salesChannelContext->getSalesChannelId()
-            )
+            ),
+            'additionalParameters' => [
+                'email' => $email
+            ]
         ];
+
+        return $payload;
     }
 
     /**

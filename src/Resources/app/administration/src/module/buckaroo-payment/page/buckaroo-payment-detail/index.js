@@ -179,7 +179,7 @@ Component.register('buckaroo-payment-detail', {
                 order.transactions.last().paymentMethod &&
                 order.transactions.last().paymentMethod.customFields &&
                 order.transactions.last().paymentMethod.customFields.buckaroo_key &&
-                ['klarnakp', 'billink'].includes(order.transactions.last().paymentMethod.customFields.buckaroo_key.toLowerCase()) || that.isAfterpayCapturePossible(order);
+                ['klarnakp', 'billink','afterpay'].includes(order.transactions.last().paymentMethod.customFields.buckaroo_key.toLowerCase()) || that.isAfterpayCapturePossible(order);
 
                 that.isPaylinkVisible = that.isPaylinkAvailable = this.getConfigValue('paylinkEnabled') && order.stateMachineState && order.stateMachineState.technicalName && order.stateMachineState.technicalName == 'open' && order.transactions && order.transactions.last().stateMachineState.technicalName == 'open';
             });
@@ -191,6 +191,7 @@ Component.register('buckaroo-payment-detail', {
                     that.relatedResources = [];
 
                     this.$emit('loading-change', false);
+                    
                     response.orderItems.forEach((element) => {
                         that.orderItems.push({
                             id: element.id,
@@ -202,7 +203,10 @@ Component.register('buckaroo-payment-detail', {
                             variations: element.variations || [],
                         });
                     })
-                    that.recalculateOrderItems();
+                    
+                    // Use backend-calculated total (single source of truth)
+                    that.buckaroo_refund_amount = response.refundTotals ? response.refundTotals.totalAmount : 0;
+                    that.currency = response.refundTotals ? response.refundTotals.currency : 'EUR';
 
                     response.transactionsToRefund.forEach((element) => {
                         that.transactionsToRefund.push({

@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
+use Buckaroo\Shopware6\Handlers\BizumPaymentHandler;
 
-class AfterPay extends AbstractPayment
+class Bizum extends AbstractPayment
 {
-    /*
+    /**
      * @return string
      */
     public function getBuckarooKey(): string
     {
-        return 'afterpay';
+        return 'bizum';
     }
 
     /**
@@ -23,7 +23,7 @@ class AfterPay extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Riverty';
+        return 'Bizum';
     }
 
     /**
@@ -33,7 +33,7 @@ class AfterPay extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with Riverty';
+        return 'Pay with Bizum';
     }
 
     /**
@@ -43,7 +43,17 @@ class AfterPay extends AbstractPayment
      */
     public function getPaymentHandler(): string
     {
-        return AfterPayPaymentHandler::class;
+        return BizumPaymentHandler::class;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return string|null
+     */
+    public function getTemplate(): ?string
+    {
+        return null;
     }
 
     /**
@@ -53,7 +63,7 @@ class AfterPay extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/afterpay.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/bizum.svg';
     }
 
     /**
@@ -66,17 +76,20 @@ class AfterPay extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit Riverty',
+                'description' => 'Bezahlen mit Bizum',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),
                 'description' => $this->getDescription(),
             ],
+            'nl-NL' => [
+                'name'        => $this->getName(),
+                'description' => 'Betalen met Bizum',
+            ],
+            'fr-FR' => [
+                'name'        => $this->getName(),
+                'description' => 'Payer avec Bizum',
+            ],
         ];
-    }
-
-    public function canCapture(): bool
-    {
-        return true;
     }
 }

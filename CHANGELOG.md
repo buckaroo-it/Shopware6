@@ -360,3 +360,20 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BP-5007 Fix issue where COC number and company name were incorrectly displayed on private In3 orders.
 - BP-5005 Fix issue where payment push failed due to missing or invalid URL configuration.
 - BP-4615 Resolve an display issue with credit card logo’s.
+
+# 3.1.0
+
+- BP-5093 Add support for Shopware 6.7.4.0
+- BP-5071 Add support for Shopware 6.7.3.1
+- BP-4601 Add payment method: Twint
+- BP-5001 Add payment method: Bizum
+- BP-5000 Add payment method: Swish
+- BP-5117 Enable capture for Riverty
+- BP-4526 Send customer e-mail address for intersolve gift card transactions for refund purposes when losing the physical giftcard
+- BP-5017 Resolve: issue with Riverty order placement with Shopware 6.7.3.1
+- BP-5073 Resolve: Apple Pay layout issue on the confirmation page
+- BP-5002 Resolve: rounding issue when getting Shopware product data for BNPL methods
+- BP-5078 Resolve: issue with parsed TAX amount to Riverty (new API)
+- BP-5082 Resolve: Payment fee percentage is displayed as fixed fee in the checkout.
+- BP-5084 Resolve: Currency symbol mismatch between checkout total and payment method display (SEK, CHF)
+- BP-5044 Resolve: Migration failure in Buckaroo Plugin due to the removal of Sofort.

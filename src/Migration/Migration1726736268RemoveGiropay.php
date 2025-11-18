@@ -27,10 +27,30 @@ class Migration1726736268RemoveGiropay extends MigrationStep
     }
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeStatement(
-            "DELETE FROM `payment_method`
-                WHERE `handler_identifier` = :handlerIdentifier",
+        $paymentMethodId = $connection->fetchOne(
+            "SELECT `id` FROM `payment_method` WHERE `handler_identifier` = :handlerIdentifier",
             ['handlerIdentifier' => self::HANDLER_IDENTIFIER]
         );
+
+        if (!$paymentMethodId) {
+            return;
+        }
+
+        $customerReferences = $connection->fetchOne(
+            "SELECT COUNT(*) FROM `customer` WHERE `default_payment_method_id` = :paymentMethodId",
+            ['paymentMethodId' => $paymentMethodId]
+        );
+
+        $orderTransactionReferences = $connection->fetchOne(
+            "SELECT COUNT(*) FROM `order_transaction` WHERE `payment_method_id` = :paymentMethodId",
+            ['paymentMethodId' => $paymentMethodId]
+        );
+
+        if ($customerReferences == 0 && $orderTransactionReferences == 0) {
+            $connection->executeStatement(
+                "DELETE FROM `payment_method` WHERE `handler_identifier` = :handlerIdentifier",
+                ['handlerIdentifier' => self::HANDLER_IDENTIFIER]
+            );
+        }
     }
 }

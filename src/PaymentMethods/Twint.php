@@ -4,16 +4,24 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\PaymentMethods;
 
-use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
+use Buckaroo\Shopware6\Handlers\TwintPaymentHandler;
 
-class AfterPay extends AbstractPayment
+class Twint extends AbstractPayment
 {
-    /*
+    /**
      * @return string
      */
     public function getBuckarooKey(): string
     {
-        return 'afterpay';
+        return 'twint';
+    }
+
+    /**
+     * @return string
+     */
+    public function getVersion(): string
+    {
+        return '0';
     }
 
     /**
@@ -23,7 +31,7 @@ class AfterPay extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Riverty';
+        return 'TWINT';
     }
 
     /**
@@ -33,7 +41,7 @@ class AfterPay extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with Riverty';
+        return 'Pay with TWINT';
     }
 
     /**
@@ -43,7 +51,7 @@ class AfterPay extends AbstractPayment
      */
     public function getPaymentHandler(): string
     {
-        return AfterPayPaymentHandler::class;
+        return TwintPaymentHandler::class;
     }
 
     /**
@@ -53,7 +61,7 @@ class AfterPay extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/afterpay.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/twint.svg';
     }
 
     /**
@@ -66,17 +74,30 @@ class AfterPay extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit Riverty',
+                'description' => 'Bezahlen mit TWINT',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),
                 'description' => $this->getDescription(),
             ],
+            'nl-NL' => [
+                'name'        => $this->getName(),
+                'description' => 'Betalen met TWINT',
+            ],
+            'fr-FR' => [
+                'name'        => $this->getName(),
+                'description' => 'Payer avec TWINT',
+            ],
         ];
     }
 
-    public function canCapture(): bool
+    /**
+     * {@inheritDoc}
+     *
+     * @return string
+     */
+    public function getType(): string
     {
-        return true;
+        return 'redirect';
     }
 }

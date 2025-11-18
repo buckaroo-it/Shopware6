@@ -155,6 +155,7 @@ class PaymentMethodsInstaller implements InstallerInterface
             'pluginId' => $pluginId,
             'mediaId' => $mediaId,
             'afterOrderEnabled' => true,
+            'active' => true,
             'translations' => $paymentMethod->getTranslations(),
             'customFields' => [
                 self::BUCKAROO_KEY => $paymentMethod->getBuckarooKey(),

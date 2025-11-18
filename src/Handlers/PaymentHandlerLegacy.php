@@ -6,8 +6,7 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\Buckaroo\Client;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
-use Buckaroo\Shopware6\Events\AfterPaymentRequestEvent;
-use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
+use Buckaroo\Shopware6\Handlers\PaymentFeeCalculator;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Buckaroo\Shopware6\PaymentMethods\AbstractPayment;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
@@ -30,10 +29,12 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
 
     protected ?string $paymentClass = null;
     protected FormatRequestParamService $formatRequestParamService;
+    private PaymentFeeCalculator $paymentFeeCalculator;
 
     public function __construct(private AsyncPaymentService $asyncPaymentService)
     {
         $this->formatRequestParamService = $this->asyncPaymentService->formatRequestParamService;
+        $this->paymentFeeCalculator = new PaymentFeeCalculator($this->asyncPaymentService);
     }
 
     public function setPaymentClass(string $paymentClass): void
@@ -59,7 +60,11 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             $this->validateOrder($order);
 
             // Apply fee to order BEFORE sending payment request
-            $fee = $this->getFee($paymentCode, $salesChannelId);
+            $fee = $this->paymentFeeCalculator->calculateFeeForOrder(
+                $order,
+                $paymentCode,
+                $salesChannelId
+            );
             if ($fee > 0) {
                 $this->asyncPaymentService
                     ->checkoutHelper
@@ -340,12 +345,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         string $salesChannelId,
         string $paymentCode
     ): float {
-        $fee =  $this->getFee($paymentCode, $salesChannelId);
-        $existingFee = $order->getCustomFieldsValue('buckarooFee');
-        if ($existingFee !== null && is_scalar($existingFee)) {
-            $fee = $fee - (float)$existingFee;
-        }
-        return $order->getAmountTotal() + $fee;
+        return $this->paymentFeeCalculator->getOrderTotalWithFee($order, $salesChannelId, $paymentCode);
     }
 
     private function getIp(): array
