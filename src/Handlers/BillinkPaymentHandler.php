@@ -211,21 +211,53 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
 
         $articles = [];
 
+        $defaultTaxRate = $this->getDefaultTaxRate($order);
+
         foreach ($lines as $item) {
             if (!is_array($item)) {
                 continue;
             }
+
+            $vatPercentage = $item['vatRate'];
+            if (isset($item['type']) && $item['type'] === 'BuckarooFee') {
+                $vatPercentage = number_format($defaultTaxRate, 2, '.', '');
+            }
+            
             $articles[] = [
                 'identifier'        => $item['sku'],
                 'description'       => $item['name'],
                 'quantity'          => $item['quantity'],
                 'price'             => $item['unitPrice']['value'],
-                'vatPercentage'     => $item['vatRate'],
+                'vatPercentage'     => $vatPercentage,
             ];
         }
         return [
             'articles' => $articles
         ];
+    }
+
+    /**
+     * Get default tax rate from order
+     * Falls back to 21% if no tax rate is found
+     *
+     * @param OrderEntity $order
+     *
+     * @return float
+     */
+    private function  getDefaultTaxRate(OrderEntity $order): float
+    {
+        $taxRules = $order->getPrice()->getTaxRules();
+        if ($taxRules !== null && $taxRules->count() > 0) {
+            $taxRule = $taxRules->first();
+            if ($taxRule !== null) {
+                $taxRate = $taxRule->getTaxRate();
+                if ($taxRate > 0) {
+                    return (float)$taxRate;
+                }
+            }
+        }
+
+        return 21.0;
     }
 
     /**
