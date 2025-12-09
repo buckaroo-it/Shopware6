@@ -313,7 +313,6 @@ class PaymentMethodsInstaller implements InstallerInterface
             ['paymentSuccesStatus' => 'paid'],
             ['orderStatus' => 'open'],
             ['klarnaBusiness' => 'B2C'],
-            ['BillinkMode' => 'pay'],
             ['transferSendEmail' => 1],
             ['transferDateDue' => 7],
             ['payperemailEnabledfrontend' => true],
