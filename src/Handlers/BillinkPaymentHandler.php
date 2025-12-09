@@ -54,13 +54,6 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
         ?SalesChannelContext $salesChannelContext = null,
         ?string $paymentCode = null
     ): string {
-        if ($salesChannelContext !== null && $this->getSetting(
-            'BillinkMode',
-            $salesChannelContext->getSalesChannelId()
-        ) == 'authorize'
-        ) {
-            return 'authorize';
-        }
         return 'pay';
     }
 

@@ -77,22 +77,6 @@ class InvoiceService
             return false;
         }
         
-        if ($brqTransactionType !== false) {
-            if (
-                ResponseStatus::BUCKAROO_BILLINK_CAPTURE_TYPE_ACCEPT === $brqTransactionType &&
-                $this->settingsService->getSetting('BillinkCreateInvoiceAfterShipment', $salesChannelId)
-            ) {
-                return true;
-            }
-        } else {
-            if (
-                $serviceName === 'Billink' &&
-                $this->settingsService->getSetting('BillinkMode', $salesChannelId) === 'authorize' &&
-                $this->settingsService->getSetting('BillinkCreateInvoiceAfterShipment', $salesChannelId)
-            ) {
-                return true;
-            }
-        }
         return false;
     }
 
