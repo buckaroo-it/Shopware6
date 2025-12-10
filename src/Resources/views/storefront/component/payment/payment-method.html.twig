@@ -62,7 +62,7 @@
                 {% set countryBillingIso = page.extensions.buckaroo.countryBillingIso %}
                 {% set countryShippingIso = page.extensions.buckaroo.countryShippingIso %}
                 <div class="buckaroo-payment-inputs" style="margin-top: 15px;">
-                    {% if buckarooKey == 'bancontactmrcash' %}
+                    {% if buckarooKey == 'bancontactmrcash' and page.extensions.buckaroo.redirectBancontact %}
                         {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/bancontactmrcash.html.twig' %}
                     {% elseif buckarooKey == 'creditcard' %}
                         {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/creditcard.html.twig' %}
