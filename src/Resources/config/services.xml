@@ -653,5 +653,11 @@
                        id="Buckaroo\Shopware6\Storefront\Framework\Cookie\BuckarooCookieProvider.inner" />
         </service>
 
+        <service id="Buckaroo\Shopware6\Storefront\Framework\Twig\BuckarooTwigExtension">
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <tag name="twig.extension"/>
+        </service>
+
     </services>
 </container>
