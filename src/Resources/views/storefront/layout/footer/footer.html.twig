@@ -1,0 +1,24 @@
+{% sw_extends '@Storefront/storefront/layout/footer/footer.html.twig' %}
+
+{% block layout_footer_payment_logos %}
+    {% set footerPaymentMethods = buckaroo_enabled_payment_methods() %}
+    
+    {% if footerPaymentMethods|length > 0 %}
+        <div class="footer-logos">
+            {% for paymentMethod in footerPaymentMethods %}
+                {% if paymentMethod.media %}
+                    <div class="footer-logo is-payment">
+                        <img
+                            src="{{ paymentMethod.media.url }}"
+                            class="img-fluid footer-logo-image"
+                            alt="{{ paymentMethod.media.translated.alt ?: paymentMethod.translated.name }}"
+                            title="{{ paymentMethod.media.translated.title ?: paymentMethod.translated.name }}"
+                            loading="eager"
+                        >
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+

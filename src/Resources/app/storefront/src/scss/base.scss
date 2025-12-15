@@ -326,6 +326,19 @@
     max-height: 38px;
 }
 
+.footer-logo {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    max-height: 38px !important;
+    max-width: 100px !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 20px !important;
+    min-width: 60px !important;
+    object-fit: contain;
+}
+
 .bk-ideal-fast-checkout {
     margin-top: 15px;
 }
