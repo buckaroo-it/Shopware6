@@ -4,7 +4,7 @@
         <div class="payment-method">
 
             {% if payment.translated.customFields.buckaroo_key !== 'applepay'|| (payment.translated.customFields.buckaroo_key === 'applepay' && (page.extensions.buckaroo.applepayHostedPaymentPage && page.extensions.buckaroo.isAppleDevice)) %}
-                <div class="payment-form-group form-group mb-0">
+                <div class="payment-form-group form-group mb-4">
                     {% block component_payment_method_control %}
                         <div class="form-check custom-radio payment-method-radio bk-{{ payment.translated.customFields.buckaroo_key }}">
                             {% block component_payment_method_input %}
