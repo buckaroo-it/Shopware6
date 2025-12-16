@@ -326,6 +326,37 @@
     max-height: 38px;
 }
 
+.payment-method-radio {
+    display: flex;
+    align-items: flex-start;
+    
+    .form-check-input {
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+        margin-right: 0.5rem;
+    }
+    
+    .payment-method-label {
+        display: flex;
+        
+        img.payment-method-image,
+        img.bk-payment-image {
+            order: 2;
+            flex: 0 0 30%;
+            margin-left: 2rem;
+        }
+        
+        .payment-method-description {
+            order: 1;
+            flex: 0 0 70%;
+
+            p {
+                margin: 0;
+            }
+        }
+    }
+}
+
 .footer-logo {
     display: block !important;
     visibility: visible !important;
