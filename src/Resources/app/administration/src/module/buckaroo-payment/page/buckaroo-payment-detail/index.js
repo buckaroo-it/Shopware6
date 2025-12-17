@@ -191,51 +191,57 @@ Component.register('buckaroo-payment-detail', {
                     that.relatedResources = [];
 
                     this.$emit('loading-change', false);
-                    
-                    response.orderItems.forEach((element) => {
-                        that.orderItems.push({
-                            id: element.id,
-                            name: element.name,
-                            quantity: element.quantity,
-                            quantityMax: element.quantity,
-                            unitPrice: element.unitPrice.value,
-                            totalAmount: element.totalAmount.value,
-                            variations: element.variations || [],
+
+                    if (response.orderItems && Array.isArray(response.orderItems)) {
+                        response.orderItems.forEach((element) => {
+                            that.orderItems.push({
+                                id: element.id,
+                                name: element.name,
+                                quantity: element.quantity,
+                                quantityMax: element.quantity,
+                                unitPrice: element.unitPrice.value,
+                                totalAmount: element.totalAmount.value,
+                                variations: element.variations || [],
+                            });
                         });
-                    })
-                    
+                    }
+
                     // Use backend-calculated total (single source of truth)
                     that.buckaroo_refund_amount = response.refundTotals ? response.refundTotals.totalAmount : 0;
                     that.currency = response.refundTotals ? response.refundTotals.currency : 'EUR';
 
-                    response.transactionsToRefund.forEach((element) => {
-                        that.transactionsToRefund.push({
-                            id: element.id,
-                            transactions: element.transactions,
-                            amount: element.total,
-                            amountMax: element.total,
-                            currency: element.currency,
-                            transaction_method: element.transaction_method,
-                            logo: element.transaction_method ? element.logo : null
+                    if (response.transactionsToRefund && Array.isArray(response.transactionsToRefund)) {
+                        response.transactionsToRefund.forEach((element) => {
+                            that.transactionsToRefund.push({
+                                id: element.id,
+                                transactions: element.transactions,
+                                amount: element.total,
+                                amountMax: element.total,
+                                currency: element.currency,
+                                transaction_method: element.transaction_method,
+                                logo: element.transaction_method ? element.logo : null
+                            });
+                            that.currency = element.currency;
                         });
-                        that.currency = element.currency;
-                    })
+                    }
                     that.recalculateRefundItems();
 
-                    response.transactions.forEach((element) => {
-                        that.relatedResources.push({
-                            id: element.id,
-                            transaction_key: element.transaction,
-                            total: element.total,
-                            total_excluding_vat: element.total_excluding_vat,
-                            shipping_costs: element.shipping_costs,
-                            vat: element.vat,
-                            transaction_method: element.transaction_method,
-                            logo: element.transaction_method ? element.logo : null,
-                            created_at: element.created_at,
-                            statuscode: element.statuscode
+                    if (response.transactions && Array.isArray(response.transactions)) {
+                        response.transactions.forEach((element) => {
+                            that.relatedResources.push({
+                                id: element.id,
+                                transaction_key: element.transaction,
+                                total: element.total,
+                                total_excluding_vat: element.total_excluding_vat,
+                                shipping_costs: element.shipping_costs,
+                                vat: element.vat,
+                                transaction_method: element.transaction_method,
+                                logo: element.transaction_method ? element.logo : null,
+                                created_at: element.created_at,
+                                statuscode: element.statuscode
+                            });
                         });
-                    })
+                    }
 
                 })
                 .catch((errorResponse) => {
