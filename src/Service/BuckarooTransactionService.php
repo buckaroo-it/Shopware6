@@ -70,11 +70,20 @@ class BuckarooTransactionService
 
         $orderItems = $this->formatRequestParamService->getOrderLinesArray($order);
         $items['orderItems'] = $orderItems;
+        $items['transactions'] = [];
 
         $shipping       = $order->getShippingCosts();
         $shipping_costs = $shipping->getTotalPrice();
 
         $orderRefundedItems = [];
+
+        $orderTransactions = $order->getTransactions();
+        $lastOrderTransaction = $orderTransactions !== null ? $orderTransactions->last() : null;
+        $orderTransactionKey = null;
+        if ($lastOrderTransaction !== null) {
+            $customFields = $lastOrderTransaction->getCustomFields() ?? [];
+            $orderTransactionKey = $customFields['originalTransactionKey'] ?? null;
+        }
 
         $collection = $this->buckarooTransactionEntityRepository->findByOrderId(
             $orderId,
@@ -91,6 +100,14 @@ class BuckarooTransactionService
                 continue;
             }
             $transactions = $buckarooTransactionEntity->get("transactions");
+            if (empty($transactions) && !empty($orderTransactionKey)) {
+                $transactions = $orderTransactionKey;
+            }
+
+            if (empty($transactions)) {
+                continue;
+            }
+
             if (in_array($transactions, $transactionsToRefund)) {
                 continue;
             }
@@ -118,7 +135,7 @@ class BuckarooTransactionService
 
             $items['transactions'][] = (object) [
                 'id'                  => $buckarooTransactionEntity->get("id"),
-                'transaction'         => $buckarooTransactionEntity->get("transactions"),
+                'transaction'         => $transactions,
                 'statuscode'          => $buckarooTransactionEntity->get("statuscode"),
                 'total'               => $amount,
                 'shipping_costs'      => $shipping_costs,
@@ -140,6 +157,33 @@ class BuckarooTransactionService
                     'transaction_method' => $buckarooTransactionEntity->get("transaction_method"),
                 ];
             }
+        }
+
+        if (empty($items['transactions']) && !empty($orderTransactionKey) && $lastOrderTransaction !== null) {
+            $paymentMethod = $lastOrderTransaction->getPaymentMethod();
+            $transactionMethod = 'payperemail';
+            if ($paymentMethod !== null && $paymentMethod->getCustomFields() !== null) {
+                $transactionMethod = $paymentMethod->getCustomFields()['buckaroo_key'] ?? 'payperemail';
+            }
+
+            $createdAt = $lastOrderTransaction->getCreatedAt();
+            $formattedCreatedAt = '';
+            if ($createdAt instanceof \DateTime) {
+                $formattedCreatedAt = $createdAt->format('Y-m-d H:i:s');
+            }
+
+            $amount = $order->getAmountTotal();
+            $items['transactions'][] = (object) [
+                'id'                  => $lastOrderTransaction->getId(),
+                'transaction'         => $orderTransactionKey,
+                'statuscode'          => null,
+                'total'               => $amount,
+                'shipping_costs'      => $shipping_costs,
+                'vat'                 => $vat_show,
+                'total_excluding_vat' => $vat ? round(($amount - (($amount / 100) * $vat)), 2) : $amount,
+                'transaction_method'  => $transactionMethod,
+                'created_at'          => $formattedCreatedAt,
+            ];
         }
 
         foreach ($orderRefundedItems as $value) {
