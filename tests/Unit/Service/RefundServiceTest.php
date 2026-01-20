@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Buckaroo\Shopware6\Tests\Unit\TestHelper\ContextStub;
 
 class RefundServiceTest extends TestCase
 {
@@ -47,7 +48,7 @@ class RefundServiceTest extends TestCase
     /** @var ClientService&MockObject */
     private ClientService $clientService;
 
-    /** @var MockObject Mocked Shopware Context */
+    /** @var object Context mock */
     private $context;
 
     protected function setUp(): void
@@ -59,7 +60,7 @@ class RefundServiceTest extends TestCase
         $this->stateTransitionService = $this->createMock(StateTransitionService::class);
         $this->translator = $this->createMock(TranslatorInterface::class);
         $this->clientService = $this->createMock(ClientService::class);
-        // Mock Context without importing to avoid PHP 8.2 parse errors
+        // Mock Context - bootstrap handles PHP 8.2 compatibility
         $this->context = $this->createMock(\Shopware\Core\Framework\Context::class);
 
         $this->refundService = new RefundService(

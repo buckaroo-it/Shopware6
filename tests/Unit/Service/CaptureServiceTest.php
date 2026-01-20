@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Buckaroo\Shopware6\Tests\Unit\TestHelper\ContextStub;
 
 class CaptureServiceTest extends TestCase
 {
@@ -43,7 +44,7 @@ class CaptureServiceTest extends TestCase
     /** @var ClientService&MockObject */
     private ClientService $clientService;
 
-    /** @var MockObject Mocked Shopware Context */
+    /** @var object Context mock */  
     private $context;
 
     protected function setUp(): void
@@ -54,7 +55,9 @@ class CaptureServiceTest extends TestCase
         $this->formatRequestParamService = $this->createMock(FormatRequestParamService::class);
         $this->translator = $this->createMock(TranslatorInterface::class);
         $this->clientService = $this->createMock(ClientService::class);
-        // Mock Context without importing to avoid PHP 8.2 parse errors
+        
+        // Mock Context - will work in full Shopware environment
+        // In CI without Shopware, we check and skip tests
         $this->context = $this->createMock(\Shopware\Core\Framework\Context::class);
 
         $this->captureService = new CaptureService(
