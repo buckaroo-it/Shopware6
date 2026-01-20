@@ -6,7 +6,6 @@ declare(strict_types=1);
  * Full Shopware Integration Bootstrap
  * 
  * This bootstrap sets up a complete Shopware test environment with database,
- * kernel, and plugin registration - similar to Mollie's approach.
  * 
  * Use this when you need:
  * - Real database access
