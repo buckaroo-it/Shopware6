@@ -44,6 +44,7 @@ class CaptureServiceTest extends TestCase
     /** @var ClientService&MockObject */
     private ClientService $clientService;
 
+    /** @var Context&MockObject */
     private Context $context;
 
     protected function setUp(): void
@@ -54,7 +55,7 @@ class CaptureServiceTest extends TestCase
         $this->formatRequestParamService = $this->createMock(FormatRequestParamService::class);
         $this->translator = $this->createMock(TranslatorInterface::class);
         $this->clientService = $this->createMock(ClientService::class);
-        $this->context = Context::createDefaultContext();
+        $this->context = $this->createMock(Context::class);
 
         $this->captureService = new CaptureService(
             $this->transactionService,

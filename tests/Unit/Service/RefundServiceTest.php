@@ -48,6 +48,7 @@ class RefundServiceTest extends TestCase
     /** @var ClientService&MockObject */
     private ClientService $clientService;
 
+    /** @var Context&MockObject */
     private Context $context;
 
     protected function setUp(): void
@@ -59,7 +60,7 @@ class RefundServiceTest extends TestCase
         $this->stateTransitionService = $this->createMock(StateTransitionService::class);
         $this->translator = $this->createMock(TranslatorInterface::class);
         $this->clientService = $this->createMock(ClientService::class);
-        $this->context = Context::createDefaultContext();
+        $this->context = $this->createMock(Context::class);
 
         $this->refundService = new RefundService(
             $this->buckarooTransactionEntityRepository,

@@ -21,9 +21,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          
-      - name: Validate composer.json
-        run: composer validate --no-check-lock
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           coverage: none
           tools: composer:v2
@@ -40,14 +37,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
             
-      - name: Configure Composer repositories
-        run: |
-          composer config repositories.shopware composer https://packages.shopware.com
-          composer config minimum-stability dev
-          composer config prefer-stable true
+      - name: Validate composer.json
+        run: composer validate --no-check-lock
           
-      - name: Install dependencies (without lock file)
-        run: composer update --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --prefer-stable
+      - name: Install dev dependencies only (no Shopware packages needed)
+        run: |
+          composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --no-scripts || \
+          composer update phpunit/phpunit --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --prefer-stable
         
       - name: Run Unit Tests (Fast)
         run: vendor/bin/phpunit --testsuite Unit --no-coverage --colors=always
