@@ -44,15 +44,11 @@ jobs:
             
       - name: Validate composer.json
         run: composer validate --no-check-lock
-        
-      - name: Configure Composer repositories
-        run: |
-          composer config repositories.shopware composer https://packages.shopware.com
-          composer config minimum-stability dev
-          composer config prefer-stable true
           
-      - name: Install dependencies (without lock file)
-        run: composer update --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --prefer-stable
+      - name: Install dev dependencies only (no Shopware packages needed)
+        run: |
+          composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --no-scripts || \
+          composer update phpunit/phpunit --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --prefer-stable
         
       - name: Run Unit Tests
         run: vendor/bin/phpunit --testsuite Unit --colors=always --stop-on-failure
@@ -88,14 +84,10 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           tools: composer:v2, phpstan, psalm
           
-      - name: Configure Composer repositories
+      - name: Install dev dependencies only
         run: |
-          composer config repositories.shopware composer https://packages.shopware.com
-          composer config minimum-stability dev
-          composer config prefer-stable true
-          
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs
+          composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --no-scripts || \
+          composer update phpunit/phpunit --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --prefer-stable
         
       - name: Check PHP syntax
         run: find src tests -name "*.php" -print0 | xargs -0 -n1 php -l
