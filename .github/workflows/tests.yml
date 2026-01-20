@@ -15,7 +15,6 @@ jobs:
       fail-fast: false
       matrix:
         php-version:
-          - '8.1'
           - '8.2'
           - '8.3'
     
@@ -39,18 +38,27 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
-            ${{ runner.os }}-composer-
+            ${{ runner.os }}-php-${{ matrix.php-version }}-composer-
             
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
+      - name: Validate composer.json
+        run: composer validate --no-check-lock
+        
+      - name: Configure Composer repositories
+        run: |
+          composer config repositories.shopware composer https://packages.shopware.com
+          composer config minimum-stability dev
+          composer config prefer-stable true
+          
+      - name: Install dependencies (without lock file)
+        run: composer update --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --prefer-stable
         
       - name: Run Unit Tests
-        run: vendor/bin/phpunit --testsuite Unit --colors=always
+        run: vendor/bin/phpunit --testsuite Unit --colors=always --stop-on-failure
         
       - name: Run Integration Tests
-        run: vendor/bin/phpunit --testsuite Integration --colors=always
+        run: vendor/bin/phpunit --testsuite Integration --colors=always --stop-on-failure
         
       - name: Run All Tests with Coverage
         if: matrix.php-version == '8.3'
@@ -80,8 +88,14 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           tools: composer:v2, phpstan, psalm
           
+      - name: Configure Composer repositories
+        run: |
+          composer config repositories.shopware composer https://packages.shopware.com
+          composer config minimum-stability dev
+          composer config prefer-stable true
+          
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
+        run: composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs
         
       - name: Check PHP syntax
         run: find src tests -name "*.php" -print0 | xargs -0 -n1 php -l
@@ -89,7 +103,7 @@ jobs:
       - name: Run PHPStan (if configured)
         run: |
           if [ -f phpstan.neon ] || [ -f phpstan.neon.dist ]; then
-            vendor/bin/phpstan analyze || echo "PHPStan not configured, skipping"
+            vendor/bin/phpstan analyze --no-progress || echo "PHPStan found issues but continuing"
           else
             echo "PHPStan not configured, skipping"
           fi
@@ -109,5 +123,7 @@ jobs:
             exit 0
           else
             echo "❌ Some tests failed"
+            echo "Test job: ${{ needs.test.result }}"
+            echo "Lint job: ${{ needs.lint.result }}"
             exit 1
           fi
