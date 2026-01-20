@@ -32,31 +32,6 @@ if (file_exists($pluginVendorAutoload)) {
     exit(1);
 }
 
-// Handle PHP 8.2 compatibility: Shopware's Context class uses PHP 8.3+ syntax
-// If Context can't be loaded (parse error), create a polyfill
-if (PHP_VERSION_ID < 80300) {
-    try {
-        // Try to load Context class
-        class_exists(\Shopware\Core\Framework\Context::class);
-    } catch (\ParseError $e) {
-        // Context has PHP 8.3+ syntax, create a minimal polyfill
-        if (!class_exists(\Shopware\Core\Framework\Context::class, false)) {
-            eval('
-            namespace Shopware\Core\Framework {
-                class Context {
-                    public function getVars(): array { return []; }
-                    public function getSource() { return null; }
-                    public function getScope(): string { return "test"; }
-                    public function getVersionId(): string { return "test"; }
-                    public function getRuleIds(): array { return []; }
-                }
-            }
-            ');
-            echo "✓ Created Context polyfill for PHP " . PHP_VERSION . "\n";
-        }
-    }
-}
-
 // Set error reporting for tests
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
