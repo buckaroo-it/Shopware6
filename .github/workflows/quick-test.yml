@@ -1,0 +1,54 @@
+name: Quick Tests
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  quick-test:
+    name: Quick Test (PHP 8.3)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+          tools: composer:v2
+          
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+        
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+            
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+        
+      - name: Run Unit Tests (Fast)
+        run: vendor/bin/phpunit --testsuite Unit --no-coverage --colors=always
+        
+      - name: Run Integration Tests (Fast)
+        run: vendor/bin/phpunit --testsuite Integration --no-coverage --colors=always
+        
+      - name: Display Results
+        if: success()
+        run: |
+          echo "✅ All tests passed!"
+          echo "📊 Test Statistics:"
+          vendor/bin/phpunit --list-tests | grep "Available test(s):" || echo "Tests completed successfully"
