@@ -149,6 +149,10 @@ Component.register("buckaroo-payment-list", {
                 {
                     code: "twint",
                     logo: "twint.svg"
+                },
+                {
+                    code: "wero",
+                    logo: "wero.svg"
                 }
             ]
         };
