@@ -37,6 +37,7 @@ use Buckaroo\Shopware6\PaymentMethods\SepaDirectDebit;
 use Buckaroo\Shopware6\PaymentMethods\Swish;
 use Buckaroo\Shopware6\PaymentMethods\Bizum;
 use Buckaroo\Shopware6\PaymentMethods\Twint;
+use Buckaroo\Shopware6\PaymentMethods\Wero;
 
 class GatewayHelper
 {
@@ -73,6 +74,7 @@ class GatewayHelper
         Knaken::class,
         Swish::class,
         Bizum::class,
-        Twint::class
+        Twint::class,
+        Wero::class
     ];
 }
