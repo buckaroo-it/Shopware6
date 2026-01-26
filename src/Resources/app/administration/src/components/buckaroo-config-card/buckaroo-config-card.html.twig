@@ -18,9 +18,9 @@
                         <template #content="props">
                             <sw-form-field-renderer
                                     v-bind="getElementBind(element, props)"
-                                    :key="props.isInheritField + props.isInherited"
+                                    :key="element.type === 'bool' ? `${element.name}-${props.isInheritField}-${props.isInherited}-${props.currentValue}` : `${element.name}-${props.isInheritField}-${props.isInherited}`"
                                     :disabled="props.isInherited"
-                                    :value="props.currentValue"
+                                    :value="element.type === 'bool' ? Boolean(props.currentValue) : props.currentValue"
                                     :error="getFieldError(element.name)"
                                     @input="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
                                     @change="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
