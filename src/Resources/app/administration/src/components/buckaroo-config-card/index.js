@@ -71,6 +71,11 @@ Component.register('buckaroo-config-card', {
             required: false,
             default: () => ({ elements: [] })
         },
+        configSettings: {
+            type: Array,
+            required: false,
+            default: () => []
+        },
         methods: {
             type: Object,
             required: true,
@@ -93,10 +98,12 @@ Component.register('buckaroo-config-card', {
     methods: {
         getElementBind(element, props = {}) {
             if (!this.methods || !this.methods.getElementBind) {
+                const label = element.label ? this.getInlineSnippet(element.label) : null;
                 return {
                     name: element.name,
                     type: element.type || 'text',
                     config: element.config || {},
+                    label: label,
                     value: this.getValueForName(element.name.replace('BuckarooPayments.config.', ''))
                 };
             }
@@ -104,11 +111,172 @@ Component.register('buckaroo-config-card', {
             const baseBinding = this.methods.getElementBind(element, props);
             
             const fieldName = element.name.replace('BuckarooPayments.config.', '');
-            const currentValue = this.getValueForName(fieldName);
+            let currentValue = this.getValueForName(fieldName);
             
-            baseBinding.value = currentValue;
+            // Ensure config object exists
+            const config = baseBinding.config || element.config || {};
             
-            return baseBinding;
+            // For bool fields, ensure we have a proper boolean value
+            if (element.type === 'bool') {
+                if (currentValue === null || currentValue === undefined) {
+                    currentValue = baseBinding.value !== undefined ? baseBinding.value : false;
+                } else {
+                    // Ensure it's a proper boolean - handle string values like "0", "1", "false", "true"
+                    if (typeof currentValue === 'string') {
+                        currentValue = currentValue === '1' || currentValue === 'true' || currentValue === 'on';
+                    } else {
+                        currentValue = Boolean(currentValue);
+                    }
+                }
+            }
+            
+            // Extract label - for bool/select fields, prioritize configSettings since baseBinding.label is often undefined
+            // Text fields work because baseBinding.label is set correctly by Shopware's parser
+            // For bool/select fields, we need to extract from configSettings which has the raw parsed config.xml
+            let finalLabel = null;
+            
+            // For bool/select fields, prioritize configSettings (where labels from config.xml are stored)
+            // For text fields, baseBinding.label usually works
+            if ((element.type === 'bool' || element.type === 'single-select' || element.type === 'multi-select') && this.configSettings && Array.isArray(this.configSettings)) {
+                // Try to find the element in the full configSettings array first (this has the raw parsed config.xml structure)
+                for (const configCard of this.configSettings) {
+                    if (configCard.elements && Array.isArray(configCard.elements)) {
+                        const configElement = configCard.elements.find(el => el.name === element.name);
+                        if (configElement) {
+                            // Try to extract label from configElement.label (could be object with lang keys or string)
+                            if (configElement.label) {
+                                let extractedLabel = this.getInlineSnippet(configElement.label);
+                                if (!extractedLabel || (typeof extractedLabel === 'string' && extractedLabel.trim().length === 0)) {
+                                    if (typeof configElement.label === 'object' && configElement.label !== null) {
+                                        const locale = this.$i18n?.locale || 'en-GB';
+                                        extractedLabel = configElement.label[locale] || configElement.label['en-GB'] || Object.values(configElement.label)[0] || null;
+                                    } else if (typeof configElement.label === 'string') {
+                                        extractedLabel = configElement.label;
+                                    }
+                                }
+                                if (extractedLabel && typeof extractedLabel === 'string' && extractedLabel.trim().length > 0) {
+                                    finalLabel = extractedLabel;
+                                    break;
+                                }
+                            }
+                            // Also check if label is in configElement.config.label
+                            if (!finalLabel && configElement.config && configElement.config.label) {
+                                let extractedLabel = this.getInlineSnippet(configElement.config.label);
+                                if (!extractedLabel || (typeof extractedLabel === 'string' && extractedLabel.trim().length === 0)) {
+                                    if (typeof configElement.config.label === 'object' && configElement.config.label !== null) {
+                                        const locale = this.$i18n?.locale || 'en-GB';
+                                        extractedLabel = configElement.config.label[locale] || configElement.config.label['en-GB'] || Object.values(configElement.config.label)[0] || null;
+                                    } else if (typeof configElement.config.label === 'string') {
+                                        extractedLabel = configElement.config.label;
+                                    }
+                                }
+                                if (extractedLabel && typeof extractedLabel === 'string' && extractedLabel.trim().length > 0) {
+                                    finalLabel = extractedLabel;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // If we didn't find label in configSettings, try other sources
+            if (!finalLabel) {
+                // First, try baseBinding.label (this is what text fields use and it works)
+                if (baseBinding.label && typeof baseBinding.label === 'string' && baseBinding.label.trim().length > 0) {
+                    finalLabel = baseBinding.label;
+                } 
+                // If baseBinding doesn't have label, try extracting from element.label
+                else if (element.label) {
+                    // Try getInlineSnippet first (this is what Shopware uses internally)
+                    let extractedLabel = this.getInlineSnippet(element.label);
+                    
+                    // If that didn't work, try direct access
+                    if (!extractedLabel || (typeof extractedLabel === 'string' && extractedLabel.trim().length === 0)) {
+                        if (typeof element.label === 'object' && element.label !== null) {
+                            const locale = this.$i18n?.locale || 'en-GB';
+                            extractedLabel = element.label[locale] || element.label['en-GB'] || Object.values(element.label)[0] || null;
+                        } else if (typeof element.label === 'string') {
+                            extractedLabel = element.label;
+                        }
+                    }
+                    
+                    if (extractedLabel && typeof extractedLabel === 'string' && extractedLabel.trim().length > 0) {
+                        finalLabel = extractedLabel;
+                    }
+                }
+                // Try to find the element in the card's raw elements array (this might have the label)
+                else if (this.card && this.card.elements && Array.isArray(this.card.elements)) {
+                    const rawElement = this.card.elements.find(el => el.name === element.name);
+                    if (rawElement && rawElement.label) {
+                        let extractedLabel = this.getInlineSnippet(rawElement.label);
+                        if (!extractedLabel || (typeof extractedLabel === 'string' && extractedLabel.trim().length === 0)) {
+                            if (typeof rawElement.label === 'object' && rawElement.label !== null) {
+                                const locale = this.$i18n?.locale || 'en-GB';
+                                extractedLabel = rawElement.label[locale] || rawElement.label['en-GB'] || Object.values(rawElement.label)[0] || null;
+                            } else if (typeof rawElement.label === 'string') {
+                                extractedLabel = rawElement.label;
+                            }
+                        }
+                        if (extractedLabel && typeof extractedLabel === 'string' && extractedLabel.trim().length > 0) {
+                            finalLabel = extractedLabel;
+                        }
+                    }
+                }
+            }
+            // Last resort: try baseBinding.config.label
+            if (!finalLabel && baseBinding.config && baseBinding.config.label && typeof baseBinding.config.label === 'string' && baseBinding.config.label.trim().length > 0) {
+                finalLabel = baseBinding.config.label;
+            }
+            
+            // Prepare config - for bool/select fields, ensure label is in config
+            let finalConfig = config;
+            if (finalLabel && typeof finalLabel === 'string' && finalLabel.trim().length > 0) {
+                if (element.type === 'bool' || element.type === 'single-select' || element.type === 'multi-select') {
+                    finalConfig = {
+                        ...config,
+                        label: finalLabel
+                    };
+                }
+            }
+            
+            // Create a new object to avoid breaking reactivity
+            // IMPORTANT: Always preserve baseBinding.label if it exists (this is what makes text fields work)
+            // For bool/select fields, we also ensure label is in config
+            const binding = {
+                ...baseBinding,
+                config: finalConfig
+            };
+            
+            // If we extracted a label and baseBinding doesn't have one, set it
+            // This ensures bool/select fields get labels even if baseBinding.label is missing
+            // For bool fields, ALWAYS set the label if we have one, as it's critical for display
+            if (finalLabel && typeof finalLabel === 'string' && finalLabel.trim().length > 0) {
+                if (element.type === 'bool') {
+                    // For bool fields, always set the label to ensure it displays
+                    binding.label = finalLabel;
+                } else if (!binding.label || (typeof binding.label === 'string' && binding.label.trim().length === 0)) {
+                    binding.label = finalLabel;
+                }
+            }
+            
+            // For bool fields, ensure the value is set in the binding for proper reactivity
+            // This is critical for checkboxes to work correctly
+            if (element.type === 'bool') {
+                binding.value = currentValue;
+                // Ensure the label is always set for bool fields - it's required for proper rendering
+                if (!binding.label || (typeof binding.label === 'string' && binding.label.trim().length === 0)) {
+                    // Fallback to aria-label or field name if no label found
+                    binding.label = binding.config?.label || element.name.replace('BuckarooPayments.config.', '').replace(/([A-Z])/g, ' $1').trim();
+                }
+            }
+            
+            // Debug: Log if label is missing for bool/select fields
+            if ((element.type === 'bool' || element.type === 'single-select' || element.type === 'multi-select') && (!binding.label || (typeof binding.label === 'string' && binding.label.trim().length === 0))) {
+                console.warn('Missing label for field:', element.name, 'Type:', element.type, 'Element label:', element.label, 'Extracted:', finalLabel, 'BaseBinding label:', baseBinding.label, 'Final binding label:', binding.label);
+            }
+            
+            return binding;
         },
 
         getInheritWrapperBind(element) {
@@ -364,6 +532,17 @@ Component.register('buckaroo-config-card', {
                 } else if (actualValue === "off") {
                     actualValue = false;
                 }
+                
+                // For bool fields, ensure we always have a proper boolean
+                const element = this.card?.elements?.find(el => el.name === fieldName || el.name.replace('BuckarooPayments.config.', '') === fieldName.replace('BuckarooPayments.config.', ''));
+                if (element && element.type === 'bool') {
+                    if (typeof actualValue === 'string') {
+                        actualValue = actualValue === '1' || actualValue === 'true' || actualValue === 'on';
+                    } else {
+                        actualValue = Boolean(actualValue);
+                    }
+                }
+                
                 const cleanFieldName = fieldName.replace('BuckarooPayments.config.', '');
                 const updatedValue = { ...this.value };
 
