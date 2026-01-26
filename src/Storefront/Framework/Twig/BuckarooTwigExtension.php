@@ -18,12 +18,17 @@ class BuckarooTwigExtension extends AbstractExtension
     public function __construct(
         private SalesChannelRepository $paymentMethodRepository,
         private SettingsService $settingsService
-    ) {}
+    ) {
+    }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('buckaroo_enabled_payment_methods', [$this, 'getEnabledPaymentMethods'], ['needs_context' => true]),
+            new TwigFunction(
+                'buckaroo_enabled_payment_methods',
+                [$this, 'getEnabledPaymentMethods'],
+                ['needs_context' => true]
+            ),
         ];
     }
 
@@ -46,7 +51,10 @@ class BuckarooTwigExtension extends AbstractExtension
         foreach ($paymentMethods as $paymentMethod) {
             $buckarooKey = $paymentMethod->getTranslated()['customFields']['buckaroo_key'] ?? null;
             
-            if (!$buckarooKey || !$this->settingsService->getEnabled($buckarooKey, $salesChannelId) || !$paymentMethod->getMedia()) {
+            if (!$buckarooKey
+                || !$this->settingsService->getEnabled($buckarooKey, $salesChannelId)
+                || !$paymentMethod->getMedia()
+            ) {
                 continue;
             }
             
@@ -56,4 +64,3 @@ class BuckarooTwigExtension extends AbstractExtension
         return $enabled;
     }
 }
-
