@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Storefront\Framework\Twig;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -49,12 +50,31 @@ class BuckarooTwigExtension extends AbstractExtension
         $enabled = new PaymentMethodCollection();
         
         foreach ($paymentMethods as $paymentMethod) {
-            $buckarooKey = $paymentMethod->getTranslated()['customFields']['buckaroo_key'] ?? null;
+            if (!$paymentMethod instanceof PaymentMethodEntity) {
+                continue;
+            }
             
-            if (!$buckarooKey
-                || !$this->settingsService->getEnabled($buckarooKey, $salesChannelId)
-                || !$paymentMethod->getMedia()
-            ) {
+            $translated = $paymentMethod->getTranslated();
+            if (!is_array($translated)) {
+                continue;
+            }
+            
+            $customFields = $translated['customFields'] ?? null;
+            if (!is_array($customFields)) {
+                continue;
+            }
+            
+            $buckarooKey = $customFields['buckaroo_key'] ?? null;
+            if (!is_string($buckarooKey)) {
+                continue;
+            }
+            
+            $media = $paymentMethod->getMedia();
+            if ($media === null) {
+                continue;
+            }
+            
+            if (!$this->settingsService->getEnabled($buckarooKey, $salesChannelId)) {
                 continue;
             }
             
