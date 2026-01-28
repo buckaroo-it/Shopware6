@@ -239,7 +239,7 @@ Component.register('buckaroo-config-card', {
                     };
                 }
             }
-            
+
             // Create a new object to avoid breaking reactivity
             // IMPORTANT: Always preserve baseBinding.label if it exists (this is what makes text fields work)
             // For bool/select fields, we also ensure label is in config
@@ -247,6 +247,44 @@ Component.register('buckaroo-config-card', {
                 ...baseBinding,
                 config: finalConfig
             };
+
+            // Ensure specific fields are treated as real multi-selects in the UI
+            const forcedMultiSelectFields = [
+                'allowedcreditcard',
+                'allowedcreditcards',
+                'allowedgiftcards',
+                'giftcardsPaymentmethods',
+                'payperemailAllowed'
+            ];
+
+            if (forcedMultiSelectFields.includes(fieldName)) {
+                binding.type = 'multi-select';
+                // Force Shopware to render the correct component
+                binding.componentName = 'sw-multi-select';
+
+                binding.config = {
+                    ...(binding.config || {}),
+                    multiple: true,
+                    // Prefer options coming from binding.config; fall back to element/config when needed
+                    options: (binding.config && binding.config.options)
+                        || (config && config.options)
+                        || element.options
+                        || []
+                };
+
+                // Debug logging to inspect how the multi-select is bound
+                const sampleOption = Array.isArray(binding.config?.options) && binding.config.options.length > 0
+                    ? binding.config.options[0]
+                    : null;
+                console.debug('[BuckarooConfigCard] getElementBind multi-select binding', {
+                    fieldName,
+                    bindingType: binding.type,
+                    componentName: binding.componentName,
+                    optionsCount: Array.isArray(binding.config?.options) ? binding.config.options.length : 0,
+                    currentValue,
+                    sampleOption
+                });
+            }
             
             // If we extracted a label and baseBinding doesn't have one, set it
             // This ensures bool/select fields get labels even if baseBinding.label is missing
@@ -527,6 +565,12 @@ Component.register('buckaroo-config-card', {
                     actualValue = eventOrValue;
                 }
 
+                // Determine the element definition once so we can branch on its type
+                const element = this.card?.elements?.find(
+                    el => el.name === fieldName
+                        || el.name.replace('BuckarooPayments.config.', '') === fieldName.replace('BuckarooPayments.config.', '')
+                );
+
                 if (actualValue === "on") {
                     actualValue = true;
                 } else if (actualValue === "off") {
@@ -534,13 +578,51 @@ Component.register('buckaroo-config-card', {
                 }
                 
                 // For bool fields, ensure we always have a proper boolean
-                const element = this.card?.elements?.find(el => el.name === fieldName || el.name.replace('BuckarooPayments.config.', '') === fieldName.replace('BuckarooPayments.config.', ''));
                 if (element && element.type === 'bool') {
                     if (typeof actualValue === 'string') {
                         actualValue = actualValue === '1' || actualValue === 'true' || actualValue === 'on';
                     } else {
                         actualValue = Boolean(actualValue);
                     }
+                }
+
+                // For multi-select fields, ALWAYS store an array of selected values.
+                // This ensures components like sw-multi-select keep multiple selections
+                // instead of degrading to a single selected option.
+                if (element && element.type === 'multi-select') {
+                    console.debug('[BuckarooConfigCard] onFieldInput before normalize (multi-select)', {
+                        fieldName,
+                        rawEvent: eventOrValue,
+                        rawValue: actualValue
+                    });
+
+                    if (Array.isArray(actualValue)) {
+                        // Normalize array items to primitive ids / values
+                        actualValue = actualValue
+                            .filter(item => item !== null && item !== undefined && item !== '')
+                            .map(item => {
+                                if (typeof item === 'object' && item !== null) {
+                                    return item.id || item.value || item.code || item.key || item;
+                                }
+                                return item;
+                            });
+                    } else if (typeof actualValue === 'string') {
+                        // Support comma-separated string values (just in case)
+                        actualValue = actualValue
+                            .split(',')
+                            .map(v => v.trim())
+                            .filter(v => v.length > 0);
+                    } else if (actualValue === null || actualValue === undefined) {
+                        actualValue = [];
+                    } else {
+                        // Fallback: wrap single primitive value into an array
+                        actualValue = [actualValue];
+                    }
+
+                    console.debug('[BuckarooConfigCard] onFieldInput after normalize (multi-select)', {
+                        fieldName,
+                        normalizedValue: actualValue
+                    });
                 }
                 
                 const cleanFieldName = fieldName.replace('BuckarooPayments.config.', '');
