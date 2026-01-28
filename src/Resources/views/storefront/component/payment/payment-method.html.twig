@@ -19,7 +19,24 @@
                                             {% set paymentMedia = page.extensions.buckaroo.in3Logo %}
                                         {% endif %}
 
-                                        {% if paymentMedia %}
+                                        {% set buckarooKey = payment.translated.customFields.buckaroo_key ?? null %}
+                                        {% set handlerId = payment.formattedHandlerIdentifier ?? '' %}
+                                        {% set isBuckarooCreditcard =
+                                            buckarooKey in ['creditcard', 'creditcards']
+                                            or handlerId in [
+                                                'handler_buckaroo_creditcardpaymenthandler',
+                                                'handler_buckaroo_creditcardspaymenthandler'
+                                            ]
+                                        %}
+
+                                        {% if payment.translated.customFields.is_buckaroo and isBuckarooCreditcard %}
+                                            <img
+                                                src="{{ asset('bundles/buckaroopayments/images/creditcards.svg') }}"
+                                                class="payment-method-image bk-payment-image"
+                                                alt="{{ payment.translated.name }}"
+                                                title="{{ payment.translated.name }}"
+                                            >
+                                        {% elseif paymentMedia %}
                                             {% sw_thumbnails 'payment-method-image-thumbnails' with {
                                                 media: paymentMedia,
                                                 sizes: {

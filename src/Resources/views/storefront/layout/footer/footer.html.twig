@@ -6,7 +6,26 @@
     {% if footerPaymentMethods|length > 0 %}
         <div class="footer-logos">
             {% for paymentMethod in footerPaymentMethods %}
-                {% if paymentMethod.media %}
+                {% set buckarooKey = paymentMethod.translated.customFields.buckaroo_key ?? null %}
+                {% set handlerId = paymentMethod.handlerIdentifier ?? '' %}
+                {% set isBuckarooCreditcard =
+                    buckarooKey in ['creditcard', 'creditcards']
+                    or 'CreditcardPaymentHandler' in handlerId
+                    or 'CreditcardsPaymentHandler' in handlerId
+                %}
+
+                {% if isBuckarooCreditcard %}
+                    {# Always use bundled credit card logo for Buckaroo creditcard/creditcards in footer #}
+                    <div class="footer-logo is-payment">
+                        <img
+                            src="{{ asset('bundles/buckaroopayments/images/creditcards.svg') }}"
+                            class="img-fluid footer-logo-image"
+                            alt="{{ paymentMethod.translated.name }}"
+                            title="{{ paymentMethod.translated.name }}"
+                            loading="eager"
+                        >
+                    </div>
+                {% elseif paymentMethod.media %}
                     <div class="footer-logo is-payment">
                         <img
                             src="{{ paymentMethod.media.url }}"
