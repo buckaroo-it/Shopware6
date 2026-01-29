@@ -28,16 +28,20 @@ class SupportController extends StorefrontController
 
     protected In3LogoService $in3LogoService;
 
+    protected string $shopwareVersion;
+
     public function __construct(
         TestCredentialsService $testCredentialsService,
         BuckarooTransactionService $buckarooTransactionService,
         EntityRepository $taxRepository,
-        In3LogoService $in3LogoService
+        In3LogoService $in3LogoService,
+        string $shopwareVersion
     ) {
         $this->testCredentialsService = $testCredentialsService;
         $this->buckarooTransactionService = $buckarooTransactionService;
         $this->taxRepository = $taxRepository;
         $this->in3LogoService = $in3LogoService;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     /**
@@ -50,6 +54,7 @@ class SupportController extends StorefrontController
         return new JsonResponse([
             'phpversion'          => implode('.', $phpVersion),
             'isPhpVersionSupport' => ($phpVersion[0] . $phpVersion[1] >= '71') ? true : false,
+            'shopware_version'    => $this->shopwareVersion,
         ]);
     }
 
