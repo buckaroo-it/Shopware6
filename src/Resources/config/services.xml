@@ -467,6 +467,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\BuckarooTransactionService"/>
             <argument type="service" id="tax.repository"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\In3LogoService"/>
+            <argument>%kernel.shopware_version%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
