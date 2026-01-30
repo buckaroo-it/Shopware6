@@ -1,3 +1,13 @@
+# Unreleased
+
+## iDEAL | Wero co-branding (mandatory from 29 January 2026)
+
+- **Payment method name**: Renamed from "iDEAL" to "iDEAL | Wero" across frontend (checkout, UI labels), backend (admin, configuration), and payment method lists.
+- **Logo update**: Replaced the iDEAL logo with the co-branded iDEAL | Wero logo (SVG) in checkout, admin payment list, and payment method media. The co-branded logo is used even when rail selection tooling is not used.
+- **iDEAL | Wero fast checkout**: Admin labels and alt texts for the fast checkout button now use "iDEAL | Wero". For the fast checkout button image, replace the PNG assets `idealFastCheckoutLogoLight.png` and `idealFastCheckoutLogoDark.png` in `Resources/public/storefront/buckaroo/` with the co-branded iDEAL | Wero versions from the [Buckaroo Media repository](https://github.com/buckaroo-it/Media) (PNG format). The SVG logo is already provided as `ideal-wero.svg`.
+
+**Note:** This change must not be released before 29 January 2026. Logo switch must be fully completed by 31 March 2026.
+
 # 1.0.0
 - First version BuckarooPayment for Shopware 6.1
 

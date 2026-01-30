@@ -458,7 +458,7 @@
     </card>
 
     <card>
-        <title>iDEAL</title>
+        <title>iDEAL | Wero</title>
         <name>ideal</name>
 
         <input-field type="single-select">
@@ -471,17 +471,17 @@
             <options>
                 <option>
                     <id>ideal</id>
-                    <name lang="en-GB">iDEAL Collecting</name>
-                    <name lang="nl-NL">iDEAL Collecting</name>
-                    <name lang="de-DE">iDEAL Collecting</name>
-                    <name lang="fr-FR">iDEAL Collecting</name>
+                    <name lang="en-GB">iDEAL | Wero Collecting</name>
+                    <name lang="nl-NL">iDEAL | Wero Collecting</name>
+                    <name lang="de-DE">iDEAL | Wero Collecting</name>
+                    <name lang="fr-FR">iDEAL | Wero Collecting</name>
                 </option>
                 <option>
                     <id>idealProcessing</id>
-                    <name lang="en-GB">iDEAL Processing</name>
-                    <name lang="nl-NL">iDEAL Processing</name>
-                    <name lang="de-DE">iDEAL Processing</name>
-                    <name lang="fr-FR">iDEAL Processing</name>
+                    <name lang="en-GB">iDEAL | Wero Processing</name>
+                    <name lang="nl-NL">iDEAL | Wero Processing</name>
+                    <name lang="de-DE">iDEAL | Wero Processing</name>
+                    <name lang="fr-FR">iDEAL | Wero Processing</name>
                 </option>
             </options>
         </input-field>
@@ -523,7 +523,7 @@
 			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
 			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
 			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>			
-            <defaultValue>iDEAL</defaultValue>
+            <defaultValue>iDEAL | Wero</defaultValue>
         </input-field>
 
         <input-field type="text">
@@ -543,10 +543,10 @@
 
         <input-field type="bool">
             <name>idealFastCheckout</name>
-            <label lang="en-GB">iDEAL fast checkout configuration</label>
-            <label lang="nl-NL">iDEAL snel bestellen</label>
-            <label lang="de-DE">iDEAL schneller checkout</label>
-            <label lang="fr-FR">paiement rapide iDEAL</label>
+            <label lang="en-GB">iDEAL | Wero fast checkout configuration</label>
+            <label lang="nl-NL">iDEAL | Wero snel bestellen</label>
+            <label lang="de-DE">iDEAL | Wero schneller checkout</label>
+            <label lang="fr-FR">paiement rapide iDEAL | Wero</label>
         </input-field>
 
         <input-field type="bool">
@@ -559,9 +559,9 @@
 
         <input-field type="multi-select">
             <name>idealFastCheckoutVisibility</name>
-            <label lang="en-GB">iDEAL fast checkout logo visibillity</label>
-            <label lang="nl-NL">iDEAL fast checkout logo visibillity</label>
-            <label lang="de-DE">ZiDEAL fast checkout logo visibillity</label>
+            <label lang="en-GB">iDEAL | Wero fast checkout logo visibility</label>
+            <label lang="nl-NL">iDEAL | Wero fast checkout logo visibility</label>
+            <label lang="de-DE">iDEAL | Wero fast checkout logo visibility</label>
             <defaultValue>["none"]</defaultValue>
             <options>
                 <option>
@@ -581,10 +581,10 @@
 
         <input-field type="single-select">
             <name>idealFastCheckoutLogoScheme</name>
-            <label lang="en-GB">iDEAL fast checkout logo color scheme</label>
-            <label lang="de-DE">iDEAL fast checkout logo color scheme</label>
-            <label lang="nl-NL">iDEAL fast checkout logo color scheme</label>
-            <label lang="fr-FR">iDEAL fast checkout logo color scheme</label>
+            <label lang="en-GB">iDEAL | Wero fast checkout logo color scheme</label>
+            <label lang="de-DE">iDEAL | Wero fast checkout logo color scheme</label>
+            <label lang="nl-NL">iDEAL | Wero fast checkout logo color scheme</label>
+            <label lang="fr-FR">iDEAL | Wero fast checkout logo color scheme</label>
             <defaultValue>idealFastCheckoutLogoLight</defaultValue>
             <options>
                 <option>
@@ -1893,7 +1893,7 @@
                 </option>
                 <option>
                     <id>ideal</id>
-                    <name>iDEAL</name>
+                    <name>iDEAL | Wero</name>
                 </option>
                 <option>
                     <id>wero</id>
@@ -2941,7 +2941,7 @@
                 </option>
                 <option>
                     <id>ideal</id>
-                    <name>iDEAL</name>
+                    <name>iDEAL | Wero</name>
                 </option>
                 <option>
                     <id>maestro</id>
