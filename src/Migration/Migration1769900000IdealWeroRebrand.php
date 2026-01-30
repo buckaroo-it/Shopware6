@@ -48,16 +48,24 @@ class Migration1769900000IdealWeroRebrand extends MigrationStep
         );
 
         // 2. Update system_config idealLabel to "iDEAL | Wero" (used for storefront payment_labels)
-        $connection->executeStatement(
-            "UPDATE system_config
-             SET configuration_value = JSON_SET(COALESCE(configuration_value, '{}'), '$._value', :newValue)
-             WHERE configuration_key = 'BuckarooPayments.config.idealLabel'
-               AND (JSON_UNQUOTE(JSON_EXTRACT(configuration_value, '$._value')) = 'iDEAL'
-                   OR JSON_EXTRACT(configuration_value, '$._value') IS NULL)",
-            [
-                'newValue' => self::NEW_NAME,
-            ]
-        );
+        // Skip if system_config table does not exist (e.g. table prefix, or core not fully migrated)
+        $schemaManager = method_exists($connection, 'createSchemaManager')
+            ? $connection->createSchemaManager()
+            : $connection->getSchemaManager();
+        $tableExists = $schemaManager->tablesExist(['system_config']);
+
+        if ($tableExists) {
+            $connection->executeStatement(
+                "UPDATE system_config
+                 SET configuration_value = JSON_SET(COALESCE(configuration_value, '{}'), '$._value', :newValue)
+                 WHERE configuration_key = 'BuckarooPayments.config.idealLabel'
+                   AND (JSON_UNQUOTE(JSON_EXTRACT(configuration_value, '$._value')) = 'iDEAL'
+                       OR JSON_EXTRACT(configuration_value, '$._value') IS NULL)",
+                [
+                    'newValue' => self::NEW_NAME,
+                ]
+            );
+        }
     }
 
     public function updateDestructive(Connection $connection): void
