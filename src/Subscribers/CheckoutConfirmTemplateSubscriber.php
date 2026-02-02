@@ -32,6 +32,7 @@ use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 {
@@ -321,6 +322,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'applepayHostedPaymentPage' =>
                 $this->getSettingAsInt('applepayHostedPaymentPage', $salesChannelId) === 1,
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
+            'isAppleDevice'            => $this->isAppleDevice($request),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'canShowPhone'          => $this->canShowPhone($customer),
             'methodsWithFinancialWarning' => $this->getMethodsWithFinancialWarning($salesChannelId),
@@ -434,6 +436,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
         $struct             = new BuckarooStruct();
+        $request = $event->getRequest();
 
         $struct->assign([
             'applepayHostedPaymentPage' =>
@@ -442,6 +445,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showIdealFastCheckout'     => $this->showIdealFastCheckout($salesChannelId, 'cart'),
             'paypalMerchantId'          => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId'        => $this->getAppleMerchantId($salesChannelId),
+            'isAppleDevice'             => $this->isAppleDevice($request),
             'websiteKey'                => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'showApplePay'              => $this->getSettingAsBool('applepayShowCart', $salesChannelId),
             'idealFastCheckoutLogo'     => $this->getIdealFastCheckoutLogo($salesChannelId)
@@ -492,6 +496,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $struct = new BuckarooStruct();
 
         $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
+        $request = $event->getRequest();
         $struct->assign([
             'applepayShowProduct'       =>
                 $this->getSettingAsBool('applepayShowProduct', $salesChannelId),
@@ -501,6 +506,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
             'applePayMerchantId' => $this->getAppleMerchantId($salesChannelId),
+            'isAppleDevice' => $this->isAppleDevice($request),
             'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'idealFastCheckoutLogo' => $this->getIdealFastCheckoutLogo($salesChannelId)
         ]);
@@ -921,5 +927,25 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
         
         return $default;
+    }
+
+    /**
+     * Check if the request is from an Apple device (iPhone, iPad, iPod, Mac)
+     *
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return bool
+     */
+    private function isAppleDevice($request): bool
+    {
+        $userAgent = $request->server->get('HTTP_USER_AGENT');
+        
+        if (!is_string($userAgent) || empty($userAgent)) {
+            return false;
+        }
+        
+        // Check for Apple devices: iPhone, iPad, iPod, Macintosh, Mac OS X
+        $applePattern = '/(iphone|ipad|ipod|macintosh|mac os x)/i';
+        
+        return preg_match($applePattern, $userAgent) === 1;
     }
 }

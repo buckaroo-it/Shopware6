@@ -238,12 +238,7 @@ class In3PaymentHandler extends PaymentHandlerSimple
 
 
         return [
-            'articles' => array_filter($articles, function ($article) {
-                return is_array($article) &&
-                    isset($article['price']) &&
-                    is_scalar($article['price']) &&
-                    (float)$article['price'] > 0;
-            })
+            'articles' => $articles
         ];
     }
 

@@ -5,9 +5,23 @@ const { Component } = Shopware;
 Component.override('sw-system-config', {
     template,
     
-    createdComponent() {
-        this.$super('createdComponent');
-        this.loadBuckarooConfigData();
+    watch: {
+        currentSalesChannelId: {
+            handler(newVal, oldVal) {
+                if (newVal && this.domain === 'BuckarooPayments.config') {
+                    this.loadBuckarooConfigData();
+                }
+            },
+            immediate: true
+        },
+        domain: {
+            handler(newVal) {
+                if (newVal === 'BuckarooPayments.config' && this.currentSalesChannelId) {
+                    this.loadBuckarooConfigData();
+                }
+            },
+            immediate: true
+        }
     },
 
     methods: {

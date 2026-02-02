@@ -72,7 +72,7 @@ Component.register("buckaroo-payment-list", {
                 },
                 {
                     code: "ideal",
-                    logo: "ideal.svg"
+                    logo: "ideal-wero.svg"
                 },
                 {
                     code: "capayable",
@@ -149,6 +149,10 @@ Component.register("buckaroo-payment-list", {
                 {
                     code: "twint",
                     logo: "twint.svg"
+                },
+                {
+                    code: "wero",
+                    logo: "wero.svg"
                 }
             ]
         };

@@ -16,16 +16,43 @@
                             @input="onFieldInput(element.name, $event)"
                     >
                         <template #content="props">
-                            <sw-form-field-renderer
+                            {# Special handling for fields that must be true multi-selects #}
+                            <template v-if="['allowedcreditcard', 'allowedcreditcards', 'allowedgiftcards', 'giftcardsPaymentmethods', 'payperemailAllowed'].includes(element.name.replace('BuckarooPayments.config.', ''))">
+                                <sw-multi-select
                                     v-bind="getElementBind(element, props)"
-                                    :key="props.isInheritField + props.isInherited"
+                                    :key="`${element.name}-multi-${props.isInheritField}-${props.isInherited}`"
                                     :disabled="props.isInherited"
-                                    :value="props.currentValue"
+                                    :value="Array.isArray(props.currentValue) ? props.currentValue : (props.currentValue ? [props.currentValue] : [])"
+                                    :options="
+                                        (getElementBind(element, props).config && getElementBind(element, props).config.options
+                                            ? getElementBind(element, props).config.options
+                                            : []
+                                        ).map(opt => ({
+                                            value: opt.id,
+                                            label: opt.name && typeof opt.name === 'object'
+                                                ? (opt.name[$i18n.locale] || opt.name['en-GB'] || Object.values(opt.name)[0] || opt.id)
+                                                : (opt.name || opt.id)
+                                        }))
+                                    "
+                                    labelProperty="label"
+                                    valueProperty="value"
                                     :error="getFieldError(element.name)"
-                                    @input="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
                                     @change="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
                                     @update:value="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
-                            />
+                                />
+                            </template>
+                            <template v-else>
+                                <sw-form-field-renderer
+                                        v-bind="getElementBind(element, props)"
+                                        :key="element.type === 'bool' ? `${element.name}-${props.isInheritField}-${props.isInherited}-${props.currentValue}` : `${element.name}-${props.isInheritField}-${props.isInherited}`"
+                                        :disabled="props.isInherited"
+                                        :value="element.type === 'bool' ? Boolean(props.currentValue) : props.currentValue"
+                                        :error="getFieldError(element.name)"
+                                        @input="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
+                                        @change="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
+                                        @update:value="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
+                                />
+                            </template>
                         </template>
                     </sw-inherit-wrapper>
                 </slot>

@@ -3,8 +3,8 @@
     {% if payment.translated.customFields.is_buckaroo %}
         <div class="payment-method">
 
-            {% if payment.translated.customFields.buckaroo_key !== 'applepay'|| (payment.translated.customFields.buckaroo_key === 'applepay' && page.extensions.buckaroo.applepayHostedPaymentPage) %}
-                <div class="payment-form-group form-group mb-0">
+            {% if payment.translated.customFields.buckaroo_key !== 'applepay'|| (payment.translated.customFields.buckaroo_key === 'applepay' && (page.extensions.buckaroo.applepayHostedPaymentPage && page.extensions.buckaroo.isAppleDevice)) %}
+                <div class="payment-form-group form-group mb-4">
                     {% block component_payment_method_control %}
                         <div class="form-check custom-radio payment-method-radio bk-{{ payment.translated.customFields.buckaroo_key }}">
                             {% block component_payment_method_input %}
@@ -19,7 +19,24 @@
                                             {% set paymentMedia = page.extensions.buckaroo.in3Logo %}
                                         {% endif %}
 
-                                        {% if paymentMedia %}
+                                        {% set buckarooKey = payment.translated.customFields.buckaroo_key ?? null %}
+                                        {% set handlerId = payment.formattedHandlerIdentifier ?? '' %}
+                                        {% set isBuckarooCreditcard =
+                                            buckarooKey in ['creditcard', 'creditcards']
+                                            or handlerId in [
+                                                'handler_buckaroo_creditcardpaymenthandler',
+                                                'handler_buckaroo_creditcardspaymenthandler'
+                                            ]
+                                        %}
+
+                                        {% if payment.translated.customFields.is_buckaroo and isBuckarooCreditcard %}
+                                            <img
+                                                src="{{ asset('bundles/buckaroopayments/images/creditcards.svg') }}"
+                                                class="payment-method-image bk-payment-image"
+                                                alt="{{ payment.translated.name }}"
+                                                title="{{ payment.translated.name }}"
+                                            >
+                                        {% elseif paymentMedia %}
                                             {% sw_thumbnails 'payment-method-image-thumbnails' with {
                                                 media: paymentMedia,
                                                 sizes: {
@@ -62,7 +79,7 @@
                 {% set countryBillingIso = page.extensions.buckaroo.countryBillingIso %}
                 {% set countryShippingIso = page.extensions.buckaroo.countryShippingIso %}
                 <div class="buckaroo-payment-inputs" style="margin-top: 15px;">
-                    {% if buckarooKey == 'bancontactmrcash' %}
+                    {% if buckarooKey == 'bancontactmrcash' and page.extensions.buckaroo.redirectBancontact %}
                         {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/bancontactmrcash.html.twig' %}
                     {% elseif buckarooKey == 'creditcard' %}
                         {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/creditcard.html.twig' %}

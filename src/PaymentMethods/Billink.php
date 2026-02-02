@@ -52,6 +52,6 @@ class Billink extends AbstractPayment
 
     public function canCapture(): bool
     {
-        return true;
+        return false;
     }
 }

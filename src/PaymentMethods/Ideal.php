@@ -31,7 +31,7 @@ class Ideal extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'iDEAL';
+        return 'iDEAL | Wero';
     }
     /**
      * {@inheritDoc}
@@ -40,7 +40,7 @@ class Ideal extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with iDEAL';
+        return 'Pay with iDEAL | Wero';
     }
 
     /**
@@ -60,7 +60,7 @@ class Ideal extends AbstractPayment
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/ideal.svg';
+        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/ideal-wero.svg';
     }
 
     /**
@@ -73,7 +73,7 @@ class Ideal extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit iDEAL',
+                'description' => 'Bezahlen mit iDEAL | Wero',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),

@@ -1,0 +1,43 @@
+{% sw_extends '@Storefront/storefront/layout/footer/footer.html.twig' %}
+
+{% block layout_footer_payment_logos %}
+    {% set footerPaymentMethods = buckaroo_enabled_payment_methods() %}
+    
+    {% if footerPaymentMethods|length > 0 %}
+        <div class="footer-logos">
+            {% for paymentMethod in footerPaymentMethods %}
+                {% set buckarooKey = paymentMethod.translated.customFields.buckaroo_key ?? null %}
+                {% set handlerId = paymentMethod.handlerIdentifier ?? '' %}
+                {% set isBuckarooCreditcard =
+                    buckarooKey in ['creditcard', 'creditcards']
+                    or 'CreditcardPaymentHandler' in handlerId
+                    or 'CreditcardsPaymentHandler' in handlerId
+                %}
+
+                {% if isBuckarooCreditcard %}
+                    {# Always use bundled credit card logo for Buckaroo creditcard/creditcards in footer #}
+                    <div class="footer-logo is-payment">
+                        <img
+                            src="{{ asset('bundles/buckaroopayments/images/creditcards.svg') }}"
+                            class="img-fluid footer-logo-image"
+                            alt="{{ paymentMethod.translated.name }}"
+                            title="{{ paymentMethod.translated.name }}"
+                            loading="eager"
+                        >
+                    </div>
+                {% elseif paymentMethod.media %}
+                    <div class="footer-logo is-payment">
+                        <img
+                            src="{{ paymentMethod.media.url }}"
+                            class="img-fluid footer-logo-image"
+                            alt="{{ paymentMethod.media.translated.alt ?: paymentMethod.translated.name }}"
+                            title="{{ paymentMethod.media.translated.title ?: paymentMethod.translated.name }}"
+                            loading="eager"
+                        >
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+
