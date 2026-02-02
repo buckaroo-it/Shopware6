@@ -440,6 +440,13 @@
 
             <tag name="shopware.payment.method.async" />
         </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\WeroPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
         <!-- /Payment methods -->
 
         <!-- Controllers -->
@@ -460,6 +467,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\BuckarooTransactionService"/>
             <argument type="service" id="tax.repository"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\In3LogoService"/>
+            <argument>%kernel.shopware_version%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

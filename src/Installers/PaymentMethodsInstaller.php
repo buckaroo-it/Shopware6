@@ -328,7 +328,7 @@ class PaymentMethodsInstaller implements InstallerInterface
     }
 
     /**
-     * Add new payment methods on update
+     * Add new payment methods and update existing ones on update (sync name, description, media from PHP classes).
      *
      * @param Context $context
      *
@@ -338,11 +338,8 @@ class PaymentMethodsInstaller implements InstallerInterface
     {
         foreach (GatewayHelper::GATEWAYS as $gateway) {
             $paymentMethod = new $gateway();
-
             $paymentMethodId = $this->getPaymentMethodId($paymentMethod, $context);
-            if ($paymentMethodId === null) {
-                $this->upsertPaymentMethod($paymentMethod, $context, $paymentMethodId);
-            }
+            $this->upsertPaymentMethod($paymentMethod, $context, $paymentMethodId);
         }
     }
 }
