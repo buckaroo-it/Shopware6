@@ -392,3 +392,4 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BP-5101 Fixed incorrect percentage fee calculation after a failed order in Shopware
 - BP-5115 Fixed an issue preventing switching payment methods after selecting Bancontact in Shopware 6.7.4
 - BP-5220 Fixed an issue where not all active payment method logos were visible in the footer on Shopware 6 pages
+- BP-5350 Shopware 6 | Add Comprehensive Unit and Integration Test Suite for Shopware Buckaroo Payment Gateway Plugin
