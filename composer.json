@@ -25,6 +25,11 @@
             "Buckaroo\\Shopware6\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Buckaroo\\Shopware6\\Tests\\": "tests/"
+        }
+    },
     "extra": {
         "shopware-plugin-class": "Buckaroo\\Shopware6\\BuckarooPayments",
         "plugin-icon": "src/Resources/public/plugin.png",
@@ -47,6 +52,7 @@
         }
     },
     "require-dev": {
+        "phpunit/phpunit": "^9.6",
         "squizlabs/php_codesniffer": "*",
         "phpstan/phpstan": "^1.9",
         "shopware/storefront": "*",
