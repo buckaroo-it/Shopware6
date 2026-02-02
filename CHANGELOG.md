@@ -377,3 +377,18 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BP-5082 Resolve: Payment fee percentage is displayed as fixed fee in the checkout.
 - BP-5084 Resolve: Currency symbol mismatch between checkout total and payment method display (SEK, CHF)
 - BP-5044 Resolve: Migration failure in Buckaroo Plugin due to the removal of Sofort.
+
+# 3.2.0
+- BP-5305 Add support for Shopware 6.7.6.0
+- BP-5251 Add support for Shopware 6.7.5.1
+- BP-5313 Update “iDEAL” to the co-branded “iDEAL | Wero” names and logo’s
+- BP-5352 Add payment method: Wero (BE, DE, FR)
+- BP-5198 Removed the separate authorize/capture flow for Billink
+- BP-5117 Fixed an issue with the capture button in the Shopware 6 admin
+- BP-5144 Fixed incorrect alignment of the Bizum payment method logo in Safari
+- BP-5143 Fixed Apple Pay button visibility in redirect mode so it only appears on supported Apple devices
+- BP-5189 Fixed an In3 discount validation error when using Shopware promotion codes
+- BP-5079 Fixed an issue where Riverty (legacy gateway) product lines were sent with 0% VAT
+- BP-5101 Fixed incorrect percentage fee calculation after a failed order in Shopware
+- BP-5115 Fixed an issue preventing switching payment methods after selecting Bancontact in Shopware 6.7.4
+- BP-5220 Fixed an issue where not all active payment method logos were visible in the footer on Shopware 6 pages
