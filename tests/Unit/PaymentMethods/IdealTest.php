@@ -60,7 +60,7 @@ class IdealTest extends TestCase
         $result = $this->ideal->getName();
 
         // Assert
-        $this->assertSame('iDEAL', $result);
+        $this->assertSame('iDEAL | Wero', $result);
     }
 
     /**
@@ -72,7 +72,7 @@ class IdealTest extends TestCase
         $result = $this->ideal->getDescription();
 
         // Assert
-        $this->assertSame('Pay with iDEAL', $result);
+        $this->assertSame('Pay with iDEAL | Wero', $result);
     }
 
     /**
@@ -96,7 +96,7 @@ class IdealTest extends TestCase
         $result = $this->ideal->getMedia();
 
         // Assert
-        $this->assertStringContainsString('ideal.svg', $result);
+        $this->assertStringContainsString('ideal-wero.svg', $result);
         $this->assertStringContainsString('Resources/views/storefront/buckaroo/payments', $result);
     }
 
@@ -125,8 +125,8 @@ class IdealTest extends TestCase
         // Assert
         $this->assertArrayHasKey('name', $result['de-DE']);
         $this->assertArrayHasKey('description', $result['de-DE']);
-        $this->assertSame('iDEAL', $result['de-DE']['name']);
-        $this->assertSame('Bezahlen mit iDEAL', $result['de-DE']['description']);
+        $this->assertSame('iDEAL | Wero', $result['de-DE']['name']);
+        $this->assertSame('Bezahlen mit iDEAL | Wero', $result['de-DE']['description']);
     }
 
     /**
@@ -140,8 +140,8 @@ class IdealTest extends TestCase
         // Assert
         $this->assertArrayHasKey('name', $result['en-GB']);
         $this->assertArrayHasKey('description', $result['en-GB']);
-        $this->assertSame('iDEAL', $result['en-GB']['name']);
-        $this->assertSame('Pay with iDEAL', $result['en-GB']['description']);
+        $this->assertSame('iDEAL | Wero', $result['en-GB']['name']);
+        $this->assertSame('Pay with iDEAL | Wero', $result['en-GB']['description']);
     }
 
     /**
