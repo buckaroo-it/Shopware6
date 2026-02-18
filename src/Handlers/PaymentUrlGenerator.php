@@ -38,12 +38,25 @@ class PaymentUrlGenerator
         OrderTransactionEntity $orderTransaction,
         OrderEntity $order
     ): string {
-        return $this->asyncPaymentService->urlService->forwardToRoute(
+        return $this->asyncPaymentService->urlService->generateAbsoluteUrl(
             'frontend.checkout.finish.page',
             ['orderId' => $order->getId()]
         );
     }
 
+    /**
+     * Returns the cancel URL for Buckaroo redirects.
+     * Uses a dedicated cancel route that redirects to cart (guest-friendly) instead of
+     * the login-required edit-order page.
+     */
+    public function getCancelRedirectUrl(): string
+    {
+        return $this->asyncPaymentService->urlService->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
+    }
+
+    /**
+     * @deprecated Use getCancelRedirectUrl() for guest-friendly cart redirect. Kept for backward compatibility.
+     */
     public function getCancelUrl(?string $returnUrl): string
     {
         return sprintf('%s&cancel=1', $returnUrl);

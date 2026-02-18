@@ -276,12 +276,10 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
     private function redirectToFinishPage(AsyncPaymentTransactionStruct $transaction): RedirectResponse
     {
         return new RedirectResponse(
-            $this->asyncPaymentService
-                ->urlService
-                ->forwardToRoute(
-                    'frontend.checkout.finish.page',
-                    ['orderId' => $transaction->getOrder()->getId()]
-                )
+            $this->asyncPaymentService->urlService->generateAbsoluteUrl(
+                'frontend.checkout.finish.page',
+                ['orderId' => $transaction->getOrder()->getId()]
+            )
         );
     }
 
@@ -311,6 +309,9 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         $order = $transaction->getOrder();
         $returnUrl = $this->getReturnUrl($transaction, $dataBag);
         $salesChannelId = $salesChannelContext->getSalesChannelId();
+        $contextToken = $salesChannelContext->getToken();
+        $separator = str_contains($returnUrl, '?') ? '&' : '?';
+        $returnUrl .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
 
         return [
             'order'         => $order->getOrderNumber(),
@@ -322,7 +323,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             ),
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
             'returnURL'     => $returnUrl,
-            'cancelURL'     => sprintf('%s&cancel=1', $returnUrl),
+            'returnURLCancel' => $this->asyncPaymentService->urlService->generateAbsoluteUrl('frontend.action.buckaroo.cancel'),
             'pushURL'       => $this->asyncPaymentService
                 ->urlService
                 ->getReturnUrl('buckaroo.payment.push'),
