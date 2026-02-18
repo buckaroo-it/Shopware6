@@ -69,7 +69,10 @@ class PaymentStateService
         Context $context,
     ): void {
         if ($this->shouldCancelPayment($request)) {
-            throw PaymentException::asyncProcessInterrupted(
+            // Use asyncFinalizeInterrupted here so Shopware keeps the user in the
+            // checkout flow (finish URL) instead of routing to the error URL,
+            // which typically points to the protected account edit-order page.
+            throw PaymentException::asyncFinalizeInterrupted(
                 $this->getTransactionId($transaction),
                 $this->translator->trans('buckaroo.userCanceled'),
                 new \Exception($this->translator->trans('buckaroo.userCanceled'))
