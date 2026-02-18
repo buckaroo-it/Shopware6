@@ -28,11 +28,20 @@ class UrlService
         $this->tokenFactory = $tokenFactory;
     }
 
-    public function getReturnUrl(string $route): string
+    /**
+     * Build an absolute storefront URL for the given route using the sales channel
+     * base URL (including language prefixes like /en when configured).
+     *
+     * @param string $route
+     * @param array<mixed> $parameters
+     *
+     * @return string
+     */
+    public function getReturnUrl(string $route, array $parameters = []): string
     {
         return $this->getSaleBaseUrl() . $this->router->generate(
             $route,
-            [],
+            $parameters,
             UrlGeneratorInterface::ABSOLUTE_PATH
         );
     }

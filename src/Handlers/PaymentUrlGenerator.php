@@ -38,7 +38,9 @@ class PaymentUrlGenerator
         OrderTransactionEntity $orderTransaction,
         OrderEntity $order
     ): string {
-        return $this->asyncPaymentService->urlService->forwardToRoute(
+        // Use UrlService to build an absolute finish URL based on the current
+        // sales channel domain (including language prefixes like /en).
+        return $this->asyncPaymentService->urlService->getReturnUrl(
             'frontend.checkout.finish.page',
             ['orderId' => $order->getId()]
         );
