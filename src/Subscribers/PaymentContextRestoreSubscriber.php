@@ -39,12 +39,13 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Only restore for payment return and checkout finish routes
+        // Only restore for payment return, checkout finish, and cancel routes
         $path = (string) $request->getPathInfo();
         $isPaymentReturn = str_contains($path, '/payment/') || str_contains($path, 'payment');
         $isCheckoutFinish = str_contains($path, 'checkout/finish');
+        $isBuckarooCancel = str_contains($path, 'buckaroo/cancel');
 
-        if (!$isPaymentReturn && !$isCheckoutFinish) {
+        if (!$isPaymentReturn && !$isCheckoutFinish && !$isBuckarooCancel) {
             return;
         }
 

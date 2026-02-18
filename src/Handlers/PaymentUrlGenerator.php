@@ -46,12 +46,18 @@ class PaymentUrlGenerator
 
     /**
      * Returns the cancel URL for Buckaroo redirects.
-     * Uses a dedicated cancel route that redirects to cart (guest-friendly) instead of
-     * the login-required edit-order page.
+     * Appends sw-context-token when provided so session is preserved on return (cross-site redirect).
+     *
+     * @param string|null $contextToken Sales channel context token to preserve session
      */
-    public function getCancelRedirectUrl(): string
+    public function getCancelRedirectUrl(?string $contextToken = null): string
     {
-        return $this->asyncPaymentService->urlService->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
+        $url = $this->asyncPaymentService->urlService->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
+        if ($contextToken !== null && $contextToken !== '') {
+            $separator = str_contains($url, '?') ? '&' : '?';
+            $url .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
+        }
+        return $url;
     }
 
     /**
