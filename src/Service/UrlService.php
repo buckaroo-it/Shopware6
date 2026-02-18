@@ -82,10 +82,8 @@ class UrlService
             ['orderId' => $transaction->getOrderId()]
         );
 
-        $errorUrl = $this->router->generate(
-            'frontend.account.edit-order.page',
-            ['orderId' => $transaction->getOrderId()]
-        );
+
+        $errorUrl = $finishUrl;
 
         $tokenStruct = new TokenStruct(
             null,
