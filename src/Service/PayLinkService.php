@@ -164,7 +164,7 @@ class PayLinkService
             'invoice'                => $order->getOrderNumber(),
             'amountDebit'            => $order->getAmountTotal(),
             'currency'               => $currency->getIsoCode(),
-            'pushURL'                => $this->urlService->getReturnUrl('buckaroo.payment.push'),
+            'pushURL'                => $this->urlService->getPushUrlForOrder($order),
             'clientIP'               => $this->getIp($request),
             'returnURL'              => $returnUrl,
             'returnURLCancel'        => $cancelUrl,

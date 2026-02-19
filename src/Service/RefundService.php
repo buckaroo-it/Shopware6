@@ -368,8 +368,8 @@ class RefundService
                 $order->getSalesChannelId(),
                 'refundLabel'
             ),
-            'pushURL'                => $this->urlService->getReturnUrl('buckaroo.payment.push'),
-            'pushURLFailure'         => $this->urlService->getReturnUrl('buckaroo.payment.push'),
+            'pushURL'                => $this->urlService->getPushUrlForOrder($order),
+            'pushURLFailure'         => $this->urlService->getPushUrlForOrder($order),
             'clientIP'               => $this->getIp($request),
             'originalTransactionKey' => (string)$transactionKey,
             'additionalParameters'   => [

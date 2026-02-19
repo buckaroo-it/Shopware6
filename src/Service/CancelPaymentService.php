@@ -171,8 +171,8 @@ class CancelPaymentService
             'invoice'                => $order->getOrderNumber(),
             'amountCredit'           => $amount,
             'currency'               => $this->getCurrencyIso($order),
-            'pushURL'                => $this->urlService->getReturnUrl('buckaroo.payment.push'),
-            'pushURLFailure'         => $this->urlService->getReturnUrl('buckaroo.payment.push'),
+            'pushURL'                => $this->urlService->getPushUrlForOrder($order),
+            'pushURLFailure'         => $this->urlService->getPushUrlForOrder($order),
             'clientIP'               => $this->getIp(),
             'originalTransactionKey' => (string)$transactionKey,
             'additionalParameters'   => [
