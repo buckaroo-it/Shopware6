@@ -45,7 +45,7 @@ class PaymentPayloadBuilder
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
             'returnURL'     => $finalReturnUrl,
             'returnURLCancel' => $this->urlGenerator->getCancelRedirectUrl($salesChannelContext->getToken()),
-            'pushURL'       => $this->urlGenerator->getPushUrl(),
+            'pushURL'       => $this->urlGenerator->getPushUrl($order),
             'additionalParameters' => [
                 'orderTransactionId' => $orderTransaction->getId(),
                 'orderId' => $order->getId(),

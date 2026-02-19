@@ -58,6 +58,7 @@
              <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
              <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface"/>
              <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
+             <argument type="service" id="sales_channel.repository"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\StateTransitionService">

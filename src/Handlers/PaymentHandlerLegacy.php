@@ -324,9 +324,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
             'returnURL'     => $returnUrl,
             'returnURLCancel' => $this->buildCancelUrlWithToken($contextToken),
-            'pushURL'       => $this->asyncPaymentService
-                ->urlService
-                ->getReturnUrl('buckaroo.payment.push'),
+            'pushURL'       => $this->asyncPaymentService->urlService->getPushUrlForOrder($order),
 
             'additionalParameters' => [
                 'orderTransactionId' => $transaction->getOrderTransaction()->getId(),

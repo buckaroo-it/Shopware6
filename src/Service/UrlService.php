@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Service;
 
 use Buckaroo\Shopware6\Helpers\UrlHelper;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
@@ -18,14 +22,48 @@ class UrlService
 
     private TokenFactoryInterfaceV2 $tokenFactory;
 
+    private EntityRepository $salesChannelRepository;
+
     public function __construct(
         SettingsService $settingsService,
         UrlGeneratorInterface $router,
-        TokenFactoryInterfaceV2 $tokenFactory
+        TokenFactoryInterfaceV2 $tokenFactory,
+        EntityRepository $salesChannelRepository
     ) {
         $this->settingsService = $settingsService;
         $this->router = $router;
         $this->tokenFactory = $tokenFactory;
+        $this->salesChannelRepository = $salesChannelRepository;
+    }
+
+    /**
+     * Returns the push URL for Buckaroo callbacks, using the order's sales channel domain
+     * so the URL includes the correct language path (e.g. /en) when using shop.com/en-style domains.
+     */
+    public function getPushUrlForOrder(OrderEntity $order): string
+    {
+        $criteria = new Criteria([$order->getSalesChannelId()]);
+        $criteria->addAssociation('domains');
+
+        $salesChannel = $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->first();
+        if ($salesChannel === null) {
+            return $this->getReturnUrl('buckaroo.payment.push');
+        }
+
+        $domains = $salesChannel->getDomains();
+        if ($domains === null || $domains->count() === 0) {
+            return $this->getReturnUrl('buckaroo.payment.push');
+        }
+
+        $orderLanguageId = $order->getLanguageId();
+        foreach ($domains as $domain) {
+            if ($orderLanguageId !== null && $domain->getLanguageId() === $orderLanguageId) {
+                return rtrim($domain->getUrl(), '/') . '/buckaroo/push';
+            }
+        }
+
+        $firstDomain = $domains->first();
+        return $firstDomain !== null ? rtrim($firstDomain->getUrl(), '/') . '/buckaroo/push' : $this->getReturnUrl('buckaroo.payment.push');
     }
 
     public function getReturnUrl(string $route): string

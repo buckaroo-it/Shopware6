@@ -68,8 +68,12 @@ class PaymentUrlGenerator
         return sprintf('%s&cancel=1', $returnUrl);
     }
 
-    public function getPushUrl(): string
+    /**
+     * Returns the push URL for Buckaroo callbacks.
+     * Uses the order's sales channel domain so the URL includes the correct language path (e.g. /en).
+     */
+    public function getPushUrl(OrderEntity $order): string
     {
-        return $this->asyncPaymentService->urlService->getReturnUrl('buckaroo.payment.push');
+        return $this->asyncPaymentService->urlService->getPushUrlForOrder($order);
     }
 }
