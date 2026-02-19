@@ -182,16 +182,16 @@ class PayPerEmailPaymentHandler extends PaymentHandlerSimple
         array &$payload,
         \Shopware\Core\Checkout\Order\OrderEntity $order
     ): void {
-        $returnUrl = $this->asyncPaymentService->urlService->forwardToRoute(
+        $returnUrl = $this->asyncPaymentService->urlService->generateAbsoluteUrl(
             'buckaroo.payperemail.return',
             ['orderId' => $order->getId()]
         );
-        $cancelUrl = $this->asyncPaymentService->urlService->forwardToRoute(
+        $cancelUrl = $this->asyncPaymentService->urlService->generateAbsoluteUrl(
             'buckaroo.payperemail.return',
             ['orderId' => $order->getId(), 'cancel' => '1']
         );
 
-        $payload['returnURL'] = $this->asyncPaymentService->urlService->getSaleBaseUrl() . $returnUrl;
-        $payload['cancelURL'] = $this->asyncPaymentService->urlService->getSaleBaseUrl() . $cancelUrl;
+        $payload['returnURL'] = $returnUrl;
+        $payload['returnURLCancel'] = $cancelUrl;
     }
 }

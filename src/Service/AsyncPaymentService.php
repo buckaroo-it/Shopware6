@@ -25,7 +25,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
@@ -44,7 +44,7 @@ class AsyncPaymentService
         protected EventDispatcherInterface $eventDispatcher,
         protected CancelPaymentService $cancelPaymentService,
         protected EntityRepository $orderTransactionRepository,
-        protected SalesChannelContextService $salesChannelContextService
+        protected SalesChannelContextServiceInterface $salesChannelContextService
     ) {
     }
 

@@ -30,10 +30,27 @@ class UrlService
 
     public function getReturnUrl(string $route): string
     {
-        return $this->getSaleBaseUrl() . $this->router->generate(
+        return $this->router->generate(
             $route,
             [],
-            UrlGeneratorInterface::ABSOLUTE_PATH
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+    }
+
+    /**
+     * Generate absolute URL for a route with parameters.
+     * Use this instead of getSaleBaseUrl() + forwardToRoute() to avoid double path segments (e.g. /en/en/) when using language prefixes like localhost/en.
+     *
+     * @param string $route
+     * @param array<mixed> $parameters
+     * @return string
+     */
+    public function generateAbsoluteUrl(string $route, array $parameters = []): string
+    {
+        return $this->router->generate(
+            $route,
+            $parameters,
+            UrlGeneratorInterface::ABSOLUTE_URL
         );
     }
 

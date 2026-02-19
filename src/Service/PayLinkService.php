@@ -150,11 +150,11 @@ class PayLinkService
 
         // For PayPerEmail, use custom return endpoint that accepts both GET and POST
         // because the customer pays later via email link and Buckaroo POSTs the response
-        $returnUrl = $this->urlService->forwardToRoute(
+        $returnUrl = $this->urlService->generateAbsoluteUrl(
             'buckaroo.payperemail.return',
             ['orderId' => $order->getId()]
         );
-        $cancelUrl = $this->urlService->forwardToRoute(
+        $cancelUrl = $this->urlService->generateAbsoluteUrl(
             'buckaroo.payperemail.return',
             ['orderId' => $order->getId(), 'cancel' => '1']
         );
@@ -166,8 +166,8 @@ class PayLinkService
             'currency'               => $currency->getIsoCode(),
             'pushURL'                => $this->urlService->getReturnUrl('buckaroo.payment.push'),
             'clientIP'               => $this->getIp($request),
-            'returnURL'              => $this->urlService->getSaleBaseUrl() . $returnUrl,
-            'cancelURL'              => $this->urlService->getSaleBaseUrl() . $cancelUrl,
+            'returnURL'              => $returnUrl,
+            'returnURLCancel'        => $cancelUrl,
             'additionalParameters'   => [
                 'orderTransactionId' => $transaction->getId(),
                 'orderId' => $order->getId(),

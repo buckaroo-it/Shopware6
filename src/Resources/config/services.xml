@@ -166,6 +166,14 @@
             <argument type="service" id="service_container"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Subscribers\PaymentReturnContextSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Subscribers\PaymentContextRestoreSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Buckaroo\Shopware6\Events\OrderStateChangeEvent">
             <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\InvoiceService"/>
@@ -186,6 +194,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\PaymentStateService" class="Buckaroo\Shopware6\Service\PaymentStateService" public="true">
@@ -653,6 +662,12 @@
 
         <service id="Buckaroo\Shopware6\Resources\snippet\fr_FR\FrenchTranslations">
             <tag name="shopware.snippet.file"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\SalesChannelContextServiceDecorator"
+                decorates="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SalesChannelContextServiceDecorator.inner"/>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Storefront\Framework\Cookie\BuckarooCookieProvider"
