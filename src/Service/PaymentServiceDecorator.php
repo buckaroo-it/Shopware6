@@ -13,8 +13,9 @@ use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class PaymentServiceDecorator
 {
@@ -24,18 +25,22 @@ class PaymentServiceDecorator
 
     private EntityRepository $orderRepository;
 
-    private SalesChannelContextService $salesChannelContextService;
+    private SalesChannelContextServiceInterface $salesChannelContextService;
+
+    private RequestStack $requestStack;
 
     public function __construct(
         OrderConverter $orderConverter,
         TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2,
         EntityRepository $orderRepository,
-        SalesChannelContextService $salesChannelContextService
+        SalesChannelContextServiceInterface $salesChannelContextService,
+        RequestStack $requestStack
     ) {
         $this->orderConverter = $orderConverter;
         $this->tokenFactoryInterfaceV2 = $tokenFactoryInterfaceV2;
         $this->orderRepository = $orderRepository;
         $this->salesChannelContextService = $salesChannelContextService;
+        $this->requestStack = $requestStack;
     }
 
     /**
@@ -85,8 +90,15 @@ class PaymentServiceDecorator
             );
         }
 
-        // Step 2: Create context with sales channel constraints
-        $salesChannelAwareContext = $this->createSalesChannelAwareContext($salesChannel->getId(), $validationContext);
+        // Step 2: Create context with sales channel constraints.
+        // Use existing context token from request when available to preserve session state (sw-states)
+        // for checkout/finish page - avoids redirect to register/cart when returning from external payment.
+        $contextToken = $this->getContextTokenFromRequest();
+        $salesChannelAwareContext = $this->createSalesChannelAwareContext(
+            $salesChannel->getId(),
+            $validationContext,
+            $contextToken
+        );
         
         // Step 3: Re-query order with full data using sales channel aware context
         $fullCriteria = new Criteria();
@@ -114,23 +126,44 @@ class PaymentServiceDecorator
     }
 
     /**
+     * Get context token from current request (cookie or Buckaroo add_ params).
+     * Preserves customer session when returning from external payment gateway.
+     */
+    private function getContextTokenFromRequest(): ?string
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request === null) {
+            return null;
+        }
+        $token = $request->attributes->get('sw-context-token')
+            ?? $request->query->get('add_sw-context-token')
+            ?? $request->request->get('add_sw-context-token')
+            ?? $request->query->get('sw-context-token')
+            ?? $request->request->get('sw-context-token')
+            ?? $request->cookies->get('sw-context-token');
+        return is_string($token) && $token !== '' ? $token : null;
+    }
+
+    /**
      * Create a context that's aware of the sales channel for security constraints
      *
      * @param string $salesChannelId
      * @param Context $baseContext
+     * @param string|null $preferredToken Use existing token to preserve session (sw-states) for checkout finish
      * @return Context
      */
-    private function createSalesChannelAwareContext(string $salesChannelId, Context $baseContext): Context
-    {
-        // Create a proper sales channel context that enforces sales channel boundaries
-        // This ensures that data access is properly scoped to the specific sales channel
-        
-        // Generate a unique token to prevent context data sharing between concurrent requests
-        $uniqueToken = 'payment-context-' . bin2hex(random_bytes(16));
+    private function createSalesChannelAwareContext(
+        string $salesChannelId,
+        Context $baseContext,
+        ?string $preferredToken = null
+    ): Context {
+        // Use existing context token when available to preserve checkout state (sw-states).
+        // Otherwise generate unique token to prevent context data sharing between concurrent requests.
+        $token = $preferredToken ?? ('payment-context-' . bin2hex(random_bytes(16)));
         
         $salesChannelContextParams = new SalesChannelContextServiceParameters(
             $salesChannelId,
-            $uniqueToken, // Use unique token to prevent concurrent request interference
+            $token,
             null, // languageId - derive from context
             null, // currencyId - derive from context
             null, // domainId - derive from context

@@ -140,7 +140,7 @@ class PaymentResponseHandler
             throw new \RuntimeException('Order not found for transaction');
         }
         return new RedirectResponse(
-            $this->asyncPaymentService->urlService->forwardToRoute(
+            $this->asyncPaymentService->urlService->generateAbsoluteUrl(
                 'frontend.checkout.finish.page',
                 ['orderId' => $order->getId()]
             )

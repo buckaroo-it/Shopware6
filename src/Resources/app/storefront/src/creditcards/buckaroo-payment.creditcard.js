@@ -176,6 +176,19 @@ export default class BuckarooCreditCards extends Plugin {
         payButton.style.cursor = disabled ? "not-allowed" : "";
         payButton.style.opacity = disabled ? "0.5" : "";
     }
+    /**
+     * Returns the storefront base URL including language prefix (e.g. /en) when present.
+     * Fixes requests going to wrong URL when using shop.com/en-style domains.
+     */
+    _getStorefrontBaseUrl() {
+        const origin = window.location.origin;
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        if (pathSegments.length > 0 && /^[a-z]{2}(-[A-Z]{2})?$/i.test(pathSegments[0])) {
+            return `${origin}/${pathSegments[0]}`;
+        }
+        return origin;
+    }
+
     async _getOrRefreshToken() {
         const now = Date.now();
 
@@ -187,7 +200,7 @@ export default class BuckarooCreditCards extends Plugin {
             };
         }
         try {
-            const baseUrl = window.location.origin;
+            const baseUrl = this._getStorefrontBaseUrl();
             const response = await fetch(`${baseUrl}/buckaroo/get-oauth-token`, {
                 method: "GET",
                 headers: {

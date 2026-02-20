@@ -38,19 +38,42 @@ class PaymentUrlGenerator
         OrderTransactionEntity $orderTransaction,
         OrderEntity $order
     ): string {
-        return $this->asyncPaymentService->urlService->forwardToRoute(
+        return $this->asyncPaymentService->urlService->generateAbsoluteUrl(
             'frontend.checkout.finish.page',
             ['orderId' => $order->getId()]
         );
     }
 
+    /**
+     * Returns the cancel URL for Buckaroo redirects.
+     * Appends sw-context-token when provided so session is preserved on return (cross-site redirect).
+     *
+     * @param string|null $contextToken Sales channel context token to preserve session
+     */
+    public function getCancelRedirectUrl(?string $contextToken = null): string
+    {
+        $url = $this->asyncPaymentService->urlService->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
+        if ($contextToken !== null && $contextToken !== '') {
+            $separator = str_contains($url, '?') ? '&' : '?';
+            $url .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
+        }
+        return $url;
+    }
+
+    /**
+     * @deprecated Use getCancelRedirectUrl() for guest-friendly cart redirect. Kept for backward compatibility.
+     */
     public function getCancelUrl(?string $returnUrl): string
     {
         return sprintf('%s&cancel=1', $returnUrl);
     }
 
-    public function getPushUrl(): string
+    /**
+     * Returns the push URL for Buckaroo callbacks.
+     * Uses the order's sales channel domain so the URL includes the correct language path (e.g. /en).
+     */
+    public function getPushUrl(OrderEntity $order): string
     {
-        return $this->asyncPaymentService->urlService->getReturnUrl('buckaroo.payment.push');
+        return $this->asyncPaymentService->urlService->getPushUrlForOrder($order);
     }
 }

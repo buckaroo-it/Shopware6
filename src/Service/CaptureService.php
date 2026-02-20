@@ -206,7 +206,7 @@ class CaptureService
             'invoice' => $order->getOrderNumber(),
             'amountDebit' => $order->getAmountTotal(),
             'currency' => $this->getCurrencyIso($order),
-            'pushURL' => $this->urlService->getReturnUrl('buckaroo.payment.push'),
+            'pushURL' => $this->urlService->getPushUrlForOrder($order),
             'clientIP' => $this->getIp($request),
             'additionalParameters' => [
                 'orderTransactionId' => $this->getLastTransactionId($order),
