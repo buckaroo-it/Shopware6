@@ -379,6 +379,7 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BP-5044 Resolve: Migration failure in Buckaroo Plugin due to the removal of Sofort.
 
 # 3.2.0
+
 - BP-5305 Add support for Shopware 6.7.6.0
 - BP-5251 Add support for Shopware 6.7.5.1
 - BP-5313 Update “iDEAL” to the co-branded “iDEAL | Wero” names and logo’s
@@ -393,3 +394,8 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BP-5115 Fixed an issue preventing switching payment methods after selecting Bancontact in Shopware 6.7.4
 - BP-5220 Fixed an issue where not all active payment method logos were visible in the footer on Shopware 6 pages
 - BP-5350 Shopware 6 | Add Comprehensive Unit and Integration Test Suite for Shopware Buckaroo Payment Gateway Plugin
+
+# 3.2.1
+
+- BTI-615 Fix: Multi-domain configuration causing issues with the redirect URL's for successful and cancelled transactions.
+- BTI-620 Fix: Order status issue with multi-domain redirect.
