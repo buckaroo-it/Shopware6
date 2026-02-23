@@ -49,10 +49,29 @@ class PaymentUrlGenerator
      * Appends sw-context-token when provided so session is preserved on return (cross-site redirect).
      *
      * @param string|null $contextToken Sales channel context token to preserve session
+     * @deprecated Use getCancelRedirectUrlForOrder when order is available (required for multiple storefronts)
      */
     public function getCancelRedirectUrl(?string $contextToken = null): string
     {
         $url = $this->asyncPaymentService->urlService->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
+        if ($contextToken !== null && $contextToken !== '') {
+            $separator = str_contains($url, '?') ? '&' : '?';
+            $url .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
+        }
+        return $url;
+    }
+
+    /**
+     * Returns the cancel URL using the order's sales channel domain.
+     * Required for multiple storefronts with different domains – ensures the cancel redirect lands
+     * on the same domain where the customer started checkout, so sw-context-token and session work.
+     *
+     * @param OrderEntity $order Order to determine the correct sales channel domain
+     * @param string|null $contextToken Sales channel context token to preserve session
+     */
+    public function getCancelRedirectUrlForOrder(OrderEntity $order, ?string $contextToken = null): string
+    {
+        $url = $this->asyncPaymentService->urlService->getCancelUrlForOrder($order);
         if ($contextToken !== null && $contextToken !== '') {
             $separator = str_contains($url, '?') ? '&' : '?';
             $url .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
