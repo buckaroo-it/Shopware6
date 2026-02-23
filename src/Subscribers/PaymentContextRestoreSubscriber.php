@@ -19,7 +19,7 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => ['onKernelRequest', 50],
+            KernelEvents::REQUEST => ['onKernelRequest', 5],
         ];
     }
 

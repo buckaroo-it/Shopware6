@@ -175,6 +175,10 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Subscribers\PaymentContextCookieSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Buckaroo\Shopware6\Events\OrderStateChangeEvent">
             <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\InvoiceService"/>
