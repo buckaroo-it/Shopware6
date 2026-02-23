@@ -403,3 +403,11 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 # 3.2.2
 
 - Fix: OAuth token requests now use the correct storefront base URL including language prefix (e.g. /en) when using shop.com/en-style domains.
+
+# 3.2.3
+
+- Fix: Session/token loss on payment cancel for multiple storefronts with different domains. Cancel URL now uses the order's sales channel domain (same approach as push URL).
+- Fix: SalesChannelContextServiceDecorator now uses context token from URL on payment return routes (buckaroo/cancel, checkout/finish, /payment/) to restore session when cookies are not sent.
+- Fix: PaymentContextRestoreSubscriber runs earlier (priority 5) to restore context before Shopware resolves the sales channel.
+- Fix: PaymentReturnContextSubscriber now appends context token to all storefront redirects (checkout, account), not just checkout/finish.
+- Added: PaymentContextCookieSubscriber to explicitly set sw-context-token cookie when restored from URL, enabling use of cookie_samesite: lax without requiring null.
