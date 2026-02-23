@@ -402,4 +402,4 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 # 3.2.2
 
-- Fix: Credit card OAuth token requests now use the correct storefront base URL including language prefix (e.g. /en) when using shop.com/en-style domains.
+- Fix: OAuth token requests now use the correct storefront base URL including language prefix (e.g. /en) when using shop.com/en-style domains.
