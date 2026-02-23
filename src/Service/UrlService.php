@@ -66,6 +66,37 @@ class UrlService
         return $firstDomain !== null ? rtrim($firstDomain->getUrl(), '/') . '/buckaroo/push' : $this->getReturnUrl('buckaroo.payment.push');
     }
 
+    /**
+     * Returns the cancel URL for Buckaroo redirects, using the order's sales channel domain.
+     * When using multiple storefronts with different domains, the cancel redirect must land on the
+     * same domain where the customer started checkout so the sw-context-token and session work.
+     */
+    public function getCancelUrlForOrder(OrderEntity $order): string
+    {
+        $criteria = new Criteria([$order->getSalesChannelId()]);
+        $criteria->addAssociation('domains');
+
+        $salesChannel = $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->first();
+        if ($salesChannel === null) {
+            return $this->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
+        }
+
+        $domains = $salesChannel->getDomains();
+        if ($domains === null || $domains->count() === 0) {
+            return $this->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
+        }
+
+        $orderLanguageId = $order->getLanguageId();
+        foreach ($domains as $domain) {
+            if ($orderLanguageId !== null && $domain->getLanguageId() === $orderLanguageId) {
+                return rtrim($domain->getUrl(), '/') . '/buckaroo/cancel';
+            }
+        }
+
+        $firstDomain = $domains->first();
+        return $firstDomain !== null ? rtrim($firstDomain->getUrl(), '/') . '/buckaroo/cancel' : $this->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
+    }
+
     public function getReturnUrl(string $route): string
     {
         return $this->router->generate(
