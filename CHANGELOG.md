@@ -399,3 +399,7 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 - BTI-615 Fix: Multi-domain configuration causing issues with the redirect URL's for successful and cancelled transactions.
 - BTI-620 Fix: Order status issue with multi-domain redirect.
+
+# 3.2.2
+
+- Fix: Credit card OAuth token requests now use the correct storefront base URL including language prefix (e.g. /en) when using shop.com/en-style domains.
