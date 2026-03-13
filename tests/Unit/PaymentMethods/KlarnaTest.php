@@ -71,9 +71,9 @@ class KlarnaTest extends TestCase
         $this->assertTrue($this->klarna->canRefund());
     }
 
-    public function testCanCaptureReturnsFalse(): void
+    public function testCanCaptureReturnsTrue(): void
     {
-        $this->assertFalse($this->klarna->canCapture());
+        $this->assertTrue($this->klarna->canCapture());
     }
 
     public function testGetTechnicalNameReturnsBuckarooKlarna(): void
