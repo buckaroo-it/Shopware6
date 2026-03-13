@@ -312,15 +312,11 @@ class PushController extends StorefrontController
                 $alreadyPaid = round($brqAmount + ($customFields['alreadyPaid'] ?? 0), 2);
                 $paymentState        = ($alreadyPaid >= round($totalPrice, 2)) ? $paymentSuccesStatus : "pay_partially";
                 $data                = [];
-                if ($paymentMethod && in_array(strtolower($paymentMethod), ['klarnakp', 'klarna'])) {
+                if ($paymentMethod && (strtolower($paymentMethod) === 'klarnakp')) {
                     $this->logger->info(__METHOD__ . "|42|");
-                    $paymentState = 'authorize';
-                    if (strtolower($paymentMethod) === 'klarnakp') {
-                        $data['reservationNumber'] = $request->request->get('brq_SERVICE_klarnakp_ReservationNumber');
-                        $originalTransactionKey    = $request->request->get('brq_SERVICE_klarnakp_AutoPayTransactionKey');
-                    } else {
-                        $data['dataRequestKey'] = $request->request->get('brq_DataRequest');
-                    }
+                    $paymentState              = 'authorize';
+                    $data['reservationNumber'] = $request->request->get('brq_SERVICE_klarnakp_ReservationNumber');
+                    $originalTransactionKey = $request->request->get('brq_SERVICE_klarnakp_AutoPayTransactionKey');
                 }
                 $this->logger->info(__METHOD__ . "|45|", [$paymentState, $brqAmount, $totalPrice]);
 

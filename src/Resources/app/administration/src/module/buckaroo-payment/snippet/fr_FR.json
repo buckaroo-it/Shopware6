@@ -48,17 +48,7 @@
             "errorTitle": "Erreur",
             "payTitle": "Capture de paiement",
             "payDescription": "Capturer et créer une facture pour la commande",
-            "payButton": "Capturer le paiement",
-            "klarnaMorTitle": "Exécution Klarna",
-            "klarnaMorDescription": "Gérez la réservation Klarna pour cette commande.",
-            "klarnaMorCancel": "Annuler la réservation",
-            "klarnaMorCancelButton": "Annuler la réservation",
-            "klarnaMorUpdate": "Mettre à jour la réservation",
-            "klarnaMorUpdateButton": "Mettre à jour la réservation",
-            "klarnaMorExtend": "Prolonger la réservation",
-            "klarnaMorExtendButton": "Prolonger la réservation",
-            "klarnaMorShipping": "Ajouter les infos d'expédition",
-            "klarnaMorShippingButton": "Ajouter les infos d'expédition"
+            "payButton": "Capturer le paiement"
         },
         "orderItems": {
             "title": "Articles à rembourser",

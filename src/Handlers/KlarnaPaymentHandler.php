@@ -13,26 +13,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 class KlarnaPaymentHandler extends PaymentHandlerSimple
 {
     public string $paymentClass = Klarna::class;
-    public const ARTICLE_TYPE_GENERAL = 'General';
-    public const ARTICLE_TYPE_HANDLING_FEE = 'HandlingFee';
-    public const ARTICLE_TYPE_SHIPMENT_FEE = 'ShipmentFee';
-
-    /**
-     * Get method action for specific payment method
-     *
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext|null $salesChannelContext
-     * @param string|null $paymentCode
-     *
-     * @return string
-     */
-    public function getMethodAction(
-        RequestDataBag $dataBag,
-        ?SalesChannelContext $salesChannelContext = null,
-        ?string $paymentCode = null
-    ): string {
-        return 'reserve';
-    }
 
     /**
      * Get parameters for specific payment method
@@ -51,12 +31,6 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
         string $paymentCode
     ): array {
         return array_merge_recursive(
-            [
-                'operatingCountry' => $this->asyncPaymentService->getCountry(
-                    $this->asyncPaymentService->getBillingAddress($order)
-                )->getIso(),
-                'pno' => $this->getBirthDate($dataBag),
-            ],
             $this->getBillingData($order, $dataBag),
             $this->getShippingData($order, $dataBag),
             $this->getArticles($order, $paymentCode)
@@ -183,30 +157,11 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
                 'quantity'          => $item['quantity'],
                 'price'             => $item['unitPrice']['value'],
                 'vatPercentage'     => $item['vatRate'],
-                'type'              => $this->getArticleType($item),
             ];
         }
         return [
             'articles' => $articles
         ];
-    }
-
-    /**
-     * @param array<mixed> $article
-     *
-     * @return string
-     */
-    private function getArticleType(array $article): string
-    {
-        if ($article['sku'] === 'Shipping') {
-            return self::ARTICLE_TYPE_SHIPMENT_FEE;
-        }
-
-        if ($article['sku'] === 'BuckarooFee') {
-            return self::ARTICLE_TYPE_HANDLING_FEE;
-        }
-
-        return self::ARTICLE_TYPE_GENERAL;
     }
 
 

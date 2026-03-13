@@ -114,57 +114,7 @@
 
         </sw-card>
 
-         <sw-card positionIdentifier="bk-klarna-mor" :title="$tc('buckaroo-payment.paymentDetail.klarnaMorTitle')" v-if="isKlarnaMor && isAuthorized">
-
-            {{ $tc('buckaroo-payment.paymentDetail.klarnaMorDescription') }}
-
-            <sw-container columns="1fr 440px" class="sw-order-detail__summary">
-                <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
-                    <dt>{{ $tc('buckaroo-payment.paymentDetail.klarnaMorCancel') }}</dt>
-                    <dd>
-                        <sw-button variant="danger" @click="klarnaMor('CancelReservation')" :disabled="isLoading">
-                            {{ $tc('buckaroo-payment.paymentDetail.klarnaMorCancelButton') }}
-                        </sw-button>
-                    </dd>
-                </sw-description-list>
-            </sw-container>
-
-            <sw-container columns="1fr 440px" class="sw-order-detail__summary">
-                <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
-                    <dt>{{ $tc('buckaroo-payment.paymentDetail.klarnaMorUpdate') }}</dt>
-                    <dd>
-                        <sw-button @click="klarnaMor('UpdateReservation')" :disabled="isLoading">
-                            {{ $tc('buckaroo-payment.paymentDetail.klarnaMorUpdateButton') }}
-                        </sw-button>
-                    </dd>
-                </sw-description-list>
-            </sw-container>
-
-            <sw-container columns="1fr 440px" class="sw-order-detail__summary">
-                <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
-                    <dt>{{ $tc('buckaroo-payment.paymentDetail.klarnaMorExtend') }}</dt>
-                    <dd>
-                        <sw-button @click="klarnaMor('ExtendReservation')" :disabled="isLoading">
-                            {{ $tc('buckaroo-payment.paymentDetail.klarnaMorExtendButton') }}
-                        </sw-button>
-                    </dd>
-                </sw-description-list>
-            </sw-container>
-
-            <sw-container columns="1fr 440px" class="sw-order-detail__summary">
-                <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
-                    <dt>{{ $tc('buckaroo-payment.paymentDetail.klarnaMorShipping') }}</dt>
-                    <dd>
-                        <sw-button @click="klarnaMor('AddShippingInfo')" :disabled="isLoading">
-                            {{ $tc('buckaroo-payment.paymentDetail.klarnaMorShippingButton') }}
-                        </sw-button>
-                    </dd>
-                </sw-description-list>
-            </sw-container>
-
-        </sw-card>
-
-        <sw-card positionIdentifier="bk-pay-transaction" :title="$tc('buckaroo-payment.paymentDetail.transactionsTitle')">
+         <sw-card positionIdentifier="bk-pay-transaction" :title="$tc('buckaroo-payment.paymentDetail.transactionsTitle')">
             <sw-data-grid :dataSource="relatedResources"
                 :columns="relatedResourceColumns"
                 :showActions="false"

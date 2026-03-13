@@ -48,17 +48,7 @@
             "errorTitle": "Foutmelding",
             "payTitle": "Betaling vastleggen (Capture)",
             "payDescription": "Factuur voor bestelling vastleggen (Capture) en aanmaken",
-            "payButton": "Betaling vastleggen (Capture)",
-            "klarnaMorTitle": "Klarna afhandeling",
-            "klarnaMorDescription": "Beheer de Klarna reservering voor deze bestelling.",
-            "klarnaMorCancel": "Reservering annuleren",
-            "klarnaMorCancelButton": "Reservering annuleren",
-            "klarnaMorUpdate": "Reservering bijwerken",
-            "klarnaMorUpdateButton": "Reservering bijwerken",
-            "klarnaMorExtend": "Reservering verlengen",
-            "klarnaMorExtendButton": "Reservering verlengen",
-            "klarnaMorShipping": "Verzendinfo toevoegen",
-            "klarnaMorShippingButton": "Verzendinfo toevoegen"
+            "payButton": "Betaling vastleggen (Capture)"
         },
         "orderItems": {
             "title": "Artikelen om terug te betalen",

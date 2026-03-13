@@ -400,7 +400,7 @@ class RefundService
             return $this->getRefundRequestArticlesForAfterpayOld($amount);
         }
 
-        if (in_array($configCode, ["afterpay", "Billink", "klarnakp", "klarna"])) {
+        if (in_array($configCode, ["afterpay", "Billink", "klarnakp"])) {
             return $this->getRefundArticleData($amount);
         }
 

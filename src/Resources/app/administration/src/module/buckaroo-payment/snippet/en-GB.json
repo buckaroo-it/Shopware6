@@ -48,17 +48,7 @@
             "errorTitle": "Error",
             "payTitle": "Capture payment",
             "payDescription": "Capture and create invoice for order",
-            "payButton": "Capture payment",
-            "klarnaMorTitle": "Klarna MoR",
-            "klarnaMorDescription": "Manage the Klarna reservation for this order.",
-            "klarnaMorCancel": "Cancel reservation",
-            "klarnaMorCancelButton": "Cancel reservation",
-            "klarnaMorUpdate": "Update reservation",
-            "klarnaMorUpdateButton": "Update reservation",
-            "klarnaMorExtend": "Extend reservation",
-            "klarnaMorExtendButton": "Extend reservation",
-            "klarnaMorShipping": "Add shipping info",
-            "klarnaMorShippingButton": "Add shipping info"
+            "payButton": "Capture payment"
         },
         "orderItems": {
             "title": "Items to Refund",
