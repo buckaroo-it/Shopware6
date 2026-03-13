@@ -87,6 +87,24 @@ class BuckarooPaymentService extends ApiService {
         });
     }
 
+    klarnaMor(orderId, action)
+    {
+        const apiRoute = `_action/${this.getApiBasePath()}/klarna-mor`;
+
+        return this.httpClient.post(
+            apiRoute,
+            {
+                orderId: orderId,
+                action: action
+            },
+            {
+                headers: this.getBasicHeaders()
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
+
 }
 
 Shopware.Service().register('BuckarooPaymentService', () => {

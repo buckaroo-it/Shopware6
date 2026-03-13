@@ -31,7 +31,10 @@ Component.register('buckaroo-payment-detail', {
             orderItems: [],
             transactionsToRefund: [],
             relatedResources: [],
-            isAuthorized: false
+            isAuthorized: false,
+            isKlarnaMor: false,
+            fulfillmentMessage: '',
+            fulfillmentStatus: null
         };
     },
 
@@ -175,11 +178,17 @@ Component.register('buckaroo-payment-detail', {
 
             orderRepository.get(orderId, Context.api, orderCriteria).then((order) => {
                 that.checkedIsAuthorized(order);
-                that.isCapturePossible = order.transactions &&
-                order.transactions.last().paymentMethod &&
-                order.transactions.last().paymentMethod.customFields &&
-                order.transactions.last().paymentMethod.customFields.buckaroo_key &&
-                ['klarnakp', 'billink','afterpay'].includes(order.transactions.last().paymentMethod.customFields.buckaroo_key.toLowerCase()) || that.isAfterpayCapturePossible(order);
+                const buckarooKey = order.transactions &&
+                    order.transactions.last().paymentMethod &&
+                    order.transactions.last().paymentMethod.customFields &&
+                    order.transactions.last().paymentMethod.customFields.buckaroo_key
+                        ? order.transactions.last().paymentMethod.customFields.buckaroo_key.toLowerCase()
+                        : '';
+
+                that.isCapturePossible = !!buckarooKey &&
+                    (['klarnakp', 'billink', 'afterpay', 'klarna'].includes(buckarooKey) || that.isAfterpayCapturePossible(order));
+
+                that.isKlarnaMor = buckarooKey === 'klarna';
 
                 that.isPaylinkVisible = that.isPaylinkAvailable = this.getConfigValue('paylinkEnabled') && order.stateMachineState && order.stateMachineState.technicalName && order.stateMachineState.technicalName == 'open' && order.transactions && order.transactions.last().stateMachineState.technicalName == 'open';
             });
@@ -355,6 +364,39 @@ Component.register('buckaroo-payment-detail', {
                         message: that.$tc(errorResponse.response.data.message)
                     });
                     that.isCapturePossible = true;
+                });
+        },
+
+        klarnaMor(action) {
+            let that = this;
+            that.isLoading = true;
+            this.BuckarooPaymentService.klarnaMor(this.orderId, action)
+                .then((response) => {
+                    if (response.status) {
+                        this.$store.dispatch('notification/createNotification', {
+                            variant: 'success',
+                            title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
+                            message: response.message
+                        });
+                    } else {
+                        this.$store.dispatch('notification/createNotification', {
+                            variant: 'error',
+                            title: that.$tc('buckaroo-payment.settingsForm.titleError'),
+                            message: response.message
+                        });
+                    }
+                    that.isLoading = false;
+                    this.createdComponent();
+                })
+                .catch((errorResponse) => {
+                    this.$store.dispatch('notification/createNotification', {
+                        variant: 'error',
+                        title: this.$tc('buckaroo-payment.settingsForm.titleError'),
+                        message: errorResponse.response && errorResponse.response.data
+                            ? errorResponse.response.data.message
+                            : 'An error occurred'
+                    });
+                    that.isLoading = false;
                 });
         }
     }

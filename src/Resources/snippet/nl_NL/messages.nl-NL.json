@@ -30,6 +30,9 @@
       "skippedPush": "Push werd overgeslagen",
       "skipInformational": "Informatieve push"
     },
+    "klarna": {
+      "missing_data_request_key": "Klarna Data Request sleutel ontbreekt. Kan de afhandelingsactie niet uitvoeren."
+    },
     "checkout": {
       "financialWarning": "Je dient minimaal 18+ te zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van %method%. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.",
       "CustomerEmail": "E-mail",
