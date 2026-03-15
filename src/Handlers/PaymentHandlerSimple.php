@@ -326,6 +326,17 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
 
                 $response = $client->execute();
 
+                $this->asyncPaymentService->logger->info('Buckaroo API response', [
+                    'paymentCode' => $paymentCode,
+                    'action' => $methodAction,
+                    'statusCode' => $response->getStatusCode(),
+                    'hasRedirect' => $response->hasRedirect(),
+                    'redirectUrl' => $response->hasRedirect() ? substr($response->getRedirectUrl(), 0, 80) : null,
+                    'isFailed' => $response->isFailed(),
+                    'isRejected' => $response->isRejected(),
+                    'error' => $response->getSomeError(),
+                ]);
+
                 // Check for rejected payments
                 if ($response->isRejected()) {
                     throw \Shopware\Core\Checkout\Payment\PaymentException::asyncProcessInterrupted(

@@ -38,6 +38,14 @@
         
         <service id="Buckaroo\Shopware6\Helpers\Logger" class="Monolog\Logger">
             <argument type="string">buckaroo_payment</argument>
+            <call method="pushHandler">
+                <argument type="service">
+                    <service class="Monolog\Handler\StreamHandler">
+                        <argument type="string">%kernel.logs_dir%/buckaroo_payment.log</argument>
+                        <argument type="constant">Monolog\Logger::DEBUG</argument>
+                    </service>
+                </argument>
+            </call>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\TransactionService">

@@ -49,7 +49,7 @@
             "payTitle": "Capture payment",
             "payDescription": "Capture and create invoice for order",
             "payButton": "Capture payment",
-            "klarnaMorTitle": "Klarna MoR",
+            "klarnaMorTitle": "Klarna (MoR)",
             "klarnaMorDescription": "Manage the Klarna reservation for this order.",
             "klarnaMorCancel": "Cancel reservation",
             "klarnaMorCancelButton": "Cancel reservation",

@@ -1,18 +1,6 @@
 {% block buckaroo_payment_method_klarna %}
     <div class="payment-method-second-col billing-address-form">
         <fieldset class="fieldset payment">
-            <div class="form-row">
-                <div class="form-group col-md-3 col-sm-6">
-                    <label class="form-label" for="buckaroo_klarna_gender">
-                        {{ "buckaroo.checkout.gender" | trans }}*
-                    </label>
-                    <select class="custom-select" id="buckaroo_klarna_gender" name="buckaroo_klarna_gender" required="required" form="confirmOrderForm">
-                        <option value="0">{{ "buckaroo.checkout.NotSpecified" | trans }}</option>
-                        <option {% if context.customer.salutation.salutationKey == 'mr' %} selected="selected" {% endif %} value="male">{{ "buckaroo.checkout.male" | trans }}</option>
-                        <option {% if context.customer.salutation.salutationKey == 'mrs' %} selected="selected" {% endif %} value="female">{{ "buckaroo.checkout.female" | trans }}</option>
-                    </select>
-                </div>
-            </div>
             <div class="form-group">
                 <label class="form-label" for="buckarooKlarnaPhone">
                     {{ "buckaroo.checkout.buckarooKlarnakpPhone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
@@ -23,7 +11,7 @@
                        id="buckarooKlarnaPhone"
                        name="buckaroo_klarna_phone"
                        placeholder="{{ "buckaroo.checkout.buckarooKlarnakpPhonePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
-                       value=""
+                       value="{{ context.customer.defaultBillingAddress.phoneNumber }}"
                        required="required"
                        minlength="10">
             </div>

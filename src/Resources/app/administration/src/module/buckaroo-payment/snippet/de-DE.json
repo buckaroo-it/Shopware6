@@ -49,7 +49,7 @@
             "payTitle": "Zahlung erfassen (Capture)",
             "payDescription": "Erfassen (Capture) und Rechnung für Bestellung erstellen",
             "payButton": "Zahlung erfassen (Capture)",
-            "klarnaMorTitle": "Klarna Erfüllung",
+            "klarnaMorTitle": "Klarna (MoR)",
             "klarnaMorDescription": "Verwalten Sie die Klarna-Reservierung für diese Bestellung.",
             "klarnaMorCancel": "Reservierung stornieren",
             "klarnaMorCancelButton": "Reservierung stornieren",

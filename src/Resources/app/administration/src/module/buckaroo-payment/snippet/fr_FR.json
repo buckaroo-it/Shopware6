@@ -49,7 +49,7 @@
             "payTitle": "Capture de paiement",
             "payDescription": "Capturer et créer une facture pour la commande",
             "payButton": "Capturer le paiement",
-            "klarnaMorTitle": "Exécution Klarna",
+            "klarnaMorTitle": "Klarna (MoR)",
             "klarnaMorDescription": "Gérez la réservation Klarna pour cette commande.",
             "klarnaMorCancel": "Annuler la réservation",
             "klarnaMorCancelButton": "Annuler la réservation",
