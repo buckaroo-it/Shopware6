@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
-use Buckaroo\Shopware6\PaymentMethods\In3;
 use Buckaroo\Shopware6\Service\UrlService;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\In3LogoService;
@@ -289,10 +288,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'payByBankIssuers'         => $this->payByBankService->getIssuers($customer),
             'payByBankLogos'           => $this->payByBankService->getIssuerLogos($customer),
             'payByBankActiveIssuer'    => $this->payByBankService->getActiveIssuer($customer),
-            'in3Logo'                  => $this->in3LogoService->getActiveLogo(
-                $this->settingsService->getSetting('capayableVersion', $salesChannelId),
-                $event->getSalesChannelContext()->getContext()
-            ),
+            'in3Logo'                  => null,
             'idealFastCheckoutLogo'    => $this->getIdealFastCheckoutLogo($salesChannelId),
             'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
             'creditcard'               => $creditcard,
@@ -578,14 +574,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     ): string {
         if ($label === null) {
             $label = $this->settingsService->getSettingAsString($buckarooKey . 'Label', $salesChannelId);
-        }
-
-        if (
-            $buckarooKey === 'capayable' &&
-            $this->settingsService->getSetting('capayableVersion', $salesChannelId) === 'v2' &&
-            $label === In3::DEFAULT_NAME
-        ) {
-            $label = In3::V2_NAME;
         }
 
         // Calculate and append the actual fee amount (works for both percentage and fixed fees)
