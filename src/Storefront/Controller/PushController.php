@@ -319,7 +319,11 @@ class PushController extends StorefrontController
                         $data['reservationNumber'] = $request->request->get('brq_SERVICE_klarnakp_ReservationNumber');
                         $originalTransactionKey    = $request->request->get('brq_SERVICE_klarnakp_AutoPayTransactionKey');
                     } else {
-                        $data['dataRequestKey'] = $request->request->get('brq_DataRequest');
+                        // brq_SERVICE_klarna_DataRequestKey is the Klarna-specific DataRequestKey
+                        // from the Reserve push Services parameters, used for all follow-up actions.
+                        // brq_DataRequest is the overall DataRequest transaction key (different value).
+                        $data['dataRequestKey'] = $request->request->get('brq_SERVICE_klarna_DataRequestKey')
+                            ?: $request->request->get('brq_DataRequest');
                     }
                 }
                 $this->logger->info(__METHOD__ . "|45|", [$paymentState, $brqAmount, $totalPrice]);

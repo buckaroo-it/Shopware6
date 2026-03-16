@@ -2527,7 +2527,70 @@
     </card>
 
     <card>
-        <title>Klarna</title>
+        <title>Klarna (MoR)</title>
+        <name>klarna</name>
+        <input-field type="bool">
+            <name>klarnaEnabled</name>
+            <label lang="en-GB">Enabled Klarna (MoR)</label>
+            <label lang="nl-NL">Ingeschakeld Klarna (MoR)</label>
+            <label lang="de-DE">Aktiviert Klarna (MoR)</label>
+            <label lang="fr-FR">Klarna (MoR) activé</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>klarnaFinancialwarning</name>
+            <label lang="en-GB">Consumer Financial Warning</label>
+            <label lang="nl-NL">Financiële Waarschuwing</label>
+            <helpText lang="en-GB">Due to the regulations for BNPL methods in The Netherlands you'll have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.</helpText>
+            <helpText lang="nl-NL">Vanwege de voorschriften voor achteraf betaalmethoden in Nederland dien je klanten te waarschuwen voor het gebruik van een achteraf betaalmethode omdat het gemakkelijk kan leiden tot schulden. Wanneer deze functie is ingeschakeld, wordt er een waarschuwing weergegeven tijdens het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland.</helpText>
+            <defaultValue>1</defaultValue>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>klarnaEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+            <label lang="fr-FR">Tester ou Vivre:</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>klarnaLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <label lang="de-DE">Frontend-Label</label>
+            <label lang="nl-NL">Frontend label</label>
+            <label lang="fr-FR">Étiquette frontale</label>
+            <helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+            <helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+            <helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+            <helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
+            <defaultValue>Klarna: Pay later</defaultValue>
+        </input-field>
+
+        <input-field type="text">
+            <name>klarnaFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+            <label lang="fr-FR">Frais de buckaroo</label>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Klarna KP</title>
         <name>klarnakp</name>
         <input-field type="bool">
             <name>klarnakpEnabled</name>

@@ -28,6 +28,17 @@ class KlarnaMorService
         self::ACTION_ADD_SHIPPING_INFO,
     ];
 
+    /**
+     * Maps human-readable Klarna MoR action names to the PHP method names
+     * on the Buckaroo SDK's Klarna payment method class.
+     */
+    private const SDK_METHOD_MAP = [
+        self::ACTION_CANCEL_RESERVATION => 'cancelReserve',
+        self::ACTION_UPDATE_RESERVATION => 'updateReserve',
+        self::ACTION_EXTEND_RESERVATION => 'extendReserve',
+        self::ACTION_ADD_SHIPPING_INFO  => 'addShippingInfo',
+    ];
+
     protected TransactionService $transactionService;
 
     protected UrlService $urlService;
@@ -91,8 +102,10 @@ class KlarnaMorService
             $extraPayload
         );
 
+        $sdkMethod = self::SDK_METHOD_MAP[$action] ?? $action;
+
         $client = $this->getClient($order->getSalesChannelId())
-            ->setAction($action)
+            ->setAction($sdkMethod)
             ->setPayload($payload);
 
         $response = $client->execute();
@@ -124,9 +137,12 @@ class KlarnaMorService
      */
     private function getCommonPayload(Request $request, OrderEntity $order, string $dataRequestKey): array
     {
+        $currency = $order->getCurrency();
+
         return [
             'order'          => $order->getOrderNumber(),
             'invoice'        => $order->getOrderNumber(),
+            'currency'       => $currency !== null ? $currency->getIsoCode() : 'EUR',
             'dataRequestKey' => $dataRequestKey,
             'pushURL'        => $this->urlService->getPushUrlForOrder($order),
             'clientIP'       => $this->getIp($request),

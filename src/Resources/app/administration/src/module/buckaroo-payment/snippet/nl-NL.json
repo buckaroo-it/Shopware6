@@ -49,7 +49,7 @@
             "payTitle": "Betaling vastleggen (Capture)",
             "payDescription": "Factuur voor bestelling vastleggen (Capture) en aanmaken",
             "payButton": "Betaling vastleggen (Capture)",
-            "klarnaMorTitle": "Klarna afhandeling",
+            "klarnaMorTitle": "Klarna (MoR)",
             "klarnaMorDescription": "Beheer de Klarna reservering voor deze bestelling.",
             "klarnaMorCancel": "Reservering annuleren",
             "klarnaMorCancelButton": "Reservering annuleren",
