@@ -7,7 +7,6 @@ namespace Buckaroo\Shopware6\Service;
 use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\PaymentMethods\In3;
 use Shopware\Core\Content\Media\MediaEntity;
-use Buckaroo\Shopware6\Handlers\In3PaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -17,15 +16,11 @@ class In3LogoService
 {
     public const DEFAULT_PAYMENT_ICON = 'default_payment_icon';
 
-    protected EntityRepository $mediaRepository;
-
     protected EntityRepository $paymentMethodRepository;
 
     public function __construct(
-        EntityRepository $mediaRepository,
         EntityRepository $paymentMethodRepository,
     ) {
-        $this->mediaRepository = $mediaRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
@@ -39,7 +34,6 @@ class In3LogoService
      */
     public function getLogos(Context $context): array
     {
-        $v2Logo = $this->getIn3V2Logo($context);
         $defaultLogo = $this->getDefaultLogo($context);
 
         $data = [];
@@ -48,9 +42,6 @@ class In3LogoService
             $data[] = $defaultLogo;
         }
 
-        if (count($v2Logo)) {
-            $data[] = $v2Logo;
-        }
         return $data;
     }
 
@@ -94,38 +85,6 @@ class In3LogoService
     }
 
     /**
-     * Get new in3 logo from media repository
-     *
-     * @param Context $context
-     *
-     * @return array
-     */
-    private function getIn3V2Logo(Context $context): array
-    {
-        /** @var MediaEntity|null $media */
-        $media = $this->getIn3V2Media($context);
-
-        if ($media === null) {
-            return [];
-        }
-
-        return $this->getFormatedMedia($media);
-    }
-
-    private function getIn3V2Media(Context $context): ?MediaEntity
-    {
-        $criteria = (new Criteria())->addFilter(
-            new EqualsFilter(
-                'fileName',
-                'buckaroo-in3-v2'
-            )
-        );
-
-        /** @var MediaEntity|null */
-        return $this->mediaRepository->search($criteria, $context)->first();
-    }
-
-    /**
      * Get formated media for api
      *
      * @param MediaEntity $media
@@ -149,17 +108,12 @@ class In3LogoService
     /**
      * Get active media logo
      *
-     * @param mixed $version
      * @param Context $context
      *
      * @return MediaEntity|null
      */
-    public function getActiveLogo($version, Context $context): ?MediaEntity
+    public function getActiveLogo(Context $context): ?MediaEntity
     {
-        if ($version === In3PaymentHandler::V2) {
-            return $this->getIn3V2Media($context);
-        }
-
         return null;
     }
 }
