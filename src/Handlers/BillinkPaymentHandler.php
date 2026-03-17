@@ -31,9 +31,10 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
+        $billingAddress = $this->asyncPaymentService->getBillingAddress($order);
         return array_merge_recursive(
             $this->getVatNumber($dataBag),
-            $this->getCoc($dataBag),
+            $this->getCoc($billingAddress),
             $this->getBillingData($order, $dataBag),
             $this->getShippingData($order, $dataBag),
             $this->getArticles($order, $paymentCode)
@@ -161,21 +162,20 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
-     * Get chamber of commerce number
+     * Get chamber of commerce number from the billing address VAT ID.
      *
-     * @param RequestDataBag $dataBag
+     * @param OrderAddressEntity $billingAddress
      *
      * @return array<mixed>
      */
-    protected function getCoc(RequestDataBag $dataBag): array
+    protected function getCoc(OrderAddressEntity $billingAddress): array
     {
-        if ($dataBag->has('buckaroo_ChamberOfCommerce') &&
-            is_string($dataBag->get('buckaroo_ChamberOfCommerce'))
-        ) {
+        $vatId = $billingAddress->getVatId();
+        if (!empty($vatId)) {
             return [
                 'billing' => [
                     'recipient' => [
-                        'chamberOfCommerce' => $dataBag->get('buckaroo_ChamberOfCommerce')
+                        'chamberOfCommerce' => $vatId
                     ]
                 ]
             ];
