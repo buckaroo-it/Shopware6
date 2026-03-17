@@ -326,6 +326,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'countryShippingIso'    => $this->getCountryShippingIso($customer),
             'validHouseNumbers'     => $this->areValidHouseNumbers($event),
             'afterpayOld' => $this->getSettingAsBool('afterpayEnabledold', $salesChannelId),
+            'afterpay_billing_coc' => $this->getAfterpayBillingCoc($customer),
             'redirectBancontact' =>
                 $this->settingsService->getSetting('redirectBancontact', $salesChannelId) === 'enabledRedirect']);
 
@@ -426,6 +427,22 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             return 'B2B';
         }
         return 'B2C';
+    }
+
+    /**
+     * Get the COC/VAT number from the customer's VAT IDs for use with Riverty (Afterpay).
+     * Returns an empty string when no VAT ID is present.
+     */
+    private function getAfterpayBillingCoc(CustomerEntity $customer): string
+    {
+        $vatIds = $customer->getVatIds();
+        if (!empty($vatIds) && is_array($vatIds)) {
+            $first = reset($vatIds);
+            if (is_string($first) && strlen(trim($first)) > 0) {
+                return trim($first);
+            }
+        }
+        return '';
     }
 
     public function addBuckarooToCart(CheckoutCartPageLoadedEvent $event): void

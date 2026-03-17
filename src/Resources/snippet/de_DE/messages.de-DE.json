@@ -93,6 +93,7 @@
       "CocPlaceholder": "Handelsregisternummer",
       "buckarooMobileCocError": "Handelsregisternummer ist erforderlich",
       "company_required": "Der Firmenname ist für diese Zahlungsmethode erforderlich",
+      "coc_required_in_address": "Für eine Bestellung als Geschäftskunde ist eine Handelsregisternummer (USt-IdNr.) in Ihrer Rechnungsadresse erforderlich. Bitte aktualisieren Sie Ihre Rechnungsadresse und versuchen Sie es erneut.",
       "cancelOrderMessage": "Sie haben die Zahlungsanfrage storniert",
       "cannotCreatePayment": "Zahlung kann nicht erstellt werden",
       "moreBanks": "Mehr Banken",
