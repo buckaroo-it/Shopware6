@@ -109,6 +109,7 @@
       "CocPlaceholder": "CoC-number",
       "buckarooMobileCocError": "CoC-number is required",
       "company_required": "The company name is required for this payment method",
+      "coc_required_in_address": "A CoC-number (VAT Registration Number) is required in your billing address to order as a business customer. Please update your billing address and try again.",
       "billing_house_number_required": "A valid billing house number is required for this payment",
       "shipping_house_number_required": "A valid shipping house number is required for this payment",
       "cancelOrderMessage": "You have canceled the payment request",

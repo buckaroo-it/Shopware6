@@ -301,16 +301,18 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
         string $salesChannelContextId,
         string $type = 'billing'
     ): array {
+        $coc = $address->getVatId();
         if (
             $this->isCustomerB2B($salesChannelContextId) &&
             $this->asyncPaymentService->getCountry($address)->getIso() === 'NL' &&
-            !$this->isCompanyEmpty($address->getCompany())
+            !$this->isCompanyEmpty($address->getCompany()) &&
+            !empty($coc)
         ) {
             return [
                 $type => [
                     'recipient'        => [
                         'companyName'   => $address->getCompany(),
-                        'chamberOfCommerce' => $dataBag->get('buckaroo_afterpay_Coc'),
+                        'chamberOfCommerce' => $coc,
                     ]
                 ]
             ];
@@ -382,7 +384,8 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
         if (
             $this->isCustomerB2B($salesChannelContextId) &&
             $this->asyncPaymentService->getCountry($address)->getIso() === 'NL' &&
-            !$this->isCompanyEmpty($address->getCompany())
+            !$this->isCompanyEmpty($address->getCompany()) &&
+            !empty($address->getVatId())
         ) {
             return RecipientCategory::COMPANY;
         }

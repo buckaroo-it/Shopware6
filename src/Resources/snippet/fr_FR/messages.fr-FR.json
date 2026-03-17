@@ -93,6 +93,7 @@
       "CocPlaceholder": "Numéro de CCI",
       "buckarooMobileCocError": "Le numéro de CCI est requis",
       "company_required": "Le nom de l'entreprise est requis pour ce mode de paiement",
+      "coc_required_in_address": "Un numéro de CCI (numéro d'immatriculation TVA) est requis dans votre adresse de facturation pour commander en tant que client professionnel. Veuillez mettre à jour votre adresse de facturation et réessayer.",
       "cancelOrderMessage": "Vous avez annulé la demande de paiement",
       "cannotCreatePayment": "Impossible de créer le paiement",
       "moreBanks": "Plus de banques",

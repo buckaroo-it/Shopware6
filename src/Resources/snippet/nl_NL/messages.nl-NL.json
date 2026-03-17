@@ -96,6 +96,7 @@
       "CocPlaceholder": "KvK-nummer",
       "buckarooMobileCocError": "KvK-nummer is verplicht",
       "company_required": "De bedrijfsnaam is vereist voor deze betaalmethode",
+      "coc_required_in_address": "Een KvK-nummer (BTW-registratienummer) is vereist in uw factuuradres om als zakelijke klant te bestellen. Pas uw factuuradres aan en probeer het opnieuw.",
       "cancelOrderMessage": "U heeft het betalingsverzoek geannuleerd",
       "cannotCreatePayment": "Kan geen betaling aanmaken",
       "moreBanks": "Toon meer banken",

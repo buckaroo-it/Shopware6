@@ -35,20 +35,8 @@
                         countryShippingIso == 'NL'
                     )
                 ) %}
-            {% if isAfterpayB2B  %}
-                <div class="form-group">
-                    <label class="form-label" for="buckarooAfterpayCoC">
-                        {{ "buckaroo.checkout.Coc"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
-                    </label>
-                    <input type="text"
-                        class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
-                        form="confirmOrderForm"
-                        id="buckarooAfterpayCoC"
-                        name="buckaroo_afterpay_Coc"
-                        placeholder="{{ "buckaroo.checkout.CocPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
-                        value=""
-                        required="required">
-                </div>
+            {% if isAfterpayB2B and countryBillingIso == 'NL' and context.customer.activeBillingAddress.company|length > 0 and page.extensions.buckaroo.afterpay_billing_coc is empty %}
+                {% sw_include '@BuckarooPayments/storefront/component/alert.html.twig' with { type: 'danger', message: "buckaroo.checkout.coc_required_in_address"|trans|sw_sanitize } %}
             {% endif %}
             {% if page.extensions.buckaroo.canShowPhone %}
             <div class="form-group">
