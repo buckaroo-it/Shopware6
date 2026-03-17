@@ -182,7 +182,6 @@
         </service>
 
         <service id="Buckaroo\Shopware6\Subscribers\PaymentTokenInvalidatedSubscriber">
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface"/>
             <argument type="service" id="Psr\Log\LoggerInterface"/>
