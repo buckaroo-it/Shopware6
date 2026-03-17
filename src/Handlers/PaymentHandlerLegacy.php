@@ -65,7 +65,8 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
                 $paymentCode,
                 $salesChannelId
             );
-            if ($fee > 0) {
+            $existingFee = (float) ($order->getCustomFieldsValue('buckarooFee') ?? 0.0);
+            if ($fee > 0 || $existingFee > 0) {
                 $this->asyncPaymentService
                     ->checkoutHelper
                     ->applyFeeToOrder($order->getId(), $fee, $salesChannelContext->getContext());
