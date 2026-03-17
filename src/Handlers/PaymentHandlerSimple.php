@@ -268,7 +268,8 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     $paymentCode,
                     $salesChannelContext->getSalesChannelId()
                 );
-                if ($fee > 0) {
+                $existingFee = (float) ($order->getCustomFieldsValue('buckarooFee') ?? 0.0);
+                if ($fee > 0 || $existingFee > 0) {
                     $feeCalculator->applyFeeToOrder($order->getId(), $fee, $context);
                     // Reload order to get updated total
                     $order = $this->asyncPaymentService->checkoutHelper->getOrderById($order->getId(), $context);
