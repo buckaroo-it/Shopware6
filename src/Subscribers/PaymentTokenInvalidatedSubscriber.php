@@ -23,17 +23,6 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * customer presses back and the Buckaroo page re-fires the redirect with the same URL,
  * Shopware throws CHECKOUT__PAYMENT_TOKEN_INVALIDATED before the plugin handler is
  * reached, resulting in a raw error page.
- *
- * This subscriber intercepts that exception. Because the JWT itself is still
- * cryptographically valid (only the DB record is gone), we decode the payload directly —
- * bypassing JWTFactoryV2::parseToken() which would throw again — to recover the
- * finishUrl ('ful' claim) and errorUrl ('eul' claim) that were embedded at token
- * creation time. We then check the transaction state and redirect silently.
- *
- * JWT claims written by JWTFactoryV2::generateToken():
- *   sub → transactionId   (via ->relatedTo())
- *   ful → finishUrl       (→ checkout/finish?orderId=...)
- *   eul → errorUrl        (→ account/order/edit/...)
  */
 class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
 {
@@ -137,9 +126,6 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
             }
         }
 
-        // When the state cannot be determined: favour the confirmation page.
-        // This subscriber only fires after the token was already consumed once,
-        // meaning a prior finalize did run (successfully or not).
         return $finishUrl ?? $errorUrl ?? $this->accountOrdersUrl();
     }
 
