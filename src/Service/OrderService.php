@@ -97,16 +97,19 @@ class OrderService
             }
 
             if (method_exists($this->paymentService, 'pay')) {
-                // PaymentProcessor API (Shopware 6.7+)
-                $response = $this->paymentService->pay(
+                // PaymentProcessor API (Shopware 6.7+) — pay() returns void; the redirect
+                // target is the $finishUrl we passed in, so return it directly.
+                $this->paymentService->pay(
                     $order->getId(),
                     $request,
                     $this->salesChannelContext,
                     $finishUrl,
                     $errorUrl
                 );
+
+                return $finishUrl;
             } elseif (method_exists($this->paymentService, 'handlePaymentByOrder')) {
-                // PaymentService API (Shopware 6.5-6.6)
+                // PaymentService API (Shopware 6.5-6.6) — returns a RedirectResponse.
                 $response = $this->paymentService->handlePaymentByOrder(
                     $order->getId(),
                     $data,
@@ -114,11 +117,11 @@ class OrderService
                     $finishUrl,
                     $errorUrl
                 );
+
+                return $response instanceof RedirectResponse ? $response->getTargetUrl() : $finishUrl;
             } else {
                 throw new \RuntimeException('Unknown payment service type: ' . get_class($this->paymentService));
             }
-
-            return $response instanceof RedirectResponse ? $response->getTargetUrl() : null;
         } catch (\Throwable $e) {
             // Log the error with context for debugging without exposing to users
             $this->logger->error('Payment processing failed', [
