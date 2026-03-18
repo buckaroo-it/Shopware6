@@ -461,13 +461,20 @@ export default class GooglePayPlugin extends Plugin {
         JSON.stringify(body),
         (response) => {
           console.log("[GooglePay] order/create raw response:", response);
-          const resp = JSON.parse(response);
-          if (resp.redirect) {
+
+          let resp = null;
+          try {
+            resp = response ? JSON.parse(response) : null;
+          } catch (e) {
+            console.error("[GooglePay] Failed to parse order/create response:", e, "| raw:", response);
+          }
+
+          if (resp && resp.redirect) {
             console.log("[GooglePay] Order created successfully — redirecting to:", resp.redirect);
             resolve({ success: true });
             window.location = resp.redirect;
           } else {
-            const message = resp.message || "Could not complete Google Pay payment.";
+            const message = (resp && resp.message) || "Could not complete Google Pay payment.";
             console.error("[GooglePay] order/create failed:", message, "| full response:", resp);
             this.displayErrorMessage(message);
             resolve({ success: false, error: message });

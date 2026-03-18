@@ -88,7 +88,12 @@ class OrderService
         $paymentMethodName = $transaction?->getPaymentMethod()?->getName();
 
         try {
-            $request = new Request([], $data->all());
+            // Include the sales-channel context token so that PaymentHandlerSimple
+            // can reconstruct the correct SalesChannelContext (with logged-in customer)
+            // when it calls getSalesChannelContext() inside its pay() method.
+            $request = new Request([], $data->all(), [], [], [], [
+                'HTTP_SW_CONTEXT_TOKEN' => $this->salesChannelContext->getToken(),
+            ]);
 
             // Handle both PaymentProcessor (6.7+) and PaymentService (6.5-6.6)
             $this->ensurePaymentServiceResolved();
@@ -97,9 +102,10 @@ class OrderService
             }
 
             if (method_exists($this->paymentService, 'pay')) {
-                // PaymentProcessor API (Shopware 6.7+) — pay() returns void; the redirect
-                // target is the $finishUrl we passed in, so return it directly.
-                $this->paymentService->pay(
+                // PaymentProcessor API (Shopware 6.7+).
+                // Depending on the exact 6.7.x version, pay() is either void or ?RedirectResponse.
+                // Capture the return value so we can use a real redirect URL when available.
+                $response = $this->paymentService->pay(
                     $order->getId(),
                     $request,
                     $this->salesChannelContext,
@@ -107,6 +113,11 @@ class OrderService
                     $errorUrl
                 );
 
+                if ($response instanceof RedirectResponse) {
+                    return $response->getTargetUrl();
+                }
+
+                // void / null return — use the finishUrl we supplied to the processor.
                 return $finishUrl;
             } elseif (method_exists($this->paymentService, 'handlePaymentByOrder')) {
                 // PaymentService API (Shopware 6.5-6.6) — returns a RedirectResponse.
