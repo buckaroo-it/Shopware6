@@ -36,6 +36,22 @@
         </div>
     {% endif %}
 
+    {% if page.extensions.buckaroo.showGooglePay %}
+        <div class="col-12 p-0" style="margin-top: 10px;">
+            {% set googlePayConfig = {
+                page: "cart",
+                merchantId: page.extensions.buckaroo.googlepayMerchantId,
+                gatewayMerchantId: page.extensions.buckaroo.googlepayGatewayMerchantId,
+                merchantName: page.extensions.buckaroo.websiteKey,
+                buttonColor: page.extensions.buckaroo.googlepayButtonStyle,
+                environment: page.extensions.buckaroo.googlepayEnvironment
+            } %}
+            <div data-bk-googlepay data-google-pay-plugin-options='{{ googlePayConfig|json_encode }}'>
+                <div id="google-pay-button-container"></div>
+            </div>
+        </div>
+    {% endif %}
+
     {% if page.extensions.buckaroo.showIdealFastCheckout %}
         <div class="col-12 p-0">
             {% set idealFastCheckoutConfig = {

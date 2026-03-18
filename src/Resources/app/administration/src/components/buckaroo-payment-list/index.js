@@ -35,6 +35,10 @@ Component.register("buckaroo-payment-list", {
                     logo: "applepay.svg"
                 },
                 {
+                    code: "googlepay",
+                    logo: "googlepay.svg"
+                },
+                {
                     code: "bancontactmrcash",
                     logo: "bancontact.svg"
                 },

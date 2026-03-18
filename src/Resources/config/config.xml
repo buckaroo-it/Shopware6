@@ -1453,6 +1453,145 @@
     </card>
 
     <card>
+        <title>Google Pay</title>
+        <name>googlepay</name>
+        <input-field type="bool">
+            <name>googlepayEnabled</name>
+            <label lang="en-GB">Enabled</label>
+            <label lang="nl-NL">Ingeschakeld</label>
+            <label lang="de-DE">Aktiviert</label>
+            <label lang="fr-FR">Activé</label>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>googlepayEnvironment</name>
+            <label lang="en-GB">Test or Live:</label>
+            <label lang="de-DE">Test oder Live:</label>
+            <label lang="nl-NL">Test of Live:</label>
+            <label lang="fr-FR">Tester ou Vivre:</label>
+            <defaultValue>test</defaultValue>
+            <options>
+                <option>
+                    <id>test</id>
+                    <name>Test</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>googlepayLabel</name>
+            <label lang="en-GB">Frontend label</label>
+            <label lang="de-DE">Frontend-Label</label>
+            <label lang="nl-NL">Frontend label</label>
+            <label lang="fr-FR">Étiquette frontale</label>
+            <helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
+            <helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
+            <helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
+            <helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
+            <defaultValue>Google Pay</defaultValue>
+        </input-field>
+
+        <input-field type="text">
+            <name>googlepayFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
+            <label lang="de-DE">Buckaroo Gebühr</label>
+            <label lang="fr-FR">Frais de buckaroo</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>googlepayMerchantId</name>
+            <label lang="en-GB">Google Merchant ID</label>
+            <label lang="de-DE">Google Merchant-ID</label>
+            <label lang="nl-NL">Google Merchant-ID</label>
+            <label lang="fr-FR">ID marchand Google</label>
+            <helpText lang="en-GB">Your unique Google Merchant ID issued after registration with the Google Pay &amp; Wallet Console (12–18 characters).</helpText>
+            <helpText lang="de-DE">Ihre eindeutige Google-Merchant-ID, die nach der Registrierung in der Google Pay &amp; Wallet Console ausgestellt wurde (12–18 Zeichen).</helpText>
+            <helpText lang="nl-NL">Uw unieke Google Merchant-ID na registratie in de Google Pay &amp; Wallet Console (12–18 tekens).</helpText>
+            <helpText lang="fr-FR">Votre identifiant marchand Google unique délivré après inscription à la Google Pay &amp; Wallet Console (12 à 18 caractères).</helpText>
+        </input-field>
+
+        <input-field type="text">
+            <name>googlepayGatewayMerchantId</name>
+            <label lang="en-GB">Buckaroo Gateway Merchant ID</label>
+            <label lang="de-DE">Buckaroo Gateway-Merchant-ID</label>
+            <label lang="nl-NL">Buckaroo Gateway Merchant-ID</label>
+            <label lang="fr-FR">ID marchand passerelle Buckaroo</label>
+            <helpText lang="en-GB">Your unique GatewayMerchantID provided by Buckaroo after completing Google Pay onboarding in Buckaroo Plaza. If left empty, the Website Key is used as fallback.</helpText>
+            <helpText lang="de-DE">Ihre eindeutige GatewayMerchantID von Buckaroo nach dem Google Pay Onboarding in der Buckaroo Plaza. Wenn leer, wird der Website-Key als Fallback verwendet.</helpText>
+            <helpText lang="nl-NL">Uw unieke GatewayMerchantID van Buckaroo na het Google Pay-onboarding in Buckaroo Plaza. Als leeg, wordt de Website Key als fallback gebruikt.</helpText>
+            <helpText lang="fr-FR">Votre GatewayMerchantID unique fourni par Buckaroo après l'intégration Google Pay dans Buckaroo Plaza. Si vide, la clé du site Web est utilisée comme solution de repli.</helpText>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>googlepayButtonStyle</name>
+            <label lang="en-GB">Button style</label>
+            <label lang="de-DE">Schaltflächenstil</label>
+            <label lang="nl-NL">Knopstijl</label>
+            <label lang="fr-FR">Style du bouton</label>
+            <defaultValue>default</defaultValue>
+            <options>
+                <option>
+                    <id>default</id>
+                    <name>Default</name>
+                </option>
+                <option>
+                    <id>black</id>
+                    <name>Black</name>
+                </option>
+                <option>
+                    <id>white</id>
+                    <name>White</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>googlepayShowProduct</name>
+            <label lang="en-GB">Show Google Pay button on product page</label>
+            <label lang="de-DE">Google Pay-Schaltfläche auf der Produktseite anzeigen</label>
+            <label lang="nl-NL">Toon Google Pay-knop op productpagina</label>
+            <label lang="fr-FR">Afficher le bouton Google Pay sur la page du produit</label>
+            <defaultValue>0</defaultValue>
+            <options>
+                <option>
+                    <id>1</id>
+                    <name>Yes</name>
+                </option>
+                <option>
+                    <id>0</id>
+                    <name>No</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>googlepayShowCart</name>
+            <label lang="en-GB">Show Google Pay button in the cart</label>
+            <label lang="de-DE">Google Pay-Schaltfläche im Warenkorb anzeigen</label>
+            <label lang="nl-NL">Toon Google Pay-knop in de winkelwagen</label>
+            <label lang="fr-FR">Afficher le bouton Google Pay sur la page du panier</label>
+            <defaultValue>0</defaultValue>
+            <options>
+                <option>
+                    <id>1</id>
+                    <name>Yes</name>
+                </option>
+                <option>
+                    <id>0</id>
+                    <name>No</name>
+                </option>
+            </options>
+        </input-field>
+    </card>
+
+    <card>
         <title>Giftcards cards</title>
 		<title lang="en-GB">Giftcards</title>
         <title lang="nl-NL">Cadeaubonnen kaarten</title>

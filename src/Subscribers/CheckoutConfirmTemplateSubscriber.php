@@ -319,6 +319,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $this->getSettingAsInt('applepayHostedPaymentPage', $salesChannelId) === 1,
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'isAppleDevice'            => $this->isAppleDevice($request),
+            'googlepayMerchantId'      => $this->getGoogleMerchantId($salesChannelId),
+            'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
+            'googlepayButtonStyle'     => $this->getGooglepayButtonStyle($salesChannelId),
+            'googlepayEnvironment'     => $this->getGooglepayEnvironment($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'canShowPhone'          => $this->canShowPhone($customer),
             'methodsWithFinancialWarning' => $this->getMethodsWithFinancialWarning($salesChannelId),
@@ -461,6 +465,11 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'isAppleDevice'             => $this->isAppleDevice($request),
             'websiteKey'                => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'showApplePay'              => $this->getSettingAsBool('applepayShowCart', $salesChannelId),
+            'showGooglePay'             => $this->getSettingAsBool('googlepayShowCart', $salesChannelId),
+            'googlepayMerchantId'       => $this->getGoogleMerchantId($salesChannelId),
+            'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
+            'googlepayButtonStyle'      => $this->getGooglepayButtonStyle($salesChannelId),
+            'googlepayEnvironment'      => $this->getGooglepayEnvironment($salesChannelId),
             'idealFastCheckoutLogo'     => $this->getIdealFastCheckoutLogo($salesChannelId)
         ]);
 
@@ -521,6 +530,11 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'applePayMerchantId' => $this->getAppleMerchantId($salesChannelId),
             'isAppleDevice' => $this->isAppleDevice($request),
             'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId),
+            'googlepayShowProduct'      => $this->getSettingAsBool('googlepayShowProduct', $salesChannelId),
+            'googlepayMerchantId'       => $this->getGoogleMerchantId($salesChannelId),
+            'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
+            'googlepayButtonStyle'      => $this->getGooglepayButtonStyle($salesChannelId),
+            'googlepayEnvironment'      => $this->getGooglepayEnvironment($salesChannelId),
             'idealFastCheckoutLogo' => $this->getIdealFastCheckoutLogo($salesChannelId)
         ]);
 
@@ -570,6 +584,47 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             return (string)$merchantId;
         }
         return null;
+    }
+
+    protected function getGoogleMerchantId(string $salesChannelId): ?string
+    {
+        $merchantId = $this->settingsService->getSetting('googlepayMerchantId', $salesChannelId);
+        if ($merchantId !== null && is_scalar($merchantId)) {
+            return (string)$merchantId;
+        }
+        return null;
+    }
+
+    protected function getGooglepayGatewayMerchantId(string $salesChannelId): ?string
+    {
+        $gatewayMerchantId = $this->settingsService->getSetting('googlepayGatewayMerchantId', $salesChannelId);
+        if ($gatewayMerchantId !== null && is_scalar($gatewayMerchantId) && (string)$gatewayMerchantId !== '') {
+            return (string)$gatewayMerchantId;
+        }
+        // Fall back to the general Buckaroo Website Key
+        $websiteKey = $this->settingsService->getSetting('websiteKey', $salesChannelId);
+        if ($websiteKey !== null && is_scalar($websiteKey)) {
+            return (string)$websiteKey;
+        }
+        return null;
+    }
+
+    protected function getGooglepayButtonStyle(string $salesChannelId): string
+    {
+        $style = $this->settingsService->getSetting('googlepayButtonStyle', $salesChannelId);
+        if (is_string($style) && in_array($style, ['default', 'black', 'white'], true)) {
+            return $style;
+        }
+        return 'default';
+    }
+
+    protected function getGooglepayEnvironment(string $salesChannelId): string
+    {
+        $env = $this->settingsService->getSetting('googlepayEnvironment', $salesChannelId);
+        if (is_string($env) && strtolower($env) === 'live') {
+            return 'PRODUCTION';
+        }
+        return 'TEST';
     }
     protected function getIdealRenderMode(string $salesChannelId = null): int
     {

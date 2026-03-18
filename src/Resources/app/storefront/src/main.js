@@ -5,6 +5,7 @@ import BuckarooPaymentValidateSubmit from './helper/buckaroo-validate';
 import PaypalExpressPlugin from './paypal-express/paypal-express.plugin';
 import IdealFastCheckoutPlugin from './ideal-fast-checkout/ideal-fast-checkout.plugin';
 import ApplePayPlugin from './applepay/applepay.plugin';
+import GooglePayPlugin from './googlepay/googlepay.plugin';
 import BuckarooLoadScripts from './scripts/scripts.plugin';
 import IdealQrPlugin from './ideal-qr/ideal-qr.plugin';
 import BuckarooPayByBankSelect from './paybybank/select.plugin';
@@ -31,6 +32,7 @@ const init = () => {
     PluginManager.register('BuckarooPayByBankSelect', BuckarooPayByBankSelect, '[data-bk-select]');
     PluginManager.register('BuckarooPayByBankLogo', BuckarooPayByBankLogo, '[data-bk-paybybank-logo]');
     PluginManager.register('IdealFastCheckoutPlugin', IdealFastCheckoutPlugin, '[data-bk-ideal-fast-checkout]');
+    PluginManager.register('GooglePayPlugin', GooglePayPlugin, '[data-bk-googlepay]');
 }
 
 init();
