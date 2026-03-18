@@ -20,6 +20,11 @@ export default class GooglePayPlugin extends Plugin {
   init() {
     console.log("[GooglePay] init() — page:", this.options.page, "| options:", this.options);
 
+    if (!this.options.merchantId || !this.options.gatewayMerchantId) {
+      console.warn("[GooglePay] merchantId or gatewayMerchantId is not configured — Google Pay will not be initialised.");
+      return;
+    }
+
     // On checkout: immediately block form submission and disable the confirm
     // button while availability is being determined, mirroring Apple Pay behaviour.
     // This prevents the race condition where the form submits before isGooglePay is set.
@@ -191,6 +196,11 @@ export default class GooglePayPlugin extends Plugin {
 
     if (this.options.page !== "checkout") {
       this.initGooglePayButton(cartData);
+      // For product/cart pages the SDK renders its own button, but direct DOM
+      // clicks on that button are sometimes swallowed by the SDK internally.
+      // Placing a transparent overlay on top and forwarding clicks as a
+      // programmatic .click() (the same technique used on checkout) fixes this.
+      this.setupProductCartClickOverlay();
       return;
     }
 
@@ -216,7 +226,9 @@ export default class GooglePayPlugin extends Plugin {
         // Locate the button rendered by the Buckaroo SDK inside the container.
         const container = document.getElementById("google-pay-button-container");
         const gpBtn = container
-          ? container.querySelector("button, [role='button']")
+          ? container.querySelector(
+              "button, google-pay-button, [class*='gpay'], [class*='google-pay']"
+            )
           : null;
 
         if (gpBtn) {
@@ -228,7 +240,7 @@ export default class GooglePayPlugin extends Plugin {
             this.hideGooglePayContainer();
             setTimeout(() => {
               const retryBtn = document.querySelector(
-                "#google-pay-button-container button, #google-pay-button-container [role='button']"
+                "#google-pay-button-container button, #google-pay-button-container google-pay-button, #google-pay-button-container [class*='gpay']"
               );
               if (retryBtn) {
                 retryBtn.click();
@@ -261,6 +273,80 @@ export default class GooglePayPlugin extends Plugin {
       clip: "rect(0 0 0 0)",
       whiteSpace: "nowrap",
     });
+  }
+
+  /**
+   * For product/cart pages: place a transparent overlay on top of the SDK
+   * button container that intercepts user clicks and re-fires them as a
+   * programmatic .click() on the underlying SDK button.
+   *
+   * This mirrors the checkout approach (confirm-button → gpBtn.click()) and
+   * resolves the issue where direct DOM clicks on the SDK-rendered button are
+   * silently ignored by the Google Pay SDK.
+   */
+  setupProductCartClickOverlay() {
+    const container = document.getElementById("google-pay-button-container");
+    if (!container) {
+      console.warn("[GooglePay] setupProductCartClickOverlay: #google-pay-button-container not found.");
+      return;
+    }
+
+    // Ensure the container is a positioning context so the overlay can fill it.
+    container.style.position = "relative";
+
+    const overlay = document.createElement("div");
+    overlay.setAttribute("aria-label", "Pay with Google Pay");
+    overlay.setAttribute("role", "button");
+    overlay.setAttribute("tabindex", "0");
+    Object.assign(overlay.style, {
+      position: "absolute",
+      inset: "0",
+      cursor: "pointer",
+      zIndex: "9",
+      background: "transparent",
+    });
+
+    const triggerSdkButton = () => {
+      // Find the button rendered by the Buckaroo/Google Pay SDK.
+      // Exclude our own overlay (which also has role="button").
+      const gpBtn = container.querySelector(
+        "button, google-pay-button, [class*='gpay'], [class*='google-pay']"
+      );
+      if (gpBtn) {
+        console.log("[GooglePay] Overlay click — forwarding to SDK button programmatically.");
+        gpBtn.click();
+      } else {
+        console.warn("[GooglePay] Overlay click — SDK button not yet in container; retrying in 300 ms.");
+        setTimeout(() => {
+          const retryBtn = container.querySelector(
+            "button, google-pay-button, [class*='gpay'], [class*='google-pay']"
+          );
+          if (retryBtn) {
+            console.log("[GooglePay] Retry: forwarding to SDK button.");
+            retryBtn.click();
+          } else {
+            console.error("[GooglePay] Retry: SDK button still not found.");
+          }
+        }, 300);
+      }
+    };
+
+    overlay.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      triggerSdkButton();
+    });
+
+    // Keyboard accessibility: allow Enter / Space to trigger payment.
+    overlay.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        triggerSdkButton();
+      }
+    });
+
+    container.appendChild(overlay);
+    console.log("[GooglePay] Click overlay added to #google-pay-button-container.");
   }
 
   /**

@@ -271,7 +271,7 @@ abstract class AbstractPaymentController extends StorefrontController
      * @return string|null
      */
     protected function getFinishPage($redirectPath): ?string
-    {
+    {var_dump($redirectPath);die();
         if (is_string($redirectPath)) {
             return $this->generateUrl('frontend.home.page', [], UrlGeneratorInterface::ABSOLUTE_URL) .
                 ltrim($redirectPath, "/");
