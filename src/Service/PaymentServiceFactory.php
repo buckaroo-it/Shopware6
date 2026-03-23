@@ -4,35 +4,43 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
-
 /**
- * Factory to provide the correct payment service based on Shopware version
+ * Provides the correct Shopware payment service depending on the installed version.
+ *
+ * Shopware 6.7+ uses PaymentProcessor; 6.5-6.6 used PaymentService (now removed).
+ * Both are injected as optional constructor arguments (on-invalid="null" in services.xml)
+ * so the factory works across the full supported version range without relying on
+ * runtime container lookups, which fail when the services are not public.
  */
 class PaymentServiceFactory
 {
-    private ContainerInterface $container;
-
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
+    public function __construct(
+        private readonly ?object $paymentProcessor,
+        private readonly ?object $paymentService
+    ) {
     }
 
     /**
-     * Get the appropriate payment service for the current Shopware version
+     * Return the payment service appropriate for the running Shopware version.
+     *
+     * @throws \RuntimeException when neither service is available in the container.
      */
     public function getPaymentService(): object
     {
-        // Try PaymentProcessor first (Shopware 6.7+)
-        if ($this->container->has('Shopware\Core\Checkout\Payment\PaymentProcessor')) {
-            return $this->container->get('Shopware\Core\Checkout\Payment\PaymentProcessor');
+        // Prefer PaymentProcessor (Shopware 6.7+)
+        if ($this->paymentProcessor !== null) {
+            return $this->paymentProcessor;
         }
-        
-        // Fallback to PaymentService (Shopware 6.5-6.6)
-        if ($this->container->has('Shopware\Core\Checkout\Payment\PaymentService')) {
-            return $this->container->get('Shopware\Core\Checkout\Payment\PaymentService');
+
+        // Fallback: PaymentService (Shopware 6.5-6.6)
+        if ($this->paymentService !== null) {
+            return $this->paymentService;
         }
-        
-        throw new \RuntimeException('No compatible payment service found');
+
+        throw new \RuntimeException(
+            'No compatible payment service found. '
+            . 'Expected Shopware\Core\Checkout\Payment\PaymentProcessor (6.7+) '
+            . 'or Shopware\Core\Checkout\Payment\PaymentService (6.5-6.6).'
+        );
     }
 }
