@@ -382,11 +382,25 @@ export default class GooglePayPlugin extends Plugin {
       processPayment: (paymentData) => {
         console.log("[GooglePay] processPayment() called — paymentData:", paymentData);
         return this.captureFunds(paymentData, cartData).then((result) => {
-          // On payment failure re-enable the confirm button so the user can retry
-          if (!result || !result.success) {
-            this.setConfirmButtonDisabled(false);
+          if (result && result.success) {
+            // Success — the redirect is already happening via window.location in captureFunds.
+            // Return the Google Pay success state so the sheet can close cleanly.
+            return { transactionState: "SUCCESS" };
           }
-          return result;
+
+          // Re-enable the confirm button so the user can retry.
+          this.setConfirmButtonDisabled(false);
+
+          // Return a structured Google Pay error so the SDK can display it properly
+          // instead of raising a DEVELOPER_ERROR for an unexpected callback return value.
+          return {
+            transactionState: "ERROR",
+            error: {
+              intent: "PAYMENT_AUTHORIZATION",
+              message: (result && result.error) || "Could not complete Google Pay payment.",
+              reason: "OTHER_ERROR",
+            },
+          };
         });
       },
     };

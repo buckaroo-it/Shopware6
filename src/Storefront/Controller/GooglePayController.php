@@ -105,30 +105,60 @@ class GooglePayController extends AbstractPaymentController
     #[Route(path: '/buckaroo/googlepay/order/create', name: 'frontend.action.buckaroo.googleCreateOrder', options: ['seo' => false], methods: ['POST'], defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']])]
     public function createGoogleOrder(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
-        $this->overrideChannelPaymentMethod($salesChannelContext, 'GooglePayPaymentHandler');
+        $this->logger->info('[GooglePay] createGoogleOrder — START', [
+            'page'        => $request->request->get('page'),
+            'cartToken'   => $request->request->get('cartToken'),
+            'contextToken' => $salesChannelContext->getToken(),
+            'customerId'  => $salesChannelContext->getCustomer()?->getId() ?? 'guest/null',
+            'paymentHasInfo' => !empty($request->request->get('payment')),
+        ]);
 
         try {
+            $this->overrideChannelPaymentMethod($salesChannelContext, 'GooglePayPaymentHandler');
+            $this->logger->info('[GooglePay] createGoogleOrder — payment method overridden to GooglePay');
+
+            $order = $this->createOrder($salesChannelContext, $request);
+            $this->logger->info('[GooglePay] createGoogleOrder — order created', [
+                'orderId'     => $order->getId(),
+                'orderNumber' => $order->getOrderNumber(),
+                'amount'      => $order->getAmountTotal(),
+            ]);
+
             $redirectPath = $this->placeOrder(
-                $this->createOrder($salesChannelContext, $request),
+                $order,
                 $salesChannelContext,
                 new RequestDataBag([
                     'googlePayInfo' => $request->request->get('payment')
                 ])
             );
 
+            $this->logger->info('[GooglePay] createGoogleOrder — placeOrder returned', [
+                'redirectPath' => $redirectPath,
+            ]);
+
             $redirect = $this->getFinishPage($redirectPath);
 
+            $this->logger->info('[GooglePay] createGoogleOrder — getFinishPage returned', [
+                'redirect' => $redirect,
+            ]);
+
             if ($redirect === null) {
-                $this->logger->error('GooglePay createGoogleOrder: placeOrder returned null redirect. Payment may have been rejected by Buckaroo. Check payment logs for details.');
+                $this->logger->error('[GooglePay] createGoogleOrder — redirect is null after placeOrder. Check OrderService / PaymentProcessor logs above for the root cause.');
                 return $this->response(
                     ['message' => $this->trans('buckaroo.button_payment.unknown_error')],
                     true
                 );
             }
 
+            $this->logger->info('[GooglePay] createGoogleOrder — SUCCESS, redirecting to: ' . $redirect);
             return $this->response(['redirect' => $redirect]);
         } catch (\Throwable $th) {
-            $this->logger->error('GooglePay createGoogleOrder exception: ' . (string)$th);
+            $this->logger->error('[GooglePay] createGoogleOrder — EXCEPTION', [
+                'message' => $th->getMessage(),
+                'class'   => get_class($th),
+                'file'    => $th->getFile() . ':' . $th->getLine(),
+                'trace'   => $th->getTraceAsString(),
+            ]);
             return $this->response(
                 ['message' => $this->trans('buckaroo.button_payment.unknown_error')],
                 true
