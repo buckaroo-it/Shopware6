@@ -18,12 +18,23 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 
 class GooglePayController extends AbstractPaymentController
 {
     protected ContextService $contextService;
 
     protected LoggerInterface $logger;
+
+    private SalesChannelContextPersister $contextPersister;
+
+    private SalesChannelContextService $salesChannelContextService;
+
+    private AbstractRegisterRoute $registerRoute;
 
     public function __construct(
         CartService $cartService,
@@ -32,10 +43,16 @@ class GooglePayController extends AbstractPaymentController
         ContextService $contextService,
         LoggerInterface $logger,
         SettingsService $settingsService,
-        SalesChannelRepository $paymentMethodRepository
+        SalesChannelRepository $paymentMethodRepository,
+        SalesChannelContextPersister $contextPersister,
+        SalesChannelContextService $salesChannelContextService,
+        AbstractRegisterRoute $registerRoute
     ) {
         $this->contextService = $contextService;
         $this->logger = $logger;
+        $this->contextPersister = $contextPersister;
+        $this->salesChannelContextService = $salesChannelContextService;
+        $this->registerRoute = $registerRoute;
         parent::__construct(
             $cartService,
             $customerService,
@@ -116,6 +133,35 @@ class GooglePayController extends AbstractPaymentController
         try {
             $this->overrideChannelPaymentMethod($salesChannelContext, 'GooglePayPaymentHandler');
             $this->logger->info('[GooglePay] createGoogleOrder — payment method overridden to GooglePay');
+
+            if (!$salesChannelContext->getCustomer()) {
+                $this->logger->info('[GooglePay] createGoogleOrder — no customer in context, registering guest');
+                $customer = $this->registerGuestCustomer($salesChannelContext);
+
+                $this->contextPersister->save(
+                    $salesChannelContext->getToken(),
+                    ['customerId' => $customer->getId()],
+                    $salesChannelContext->getSalesChannel()->getId(),
+                    $customer->getId()
+                );
+
+                $salesChannelContext = $this->salesChannelContextService->get(
+                    new SalesChannelContextServiceParameters(
+                        $salesChannelContext->getSalesChannel()->getId(),
+                        $salesChannelContext->getToken(),
+                        null,
+                        null,
+                        null,
+                        $salesChannelContext->getContext(),
+                        $customer->getId()
+                    )
+                );
+
+                $this->logger->info('[GooglePay] createGoogleOrder — guest registered', [
+                    'customerId' => $customer->getId(),
+                    'email'      => $customer->getEmail(),
+                ]);
+            }
 
             $order = $this->createOrder($salesChannelContext, $request);
             $this->logger->info('[GooglePay] createGoogleOrder — order created', [
@@ -285,5 +331,43 @@ class GooglePayController extends AbstractPaymentController
         }
 
         return new DataBag($data);
+    }
+
+    /**
+     * Register a temporary guest customer so an order can be created
+     * without requiring the shopper to log in first.
+     */
+    private function registerGuestCustomer(SalesChannelContext $context): CustomerEntity
+    {
+        $country = $context->getShippingLocation()->getCountry();
+
+        $data = new RequestDataBag([
+            'guest'       => true,
+            'salutationId' => null,
+            'firstName'   => 'Guest',
+            'lastName'    => 'User',
+            'email'       => 'guest_' . uniqid() . '@buckaroo.test',
+            'country_code' => $country ? $country->getIso() : 'DE',
+            'city'        => 'Guest City',
+            'paymentToken' => $context->getToken(),
+            'billingAddress' => [
+                'firstName'  => 'Guest',
+                'lastName'   => 'User',
+                'street'     => 'Guest Street 1',
+                'zipcode'    => '12345',
+                'city'       => 'Guest City',
+                'countryId'  => $country ? $country->getId() : null,
+            ],
+            'shippingAddress' => [
+                'firstName'  => 'Guest',
+                'lastName'   => 'User',
+                'street'     => 'Guest Street 1',
+                'zipcode'    => '12345',
+                'city'       => 'Guest City',
+                'countryId'  => $country ? $country->getId() : null,
+            ],
+        ]);
+
+        return $this->registerRoute->register($data, $context, false)->getCustomer();
     }
 }
