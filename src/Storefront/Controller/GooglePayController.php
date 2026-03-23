@@ -134,6 +134,17 @@ class GooglePayController extends AbstractPaymentController
             $this->overrideChannelPaymentMethod($salesChannelContext, 'GooglePayPaymentHandler');
             $this->logger->info('[GooglePay] createGoogleOrder — payment method overridden to GooglePay');
 
+            // Load the cart NOW — before any guest registration that may invalidate the anonymous token.
+            $cartToken = $request->request->get('cartToken');
+            if (!is_string($cartToken)) {
+                $cartToken = $salesChannelContext->getToken();
+            }
+            $preLoadedCart = $this->getCartByToken($cartToken, $salesChannelContext);
+            if ($preLoadedCart === null) {
+                throw new \Exception('Cannot find cart', 1);
+            }
+            $this->logger->info('[GooglePay] createGoogleOrder — cart pre-loaded', ['cartToken' => $cartToken]);
+
             if (!$salesChannelContext->getCustomer()) {
                 $this->logger->info('[GooglePay] createGoogleOrder — no customer in context, registering guest');
                 $customer = $this->registerGuestCustomer($salesChannelContext);
@@ -163,7 +174,7 @@ class GooglePayController extends AbstractPaymentController
                 ]);
             }
 
-            $order = $this->createOrder($salesChannelContext, $request);
+            $order = $this->createOrder($salesChannelContext, $request, $preLoadedCart);
             $this->logger->info('[GooglePay] createGoogleOrder — order created', [
                 'orderId'     => $order->getId(),
                 'orderNumber' => $order->getOrderNumber(),
@@ -213,25 +224,30 @@ class GooglePayController extends AbstractPaymentController
     }
 
     /**
-     * Create order from cart
+     * Create order from cart.
      *
-     * @param SalesChannelContext $salesChannelContext
-     * @param Request $request
+     * @param \Shopware\Core\Checkout\Cart\Cart|null $preLoadedCart
+     *        Pass the cart when it was already loaded before a guest registration so
+     *        Shopware's context-token migration cannot cause a "cart not found" error.
      *
      * @return \Shopware\Core\Checkout\Order\OrderEntity
      */
-    protected function createOrder(SalesChannelContext $salesChannelContext, Request $request)
-    {
-        $cartToken = $request->request->get('cartToken');
-
-        if (!is_string($cartToken)) {
-            $cartToken = $salesChannelContext->getToken();
-        }
-
-        $cart = $this->getCartByToken($cartToken, $salesChannelContext);
-
-        if ($cart === null) {
-            throw new \Exception('Cannot find cart', 1);
+    protected function createOrder(
+        SalesChannelContext $salesChannelContext,
+        Request $request,
+        ?\Shopware\Core\Checkout\Cart\Cart $preLoadedCart = null
+    ) {
+        if ($preLoadedCart !== null) {
+            $cart = $preLoadedCart;
+        } else {
+            $cartToken = $request->request->get('cartToken');
+            if (!is_string($cartToken)) {
+                $cartToken = $salesChannelContext->getToken();
+            }
+            $cart = $this->getCartByToken($cartToken, $salesChannelContext);
+            if ($cart === null) {
+                throw new \Exception('Cannot find cart', 1);
+            }
         }
 
         if (in_array($request->request->get('page'), ['product', 'cart'])) {
