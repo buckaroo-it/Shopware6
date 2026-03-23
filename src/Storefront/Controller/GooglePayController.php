@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 
 class GooglePayController extends AbstractPaymentController
@@ -32,7 +32,7 @@ class GooglePayController extends AbstractPaymentController
 
     private SalesChannelContextPersister $contextPersister;
 
-    private SalesChannelContextService $salesChannelContextService;
+    private SalesChannelContextServiceInterface $salesChannelContextService;
 
     private AbstractRegisterRoute $registerRoute;
 
@@ -45,7 +45,7 @@ class GooglePayController extends AbstractPaymentController
         SettingsService $settingsService,
         SalesChannelRepository $paymentMethodRepository,
         SalesChannelContextPersister $contextPersister,
-        SalesChannelContextService $salesChannelContextService,
+        SalesChannelContextServiceInterface $salesChannelContextService,
         AbstractRegisterRoute $registerRoute
     ) {
         $this->contextService = $contextService;
