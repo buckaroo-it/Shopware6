@@ -79,12 +79,26 @@ class GooglePayController extends AbstractPaymentController
             if ($isProductWithForm) {
                 $cart = $this->getCart($request, $salesChannelContext);
             } else {
-                $cart = $this->getCartByToken(
-                    $salesChannelContext->getToken(),
-                    $salesChannelContext
-                );
-                if ($cart === null) {
-                    throw new \Exception('Cannot retrieve cart', 1);
+                try {
+                    $cart = $this->getCartByToken(
+                        $salesChannelContext->getToken(),
+                        $salesChannelContext
+                    );
+                } catch (\Throwable $e) {
+                    // Cart does not exist yet (fresh / empty session).
+                    // Use the emptyCart flag so the JS can hide the button silently.
+                    $this->logger->debug('[GooglePay] getGoogleCart — session cart not found: ' . $e->getMessage());
+                    return $this->response(
+                        ['message' => 'Your cart is empty. Please add a product before using Google Pay.', 'emptyCart' => true],
+                        true
+                    );
+                }
+
+                if ($cart === null || $cart->getLineItems()->count() === 0) {
+                    return $this->response(
+                        ['message' => 'Your cart is empty. Please add a product before using Google Pay.', 'emptyCart' => true],
+                        true
+                    );
                 }
             }
 
@@ -131,18 +145,13 @@ class GooglePayController extends AbstractPaymentController
         ]);
 
         try {
-            $this->overrideChannelPaymentMethod($salesChannelContext, 'GooglePayPaymentHandler');
-            $this->logger->info('[GooglePay] createGoogleOrder — payment method overridden to GooglePay');
-
-            // Load the cart NOW — before any guest registration that may invalidate the anonymous token.
+            // Load the cart FIRST — before any guest registration that may migrate or
+            // invalidate the anonymous cart token in Shopware's context persistence.
             $cartToken = $request->request->get('cartToken');
             if (!is_string($cartToken)) {
                 $cartToken = $salesChannelContext->getToken();
             }
             $preLoadedCart = $this->getCartByToken($cartToken, $salesChannelContext);
-            if ($preLoadedCart === null) {
-                throw new \Exception('Cannot find cart', 1);
-            }
             $this->logger->info('[GooglePay] createGoogleOrder — cart pre-loaded', ['cartToken' => $cartToken]);
 
             if (!$salesChannelContext->getCustomer()) {
@@ -168,11 +177,25 @@ class GooglePayController extends AbstractPaymentController
                     )
                 );
 
+                // Recalculate the cart with the new guest context so that the delivery
+                // is rebuilt using the guest's registered shipping address.
+                // Without this, OrderPersister throws "Delivery contains no shipping address"
+                // because the anonymous cart had no customer address on its delivery.
+                $preLoadedCart = $this->cartService->calculateCart($preLoadedCart, $salesChannelContext);
+
+                // Re-persist under the new customer context so Shopware's CartPersister
+                // can find the cart by customer_id in subsequent lookups.
+                $this->cartService->save($preLoadedCart, $salesChannelContext);
+
                 $this->logger->info('[GooglePay] createGoogleOrder — guest registered', [
                     'customerId' => $customer->getId(),
                     'email'      => $customer->getEmail(),
                 ]);
             }
+
+            // Set the Google Pay payment method on the (possibly refreshed) context.
+            $this->overrideChannelPaymentMethod($salesChannelContext, 'GooglePayPaymentHandler');
+            $this->logger->info('[GooglePay] createGoogleOrder — payment method overridden to GooglePay');
 
             $order = $this->createOrder($salesChannelContext, $request, $preLoadedCart);
             $this->logger->info('[GooglePay] createGoogleOrder — order created', [

@@ -425,7 +425,15 @@ export default class GooglePayPlugin extends Plugin {
     let formData = null;
 
     if (this.options.page === "product") {
-      const form = this.el.closest("form");
+      // Try the direct ancestor form first; if the button is rendered outside the <form>
+      // (e.g. in page_product_detail_buy_button_container in SW 6.7), fall back to
+      // the buy-widget form by its well-known ID / data attribute.
+      const form =
+        this.el.closest("form") ||
+        document.getElementById("productDetailPageBuyProductForm") ||
+        document.querySelector("[data-product-detail-buy-form]") ||
+        document.querySelector("form[action*='add-to-cart']");
+
       if (form) {
         formData = FormSerializeUtil.serializeJson(form);
       }
@@ -442,6 +450,15 @@ export default class GooglePayPlugin extends Plugin {
           console.log("[GooglePay] cart/get raw response:", response);
           const resp = JSON.parse(response);
           if (resp.error) {
+            // "empty cart" means there is nothing to pay for on this page —
+            // hide the button silently rather than surfacing an error to the shopper.
+            if (resp.emptyCart) {
+              console.warn("[GooglePay] cart/get — cart is empty, hiding button silently.");
+              const container = document.getElementById("google-pay-button-container");
+              if (container) container.style.display = "none";
+              reject(resp.message);
+              return;
+            }
             console.error("[GooglePay] cart/get returned error:", resp.message);
             this.displayErrorMessage(resp.message);
             reject(resp.message);
