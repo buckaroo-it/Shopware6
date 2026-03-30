@@ -223,6 +223,20 @@ class GooglePayController extends AbstractPaymentController
                 'paymentMethodName' => $salesChannelContext->getPaymentMethod()->getName(),
             ]);
 
+            // Recalculate the cart with the Google Pay context so that the cart's
+            // internal transaction record is updated to reference Google Pay.
+            // OrderPersister reads the payment method from the cart's own transaction
+            // data — not from $salesChannelContext — so without this step the order
+            // is created with whatever method was active during the last calculateCart
+            // call (e.g. Cash on Delivery), regardless of what the context now says.
+
+            $preLoadedCart = $this->cartService->calculateCart($preLoadedCart, $salesChannelContext);
+            $this->cartService->save($preLoadedCart, $salesChannelContext);
+
+            $this->logger->info('[GooglePay] createGoogleOrder — cart recalculated with Google Pay context', [
+                'cartToken' => $preLoadedCart->getToken(),
+            ]);
+
             $order = $this->createOrder($salesChannelContext, $request, $preLoadedCart);
             $this->logger->info('[GooglePay] createGoogleOrder — order created', [
                 'orderId'     => $order->getId(),
