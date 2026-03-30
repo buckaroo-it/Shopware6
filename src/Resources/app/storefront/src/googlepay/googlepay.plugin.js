@@ -19,10 +19,7 @@ export default class GooglePayPlugin extends Plugin {
   googlePayment = null;
 
   init() {
-    console.log("[GooglePay] init() — page:", this.options.page, "| options:", this.options);
-
     if (!this.options.merchantId || !this.options.gatewayMerchantId) {
-      console.warn("[GooglePay] merchantId or gatewayMerchantId is not configured — Google Pay will not be initialised.");
       return;
     }
 
@@ -36,17 +33,13 @@ export default class GooglePayPlugin extends Plugin {
 
     this.loadBuckarooSdk()
       .then(() => {
-        console.log("[GooglePay] Buckaroo SDK loaded successfully. BuckarooSdk.GooglePay available:", !!(window.BuckarooSdk && window.BuckarooSdk.GooglePay));
         return this.retrieveCartData();
       })
       .then((cartData) => {
-        console.log("[GooglePay] Cart data received:", cartData);
         return this.checkIsAvailable(cartData).then((available) => {
-          console.log("[GooglePay] isReadyToPay result:", available);
           if (available) {
             this.renderButton(cartData);
           } else {
-            console.warn("[GooglePay] Google Pay is NOT available in this browser/device.");
             // Not available — release the block so the user can try another method.
             if (this.options.page === "checkout") {
               window.isGooglePay = false;
@@ -55,8 +48,7 @@ export default class GooglePayPlugin extends Plugin {
           }
         });
       })
-      .catch((err) => {
-        console.error("[GooglePay] init() failed:", err);
+      .catch(() => {
         if (this.options.page === "checkout") {
           window.isGooglePay = false;
           this.setConfirmButtonDisabled(false);
@@ -79,21 +71,19 @@ export default class GooglePayPlugin extends Plugin {
    * Load a script by src and poll until a readiness check passes.
    * @param {string} src
    * @param {function(): boolean} readyFn
-   * @param {string} label  - used in log messages
+   * @param {string} label  - used in error messages
    * @param {number} maxAttempts
    * @returns {Promise}
    */
   _loadScript(src, readyFn, label, maxAttempts = 50) {
     return new Promise((resolve, reject) => {
       if (readyFn()) {
-        console.log("[GooglePay]", label, "already available.");
         resolve();
         return;
       }
 
       const poll = (attempts = 0) => {
         if (readyFn()) {
-          console.log("[GooglePay]", label, "available after polling.");
           resolve();
           return;
         }
@@ -106,20 +96,15 @@ export default class GooglePayPlugin extends Plugin {
 
       const existing = document.querySelector('script[src="' + src + '"]');
       if (existing) {
-        console.log("[GooglePay]", label, "script already in DOM — polling...");
         poll();
         return;
       }
 
-      console.log("[GooglePay] Injecting script:", src);
       const script = document.createElement("script");
       script.src = src;
       script.async = true;
       script.onload = () => poll();
-      script.onerror = (e) => {
-        console.error("[GooglePay] Failed to load script:", src, e);
-        reject(e);
-      };
+      script.onerror = (e) => reject(e);
       document.head.appendChild(script);
     });
   }
@@ -141,9 +126,7 @@ export default class GooglePayPlugin extends Plugin {
         () => !!(window.google && window.google.payments && window.google.payments.api),
         "google.payments.api"
       ),
-    ]).then(() => {
-      console.log("[GooglePay] Both Buckaroo SDK and Google Pay JS ready.");
-    });
+    ]);
   }
 
   /**
@@ -155,13 +138,11 @@ export default class GooglePayPlugin extends Plugin {
   checkIsAvailable(cartData) {
     return new Promise((resolve) => {
       if (!window.BuckarooSdk || !window.BuckarooSdk.GooglePay) {
-        console.warn("[GooglePay] checkIsAvailable: BuckarooSdk.GooglePay not found on window.");
         resolve(false);
         return;
       }
 
       if (!window.google || !window.google.payments || !window.google.payments.api) {
-        console.warn("[GooglePay] checkIsAvailable: google.payments.api not available.");
         resolve(false);
         return;
       }
@@ -180,14 +161,8 @@ export default class GooglePayPlugin extends Plugin {
           },
         }],
       })
-        .then((response) => {
-          console.log("[GooglePay] isReadyToPay response:", response);
-          resolve(!!response.result);
-        })
-        .catch((e) => {
-          console.error("[GooglePay] isReadyToPay error:", e);
-          resolve(false);
-        });
+        .then((response) => resolve(!!response.result))
+        .catch(() => resolve(false));
     });
   }
 
@@ -202,8 +177,6 @@ export default class GooglePayPlugin extends Plugin {
    * @param {object} cartData
    */
   renderButton(cartData) {
-    console.log("[GooglePay] renderButton() — page:", this.options.page);
-
     if (this.options.page === "checkout") {
       this._wireCheckoutConfirmButton(cartData);
     } else {
@@ -222,16 +195,13 @@ export default class GooglePayPlugin extends Plugin {
 
     const confirmBtn = document.getElementById("confirmFormSubmit");
     if (!confirmBtn) {
-      console.warn("[GooglePay] #confirmFormSubmit not found in DOM.");
       window.isGooglePay = false;
       return;
     }
 
-    console.log("[GooglePay] Checkout: wiring #confirmFormSubmit to open Google Pay sheet.");
     confirmBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      console.log("[GooglePay] Confirm clicked — opening Google Pay sheet.");
       this.setConfirmButtonDisabled(true);
       // loadPaymentData() is called synchronously within the trusted click event,
       // so Google Pay accepts it as a real user gesture.
@@ -248,7 +218,6 @@ export default class GooglePayPlugin extends Plugin {
   _renderNativeButton(cartData) {
     const container = document.getElementById("google-pay-button-container");
     if (!container) {
-      console.warn("[GooglePay] #google-pay-button-container not found.");
       return;
     }
 
@@ -260,15 +229,11 @@ export default class GooglePayPlugin extends Plugin {
       buttonColor,
       buttonType: "buy",
       buttonSizeMode: "fill",
-      onClick: () => {
-        console.log("[GooglePay] Native button clicked — opening payment sheet.");
-        this._openPaymentSheet(cartData);
-      },
+      onClick: () => this._openPaymentSheet(cartData),
     });
 
     container.innerHTML = "";
     container.appendChild(button);
-    console.log("[GooglePay] Native Google Pay button rendered.");
   }
 
   /**
@@ -312,14 +277,9 @@ export default class GooglePayPlugin extends Plugin {
       },
     };
 
-    console.log("[GooglePay] Calling loadPaymentData() with:", paymentRequest);
-
     paymentsClient
       .loadPaymentData(paymentRequest)
-      .then((paymentData) => {
-        console.log("[GooglePay] Payment authorised — sending to backend.");
-        return this.captureFunds(paymentData, cartData);
-      })
+      .then((paymentData) => this.captureFunds(paymentData, cartData))
       .then((result) => {
         if (!result || !result.success) {
           this.setConfirmButtonDisabled(false);
@@ -329,7 +289,6 @@ export default class GooglePayPlugin extends Plugin {
         }
       })
       .catch((err) => {
-        console.log("[GooglePay] loadPaymentData closed/error:", err);
         this.setConfirmButtonDisabled(false);
         // statusCode === 'CANCELED' means the user closed the sheet — not an error.
         if (err && err.statusCode !== "CANCELED") {
@@ -377,11 +336,6 @@ export default class GooglePayPlugin extends Plugin {
         );
         const quantity = quantityEl ? (parseInt(quantityEl.value, 10) || 1) : 1;
 
-        console.log(
-          "[GooglePay] Form not found / no lineItems — building form data from productId option:",
-          productId, "qty:", quantity
-        );
-
         formData = {
           [`lineItems[${productId}][id]`]: productId,
           [`lineItems[${productId}][referencedId]`]: productId,
@@ -394,31 +348,26 @@ export default class GooglePayPlugin extends Plugin {
     }
 
     const body = { form: formData, page: this.options.page };
-    console.log("[GooglePay] retrieveCartData() — POST /buckaroo/googlepay/cart/get body:", body);
 
     return new Promise((resolve, reject) => {
       this.httpClient.post(
         `${this.url}/googlepay/cart/get`,
         JSON.stringify(body),
         (response) => {
-          console.log("[GooglePay] cart/get raw response:", response);
           const resp = JSON.parse(response);
           if (resp.error) {
             // "empty cart" means there is nothing to pay for on this page —
             // hide the button silently rather than surfacing an error to the shopper.
             if (resp.emptyCart) {
-              console.warn("[GooglePay] cart/get — cart is empty, hiding button silently.");
               const container = document.getElementById("google-pay-button-container");
               if (container) container.style.display = "none";
               reject(resp.message);
               return;
             }
-            console.error("[GooglePay] cart/get returned error:", resp.message);
             this.displayErrorMessage(resp.message);
             reject(resp.message);
           } else {
             this.cartToken = resp.cartToken;
-            console.log("[GooglePay] cart/get success — cartToken:", resp.cartToken, "| full response:", resp);
             resolve(resp);
           }
         }
@@ -438,29 +387,24 @@ export default class GooglePayPlugin extends Plugin {
       cartToken: this.cartToken,
       page: this.options.page,
     };
-    console.log("[GooglePay] captureFunds() — POST /buckaroo/googlepay/order/create body:", body);
 
     return new Promise((resolve) => {
       this.httpClient.post(
         `${this.url}/googlepay/order/create`,
         JSON.stringify(body),
         (response) => {
-          console.log("[GooglePay] order/create raw response:", response);
-
           let resp = null;
           try {
             resp = response ? JSON.parse(response) : null;
           } catch (e) {
-            console.error("[GooglePay] Failed to parse order/create response:", e, "| raw:", response);
+            // unparseable response — fall through to error handling below
           }
 
           if (resp && resp.redirect) {
-            console.log("[GooglePay] Order created successfully — redirecting to:", resp.redirect);
             resolve({ success: true });
             window.location = resp.redirect;
           } else {
             const message = (resp && resp.message) || "Could not complete Google Pay payment.";
-            console.error("[GooglePay] order/create failed:", message, "| full response:", resp);
             this.displayErrorMessage(message);
             resolve({ success: false, error: message });
           }

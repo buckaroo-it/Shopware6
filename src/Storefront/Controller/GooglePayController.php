@@ -252,6 +252,18 @@ class GooglePayController extends AbstractPaymentController
                 ])
             );
 
+            // Delete the cart now that the order is placed.
+            // Shopware's CartOrderRoute normally does this, but our custom
+            // express-checkout flow bypasses that route, so we must do it here.
+            try {
+                $this->cartService->deleteFromCart($salesChannelContext);
+                $this->logger->info('[GooglePay] createGoogleOrder — cart deleted after order placement');
+            } catch (\Throwable $e) {
+                $this->logger->warning('[GooglePay] createGoogleOrder — could not delete cart', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
             $this->logger->info('[GooglePay] createGoogleOrder — placeOrder returned', [
                 'redirectPath' => $redirectPath,
             ]);
