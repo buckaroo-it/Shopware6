@@ -76,51 +76,48 @@ export default class GooglePayPlugin extends Plugin {
   }
 
   /**
-   * Dynamically inject the Buckaroo ClientSide SDK script once
+   * Load a script by src and poll until a readiness check passes.
+   * @param {string} src
+   * @param {function(): boolean} readyFn
+   * @param {string} label  - used in log messages
+   * @param {number} maxAttempts
    * @returns {Promise}
    */
-  loadBuckarooSdk() {
+  _loadScript(src, readyFn, label, maxAttempts = 50) {
     return new Promise((resolve, reject) => {
-      if (window.BuckarooSdk && window.BuckarooSdk.GooglePay) {
-        console.log("[GooglePay] SDK already present, skipping injection.");
+      if (readyFn()) {
+        console.log("[GooglePay]", label, "already available.");
         resolve();
         return;
       }
 
-      const waitForGooglePay = (attempts = 0) => {
-        if (window.BuckarooSdk && window.BuckarooSdk.GooglePay) {
-          console.log("[GooglePay] BuckarooSdk.GooglePay is now available after polling.");
+      const poll = (attempts = 0) => {
+        if (readyFn()) {
+          console.log("[GooglePay]", label, "available after polling.");
           resolve();
           return;
         }
-        if (attempts >= 20) {
-          console.error("[GooglePay] BuckarooSdk.GooglePay did not become available after 2s. BuckarooSdk:", window.BuckarooSdk);
-          reject(new Error("BuckarooSdk.GooglePay not available"));
+        if (attempts >= maxAttempts) {
+          reject(new Error(label + " not available after " + (maxAttempts / 10) + "s"));
           return;
         }
-        setTimeout(() => waitForGooglePay(attempts + 1), 100);
+        setTimeout(() => poll(attempts + 1), 100);
       };
 
-      const existing = document.querySelector(
-        'script[src="https://checkout.buckaroo.nl/api/buckaroosdk/script"]'
-      );
-
+      const existing = document.querySelector('script[src="' + src + '"]');
       if (existing) {
-        console.log("[GooglePay] SDK script tag already in DOM, waiting for GooglePay module...");
-        waitForGooglePay();
+        console.log("[GooglePay]", label, "script already in DOM — polling...");
+        poll();
         return;
       }
 
-      console.log("[GooglePay] Injecting Buckaroo SDK script...");
+      console.log("[GooglePay] Injecting script:", src);
       const script = document.createElement("script");
-      script.src = "https://checkout.buckaroo.nl/api/buckaroosdk/script";
+      script.src = src;
       script.async = true;
-      script.onload = () => {
-        console.log("[GooglePay] SDK script loaded. BuckarooSdk:", window.BuckarooSdk, "— polling for GooglePay module...");
-        waitForGooglePay();
-      };
+      script.onload = () => poll();
       script.onerror = (e) => {
-        console.error("[GooglePay] Failed to load Buckaroo SDK script:", e);
+        console.error("[GooglePay] Failed to load script:", src, e);
         reject(e);
       };
       document.head.appendChild(script);
@@ -128,7 +125,30 @@ export default class GooglePayPlugin extends Plugin {
   }
 
   /**
-   * Check whether Google Pay is available in this browser/device
+   * Load the Buckaroo ClientSide SDK and the Google Pay JS library in parallel.
+   * Both must be ready before the payment button can be initialised.
+   * @returns {Promise}
+   */
+  loadBuckarooSdk() {
+    return Promise.all([
+      this._loadScript(
+        "https://checkout.buckaroo.nl/api/buckaroosdk/script",
+        () => !!(window.BuckarooSdk && window.BuckarooSdk.GooglePay),
+        "BuckarooSdk.GooglePay"
+      ),
+      this._loadScript(
+        "https://pay.google.com/gp/p/js/pay.js",
+        () => !!(window.google && window.google.payments && window.google.payments.api),
+        "google.payments.api"
+      ),
+    ]).then(() => {
+      console.log("[GooglePay] Both Buckaroo SDK and Google Pay JS ready.");
+    });
+  }
+
+  /**
+   * Check whether Google Pay is available in this browser/device.
+   * google.payments.api is guaranteed to be loaded by this point (loadBuckarooSdk resolves both).
    * @param {object} cartData
    * @returns {Promise<boolean>}
    */
@@ -140,45 +160,34 @@ export default class GooglePayPlugin extends Plugin {
         return;
       }
 
-      // Use the native Google Pay API for availability — the Buckaroo SDK loads it as a dependency.
-      // google.payments.api may need a short moment to appear after BuckarooSdk is ready.
-      const doCheck = (attempts = 0) => {
-        if (window.google && window.google.payments && window.google.payments.api) {
-          const env = this.options.environment === 'PRODUCTION' ? 'PRODUCTION' : 'TEST';
-          const paymentsClient = new window.google.payments.api.PaymentsClient({ environment: env });
+      if (!window.google || !window.google.payments || !window.google.payments.api) {
+        console.warn("[GooglePay] checkIsAvailable: google.payments.api not available.");
+        resolve(false);
+        return;
+      }
 
-          paymentsClient.isReadyToPay({
-            apiVersion: 2,
-            apiVersionMinor: 0,
-            allowedPaymentMethods: [{
-              type: 'CARD',
-              parameters: {
-                allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-                allowedCardNetworks: ['MASTERCARD', 'VISA'],
-              },
-            }],
-          })
-            .then((response) => {
-              console.log("[GooglePay] google.payments.api.isReadyToPay response:", response);
-              resolve(!!response.result);
-            })
-            .catch((e) => {
-              console.error("[GooglePay] google.payments.api.isReadyToPay error:", e);
-              resolve(false);
-            });
+      const env = this.options.environment === 'PRODUCTION' ? 'PRODUCTION' : 'TEST';
+      const paymentsClient = new window.google.payments.api.PaymentsClient({ environment: env });
 
-        } else if (attempts < 20) {
-          // google.payments.api not yet loaded — poll for up to 2 s
-          console.log("[GooglePay] Waiting for google.payments.api... attempt", attempts + 1);
-          setTimeout(() => doCheck(attempts + 1), 100);
-        } else {
-          // Still not available — proceed optimistically so the button can attempt to render
-          console.warn("[GooglePay] google.payments.api not available after 2s, proceeding optimistically.");
-          resolve(true);
-        }
-      };
-
-      doCheck();
+      paymentsClient.isReadyToPay({
+        apiVersion: 2,
+        apiVersionMinor: 0,
+        allowedPaymentMethods: [{
+          type: 'CARD',
+          parameters: {
+            allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+            allowedCardNetworks: ['MASTERCARD', 'VISA'],
+          },
+        }],
+      })
+        .then((response) => {
+          console.log("[GooglePay] isReadyToPay response:", response);
+          resolve(!!response.result);
+        })
+        .catch((e) => {
+          console.error("[GooglePay] isReadyToPay error:", e);
+          resolve(false);
+        });
     });
   }
 
