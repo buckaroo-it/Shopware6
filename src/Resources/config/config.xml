@@ -44,23 +44,6 @@
         </input-field>
 
         <input-field>
-            <name>guid</name>
-            <label lang="en-GB">Guid:</label>
-            <label lang="de-DE">Guid:</label>
-            <label lang="nl-NL">Guid:</label>
-			<label lang="fr-FR">Guid:</label>
-            <description>Enter your Buckaroo guid key (only when using Apple Pay).</description>
-            <description lang="de-DE">Geben Sie Ihren Buckaroo-Leitschlüssel ein (Nur bei Verwendung von Apple Pay).</description>
-            <description lang="nl-NL">Voer uw Buckaroo-GUID in (enkel bij gebruik Apple Pay).</description>
-			<description lang="fr-FR">Entrez votre clé de Guid Buckaroo (uniquement lors de l'utilisation d'Apple Pay).</description>
-            <helpText>The guid key can be retrieved in Buckaroo Plaza at "My Buckaroo" > "General".</helpText>
-            <helpText lang="de-DE">Der GUID-Schlüssel kann im Buckaroo Plaza unter "Mein Buckaroo" > "Allgemein" abgerufen werden.</helpText>
-            <helpText lang="nl-NL">De Guid kan worden opgehaald in de Buckaroo Plaza in het menu bij "Mijn Buckaroo" > "Algemeen".</helpText>
-			<helpText lang="fr-FR">La clé GUID peut être récupérée dans Buckaroo Plaza à "Mon Buckaroo" > "Général".</helpText>
-        </input-field>
-        
-
-        <input-field>
             <name>transactionLabel</name>
             <label lang="en-GB">Transaction description:</label>
             <label lang="de-DE">Transaktion Beschreibung:</label>
@@ -1392,6 +1375,22 @@
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
             <label lang="de-DE">Buckaroo Gebühr</label>
 			<label lang="fr-FR">Frais de buckaroo</label>
+        </input-field>
+
+        <input-field>
+            <name>applepayGuid</name>
+            <label lang="en-GB">Guid:</label>
+            <label lang="de-DE">Guid:</label>
+            <label lang="nl-NL">Guid:</label>
+            <label lang="fr-FR">Guid:</label>
+            <description>Enter your Buckaroo guid key.</description>
+            <description lang="de-DE">Geben Sie Ihren Buckaroo-GUID-Schlüssel ein.</description>
+            <description lang="nl-NL">Voer uw Buckaroo-GUID in.</description>
+            <description lang="fr-FR">Entrez votre clé de Guid Buckaroo.</description>
+            <helpText>The guid key can be retrieved in Buckaroo Plaza at "My Buckaroo" > "General".</helpText>
+            <helpText lang="de-DE">Der GUID-Schlüssel kann im Buckaroo Plaza unter "Mein Buckaroo" > "Allgemein" abgerufen werden.</helpText>
+            <helpText lang="nl-NL">De Guid kan worden opgehaald in de Buckaroo Plaza in het menu bij "Mijn Buckaroo" > "Algemeen".</helpText>
+            <helpText lang="fr-FR">La clé GUID peut être récupérée dans Buckaroo Plaza à "Mon Buckaroo" > "Général".</helpText>
         </input-field>
     
         <input-field type="single-select">
