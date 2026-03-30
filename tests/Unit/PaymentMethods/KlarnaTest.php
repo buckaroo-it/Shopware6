@@ -33,14 +33,14 @@ class KlarnaTest extends TestCase
         $this->assertSame('0', $this->klarna->getVersion());
     }
 
-    public function testGetNameReturnsKlarnaPayLater(): void
+    public function testGetNameReturnsKlarna(): void
     {
-        $this->assertSame('Klarna Pay later (pay)', $this->klarna->getName());
+        $this->assertSame('Klarna', $this->klarna->getName());
     }
 
     public function testGetDescriptionReturnsCorrectText(): void
     {
-        $this->assertSame('Pay with Klarna Pay later (pay)', $this->klarna->getDescription());
+        $this->assertSame('Pay later', $this->klarna->getDescription());
     }
 
     public function testGetPaymentHandlerReturnsKlarnaPaymentHandler(): void
@@ -54,11 +54,34 @@ class KlarnaTest extends TestCase
         $this->assertStringContainsString('klarna.svg', $result);
     }
 
-    public function testGetTranslationsReturnsGermanAndEnglish(): void
+    public function testGetTranslationsReturnsAllLocales(): void
     {
         $result = $this->klarna->getTranslations();
         $this->assertArrayHasKey('de-DE', $result);
         $this->assertArrayHasKey('en-GB', $result);
+        $this->assertArrayHasKey('nl-NL', $result);
+        $this->assertArrayHasKey('fr-FR', $result);
+    }
+
+    public function testGetTranslationsGermanHasCorrectText(): void
+    {
+        $result = $this->klarna->getTranslations();
+        $this->assertSame('Klarna', $result['de-DE']['name']);
+        $this->assertSame('Bezahlen innerhalb von 30 Tagen', $result['de-DE']['description']);
+    }
+
+    public function testGetTranslationsDutchHasCorrectText(): void
+    {
+        $result = $this->klarna->getTranslations();
+        $this->assertSame('Klarna', $result['nl-NL']['name']);
+        $this->assertSame('Achteraf betalen binnen 30 dagen', $result['nl-NL']['description']);
+    }
+
+    public function testGetTranslationsFrenchHasCorrectText(): void
+    {
+        $result = $this->klarna->getTranslations();
+        $this->assertSame('Klarna', $result['fr-FR']['name']);
+        $this->assertSame('Payer sous 30 jours', $result['fr-FR']['description']);
     }
 
     public function testGetTypeReturnsRedirect(): void

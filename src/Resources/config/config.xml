@@ -2695,7 +2695,7 @@
             <helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
             <helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
             <helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
-            <defaultValue>Klarna: Pay later</defaultValue>
+            <defaultValue>Klarna</defaultValue>
         </input-field>
 
         <input-field type="text">
@@ -2830,7 +2830,7 @@
 			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
 			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
 			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
-            <defaultValue>Billink - achteraf betalen</defaultValue>
+            <defaultValue>Billink</defaultValue>
         </input-field>
 
         <input-field type="text">

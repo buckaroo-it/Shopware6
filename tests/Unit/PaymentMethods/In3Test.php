@@ -40,7 +40,7 @@ class In3Test extends TestCase
 
     public function testGetDescriptionReturnsCorrectText(): void
     {
-        $this->assertSame('Pay with In3', $this->payment->getDescription());
+        $this->assertSame('Pay in 3 installments, 0% interest', $this->payment->getDescription());
     }
 
     public function testGetPaymentHandlerReturnsCorrectHandler(): void
@@ -54,11 +54,41 @@ class In3Test extends TestCase
         $this->assertStringContainsString('in3.svg', $result);
     }
 
-    public function testGetTranslationsReturnsGermanAndEnglish(): void
+    public function testGetTranslationsReturnsAllLocales(): void
     {
         $result = $this->payment->getTranslations();
         $this->assertArrayHasKey('de-DE', $result);
         $this->assertArrayHasKey('en-GB', $result);
+        $this->assertArrayHasKey('nl-NL', $result);
+        $this->assertArrayHasKey('fr-FR', $result);
+    }
+
+    public function testGetTranslationsGermanHasCorrectText(): void
+    {
+        $result = $this->payment->getTranslations();
+        $this->assertSame('In3', $result['de-DE']['name']);
+        $this->assertSame('In 3 Raten bezahlen, 0 % Zinsen', $result['de-DE']['description']);
+    }
+
+    public function testGetTranslationsEnglishHasCorrectText(): void
+    {
+        $result = $this->payment->getTranslations();
+        $this->assertSame('In3', $result['en-GB']['name']);
+        $this->assertSame('Pay in 3 installments, 0% interest', $result['en-GB']['description']);
+    }
+
+    public function testGetTranslationsDutchHasCorrectText(): void
+    {
+        $result = $this->payment->getTranslations();
+        $this->assertSame('In3', $result['nl-NL']['name']);
+        $this->assertSame('In 3 delen betalen, 0% rente', $result['nl-NL']['description']);
+    }
+
+    public function testGetTranslationsFrenchHasCorrectText(): void
+    {
+        $result = $this->payment->getTranslations();
+        $this->assertSame('In3', $result['fr-FR']['name']);
+        $this->assertSame("Payer en 3 fois, 0 % d'intérêt", $result['fr-FR']['description']);
     }
 
     public function testGetTypeReturnsCorrectType(): void
