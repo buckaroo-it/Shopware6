@@ -5,6 +5,7 @@ import FormSerializeUtil from "src/utility/form/form-serialize.util";
 export default class GooglePayPlugin extends Plugin {
   static options = {
     page: "unknown",
+    productId: null,
     merchantId: null,
     gatewayMerchantId: null,
     merchantName: "",
@@ -425,17 +426,50 @@ export default class GooglePayPlugin extends Plugin {
     let formData = null;
 
     if (this.options.page === "product") {
-      // Try the direct ancestor form first; if the button is rendered outside the <form>
-      // (e.g. in page_product_detail_buy_button_container in SW 6.7), fall back to
-      // the buy-widget form by its well-known ID / data attribute.
+      // Try to serialize the nearest buy-form first.
       const form =
         this.el.closest("form") ||
         document.getElementById("productDetailPageBuyProductForm") ||
         document.querySelector("[data-product-detail-buy-form]") ||
-        document.querySelector("form[action*='add-to-cart']");
+        document.querySelector("form[action*='line-item/add'], form[action*='add-to-cart']");
 
       if (form) {
-        formData = FormSerializeUtil.serializeJson(form);
+        const serialized = FormSerializeUtil.serializeJson(form);
+        // Only use serialized data when it actually contains line-item fields.
+        if (serialized && Object.keys(serialized).some((k) => k.includes("lineItems"))) {
+          formData = serialized;
+        }
+      }
+
+      // Fallback: form not found or didn't contain lineItems (e.g. buy-widget rendered
+      // outside the <form> in Shopware 6.7+). Build the payload from the productId
+      // option injected by Twig so the backend can create a temporary cart.
+      if (!formData && this.options.productId) {
+        const productId = this.options.productId;
+
+        // Read the selected quantity from the page — Shopware uses several selectors
+        // depending on the storefront version.
+        const quantityEl = document.querySelector(
+          `input[name="lineItems[${productId}][quantity]"],` +
+          ` .product-detail-quantity-select,` +
+          ` [data-quantity-selector] input,` +
+          ` [data-quantity-selector] select`
+        );
+        const quantity = quantityEl ? (parseInt(quantityEl.value, 10) || 1) : 1;
+
+        console.log(
+          "[GooglePay] Form not found / no lineItems — building form data from productId option:",
+          productId, "qty:", quantity
+        );
+
+        formData = {
+          [`lineItems[${productId}][id]`]: productId,
+          [`lineItems[${productId}][referencedId]`]: productId,
+          [`lineItems[${productId}][type]`]: "product",
+          [`lineItems[${productId}][quantity]`]: String(quantity),
+          [`lineItems[${productId}][stackable]`]: "1",
+          [`lineItems[${productId}][removable]`]: "1",
+        };
       }
     }
 
