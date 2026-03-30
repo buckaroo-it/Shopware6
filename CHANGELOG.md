@@ -411,3 +411,7 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - Fix: PaymentContextRestoreSubscriber runs earlier (priority 5) to restore context before Shopware resolves the sales channel.
 - Fix: PaymentReturnContextSubscriber now appends context token to all storefront redirects (checkout, account), not just checkout/finish.
 - Added: PaymentContextCookieSubscriber to explicitly set sw-context-token cookie when restored from URL, enabling use of cookie_samesite: lax without requiring null.
+
+# 3.2.4
+
+- BTI-684 Fix: Payment finalize token replay causes error after successful async payment (Wero/mobile) #405
