@@ -619,6 +619,8 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -666,7 +668,10 @@
 
         <!-- Payment Service Factory for version compatibility -->
         <service id="Buckaroo\Shopware6\Service\PaymentServiceFactory">
-            <argument type="service" id="service_container"/>
+            <!-- Shopware 6.7+: PaymentProcessor (on-invalid="null" so it is skipped on older versions) -->
+            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentProcessor" on-invalid="null"/>
+            <!-- Shopware 6.5-6.6: PaymentService (on-invalid="null" so it is skipped on 6.7+) -->
+            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService" on-invalid="null"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\OrderService">
@@ -675,7 +680,7 @@
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\PaymentServiceFactory"/>
             <argument type="service" id="order_address.repository"/>
-            <argument type="service" id="logger"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber" >

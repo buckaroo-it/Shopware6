@@ -272,11 +272,17 @@ abstract class AbstractPaymentController extends StorefrontController
      */
     protected function getFinishPage($redirectPath): ?string
     {
-        if (is_string($redirectPath)) {
-            return $this->generateUrl('frontend.home.page', [], UrlGeneratorInterface::ABSOLUTE_URL) .
-                ltrim($redirectPath, "/");
+        if (!is_string($redirectPath)) {
+            return null;
         }
-        return null;
+
+        // Already an absolute URL — return as-is to avoid double-prepending the base.
+        if (str_starts_with($redirectPath, 'http://') || str_starts_with($redirectPath, 'https://')) {
+            return $redirectPath;
+        }
+
+        return $this->generateUrl('frontend.home.page', [], UrlGeneratorInterface::ABSOLUTE_URL) .
+            ltrim($redirectPath, "/");
     }
     /**
      * Get payment fee

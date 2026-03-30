@@ -5,6 +5,7 @@ import FormSerializeUtil from "src/utility/form/form-serialize.util";
 export default class GooglePayPlugin extends Plugin {
   static options = {
     page: "unknown",
+    productId: null,
     merchantId: null,
     gatewayMerchantId: null,
     merchantName: "",
@@ -18,7 +19,9 @@ export default class GooglePayPlugin extends Plugin {
   googlePayment = null;
 
   init() {
-    console.log("[GooglePay] init() — page:", this.options.page, "| options:", this.options);
+    if (!this.options.merchantId || !this.options.gatewayMerchantId) {
+      return;
+    }
 
     // On checkout: immediately block form submission and disable the confirm
     // button while availability is being determined, mirroring Apple Pay behaviour.
@@ -30,17 +33,13 @@ export default class GooglePayPlugin extends Plugin {
 
     this.loadBuckarooSdk()
       .then(() => {
-        console.log("[GooglePay] Buckaroo SDK loaded successfully. BuckarooSdk.GooglePay available:", !!(window.BuckarooSdk && window.BuckarooSdk.GooglePay));
         return this.retrieveCartData();
       })
       .then((cartData) => {
-        console.log("[GooglePay] Cart data received:", cartData);
         return this.checkIsAvailable(cartData).then((available) => {
-          console.log("[GooglePay] isReadyToPay result:", available);
           if (available) {
             this.renderButton(cartData);
           } else {
-            console.warn("[GooglePay] Google Pay is NOT available in this browser/device.");
             // Not available — release the block so the user can try another method.
             if (this.options.page === "checkout") {
               window.isGooglePay = false;
@@ -49,8 +48,7 @@ export default class GooglePayPlugin extends Plugin {
           }
         });
       })
-      .catch((err) => {
-        console.error("[GooglePay] init() failed:", err);
+      .catch(() => {
         if (this.options.page === "checkout") {
           window.isGooglePay = false;
           this.setConfirmButtonDisabled(false);
@@ -70,251 +68,233 @@ export default class GooglePayPlugin extends Plugin {
   }
 
   /**
-   * Dynamically inject the Buckaroo ClientSide SDK script once
+   * Load a script by src and poll until a readiness check passes.
+   * @param {string} src
+   * @param {function(): boolean} readyFn
+   * @param {string} label  - used in error messages
+   * @param {number} maxAttempts
    * @returns {Promise}
    */
-  loadBuckarooSdk() {
+  _loadScript(src, readyFn, label, maxAttempts = 50) {
     return new Promise((resolve, reject) => {
-      if (window.BuckarooSdk && window.BuckarooSdk.GooglePay) {
-        console.log("[GooglePay] SDK already present, skipping injection.");
+      if (readyFn()) {
         resolve();
         return;
       }
 
-      const waitForGooglePay = (attempts = 0) => {
-        if (window.BuckarooSdk && window.BuckarooSdk.GooglePay) {
-          console.log("[GooglePay] BuckarooSdk.GooglePay is now available after polling.");
+      const poll = (attempts = 0) => {
+        if (readyFn()) {
           resolve();
           return;
         }
-        if (attempts >= 20) {
-          console.error("[GooglePay] BuckarooSdk.GooglePay did not become available after 2s. BuckarooSdk:", window.BuckarooSdk);
-          reject(new Error("BuckarooSdk.GooglePay not available"));
+        if (attempts >= maxAttempts) {
+          reject(new Error(label + " not available after " + (maxAttempts / 10) + "s"));
           return;
         }
-        setTimeout(() => waitForGooglePay(attempts + 1), 100);
+        setTimeout(() => poll(attempts + 1), 100);
       };
 
-      const existing = document.querySelector(
-        'script[src="https://checkout.buckaroo.nl/api/buckaroosdk/script"]'
-      );
-
+      const existing = document.querySelector('script[src="' + src + '"]');
       if (existing) {
-        console.log("[GooglePay] SDK script tag already in DOM, waiting for GooglePay module...");
-        waitForGooglePay();
+        poll();
         return;
       }
 
-      console.log("[GooglePay] Injecting Buckaroo SDK script...");
       const script = document.createElement("script");
-      script.src = "https://checkout.buckaroo.nl/api/buckaroosdk/script";
+      script.src = src;
       script.async = true;
-      script.onload = () => {
-        console.log("[GooglePay] SDK script loaded. BuckarooSdk:", window.BuckarooSdk, "— polling for GooglePay module...");
-        waitForGooglePay();
-      };
-      script.onerror = (e) => {
-        console.error("[GooglePay] Failed to load Buckaroo SDK script:", e);
-        reject(e);
-      };
+      script.onload = () => poll();
+      script.onerror = (e) => reject(e);
       document.head.appendChild(script);
     });
   }
 
   /**
-   * Check whether Google Pay is available in this browser/device
+   * Load the Buckaroo ClientSide SDK and the Google Pay JS library in parallel.
+   * Both must be ready before the payment button can be initialised.
+   * @returns {Promise}
+   */
+  loadBuckarooSdk() {
+    return Promise.all([
+      this._loadScript(
+        "https://checkout.buckaroo.nl/api/buckaroosdk/script",
+        () => !!(window.BuckarooSdk && window.BuckarooSdk.GooglePay),
+        "BuckarooSdk.GooglePay"
+      ),
+      this._loadScript(
+        "https://pay.google.com/gp/p/js/pay.js",
+        () => !!(window.google && window.google.payments && window.google.payments.api),
+        "google.payments.api"
+      ),
+    ]);
+  }
+
+  /**
+   * Check whether Google Pay is available in this browser/device.
+   * google.payments.api is guaranteed to be loaded by this point (loadBuckarooSdk resolves both).
    * @param {object} cartData
    * @returns {Promise<boolean>}
    */
   checkIsAvailable(cartData) {
     return new Promise((resolve) => {
       if (!window.BuckarooSdk || !window.BuckarooSdk.GooglePay) {
-        console.warn("[GooglePay] checkIsAvailable: BuckarooSdk.GooglePay not found on window.");
         resolve(false);
         return;
       }
 
-      // Use the native Google Pay API for availability — the Buckaroo SDK loads it as a dependency.
-      // google.payments.api may need a short moment to appear after BuckarooSdk is ready.
-      const doCheck = (attempts = 0) => {
-        if (window.google && window.google.payments && window.google.payments.api) {
-          const env = this.options.environment === 'PRODUCTION' ? 'PRODUCTION' : 'TEST';
-          const paymentsClient = new window.google.payments.api.PaymentsClient({ environment: env });
+      if (!window.google || !window.google.payments || !window.google.payments.api) {
+        resolve(false);
+        return;
+      }
 
-          paymentsClient.isReadyToPay({
-            apiVersion: 2,
-            apiVersionMinor: 0,
-            allowedPaymentMethods: [{
-              type: 'CARD',
-              parameters: {
-                allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-                allowedCardNetworks: ['MASTERCARD', 'VISA'],
-              },
-            }],
-          })
-            .then((response) => {
-              console.log("[GooglePay] google.payments.api.isReadyToPay response:", response);
-              resolve(!!response.result);
-            })
-            .catch((e) => {
-              console.error("[GooglePay] google.payments.api.isReadyToPay error:", e);
-              resolve(false);
-            });
+      const env = this.options.environment === 'PRODUCTION' ? 'PRODUCTION' : 'TEST';
+      const paymentsClient = new window.google.payments.api.PaymentsClient({ environment: env });
 
-        } else if (attempts < 20) {
-          // google.payments.api not yet loaded — poll for up to 2 s
-          console.log("[GooglePay] Waiting for google.payments.api... attempt", attempts + 1);
-          setTimeout(() => doCheck(attempts + 1), 100);
-        } else {
-          // Still not available — proceed optimistically so the button can attempt to render
-          console.warn("[GooglePay] google.payments.api not available after 2s, proceeding optimistically.");
-          resolve(true);
-        }
-      };
-
-      doCheck();
+      paymentsClient.isReadyToPay({
+        apiVersion: 2,
+        apiVersionMinor: 0,
+        allowedPaymentMethods: [{
+          type: 'CARD',
+          parameters: {
+            allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+            allowedCardNetworks: ['MASTERCARD', 'VISA'],
+          },
+        }],
+      })
+        .then((response) => resolve(!!response.result))
+        .catch(() => resolve(false));
     });
   }
 
   /**
-   * Render the Google Pay button or hook into the checkout submit.
+   * Render the Google Pay button (product/cart pages) or wire the checkout
+   * confirm button to open the payment sheet.
    *
-   * On product/cart pages the button is rendered visibly in its container.
-   * On the checkout page we render the button into a visually-hidden container
-   * and wire the existing "Confirm Order" button to programmatically trigger it,
-   * so no extra button appears in the UI (mirrors the Apple Pay checkout UX).
+   * Uses google.payments.api directly so that loadPaymentData() is always
+   * called from within the original user gesture — Google Pay requires this
+   * and silently refuses to open the sheet for synthetic / programmatic clicks.
    *
    * @param {object} cartData
    */
   renderButton(cartData) {
-    console.log("[GooglePay] renderButton() — page:", this.options.page);
-
-    if (this.options.page !== "checkout") {
-      this.initGooglePayButton(cartData);
-      return;
-    }
-
-    // Checkout page: render the SDK button into a hidden container so the SDK
-    // is fully initialised, then forward the confirm-form click to it.
-    // window.isGooglePay was already set to true in init() to block form submission early.
-    this.initGooglePayButton(cartData);
-    this.hideGooglePayContainer();
-    // Button is ready — re-enable confirm so the user can click it.
-    this.setConfirmButtonDisabled(false);
-
-    const confirmBtn = document.getElementById("confirmFormSubmit");
-    if (confirmBtn) {
-      console.log("[GooglePay] Checkout page: wiring #confirmFormSubmit to open Google Pay sheet.");
-      confirmBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log("[GooglePay] Confirm clicked — triggering Google Pay sheet.");
-
-        // Disable button while Google Pay sheet is open to prevent double-submit.
-        this.setConfirmButtonDisabled(true);
-
-        // Locate the button rendered by the Buckaroo SDK inside the container.
-        const container = document.getElementById("google-pay-button-container");
-        const gpBtn = container
-          ? container.querySelector("button, [role='button']")
-          : null;
-
-        if (gpBtn) {
-          gpBtn.click();
-        } else {
-          console.warn("[GooglePay] Google Pay button not found in container — re-initialising.");
-          this.retrieveCartData().then((freshCartData) => {
-            this.initGooglePayButton(freshCartData);
-            this.hideGooglePayContainer();
-            setTimeout(() => {
-              const retryBtn = document.querySelector(
-                "#google-pay-button-container button, #google-pay-button-container [role='button']"
-              );
-              if (retryBtn) {
-                retryBtn.click();
-              } else {
-                console.error("[GooglePay] Google Pay button still not available after re-init.");
-                this.setConfirmButtonDisabled(false);
-              }
-            }, 300);
-          }).catch(() => this.setConfirmButtonDisabled(false));
-        }
-      });
+    if (this.options.page === "checkout") {
+      this._wireCheckoutConfirmButton(cartData);
     } else {
-      console.warn("[GooglePay] #confirmFormSubmit not found in DOM.");
+      this._renderNativeButton(cartData);
     }
   }
 
   /**
-   * Hide the Google Pay button container on the checkout page.
-   * The button is kept functional for programmatic .click() calls.
+   * On the checkout page: wire #confirmFormSubmit to open the Google Pay sheet
+   * directly via loadPaymentData(). No hidden SDK button is used.
+   * @param {object} cartData
    */
-  hideGooglePayContainer() {
-    const container = document.getElementById("google-pay-button-container");
-    if (!container) return;
-    Object.assign(container.style, {
-      position: "absolute",
-      width: "1px",
-      height: "1px",
-      overflow: "hidden",
-      opacity: "0",
-      clip: "rect(0 0 0 0)",
-      whiteSpace: "nowrap",
+  _wireCheckoutConfirmButton(cartData) {
+    // window.isGooglePay was set to true in init() to block early form submission.
+    this.setConfirmButtonDisabled(false);
+
+    const confirmBtn = document.getElementById("confirmFormSubmit");
+    if (!confirmBtn) {
+      window.isGooglePay = false;
+      return;
+    }
+
+    confirmBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.setConfirmButtonDisabled(true);
+      // loadPaymentData() is called synchronously within the trusted click event,
+      // so Google Pay accepts it as a real user gesture.
+      this._openPaymentSheet(cartData);
     });
   }
 
   /**
-   * Initialise the Google Pay button via the Buckaroo SDK
+   * On product/cart pages: render a native Google Pay button via
+   * PaymentsClient.createButton(). The onClick fires with the real user
+   * gesture so loadPaymentData() inside _openPaymentSheet() is accepted.
    * @param {object} cartData
    */
-  initGooglePayButton(cartData) {
-    console.log("[GooglePay] initGooglePayButton() — cartData:", cartData);
-
-    if (!window.BuckarooSdk || !window.BuckarooSdk.GooglePay) {
-      console.error("[GooglePay] BuckarooSdk.GooglePay not available at button init time.");
-      this.displayErrorMessage("Google Pay SDK not available.");
+  _renderNativeButton(cartData) {
+    const container = document.getElementById("google-pay-button-container");
+    if (!container) {
       return;
     }
 
-    const config = {
-      environment: this.options.environment,
-      buttonContainerId: "google-pay-button-container",
+    const env = this.options.environment === "PRODUCTION" ? "PRODUCTION" : "TEST";
+    const paymentsClient = new window.google.payments.api.PaymentsClient({ environment: env });
+
+    const buttonColor = this.options.buttonColor === "white" ? "white" : "black";
+    const button = paymentsClient.createButton({
+      buttonColor,
+      buttonType: "buy",
       buttonSizeMode: "fill",
-      totalPriceStatus: "FINAL",
-      totalPrice: cartData.totalPrice || "0.01",
-      currencyCode: cartData.currency || "EUR",
-      countryCode: cartData.country || "NL",
-      merchantName: cartData.storeName || this.options.merchantName,
-      merchantId: this.options.merchantId,
-      gatewayMerchantId: cartData.gatewayMerchantId || this.options.gatewayMerchantId,
-      buttonColor: this.options.buttonColor,
-      onGooglePayLoadError: (error) => {
-        console.error("[GooglePay] onGooglePayLoadError:", error);
-        this.displayErrorMessage("Google Pay is not available.");
-        this.setConfirmButtonDisabled(false);
+      onClick: () => this._openPaymentSheet(cartData),
+    });
+
+    container.innerHTML = "";
+    container.appendChild(button);
+  }
+
+  /**
+   * Build the payment request and call loadPaymentData().
+   * Must be called synchronously from within a trusted user-gesture handler.
+   * @param {object} cartData
+   */
+  _openPaymentSheet(cartData) {
+    const env = this.options.environment === "PRODUCTION" ? "PRODUCTION" : "TEST";
+    const paymentsClient = new window.google.payments.api.PaymentsClient({ environment: env });
+
+    const paymentRequest = {
+      apiVersion: 2,
+      apiVersionMinor: 0,
+      merchantInfo: {
+        merchantId: this.options.merchantId,
+        merchantName: cartData.storeName || this.options.merchantName,
       },
-      processPayment: (paymentData) => {
-        console.log("[GooglePay] processPayment() called — paymentData:", paymentData);
-        return this.captureFunds(paymentData, cartData).then((result) => {
-          // On payment failure re-enable the confirm button so the user can retry
-          if (!result || !result.success) {
-            this.setConfirmButtonDisabled(false);
-          }
-          return result;
-        });
+      allowedPaymentMethods: [
+        {
+          type: "CARD",
+          parameters: {
+            allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+            allowedCardNetworks: ["MASTERCARD", "VISA"],
+          },
+          tokenizationSpecification: {
+            type: "PAYMENT_GATEWAY",
+            parameters: {
+              gateway: "buckaroo",
+              gatewayMerchantId:
+                cartData.gatewayMerchantId || this.options.gatewayMerchantId,
+            },
+          },
+        },
+      ],
+      transactionInfo: {
+        totalPriceStatus: "FINAL",
+        totalPrice: cartData.totalPrice || "0.01",
+        currencyCode: cartData.currency || "EUR",
+        countryCode: cartData.country || "NL",
       },
     };
 
-    console.log("[GooglePay] Calling GooglePayPayment.initiate() with config:", config);
-
-    try {
-      const payment = new window.BuckarooSdk.GooglePay.GooglePayPayment(config);
-      payment.initiate();
-      console.log("[GooglePay] initiate() called successfully.");
-    } catch (e) {
-      console.error("[GooglePay] Error during initiate():", e);
-      this.displayErrorMessage("Could not initialise Google Pay.");
-    }
+    paymentsClient
+      .loadPaymentData(paymentRequest)
+      .then((paymentData) => this.captureFunds(paymentData, cartData))
+      .then((result) => {
+        if (!result || !result.success) {
+          this.setConfirmButtonDisabled(false);
+          if (result && result.error) {
+            this.displayErrorMessage(result.error);
+          }
+        }
+      })
+      .catch((err) => {
+        this.setConfirmButtonDisabled(false);
+        // statusCode === 'CANCELED' means the user closed the sheet — not an error.
+        if (err && err.statusCode !== "CANCELED") {
+          this.displayErrorMessage("Could not complete Google Pay payment.");
+        }
+      });
   }
 
   /**
@@ -325,29 +305,69 @@ export default class GooglePayPlugin extends Plugin {
     let formData = null;
 
     if (this.options.page === "product") {
-      const form = this.el.closest("form");
+      // Try to serialize the nearest buy-form first.
+      const form =
+        this.el.closest("form") ||
+        document.getElementById("productDetailPageBuyProductForm") ||
+        document.querySelector("[data-product-detail-buy-form]") ||
+        document.querySelector("form[action*='line-item/add'], form[action*='add-to-cart']");
+
       if (form) {
-        formData = FormSerializeUtil.serializeJson(form);
+        const serialized = FormSerializeUtil.serializeJson(form);
+        // Only use serialized data when it actually contains line-item fields.
+        if (serialized && Object.keys(serialized).some((k) => k.includes("lineItems"))) {
+          formData = serialized;
+        }
+      }
+
+      // Fallback: form not found or didn't contain lineItems (e.g. buy-widget rendered
+      // outside the <form> in Shopware 6.7+). Build the payload from the productId
+      // option injected by Twig so the backend can create a temporary cart.
+      if (!formData && this.options.productId) {
+        const productId = this.options.productId;
+
+        // Read the selected quantity from the page — Shopware uses several selectors
+        // depending on the storefront version.
+        const quantityEl = document.querySelector(
+          `input[name="lineItems[${productId}][quantity]"],` +
+          ` .product-detail-quantity-select,` +
+          ` [data-quantity-selector] input,` +
+          ` [data-quantity-selector] select`
+        );
+        const quantity = quantityEl ? (parseInt(quantityEl.value, 10) || 1) : 1;
+
+        formData = {
+          [`lineItems[${productId}][id]`]: productId,
+          [`lineItems[${productId}][referencedId]`]: productId,
+          [`lineItems[${productId}][type]`]: "product",
+          [`lineItems[${productId}][quantity]`]: String(quantity),
+          [`lineItems[${productId}][stackable]`]: "1",
+          [`lineItems[${productId}][removable]`]: "1",
+        };
       }
     }
 
     const body = { form: formData, page: this.options.page };
-    console.log("[GooglePay] retrieveCartData() — POST /buckaroo/googlepay/cart/get body:", body);
 
     return new Promise((resolve, reject) => {
       this.httpClient.post(
         `${this.url}/googlepay/cart/get`,
         JSON.stringify(body),
         (response) => {
-          console.log("[GooglePay] cart/get raw response:", response);
           const resp = JSON.parse(response);
           if (resp.error) {
-            console.error("[GooglePay] cart/get returned error:", resp.message);
+            // "empty cart" means there is nothing to pay for on this page —
+            // hide the button silently rather than surfacing an error to the shopper.
+            if (resp.emptyCart) {
+              const container = document.getElementById("google-pay-button-container");
+              if (container) container.style.display = "none";
+              reject(resp.message);
+              return;
+            }
             this.displayErrorMessage(resp.message);
             reject(resp.message);
           } else {
             this.cartToken = resp.cartToken;
-            console.log("[GooglePay] cart/get success — cartToken:", resp.cartToken, "| full response:", resp);
             resolve(resp);
           }
         }
@@ -367,22 +387,24 @@ export default class GooglePayPlugin extends Plugin {
       cartToken: this.cartToken,
       page: this.options.page,
     };
-    console.log("[GooglePay] captureFunds() — POST /buckaroo/googlepay/order/create body:", body);
 
     return new Promise((resolve) => {
       this.httpClient.post(
         `${this.url}/googlepay/order/create`,
         JSON.stringify(body),
         (response) => {
-          console.log("[GooglePay] order/create raw response:", response);
-          const resp = JSON.parse(response);
-          if (resp.redirect) {
-            console.log("[GooglePay] Order created successfully — redirecting to:", resp.redirect);
+          let resp = null;
+          try {
+            resp = response ? JSON.parse(response) : null;
+          } catch (e) {
+            // unparseable response — fall through to error handling below
+          }
+
+          if (resp && resp.redirect) {
             resolve({ success: true });
             window.location = resp.redirect;
           } else {
-            const message = resp.message || "Could not complete Google Pay payment.";
-            console.error("[GooglePay] order/create failed:", message, "| full response:", resp);
+            const message = (resp && resp.message) || "Could not complete Google Pay payment.";
             this.displayErrorMessage(message);
             resolve({ success: false, error: message });
           }
