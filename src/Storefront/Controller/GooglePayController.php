@@ -19,7 +19,6 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -34,8 +33,6 @@ class GooglePayController extends AbstractPaymentController
 
     private SalesChannelContextServiceInterface $salesChannelContextService;
 
-    private AbstractRegisterRoute $registerRoute;
-
     public function __construct(
         CartService $cartService,
         CustomerService $customerService,
@@ -45,14 +42,12 @@ class GooglePayController extends AbstractPaymentController
         SettingsService $settingsService,
         SalesChannelRepository $paymentMethodRepository,
         SalesChannelContextPersister $contextPersister,
-        SalesChannelContextServiceInterface $salesChannelContextService,
-        AbstractRegisterRoute $registerRoute
+        SalesChannelContextServiceInterface $salesChannelContextService
     ) {
         $this->contextService = $contextService;
         $this->logger = $logger;
         $this->contextPersister = $contextPersister;
         $this->salesChannelContextService = $salesChannelContextService;
-        $this->registerRoute = $registerRoute;
         parent::__construct(
             $cartService,
             $customerService,
@@ -74,7 +69,7 @@ class GooglePayController extends AbstractPaymentController
             // On product page WITHOUT form data (element is outside a <form>) → use the existing cart.
             // On all other pages → use the existing cart.
             $isProductWithForm = $request->request->get('page') === 'product'
-                && $request->request->get('form') !== null;
+                && !empty($request->request->all('form'));
 
             if ($isProductWithForm) {
                 $cart = $this->getCart($request, $salesChannelContext);
@@ -373,40 +368,14 @@ class GooglePayController extends AbstractPaymentController
     }
 
     /**
-     * Register a temporary guest customer so an order can be created
-     * without requiring the shopper to log in first.
+     * Create a temporary guest customer so an order can be created without
+     * requiring the shopper to log in first.
+     *
+     * Uses CustomerService directly (bypasses AbstractRegisterRoute) so that
+     * the store's "Allow guest orders" setting does not block Google Pay.
      */
     private function registerGuestCustomer(SalesChannelContext $context): CustomerEntity
     {
-        $country = $context->getShippingLocation()->getCountry();
-
-        $data = new RequestDataBag([
-            'guest'       => true,
-            'salutationId' => null,
-            'firstName'   => 'Guest',
-            'lastName'    => 'User',
-            'email'       => 'guest_' . uniqid() . '@buckaroo.test',
-            'country_code' => $country ? $country->getIso() : 'DE',
-            'city'        => 'Guest City',
-            'paymentToken' => $context->getToken(),
-            'billingAddress' => [
-                'firstName'  => 'Guest',
-                'lastName'   => 'User',
-                'street'     => 'Guest Street 1',
-                'zipcode'    => '12345',
-                'city'       => 'Guest City',
-                'countryId'  => $country ? $country->getId() : null,
-            ],
-            'shippingAddress' => [
-                'firstName'  => 'Guest',
-                'lastName'   => 'User',
-                'street'     => 'Guest Street 1',
-                'zipcode'    => '12345',
-                'city'       => 'Guest City',
-                'countryId'  => $country ? $country->getId() : null,
-            ],
-        ]);
-
-        return $this->registerRoute->register($data, $context, false)->getCustomer();
+        return $this->customerService->createGuestCustomer($context);
     }
 }

@@ -621,7 +621,6 @@
             <argument type="service" id="sales_channel.payment_method.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
