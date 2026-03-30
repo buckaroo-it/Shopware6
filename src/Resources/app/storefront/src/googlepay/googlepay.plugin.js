@@ -192,239 +192,150 @@ export default class GooglePayPlugin extends Plugin {
   }
 
   /**
-   * Render the Google Pay button or hook into the checkout submit.
+   * Render the Google Pay button (product/cart pages) or wire the checkout
+   * confirm button to open the payment sheet.
    *
-   * On product/cart pages the button is rendered visibly in its container.
-   * On the checkout page we render the button into a visually-hidden container
-   * and wire the existing "Confirm Order" button to programmatically trigger it,
-   * so no extra button appears in the UI (mirrors the Apple Pay checkout UX).
+   * Uses google.payments.api directly so that loadPaymentData() is always
+   * called from within the original user gesture — Google Pay requires this
+   * and silently refuses to open the sheet for synthetic / programmatic clicks.
    *
    * @param {object} cartData
    */
   renderButton(cartData) {
     console.log("[GooglePay] renderButton() — page:", this.options.page);
 
-    if (this.options.page !== "checkout") {
-      this.initGooglePayButton(cartData);
-      // For product/cart pages the SDK renders its own button, but direct DOM
-      // clicks on that button are sometimes swallowed by the SDK internally.
-      // Placing a transparent overlay on top and forwarding clicks as a
-      // programmatic .click() (the same technique used on checkout) fixes this.
-      this.setupProductCartClickOverlay();
-      return;
+    if (this.options.page === "checkout") {
+      this._wireCheckoutConfirmButton(cartData);
+    } else {
+      this._renderNativeButton(cartData);
     }
+  }
 
-    // Checkout page: render the SDK button into a hidden container so the SDK
-    // is fully initialised, then forward the confirm-form click to it.
-    // window.isGooglePay was already set to true in init() to block form submission early.
-    this.initGooglePayButton(cartData);
-    this.hideGooglePayContainer();
-    // Button is ready — re-enable confirm so the user can click it.
+  /**
+   * On the checkout page: wire #confirmFormSubmit to open the Google Pay sheet
+   * directly via loadPaymentData(). No hidden SDK button is used.
+   * @param {object} cartData
+   */
+  _wireCheckoutConfirmButton(cartData) {
+    // window.isGooglePay was set to true in init() to block early form submission.
     this.setConfirmButtonDisabled(false);
 
     const confirmBtn = document.getElementById("confirmFormSubmit");
-    if (confirmBtn) {
-      console.log("[GooglePay] Checkout page: wiring #confirmFormSubmit to open Google Pay sheet.");
-      confirmBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log("[GooglePay] Confirm clicked — triggering Google Pay sheet.");
-
-        // Disable button while Google Pay sheet is open to prevent double-submit.
-        this.setConfirmButtonDisabled(true);
-
-        // Locate the button rendered by the Buckaroo SDK inside the container.
-        const container = document.getElementById("google-pay-button-container");
-        const gpBtn = container
-          ? container.querySelector(
-              "button, google-pay-button, [class*='gpay'], [class*='google-pay']"
-            )
-          : null;
-
-        if (gpBtn) {
-          gpBtn.click();
-        } else {
-          console.warn("[GooglePay] Google Pay button not found in container — re-initialising.");
-          this.retrieveCartData().then((freshCartData) => {
-            this.initGooglePayButton(freshCartData);
-            this.hideGooglePayContainer();
-            setTimeout(() => {
-              const retryBtn = document.querySelector(
-                "#google-pay-button-container button, #google-pay-button-container google-pay-button, #google-pay-button-container [class*='gpay']"
-              );
-              if (retryBtn) {
-                retryBtn.click();
-              } else {
-                console.error("[GooglePay] Google Pay button still not available after re-init.");
-                this.setConfirmButtonDisabled(false);
-              }
-            }, 300);
-          }).catch(() => this.setConfirmButtonDisabled(false));
-        }
-      });
-    } else {
+    if (!confirmBtn) {
       console.warn("[GooglePay] #confirmFormSubmit not found in DOM.");
-    }
-  }
-
-  /**
-   * Hide the Google Pay button container on the checkout page.
-   * The button is kept functional for programmatic .click() calls.
-   */
-  hideGooglePayContainer() {
-    const container = document.getElementById("google-pay-button-container");
-    if (!container) return;
-    Object.assign(container.style, {
-      position: "absolute",
-      width: "1px",
-      height: "1px",
-      overflow: "hidden",
-      opacity: "0",
-      clip: "rect(0 0 0 0)",
-      whiteSpace: "nowrap",
-    });
-  }
-
-  /**
-   * For product/cart pages: place a transparent overlay on top of the SDK
-   * button container that intercepts user clicks and re-fires them as a
-   * programmatic .click() on the underlying SDK button.
-   *
-   * This mirrors the checkout approach (confirm-button → gpBtn.click()) and
-   * resolves the issue where direct DOM clicks on the SDK-rendered button are
-   * silently ignored by the Google Pay SDK.
-   */
-  setupProductCartClickOverlay() {
-    const container = document.getElementById("google-pay-button-container");
-    if (!container) {
-      console.warn("[GooglePay] setupProductCartClickOverlay: #google-pay-button-container not found.");
+      window.isGooglePay = false;
       return;
     }
 
-    // Ensure the container is a positioning context so the overlay can fill it.
-    container.style.position = "relative";
-
-    const overlay = document.createElement("div");
-    overlay.setAttribute("aria-label", "Pay with Google Pay");
-    overlay.setAttribute("role", "button");
-    overlay.setAttribute("tabindex", "0");
-    Object.assign(overlay.style, {
-      position: "absolute",
-      inset: "0",
-      cursor: "pointer",
-      zIndex: "9",
-      background: "transparent",
-    });
-
-    const triggerSdkButton = () => {
-      // Find the button rendered by the Buckaroo/Google Pay SDK.
-      // Exclude our own overlay (which also has role="button").
-      const gpBtn = container.querySelector(
-        "button, google-pay-button, [class*='gpay'], [class*='google-pay']"
-      );
-      if (gpBtn) {
-        console.log("[GooglePay] Overlay click — forwarding to SDK button programmatically.");
-        gpBtn.click();
-      } else {
-        console.warn("[GooglePay] Overlay click — SDK button not yet in container; retrying in 300 ms.");
-        setTimeout(() => {
-          const retryBtn = container.querySelector(
-            "button, google-pay-button, [class*='gpay'], [class*='google-pay']"
-          );
-          if (retryBtn) {
-            console.log("[GooglePay] Retry: forwarding to SDK button.");
-            retryBtn.click();
-          } else {
-            console.error("[GooglePay] Retry: SDK button still not found.");
-          }
-        }, 300);
-      }
-    };
-
-    overlay.addEventListener("click", (e) => {
+    console.log("[GooglePay] Checkout: wiring #confirmFormSubmit to open Google Pay sheet.");
+    confirmBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      triggerSdkButton();
+      console.log("[GooglePay] Confirm clicked — opening Google Pay sheet.");
+      this.setConfirmButtonDisabled(true);
+      // loadPaymentData() is called synchronously within the trusted click event,
+      // so Google Pay accepts it as a real user gesture.
+      this._openPaymentSheet(cartData);
     });
-
-    // Keyboard accessibility: allow Enter / Space to trigger payment.
-    overlay.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        triggerSdkButton();
-      }
-    });
-
-    container.appendChild(overlay);
-    console.log("[GooglePay] Click overlay added to #google-pay-button-container.");
   }
 
   /**
-   * Initialise the Google Pay button via the Buckaroo SDK
+   * On product/cart pages: render a native Google Pay button via
+   * PaymentsClient.createButton(). The onClick fires with the real user
+   * gesture so loadPaymentData() inside _openPaymentSheet() is accepted.
    * @param {object} cartData
    */
-  initGooglePayButton(cartData) {
-    console.log("[GooglePay] initGooglePayButton() — cartData:", cartData);
-
-    if (!window.BuckarooSdk || !window.BuckarooSdk.GooglePay) {
-      console.error("[GooglePay] BuckarooSdk.GooglePay not available at button init time.");
-      this.displayErrorMessage("Google Pay SDK not available.");
+  _renderNativeButton(cartData) {
+    const container = document.getElementById("google-pay-button-container");
+    if (!container) {
+      console.warn("[GooglePay] #google-pay-button-container not found.");
       return;
     }
 
-    const config = {
-      environment: this.options.environment,
-      buttonContainerId: "google-pay-button-container",
+    const env = this.options.environment === "PRODUCTION" ? "PRODUCTION" : "TEST";
+    const paymentsClient = new window.google.payments.api.PaymentsClient({ environment: env });
+
+    const buttonColor = this.options.buttonColor === "white" ? "white" : "black";
+    const button = paymentsClient.createButton({
+      buttonColor,
+      buttonType: "buy",
       buttonSizeMode: "fill",
-      totalPriceStatus: "FINAL",
-      totalPrice: cartData.totalPrice || "0.01",
-      currencyCode: cartData.currency || "EUR",
-      countryCode: cartData.country || "NL",
-      merchantName: cartData.storeName || this.options.merchantName,
-      merchantId: this.options.merchantId,
-      gatewayMerchantId: cartData.gatewayMerchantId || this.options.gatewayMerchantId,
-      buttonColor: this.options.buttonColor,
-      onGooglePayLoadError: (error) => {
-        console.error("[GooglePay] onGooglePayLoadError:", error);
-        this.displayErrorMessage("Google Pay is not available.");
-        this.setConfirmButtonDisabled(false);
+      onClick: () => {
+        console.log("[GooglePay] Native button clicked — opening payment sheet.");
+        this._openPaymentSheet(cartData);
       },
-      processPayment: (paymentData) => {
-        console.log("[GooglePay] processPayment() called — paymentData:", paymentData);
-        return this.captureFunds(paymentData, cartData).then((result) => {
-          if (result && result.success) {
-            // Success — the redirect is already happening via window.location in captureFunds.
-            // Return the Google Pay success state so the sheet can close cleanly.
-            return { transactionState: "SUCCESS" };
-          }
+    });
 
-          // Re-enable the confirm button so the user can retry.
-          this.setConfirmButtonDisabled(false);
+    container.innerHTML = "";
+    container.appendChild(button);
+    console.log("[GooglePay] Native Google Pay button rendered.");
+  }
 
-          // Return a structured Google Pay error so the SDK can display it properly
-          // instead of raising a DEVELOPER_ERROR for an unexpected callback return value.
-          return {
-            transactionState: "ERROR",
-            error: {
-              intent: "PAYMENT_AUTHORIZATION",
-              message: (result && result.error) || "Could not complete Google Pay payment.",
-              reason: "OTHER_ERROR",
+  /**
+   * Build the payment request and call loadPaymentData().
+   * Must be called synchronously from within a trusted user-gesture handler.
+   * @param {object} cartData
+   */
+  _openPaymentSheet(cartData) {
+    const env = this.options.environment === "PRODUCTION" ? "PRODUCTION" : "TEST";
+    const paymentsClient = new window.google.payments.api.PaymentsClient({ environment: env });
+
+    const paymentRequest = {
+      apiVersion: 2,
+      apiVersionMinor: 0,
+      merchantInfo: {
+        merchantId: this.options.merchantId,
+        merchantName: cartData.storeName || this.options.merchantName,
+      },
+      allowedPaymentMethods: [
+        {
+          type: "CARD",
+          parameters: {
+            allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+            allowedCardNetworks: ["MASTERCARD", "VISA"],
+          },
+          tokenizationSpecification: {
+            type: "PAYMENT_GATEWAY",
+            parameters: {
+              gateway: "buckaroo",
+              gatewayMerchantId:
+                cartData.gatewayMerchantId || this.options.gatewayMerchantId,
             },
-          };
-        });
+          },
+        },
+      ],
+      transactionInfo: {
+        totalPriceStatus: "FINAL",
+        totalPrice: cartData.totalPrice || "0.01",
+        currencyCode: cartData.currency || "EUR",
+        countryCode: cartData.country || "NL",
       },
     };
 
-    console.log("[GooglePay] Calling GooglePayPayment.initiate() with config:", config);
+    console.log("[GooglePay] Calling loadPaymentData() with:", paymentRequest);
 
-    try {
-      const payment = new window.BuckarooSdk.GooglePay.GooglePayPayment(config);
-      payment.initiate();
-      console.log("[GooglePay] initiate() called successfully.");
-    } catch (e) {
-      console.error("[GooglePay] Error during initiate():", e);
-      this.displayErrorMessage("Could not initialise Google Pay.");
-    }
+    paymentsClient
+      .loadPaymentData(paymentRequest)
+      .then((paymentData) => {
+        console.log("[GooglePay] Payment authorised — sending to backend.");
+        return this.captureFunds(paymentData, cartData);
+      })
+      .then((result) => {
+        if (!result || !result.success) {
+          this.setConfirmButtonDisabled(false);
+          if (result && result.error) {
+            this.displayErrorMessage(result.error);
+          }
+        }
+      })
+      .catch((err) => {
+        console.log("[GooglePay] loadPaymentData closed/error:", err);
+        this.setConfirmButtonDisabled(false);
+        // statusCode === 'CANCELED' means the user closed the sheet — not an error.
+        if (err && err.statusCode !== "CANCELED") {
+          this.displayErrorMessage("Could not complete Google Pay payment.");
+        }
+      });
   }
 
   /**

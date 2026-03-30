@@ -188,9 +188,40 @@ class GooglePayController extends AbstractPaymentController
                 ]);
             }
 
-            // Set the Google Pay payment method on the (possibly refreshed) context.
-            $this->overrideChannelPaymentMethod($salesChannelContext, 'GooglePayPaymentHandler');
-            $this->logger->info('[GooglePay] createGoogleOrder — payment method overridden to GooglePay');
+            // Switch the context to the Google Pay payment method.
+            //
+            // SalesChannelContext::assign() silently fails on Shopware 6.7 because
+            // context properties are readonly. We must persist the change to the
+            // database and reload the context — the same pattern used above for
+            // guest registration — so that OrderPersister reads the correct method.
+            $googlePayMethod = $this->getValidPaymentMethod($salesChannelContext, 'GooglePayPaymentHandler');
+            if ($googlePayMethod === null) {
+                throw new \Exception('Google Pay payment method not found or not enabled in this sales channel', 1);
+            }
+
+            $this->contextPersister->save(
+                $salesChannelContext->getToken(),
+                ['paymentMethodId' => $googlePayMethod->getId()],
+                $salesChannelContext->getSalesChannel()->getId(),
+                $salesChannelContext->getCustomer()?->getId()
+            );
+
+            $salesChannelContext = $this->salesChannelContextService->get(
+                new SalesChannelContextServiceParameters(
+                    $salesChannelContext->getSalesChannel()->getId(),
+                    $salesChannelContext->getToken(),
+                    null,
+                    null,
+                    null,
+                    $salesChannelContext->getContext(),
+                    $salesChannelContext->getCustomer()?->getId()
+                )
+            );
+
+            $this->logger->info('[GooglePay] createGoogleOrder — context reloaded with Google Pay payment method', [
+                'paymentMethodId'   => $salesChannelContext->getPaymentMethod()->getId(),
+                'paymentMethodName' => $salesChannelContext->getPaymentMethod()->getName(),
+            ]);
 
             $order = $this->createOrder($salesChannelContext, $request, $preLoadedCart);
             $this->logger->info('[GooglePay] createGoogleOrder — order created', [
