@@ -579,7 +579,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
     protected function getAppleMerchantId(string $salesChannelId): ?string
     {
-        $merchantId =  $this->settingsService->getSetting('guid', $salesChannelId);
+        $merchantId =  $this->settingsService->getSetting('applepayGuid', $salesChannelId);
         if ($merchantId !== null && is_scalar($merchantId)) {
             return (string)$merchantId;
         }
