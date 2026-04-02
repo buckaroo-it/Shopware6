@@ -44,7 +44,7 @@ class In3V2
             ],
             $this->getCustomer($dataBag, $order),
             $this->getAddress($order),
-            $this->getCompany($dataBag),
+            $this->getCompany($dataBag, $order),
             $this->getArticles($order)
         );
     }
@@ -108,22 +108,36 @@ class In3V2
     }
 
     /**
-     * Get company data
+     * Get company data. Falls back to billing address vatId for the CoC
+     * when the form input is empty.
      *
      * @param RequestDataBag $dataBag
+     * @param OrderEntity $order
      *
      * @return array<mixed>
      */
-    private function getCompany(RequestDataBag $dataBag): array
+    private function getCompany(RequestDataBag $dataBag, OrderEntity $order): array
     {
         if (in_array(
             $dataBag->get('buckaroo_capayablein3_orderAs'),
             ['SoleProprietor', 'Company']
         )) {
+            $billingAddress = $this->asyncPaymentService->getBillingAddress($order);
+
+            $companyName = $dataBag->get('buckaroo_capayablein3_CompanyName');
+            if (empty($companyName)) {
+                $companyName = $billingAddress->getCompany() ?? '';
+            }
+
+            $coc = $dataBag->get('buckaroo_capayablein3_COCNumber');
+            if (empty($coc)) {
+                $coc = $billingAddress->getVatId() ?? '';
+            }
+
             return [
                 'company' => [
-                    'companyName'       => $dataBag->get('buckaroo_capayablein3_CompanyName'),
-                    'chamberOfCommerce' => $dataBag->get('buckaroo_capayablein3_COCNumber')
+                    'companyName'       => $companyName,
+                    'chamberOfCommerce' => $coc
                 ]
             ];
         }
