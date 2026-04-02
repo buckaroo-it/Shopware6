@@ -40,7 +40,7 @@ class KlarnaTest extends TestCase
 
     public function testGetDescriptionReturnsCorrectText(): void
     {
-        $this->assertSame('Pay later', $this->klarna->getDescription());
+        $this->assertSame('Pay with Klarna', $this->klarna->getDescription());
     }
 
     public function testGetPaymentHandlerReturnsKlarnaPaymentHandler(): void
