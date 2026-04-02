@@ -78,14 +78,8 @@ class CaptureService
         $validationErrors = $this->validate($order, $customFields, $paymentCode);
 
 
-        if ($paymentCode === 'klarnakp') {
+        if (in_array($paymentCode, ['klarnakp', 'klarna'])) {
             $action = 'pay';
-            $originalTransactionKey = 'false';
-        } elseif ($paymentCode === 'klarna') {
-            // Klarna MoR reserve was created via /json/DataRequest.
-            // The capture (Pay) must also use /json/DataRequest via payReserve(),
-            // not the regular /json/Transaction endpoint used by pay().
-            $action = 'payReserve';
             $originalTransactionKey = 'false';
         } else {
             $action = 'capture';
