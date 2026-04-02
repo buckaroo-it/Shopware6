@@ -324,6 +324,11 @@ class PushController extends StorefrontController
                         // brq_DataRequest is the overall DataRequest transaction key (different value).
                         $data['dataRequestKey'] = $request->request->get('brq_SERVICE_klarna_DataRequestKey')
                             ?: $request->request->get('brq_DataRequest');
+                        // When the authorize transition is no longer available the transaction is
+                        // already in authorized state, meaning this is a capture (pay) push.
+                        if (!$this->stateTransitionService->canTransitionStatus('authorize', $orderTransactionId, $context)) {
+                            $paymentState = $paymentSuccesStatus;
+                        }
                     }
                 }
                 $this->logger->info(__METHOD__ . "|45|", [$paymentState, $brqAmount, $totalPrice]);

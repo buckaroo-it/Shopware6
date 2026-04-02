@@ -176,6 +176,8 @@ class StateTransitionService
                 return OrderTransactionStates::STATE_REFUNDED;
             case StateMachineTransitionActions::ACTION_REFUND_PARTIALLY:
                 return OrderTransactionStates::STATE_PARTIALLY_REFUNDED;
+            case StateMachineTransitionActions::ACTION_AUTHORIZE:
+                return OrderTransactionStates::STATE_AUTHORIZED;
         }
         return null;
     }
