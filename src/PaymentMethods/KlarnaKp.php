@@ -80,6 +80,14 @@ class KlarnaKp extends AbstractPayment
                 'name'        => $this->getName(),
                 'description' => $this->getDescription(),
             ],
+            'nl-NL' => [
+                'name'        => $this->getName(),
+                'description' => $this->getDescription(),
+            ],
+            'fr-FR' => [
+                'name'        => $this->getName(),
+                'description' => $this->getDescription(),
+            ],
         ];
     }
 
