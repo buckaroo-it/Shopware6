@@ -31,7 +31,7 @@ class KlarnaKp extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Klarna Pay later (authorize/capture)';
+        return 'Klarna';
     }
 
     /**

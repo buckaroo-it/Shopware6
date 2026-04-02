@@ -74,7 +74,7 @@ class Klarna extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Klarna',
+                'description' => $this->getDescription(),
             ],
             'en-GB' => [
                 'name'        => $this->getName(),
@@ -82,11 +82,11 @@ class Klarna extends AbstractPayment
             ],
             'nl-NL' => [
                 'name'        => $this->getName(),
-                'description' => 'Klarna',
+                'description' => $this->getDescription(),
             ],
             'fr-FR' => [
                 'name'        => $this->getName(),
-                'description' => 'Klarna',
+                'description' => $this->getDescription(),
             ],
         ];
     }
