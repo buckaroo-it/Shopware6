@@ -186,7 +186,7 @@ Component.register('buckaroo-payment-detail', {
                         : '';
 
                 that.isCapturePossible = !!buckarooKey &&
-                    (['klarnakp', 'billink', 'afterpay', 'klarna'].includes(buckarooKey) || that.isAfterpayCapturePossible(order));
+                    (['klarnakp', 'billink', 'afterpay', 'klarna', 'wero'].includes(buckarooKey) || that.isAfterpayCapturePossible(order));
 
                 that.isKlarnaMor = buckarooKey === 'klarna';
 
