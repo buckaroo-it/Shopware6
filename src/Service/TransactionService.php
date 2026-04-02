@@ -238,4 +238,22 @@ class TransactionService
 
         return $lastTransaction?->getId();
     }
+
+    /**
+     * Find an order transaction by a Klarna DataRequestKey stored in custom fields.
+     * Used to resolve the order when Buckaroo sends a cancel push from Plaza CRM
+     * that contains only the DataRequestKey and no Shopware order identifiers.
+     *
+     * @param string $dataRequestKey
+     * @param Context $context
+     * @return OrderTransactionEntity|null
+     */
+    public function findTransactionByDataRequestKey(string $dataRequestKey, Context $context): ?OrderTransactionEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('customFields.dataRequestKey', $dataRequestKey));
+
+        /** @var OrderTransactionEntity|null */
+        return $this->transactionRepository->search($criteria, $context)->first();
+    }
 }
