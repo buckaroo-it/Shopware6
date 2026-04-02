@@ -41,6 +41,7 @@ class PushController extends StorefrontController
         'I038',
         'I072',
         'I069',
+        'I106',
         'I108'
     ];
 
