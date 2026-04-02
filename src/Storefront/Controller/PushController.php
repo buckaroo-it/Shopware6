@@ -147,22 +147,6 @@ class PushController extends StorefrontController
             }
         }
 
-        // Fallback for Klarna MoR pushes from Plaza CRM that carry only a DataRequestKey
-        // (no ADD_orderId / ADD_orderTransactionId / brq_invoicenumber).
-        if (empty($brqOrderId) || empty($orderTransactionId)) {
-            $dataRequestKey = (string)($request->request->get('brq_datarequest')
-                ?: $request->request->get('brq_DataRequest'));
-            if (!empty($dataRequestKey) && strtolower($paymentMethod) === 'klarna') {
-                $this->logger->info(__METHOD__ . "|Attempting order lookup by Klarna DataRequestKey|" . $dataRequestKey);
-                $transaction = $this->transactionService->findTransactionByDataRequestKey($dataRequestKey, $context);
-                if ($transaction !== null) {
-                    $orderTransactionId = $transaction->getId();
-                    $brqOrderId         = $transaction->getOrderId() ?? '';
-                    $this->logger->info(__METHOD__ . "|Order found by DataRequestKey|orderId:" . $brqOrderId . "|transactionId:" . $orderTransactionId);
-                }
-            }
-        }
-
         if (empty($brqOrderId) || empty($orderTransactionId)) {
             $this->logger->warning(__METHOD__ . "|Missing order or transaction ID|orderId:" . $brqOrderId . "|transactionId:" . $orderTransactionId . "|invoice:" . $brqInvoicenumber);
             return $this->response('buckaroo.messages.paymentError', false);
@@ -309,28 +293,6 @@ class PushController extends StorefrontController
         //skip any giftcard pushes
         if ($request->request->has('brq_relatedtransaction_partialpayment')) {
             return $this->response('buckaroo.messages.giftcards.skippedPush');
-        }
-
-        // Klarna MoR cancel confirmation from Plaza CRM:
-        // statuscode 190 (success) with detail S990 means the cancel action succeeded.
-        // Treat this as a cancellation, not a payment success.
-        if (
-            strtolower($paymentMethod) === 'klarna' &&
-            $status === ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS &&
-            $request->request->get('brq_statuscode_detail') === 'S990'
-        ) {
-            $this->logger->info(__METHOD__ . "|Klarna cancel push (190+S990)|");
-            $order = $this->checkoutHelper->getOrderById($brqOrderId, $context);
-            if ($order !== null) {
-                if ($this->stateTransitionService->canTransitionStatus('cancelled', $orderTransactionId, $context)) {
-                    $this->setPaymentState('cancelled', $orderTransactionId, $salesChannelContext, $request);
-                } elseif ($this->stateTransitionService->canTransitionStatus('fail', $orderTransactionId, $context)) {
-                    $this->setPaymentState('fail', $orderTransactionId, $salesChannelContext, $request);
-                }
-                $this->stateTransitionService->changeOrderStatus($order, $context, 'cancel');
-                $this->stateTransitionService->changeDeliveryStatus($order, $context, 'cancel');
-            }
-            return $this->response('buckaroo.messages.orderCancelled');
         }
 
         if ($status === ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
