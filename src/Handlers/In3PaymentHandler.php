@@ -34,7 +34,7 @@ class In3PaymentHandler extends PaymentHandlerSimple
         return array_merge(
             $this->getBilling($dataBag, $order),
             $this->getShipping($dataBag, $order),
-            $this->getArticles($order),
+            $this->getArticles($order)
         );
     }
 
@@ -60,7 +60,7 @@ class In3PaymentHandler extends PaymentHandlerSimple
     {
         $address = $this->asyncPaymentService->getBillingAddress($order);
         $customer = $this->asyncPaymentService->getCustomer($order);
-        $company = $this->getCompany($dataBag);
+        $company = $this->getCompany($dataBag, $order);
 
         $recipient = [
             'category'      => count($company) ? 'B2B' : 'B2C',
@@ -90,21 +90,35 @@ class In3PaymentHandler extends PaymentHandlerSimple
     }
 
     /**
-     * Get company data
+     * Get company data. Falls back to billing address vatId for the CoC
+     * when the form input is empty.
      *
      * @param RequestDataBag $dataBag
+     * @param OrderEntity $order
      *
      * @return array<mixed>
      */
-    private function getCompany(RequestDataBag $dataBag): array
+    private function getCompany(RequestDataBag $dataBag, OrderEntity $order): array
     {
         if (in_array(
             $dataBag->get('buckaroo_capayablein3_orderAs'),
             ['SoleProprietor', 'Company']
         )) {
+            $billingAddress = $this->asyncPaymentService->getBillingAddress($order);
+
+            $companyName = $dataBag->get('buckaroo_capayablein3_CompanyName');
+            if (empty($companyName)) {
+                $companyName = $billingAddress->getCompany() ?? '';
+            }
+
+            $coc = $dataBag->get('buckaroo_capayablein3_COCNumber');
+            if (empty($coc)) {
+                $coc = $billingAddress->getVatId() ?? '';
+            }
+
             return [
-                'companyName'       => $dataBag->get('buckaroo_capayablein3_CompanyName'),
-                'chamberOfCommerce' => $dataBag->get('buckaroo_capayablein3_COCNumber')
+                'companyName'       => $companyName,
+                'chamberOfCommerce' => $coc
             ];
         }
 
@@ -123,7 +137,7 @@ class In3PaymentHandler extends PaymentHandlerSimple
     {
 
         $address = $this->asyncPaymentService->getShippingAddress($order);
-        $company = $this->getCompany($dataBag);
+        $company = $this->getCompany($dataBag, $order);
 
         $recipient = [
             'category'      => count($company) ? 'B2B' : 'B2C',

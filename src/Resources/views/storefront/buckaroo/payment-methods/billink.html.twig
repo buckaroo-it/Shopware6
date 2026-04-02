@@ -31,6 +31,23 @@
                     {{ "buckaroo.checkout.buckarooMobilePhoneError"|trans|sw_sanitize }}
                 </label>
             </div>
+            {% if page.extensions.buckaroo.BillinkBusiness == 'B2B' %}
+                <div class="form-group">
+                    <label class="form-label" for="buckaroo_billink_coc">
+                        {{ "buckaroo.checkout.cOCNumber"|trans }}*
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           form="confirmOrderForm"
+                           id="buckaroo_billink_coc"
+                           name="buckaroo_billink_coc"
+                           placeholder="{{ "buckaroo.checkout.CocPlaceholder"|trans|striptags }}"
+                           required="required">
+                    <label class="form-label" style="display:none; color:red" for="buckaroo_billink_coc" id="buckarooCocError">
+                        {{ "buckaroo.checkout.buckarooMobileCocError"|trans|sw_sanitize }}
+                    </label>
+                </div>
+            {% endif %}
             {% if page.extensions.buckaroo.BillinkBusiness != 'B2B' %}
                 <div class="form-group">
                     <label class="label" for="buckaroo_billink_DoB">{{ "buckaroo.checkout.buckarooAfterpayDoBTitle"|trans }}:</label>
@@ -49,16 +66,6 @@
                         </label>
                     </div>
                 </div>
-            {% endif %}
-            <div class="custom-control custom-checkbox">
-                <input id="buckaroo_afterpay_TermsCondition" class="custom-control-input" form="confirmOrderForm" name="buckaroo_afterpay_TermsCondition" required="required" type="checkbox">
-                <label class="custom-control-label" for="buckaroo_afterpay_TermsCondition"> <span>{{ "buckaroo.checkout.buckarooAfterpayTermsConditionTitle"|trans }}:</span> </label>
-                <span>
-                    <a target="_blank" href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf">{{ "buckaroo.checkout.buckarooBillinkTermsCondition"|trans }}</a>
-                </span>
-            </div>
-            {% if buckarooKey in methodsWithFinancialWarning and countryBillingIso == 'NL' %}
-                <div style="margin:10px 0; font-size:0.8rem">{{ "buckaroo.checkout.financialWarning" | trans({'%method%': paymentMethodName}) }}</div>
             {% endif %}
         </fieldset>
     </div>
