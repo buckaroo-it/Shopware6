@@ -247,7 +247,7 @@ class PaymentMethodsInstaller implements InstallerInterface
      */
     private function getMediaName(PaymentMethodInterface $paymentMethod): string
     {
-        return md5($paymentMethod->getName());
+        return md5($paymentMethod->getBuckarooKey());
     }
 
     /**

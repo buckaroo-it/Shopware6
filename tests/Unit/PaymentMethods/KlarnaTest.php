@@ -40,7 +40,7 @@ class KlarnaTest extends TestCase
 
     public function testGetDescriptionReturnsCorrectText(): void
     {
-        $this->assertSame('Pay later', $this->klarna->getDescription());
+        $this->assertSame('Pay with Klarna', $this->klarna->getDescription());
     }
 
     public function testGetPaymentHandlerReturnsKlarnaPaymentHandler(): void
@@ -67,21 +67,21 @@ class KlarnaTest extends TestCase
     {
         $result = $this->klarna->getTranslations();
         $this->assertSame('Klarna', $result['de-DE']['name']);
-        $this->assertSame('Bezahlen innerhalb von 30 Tagen', $result['de-DE']['description']);
+        $this->assertSame('Pay with Klarna', $result['de-DE']['description']);
     }
 
     public function testGetTranslationsDutchHasCorrectText(): void
     {
         $result = $this->klarna->getTranslations();
         $this->assertSame('Klarna', $result['nl-NL']['name']);
-        $this->assertSame('Achteraf betalen binnen 30 dagen', $result['nl-NL']['description']);
+        $this->assertSame('Pay with Klarna', $result['nl-NL']['description']);
     }
 
     public function testGetTranslationsFrenchHasCorrectText(): void
     {
         $result = $this->klarna->getTranslations();
         $this->assertSame('Klarna', $result['fr-FR']['name']);
-        $this->assertSame('Payer sous 30 jours', $result['fr-FR']['description']);
+        $this->assertSame('Pay with Klarna', $result['fr-FR']['description']);
     }
 
     public function testGetTypeReturnsRedirect(): void

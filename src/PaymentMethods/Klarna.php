@@ -33,7 +33,7 @@ class Klarna extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay later';
+        return 'Pay with Klarna';
     }
 
     /**
@@ -74,7 +74,7 @@ class Klarna extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen innerhalb von 30 Tagen',
+                'description' => $this->getDescription(),
             ],
             'en-GB' => [
                 'name'        => $this->getName(),
@@ -82,11 +82,11 @@ class Klarna extends AbstractPayment
             ],
             'nl-NL' => [
                 'name'        => $this->getName(),
-                'description' => 'Achteraf betalen binnen 30 dagen',
+                'description' => $this->getDescription(),
             ],
             'fr-FR' => [
                 'name'        => $this->getName(),
-                'description' => 'Payer sous 30 jours',
+                'description' => $this->getDescription(),
             ],
         ];
     }

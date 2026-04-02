@@ -271,7 +271,7 @@ class MediaInstaller implements InstallerInterface
      */
     private function getMediaName(PaymentMethodInterface $paymentMethod): string
     {
-        return md5($paymentMethod->getName());
+        return md5($paymentMethod->getBuckarooKey());
     }
 
     public function update(UpdateContext $updateContext): void
