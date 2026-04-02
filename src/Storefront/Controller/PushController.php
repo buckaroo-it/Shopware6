@@ -192,6 +192,19 @@ class PushController extends StorefrontController
                 'brqPaymentMethod'       => $brqPaymentMethod,
                 'brqInvoicenumber'       => $brqInvoicenumber,
             ];
+
+            // For Klarna (MoR), the informational authorize push carries the DataRequestKey
+            // needed for all follow-up actions (capture/pay, cancel, etc.).
+            // If we skip it here without persisting, the key is never stored and capture fails
+            // with Buckaroo error 491 "Parameter 'DataRequestKey' is empty".
+            if ($paymentMethod && strtolower($paymentMethod) === 'klarna') {
+                $dataRequestKey = $request->request->get('brq_SERVICE_klarna_DataRequestKey')
+                    ?: $request->request->get('brq_DataRequest');
+                if (!empty($dataRequestKey)) {
+                    $data['dataRequestKey'] = $dataRequestKey;
+                }
+            }
+
             $this->transactionService->saveTransactionData($orderTransactionId, $context, $data);
 
             return $this->response('buckaroo.messages.skipInformational');
