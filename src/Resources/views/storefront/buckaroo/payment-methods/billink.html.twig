@@ -1,6 +1,7 @@
 {% block buckaroo_payment_method_billink %}
     <div class="payment-method-second-col billing-address-form">
         <fieldset class="fieldset payment">
+            {% if page.extensions.buckaroo.BillinkBusiness != 'B2B' %}
             <div class="form-row">
                 <div class="form-group col-md-3 col-sm-6">
                     <label class="form-label" for="buckaroo_billink_gender">
@@ -14,6 +15,7 @@
                     </select>
                 </div>
             </div>
+            {% endif %}
             <div class="form-group">
                 <label class="form-label" for="buckarooBillinkPhone">
                     {{ "buckaroo.checkout.Phone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}

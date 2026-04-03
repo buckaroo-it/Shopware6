@@ -71,6 +71,7 @@
                 </label>
             </div>
             {% endif %}
+            {% if not isAfterpayB2B %}
             <div class="form-group">
                 <label class="label" for="buckaroo_afterpay_DoB">{{ "buckaroo.checkout.buckarooAfterpayDoBTitle"|trans }}:</label>
                 <span><sup>{{ "buckaroo.checkout.buckarooAfterpayDoBTitleSup"|trans }}</sup></span>
@@ -88,6 +89,7 @@
                     </label>
                 </div>
             </div>
+            {% endif %}
         </fieldset>
     </div>
 {% endblock %} 
