@@ -59,6 +59,48 @@ plugin:update BuckarooPayments
 For the configuration of the plugin, please refer to our [Dutch](https://support.buckaroo.nl/categorieen/plugins/shopware-6) or [English](https://support.buckaroo.eu/categories/plugins) support website.
 You will find all the necessary information there. But if you still have some unanswered questions, then please contact our [technical support department](mailto:support@buckaroo.nl).
 
+### Development
+
+#### Administration build
+
+The plugin ships **two pre-built administration bundles** so that clients on any Shopware version can install the plugin without running a local build:
+
+| Shopware version | Toolchain | Output location |
+|-----------------|-----------|-----------------|
+| 6.6 (no `ADMIN_VITE` flag) | Webpack | `src/Resources/public/administration/js/buckaroo-payments.js` |
+| 6.6 (`ADMIN_VITE` enabled) + 6.7+ | Vite | `src/Resources/public/administration/.vite/entrypoints.json` + `assets/` |
+
+Shopware selects the correct format at runtime; both sets of files coexist in the same directory without conflict.
+
+**Building the Webpack bundle (Shopware 6.6 compatibility)**
+
+```bash
+# Install devDependencies (first time only)
+npm install
+
+# Build — outputs js/buckaroo-payments.js and css/buckaroo-payments.css
+npm run build:legacy
+```
+
+**Building the Vite bundle (Shopware 6.7+)**
+
+Run the Shopware administration build from the project root inside a Shopware 6.7+ installation:
+
+```bash
+bin/console bundle:dump
+bin/build-administration.sh
+```
+
+Then copy the resulting files from `src/Resources/public/administration/` (the `.vite/` directory and `assets/` directory) back into the plugin repository.
+
+**Release checklist**
+
+Before every release, ensure both builds are up to date:
+
+1. Run `npm run build:legacy` from the plugin root → commit updated `js/` and `css/` files.
+2. Run the Vite build in a Shopware 6.7+ environment → commit updated `assets/` and `.vite/` files.
+3. Both build outputs must always be present in `src/Resources/public/administration/`.
+
 ### Contribute
 
 We really appreciate it when developers contribute to improve the Buckaroo plugins.
