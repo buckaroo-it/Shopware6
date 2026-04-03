@@ -156,6 +156,11 @@ class SignatureValidationService
         if ($key === 'brq_SERVICE_knaken_Buyer_Name') {
             $key = 'brq_SERVICE_knaken_Buyer Name';
         }
+
+        if ($key === 'brq_SERVICE_boekenbon_Additional_Info') {
+            $key = 'brq_SERVICE_boekenbon_Additional Info';
+        }
+
         return $key;
     }
 
