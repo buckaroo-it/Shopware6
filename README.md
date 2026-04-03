@@ -11,7 +11,6 @@
 - [Installation](#installation)
 - [Upgrade](#upgrade)
 - [Configuration](#configuration)
-- [Contribute](#contribute)
 - [Versioning](#versioning)
 - [Additional information](#additional-information)
 ---
@@ -27,8 +26,10 @@ Start accepting payments within a few minutes.
 
 To use the Buckaroo plugin, please be aware of the following minimum requirements:
 - A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
-- Shopware 6.5.0 up to 6.7.2.2
-- PHP 8.1, 8.2, 8.3
+- Shopware 6.5.0 up to 6.7.6.0
+- PHP 8.2 or higher
+
+> **No administration rebuild required.** The plugin ships pre-built administration assets for all supported Shopware versions (6.6 and 6.7+). After installing or updating the plugin you do **not** need to run `bin/build-administration.sh` or any other build command.
 
 ### Installation
 
@@ -51,55 +52,16 @@ bin/console cache:clear
 
 ```
 composer update buckaroo/shopware6
-plugin:update BuckarooPayments
+bin/console plugin:update BuckarooPayments
+bin/console cache:clear
 ```
+
+> No administration rebuild is needed after upgrading. The plugin automatically uses the correct pre-built assets for your Shopware version.
 
 ### Configuration
 
 For the configuration of the plugin, please refer to our [Dutch](https://support.buckaroo.nl/categorieen/plugins/shopware-6) or [English](https://support.buckaroo.eu/categories/plugins) support website.
 You will find all the necessary information there. But if you still have some unanswered questions, then please contact our [technical support department](mailto:support@buckaroo.nl).
-
-### Development
-
-#### Administration build
-
-The plugin ships **two pre-built administration bundles** so that clients on any Shopware version can install the plugin without running a local build:
-
-| Shopware version | Toolchain | Output location |
-|-----------------|-----------|-----------------|
-| 6.6 (no `ADMIN_VITE` flag) | Webpack | `src/Resources/public/administration/js/buckaroo-payments.js` |
-| 6.6 (`ADMIN_VITE` enabled) + 6.7+ | Vite | `src/Resources/public/administration/.vite/entrypoints.json` + `assets/` |
-
-Shopware selects the correct format at runtime; both sets of files coexist in the same directory without conflict.
-
-**Building the Webpack bundle (Shopware 6.6 compatibility)**
-
-```bash
-# Install devDependencies (first time only)
-npm install
-
-# Build — outputs js/buckaroo-payments.js and css/buckaroo-payments.css
-npm run build:legacy
-```
-
-**Building the Vite bundle (Shopware 6.7+)**
-
-Run the Shopware administration build from the project root inside a Shopware 6.7+ installation:
-
-```bash
-bin/console bundle:dump
-bin/build-administration.sh
-```
-
-Then copy the resulting files from `src/Resources/public/administration/` (the `.vite/` directory and `assets/` directory) back into the plugin repository.
-
-**Release checklist**
-
-Before every release, ensure both builds are up to date:
-
-1. Run `npm run build:legacy` from the plugin root → commit updated `js/` and `css/` files.
-2. Run the Vite build in a Shopware 6.7+ environment → commit updated `assets/` and `.vite/` files.
-3. Both build outputs must always be present in `src/Resources/public/administration/`.
 
 ### Contribute
 
