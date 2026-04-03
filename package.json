@@ -1,0 +1,17 @@
+{
+    "name": "buckaroo-payments",
+    "version": "1.0.0",
+    "description": "Shopware 6 plugin for Buckaroo payment methods",
+    "private": true,
+    "scripts": {
+        "build:legacy": "webpack --config webpack.legacy.config.js"
+    },
+    "devDependencies": {
+        "css-loader": "^7.1.2",
+        "mini-css-extract-plugin": "^2.9.1",
+        "sass": "^1.83.0",
+        "sass-loader": "^16.0.4",
+        "webpack": "^5.97.1",
+        "webpack-cli": "^5.1.4"
+    }
+}

@@ -3,3 +3,5 @@
 .DS_Store
 vendor/
 composer.lock
+node_modules/
+src/Resources/app/administration/.tmp/

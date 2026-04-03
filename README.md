@@ -11,7 +11,6 @@
 - [Installation](#installation)
 - [Upgrade](#upgrade)
 - [Configuration](#configuration)
-- [Contribute](#contribute)
 - [Versioning](#versioning)
 - [Additional information](#additional-information)
 ---
@@ -27,8 +26,10 @@ Start accepting payments within a few minutes.
 
 To use the Buckaroo plugin, please be aware of the following minimum requirements:
 - A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
-- Shopware 6.5.0 up to 6.7.2.2
-- PHP 8.1, 8.2, 8.3
+- Shopware 6.5.0 up to 6.7.6.0
+- PHP 8.2 or higher
+
+> **No administration rebuild required.** The plugin ships pre-built administration assets for all supported Shopware versions (6.6 and 6.7+). After installing or updating the plugin you do **not** need to run `bin/build-administration.sh` or any other build command.
 
 ### Installation
 
@@ -51,8 +52,11 @@ bin/console cache:clear
 
 ```
 composer update buckaroo/shopware6
-plugin:update BuckarooPayments
+bin/console plugin:update BuckarooPayments
+bin/console cache:clear
 ```
+
+> No administration rebuild is needed after upgrading. The plugin automatically uses the correct pre-built assets for your Shopware version.
 
 ### Configuration
 
