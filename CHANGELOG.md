@@ -415,3 +415,19 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 # 3.2.4
 
 - BTI-684 Fix: Payment finalize token replay causes error after successful async payment (Wero/mobile) #405
+
+# 3.3.0
+
+- BTI-554 Add payment method: Klarna (MOR).
+- BTI-729 Add payment method: Google Pay.
+- BTI-653 Adjust default value for payment method titles and subtitles.
+- BTI-730 Move Apple Pay GUID settings from the general settings to the specific Apple Pay settings.
+- BTI-640 Remove API version setting for In3 payment method (force V3 since V2 is discontinued).
+- BTI-754 Add code block tag to (prevent it to be overwritten).
+- BTI-641 Fix: B2C/B2B transactions handling improvement for In3.
+- BTI-642 Fix: B2C/B2B transactions handling improvement for Riverty.
+- BTI-643 Fix: B2C/B2B transactions handling improvement for Billink.
+- BTI-159 Fix: Riverty (OLD) Product Lines are sent with 0% VAT.
+- BTI-160 Fix: Billink payment fails with “wrong BTW value” after updating to plugin v3.1.0.
+- BTI-820 Fix: Ensure Shopware Administration Build Compatibility for Versions < 6.7 and ≥ 6.7.
+- BTI-700 Fix: Payment fee is still charged for methods without a payment fee configuration when switching methods. 
