@@ -72,7 +72,7 @@ class AfterPayTest extends TestCase
         $result = $this->afterPay->getDescription();
 
         // Assert
-        $this->assertSame('Pay with Riverty', $result);
+        $this->assertSame('Buy now, pay in 14 days', $result);
     }
 
     /**
@@ -101,9 +101,9 @@ class AfterPayTest extends TestCase
     }
 
     /**
-     * Test: it returns translations with German and English
+     * Test: it returns translations with German, English, Dutch and French
      */
-    public function testGetTranslationsReturnsGermanAndEnglish(): void
+    public function testGetTranslationsReturnsAllLocales(): void
     {
         // Act
         $result = $this->afterPay->getTranslations();
@@ -112,6 +112,8 @@ class AfterPayTest extends TestCase
         $this->assertIsArray($result);
         $this->assertArrayHasKey('de-DE', $result);
         $this->assertArrayHasKey('en-GB', $result);
+        $this->assertArrayHasKey('nl-NL', $result);
+        $this->assertArrayHasKey('fr-FR', $result);
     }
 
     /**
@@ -124,7 +126,7 @@ class AfterPayTest extends TestCase
 
         // Assert
         $this->assertSame('Riverty', $result['de-DE']['name']);
-        $this->assertSame('Bezahlen mit Riverty', $result['de-DE']['description']);
+        $this->assertSame('Bezahlen innerhalb von 14 Tagen', $result['de-DE']['description']);
     }
 
     /**
@@ -137,7 +139,33 @@ class AfterPayTest extends TestCase
 
         // Assert
         $this->assertSame('Riverty', $result['en-GB']['name']);
-        $this->assertSame('Pay with Riverty', $result['en-GB']['description']);
+        $this->assertSame('Buy now, pay in 14 days', $result['en-GB']['description']);
+    }
+
+    /**
+     * Test: it returns Dutch translation
+     */
+    public function testGetTranslationsDutchHasCorrectText(): void
+    {
+        // Act
+        $result = $this->afterPay->getTranslations();
+
+        // Assert
+        $this->assertSame('Riverty', $result['nl-NL']['name']);
+        $this->assertSame('Achteraf betalen binnen 14 dagen', $result['nl-NL']['description']);
+    }
+
+    /**
+     * Test: it returns French translation
+     */
+    public function testGetTranslationsFrenchHasCorrectText(): void
+    {
+        // Act
+        $result = $this->afterPay->getTranslations();
+
+        // Assert
+        $this->assertSame('Riverty', $result['fr-FR']['name']);
+        $this->assertSame('Payer sous 14 jours', $result['fr-FR']['description']);
     }
 
     /**

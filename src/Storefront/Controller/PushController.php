@@ -41,6 +41,7 @@ class PushController extends StorefrontController
         'I038',
         'I072',
         'I069',
+        'I106',
         'I108'
     ];
 
@@ -192,6 +193,20 @@ class PushController extends StorefrontController
                 'brqPaymentMethod'       => $brqPaymentMethod,
                 'brqInvoicenumber'       => $brqInvoicenumber,
             ];
+
+            // For Klarna (MoR), the informational authorize push carries the DataRequestKey
+            // needed for all follow-up actions (capture/pay, cancel, etc.).
+            // If we skip it here without persisting, the key is never stored and capture fails
+            // with Buckaroo error 491 "Parameter 'DataRequestKey' is empty".
+            if ($paymentMethod && strtolower($paymentMethod) === 'klarna') {
+                $dataRequestKey = $request->request->get('brq_SERVICE_klarna_DataRequestKey')
+                    ?: $request->request->get('brq_DataRequest')
+                    ?: $request->request->get('brq_datarequest');
+                if (!empty($dataRequestKey)) {
+                    $data['dataRequestKey'] = $dataRequestKey;
+                }
+            }
+
             $this->transactionService->saveTransactionData($orderTransactionId, $context, $data);
 
             return $this->response('buckaroo.messages.skipInformational');
@@ -312,11 +327,26 @@ class PushController extends StorefrontController
                 $alreadyPaid = round($brqAmount + ($customFields['alreadyPaid'] ?? 0), 2);
                 $paymentState        = ($alreadyPaid >= round($totalPrice, 2)) ? $paymentSuccesStatus : "pay_partially";
                 $data                = [];
-                if ($paymentMethod && (strtolower($paymentMethod) === 'klarnakp')) {
+                if ($paymentMethod && in_array(strtolower($paymentMethod), ['klarnakp', 'klarna'])) {
                     $this->logger->info(__METHOD__ . "|42|");
-                    $paymentState              = 'authorize';
-                    $data['reservationNumber'] = $request->request->get('brq_SERVICE_klarnakp_ReservationNumber');
-                    $originalTransactionKey = $request->request->get('brq_SERVICE_klarnakp_AutoPayTransactionKey');
+                    $paymentState = 'authorize';
+                    if (strtolower($paymentMethod) === 'klarnakp') {
+                        $data['reservationNumber'] = $request->request->get('brq_SERVICE_klarnakp_ReservationNumber');
+                        $originalTransactionKey    = $request->request->get('brq_SERVICE_klarnakp_AutoPayTransactionKey');
+                    } else {
+                        // brq_SERVICE_klarna_DataRequestKey is the Klarna-specific DataRequestKey
+                        // from the Reserve push Services parameters, used for all follow-up actions.
+                        // brq_DataRequest / brq_datarequest (Buckaroo sends lowercase for MoR) is the
+                        // fallback overall DataRequest transaction key.
+                        $data['dataRequestKey'] = $request->request->get('brq_SERVICE_klarna_DataRequestKey')
+                            ?: $request->request->get('brq_DataRequest')
+                            ?: $request->request->get('brq_datarequest');
+                        // When the authorize transition is no longer available the transaction is
+                        // already in authorized state, meaning this is a capture (pay) push.
+                        if (!$this->stateTransitionService->canTransitionStatus('authorize', $orderTransactionId, $context)) {
+                            $paymentState = $paymentSuccesStatus;
+                        }
+                    }
                 }
                 $this->logger->info(__METHOD__ . "|45|", [$paymentState, $brqAmount, $totalPrice]);
 

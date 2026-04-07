@@ -31,9 +31,10 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
+        $billingAddress = $this->asyncPaymentService->getBillingAddress($order);
         return array_merge_recursive(
-            $this->getVatNumber($dataBag),
-            $this->getCoc($dataBag),
+            $this->getVatNumber($order),
+            $this->getCoc($billingAddress, $dataBag),
             $this->getBillingData($order, $dataBag),
             $this->getShippingData($order, $dataBag),
             $this->getArticles($order, $paymentCode)
@@ -143,39 +144,58 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
-     * Get vat number
+     * Get vat number from the customer's registered VAT IDs.
+     * Falls back to the billing address VAT ID when the customer's vatIds are empty
+     * (e.g. the field was left blank during company registration).
      *
-     * @param RequestDataBag $dataBag
+     * @param OrderEntity $order
      *
      * @return array<mixed>
      */
-    protected function getVatNumber(RequestDataBag $dataBag): array
+    protected function getVatNumber(OrderEntity $order): array
     {
-        $vatNumber = $dataBag->get('buckaroo_VATNumber');
-        if (is_string($vatNumber) &&
-            !empty(trim($vatNumber))
-        ) {
-            return ['vATNumber' => $vatNumber];
+        $customer = $this->asyncPaymentService->getCustomer($order);
+        $vatIds = $customer->getVatIds();
+        if (!empty($vatIds) && is_array($vatIds)) {
+            $first = reset($vatIds);
+            if (is_string($first) && !empty(trim($first))) {
+                return ['vATNumber' => trim($first)];
+            }
         }
+
+        $vatId = $this->asyncPaymentService->getBillingAddress($order)->getVatId();
+        if (is_string($vatId) && !empty(trim($vatId))) {
+            return ['vATNumber' => trim($vatId)];
+        }
+
         return [];
     }
 
     /**
-     * Get chamber of commerce number
+     * Get chamber of commerce (KvK) number — distinct from the VAT (BTW) number.
+     * Priority:
+     * 1. Checkout form input buckaroo_billink_coc (always shown for B2B, user may edit)
+     * 2. Billing address vatId (Shopware's only built-in field for CoC in NL)
      *
+     * @param OrderAddressEntity $billingAddress
      * @param RequestDataBag $dataBag
      *
      * @return array<mixed>
      */
-    protected function getCoc(RequestDataBag $dataBag): array
+    protected function getCoc(OrderAddressEntity $billingAddress, RequestDataBag $dataBag): array
     {
-        if ($dataBag->has('buckaroo_ChamberOfCommerce') &&
-            is_string($dataBag->get('buckaroo_ChamberOfCommerce'))
-        ) {
+        $input = $dataBag->get('buckaroo_billink_coc');
+        $coc = is_string($input) && !empty(trim($input)) ? trim($input) : '';
+
+        if (empty($coc)) {
+            $coc = $billingAddress->getVatId() ?? '';
+        }
+
+        if (!empty($coc)) {
             return [
                 'billing' => [
                     'recipient' => [
-                        'chamberOfCommerce' => $dataBag->get('buckaroo_ChamberOfCommerce')
+                        'chamberOfCommerce' => $coc
                     ]
                 ]
             ];

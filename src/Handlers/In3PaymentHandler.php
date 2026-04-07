@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Buckaroo\Shopware6\Handlers\In3V2;
 use Buckaroo\Shopware6\PaymentMethods\In3;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
@@ -15,24 +14,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 class In3PaymentHandler extends PaymentHandlerSimple
 {
     public string $paymentClass = In3::class;
-
-    public const V2 = 'v2';
-
-    /**
-     * @var \Buckaroo\Shopware6\Handlers\In3V2
-     */
-    protected $in3v2;
-
-    /**
-     * Buckaroo constructor.
-     */
-    public function __construct(
-        AsyncPaymentService $asyncPaymentService,
-        In3V2 $in3v2
-    ) {
-        parent::__construct($asyncPaymentService);
-        $this->in3v2 = $in3v2;
-    }
 
     /**
      * Get parameters for specific payment method
@@ -50,28 +31,13 @@ class In3PaymentHandler extends PaymentHandlerSimple
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-
-        if ($this->isV2()) {
-            return $this->in3v2->getBody($order, $dataBag);
-        }
-
         return array_merge(
             $this->getBilling($dataBag, $order),
             $this->getShipping($dataBag, $order),
-            $this->getArticles($order),
+            $this->getArticles($order)
         );
     }
 
-
-    /**
-     * Check if is v2
-     *
-     * @return boolean
-     */
-    private function isV2(): bool
-    {
-        return $this->getSetting("capayableVersion") === self::V2;
-    }
 
     /**
      * Get method action for specific payment method
@@ -87,11 +53,6 @@ class In3PaymentHandler extends PaymentHandlerSimple
         ?SalesChannelContext $salesChannelContext = null,
         ?string $paymentCode = null
     ): string {
-
-        if ($this->isV2()) {
-            return 'payInInstallments';
-        }
-
         return parent::getMethodAction($dataBag, $salesChannelContext, $paymentCode);
     }
 
@@ -99,7 +60,7 @@ class In3PaymentHandler extends PaymentHandlerSimple
     {
         $address = $this->asyncPaymentService->getBillingAddress($order);
         $customer = $this->asyncPaymentService->getCustomer($order);
-        $company = $this->getCompany($dataBag);
+        $company = $this->getCompany($dataBag, $order);
 
         $recipient = [
             'category'      => count($company) ? 'B2B' : 'B2C',
@@ -129,21 +90,35 @@ class In3PaymentHandler extends PaymentHandlerSimple
     }
 
     /**
-     * Get company data
+     * Get company data. Falls back to billing address vatId for the CoC
+     * when the form input is empty.
      *
      * @param RequestDataBag $dataBag
+     * @param OrderEntity $order
      *
      * @return array<mixed>
      */
-    private function getCompany(RequestDataBag $dataBag): array
+    private function getCompany(RequestDataBag $dataBag, OrderEntity $order): array
     {
         if (in_array(
             $dataBag->get('buckaroo_capayablein3_orderAs'),
             ['SoleProprietor', 'Company']
         )) {
+            $billingAddress = $this->asyncPaymentService->getBillingAddress($order);
+
+            $companyName = $dataBag->get('buckaroo_capayablein3_CompanyName');
+            if (empty($companyName)) {
+                $companyName = $billingAddress->getCompany() ?? '';
+            }
+
+            $coc = $dataBag->get('buckaroo_capayablein3_COCNumber');
+            if (empty($coc)) {
+                $coc = $billingAddress->getVatId() ?? '';
+            }
+
             return [
-                'companyName'       => $dataBag->get('buckaroo_capayablein3_CompanyName'),
-                'chamberOfCommerce' => $dataBag->get('buckaroo_capayablein3_COCNumber')
+                'companyName'       => $companyName,
+                'chamberOfCommerce' => $coc
             ];
         }
 
@@ -162,7 +137,7 @@ class In3PaymentHandler extends PaymentHandlerSimple
     {
 
         $address = $this->asyncPaymentService->getShippingAddress($order);
-        $company = $this->getCompany($dataBag);
+        $company = $this->getCompany($dataBag, $order);
 
         $recipient = [
             'category'      => count($company) ? 'B2B' : 'B2C',

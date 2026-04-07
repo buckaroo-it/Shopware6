@@ -33,7 +33,7 @@ class AfterPay extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with Riverty';
+        return 'Buy now, pay in 14 days';
     }
 
     /**
@@ -66,11 +66,19 @@ class AfterPay extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit Riverty',
+                'description' => 'Bezahlen innerhalb von 14 Tagen',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),
                 'description' => $this->getDescription(),
+            ],
+            'nl-NL' => [
+                'name'        => $this->getName(),
+                'description' => 'Achteraf betalen binnen 14 dagen',
+            ],
+            'fr-FR' => [
+                'name'        => $this->getName(),
+                'description' => 'Payer sous 14 jours',
             ],
         ];
     }

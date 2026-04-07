@@ -107,8 +107,8 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
         $payload = $this->decodeJwtPayload($paymentToken);
 
         // 'ful' and 'eul' are stored as relative paths (e.g. /checkout/finish?orderId=...)
-        $finishUrl = $this->makeAbsolute($payload['ful'] ?? null, $request);
-        $errorUrl = $this->makeAbsolute($payload['eul'] ?? null, $request);
+        $finishUrl     = $this->makeAbsolute($payload['ful'] ?? null, $request);
+        $errorUrl      = $this->makeAbsolute($payload['eul'] ?? null, $request);
         $transactionId = isset($payload['sub']) && is_string($payload['sub']) ? $payload['sub'] : null;
 
         if ($transactionId !== null) {

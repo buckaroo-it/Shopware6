@@ -230,6 +230,7 @@ class AsyncPaymentService
         $criteria->addAssociation('order.salesChannel');
         $criteria->addAssociation('order.orderCustomer');
         $criteria->addAssociation('order.orderCustomer.customer');
+        $criteria->addAssociation('order.orderCustomer.salutation');
         $criteria->addAssociation('order.billingAddress');
         $criteria->addAssociation('order.deliveries');
         $criteria->addAssociation('order.deliveries.shippingAddress');

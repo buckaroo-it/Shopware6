@@ -78,7 +78,7 @@ class CaptureService
         $validationErrors = $this->validate($order, $customFields, $paymentCode);
 
 
-        if ($paymentCode == 'klarnakp') {
+        if (in_array($paymentCode, ['klarnakp', 'klarna'])) {
             $action = 'pay';
             $originalTransactionKey = 'false';
         } else {
@@ -248,11 +248,16 @@ class CaptureService
         $paymentCode = $customFields['serviceName'];
 
         $data = [];
+        // Klarna (MoR) Pay uses only DataRequestKey — articles were already sent in the Reserve
+        // DataRequest and must NOT be repeated here (causes Buckaroo 400).
         if (in_array($paymentCode, ['Billink', 'klarnakp']) && is_string($paymentCode)) {
             $data = array_merge($data, $this->getArticles($order, $paymentCode));
         }
         if ($paymentCode === 'klarnakp') {
             $data = array_merge($data, ['reservationNumber' => $customFields['reservationNumber']]);
+        }
+        if ($paymentCode === 'klarna') {
+            $data = array_merge($data, ['dataRequestKey' => $customFields['dataRequestKey'] ?? '']);
         }
 
         return $data;

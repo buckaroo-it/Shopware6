@@ -48,7 +48,17 @@
             "errorTitle": "Fehler",
             "payTitle": "Zahlung erfassen (Capture)",
             "payDescription": "Erfassen (Capture) und Rechnung für Bestellung erstellen",
-            "payButton": "Zahlung erfassen (Capture)"
+            "payButton": "Zahlung erfassen (Capture)",
+            "klarnaMorTitle": "Klarna (MoR)",
+            "klarnaMorDescription": "Verwalten Sie die Klarna-Reservierung für diese Bestellung.",
+            "klarnaMorCancel": "Reservierung stornieren",
+            "klarnaMorCancelButton": "Reservierung stornieren",
+            "klarnaMorUpdate": "Reservierung aktualisieren",
+            "klarnaMorUpdateButton": "Reservierung aktualisieren",
+            "klarnaMorExtend": "Reservierung verlängern",
+            "klarnaMorExtendButton": "Reservierung verlängern",
+            "klarnaMorShipping": "Versandinformationen hinzufügen",
+            "klarnaMorShippingButton": "Versandinformationen hinzufügen"
         },
         "orderItems": {
             "title": "Artikel zur Rückerstattung",

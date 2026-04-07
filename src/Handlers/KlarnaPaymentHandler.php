@@ -13,6 +13,26 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 class KlarnaPaymentHandler extends PaymentHandlerSimple
 {
     public string $paymentClass = Klarna::class;
+    public const ARTICLE_TYPE_GENERAL = 'General';
+    public const ARTICLE_TYPE_HANDLING_FEE = 'HandlingFee';
+    public const ARTICLE_TYPE_SHIPMENT_FEE = 'ShipmentFee';
+
+    /**
+     * Get method action for specific payment method
+     *
+     * @param RequestDataBag $dataBag
+     * @param SalesChannelContext|null $salesChannelContext
+     * @param string|null $paymentCode
+     *
+     * @return string
+     */
+    public function getMethodAction(
+        RequestDataBag $dataBag,
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
+    ): string {
+        return 'reserve';
+    }
 
     /**
      * Get parameters for specific payment method
@@ -31,6 +51,13 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
         string $paymentCode
     ): array {
         return array_merge_recursive(
+            [
+                'operatingCountry' => $this->asyncPaymentService->getCountry(
+                    $this->asyncPaymentService->getBillingAddress($order)
+                )->getIso(),
+                'pno'    => $this->getBirthDate($dataBag),
+                'gender' => $this->getGender($order, $dataBag),
+            ],
             $this->getBillingData($order, $dataBag),
             $this->getShippingData($order, $dataBag),
             $this->getArticles($order, $paymentCode)
@@ -56,11 +83,8 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
         return [
             'billing' => [
                 'recipient' => [
-                    'category'              =>  $this->getCategory($address),
                     'firstName'             =>  $address->getFirstName(),
                     'lastName'              =>  $address->getLastName(),
-                    'birthDate'             =>  $this->getBirthDate($dataBag),
-                    'gender'                =>  $dataBag->get('buckaroo_klarna_gender', 'male')
                 ],
                 'address' => [
                     'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
@@ -100,11 +124,8 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
         return [
             'shipping' => [
                 'recipient' => [
-                    'category'              =>  $this->getCategory($address),
                     'firstName'             =>  $address->getFirstName(),
                     'lastName'              =>  $address->getLastName(),
-                    'birthDate'             =>  $this->getBirthDate($dataBag),
-                    'gender'                =>  $dataBag->get('buckaroo_klarna_gender', 'male')
                 ],
                 'address' => [
                     'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
@@ -151,12 +172,23 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
             if (!is_array($item)) {
                 continue;
             }
+
+            $unitPrice = $item['unitPrice'] ?? [];
+            $price = is_array($unitPrice) ? ($unitPrice['value'] ?? 0) : 0;
+
+            // Klarna rejects articles with a zero unit price (e.g. free shipping).
+            // Items with a negative price (discounts) are still included.
+            if ((float)$price === 0.0) {
+                continue;
+            }
+
             $articles[] = [
-                'identifier'        => $item['sku'],
-                'description'       => $item['name'],
-                'quantity'          => $item['quantity'],
-                'price'             => $item['unitPrice']['value'],
-                'vatPercentage'     => $item['vatRate'],
+                'identifier'    => (string)($item['sku'] ?? $item['id'] ?? ''),
+                'description'   => (string)($item['name'] ?? ''),
+                'quantity'      => (int)($item['quantity'] ?? 1),
+                'price'         => (float)$price,
+                'vatPercentage' => (string)($item['vatRate'] ?? '0.00'),
+                'type'          => $this->getArticleType($item),
             ];
         }
         return [
@@ -164,25 +196,68 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
         ];
     }
 
-
-
     /**
-     * Get type of request b2b or b2c
+     * Determine the Klarna article type from an order line item array.
+     * Uses the `type` field (set by FormatRequestParamService) as the primary
+     * indicator, with a fallback to the legacy `sku`-based check.
      *
-     * @param OrderAddressEntity $address
+     * @param array<mixed> $article
      *
      * @return string
      */
-    private function getCategory(OrderAddressEntity $address): string
+    private function getArticleType(array $article): string
     {
-        if ($address->getCompany() !== null &&
-            !empty(trim($address->getCompany()))
-        ) {
-            return 'B2B';
+        $lineType = $article['type'] ?? '';
+
+        if ($lineType === 'Shipping') {
+            return self::ARTICLE_TYPE_SHIPMENT_FEE;
         }
-        return 'B2C';
+
+        if ($lineType === 'BuckarooFee' || ($article['sku'] ?? '') === 'BuckarooFee') {
+            return self::ARTICLE_TYPE_HANDLING_FEE;
+        }
+
+        return self::ARTICLE_TYPE_GENERAL;
     }
 
+
+
+    /**
+     * Resolve the customer gender for the Klarna Reserve request.
+     *
+     * Klarna requires gender (1 = male, 2 = female) for PNO-based flows.
+     * Priority:
+     *   1. Explicit value from checkout dataBag (`buckaroo_klarna_gender`)
+     *   2. Derived from the order customer's salutation key
+     *   3. Defaults to 1 (male) when not determinable
+     *
+     * @param OrderEntity    $order
+     * @param RequestDataBag $dataBag
+     *
+     * @return int
+     */
+    private function getGender(OrderEntity $order, RequestDataBag $dataBag): int
+    {
+        $fromBag = $dataBag->get('buckaroo_klarna_gender');
+        if (is_numeric($fromBag)) {
+            return (int)$fromBag;
+        }
+
+        $customer = $order->getOrderCustomer();
+        if ($customer !== null) {
+            $salutation = $customer->getSalutation();
+            if ($salutation !== null) {
+                if ($salutation->getSalutationKey() === 'mr') {
+                    return 1;
+                }
+                if ($salutation->getSalutationKey() === 'mrs') {
+                    return 2;
+                }
+            }
+        }
+
+        return 1;
+    }
 
     /**
      * Get birth date

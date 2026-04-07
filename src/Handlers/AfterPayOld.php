@@ -243,19 +243,54 @@ class AfterPayOld
      */
     private function getItemVatCategory(array $item): int
     {
-        if (!isset($item['taxId']) ||
-            !is_string($item['taxId'])
-        ) {
-            return 4;
+        $vatRate = null;
+        if (isset($item['vatRate'])) {
+            $vatRate = (float)$item['vatRate'];
         }
 
-        $taxId = $item['taxId'];
-        $taxAssociation = $this->settingsService->getSetting('afterpayOldtax');
+        if (isset($item['taxId']) && is_string($item['taxId'])) {
+            $taxId = $item['taxId'];
+            $taxAssociation = $this->settingsService->getSetting('afterpayOldtax');
 
-        if (is_array($taxAssociation) && isset($taxAssociation[$taxId])) {
-            return (int)$taxAssociation[$taxId];
+            if (is_array($taxAssociation) && isset($taxAssociation[$taxId])) {
+                $mappedCategory = (int)$taxAssociation[$taxId];
+
+                if ($mappedCategory > 0) {
+                    return $mappedCategory;
+                }
+            }
+        }
+
+        if ($vatRate !== null) {
+            return $this->mapVatRateToVatCategory($vatRate);
         }
 
         return 4;
+    }
+
+    /**
+     * Map a VAT percentage to Riverty/AfterPay VAT category
+     *
+     * 1 = High rate
+     * 2 = Low rate
+     * 3 = Zero rate
+     * 4 = Null rate (unknown)
+     * 5 = Middle rate
+     */
+    private function mapVatRateToVatCategory(float $vatRate): int
+    {
+        if ($vatRate <= 0.0001) {
+            return 3;
+        }
+
+        if ($vatRate < 12.0) {
+            return 2;
+        }
+
+        if ($vatRate >= 20.0) {
+            return 1;
+        }
+
+        return 5;
     }
 }

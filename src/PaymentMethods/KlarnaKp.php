@@ -31,7 +31,7 @@ class KlarnaKp extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'Klarna Pay later (authorize/capture)';
+        return 'Klarna';
     }
 
     /**
@@ -77,6 +77,14 @@ class KlarnaKp extends AbstractPayment
                 'description' => 'Bezahlen mit Klarna',
             ],
             'en-GB' => [
+                'name'        => $this->getName(),
+                'description' => $this->getDescription(),
+            ],
+            'nl-NL' => [
+                'name'        => $this->getName(),
+                'description' => $this->getDescription(),
+            ],
+            'fr-FR' => [
                 'name'        => $this->getName(),
                 'description' => $this->getDescription(),
             ],

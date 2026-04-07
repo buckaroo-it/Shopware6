@@ -54,13 +54,13 @@ class BillinkTest extends TestCase
     /**
      * Test: it returns correct name
      */
-    public function testGetNameReturnsBillinkAchterafBetalen(): void
+    public function testGetNameReturnsBillink(): void
     {
         // Act
         $result = $this->billink->getName();
 
         // Assert
-        $this->assertSame('Billink - achteraf betalen', $result);
+        $this->assertSame('Billink', $result);
     }
 
     /**
@@ -72,7 +72,7 @@ class BillinkTest extends TestCase
         $result = $this->billink->getDescription();
 
         // Assert
-        $this->assertSame('Pay with Billink - achteraf betalen', $result);
+        $this->assertSame('Pay afterwards', $result);
     }
 
     /**
@@ -101,9 +101,9 @@ class BillinkTest extends TestCase
     }
 
     /**
-     * Test: it returns translations with German and English
+     * Test: it returns translations with German, English, Dutch and French
      */
-    public function testGetTranslationsReturnsGermanAndEnglish(): void
+    public function testGetTranslationsReturnsAllLocales(): void
     {
         // Act
         $result = $this->billink->getTranslations();
@@ -112,6 +112,8 @@ class BillinkTest extends TestCase
         $this->assertIsArray($result);
         $this->assertArrayHasKey('de-DE', $result);
         $this->assertArrayHasKey('en-GB', $result);
+        $this->assertArrayHasKey('nl-NL', $result);
+        $this->assertArrayHasKey('fr-FR', $result);
     }
 
     /**
@@ -123,8 +125,8 @@ class BillinkTest extends TestCase
         $result = $this->billink->getTranslations();
 
         // Assert
-        $this->assertSame('Billink - achteraf betalen', $result['de-DE']['name']);
-        $this->assertSame('Bezahlen mit Billink - achteraf betalen', $result['de-DE']['description']);
+        $this->assertSame('Billink', $result['de-DE']['name']);
+        $this->assertSame('Später bezahlen', $result['de-DE']['description']);
     }
 
     /**
@@ -136,8 +138,34 @@ class BillinkTest extends TestCase
         $result = $this->billink->getTranslations();
 
         // Assert
-        $this->assertSame('Billink - achteraf betalen', $result['en-GB']['name']);
-        $this->assertSame('Pay with Billink - achteraf betalen', $result['en-GB']['description']);
+        $this->assertSame('Billink', $result['en-GB']['name']);
+        $this->assertSame('Pay afterwards', $result['en-GB']['description']);
+    }
+
+    /**
+     * Test: it returns Dutch translation
+     */
+    public function testGetTranslationsDutchHasCorrectText(): void
+    {
+        // Act
+        $result = $this->billink->getTranslations();
+
+        // Assert
+        $this->assertSame('Billink', $result['nl-NL']['name']);
+        $this->assertSame('Achteraf betalen', $result['nl-NL']['description']);
+    }
+
+    /**
+     * Test: it returns French translation
+     */
+    public function testGetTranslationsFrenchHasCorrectText(): void
+    {
+        // Act
+        $result = $this->billink->getTranslations();
+
+        // Assert
+        $this->assertSame('Billink', $result['fr-FR']['name']);
+        $this->assertSame('Payer plus tard', $result['fr-FR']['description']);
     }
 
     /**

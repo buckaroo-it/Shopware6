@@ -155,6 +155,16 @@ class CartService
     }
 
     /**
+     * Persist a cart object to the database under the given context.
+     * Used after context changes (e.g. guest registration) so the cart
+     * record is associated with the new customer_id.
+     */
+    public function save(Cart $cart, SalesChannelContext $salesChannelContext): void
+    {
+        $this->cartPersister->save($cart, $salesChannelContext);
+    }
+
+    /**
      * Validate saleChannelContext
      *
      * @return void

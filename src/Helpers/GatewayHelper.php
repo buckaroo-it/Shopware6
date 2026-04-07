@@ -20,6 +20,7 @@ use Buckaroo\Shopware6\PaymentMethods\IdealQr;
 use Buckaroo\Shopware6\PaymentMethods\Trustly;
 use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 use Buckaroo\Shopware6\PaymentMethods\ApplePay;
+use Buckaroo\Shopware6\PaymentMethods\GooglePay;
 use Buckaroo\Shopware6\PaymentMethods\Klarnain;
 use Buckaroo\Shopware6\PaymentMethods\KlarnaKp;
 use Buckaroo\Shopware6\PaymentMethods\Payconiq;
@@ -51,6 +52,7 @@ class GatewayHelper
         Paypal::class,
         Transfer::class,
         ApplePay::class,
+        GooglePay::class,
         Kbc::class,
         SepaDirectDebit::class,
         Payconiq::class,

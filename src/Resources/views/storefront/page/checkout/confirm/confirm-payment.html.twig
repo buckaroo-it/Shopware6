@@ -18,6 +18,21 @@
         <div class="bk-apple-pay-button" style="margin-top: 10px;"></div>
     {% endif %}
 
+    {% if context.paymentMethod.formattedHandlerIdentifier == 'handler_buckaroo_googlepaypaymenthandler' %}
+        {% set googlePayConfig = {
+            page: "checkout",
+            merchantId: page.extensions.buckaroo.googlepayMerchantId,
+            gatewayMerchantId: page.extensions.buckaroo.googlepayGatewayMerchantId,
+            merchantName: page.extensions.buckaroo.websiteKey,
+            buttonColor: page.extensions.buckaroo.googlepayButtonStyle,
+            environment: page.extensions.buckaroo.googlepayEnvironment
+        } %}
+
+        <div data-bk-googlepay data-google-pay-plugin-options='{{ googlePayConfig|json_encode }}'>
+            <div id="google-pay-button-container"></div>
+        </div>
+    {% endif %}
+
 
     {% if page.extensions.buckaroo.showPaypalExpress %}
         {% set paypalExpressOptions = {

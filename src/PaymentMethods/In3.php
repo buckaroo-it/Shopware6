@@ -36,7 +36,7 @@ class In3 extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with In3';
+        return 'Pay in 3 installments, 0% interest';
     }
 
     /**
@@ -79,11 +79,19 @@ class In3 extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit In3',
+                'description' => 'In 3 Raten bezahlen, 0 % Zinsen',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),
                 'description' => $this->getDescription(),
+            ],
+            'nl-NL' => [
+                'name'        => $this->getName(),
+                'description' => 'In 3 delen betalen, 0% rente',
+            ],
+            'fr-FR' => [
+                'name'        => $this->getName(),
+                'description' => 'Payer en 3 fois, 0 % d\'intérêt',
             ],
         ];
     }

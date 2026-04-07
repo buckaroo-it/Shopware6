@@ -1,6 +1,7 @@
 {% block buckaroo_payment_method_billink %}
     <div class="payment-method-second-col billing-address-form">
         <fieldset class="fieldset payment">
+            {% if page.extensions.buckaroo.BillinkBusiness != 'B2B' %}
             <div class="form-row">
                 <div class="form-group col-md-3 col-sm-6">
                     <label class="form-label" for="buckaroo_billink_gender">
@@ -14,6 +15,7 @@
                     </select>
                 </div>
             </div>
+            {% endif %}
             <div class="form-group">
                 <label class="form-label" for="buckarooBillinkPhone">
                     {{ "buckaroo.checkout.Phone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
@@ -33,39 +35,22 @@
             </div>
             {% if page.extensions.buckaroo.BillinkBusiness == 'B2B' %}
                 <div class="form-group">
-                    <label class="form-label" for="buckarooChamberOfCommerce">
-                        {{ "buckaroo.checkout.ChamberOfCommerce"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                    <label class="form-label" for="buckaroo_billink_coc">
+                        {{ "buckaroo.checkout.cOCNumber"|trans }}*
                     </label>
                     <input type="text"
-                           class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
+                           class="form-control"
                            form="confirmOrderForm"
-                           id="buckarooChamberOfCommerce"
-                           name="buckaroo_ChamberOfCommerce"
-                           placeholder="{{ "buckaroo.checkout.ChamberOfCommercePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
-                           value=""
-                           required="required"
-                           minlength="3">
-                    <label class="form-label" style="display:none; color:red" for="buckarooChamberOfCommerce" id="buckarooChamberOfCommerceError">
-                        {{ "buckaroo.checkout.buckarooMobilePhoneError"|trans|sw_sanitize }}
+                           id="buckaroo_billink_coc"
+                           name="buckaroo_billink_coc"
+                           placeholder="{{ "buckaroo.checkout.CocPlaceholder"|trans|striptags }}"
+                           required="required">
+                    <label class="form-label" style="display:none; color:red" for="buckaroo_billink_coc" id="buckarooCocError">
+                        {{ "buckaroo.checkout.buckarooMobileCocError"|trans|sw_sanitize }}
                     </label>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="buckarooVATNumber">
-                        {{ "buckaroo.checkout.VATNumber"|trans|sw_sanitize }}
-                    </label>
-                    <input type="text"
-                           class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
-                           form="confirmOrderForm"
-                           id="buckarooVATNumber"
-                           name="buckaroo_VATNumber"
-                           placeholder="{{ "buckaroo.checkout.VATNumberPlaceholder"|trans|striptags }}"
-                           value=""
-                           minlength="3">
-                    <label class="form-label" style="display:none; color:red" for="buckarooVATNumber" id="buckarooVATNumberError">
-                        {{ "buckaroo.checkout.buckarooMobilePhoneError"|trans|sw_sanitize }}
-                    </label>
-                </div>
-            {% else %}
+            {% endif %}
+            {% if page.extensions.buckaroo.BillinkBusiness != 'B2B' %}
                 <div class="form-group">
                     <label class="label" for="buckaroo_billink_DoB">{{ "buckaroo.checkout.buckarooAfterpayDoBTitle"|trans }}:</label>
                     <span><sup>{{ "buckaroo.checkout.buckarooAfterpayDoBTitleSup"|trans }}</sup></span>
@@ -83,16 +68,6 @@
                         </label>
                     </div>
                 </div>
-            {% endif %}
-            <div class="custom-control custom-checkbox">
-                <input id="buckaroo_afterpay_TermsCondition" class="custom-control-input" form="confirmOrderForm" name="buckaroo_afterpay_TermsCondition" required="required" type="checkbox">
-                <label class="custom-control-label" for="buckaroo_afterpay_TermsCondition"> <span>{{ "buckaroo.checkout.buckarooAfterpayTermsConditionTitle"|trans }}:</span> </label>
-                <span>
-                    <a target="_blank" href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf">{{ "buckaroo.checkout.buckarooBillinkTermsCondition"|trans }}</a>
-                </span>
-            </div>
-            {% if buckarooKey in methodsWithFinancialWarning and countryBillingIso == 'NL' %}
-                <div style="margin:10px 0; font-size:0.8rem">{{ "buckaroo.checkout.financialWarning" | trans({'%method%': paymentMethodName}) }}</div>
             {% endif %}
         </fieldset>
     </div>

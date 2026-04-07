@@ -91,7 +91,7 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
                     );
                 }
 
-                if (!window.isApplePay) {
+                if (!window.isApplePay && !window.isGooglePay) {
                     document.forms['confirmOrderForm'].submit();
                 }
             }

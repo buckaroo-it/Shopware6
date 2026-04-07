@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
-use Buckaroo\Shopware6\PaymentMethods\In3;
 use Buckaroo\Shopware6\Service\UrlService;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\In3LogoService;
@@ -289,10 +288,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'payByBankIssuers'         => $this->payByBankService->getIssuers($customer),
             'payByBankLogos'           => $this->payByBankService->getIssuerLogos($customer),
             'payByBankActiveIssuer'    => $this->payByBankService->getActiveIssuer($customer),
-            'in3Logo'                  => $this->in3LogoService->getActiveLogo(
-                $this->settingsService->getSetting('capayableVersion', $salesChannelId),
-                $event->getSalesChannelContext()->getContext()
-            ),
+            'in3Logo'                  => null,
             'idealFastCheckoutLogo'    => $this->getIdealFastCheckoutLogo($salesChannelId),
             'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
             'creditcard'               => $creditcard,
@@ -323,6 +319,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $this->getSettingAsInt('applepayHostedPaymentPage', $salesChannelId) === 1,
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'isAppleDevice'            => $this->isAppleDevice($request),
+            'googlepayMerchantId'      => $this->getGoogleMerchantId($salesChannelId),
+            'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
+            'googlepayButtonStyle'     => $this->getGooglepayButtonStyle($salesChannelId),
+            'googlepayEnvironment'     => $this->getGooglepayEnvironment($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'canShowPhone'          => $this->canShowPhone($customer),
             'methodsWithFinancialWarning' => $this->getMethodsWithFinancialWarning($salesChannelId),
@@ -330,6 +330,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'countryShippingIso'    => $this->getCountryShippingIso($customer),
             'validHouseNumbers'     => $this->areValidHouseNumbers($event),
             'afterpayOld' => $this->getSettingAsBool('afterpayEnabledold', $salesChannelId),
+            'afterpay_billing_coc' => $this->getAfterpayBillingCoc($customer),
             'redirectBancontact' =>
                 $this->settingsService->getSetting('redirectBancontact', $salesChannelId) === 'enabledRedirect']);
 
@@ -432,6 +433,22 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         return 'B2C';
     }
 
+    /**
+     * Get the COC/VAT number from the customer's VAT IDs for use with Riverty (Afterpay).
+     * Returns an empty string when no VAT ID is present.
+     */
+    private function getAfterpayBillingCoc(CustomerEntity $customer): string
+    {
+        $vatIds = $customer->getVatIds();
+        if (!empty($vatIds) && is_array($vatIds)) {
+            $first = reset($vatIds);
+            if (is_string($first) && strlen(trim($first)) > 0) {
+                return trim($first);
+            }
+        }
+        return '';
+    }
+
     public function addBuckarooToCart(CheckoutCartPageLoadedEvent $event): void
     {
         $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
@@ -448,6 +465,11 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'isAppleDevice'             => $this->isAppleDevice($request),
             'websiteKey'                => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'showApplePay'              => $this->getSettingAsBool('applepayShowCart', $salesChannelId),
+            'showGooglePay'             => $this->getSettingAsBool('googlepayShowCart', $salesChannelId),
+            'googlepayMerchantId'       => $this->getGoogleMerchantId($salesChannelId),
+            'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
+            'googlepayButtonStyle'      => $this->getGooglepayButtonStyle($salesChannelId),
+            'googlepayEnvironment'      => $this->getGooglepayEnvironment($salesChannelId),
             'idealFastCheckoutLogo'     => $this->getIdealFastCheckoutLogo($salesChannelId)
         ]);
 
@@ -508,6 +530,11 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'applePayMerchantId' => $this->getAppleMerchantId($salesChannelId),
             'isAppleDevice' => $this->isAppleDevice($request),
             'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId),
+            'googlepayShowProduct'      => $this->getSettingAsBool('googlepayShowProduct', $salesChannelId),
+            'googlepayMerchantId'       => $this->getGoogleMerchantId($salesChannelId),
+            'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
+            'googlepayButtonStyle'      => $this->getGooglepayButtonStyle($salesChannelId),
+            'googlepayEnvironment'      => $this->getGooglepayEnvironment($salesChannelId),
             'idealFastCheckoutLogo' => $this->getIdealFastCheckoutLogo($salesChannelId)
         ]);
 
@@ -552,11 +579,52 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
     protected function getAppleMerchantId(string $salesChannelId): ?string
     {
-        $merchantId =  $this->settingsService->getSetting('guid', $salesChannelId);
+        $merchantId =  $this->settingsService->getSetting('applepayGuid', $salesChannelId);
         if ($merchantId !== null && is_scalar($merchantId)) {
             return (string)$merchantId;
         }
         return null;
+    }
+
+    protected function getGoogleMerchantId(string $salesChannelId): ?string
+    {
+        $merchantId = $this->settingsService->getSetting('googlepayMerchantId', $salesChannelId);
+        if ($merchantId !== null && is_scalar($merchantId)) {
+            return (string)$merchantId;
+        }
+        return null;
+    }
+
+    protected function getGooglepayGatewayMerchantId(string $salesChannelId): ?string
+    {
+        $gatewayMerchantId = $this->settingsService->getSetting('googlepayGatewayMerchantId', $salesChannelId);
+        if ($gatewayMerchantId !== null && is_scalar($gatewayMerchantId) && (string)$gatewayMerchantId !== '') {
+            return (string)$gatewayMerchantId;
+        }
+        // Fall back to the general Buckaroo Website Key
+        $websiteKey = $this->settingsService->getSetting('websiteKey', $salesChannelId);
+        if ($websiteKey !== null && is_scalar($websiteKey)) {
+            return (string)$websiteKey;
+        }
+        return null;
+    }
+
+    protected function getGooglepayButtonStyle(string $salesChannelId): string
+    {
+        $style = $this->settingsService->getSetting('googlepayButtonStyle', $salesChannelId);
+        if (is_string($style) && in_array($style, ['default', 'black', 'white'], true)) {
+            return $style;
+        }
+        return 'default';
+    }
+
+    protected function getGooglepayEnvironment(string $salesChannelId): string
+    {
+        $env = $this->settingsService->getSetting('googlepayEnvironment', $salesChannelId);
+        if (is_string($env) && strtolower($env) === 'live') {
+            return 'PRODUCTION';
+        }
+        return 'TEST';
     }
     protected function getIdealRenderMode(string $salesChannelId = null): int
     {
@@ -578,14 +646,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     ): string {
         if ($label === null) {
             $label = $this->settingsService->getSettingAsString($buckarooKey . 'Label', $salesChannelId);
-        }
-
-        if (
-            $buckarooKey === 'capayable' &&
-            $this->settingsService->getSetting('capayableVersion', $salesChannelId) === 'v2' &&
-            $label === In3::DEFAULT_NAME
-        ) {
-            $label = In3::V2_NAME;
         }
 
         // Calculate and append the actual fee amount (works for both percentage and fixed fees)

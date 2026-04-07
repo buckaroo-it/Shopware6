@@ -268,7 +268,8 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     $paymentCode,
                     $salesChannelContext->getSalesChannelId()
                 );
-                if ($fee > 0) {
+                $existingFee = (float) ($order->getCustomFieldsValue('buckarooFee') ?? 0.0);
+                if ($fee > 0 || $existingFee > 0) {
                     $feeCalculator->applyFeeToOrder($order->getId(), $fee, $context);
                     // Reload order to get updated total
                     $order = $this->asyncPaymentService->checkoutHelper->getOrderById($order->getId(), $context);
@@ -325,6 +326,17 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 $this->configureClient($client, $paymentCode, $salesChannelContext);
 
                 $response = $client->execute();
+
+                $this->asyncPaymentService->logger->info('Buckaroo API response', [
+                    'paymentCode' => $paymentCode,
+                    'action' => $methodAction,
+                    'statusCode' => $response->getStatusCode(),
+                    'hasRedirect' => $response->hasRedirect(),
+                    'redirectUrl' => $response->hasRedirect() ? substr($response->getRedirectUrl(), 0, 80) : null,
+                    'isFailed' => $response->isFailed(),
+                    'isRejected' => $response->isRejected(),
+                    'error' => $response->getSomeError(),
+                ]);
 
                 // Check for rejected payments
                 if ($response->isRejected()) {

@@ -1,6 +1,7 @@
 {% block buckaroo_payment_method_capayable %}
     <div class="payment-method-second-col billing-address-form">
         <fieldset class="fieldset payment">
+            {% set in3HasCompany = context.customer.activeBillingAddress.company|default('')|trim|length > 0 %}
             <div class="form-group">
                 <label class="form-label" for="buckarooIn3Phone">
                     {{ "buckaroo.checkout.Phone"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
@@ -18,6 +19,7 @@
                     {{ "buckaroo.checkout.buckarooMobilePhoneError"|trans|sw_sanitize }}
                 </label>
             </div>
+            {% if not in3HasCompany %}
             <div class="form-group">
                 <label class="label" for="buckaroo_capayablein3_DoB">{{ "buckaroo.checkout.buckarooAfterpayDoBTitle"|trans }}:</label>
                 <span><sup>{{ "buckaroo.checkout.buckarooAfterpayDoBTitleSup"|trans }}</sup></span>
@@ -35,43 +37,23 @@
                 </label>
                 </div>
             </div>
-            <div class="field">
-                <label class="label" for="buckaroo_capayablein3_OrderAs"> <span>{{ "buckaroo.checkout.orderAs"|trans }}:</span> </label>
-                <div class="control">
-                    <select id="buckaroo_capayablein3_OrderAs" name="buckaroo_capayablein3_orderAs" form="confirmOrderForm" class="custom-select">
-                        <option value="Debtor">{{ "buckaroo.checkout.private"|trans }}</option>
-                        <option value="Company">{{ "buckaroo.checkout.company"|trans }}</option>
-                        <option value="SoleProprietor">{{ "buckaroo.checkout.oneManBusiness"|trans }}</option>
-                    </select>
+            {% endif %}
+            {% if in3HasCompany %}
+                <input type="hidden" name="buckaroo_capayablein3_orderAs" value="Company" form="confirmOrderForm">
+                <div class="form-group">
+                    <label class="label" for="buckaroo_capayablein3_COCNumber">{{ "buckaroo.checkout.cOCNumber"|trans }}:</label>
+                    <div class="control">
+                        <input id="buckaroo_capayablein3_COCNumber"
+                               class="form-control field"
+                               type="text"
+                               name="buckaroo_capayablein3_COCNumber"
+                               form="confirmOrderForm"
+                               minlength="8"
+                               required="required">
+                    </div>
                 </div>
-            </div>
-            <div class="form-group" id='buckaroo_capayablein3_COCNumberDiv'>
-                <label class="label" for="buckaroo_capayablein3_COCNumber">{{ "buckaroo.checkout.cOCNumber"|trans }}:</label>
-                <div class="control">
-                    <input id="buckaroo_capayablein3_COCNumber" 
-                    class="form-control field" 
-                    type="text"
-                    name="buckaroo_capayablein3_COCNumber"
-                    form="confirmOrderForm"
-                    minlength="8"
-                    required="required"
-                    >
-                </div>
-            </div>
-            <div class="form-group" id='buckaroo_capayablein3_CompanyNameDiv'>
-                <label class="label" for="buckaroo_capayablein3_CompanyName">{{ "buckaroo.checkout.companyName"|trans }}:</label>
-                <div class="control">
-                    <input id="buckaroo_capayablein3_CompanyName" 
-                    class="form-control field" 
-                    type="text"
-                    name="buckaroo_capayablein3_CompanyName"
-                    form="confirmOrderForm"
-                    required="required"
-                    >
-                </div>
-            </div>
-            {% if buckarooKey in methodsWithFinancialWarning and countryBillingIso == 'NL' %}
-                <div style="margin:10px 0; font-size:0.8rem">{{ "buckaroo.checkout.financialWarning" | trans({'%method%': paymentMethodName}) }}</div>
+            {% else %}
+                <input type="hidden" name="buckaroo_capayablein3_orderAs" value="Debtor" form="confirmOrderForm">
             {% endif %}
         </fieldset>
     </div>

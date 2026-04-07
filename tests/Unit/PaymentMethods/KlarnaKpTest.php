@@ -35,7 +35,7 @@ class KlarnaKpTest extends TestCase
 
     public function testGetNameReturnsKlarnaPayLaterAuthorizeCapture(): void
     {
-        $this->assertSame('Klarna Pay later (authorize/capture)', $this->klarnaKp->getName());
+        $this->assertSame('Klarna', $this->klarnaKp->getName());
     }
 
     public function testGetDescriptionReturnsCorrectText(): void

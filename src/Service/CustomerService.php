@@ -103,6 +103,34 @@ class CustomerService
     }
 
     /**
+     * Create a temporary guest customer directly, bypassing the allowGuestOrders
+     * storefront setting. Express-checkout payment methods (Google Pay, Apple Pay)
+     * provide their own identity proof, so the store's guest-checkout toggle
+     * must not block them.
+     *
+     * @param SalesChannelContext $context
+     * @return CustomerEntity
+     */
+    public function createGuestCustomer(SalesChannelContext $context): CustomerEntity
+    {
+        $this->setSaleChannelContext($context);
+
+        $country = $context->getShippingLocation()->getCountry();
+        $countryCode = $country ? $country->getIso() : 'DE';
+
+        return $this->create(new DataBag([
+            'paymentToken' => $context->getToken(),
+            'first_name'   => 'Guest',
+            'last_name'    => 'User',
+            'email'        => 'guest_' . uniqid() . '@buckaroo.test',
+            'country_code' => $countryCode,
+            'postal_code'  => '12345',
+            'city'         => 'Guest City',
+            'street'       => 'Guest Street 1',
+        ]));
+    }
+
+    /**
      * Create customer and address
      *
      * @param DataBag $data

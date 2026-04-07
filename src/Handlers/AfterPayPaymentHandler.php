@@ -175,10 +175,12 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
 
         $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
 
+        $resolvedCoc = $this->resolveCoc($address, $dataBag);
+
         $data = [
             'billing' => [
                 'recipient' => [
-                    'category'              =>  $this->getCategory($address, $salesChannelContextId),
+                    'category'              =>  $this->getCategory($address, $salesChannelContextId, $resolvedCoc),
                     'careOf'                =>  $this->getCareOf($address),
                     'firstName'             =>  $address->getFirstName(),
                     'lastName'              =>  $address->getLastName(),
@@ -288,6 +290,21 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
+     * Resolve CoC from the checkout form input (always shown for B2B, user may edit),
+     * falling back to the billing address vatId stored on the order.
+     */
+    private function resolveCoc(OrderAddressEntity $address, RequestDataBag $dataBag): string
+    {
+        $input = $dataBag->get('buckaroo_afterpay_coc');
+        $coc = is_string($input) && !empty(trim($input)) ? trim($input) : '';
+
+        if (empty($coc)) {
+            $coc = $address->getVatId() ?? '';
+        }
+        return $coc;
+    }
+
+    /**
      * @param OrderAddressEntity $address
      * @param RequestDataBag $dataBag
      * @param string $salesChannelContextId
@@ -301,16 +318,21 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
         string $salesChannelContextId,
         string $type = 'billing'
     ): array {
+        $coc = $type === 'billing'
+            ? $this->resolveCoc($address, $dataBag)
+            : ($address->getVatId() ?? '');
+
         if (
             $this->isCustomerB2B($salesChannelContextId) &&
             $this->asyncPaymentService->getCountry($address)->getIso() === 'NL' &&
-            !$this->isCompanyEmpty($address->getCompany())
+            !$this->isCompanyEmpty($address->getCompany()) &&
+            !empty($coc)
         ) {
             return [
                 $type => [
                     'recipient'        => [
                         'companyName'   => $address->getCompany(),
-                        'chamberOfCommerce' => $dataBag->get('buckaroo_afterpay_Coc'),
+                        'chamberOfCommerce' => $coc,
                     ]
                 ]
             ];
@@ -371,18 +393,23 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
-     * Get type of request b2b or b2c
+     * Get type of request b2b or b2c.
+     * Accepts an optional pre-resolved CoC so the billing form input is also considered.
      *
      * @param OrderAddressEntity $address
+     * @param string $salesChannelContextId
+     * @param string $resolvedCoc
      *
      * @return string
      */
-    private function getCategory(OrderAddressEntity $address, string $salesChannelContextId): string
+    private function getCategory(OrderAddressEntity $address, string $salesChannelContextId, string $resolvedCoc = ''): string
     {
+        $coc = !empty($resolvedCoc) ? $resolvedCoc : ($address->getVatId() ?? '');
         if (
             $this->isCustomerB2B($salesChannelContextId) &&
             $this->asyncPaymentService->getCountry($address)->getIso() === 'NL' &&
-            !$this->isCompanyEmpty($address->getCompany())
+            !$this->isCompanyEmpty($address->getCompany()) &&
+            !empty($coc)
         ) {
             return RecipientCategory::COMPANY;
         }
