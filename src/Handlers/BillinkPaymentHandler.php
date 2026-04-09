@@ -228,12 +228,24 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
             if (!is_array($item)) {
                 continue;
             }
+
+            if (($item['sku'] ?? '') === 'BuckarooFee') {
+                $articles[] = [
+                    'identifier'    => 'ServiceCosts',
+                    'description'   => 'Service Costs',
+                    'quantity'      => 1,
+                    'price'         => $item['unitPrice']['value'],
+                    'vatPercentage' => '0',
+                ];
+                continue;
+            }
+
             $articles[] = [
-                'identifier'        => $item['sku'],
-                'description'       => $item['name'],
-                'quantity'          => $item['quantity'],
-                'price'             => $item['unitPrice']['value'],
-                'vatPercentage'     => $item['vatRate'],
+                'identifier'    => $item['sku'],
+                'description'   => $item['name'],
+                'quantity'      => $item['quantity'],
+                'price'         => $item['unitPrice']['value'],
+                'vatPercentage' => $item['vatRate'],
             ];
         }
         return [
