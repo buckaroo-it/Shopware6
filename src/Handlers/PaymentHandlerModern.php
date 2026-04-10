@@ -287,6 +287,12 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         if (empty($contextToken)) {
             $contextToken = $request->get('sw-context-token', '');
         }
+        if (empty($contextToken) && $request->hasSession()) {
+            $sessionToken = $request->getSession()->get('sw-context-token');
+            if (is_string($sessionToken) && $sessionToken !== '') {
+                $contextToken = $sessionToken;
+            }
+        }
         if (empty($contextToken) || !is_string($contextToken)) {
             return '';
         }
