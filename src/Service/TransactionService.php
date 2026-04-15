@@ -126,6 +126,29 @@ class TransactionService
 
         $customField = $orderTransaction->getCustomFields() ?? [];
 
+        // In Shopware 6.5.x, state transitions can create a new OrderTransaction, so
+        // `transactions->last()` may return a newer entity that doesn't carry custom fields
+        // (e.g. dataRequestKey for Klarna MoR) that were stored on an earlier transaction.
+        // We do a fresh DB read for each candidate transaction so we are never reading
+        // stale in-memory state from the collection loaded by the caller.
+        if (empty($customField['dataRequestKey'])) {
+            foreach ($transactions->getElements() as $tx) {
+                if ($tx->getId() === $transaction->getId()) {
+                    // Already read fresh above — skip.
+                    continue;
+                }
+                $freshTx = $this->getOrderTransactionById($context, $tx->getId());
+                if ($freshTx === null) {
+                    continue;
+                }
+                $txFields = $freshTx->getCustomFields() ?? [];
+                if (!empty($txFields['dataRequestKey'])) {
+                    $customField['dataRequestKey'] = $txFields['dataRequestKey'];
+                    break;
+                }
+            }
+        }
+
         $paymentHandler ='';
 
         if ($transaction->getPaymentMethod() !== null) {
