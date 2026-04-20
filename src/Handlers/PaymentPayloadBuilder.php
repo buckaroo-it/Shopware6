@@ -32,11 +32,14 @@ class PaymentPayloadBuilder
         $salesChannelId = $salesChannelContext->getSalesChannelId();
         $defaultReturnUrl = $this->urlGenerator->getDefaultReturnUrl($orderTransaction, $order);
         $finalReturnUrl = $returnUrl ?: $defaultReturnUrl;
-        // Append context token to return URL so it's preserved when user returns from Buckaroo (external domain).
-        // Session cookie may not be sent on cross-site redirects - token in URL ensures we can restore context.
-        $contextToken = $salesChannelContext->getToken();
-        $separator = str_contains($finalReturnUrl, '?') ? '&' : '?';
-        $finalReturnUrl .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
+
+        if (!str_contains($finalReturnUrl, '_sw_payment_token')) {
+            $contextToken = $salesChannelContext->getToken();
+            if (!empty($contextToken)) {
+                $separator = str_contains($finalReturnUrl, '?') ? '&' : '?';
+                $finalReturnUrl .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
+            }
+        }
         
         return [
             'order'         => $order->getOrderNumber(),
