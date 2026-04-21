@@ -33,14 +33,21 @@ class PaymentPayloadBuilder
         $defaultReturnUrl = $this->urlGenerator->getDefaultReturnUrl($orderTransaction, $order);
         $finalReturnUrl = $returnUrl ?: $defaultReturnUrl;
 
-        if (!str_contains($finalReturnUrl, '_sw_payment_token')) {
-            $contextToken = $salesChannelContext->getToken();
-            if (!empty($contextToken)) {
-                $separator = str_contains($finalReturnUrl, '?') ? '&' : '?';
-                $finalReturnUrl .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
+        // After Buckaroo, session cookies may be missing; sw-context-token on the return URL restores context.
+        // Shopware 6.7+: do not append when the URL is payment finalize (_sw_payment_token) — breaks some Buckaroo flows.
+        // Shopware 6.5–6.6: still append for finalize URLs; otherwise the customer loses context and lands on home/empty cart.
+        if (!str_contains($finalReturnUrl, 'sw-context-token=')) {
+            $omitContextForFinalizeUrl = str_contains($finalReturnUrl, '_sw_payment_token')
+                && self::isShopwareVersionAtLeast('6.7.0');
+            if (!$omitContextForFinalizeUrl) {
+                $contextToken = $salesChannelContext->getToken();
+                if ($contextToken !== '') {
+                    $separator = str_contains($finalReturnUrl, '?') ? '&' : '?';
+                    $finalReturnUrl .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
+                }
             }
         }
-        
+
         return [
             'order'         => $order->getOrderNumber(),
             'invoice'       => $order->getOrderNumber(),
@@ -71,5 +78,38 @@ class PaymentPayloadBuilder
             'address'       => $remoteIp,
             'type'          => IPProtocolVersion::getVersion($remoteIp)
         ];
+    }
+
+    private static function isShopwareVersionAtLeast(string $minVersion): bool
+    {
+        if (class_exists(\Shopware\Core\Kernel::class)) {
+            try {
+                $reflection = new \ReflectionClass(\Shopware\Core\Kernel::class);
+                if ($reflection->hasConstant('SHOPWARE_FALLBACK_VERSION')) {
+                    $shopwareVersion = $reflection->getConstant('SHOPWARE_FALLBACK_VERSION');
+                    if (is_string($shopwareVersion)) {
+                        return version_compare($shopwareVersion, $minVersion, '>=');
+                    }
+                }
+            } catch (\Throwable) {
+            }
+        }
+
+        if (class_exists(\Composer\InstalledVersions::class)) {
+            try {
+                $version = \Composer\InstalledVersions::getVersion('shopware/core');
+                if ($version !== null && is_string($version)) {
+                    $version = ltrim($version, 'v');
+                    if (preg_match('/^(\d+\.\d+\.\d+)/', $version, $matches)) {
+                        $version = $matches[1];
+                    }
+
+                    return version_compare($version, $minVersion, '>=');
+                }
+            } catch (\Throwable) {
+            }
+        }
+
+        return false;
     }
 }

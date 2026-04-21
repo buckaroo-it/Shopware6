@@ -82,7 +82,7 @@ class StateTransitionService
                 return;
             }
 
-           try {
+            try {
                 $this->orderTransactionStateHandler->reopen($orderTransactionId, $context);
                 $this->transitionPaymentState($status, $orderTransactionId, $context);
             } catch (IllegalTransitionException $reopenException) {
