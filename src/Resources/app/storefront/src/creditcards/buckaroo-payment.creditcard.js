@@ -137,7 +137,7 @@ export default class BuckarooCreditCards extends Plugin {
 
             if (tokenField) tokenField.value = paymentToken;
 
-            document.getElementById("confirmOrderForm").submit();
+            document.getElementById("confirmOrderForm").requestSubmit();
         } catch (error) {
             console.error("Error processing Buckaroo payment:", error);
         }
