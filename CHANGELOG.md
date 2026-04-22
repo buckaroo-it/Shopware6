@@ -437,3 +437,4 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-863 Fix issue where _registerCheckoutSubmitButton cancels default event listeners.
 - BTI-854 Fix Klarna (MOR) capture error caused by missing "DataRequestKey" parameter.
 - BTI-865 Fix issue where redirect to the success page does not occur for specific merchant setups.
+- BTI-864 Fix Buckaroo fee configuration is sending a wrong value for Billink transaction attempts
