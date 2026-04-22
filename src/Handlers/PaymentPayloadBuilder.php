@@ -33,18 +33,16 @@ class PaymentPayloadBuilder
         $defaultReturnUrl = $this->urlGenerator->getDefaultReturnUrl($orderTransaction, $order);
         $finalReturnUrl = $returnUrl ?: $defaultReturnUrl;
 
-        // After Buckaroo, session cookies may be missing; sw-context-token on the return URL restores context.
-        // Shopware 6.7+: do not append when the URL is payment finalize (_sw_payment_token) — breaks some Buckaroo flows.
-        // Shopware 6.5–6.6: still append for finalize URLs; otherwise the customer loses context and lands on home/empty cart.
+        // Always append sw-context-token to the return URL so the guest session is restored when
+        // Buckaroo redirects back (cross-domain redirect may not preserve browser cookies reliably).
+        // This applies to both the direct finish-page URL and the SW 6.7+ payment.finalize.transaction
+        // URL: without the token the CheckoutFinishController cannot verify the guest order and
+        // redirects to the empty cart.
         if (!str_contains($finalReturnUrl, 'sw-context-token=')) {
-            $omitContextForFinalizeUrl = str_contains($finalReturnUrl, '_sw_payment_token')
-                && self::isShopwareVersionAtLeast('6.7.0');
-            if (!$omitContextForFinalizeUrl) {
-                $contextToken = $salesChannelContext->getToken();
-                if ($contextToken !== '') {
-                    $separator = str_contains($finalReturnUrl, '?') ? '&' : '?';
-                    $finalReturnUrl .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
-                }
+            $contextToken = $salesChannelContext->getToken();
+            if ($contextToken !== '') {
+                $separator = str_contains($finalReturnUrl, '?') ? '&' : '?';
+                $finalReturnUrl .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
             }
         }
 
@@ -54,8 +52,8 @@ class PaymentPayloadBuilder
             'amountDebit'   => $this->feeCalculator->getOrderTotalWithFee($order, $salesChannelId, $paymentCode),
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
             'returnURL'     => $finalReturnUrl,
-            'returnURLCancel' => $this->urlGenerator->getCancelRedirectUrlForOrder($order, $salesChannelContext->getToken()),
-            'pushURL'       => $this->urlGenerator->getPushUrl($order),
+            'returnURLCancel' => $this->urlGenerator->getCancelRedirectUrlForOrder($order, $salesChannelContext->getToken(), $finalReturnUrl),
+            'pushURL'       => $this->urlGenerator->getPushUrl($order, $finalReturnUrl),
             'additionalParameters' => [
                 'orderTransactionId' => $orderTransaction->getId(),
                 'orderId' => $order->getId(),
@@ -80,36 +78,4 @@ class PaymentPayloadBuilder
         ];
     }
 
-    private static function isShopwareVersionAtLeast(string $minVersion): bool
-    {
-        if (class_exists(\Shopware\Core\Kernel::class)) {
-            try {
-                $reflection = new \ReflectionClass(\Shopware\Core\Kernel::class);
-                if ($reflection->hasConstant('SHOPWARE_FALLBACK_VERSION')) {
-                    $shopwareVersion = $reflection->getConstant('SHOPWARE_FALLBACK_VERSION');
-                    if (is_string($shopwareVersion)) {
-                        return version_compare($shopwareVersion, $minVersion, '>=');
-                    }
-                }
-            } catch (\Throwable) {
-            }
-        }
-
-        if (class_exists(\Composer\InstalledVersions::class)) {
-            try {
-                $version = \Composer\InstalledVersions::getVersion('shopware/core');
-                if ($version !== null && is_string($version)) {
-                    $version = ltrim($version, 'v');
-                    if (preg_match('/^(\d+\.\d+\.\d+)/', $version, $matches)) {
-                        $version = $matches[1];
-                    }
-
-                    return version_compare($version, $minVersion, '>=');
-                }
-            } catch (\Throwable) {
-            }
-        }
-
-        return false;
-    }
 }
