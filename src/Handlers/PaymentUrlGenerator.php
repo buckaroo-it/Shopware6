@@ -66,12 +66,19 @@ class PaymentUrlGenerator
      * Required for multiple storefronts with different domains – ensures the cancel redirect lands
      * on the same domain where the customer started checkout, so sw-context-token and session work.
      *
+     * When $returnUrl is provided (the checkout return URL), its origin is used as the base so
+     * the cancel URL always matches the domain the customer actually used.
+     *
      * @param OrderEntity $order Order to determine the correct sales channel domain
      * @param string|null $contextToken Sales channel context token to preserve session
+     * @param string|null $returnUrl Checkout return URL used to pin the correct domain
      */
-    public function getCancelRedirectUrlForOrder(OrderEntity $order, ?string $contextToken = null): string
-    {
-        $url = $this->asyncPaymentService->urlService->getCancelUrlForOrder($order);
+    public function getCancelRedirectUrlForOrder(
+        OrderEntity $order,
+        ?string $contextToken = null,
+        ?string $returnUrl = null
+    ): string {
+        $url = $this->asyncPaymentService->urlService->getCancelUrlForOrder($order, $returnUrl);
         if ($contextToken !== null && $contextToken !== '') {
             $separator = str_contains($url, '?') ? '&' : '?';
             $url .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
@@ -90,9 +97,14 @@ class PaymentUrlGenerator
     /**
      * Returns the push URL for Buckaroo callbacks.
      * Uses the order's sales channel domain so the URL includes the correct language path (e.g. /en).
+     *
+     * When $returnUrl is provided (the checkout return URL), its origin is used as the base so
+     * the push URL always matches the domain the customer actually used.
+     *
+     * @param string|null $returnUrl Checkout return URL used to pin the correct domain
      */
-    public function getPushUrl(OrderEntity $order): string
+    public function getPushUrl(OrderEntity $order, ?string $returnUrl = null): string
     {
-        return $this->asyncPaymentService->urlService->getPushUrlForOrder($order);
+        return $this->asyncPaymentService->urlService->getPushUrlForOrder($order, $returnUrl);
     }
 }

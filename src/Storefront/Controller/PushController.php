@@ -201,7 +201,8 @@ class PushController extends StorefrontController
             if ($paymentMethod && strtolower($paymentMethod) === 'klarna') {
                 $dataRequestKey = $request->request->get('brq_SERVICE_klarna_DataRequestKey')
                     ?: $request->request->get('brq_DataRequest')
-                    ?: $request->request->get('brq_datarequest');
+                    ?: $request->request->get('brq_datarequest')
+                    ?: $request->request->get('brq_datarequest_');
                 if (!empty($dataRequestKey)) {
                     $data['dataRequestKey'] = $dataRequestKey;
                 }
@@ -338,9 +339,12 @@ class PushController extends StorefrontController
                         // from the Reserve push Services parameters, used for all follow-up actions.
                         // brq_DataRequest / brq_datarequest (Buckaroo sends lowercase for MoR) is the
                         // fallback overall DataRequest transaction key.
+                        // brq_datarequest_ (trailing underscore) is a variant some Buckaroo account
+                        // configurations send alongside or instead of brq_datarequest.
                         $data['dataRequestKey'] = $request->request->get('brq_SERVICE_klarna_DataRequestKey')
                             ?: $request->request->get('brq_DataRequest')
-                            ?: $request->request->get('brq_datarequest');
+                            ?: $request->request->get('brq_datarequest')
+                            ?: $request->request->get('brq_datarequest_');
                         // When the authorize transition is no longer available the transaction is
                         // already in authorized state, meaning this is a capture (pay) push.
                         if (!$this->stateTransitionService->canTransitionStatus('authorize', $orderTransactionId, $context)) {

@@ -32,20 +32,28 @@ class PaymentPayloadBuilder
         $salesChannelId = $salesChannelContext->getSalesChannelId();
         $defaultReturnUrl = $this->urlGenerator->getDefaultReturnUrl($orderTransaction, $order);
         $finalReturnUrl = $returnUrl ?: $defaultReturnUrl;
-        // Append context token to return URL so it's preserved when user returns from Buckaroo (external domain).
-        // Session cookie may not be sent on cross-site redirects - token in URL ensures we can restore context.
-        $contextToken = $salesChannelContext->getToken();
-        $separator = str_contains($finalReturnUrl, '?') ? '&' : '?';
-        $finalReturnUrl .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
-        
+
+        // Always append sw-context-token to the return URL so the guest session is restored when
+        // Buckaroo redirects back (cross-domain redirect may not preserve browser cookies reliably).
+        // This applies to both the direct finish-page URL and the SW 6.7+ payment.finalize.transaction
+        // URL: without the token the CheckoutFinishController cannot verify the guest order and
+        // redirects to the empty cart.
+        if (!str_contains($finalReturnUrl, 'sw-context-token=')) {
+            $contextToken = $salesChannelContext->getToken();
+            if ($contextToken !== '') {
+                $separator = str_contains($finalReturnUrl, '?') ? '&' : '?';
+                $finalReturnUrl .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
+            }
+        }
+
         return [
             'order'         => $order->getOrderNumber(),
             'invoice'       => $order->getOrderNumber(),
             'amountDebit'   => $this->feeCalculator->getOrderTotalWithFee($order, $salesChannelId, $paymentCode),
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
             'returnURL'     => $finalReturnUrl,
-            'returnURLCancel' => $this->urlGenerator->getCancelRedirectUrlForOrder($order, $salesChannelContext->getToken()),
-            'pushURL'       => $this->urlGenerator->getPushUrl($order),
+            'returnURLCancel' => $this->urlGenerator->getCancelRedirectUrlForOrder($order, $salesChannelContext->getToken(), $finalReturnUrl),
+            'pushURL'       => $this->urlGenerator->getPushUrl($order, $finalReturnUrl),
             'additionalParameters' => [
                 'orderTransactionId' => $orderTransaction->getId(),
                 'orderId' => $order->getId(),
@@ -69,4 +77,5 @@ class PaymentPayloadBuilder
             'type'          => IPProtocolVersion::getVersion($remoteIp)
         ];
     }
+
 }

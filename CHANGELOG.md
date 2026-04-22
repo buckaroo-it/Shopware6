@@ -431,3 +431,10 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-160 Fix: Billink payment fails with “wrong BTW value” after updating to plugin v3.1.0.
 - BTI-820 Fix: Ensure Shopware Administration Build Compatibility for Versions < 6.7 and ≥ 6.7.
 - BTI-700 Fix: Payment fee is still charged for methods without a payment fee configuration when switching methods. 
+
+# 3.3.1
+
+- BTI-863 Fix issue where _registerCheckoutSubmitButton cancels default event listeners.
+- BTI-854 Fix Klarna (MOR) capture error caused by missing "DataRequestKey" parameter.
+- BTI-865 Fix issue where redirect to the success page does not occur for specific merchant setups.
+- BTI-864 Fix Buckaroo fee configuration is sending a wrong value for Billink transaction attempts
