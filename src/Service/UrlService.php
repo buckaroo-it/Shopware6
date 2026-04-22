@@ -39,9 +39,20 @@ class UrlService
     /**
      * Returns the push URL for Buckaroo callbacks, using the order's sales channel domain
      * so the URL includes the correct language path (e.g. /en) when using shop.com/en-style domains.
+     *
+     * When $baseUrl is provided (e.g. the checkout return URL), its origin (scheme + host) is used
+     * directly. This avoids non-deterministic domain selection when a sales channel has multiple
+     * domains that share the same language.
      */
-    public function getPushUrlForOrder(OrderEntity $order): string
+    public function getPushUrlForOrder(OrderEntity $order, ?string $baseUrl = null): string
     {
+        if ($baseUrl !== null) {
+            $origin = $this->extractOrigin($baseUrl);
+            if ($origin !== null) {
+                return $origin . '/buckaroo/push';
+            }
+        }
+
         $criteria = new Criteria([$order->getSalesChannelId()]);
         $criteria->addAssociation('domains');
 
@@ -70,9 +81,20 @@ class UrlService
      * Returns the cancel URL for Buckaroo redirects, using the order's sales channel domain.
      * When using multiple storefronts with different domains, the cancel redirect must land on the
      * same domain where the customer started checkout so the sw-context-token and session work.
+     *
+     * When $baseUrl is provided (e.g. the checkout return URL), its origin (scheme + host) is used
+     * directly. This avoids non-deterministic domain selection when a sales channel has multiple
+     * domains that share the same language.
      */
-    public function getCancelUrlForOrder(OrderEntity $order): string
+    public function getCancelUrlForOrder(OrderEntity $order, ?string $baseUrl = null): string
     {
+        if ($baseUrl !== null) {
+            $origin = $this->extractOrigin($baseUrl);
+            if ($origin !== null) {
+                return $origin . '/buckaroo/cancel';
+            }
+        }
+
         $criteria = new Criteria([$order->getSalesChannelId()]);
         $criteria->addAssociation('domains');
 
@@ -95,6 +117,23 @@ class UrlService
 
         $firstDomain = $domains->first();
         return $firstDomain !== null ? rtrim($firstDomain->getUrl(), '/') . '/buckaroo/cancel' : $this->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
+    }
+
+    /**
+     * Extracts scheme + host (+ optional port) from a URL.
+     * Returns null if the URL cannot be parsed or is missing scheme/host.
+     */
+    private function extractOrigin(string $url): ?string
+    {
+        $parsed = parse_url($url);
+        if (!isset($parsed['scheme'], $parsed['host'])) {
+            return null;
+        }
+        $origin = $parsed['scheme'] . '://' . $parsed['host'];
+        if (isset($parsed['port'])) {
+            $origin .= ':' . $parsed['port'];
+        }
+        return $origin;
     }
 
     public function getReturnUrl(string $route): string

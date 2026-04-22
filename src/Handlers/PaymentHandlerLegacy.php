@@ -324,8 +324,8 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             ),
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
             'returnURL'     => $returnUrl,
-            'returnURLCancel' => $this->buildCancelUrlWithToken($order, $contextToken),
-            'pushURL'       => $this->asyncPaymentService->urlService->getPushUrlForOrder($order),
+            'returnURLCancel' => $this->buildCancelUrlWithToken($order, $contextToken, $returnUrl),
+            'pushURL'       => $this->asyncPaymentService->urlService->getPushUrlForOrder($order, $returnUrl),
 
             'additionalParameters' => [
                 'orderTransactionId' => $transaction->getOrderTransaction()->getId(),
@@ -348,9 +348,12 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         return $this->paymentFeeCalculator->getOrderTotalWithFee($order, $salesChannelId, $paymentCode);
     }
 
-    private function buildCancelUrlWithToken(OrderEntity $order, string $contextToken): string
-    {
-        $url = $this->asyncPaymentService->urlService->getCancelUrlForOrder($order);
+    private function buildCancelUrlWithToken(
+        OrderEntity $order,
+        string $contextToken,
+        ?string $returnUrl = null
+    ): string {
+        $url = $this->asyncPaymentService->urlService->getCancelUrlForOrder($order, $returnUrl);
         $separator = str_contains($url, '?') ? '&' : '?';
         return $url . $separator . 'sw-context-token=' . rawurlencode($contextToken);
     }
