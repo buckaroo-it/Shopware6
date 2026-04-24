@@ -175,7 +175,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             return false;
         }
 
-        return $customFields['brqPaymentMethod'] === 'klarnakp'
+        return strtolower($customFields['brqPaymentMethod']) === 'klarnakp'
             && !isset($customFields['captured'])
             && isset($customFields['reservationNumber'])
             && (bool)$this->settingsService->getSetting('klarnakpCaptureonshipment', $salesChannelId);
