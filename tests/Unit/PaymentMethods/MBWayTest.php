@@ -35,12 +35,12 @@ class MBWayTest extends TestCase
 
     public function testGetNameReturnsCorrectName(): void
     {
-        $this->assertSame('MB Way', $this->payment->getName());
+        $this->assertSame('MBWay', $this->payment->getName());
     }
 
     public function testGetDescriptionReturnsCorrectText(): void
     {
-        $this->assertSame('Pay with MB Way', $this->payment->getDescription());
+        $this->assertSame('Pay with MBWay', $this->payment->getDescription());
     }
 
     public function testGetPaymentHandlerReturnsCorrectHandler(): void

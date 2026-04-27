@@ -23,7 +23,7 @@ class MBWay extends AbstractPayment
      */
     public function getName(): string
     {
-        return 'MB Way';
+        return 'MBWay';
     }
 
     /**
@@ -33,7 +33,7 @@ class MBWay extends AbstractPayment
      */
     public function getDescription(): string
     {
-        return 'Pay with MB Way';
+        return 'Pay with MBWay';
     }
 
     /**
@@ -76,7 +76,7 @@ class MBWay extends AbstractPayment
         return [
             'de-DE' => [
                 'name'        => $this->getName(),
-                'description' => 'Bezahlen mit MB Way',
+                'description' => 'Bezahlen mit MBWay',
             ],
             'en-GB' => [
                 'name'        => $this->getName(),
