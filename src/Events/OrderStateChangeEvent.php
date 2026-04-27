@@ -112,6 +112,15 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         ) {
             $this->capture($order, $context);
         }
+
+        if ($this->canCaptureKlarna($customFields, $salesChannelId)) {
+            $this->capture($order, $context);
+        }
+
+        if ($this->canCaptureKlarnaKp($customFields, $salesChannelId)) {
+            $this->capture($order, $context);
+        }
+
         return true;
     }
 
@@ -136,6 +145,40 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             $this->settingsService->getSetting('afterpayCaptureonshippent', $salesChannelId) &&
             isset($orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED]) &&
             $orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED] === true;
+    }
+
+    private function canCaptureKlarna(array $customFields, ?string $salesChannelId): bool
+    {
+        if (!isset($customFields['brqPaymentMethod']) || !is_string($customFields['brqPaymentMethod'])) {
+            return false;
+        }
+
+        if ($salesChannelId === null) {
+            $this->logger->warning('Cannot determine Klarna capture settings: sales channel ID is null');
+            return false;
+        }
+
+        return $customFields['brqPaymentMethod'] === 'klarna'
+            && !isset($customFields['captured'])
+            && isset($customFields['dataRequestKey'])
+            && (bool)$this->settingsService->getSetting('klarnaCaptureonshipment', $salesChannelId);
+    }
+
+    private function canCaptureKlarnaKp(array $customFields, ?string $salesChannelId): bool
+    {
+        if (!isset($customFields['brqPaymentMethod']) || !is_string($customFields['brqPaymentMethod'])) {
+            return false;
+        }
+
+        if ($salesChannelId === null) {
+            $this->logger->warning('Cannot determine Klarna KP capture settings: sales channel ID is null');
+            return false;
+        }
+
+        return strtolower($customFields['brqPaymentMethod']) === 'klarnakp'
+            && !isset($customFields['captured'])
+            && isset($customFields['reservationNumber'])
+            && (bool)$this->settingsService->getSetting('klarnakpCaptureonshipment', $salesChannelId);
     }
 
     private function capture(OrderEntity $order, Context $context): void
