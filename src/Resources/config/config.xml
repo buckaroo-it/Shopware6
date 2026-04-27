@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
 
@@ -2214,7 +2214,7 @@
     </card>
 
     <card>
-        <title>MBWay</title>
+        <title>MB Way</title>
         <name>mbway</name>
         <input-field type="bool">
             <name>mbwayEnabled</name>
@@ -2665,6 +2665,18 @@
             <defaultValue>1</defaultValue>
         </input-field>
 
+        <input-field type="bool">
+            <name>klarnaCaptureonshipment</name>
+            <label lang="en-GB">Capture on shipment</label>
+            <label lang="nl-NL">Vastleggen bij verzending</label>
+            <label lang="de-DE">Erfassung bei Versand</label>
+            <label lang="fr-FR">Capturer à l'expédition</label>
+            <helpText lang="en-GB">When enabled, the Klarna transaction is automatically captured when the order is marked as "Shipped". When disabled, you must manually capture the transaction via the Buckaroo tab in the order, which contains a "Capture" button.</helpText>
+            <helpText lang="nl-NL">Wanneer ingeschakeld, wordt de Klarna-transactie automatisch vastgelegd wanneer de bestelling als "Verzonden" wordt gemarkeerd. Wanneer uitgeschakeld, moet u de transactie handmatig vastleggen via het Buckaroo-tabblad in de bestelling, dat een "Vastleggen"-knop bevat.</helpText>
+            <helpText lang="de-DE">Wenn aktiviert, wird die Klarna-Transaktion automatisch erfasst, wenn die Bestellung als "Versendet" markiert wird. Wenn deaktiviert, müssen Sie die Transaktion manuell über den Buckaroo-Tab in der Bestellung erfassen, der eine "Erfassen"-Schaltfläche enthält.</helpText>
+            <helpText lang="fr-FR">Lorsqu'activé, la transaction Klarna est automatiquement capturée lorsque la commande est marquée comme "Expédiée". Lorsque désactivé, vous devez capturer manuellement la transaction via l'onglet Buckaroo dans la commande, qui contient un bouton "Capturer".</helpText>
+        </input-field>
+
         <input-field type="single-select">
             <name>klarnaEnvironment</name>
             <label lang="en-GB">Test or Live:</label>
@@ -2726,6 +2738,18 @@
             <helpText lang="en-GB">Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.</helpText>
 			<helpText lang="nl-NL">Vanwege de voorschriften voor achteraf betaalmethoden in Nederland dien je klanten te waarschuwen voor het gebruik van een achteraf betaalmethode omdat het gemakkelijk kan leiden tot schulden. Wanneer deze functie is ingeschakeld, wordt er een waarschuwing weergegeven tijdens het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland.</helpText>
             <defaultValue>1</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>klarnakpCaptureonshipment</name>
+            <label lang="en-GB">Capture on shipment</label>
+            <label lang="nl-NL">Vastleggen bij verzending</label>
+            <label lang="de-DE">Erfassung bei Versand</label>
+            <label lang="fr-FR">Capturer à l'expédition</label>
+            <helpText lang="en-GB">When enabled, the Klarna transaction is automatically captured when the order is marked as "Shipped". When disabled, you must manually capture the transaction via the Buckaroo tab in the order, which contains a "Capture" button.</helpText>
+            <helpText lang="nl-NL">Wanneer ingeschakeld, wordt de Klarna-transactie automatisch vastgelegd wanneer de bestelling als "Verzonden" wordt gemarkeerd. Wanneer uitgeschakeld, moet u de transactie handmatig vastleggen via het Buckaroo-tabblad in de bestelling, dat een "Vastleggen"-knop bevat.</helpText>
+            <helpText lang="de-DE">Wenn aktiviert, wird die Klarna-Transaktion automatisch erfasst, wenn die Bestellung als "Versendet" markiert wird. Wenn deaktiviert, müssen Sie die Transaktion manuell über den Buckaroo-Tab in der Bestellung erfassen, der eine "Erfassen"-Schaltfläche enthält.</helpText>
+            <helpText lang="fr-FR">Lorsqu'activé, la transaction Klarna est automatiquement capturée lorsque la commande est marquée comme "Expédiée". Lorsque du00E9sactivé, vous devez capturer manuellement la transaction via l'onglet Buckaroo dans la commande, qui contient un bouton "Capturer".</helpText>
         </input-field>
 
        
