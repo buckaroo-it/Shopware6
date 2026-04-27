@@ -2214,7 +2214,7 @@
     </card>
 
     <card>
-        <title>MBWay</title>
+        <title>MB Way</title>
         <name>mbway</name>
         <input-field type="bool">
             <name>mbwayEnabled</name>
