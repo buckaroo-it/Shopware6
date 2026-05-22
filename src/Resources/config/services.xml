@@ -82,6 +82,16 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Service\NativeRefundAdapter">
+            <argument type="service" id="Buckaroo\Shopware6\Service\RefundService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler"/>
+            <argument type="service" id="order_transaction_capture_refund.repository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+        </service>
+
         <service id="Buckaroo\Shopware6\Service\CancelPaymentService">
             <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
