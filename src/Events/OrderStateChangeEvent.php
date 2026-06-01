@@ -68,10 +68,29 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
     public function onOrderDeliveryStateShipped(OrderStateMachineStateChangeEvent $event): bool
     {
-        $context = $event->getContext();
-        $eventOrder = $event->getOrder();
+        return $this->triggerCaptureForShippedOrder(
+            $event->getOrder()->getId(),
+            $event->getSalesChannelId(),
+            $event->getContext()
+        );
+    }
+
+    /**
+     * Reusable capture-on-shipment trigger. Called by:
+     *  - onOrderDeliveryStateShipped (state-machine path via state_enter event)
+     *  - OrderDeliveryWrittenSubscriber (direct DAL write path via order_delivery.written)
+     *
+     * Deduplication between the two paths is handled by the customFields['captured']
+     * flag which CaptureService sets synchronously after a successful capture; the
+     * canCapture* guards short-circuit when it is present.
+     */
+    public function triggerCaptureForShippedOrder(
+        string $orderId,
+        ?string $salesChannelId,
+        Context $context
+    ): bool {
         $order = $this->orderService->getOrderById(
-            $eventOrder->getId(),
+            $orderId,
             [
                 'transactions',
                 'transactions.paymentMethod',
@@ -87,13 +106,11 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             return false;
         }
         $customFields = $this->transactionService->getCustomFields($order, $context);
-        $salesChannelId = $event->getSalesChannelId();
 
         if (!isset($customFields['brqPaymentMethod'])) {
             return false;
         }
-        
-        // Validate payment method type to prevent type juggling attacks
+
         if (!is_string($customFields['brqPaymentMethod'])) {
             $this->logger->warning('Invalid brqPaymentMethod type detected', [
                 'type' => gettype($customFields['brqPaymentMethod']),
