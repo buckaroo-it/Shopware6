@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -51,6 +52,13 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
 
         // Store in request attributes so PaymentServiceDecorator and others can use it
         $request->attributes->set('sw-context-token', $contextToken);
+
+        // Overwrite the request header so SalesChannelRequestContextResolver (KernelEvents::CONTROLLER, prio -10)
+        // resolves the correct customer context. StorefrontSubscriber::startSession() (prio 40) runs before
+        // this subscriber (prio 5) and, when the PHP session cookie is missing (cross-site / mobile return),
+        // writes a fresh anonymous token to the header. Without this override the context resolver would pick
+        // up that anonymous token and /checkout/finish would redirect to the register page.
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
 
         $session = $request->getSession();
         if ($session !== null) {
