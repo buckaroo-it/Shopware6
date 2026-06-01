@@ -222,6 +222,8 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
     {
         $lines = $this->getOrderLinesArray($order, $paymentCode);
 
+        $orderVatRate = $this->resolveOrderVatRate($order, $lines);
+
         $articles = [];
 
         foreach ($lines as $item) {
@@ -235,7 +237,7 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
                     'description'   => 'Service Costs',
                     'quantity'      => 1,
                     'price'         => $item['unitPrice']['value'],
-                    'vatPercentage' => '0',
+                    'vatPercentage' => number_format($orderVatRate, 2, '.', ''),
                 ];
                 continue;
             }
@@ -251,6 +253,51 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
         return [
             'articles' => $articles
         ];
+    }
+
+    /**
+     * Resolve the order's applicable VAT rate to use for the Buckaroo fee
+     * Service Costs article, since the upstream BuckarooFee line's vatRate
+     * is derived from the fee/order ratio rather than the order's tax rate.
+     *
+     * @param OrderEntity $order
+     * @param array<mixed> $lines
+     *
+     * @return float
+     */
+    private function resolveOrderVatRate(OrderEntity $order, array $lines): float
+    {
+        $price = $order->getPrice();
+        if ($price !== null) {
+            $taxes = $price->getCalculatedTaxes();
+            if ($taxes !== null && $taxes->count() > 0) {
+                $dominant = null;
+                foreach ($taxes as $tax) {
+                    if ($dominant === null || $tax->getTax() > $dominant->getTax()) {
+                        $dominant = $tax;
+                    }
+                }
+                if ($dominant !== null && $dominant->getTaxRate() > 0) {
+                    return (float)$dominant->getTaxRate();
+                }
+            }
+        }
+
+        foreach ($lines as $line) {
+            if (!is_array($line)) {
+                continue;
+            }
+            $sku = $line['sku'] ?? '';
+            if ($sku === 'BuckarooFee' || $sku === 'Shipping' || $sku === 'vat') {
+                continue;
+            }
+            $rate = isset($line['vatRate']) ? (float)$line['vatRate'] : 0.0;
+            if ($rate > 0) {
+                return $rate;
+            }
+        }
+
+        return 0.0;
     }
 
     /**
