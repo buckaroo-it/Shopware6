@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Installers;
 
 use Exception;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -38,6 +39,8 @@ class MediaInstaller implements InstallerInterface
     /** @var EntityRepository */
     public $paymentMethodRepository;
 
+    private ?LoggerInterface $logger = null;
+
     /**
      * MediaInstaller constructor.
      * @param ContainerInterface $container
@@ -62,6 +65,16 @@ class MediaInstaller implements InstallerInterface
         /** @var EntityRepository */
         $paymentMethodRepository = $this->getDependency($container, 'payment_method.repository');
         $this->paymentMethodRepository = $paymentMethodRepository;
+
+        // Logger is optional; if it cannot be resolved we fall back to error_log.
+        try {
+            $logger = $container->get('logger');
+            if ($logger instanceof LoggerInterface) {
+                $this->logger = $logger;
+            }
+        } catch (\Throwable $loggerError) {
+            $this->logger = null;
+        }
     }
 
     /**
@@ -84,11 +97,35 @@ class MediaInstaller implements InstallerInterface
      */
     public function install(InstallContext $context): void
     {
-        $mediaFolderId = $this->getOrCreateMediaFolder($context->getContext());
-        foreach (GatewayHelper::GATEWAYS as $gateway) {
-            $this->addMedia(new $gateway(), $mediaFolderId, $context->getContext());
+        // Media import must never break plugin installation (Shopware 6.7.10+
+        // ships a strict SVG content validator that may reject icons the
+        // gateways try to import). Each gateway/media file is therefore
+        // installed in isolation and any failure is logged as a warning so
+        // that `bin/console plugin:install --activate BuckarooPayments` keeps
+        // succeeding even when individual icons cannot be persisted.
+        try {
+            $mediaFolderId = $this->getOrCreateMediaFolder($context->getContext());
+        } catch (\Throwable $folderError) {
+            $this->logMediaWarning('Could not create or resolve Buckaroo media folder; skipping media import.', $folderError);
+            return;
         }
-        $this->setupAdditionalMedia($mediaFolderId, $context->getContext());
+
+        foreach (GatewayHelper::GATEWAYS as $gateway) {
+            try {
+                $this->addMedia(new $gateway(), $mediaFolderId, $context->getContext());
+            } catch (\Throwable $mediaError) {
+                $this->logMediaWarning(
+                    sprintf('Failed to install media for gateway "%s"', $gateway),
+                    $mediaError
+                );
+            }
+        }
+
+        try {
+            $this->setupAdditionalMedia($mediaFolderId, $context->getContext());
+        } catch (\Throwable $additionalError) {
+            $this->logMediaWarning('Failed to install additional Buckaroo media', $additionalError);
+        }
     }
 
     /**
@@ -128,11 +165,18 @@ class MediaInstaller implements InstallerInterface
         ];
 
         foreach ($mediaList as $media) {
-            if ($mediaId = $this->getMediaId($media['name'], $context)) {
-                $this->mediaRepository->delete([['id' => $mediaId]], $context);
-            }
+            try {
+                if ($mediaId = $this->getMediaId($media['name'], $context)) {
+                    $this->mediaRepository->delete([['id' => $mediaId]], $context);
+                }
 
-            $this->createMediaObject($media['path'], $mediaFolderId, $media['name'], $context);
+                $this->createMediaObject($media['path'], $mediaFolderId, $media['name'], $context);
+            } catch (\Throwable $mediaError) {
+                $this->logMediaWarning(
+                    sprintf('Failed to install additional media "%s"', $media['name']),
+                    $mediaError
+                );
+            }
         }
     }
 
@@ -142,28 +186,172 @@ class MediaInstaller implements InstallerInterface
         string $newFileName,
         Context $context
     ): string {
-        $mediaFile = $this->createMediaFile($path);
-        $mediaId = Uuid::randomHex();
+        // Sanitize SVGs so they pass Shopware 6.7.10+ strict SVG validation
+        // (which uses an XMLReader-based allowlist). The sanitized copy is
+        // written to a temp file and removed after persistFileToMedia runs.
+        $uploadPath = $this->prepareUploadFile($path);
+        $sanitizedTempFile = $uploadPath !== $path ? $uploadPath : null;
 
-        $this->mediaRepository->create(
-            [
+        try {
+            $mediaFile = $this->createMediaFile($uploadPath);
+            $mediaId = Uuid::randomHex();
+
+            $this->mediaRepository->create(
                 [
-                    'id' => $mediaId,
-                    'private' => false,
-                    'mediaFolderId' => $mediaFolderId,
-                ]
-            ],
-            $context
-        );
+                    [
+                        'id' => $mediaId,
+                        'private' => false,
+                        'mediaFolderId' => $mediaFolderId,
+                    ]
+                ],
+                $context
+            );
 
-        $this->fileSaver->persistFileToMedia(
-            $mediaFile,
-            $newFileName,
-            $mediaId,
-            $context
-        );
+            try {
+                $this->fileSaver->persistFileToMedia(
+                    $mediaFile,
+                    $newFileName,
+                    $mediaId,
+                    $context
+                );
+            } catch (\Throwable $persistError) {
+                // Clean up the orphan media record so the install does not
+                // leave dangling rows behind when validation rejects the file.
+                try {
+                    $this->mediaRepository->delete([['id' => $mediaId]], $context);
+                } catch (\Throwable $cleanupError) {
+                    // Cleanup failures are not fatal; the install must still continue.
+                }
+                throw $persistError;
+            }
 
-        return $mediaId;
+            return $mediaId;
+        } finally {
+            if ($sanitizedTempFile !== null && is_file($sanitizedTempFile)) {
+                @unlink($sanitizedTempFile);
+            }
+        }
+    }
+
+    /**
+     * Return a path to a file safe to hand to Shopware's FileSaver.
+     *
+     * For SVG inputs the file is sanitized (scripts, event handlers,
+     * <foreignObject>, javascript: URLs and Shopware 6.7.10+ disallowed
+     * attributes are stripped) and a temporary file is returned. For any
+     * other type the original path is returned unchanged.
+     */
+    private function prepareUploadFile(string $path): string
+    {
+        if (!is_file($path)) {
+            return $path;
+        }
+
+        $extension = strtolower((string) pathinfo($path, PATHINFO_EXTENSION));
+        if ($extension !== 'svg') {
+            return $path;
+        }
+
+        $original = @file_get_contents($path);
+        if (!is_string($original) || $original === '') {
+            return $path;
+        }
+
+        $sanitized = $this->sanitizeSvgContent($original);
+        if ($sanitized === $original) {
+            return $path;
+        }
+
+        $tempBase = @tempnam(sys_get_temp_dir(), 'buckaroo_svg_');
+        if ($tempBase === false) {
+            return $path;
+        }
+
+        // FileSaver / mime detection benefits from a .svg extension.
+        $tempPath = $tempBase . '.svg';
+        if (!@rename($tempBase, $tempPath)) {
+            $tempPath = $tempBase;
+        }
+
+        if (@file_put_contents($tempPath, $sanitized) === false) {
+            @unlink($tempPath);
+            return $path;
+        }
+
+        return $tempPath;
+    }
+
+    /**
+     * Strip clearly unsafe constructs and Shopware 6.7.10+ disallowed
+     * attributes from an SVG so the resulting document is static and
+     * passes the core SvgContentValidator allowlist.
+     *
+     * This deliberately does NOT touch Shopware's core validation: it only
+     * cleans the file we ship so the validator accepts it.
+     */
+    private function sanitizeSvgContent(string $svg): string
+    {
+        $patterns = [
+            // <script>...</script> (also self-closing)
+            '#<script\b[^>]*>.*?</script\s*>#is'                         => '',
+            '#<script\b[^>]*/\s*>#i'                                     => '',
+            // <foreignObject>...</foreignObject> (also self-closing)
+            '#<foreignObject\b[^>]*>.*?</foreignObject\s*>#is'           => '',
+            '#<foreignObject\b[^>]*/\s*>#i'                              => '',
+            // on* event handler attributes (onclick, onload, onerror, ...)
+            '#\son[a-zA-Z]+\s*=\s*"[^"]*"#i'                            => '',
+            "#\\son[a-zA-Z]+\\s*=\\s*'[^']*'#i"                          => '',
+            // javascript: URLs inside href / xlink:href -> neutralize to #
+            '#(href\s*=\s*")\s*javascript:[^"]*(")#i'                    => '$1#$2',
+            "#(href\\s*=\\s*')\\s*javascript:[^']*(')#i"                 => '$1#$2',
+            // data: URLs (e.g. embedded base64 PNGs) in href / xlink:href
+            // are flagged as "external reference" by Shopware 6.7.10+ and
+            // reject the whole SVG. Drop the entire <image>/<use> element
+            // that carries the data URL so the rest of the SVG still loads.
+            '#<image\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*/\s*>#is'    => '',
+            '#<image\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*>.*?</image\s*>#is' => '',
+            '#<use\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*/\s*>#is'      => '',
+            '#<use\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*>.*?</use\s*>#is' => '',
+            // For any other element still carrying a data: reference,
+            // strip just the offending attribute so the element survives.
+            '#\s(?:xlink:)?href\s*=\s*"\s*data:[^"]*"#i'                 => '',
+            "#\\s(?:xlink:)?href\\s*=\\s*'\\s*data:[^']*'#i"             => '',
+            // Adobe Illustrator / Inkscape attributes not in Shopware allowlist.
+            '#\sbaseProfile\s*=\s*"[^"]*"#i'                             => '',
+            "#\\sbaseProfile\\s*=\\s*'[^']*'#i"                          => '',
+            '#\sdata-[a-zA-Z0-9_-]+\s*=\s*"[^"]*"#i'                    => '',
+            "#\\sdata-[a-zA-Z0-9_-]+\\s*=\\s*'[^']*'#i"                  => '',
+            // Doctype + entity declarations (rejected by the new validator).
+            '#<!DOCTYPE[^>]*>#i'                                         => '',
+            '#<!ENTITY[^>]*>#i'                                          => '',
+            // xml-stylesheet processing instruction (rejected by new validator).
+            '#<\?xml-stylesheet[^?]*\?>#i'                               => '',
+        ];
+
+        foreach ($patterns as $pattern => $replacement) {
+            $result = preg_replace($pattern, $replacement, $svg);
+            if (is_string($result)) {
+                $svg = $result;
+            }
+        }
+
+        return $svg;
+    }
+
+    private function logMediaWarning(string $message, \Throwable $exception = null): void
+    {
+        $fullMessage = '[BuckarooPayments][MediaInstaller] ' . $message;
+        if ($exception !== null) {
+            $fullMessage .= ' - ' . $exception->getMessage();
+        }
+
+        if ($this->logger !== null) {
+            $context = $exception !== null ? ['exception' => $exception] : [];
+            $this->logger->warning($fullMessage, $context);
+            return;
+        }
+
+        @error_log($fullMessage);
     }
 
 
@@ -277,14 +465,33 @@ class MediaInstaller implements InstallerInterface
     public function update(UpdateContext $updateContext): void
     {
         $context = $updateContext->getContext();
-        $mediaFolderId = $this->getOrCreateMediaFolder($context);
-        foreach (GatewayHelper::GATEWAYS as $gateway) {
-            $gatewayObject = new $gateway();
-            $this->removeMedia($gatewayObject, $context);
-            $mediaId = $this->addMedia($gatewayObject, $mediaFolderId, $context);
-            $this->updateMediaOnPaymentMethod($gatewayObject, $context, $mediaId);
+
+        try {
+            $mediaFolderId = $this->getOrCreateMediaFolder($context);
+        } catch (\Throwable $folderError) {
+            $this->logMediaWarning('Could not create or resolve Buckaroo media folder; skipping media update.', $folderError);
+            return;
         }
-        $this->setupAdditionalMedia($mediaFolderId, $context);
+
+        foreach (GatewayHelper::GATEWAYS as $gateway) {
+            try {
+                $gatewayObject = new $gateway();
+                $this->removeMedia($gatewayObject, $context);
+                $mediaId = $this->addMedia($gatewayObject, $mediaFolderId, $context);
+                $this->updateMediaOnPaymentMethod($gatewayObject, $context, $mediaId);
+            } catch (\Throwable $mediaError) {
+                $this->logMediaWarning(
+                    sprintf('Failed to update media for gateway "%s"', $gateway),
+                    $mediaError
+                );
+            }
+        }
+
+        try {
+            $this->setupAdditionalMedia($mediaFolderId, $context);
+        } catch (\Throwable $additionalError) {
+            $this->logMediaWarning('Failed to update additional Buckaroo media', $additionalError);
+        }
     }
 
     private function updateMediaOnPaymentMethod(
