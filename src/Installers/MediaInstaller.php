@@ -304,6 +304,18 @@ class MediaInstaller implements InstallerInterface
             // javascript: URLs inside href / xlink:href -> neutralize to #
             '#(href\s*=\s*")\s*javascript:[^"]*(")#i'                    => '$1#$2',
             "#(href\\s*=\\s*')\\s*javascript:[^']*(')#i"                 => '$1#$2',
+            // data: URLs (e.g. embedded base64 PNGs) in href / xlink:href
+            // are flagged as "external reference" by Shopware 6.7.10+ and
+            // reject the whole SVG. Drop the entire <image>/<use> element
+            // that carries the data URL so the rest of the SVG still loads.
+            '#<image\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*/\s*>#is'    => '',
+            '#<image\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*>.*?</image\s*>#is' => '',
+            '#<use\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*/\s*>#is'      => '',
+            '#<use\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*>.*?</use\s*>#is' => '',
+            // For any other element still carrying a data: reference,
+            // strip just the offending attribute so the element survives.
+            '#\s(?:xlink:)?href\s*=\s*"\s*data:[^"]*"#i'                 => '',
+            "#\\s(?:xlink:)?href\\s*=\\s*'\\s*data:[^']*'#i"             => '',
             // Adobe Illustrator / Inkscape attributes not in Shopware allowlist.
             '#\sbaseProfile\s*=\s*"[^"]*"#i'                             => '',
             "#\\sbaseProfile\\s*=\\s*'[^']*'#i"                          => '',
