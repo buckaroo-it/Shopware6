@@ -443,3 +443,9 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 - BTI-883 Add “Capture on shipment” setting for Klarna (MoR).
 - BTI-882 Fix: Small typo for “MB Way” by adding a space in the backend name.
+
+# 3.4.0 
+
+- BTI-901 Add support for Shopware 6.7.9.1 & 6.6.10.16
+- BTI-776 Add support for native refunds.
+- BTI-906 Rest API support for the “Capture on shipment” setting for Klarna (MoR).
