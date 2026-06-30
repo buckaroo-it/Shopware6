@@ -17,62 +17,122 @@ export default class ApplePayPlugin extends Plugin {
 
   cartToken;
 
+  cartData = null;
+
   payment;
 
   init() {
-
     const isCheckout = this.options.page === "checkout";
 
+    if (isCheckout) {
+      window.isApplePay = true;
+      this.setConfirmButtonDisabled(true);
+    }
+
     document.$emitter.subscribe("buckaroo_scripts_jquery_loaded", () => {
-      if (isCheckout) {
-        window.isApplePay = true;
-        $("#confirmFormSubmit").on("click", this.initPayment.bind(this));
-      }
       ApplePay.loadOfficialSdk()
-        .then(() => this.checkIsAvailable())
-        .then((available) => {
-          if (available && !isCheckout) {
-            this.renderButton();
+        .then(() => this.retrieveCartData())
+        .then((cartData) => {
+          this.cartData = cartData;
+          return this.checkIsAvailable().then((available) => {
+            if (available) {
+              this.renderButton(cartData);
+            } else if (isCheckout) {
+              // Not available — release the block so another method can be used.
+              window.isApplePay = false;
+              this.setConfirmButtonDisabled(false);
+            }
+          });
+        })
+        .catch(() => {
+          if (isCheckout) {
+            window.isApplePay = false;
+            this.setConfirmButtonDisabled(false);
           }
         });
     });
   }
 
   /**
-   * Render the pay button if not on the checkout page
+   * Enable/disable the checkout confirm (Place Order) button.
+   * @param {boolean} disabled
    */
-  renderButton() {
+  setConfirmButtonDisabled(disabled) {
+    const btn = document.getElementById("confirmFormSubmit");
+    if (btn) {
+      btn.disabled = disabled;
+    }
+  }
 
+  /**
+   * Wire the checkout confirm button (standard method) or render the express
+   * <apple-pay-button>. In both cases the click opens the Apple Pay sheet
+   * synchronously using the pre-fetched cart data.
+   * @param {*} cartData
+   */
+  renderButton(cartData) {
+    if (this.options.page === "checkout") {
+      this.wireCheckoutConfirmButton(cartData);
+    } else {
+      this.renderExpressButton(cartData);
+    }
+  }
+
+  /**
+   * Standard checkout method: open the Apple Pay sheet from "Place Order".
+   * begin() runs synchronously inside the trusted click event so the sheet/QR
+   * actually opens (Shopware then creates the order from the authorised token).
+   * @param {*} cartData
+   */
+  wireCheckoutConfirmButton(cartData) {
+    this.setConfirmButtonDisabled(false);
+
+    const btn = document.getElementById("confirmFormSubmit");
+    if (!btn) {
+      window.isApplePay = false;
+      return;
+    }
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.initApplePayment(cartData);
+    });
+  }
+
+  /**
+   * Express (product/cart, and the confirm-page express button): render Apple's
+   * official <apple-pay-button> web component and open the sheet synchronously
+   * on click.
+   * @param {*} cartData
+   */
+  renderExpressButton(cartData) {
     const container = $(".bk-apple-pay-button");
     container.empty();
     const button = ApplePay.createButton({
       buttonStyle: "black",
       locale: this.options.cultureCode,
     });
-    button.addEventListener("click", this.initPayment.bind(this));
+    button.addEventListener("click", (e) => {
+      e.preventDefault();
+      this.initApplePayment(cartData);
+    });
     container.append(button);
   }
 
   /**
-   * Start the payment process
-   */
-  initPayment(e) {
-    e.preventDefault();
-
-    this.retrieveCartData().then((data) => {
-      this.initApplePayment(data);
-    });
-  }
-
-  /**
-   * Retrieve cart data required by Apple
+   * Retrieve cart data required by Apple. Called once, up front (not on click),
+   * so the sheet can be opened synchronously later.
    * @returns Promise
    */
   retrieveCartData() {
     let formData = null;
 
     if (this.options.page === "product") {
-      formData = FormSerializeUtil.serializeJson(this.el.closest("form"));
+      const form = this.el.closest("form");
+      if (form) {
+        formData = FormSerializeUtil.serializeJson(form);
+      }
     }
 
     return new Promise((resolve, reject) => {
@@ -98,7 +158,9 @@ export default class ApplePayPlugin extends Plugin {
   }
 
   /**
-   * Start the payment process
+   * Construct the Apple Pay session and open the sheet. MUST be called
+   * synchronously from a user-gesture handler (click) with already-fetched
+   * cart data.
    * @param {*} cart
    */
   initApplePayment(cart) {
@@ -113,6 +175,8 @@ export default class ApplePayPlugin extends Plugin {
       cart.totals,
       "shipping",
       self.isCheckout(cart.shippingMethods, []),
+      // Callbacks bound to the instance. On checkout the shipping callbacks are
+      // null, so the sheet only authorises and Shopware owns the address.
       self.captureFunds.bind(self),
       self.isCheckout(self.updateCart.bind(self), null),
       self.isCheckout(self.updateCart.bind(self), null),
@@ -120,14 +184,12 @@ export default class ApplePayPlugin extends Plugin {
       self.isCheckout(["email", "name", "postalAddress"], []),
     );
 
-    // Construct the session (with `new` so callbacks bind to the instance) and
-    // open the Apple Pay sheet synchronously inside the click handler.
     self.payment = new ApplePay.PayPayment(options);
     self.payment.beginPayment();
   }
 
   /**
-   * Check if the page is checkout and return the correct value
+   * Return inCheckout on the checkout page, otherwise notInCheckout.
    */
   isCheckout(notInCheckout, inCheckout) {
     if (this.options.page === "checkout") {
@@ -137,7 +199,7 @@ export default class ApplePayPlugin extends Plugin {
   }
 
   /**
-   * Create the sw6 order with the payment data
+   * Create the sw6 order with the payment data (called after authorisation).
    * @param {*} payment
    */
   captureFunds(payment) {
