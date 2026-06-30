@@ -34,15 +34,7 @@ export default class ApplePayPlugin extends Plugin {
         .then(() => this.retrieveCartData())
         .then((cartData) => {
           this.cartData = cartData;
-          return this.checkIsAvailable().then((available) => {
-            if (available) {
-              this.renderButton(cartData);
-            } else if (isCheckout) {
-              // Not available — release the block so another method can be used.
-              window.isApplePay = false;
-              this.setConfirmButtonDisabled(false);
-            }
-          });
+          this.renderButton(cartData);
         })
         .catch(() => {
           if (isCheckout) {
@@ -55,7 +47,6 @@ export default class ApplePayPlugin extends Plugin {
 
   /**
    * Enable/disable the checkout confirm (Place Order) button.
-   * @param {boolean} disabled
    */
   setConfirmButtonDisabled(disabled) {
     const btn = document.getElementById("confirmFormSubmit");
@@ -64,12 +55,6 @@ export default class ApplePayPlugin extends Plugin {
     }
   }
 
-  /**
-   * Wire the checkout confirm button (standard method) or render the express
-   * <apple-pay-button>. In both cases the click opens the Apple Pay sheet
-   * synchronously using the pre-fetched cart data.
-   * @param {*} cartData
-   */
   renderButton(cartData) {
     if (this.options.page === "checkout") {
       this.wireCheckoutConfirmButton(cartData);
@@ -80,16 +65,13 @@ export default class ApplePayPlugin extends Plugin {
 
   /**
    * Standard checkout method: open the Apple Pay sheet from "Place Order".
-   * begin() runs synchronously inside the trusted click event so the sheet/QR
-   * actually opens (Shopware then creates the order from the authorised token).
-   * @param {*} cartData
+   * begin() runs synchronously inside the trusted click so the sheet/QR opens.
    */
   wireCheckoutConfirmButton(cartData) {
     this.setConfirmButtonDisabled(false);
 
     const btn = document.getElementById("confirmFormSubmit");
     if (!btn) {
-      window.isApplePay = false;
       return;
     }
 
@@ -101,10 +83,8 @@ export default class ApplePayPlugin extends Plugin {
   }
 
   /**
-   * Express (product/cart, and the confirm-page express button): render Apple's
-   * official <apple-pay-button> web component and open the sheet synchronously
-   * on click.
-   * @param {*} cartData
+   * Express (product/cart, confirm-page express button): render Apple's
+   * official <apple-pay-button> and open the sheet synchronously on click.
    */
   renderExpressButton(cartData) {
     const container = $(".bk-apple-pay-button");
@@ -121,9 +101,7 @@ export default class ApplePayPlugin extends Plugin {
   }
 
   /**
-   * Retrieve cart data required by Apple. Called once, up front (not on click),
-   * so the sheet can be opened synchronously later.
-   * @returns Promise
+   * Retrieve cart data up front (not on click), so the sheet can open synchronously.
    */
   retrieveCartData() {
     let formData = null;
@@ -159,33 +137,42 @@ export default class ApplePayPlugin extends Plugin {
 
   /**
    * Construct the Apple Pay session and open the sheet. MUST be called
-   * synchronously from a user-gesture handler (click) with already-fetched
-   * cart data.
-   * @param {*} cart
+   * synchronously from a click handler with already-fetched cart data.
    */
   initApplePayment(cart) {
     const self = this;
-    const options = new ApplePay.PayOptions(
-      cart.storeName,
-      cart.country,
-      cart.currency,
-      self.options.cultureCode,
-      self.options.merchantId,
-      cart.lineItems,
-      cart.totals,
-      "shipping",
-      self.isCheckout(cart.shippingMethods, []),
-      // Callbacks bound to the instance. On checkout the shipping callbacks are
-      // null, so the sheet only authorises and Shopware owns the address.
-      self.captureFunds.bind(self),
-      self.isCheckout(self.updateCart.bind(self), null),
-      self.isCheckout(self.updateCart.bind(self), null),
-      self.isCheckout(["email", "name", "postalAddress"], []),
-      self.isCheckout(["email", "name", "postalAddress"], []),
-    );
+    try {
+      const options = new ApplePay.PayOptions(
+        cart.storeName,
+        cart.country,
+        cart.currency,
+        self.options.cultureCode,
+        self.options.merchantId,
+        cart.lineItems,
+        cart.totals,
+        "shipping",
+        self.isCheckout(cart.shippingMethods, []),
+        self.captureFunds.bind(self),
+        self.isCheckout(self.updateCart.bind(self), null),
+        self.isCheckout(self.updateCart.bind(self), null),
+        self.isCheckout(["email", "name", "postalAddress"], []),
+        self.isCheckout(["email", "name", "postalAddress"], []),
+      );
 
-    self.payment = new ApplePay.PayPayment(options);
-    self.payment.beginPayment();
+      self.payment = new ApplePay.PayPayment(options);
+      self.payment.beginPayment();
+    } catch (e) {
+      // Apple Pay cannot open here. Keep window.isApplePay true so no order is
+      // placed without authorisation; surface a message and re-enable the button.
+      console.warn("Apple Pay could not open the payment sheet:", e);
+      self.displayErrorMessage(
+        (self.options.i18n && self.options.i18n.cannot_create_payment) ||
+          "Apple Pay is not available in this browser."
+      );
+      if (self.options.page === "checkout") {
+        self.setConfirmButtonDisabled(false);
+      }
+    }
   }
 
   /**
@@ -199,8 +186,7 @@ export default class ApplePayPlugin extends Plugin {
   }
 
   /**
-   * Create the sw6 order with the payment data (called after authorisation).
-   * @param {*} payment
+   * Create the sw6 order with the payment data (after authorisation).
    */
   captureFunds(payment) {
     return new Promise((resolve) => {
@@ -237,15 +223,12 @@ export default class ApplePayPlugin extends Plugin {
 
   /**
    * Update cart with the data received from apple pay (express only)
-   * @param {*} data
-   * @returns Promise
    */
   updateCart(data) {
     let request = {
       cartToken: this.cartToken,
     };
 
-    // request body for changing shipping method
     if (data.identifier !== undefined) {
       request = {
         ...request,
@@ -253,7 +236,6 @@ export default class ApplePayPlugin extends Plugin {
       };
     }
 
-    // request body for setting the user
     if (data.countryCode !== undefined) {
       request = {
         ...request,
@@ -283,18 +265,10 @@ export default class ApplePayPlugin extends Plugin {
     });
   }
 
-  /**
-   * Check if apple pay is available
-   * @returns Promise
-   */
   checkIsAvailable() {
     return ApplePay.checkPaySupport(this.options.merchantId);
   }
 
-  /**
-   * Display any validation errors we receive
-   * @param {string} message
-   */
   displayErrorMessage(message) {
     $(".buckaroo-apple-error").remove();
     if (typeof message === "object") {
