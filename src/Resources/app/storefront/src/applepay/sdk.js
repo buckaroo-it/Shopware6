@@ -72,7 +72,10 @@ const checkPaySupport = async function (merchantIdentifier) {
         if (typeof ApplePaySession.applePayCapabilities === "function") {
             try {
                 const caps = await ApplePaySession.applePayCapabilities(merchantIdentifier);
-                return !!caps && caps.paymentCredentialStatus !== "applePayUnsupported";
+                if (caps && caps.paymentCredentialStatus !== "applePayUnsupported") {
+                    return true;
+                }
+                return safeCanMakePayments();
             } catch (e) {
                 return safeCanMakePayments();
             }
