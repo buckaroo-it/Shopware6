@@ -75,11 +75,19 @@ export default class ApplePayPlugin extends Plugin {
       return;
     }
 
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      this.initApplePayment(cartData);
-    });
+    document.addEventListener(
+      "click",
+      (e) => {
+        const t = e.target;
+        if (t !== btn && !(t && t.closest && t.closest("#confirmFormSubmit"))) {
+          return;
+        }
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        this.initApplePayment(cartData);
+      },
+      true
+    );
   }
 
   /**
