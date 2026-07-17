@@ -177,12 +177,14 @@ abstract class AbstractPaymentController extends StorefrontController
                 $productData[$newKey] = $value;
             }
         }
+
+        if (!isset($productData['quantity']) && $formData->has('quantity')) {
+            $productData['quantity'] = $formData->get('quantity');
+        }
+
         $keysRequired =  [
             "id",
-            "quantity",
             "referencedId",
-            "removable",
-            "stackable",
             "type",
         ];
 
@@ -195,17 +197,17 @@ abstract class AbstractPaymentController extends StorefrontController
             );
         }
 
-        $quantity = $productData['quantity'];
+        $quantity = $productData['quantity'] ?? 1;
         if (!is_scalar($quantity)) {
             throw new InvalidParameterException("Invalid quantity", 1);
         }
 
         return [
             "id" => $productData['id'],
-            "quantity" => (int)$quantity,
+            "quantity" => max(1, (int)$quantity),
             "referencedId" => $productData['referencedId'],
-            "removable" => (bool)$productData['removable'],
-            "stackable" => (bool)$productData['stackable'],
+            "removable" => isset($productData['removable']) ? (bool)$productData['removable'] : true,
+            "stackable" => isset($productData['stackable']) ? (bool)$productData['stackable'] : true,
             "type" => $productData['type'],
         ];
     }

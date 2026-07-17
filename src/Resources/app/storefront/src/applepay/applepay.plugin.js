@@ -138,7 +138,6 @@ export default class ApplePayPlugin extends Plugin {
           let resp = JSON.parse(response);
 
           if (resp.error) {
-            this.displayErrorMessage(resp.message);
             reject(resp.message);
           } else {
             this.cartToken = resp.cartToken;
