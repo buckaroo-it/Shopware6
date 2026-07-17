@@ -133,6 +133,7 @@ export default class ApplePayPlugin extends Plugin {
         JSON.stringify({
           form: formData,
           page: this.options.page,
+          productId: this.options.productId || null,
         }),
         (response) => {
           let resp = JSON.parse(response);
