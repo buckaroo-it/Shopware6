@@ -84,6 +84,12 @@ export default class ApplePayPlugin extends Plugin {
         }
         e.preventDefault();
         e.stopImmediatePropagation();
+        // Respect native form validation (e.g. required terms checkbox)
+        // before opening the Apple Pay sheet/QR modal.
+        const form = document.forms["confirmOrderForm"];
+        if (form && !form.reportValidity()) {
+          return;
+        }
         this.initApplePayment(cartData);
       },
       true
