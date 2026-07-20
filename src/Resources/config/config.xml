@@ -1393,24 +1393,6 @@
             <helpText lang="fr-FR">La clé GUID peut être récupérée dans Buckaroo Plaza à "Mon Buckaroo" > "Général".</helpText>
         </input-field>
     
-        <input-field type="single-select">
-            <name>applepayHostedPaymentPage</name>
-            <label lang="en-GB">Using a Hosted Payment Page</label>
-            <label lang="de-DE">Verwendung einer gehosteten Zahlungsseite</label>
-            <label lang="nl-NL">Een gehoste betaalpagina gebruiken</label>
-			<label lang="fr-FR">Utilisation d’une page de paiement hébergée</label>
-            <defaultValue>0</defaultValue>
-            <options>
-                <option>
-                    <id>1</id>
-                    <name>Yes</name>
-                </option>
-                <option>
-                    <id>0</id>
-                    <name>No</name>
-                </option>
-            </options>
-        </input-field>
 
         <input-field type="single-select">
             <name>applepayShowProduct</name>

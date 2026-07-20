@@ -137,7 +137,8 @@ abstract class AbstractPaymentController extends StorefrontController
     protected function createCart(Request $request, SalesChannelContext $salesChannelContext)
     {
         $productData = $this->getProductData(
-            $this->getFormData($request)
+            $this->getFormData($request),
+            $request
         );
         return $this->cartService
             ->setSaleChannelContext($salesChannelContext)
@@ -154,10 +155,13 @@ abstract class AbstractPaymentController extends StorefrontController
      */
     protected function getFormData(Request $request)
     {
-        if (!$request->request->has('form')) {
-            throw new InvalidParameterException("Invalid payment request, form data is missing", 1);
+        $form = $request->request->all()['form'] ?? null;
+        if (!is_array($form)) {
+            // Tolerate a missing/empty form; the product can still be
+            // resolved from the top-level `productId` request parameter.
+            return new DataBag([]);
         }
-        return new DataBag((array)$request->request->all('form'));
+        return new DataBag($form);
     }
 
     /**
@@ -167,22 +171,53 @@ abstract class AbstractPaymentController extends StorefrontController
      *
      * @return array<mixed>
      */
-    protected function getProductData(DataBag $formData)
+    protected function getProductData(DataBag $formData, ?Request $request = null)
     {
         $productData = [];
-        foreach ($formData as $key => $value) {
+        foreach ($formData->all() as $key => $value) {
+            if ($key === 'lineItems') {
+                // Nested structure: lineItems => [<productId> => [id => ...]]
+                if ($value instanceof DataBag) {
+                    $value = $value->all();
+                }
+                if (is_array($value)) {
+                    $first = reset($value);
+                    if ($first instanceof DataBag) {
+                        $first = $first->all();
+                    }
+                    if (is_array($first)) {
+                        $productData = array_merge($first, $productData);
+                    }
+                }
+                continue;
+            }
             if (strpos($key, 'lineItems') !== false) {
+                // Flat structure: lineItems[<productId>][id] => ...
                 $keyPars = explode("][", $key);
                 $newKey = isset($keyPars[1]) ? str_replace("]", "", $keyPars[1]) : $key;
                 $productData[$newKey] = $value;
             }
         }
+
+        // Since Shopware 6.6 the quantity is a top-level 'quantity' field.
+        if (!isset($productData['quantity']) && $formData->has('quantity')) {
+            $productData['quantity'] = $formData->get('quantity');
+        }
+
+        // Fallback: build the line item from the productId the storefront sends,
+        // for themes/versions where the buy form has no lineItems inputs.
+        if ($request !== null) {
+            $productId = $request->request->get('productId');
+            if (is_string($productId) && $productId !== '') {
+                $productData['id'] = $productData['id'] ?? $productId;
+                $productData['referencedId'] = $productData['referencedId'] ?? $productId;
+                $productData['type'] = $productData['type'] ?? 'product';
+            }
+        }
+
         $keysRequired =  [
             "id",
-            "quantity",
             "referencedId",
-            "removable",
-            "stackable",
             "type",
         ];
 
@@ -195,17 +230,17 @@ abstract class AbstractPaymentController extends StorefrontController
             );
         }
 
-        $quantity = $productData['quantity'];
+        $quantity = $productData['quantity'] ?? 1;
         if (!is_scalar($quantity)) {
             throw new InvalidParameterException("Invalid quantity", 1);
         }
 
         return [
             "id" => $productData['id'],
-            "quantity" => (int)$quantity,
+            "quantity" => max(1, (int)$quantity),
             "referencedId" => $productData['referencedId'],
-            "removable" => (bool)$productData['removable'],
-            "stackable" => (bool)$productData['stackable'],
+            "removable" => isset($productData['removable']) ? (bool)$productData['removable'] : true,
+            "stackable" => isset($productData['stackable']) ? (bool)$productData['stackable'] : true,
             "type" => $productData['type'],
         ];
     }

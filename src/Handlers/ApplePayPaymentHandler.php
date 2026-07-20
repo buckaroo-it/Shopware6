@@ -29,18 +29,13 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        $usingApplepayHostedPaymentPageConfig = $this->asyncPaymentService->settingsService->getSetting(
-            'applepayHostedPaymentPage',
-            $salesChannelContext->getSalesChannelId()
-        );
-
-        if ($usingApplepayHostedPaymentPageConfig == 1) {
-            return array(
-                'continueOnIncomplete' => '1',
-            );
-        }
-
         $applePayInfo = $dataBag->get('applePayInfo');
+        // TEMP DIAGNOSTIC: does the Apple Pay token reach the handler?
+        $this->asyncPaymentService->logger->info('[ApplePay][getMethodPayload]', [
+            'dataBagKeys'          => array_keys($dataBag->all()),
+            'applePayInfoIsString' => is_string($applePayInfo),
+            'applePayInfoLength'   => is_string($applePayInfo) ? strlen($applePayInfo) : 0,
+        ]);
 
         if (!is_string($applePayInfo)) {
             return [];
@@ -95,3 +90,4 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
         return '';
     }
 }
+

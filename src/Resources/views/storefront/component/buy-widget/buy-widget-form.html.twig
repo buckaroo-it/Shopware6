@@ -21,10 +21,11 @@
         </div>
     {% endif %}
 
-    {% if page.extensions.buckaroo.applepayHostedPaymentPage == false && page.extensions.buckaroo.applepayShowProduct %}
+    {% if page.extensions.buckaroo.applepayShowProduct %}
         <div class="col-12 p-0">
             {% set applePayConfig = {
                 page: "product",
+                productId: page.product.id,
                 merchantId: page.extensions.buckaroo.applePayMerchantId,
                 cultureCode: page.header.activeLanguage.translationCode.code,
                 i18n: {
