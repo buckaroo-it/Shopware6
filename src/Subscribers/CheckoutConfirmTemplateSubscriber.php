@@ -9,6 +9,7 @@ use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\In3LogoService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\PayByBankService;
+use Buckaroo\Shopware6\Service\PayPalExpressCredentialsService;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Buckaroo\Shopware6\Service\IdealIssuerService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -68,6 +69,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected TranslatorInterface $translator;
     protected PayByBankService $payByBankService;
     protected In3LogoService $in3LogoService;
+    protected PayPalExpressCredentialsService $paypalExpressCredentials;
 
     public function __construct(
         SalesChannelRepository $paymentMethodRepository,
@@ -76,7 +78,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         TranslatorInterface $translator,
         PayByBankService $payByBankService,
         In3LogoService $in3LogoService,
-        IdealIssuerService $idealIssuerService
+        IdealIssuerService $idealIssuerService,
+        PayPalExpressCredentialsService $paypalExpressCredentials
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->settingsService = $settingsService;
@@ -85,6 +88,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $this->payByBankService = $payByBankService;
         $this->in3LogoService = $in3LogoService;
         $this->idealIssuerService = $idealIssuerService;
+        $this->paypalExpressCredentials = $paypalExpressCredentials;
     }
 
     /**
@@ -315,6 +319,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'checkout'),
             'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
+            'paypalClientId'           => $this->paypalExpressCredentials->getClientId($salesChannelId),
+            'paypalCollectingClientId' => $this->paypalExpressCredentials->getCollectingClientId($salesChannelId),
+            'paypalIsTestMode'         => $this->paypalExpressCredentials->isTestMode($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             // Show the Apple Pay express button on the confirm page whenever
             // Apple Pay is configured (merchant id set). The template also
@@ -462,6 +469,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showPaypalExpress'         => $this->showPaypalExpress($salesChannelId, 'cart'),
             'showIdealFastCheckout'     => $this->showIdealFastCheckout($salesChannelId, 'cart'),
             'paypalMerchantId'          => $this->getPaypalExpressMerchantId($salesChannelId),
+            'paypalClientId'            => $this->paypalExpressCredentials->getClientId($salesChannelId),
+            'paypalCollectingClientId'  => $this->paypalExpressCredentials->getCollectingClientId($salesChannelId),
+            'paypalIsTestMode'          => $this->paypalExpressCredentials->isTestMode($salesChannelId),
             'applePayMerchantId'        => $this->getAppleMerchantId($salesChannelId),
             'isAppleDevice'             => $this->isAppleDevice($request),
             'websiteKey'                => $this->settingsService->getSetting('websiteKey', $salesChannelId),
@@ -526,6 +536,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showPaypalExpress' => $this->showPaypalExpress($salesChannelId),
             'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
+            'paypalClientId' => $this->paypalExpressCredentials->getClientId($salesChannelId),
+            'paypalCollectingClientId' => $this->paypalExpressCredentials->getCollectingClientId($salesChannelId),
+            'paypalIsTestMode' => $this->paypalExpressCredentials->isTestMode($salesChannelId),
             'applePayMerchantId' => $this->getAppleMerchantId($salesChannelId),
             'isAppleDevice' => $this->isAppleDevice($request),
             'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId),
@@ -549,13 +562,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             in_array($page, $locations) &&
             $this->getPaypalExpressMerchantId($salesChannelId) != null;
     }
+    /**
+     * Get the environment aware (live/sandbox) PayPal Express merchant id.
+     * Credential selection is centralized in PayPalExpressCredentialsService.
+     */
     protected function getPaypalExpressMerchantId(string $salesChannelId): ?string
     {
-        $merchantId =  $this->settingsService->getSetting('paypalExpressmerchantid', $salesChannelId);
-        if ($merchantId !== null && is_scalar($merchantId)) {
-            return (string)$merchantId;
-        }
-        return null;
+        return $this->paypalExpressCredentials->getMerchantId($salesChannelId);
     }
     protected function showIdealFastCheckout(string $salesChannelId, string $page = 'product'): bool
     {
