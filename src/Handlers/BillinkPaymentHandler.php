@@ -9,7 +9,6 @@ use Buckaroo\Shopware6\PaymentMethods\Billink;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 
 class BillinkPaymentHandler extends PaymentHandlerSimple
 {
@@ -74,40 +73,34 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
 
         $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
 
-        $billing = [
-            'recipient' => $this->filterEmpty([
-                'category'              =>  $this->getCategory($address),
-                'careOf'                =>  $this->getCareOf($address),
-                'initials'              =>  $this->getInitials($address->getFirstName()),
-                'firstName'             =>  $address->getFirstName(),
-                'lastName'              =>  $address->getLastName(),
-                'birthDate'             =>  $this->getBirthDate($dataBag, $customer),
-                'salutation'            =>  $this->getGender($dataBag, $customer)
-            ]),
-            'address' => [
-                'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
-                'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
-                'houseNumberAdditional' => $this->formatRequestParamService
-                    ->getAdditionalHouseNumber(
-                        $address,
-                        $streetParts
-                    ),
-                'zipcode'               =>  $address->getZipcode(),
-                'city'                  =>  $address->getCity(),
-                'country'               =>  $this->asyncPaymentService->getCountry($address)->getIso()
-            ],
-            'email'         => $customer->getEmail()
-        ];
-
-        $phone = $this->getPhone($dataBag, $address, $customer);
-        if ($phone !== null) {
-            $billing['phone'] = [
-                'mobile' => $phone,
-            ];
-        }
-
         return [
-            'billing' => $billing
+            'billing' => [
+                'recipient' => [
+                    'category'              =>  $this->getCategory($address),
+                    'careOf'                =>  $this->getCareOf($address),
+                    'initials'              =>  $this->getInitials($address->getFirstName()),
+                    'firstName'             =>  $address->getFirstName(),
+                    'lastName'              =>  $address->getLastName(),
+                    'birthDate'             =>  $this->getBirthDate($dataBag),
+                    'salutation'            =>  $dataBag->get('buckaroo_billink_gender')
+                ],
+                'address' => [
+                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'houseNumberAdditional' => $this->formatRequestParamService
+                        ->getAdditionalHouseNumber(
+                            $address,
+                            $streetParts
+                        ),
+                    'zipcode'               =>  $address->getZipcode(),
+                    'city'                  =>  $address->getCity(),
+                    'country'               =>  $this->asyncPaymentService->getCountry($address)->getIso()
+                ],
+                'phone' => [
+                    'mobile'        => $this->getPhone($dataBag, $address),
+                ],
+                'email'         => $customer->getEmail()
+            ]
         ];
     }
 
@@ -122,19 +115,18 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
         RequestDataBag $dataBag
     ): array {
         $address = $this->asyncPaymentService->getShippingAddress($order);
-        $customer = $this->asyncPaymentService->getCustomer($order);
 
         $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
         return [
             'shipping' => [
-                'recipient' => $this->filterEmpty([
+                'recipient' => [
                     'category'              =>  $this->getCategory($address),
                     'careOf'                =>  $this->getCareOf($address),
                     'initials'              =>  $this->getInitials($address->getFirstName()),
                     'firstName'             =>  $address->getFirstName(),
                     'lastName'              =>  $address->getLastName(),
-                    'birthDate'             =>  $this->getBirthDate($dataBag, $customer),
-                ]),
+                    'birthDate'             =>  $this->getBirthDate($dataBag),
+                ],
                 'address' => [
                     'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
                     'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
@@ -211,40 +203,13 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
         return [];
     }
 
-    /**
-     * Get mobile phone number from existing Shopware data.
-     * The checkout form no longer asks for it; Billink One requests it on the
-     * hosted payment page when missing.
-     * Priority:
-     * 1. Legacy dataBag value (kept for backwards compatibility, e.g. headless clients)
-     * 2. Billing address phone number
-     * 3. Customer / address custom fields
-     *
-     * @param RequestDataBag $dataBag
-     * @param OrderAddressEntity $address
-     * @param OrderCustomerEntity $customer
-     *
-     * @return null|string
-     */
-    private function getPhone(
-        RequestDataBag $dataBag,
-        OrderAddressEntity $address,
-        OrderCustomerEntity $customer
-    ): ?string {
-        $phone = $dataBag->get('buckaroo_billink_phone');
-        if (is_scalar($phone) && !empty(trim((string)$phone))) {
-            return trim((string)$phone);
+    private function getPhone(RequestDataBag $dataBag, OrderAddressEntity $address): string
+    {
+        $phone = $dataBag->get('buckaroo_billink_phone', $address->getPhoneNumber());
+        if (!is_scalar($phone)) {
+            return '';
         }
-
-        $addressPhone = $address->getPhoneNumber();
-        if (is_string($addressPhone) && !empty(trim($addressPhone))) {
-            return trim($addressPhone);
-        }
-
-        return $this->getCustomFieldValue(
-            [$address->getCustomFields(), $this->getCustomerCustomFields($customer)],
-            ['buckaroo_billink_phone', 'phoneNumber', 'phone_number', 'phone', 'mobile', 'mobileNumber']
-        );
+        return (string)$phone;
     }
 
     /**
@@ -382,141 +347,27 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
-     * Get birth date from existing Shopware data.
-     * The checkout form no longer asks for it; Billink One requests it on the
-     * hosted payment page when missing.
-     * Priority:
-     * 1. Legacy dataBag value (kept for backwards compatibility, e.g. headless clients)
-     * 2. Customer profile birthday
-     * 3. Customer custom fields
+     * Get birth date
      *
      * @param RequestDataBag $dataBag
-     * @param OrderCustomerEntity $customer
      *
      * @return null|string
      */
-    private function getBirthDate(RequestDataBag $dataBag, OrderCustomerEntity $customer): ?string
+    private function getBirthDate(RequestDataBag $dataBag)
     {
+        if (!$dataBag->has('buckaroo_billink_DoB')) {
+            return null;
+        }
+
         $dateString = $dataBag->get('buckaroo_billink_DoB');
-        if (is_scalar($dateString)) {
-            $date = strtotime((string)$dateString);
-            if ($date !== false) {
-                return @date('d-m-Y', $date);
-            }
+        if (!is_scalar($dateString)) {
+            return null;
+        }
+        $date = strtotime((string)$dateString);
+        if ($date === false) {
+            return null;
         }
 
-        $profile = $customer->getCustomer();
-        if ($profile !== null && $profile->getBirthday() !== null) {
-            return $profile->getBirthday()->format('d-m-Y');
-        }
-
-        $customValue = $this->getCustomFieldValue(
-            [$this->getCustomerCustomFields($customer)],
-            ['buckaroo_billink_DoB', 'buckaroo_dob', 'dateOfBirth', 'date_of_birth', 'birthday', 'dob']
-        );
-        if ($customValue !== null) {
-            $date = strtotime($customValue);
-            if ($date !== false) {
-                return @date('d-m-Y', $date);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Get gender/salutation from existing Shopware data.
-     * The checkout form no longer asks for it; Billink One requests it on the
-     * hosted payment page when missing.
-     * Priority:
-     * 1. Legacy dataBag value (kept for backwards compatibility, e.g. headless clients)
-     * 2. Derived from the order customer's salutation key
-     *
-     * @param RequestDataBag $dataBag
-     * @param OrderCustomerEntity $customer
-     *
-     * @return null|string
-     */
-    private function getGender(RequestDataBag $dataBag, OrderCustomerEntity $customer): ?string
-    {
-        $gender = $dataBag->get('buckaroo_billink_gender');
-        if (is_string($gender) && in_array($gender, ['Male', 'Female', 'Unknown'], true)) {
-            return $gender;
-        }
-
-        $salutation = $customer->getSalutation();
-        if ($salutation !== null) {
-            if ($salutation->getSalutationKey() === 'mr') {
-                return 'Male';
-            }
-            if ($salutation->getSalutationKey() === 'mrs') {
-                return 'Female';
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Get custom fields from the order customer and, when loaded,
-     * the underlying customer profile.
-     *
-     * @param OrderCustomerEntity $customer
-     *
-     * @return array<mixed>
-     */
-    private function getCustomerCustomFields(OrderCustomerEntity $customer): array
-    {
-        $customFields = $customer->getCustomFields() ?? [];
-
-        $profile = $customer->getCustomer();
-        if ($profile !== null) {
-            $customFields = array_merge($profile->getCustomFields() ?? [], $customFields);
-        }
-
-        return $customFields;
-    }
-
-    /**
-     * Find the first non-empty string value for any of the candidate keys
-     * in the given custom field sets.
-     *
-     * @param array<mixed> $customFieldSets
-     * @param array<string> $keys
-     *
-     * @return null|string
-     */
-    private function getCustomFieldValue(array $customFieldSets, array $keys): ?string
-    {
-        foreach ($customFieldSets as $customFields) {
-            if (!is_array($customFields)) {
-                continue;
-            }
-            foreach ($keys as $key) {
-                if (
-                    isset($customFields[$key]) &&
-                    is_scalar($customFields[$key]) &&
-                    !empty(trim((string)$customFields[$key]))
-                ) {
-                    return trim((string)$customFields[$key]);
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Remove null and empty-string values so they are not sent to Billink.
-     *
-     * @param array<mixed> $data
-     *
-     * @return array<mixed>
-     */
-    private function filterEmpty(array $data): array
-    {
-        return array_filter($data, function ($value) {
-            return $value !== null && $value !== '';
-        });
+        return @date("d-m-Y", $date);
     }
 }

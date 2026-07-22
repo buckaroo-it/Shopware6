@@ -10,12 +10,12 @@ export default class BuckarooPaymentHelper extends Plugin {
 
     get buckarooMobileInputs()
     {
-        return ['buckarooAfterpayPhone','buckarooIn3Phone'];
+        return ['buckarooAfterpayPhone','buckarooIn3Phone','buckarooBillinkPhone'];
     }
 
     get buckarooDoBInputs()
     {
-        return ['buckaroo_afterpay_DoB','buckaroo_capayablein3_DoB'];
+        return ['buckaroo_afterpay_DoB','buckaroo_capayablein3_DoB','buckaroo_billink_DoB'];
     }
 
     init()
