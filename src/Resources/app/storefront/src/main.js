@@ -22,7 +22,7 @@ const init = () => {
 
     PluginManager.register('BuckarooPaymentValidateSubmit', BuckarooPaymentValidateSubmit);
     PluginManager.register('BuckarooPaymentCreditcards', BuckarooPaymentCreditcards);
-    PluginManager.register('BuckarooPaymentCreditcard', BuckarooPaymentCreditcard);
+    PluginManager.register('BuckarooPaymentCreditcard', BuckarooPaymentCreditcard, '[data-buckaroo-hosted-fields]');
     PluginManager.register('BuckarooPaymentHelper', BuckarooPaymentHelper);
     PluginManager.register('PaypalExpressPlugin', PaypalExpressPlugin, '[data-paypal-express]');
     PluginManager.register('BuckarooIdealQrPlugin', IdealQrPlugin, '[data-ideal-qr]');
