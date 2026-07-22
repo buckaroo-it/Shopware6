@@ -70,5 +70,11 @@
         </div>
     </div>
 </div>
+    {% else %}
+        {# Diagnosable failure instead of a silent blank: without this comment an
+           empty "Allowed credit cards" plugin config renders nothing at all and
+           looks like a broken storefront plugin. #}
+        <!-- Buckaroo Hosted Fields not rendered: no allowed credit cards configured
+             for this sales channel (plugin config "allowedcreditcards" is empty). -->
     {% endif %}
 {% endblock %} 
