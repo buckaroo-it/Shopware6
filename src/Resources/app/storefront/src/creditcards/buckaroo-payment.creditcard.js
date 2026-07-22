@@ -13,28 +13,6 @@ const SDK_SCRIPT_URL = 'https://hostedfields-externalapi.prod-pci.buckaroo.io/v1
  */
 let tokenCache = null;
 
-/**
- * Buckaroo Credit and Debit Card (Hosted Fields) storefront plugin.
- *
- * LIFECYCLE / WHY THIS PLUGIN IS ELEMENT-BOUND:
- * This plugin is registered on the hosted fields container
- * ('[data-buckaroo-hosted-fields]', see main.js) and NOT on `document`.
- *
- * Shopware's checkout (6.5+) replaces parts of the confirm page DOM after
- * payment method selection, address updates, shipping method changes and any
- * AJAX refresh, and afterwards calls `window.PluginManager.initializePlugins()`.
- * A document-bound plugin initializes only once per full page load, so any
- * container rendered *after* that point was never mounted by the SDK: the
- * styled wrapper <div>s were visible (they look like inputs), but contained no
- * SDK iframes and could therefore not receive focus or input.
- *
- * Binding the plugin to the container element fixes this by design:
- * - every newly rendered container gets a fresh instance (fields are
- *   re-mounted after each checkout re-render), and
- * - PluginManager guarantees a single instance per element, which prevents
- *   duplicate Hosted Fields initialization.
-
- */
 export default class BuckarooCreditCards extends Plugin {
     init() {
         /**
@@ -62,19 +40,6 @@ export default class BuckarooCreditCards extends Plugin {
         }
     }
 
-    /**
-     * Loads the Hosted Fields SDK once and resolves only when the SDK global
-     * (`window.BuckarooHostedFieldsSdk`) is actually available.
-     *
-     * WHY: the previous implementation ran the callback synchronously whenever
-     * the <script id="buckaroo-sdk"> tag already existed in <head>. When the
-     * checkout DOM was re-rendered while the SDK was still downloading (the
-     * script tag survives in <head>, the checkout DOM does not), the callback
-     * fired before the SDK existed, `new BuckarooHostedFieldsSdk.HFClient(...)`
-     * threw a ReferenceError that was swallowed by the surrounding try/catch,
-     * and the fields were silently never mounted — visible container, no
-     * editable iframes.
-     */
     _loadHostedFieldsScript() {
         if (window.BuckarooHostedFieldsSdk) {
             return Promise.resolve();
@@ -104,16 +69,6 @@ export default class BuckarooCreditCards extends Plugin {
         });
     }
 
-    /**
-     * Resolves once the hosted fields container is actually rendered visible.
-     *
-     * On Shopware < 6.7 the selected payment method can sit inside the
-     * collapsed "Show more" list on checkout/confirm (visiblePaymentMethodsLimit
-     * = 5, removed in 6.7). Mounting the SDK iframes into a display:none
-     * subtree produces zero-sized, non-interactive fields, so mounting is
-     * deferred until the container is shown. On 6.7+ and for methods in the
-     * visible part of the list this resolves immediately.
-     */
     _waitUntilVisible() {
         if (this.el.offsetParent !== null) {
             return Promise.resolve();
@@ -130,8 +85,6 @@ export default class BuckarooCreditCards extends Plugin {
                 resolve();
             };
 
-            // Fires as soon as the container becomes visible in the viewport,
-            // regardless of the mechanism (collapse, tab, theme JS) hiding it.
             const observer = new IntersectionObserver((entries) => {
                 if (entries.some((entry) => entry.isIntersecting)) {
                     finish();
@@ -147,9 +100,6 @@ export default class BuckarooCreditCards extends Plugin {
     }
 
     async _initializeHostedFields() {
-        // The SDK mounts into these wrappers. They must exist inside the
-        // container this instance is bound to; if Shopware rendered a partial
-        // DOM (e.g. mid-refresh) we bail out instead of mounting into nothing.
         const requiredWrappers = [
             '#cc-name-wrapper',
             '#cc-number-wrapper',
@@ -184,9 +134,6 @@ export default class BuckarooCreditCards extends Plugin {
 
             this._updateButtonState();
 
-            // Elements are re-queried instead of captured once: after a
-            // checkout re-render a captured reference would point to a
-            // detached element of the previous render.
             const issuerField = document.getElementById('selected-issuer');
             if (issuerField) {
                 issuerField.value = this.sdkClient.getService();
@@ -214,9 +161,6 @@ export default class BuckarooCreditCards extends Plugin {
             cardLogoStyling,
         };
 
-        // NOTE: no auto-focus after mounting. Focusing an iframe right after a
-        // checkout re-render steals focus / scroll-jacks the page while the
-        // customer is interacting with another part of the checkout.
         await this.sdkClient.mountCardHolderName('#cc-name-wrapper', {
             id: 'ccname',
             placeHolder: 'John Doe',
@@ -263,10 +207,6 @@ export default class BuckarooCreditCards extends Plugin {
                 tokenField.value = paymentToken;
             }
 
-            // Submits Shopware's own order form. The Buckaroo template no
-            // longer renders a competing <form id="confirmOrderForm"> (invalid
-            // nested form that the parser dropped anyway), so this reliably
-            // targets the core checkout form.
             const orderForm = document.getElementById('confirmOrderForm');
             if (orderForm) {
                 orderForm.requestSubmit();
@@ -279,17 +219,11 @@ export default class BuckarooCreditCards extends Plugin {
     }
 
     _listenToSubmit() {
-        // The pay button is part of this.el, so it is replaced together with
-        // the container on every re-render — listeners cannot stack.
         const submitButton = this.el.querySelector('#pay');
         if (submitButton) {
             submitButton.addEventListener('click', this._handleSubmit.bind(this));
         }
 
-        // The TOS checkbox belongs to the surrounding confirm page and may
-        // survive a partial re-render. _updateButtonState() re-queries the
-        // current DOM, so even a listener registered by a previous instance
-        // stays harmless.
         const tosCheckbox =
             document.getElementById('tos') ||
             document.querySelector('.checkout-confirm-tos-checkbox');
@@ -297,43 +231,28 @@ export default class BuckarooCreditCards extends Plugin {
             tosCheckbox.addEventListener('change', () => this._updateButtonState());
         }
 
-        // Reflect the initial state (fields empty => button disabled).
         this._updateButtonState();
     }
 
     _updateButtonState() {
-        // Always re-query instead of caching: after a checkout re-render a
-        // cached reference would point to a detached element.
         const payButton = document.getElementById('pay');
         if (!payButton) {
             return;
         }
 
-        // Check if hosted fields form is valid
         const formIsValid = this.sdkClient && this.sdkClient.formIsValid();
 
-        // Check if TOS checkbox is checked
         const tosCheckbox =
             document.getElementById('tos') ||
             document.querySelector('.checkout-confirm-tos-checkbox');
-        const tosIsChecked = tosCheckbox ? tosCheckbox.checked : true; // If no TOS checkbox, don't block
+        const tosIsChecked = tosCheckbox ? tosCheckbox.checked : true;
 
-        // Button should only be enabled if both conditions are met
         const disabled = !formIsValid || !tosIsChecked;
-
-
-        console.debug('[Buckaroo HF] button state', {
-            formIsValid: !!formIsValid,
-            tosFound: !!tosCheckbox,
-            tosIsChecked,
-            disabled,
-        });
 
         payButton.disabled = disabled;
         payButton.style.backgroundColor = disabled ? '#ff5555' : '';
         payButton.style.cursor = disabled ? 'not-allowed' : '';
         payButton.style.opacity = disabled ? '0.5' : '';
-
 
         const hint = this.el.querySelector('.buckaroo-hf-error');
         if (hint) {
@@ -363,8 +282,6 @@ export default class BuckarooCreditCards extends Plugin {
     async _getOrRefreshToken() {
         const now = Date.now();
 
-        // Module-scoped cache: survives checkout re-renders (new plugin
-        // instances) within the same page, unlike instance properties.
         if (tokenCache && now < tokenCache.expiresAt && tokenCache.accessToken) {
             return {
                 access_token: tokenCache.accessToken,
