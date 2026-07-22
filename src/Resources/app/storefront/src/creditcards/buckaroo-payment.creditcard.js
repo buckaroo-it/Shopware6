@@ -321,10 +321,30 @@ export default class BuckarooCreditCards extends Plugin {
         // Button should only be enabled if both conditions are met
         const disabled = !formIsValid || !tosIsChecked;
 
+
+        console.debug('[Buckaroo HF] button state', {
+            formIsValid: !!formIsValid,
+            tosFound: !!tosCheckbox,
+            tosIsChecked,
+            disabled,
+        });
+
         payButton.disabled = disabled;
         payButton.style.backgroundColor = disabled ? '#ff5555' : '';
         payButton.style.cursor = disabled ? 'not-allowed' : '';
         payButton.style.opacity = disabled ? '0.5' : '';
+
+
+        const hint = this.el.querySelector('.buckaroo-hf-error');
+        if (hint) {
+            if (formIsValid && !tosIsChecked) {
+                hint.textContent = 'Please accept the terms and conditions to place your order.';
+                hint.style.display = 'block';
+            } else {
+                hint.textContent = '';
+                hint.style.display = 'none';
+            }
+        }
     }
 
     /**
