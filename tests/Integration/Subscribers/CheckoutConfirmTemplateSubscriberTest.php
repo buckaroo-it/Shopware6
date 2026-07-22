@@ -11,6 +11,7 @@ use Buckaroo\Shopware6\Service\UrlService;
 use Buckaroo\Shopware6\Service\PayByBankService;
 use Buckaroo\Shopware6\Service\In3LogoService;
 use Buckaroo\Shopware6\Service\IdealIssuerService;
+use Buckaroo\Shopware6\Service\PayPalExpressCredentialsService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
@@ -38,6 +39,7 @@ class CheckoutConfirmTemplateSubscriberTest extends TestCase
     private PayByBankService $payByBankService;
     private In3LogoService $in3LogoService;
     private IdealIssuerService $idealIssuerService;
+    private PayPalExpressCredentialsService $paypalExpressCredentials;
 
     protected function setUp(): void
     {
@@ -48,6 +50,7 @@ class CheckoutConfirmTemplateSubscriberTest extends TestCase
         $this->payByBankService = $this->createMock(PayByBankService::class);
         $this->in3LogoService = $this->createMock(In3LogoService::class);
         $this->idealIssuerService = $this->createMock(IdealIssuerService::class);
+        $this->paypalExpressCredentials = $this->createMock(PayPalExpressCredentialsService::class);
 
         $this->subscriber = new CheckoutConfirmTemplateSubscriber(
             $this->paymentMethodRepository,
@@ -56,7 +59,8 @@ class CheckoutConfirmTemplateSubscriberTest extends TestCase
             $this->translator,
             $this->payByBankService,
             $this->in3LogoService,
-            $this->idealIssuerService
+            $this->idealIssuerService,
+            $this->paypalExpressCredentials
         );
     }
 

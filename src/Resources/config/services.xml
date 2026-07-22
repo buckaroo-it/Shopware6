@@ -135,6 +135,10 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Service\PayPalExpressCredentialsService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+        </service>
+
         <service id="Buckaroo\Shopware6\Service\TestCredentialsService">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
@@ -699,6 +703,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\PayByBankService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\In3LogoService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\IdealIssuerService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\PayPalExpressCredentialsService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

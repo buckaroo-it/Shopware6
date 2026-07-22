@@ -7,6 +7,9 @@
             {% set paypalExpressOptions = {
                 page: "cart",
                 merchantId: page.extensions.buckaroo.paypalMerchantId,
+                clientId: page.extensions.buckaroo.paypalClientId,
+                collectingClientId: page.extensions.buckaroo.paypalCollectingClientId,
+                isTestMode: page.extensions.buckaroo.paypalIsTestMode,
                 websiteKey: page.extensions.buckaroo.websiteKey,
                 i18n: {
                     cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
