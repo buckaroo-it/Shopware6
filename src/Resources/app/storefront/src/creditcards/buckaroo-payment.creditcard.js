@@ -33,6 +33,7 @@ let tokenCache = null;
  *   re-mounted after each checkout re-render), and
  * - PluginManager guarantees a single instance per element, which prevents
  *   duplicate Hosted Fields initialization.
+
  */
 export default class BuckarooCreditCards extends Plugin {
     init() {
@@ -53,6 +54,7 @@ export default class BuckarooCreditCards extends Plugin {
 
         try {
             await this._loadHostedFieldsScript();
+            await this._waitUntilVisible();
             await this._initializeHostedFields();
             this._listenToSubmit();
         } catch (error) {
@@ -98,6 +100,48 @@ export default class BuckarooCreditCards extends Plugin {
 
             if (window.BuckarooHostedFieldsSdk) {
                 resolve();
+            }
+        });
+    }
+
+    /**
+     * Resolves once the hosted fields container is actually rendered visible.
+     *
+     * On Shopware < 6.7 the selected payment method can sit inside the
+     * collapsed "Show more" list on checkout/confirm (visiblePaymentMethodsLimit
+     * = 5, removed in 6.7). Mounting the SDK iframes into a display:none
+     * subtree produces zero-sized, non-interactive fields, so mounting is
+     * deferred until the container is shown. On 6.7+ and for methods in the
+     * visible part of the list this resolves immediately.
+     */
+    _waitUntilVisible() {
+        if (this.el.offsetParent !== null) {
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve) => {
+            let done = false;
+            const finish = () => {
+                if (done) {
+                    return;
+                }
+                done = true;
+                observer.disconnect();
+                resolve();
+            };
+
+            // Fires as soon as the container becomes visible in the viewport,
+            // regardless of the mechanism (collapse, tab, theme JS) hiding it.
+            const observer = new IntersectionObserver((entries) => {
+                if (entries.some((entry) => entry.isIntersecting)) {
+                    finish();
+                }
+            });
+            observer.observe(this.el);
+
+            const collapseParent = this.el.closest('.collapse');
+            if (collapseParent) {
+                collapseParent.addEventListener('shown.bs.collapse', finish, { once: true });
             }
         });
     }
