@@ -90,27 +90,34 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
                 return $this->completeZeroAmountPayment($transaction, $salesChannelContext);
             }
 
+            // Resolve the gateway language (HPP & payment instructions)
+            $culture = $this->resolveCulture($salesChannelContext, $order);
+
+            $payload = array_merge_recursive(
+                $this->getCommonRequestPayload(
+                    $transaction,
+                    $dataBag,
+                    $salesChannelContext,
+                    $paymentCode
+                ),
+                $this->getMethodPayload(
+                    $order,
+                    $dataBag,
+                    $salesChannelContext,
+                    $paymentCode
+                )
+            );
+            if (!isset($payload['culture'])) {
+                $payload['culture'] = $culture;
+            }
+
             $client = $this->getClient(
                 $paymentCode,
                 $salesChannelId,
-                $dataBag
+                $dataBag,
+                $culture
             )
-                ->setPayload(
-                    array_merge_recursive(
-                        $this->getCommonRequestPayload(
-                            $transaction,
-                            $dataBag,
-                            $salesChannelContext,
-                            $paymentCode
-                        ),
-                        $this->getMethodPayload(
-                            $order,
-                            $dataBag,
-                            $salesChannelContext,
-                            $paymentCode
-                        )
-                    )
-                )
+                ->setPayload($payload)
                 ->setAction(
                     $this->getMethodAction(
                         $dataBag,
@@ -375,8 +382,12 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             ->getBuckarooFee($paymentCode, $salesChannelId);
     }
 
-    private function getClient(string $paymentCode, string $salesChannelId, DataBag $dataBag): Client
-    {
+    private function getClient(
+        string $paymentCode,
+        string $salesChannelId,
+        DataBag $dataBag,
+        ?string $culture = null
+    ): Client {
         if (
             $paymentCode === 'paybybank' &&
             $dataBag->get('payBybankMethodId') === 'INGBNL2A' &&
@@ -386,7 +397,23 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         }
         return $this->asyncPaymentService
             ->clientService
-            ->get($paymentCode, $salesChannelId);
+            ->get($paymentCode, $salesChannelId, $culture);
+    }
+
+    /**
+     * Resolve the Buckaroo culture code (ex. "nl-NL") for the current payment,
+     * based on the general "language" plugin setting.
+     */
+    private function resolveCulture(
+        SalesChannelContext $salesChannelContext,
+        ?OrderEntity $order = null
+    ): string {
+        $resolver = $this->asyncPaymentService->getLanguageResolver();
+        if ($resolver === null) {
+            return \Buckaroo\Shopware6\Service\BuckarooLanguageResolver::FALLBACK_CULTURE;
+        }
+
+        return $resolver->resolveLanguage($salesChannelContext, null, $order);
     }
 
     private function getPayment(string $transactionId): AbstractPayment

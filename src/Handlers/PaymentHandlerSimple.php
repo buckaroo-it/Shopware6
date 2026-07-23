@@ -313,13 +313,22 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
                 $methodAction = $this->getMethodAction($dataBag, $salesChannelContext, $paymentCode);
 
+                // Resolve the gateway language (HPP & payment instructions)
+                $culture = $this->resolveCulture($salesChannelContext, $request, $order);
+
                 // Process payment using existing services
                 $client = $this->asyncPaymentService->clientService->get(
                     $paymentCode,
-                    $salesChannelContext->getSalesChannelId()
+                    $salesChannelContext->getSalesChannelId(),
+                    $culture
                 );
-                
-                $client->setPayload(array_merge_recursive($commonPayload, $methodPayload))
+
+                $payload = array_merge_recursive($commonPayload, $methodPayload);
+                if (!isset($payload['culture'])) {
+                    $payload['culture'] = $culture;
+                }
+
+                $client->setPayload($payload)
                        ->setAction($methodAction);
 
                 // Allow specific payment handlers to configure the client
