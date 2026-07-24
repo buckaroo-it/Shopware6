@@ -65,7 +65,8 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
                 $paymentCode,
                 $salesChannelId
             );
-            $existingFee = (float) ($order->getCustomFieldsValue('buckarooFee') ?? 0.0);
+            $existingFeeValue = $order->getCustomFieldsValue('buckarooFee');
+            $existingFee = is_numeric($existingFeeValue) ? (float) $existingFeeValue : 0.0;
             if ($fee > 0 || $existingFee > 0) {
                 $this->asyncPaymentService
                     ->checkoutHelper
