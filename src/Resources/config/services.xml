@@ -211,6 +211,8 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\CaptureService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\NotificationServiceFactory" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\KlarnaMorService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
