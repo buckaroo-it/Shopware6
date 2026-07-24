@@ -268,7 +268,8 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     $paymentCode,
                     $salesChannelContext->getSalesChannelId()
                 );
-                $existingFee = (float) ($order->getCustomFieldsValue('buckarooFee') ?? 0.0);
+                $existingFeeValue = $order->getCustomFieldsValue('buckarooFee');
+                $existingFee = is_numeric($existingFeeValue) ? (float) $existingFeeValue : 0.0;
                 if ($fee > 0 || $existingFee > 0) {
                     $feeCalculator->applyFeeToOrder($order->getId(), $fee, $context);
                     // Reload order to get updated total
@@ -313,13 +314,22 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
                 $methodAction = $this->getMethodAction($dataBag, $salesChannelContext, $paymentCode);
 
+                // Resolve the gateway language (HPP & payment instructions)
+                $culture = $this->resolveCulture($salesChannelContext, $request, $order);
+
                 // Process payment using existing services
                 $client = $this->asyncPaymentService->clientService->get(
                     $paymentCode,
-                    $salesChannelContext->getSalesChannelId()
+                    $salesChannelContext->getSalesChannelId(),
+                    $culture
                 );
-                
-                $client->setPayload(array_merge_recursive($commonPayload, $methodPayload))
+
+                $payload = array_merge_recursive($commonPayload, $methodPayload);
+                if (!isset($payload['culture'])) {
+                    $payload['culture'] = $culture;
+                }
+
+                $client->setPayload($payload)
                        ->setAction($methodAction);
 
                 // Allow specific payment handlers to configure the client

@@ -32,7 +32,8 @@ class Client
         string $secretKey,
         string $paymentCode,
         string $mode = 'live',
-        string $shopwareVersion = 'unknown'
+        string $shopwareVersion = 'unknown',
+        ?string $culture = null
     ) {
         $this->client = new BuckarooClient(
             new DefaultConfig(
@@ -47,7 +48,8 @@ class Client
                 $shopwareVersion,
                 'Buckaroo',
                 'BuckarooPayments',
-                InstalledVersions::getVersion('buckaroo/shopware6')
+                InstalledVersions::getVersion('buckaroo/shopware6'),
+                $culture
             )
         );
         $this->paymentCode = $paymentCode;

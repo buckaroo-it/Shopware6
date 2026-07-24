@@ -167,6 +167,87 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field type="single-select">
+            <name>language</name>
+            <label lang="en-GB">Language</label>
+            <label lang="de-DE">Sprache</label>
+            <label lang="nl-NL">Taal</label>
+            <label lang="fr-FR">Langue</label>
+            <label lang="es-ES">Idioma</label>
+            <helpText lang="en-GB">Select the language used for the Buckaroo payment gateway and payment instructions. Choose a dynamic option, use the default Shopware sales channel language, or select a fixed language.</helpText>
+            <helpText lang="de-DE">Wählen Sie die Sprache aus, die für das Buckaroo Payment Gateway und die Zahlungsanweisungen verwendet wird. Wählen Sie eine dynamische Option, verwenden Sie die Standardsprache des Shopware-Verkaufskanals oder wählen Sie eine feste Sprache aus.</helpText>
+            <helpText lang="nl-NL">Selecteer de taal die wordt gebruikt voor de Buckaroo payment gateway en betaalinstructies. Kies een dynamische optie, gebruik de standaardtaal van het Shopware-verkoopkanaal of selecteer een vaste taal.</helpText>
+            <helpText lang="fr-FR">Sélectionnez la langue utilisée pour la passerelle de paiement Buckaroo et les instructions de paiement. Choisissez une option dynamique, utilisez la langue par défaut du canal de vente Shopware ou sélectionnez une langue fixe.</helpText>
+            <helpText lang="es-ES">Seleccione el idioma que se utilizará para la pasarela de pago Buckaroo y las instrucciones de pago. Elija una opción dinámica, utilice el idioma predeterminado del canal de ventas de Shopware o seleccione una lengua fija.</helpText>
+            <defaultValue>browser</defaultValue>
+            <options>
+                <option>
+                    <id>browser</id>
+                    <name lang="en-GB">Dynamic based on the customer's browser language</name>
+                    <name lang="de-DE">Dynamisch basierend auf der Browsersprache des Kunden</name>
+                    <name lang="nl-NL">Dynamisch op basis van de browsertaal van de klant</name>
+                    <name lang="fr-FR">Dynamique selon la langue du navigateur du client</name>
+                    <name lang="es-ES">Dinámico según el idioma del navegador del cliente</name>
+                </option>
+                <option>
+                    <id>billing_country</id>
+                    <name lang="en-GB">Dynamic based on the customer's billing country</name>
+                    <name lang="de-DE">Dynamisch basierend auf dem Rechnungsland des Kunden</name>
+                    <name lang="nl-NL">Dynamisch op basis van het factuurland van de klant</name>
+                    <name lang="fr-FR">Dynamique selon le pays de facturation du client</name>
+                    <name lang="es-ES">Dinámico según el país de facturación del cliente</name>
+                </option>
+                <option>
+                    <id>sales_channel</id>
+                    <name lang="en-GB">Default Shopware sales channel language</name>
+                    <name lang="de-DE">Standardsprache des Shopware-Verkaufskanals</name>
+                    <name lang="nl-NL">Standaardtaal van het Shopware-verkoopkanaal</name>
+                    <name lang="fr-FR">Langue par défaut du canal de vente Shopware</name>
+                    <name lang="es-ES">Idioma predeterminado del canal de ventas de Shopware</name>
+                </option>
+                <option>
+                    <id>en</id>
+                    <name lang="en-GB">English</name>
+                    <name lang="de-DE">Englisch</name>
+                    <name lang="nl-NL">Engels</name>
+                    <name lang="fr-FR">Anglais</name>
+                    <name lang="es-ES">Inglés</name>
+                </option>
+                <option>
+                    <id>nl</id>
+                    <name lang="en-GB">Dutch</name>
+                    <name lang="de-DE">Niederländisch</name>
+                    <name lang="nl-NL">Nederlands</name>
+                    <name lang="fr-FR">Néerlandais</name>
+                    <name lang="es-ES">Neerlandés</name>
+                </option>
+                <option>
+                    <id>de</id>
+                    <name lang="en-GB">German</name>
+                    <name lang="de-DE">Deutsch</name>
+                    <name lang="nl-NL">Duits</name>
+                    <name lang="fr-FR">Allemand</name>
+                    <name lang="es-ES">Alemán</name>
+                </option>
+                <option>
+                    <id>fr</id>
+                    <name lang="en-GB">French</name>
+                    <name lang="de-DE">Französisch</name>
+                    <name lang="nl-NL">Frans</name>
+                    <name lang="fr-FR">Français</name>
+                    <name lang="es-ES">Francés</name>
+                </option>
+                <option>
+                    <id>es</id>
+                    <name lang="en-GB">Spanish</name>
+                    <name lang="de-DE">Spanisch</name>
+                    <name lang="nl-NL">Spaans</name>
+                    <name lang="fr-FR">Espagnol</name>
+                    <name lang="es-ES">Español</name>
+                </option>
+            </options>
+        </input-field>
     </card>
     
     <card>
