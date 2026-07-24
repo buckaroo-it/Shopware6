@@ -86,6 +86,10 @@ class OrderStateChangeEvent implements EventSubscriberInterface
      */
     public function onOrderStateCancelled(OrderStateMachineStateChangeEvent $event): void
     {
+        $this->logger->info('Buckaroo Klarna MoR: order cancelled event received', [
+            'orderId' => $event->getOrder()->getId(),
+        ]);
+
         try {
             $this->cancelKlarnaMorReservation(
                 $event->getOrder()->getId(),
@@ -214,10 +218,25 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             return false;
         }
 
-        if (!$this->hasAuthorizedTransaction($order)) {
+        // Eligible while the Buckaroo authorization is still active. The Shopware
+        // transaction is either still `authorized`, or already `cancelled` locally
+        // (the admin cancel dialog cancels the payment together with the order,
+        // and that local transition does not release anything at Buckaroo).
+        // Captured/paid/refunded transactions are excluded.
+        $transactionState = $this->getLastTransactionState($order);
+        if (
+            !in_array(
+                $transactionState,
+                [OrderTransactionStates::STATE_AUTHORIZED, OrderTransactionStates::STATE_CANCELLED],
+                true
+            )
+        ) {
             $this->logger->info(
                 'Buckaroo Klarna MoR: skipping cancellation, payment transaction is not authorized',
-                ['orderId' => $order->getId()]
+                [
+                    'orderId'          => $order->getId(),
+                    'transactionState' => $transactionState,
+                ]
             );
             return false;
         }
@@ -232,20 +251,21 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         return true;
     }
 
-    private function hasAuthorizedTransaction(OrderEntity $order): bool
+    private function getLastTransactionState(OrderEntity $order): ?string
     {
         $transactions = $order->getTransactions();
         if ($transactions === null) {
-            return false;
+            return null;
         }
 
         $transaction = $transactions->last();
         if ($transaction === null) {
-            return false;
+            return null;
         }
 
-        return $transaction->getStateMachineState() !== null &&
-            $transaction->getStateMachineState()->getTechnicalName() === OrderTransactionStates::STATE_AUTHORIZED;
+        $state = $transaction->getStateMachineState();
+
+        return $state !== null ? $state->getTechnicalName() : null;
     }
 
     private function isShipped(OrderEntity $order): bool
