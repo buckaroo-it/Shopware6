@@ -18,9 +18,12 @@ use Buckaroo\Shopware6\Service\TransactionService;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Service\NotificationServiceFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
+use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 
 class OrderStateChangeEvent implements EventSubscriberInterface
 {
@@ -76,7 +79,39 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         return [
             'state_enter.order_delivery.state.shipped' => 'onOrderDeliveryStateShipped',
             'state_enter.order.state.cancelled' => 'onOrderStateCancelled',
+            StateMachineTransitionEvent::class => 'onStateMachineTransition',
         ];
+    }
+
+    /**
+     * Fallback path: StateMachineRegistry dispatches this class-based event for
+     * every state transition, independently of the `state_enter.*` business
+     * events. Deduplication with onOrderStateCancelled is handled by the
+     * `reservationCancelled` custom field and the transaction-state guards.
+     */
+    public function onStateMachineTransition(StateMachineTransitionEvent $event): void
+    {
+        if ($event->getEntityName() !== OrderDefinition::ENTITY_NAME) {
+            return;
+        }
+
+        if ($event->getToPlace()->getTechnicalName() !== OrderStates::STATE_CANCELLED) {
+            return;
+        }
+
+        $this->logger->info('Buckaroo Klarna MoR: order cancelled transition received (state machine)', [
+            'orderId' => $event->getEntityId(),
+        ]);
+
+        try {
+            $this->cancelKlarnaMorReservation(
+                $event->getEntityId(),
+                $event->getContext()
+            );
+        } catch (\Throwable $th) {
+            // Never let a Buckaroo failure break the merchant's order-cancellation flow.
+            $this->logger->error(__METHOD__ . ' ' . (string)$th);
+        }
     }
 
     /**
