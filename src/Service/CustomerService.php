@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 
@@ -56,13 +57,16 @@ class CustomerService
      */
     protected $eventDispatcher;
 
+    protected SalesChannelContextPersister $contextPersister;
+
     public function __construct(
         CustomerAddressService $customerAddressService,
         EntityRepository $customerRepository,
         EntityRepository $salutationRepository,
         EntityRepository $orderCustomerRepository,
         SalesChannelContextRestorer $restorer,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        SalesChannelContextPersister $contextPersister
     ) {
         $this->customerAddressService = $customerAddressService;
         $this->customerRepository = $customerRepository;
@@ -70,6 +74,7 @@ class CustomerService
         $this->orderCustomerRepository = $orderCustomerRepository;
         $this->restorer = $restorer;
         $this->eventDispatcher = $eventDispatcher;
+        $this->contextPersister = $contextPersister;
     }
 
     /**
@@ -190,9 +195,17 @@ class CustomerService
      */
     protected function loginCreatedCustomer(CustomerEntity $customer): void
     {
-        $context = $this->restorer->restoreByCustomer($customer->getId(), $this->salesChannelContext->getContext());
+        $token = $this->salesChannelContext->getToken();
+
+        $this->contextPersister->save(
+            $token,
+            ['customerId' => $customer->getId()],
+            $this->salesChannelContext->getSalesChannelId(),
+            $customer->getId()
+        );
+
         $this->eventDispatcher->dispatch(
-            new CustomerLoginEvent($context, $customer, $context->getToken())
+            new CustomerLoginEvent($this->salesChannelContext, $customer, $token)
         );
     }
 
