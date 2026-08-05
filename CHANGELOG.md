@@ -450,6 +450,3 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-776 Add support for native refunds.
 - BTI-906 Rest API support for the “Capture on shipment” setting for Klarna (MoR).
 
-# Unreleased
-
-- BTI-1059 Add PayPal Express sandbox environment support: new "Paypal express sandbox merchant id" setting, used automatically when the payment method is set to Test; in test mode the sandbox Buckaroo Client SDK build is loaded and the SDK selects the matching PayPal (sandbox) client ids internally.
