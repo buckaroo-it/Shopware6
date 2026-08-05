@@ -66,7 +66,8 @@ abstract class AbstractPaymentController extends StorefrontController
 
     protected function formatNumber(float $number): string
     {
-        return number_format($number, 2);
+        // No thousands separator: Apple Pay / Google Pay reject "1,234.56" as an amount.
+        return number_format($number, 2, '.', '');
     }
     /**
      * Return json response with data

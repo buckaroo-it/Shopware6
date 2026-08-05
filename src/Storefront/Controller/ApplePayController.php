@@ -161,8 +161,12 @@ class ApplePayController extends AbstractPaymentController
     public function createAppleOrder(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
 
-        $this->overrideChannelPaymentMethod($salesChannelContext, 'ApplePayPaymentHandler');
         try {
+            // Inside the try: a failure here must return JSON, not a 500 page —
+            // an HTML 500 leaves the Apple Pay sheet waiting for completePayment()
+            // until it times out (~30s) and fails on the device.
+            $this->overrideChannelPaymentMethod($salesChannelContext, 'ApplePayPaymentHandler');
+
             $redirectPath = $this->placeOrder(
                 $this->createOrder($salesChannelContext, $request),
                 $salesChannelContext,
@@ -367,10 +371,11 @@ class ApplePayController extends AbstractPaymentController
             )->getShippingCosts()->getTotalPrice();
 
             $shippingMethods[] = [
-                'label' => $shippingMethod->getName(),
-                'amount' => $amount,
+                'label' => $shippingMethod->getName() ?? '',
+                // Apple Pay expects string amounts ("4.99"); null detail renders as "null" on the sheet
+                'amount' => $this->formatNumber($amount),
                 'identifier' => $shippingMethod->getId(),
-                'detail' => $shippingMethod->getDescription()
+                'detail' => $shippingMethod->getDescription() ?? ''
             ];
         }
 

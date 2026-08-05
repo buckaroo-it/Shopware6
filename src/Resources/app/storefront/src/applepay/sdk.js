@@ -177,6 +177,12 @@ var PayPayment = function (options) {
 
     /**
      * Handles merchant validation for the Apple Pay session.
+     *
+     * Any non-2xx response, network error or invalid JSON from the Buckaroo
+     * request-session endpoint aborts the session explicitly. Passing an error
+     * body into completeMerchantValidation() (or never calling it) surfaces as
+     * a generic "Service Unavailable" on the device with nothing in any log.
+     *
      * @param event - The ApplePayValidateMerchantEvent object.
      */
     this.onValidateMerchant = function (event) {
@@ -189,8 +195,19 @@ var PayPayment = function (options) {
         fetch(_this.validationUrl, {
             method: 'POST',
             body: JSON.stringify(data),
-        }).then((response) => response.json()).then(function (response) {
-            _this.session.completeMerchantValidation(response);
+        }).then(function (response) {
+            if (!response.ok) {
+                throw new Error('Merchant validation failed: HTTP ' + response.status);
+            }
+            return response.json();
+        }).then(function (merchantSession) {
+            if (!merchantSession || merchantSession.statusCode >= 400 || merchantSession.error) {
+                throw new Error('Merchant validation failed: invalid merchant session');
+            }
+            _this.session.completeMerchantValidation(merchantSession);
+        }).catch(function (error) {
+            console.warn('Apple Pay merchant validation failed:', error);
+            _this.abortSession();
         });
     };
 

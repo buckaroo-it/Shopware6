@@ -169,7 +169,10 @@ export default class ApplePayPlugin extends Plugin {
         self.captureFunds.bind(self),
         self.isCheckout(self.updateCart.bind(self), null),
         self.isCheckout(self.updateCart.bind(self), null),
-        self.isCheckout(["email", "name", "postalAddress"], []),
+        // Billing: keep the card holder name in standard checkout too — it is
+        // forwarded to Buckaroo as customerCardName (matches the old SDK and
+        // the Magento implementation, which used the full default field set).
+        self.isCheckout(["email", "name", "postalAddress"], ["name"]),
         self.isCheckout(["email", "name", "postalAddress"], []),
       );
 
@@ -212,8 +215,13 @@ export default class ApplePayPlugin extends Plugin {
           page: this.options.page,
         }),
         (response) => {
-          const resp = JSON.parse(response);
-          if (resp.redirect) {
+          let resp = null;
+          try {
+            resp = JSON.parse(response);
+          } catch (e) {
+            resp = { error: true };
+          }
+          if (resp && resp.redirect) {
             resolve({
               status: ApplePaySession.STATUS_SUCCESS,
               errors: [],
@@ -221,13 +229,16 @@ export default class ApplePayPlugin extends Plugin {
             window.location = resp.redirect;
           } else {
             let message = this.options.i18n.cannot_create_payment;
-            if (resp.message) {
+            if (resp && resp.message) {
               message = resp.message;
             }
             this.displayErrorMessage(message);
+            // errors must contain ApplePayError objects — plain strings make
+            // completePayment() throw and kill the session with a generic
+            // device-side error instead of showing anything useful.
             resolve({
               status: ApplePaySession.STATUS_FAILURE,
-              errors: [message],
+              errors: [],
             });
           }
         }
@@ -262,17 +273,47 @@ export default class ApplePayPlugin extends Plugin {
         `${this.url}/apple/cart/update`,
         JSON.stringify(request),
         (response) => {
-          const resp = JSON.parse(response);
-
-          let status = ApplePaySession.STATUS_SUCCESS;
-          if (resp.error) {
-            status = ApplePaySession.STATUS_FAILURE;
-            this.displayErrorMessage(resp.message);
-            console.warn(resp.message);
+          let resp = null;
+          try {
+            resp = JSON.parse(response);
+          } catch (e) {
+            resp = { error: true, message: null };
           }
+
+          if (resp.error) {
+            if (resp.message) {
+              this.displayErrorMessage(resp.message);
+              console.warn(resp.message);
+            }
+            // Keep the session alive: the one-argument completion form REQUIRES
+            // newTotal — resolving without it (or with string errors) throws in
+            // WebKit, aborts the session and shows "Service Unavailable" on the
+            // device. Fall back to the totals fetched at page load and report a
+            // proper ApplePayError instead.
+            const errors = [];
+            if (typeof ApplePayError === "function") {
+              errors.push(
+                new ApplePayError(
+                  "shippingContactInvalid",
+                  "postalAddress",
+                  typeof resp.message === "string" && resp.message !== ""
+                    ? resp.message
+                    : "This address cannot be processed."
+                )
+              );
+            }
+            resolve({
+              newTotal: this.cartData ? this.cartData.totals : undefined,
+              newLineItems: this.cartData ? this.cartData.lineItems : undefined,
+              errors: errors,
+            });
+            return;
+          }
+
           resolve({
-            status: status,
-            ...resp,
+            newTotal: resp.newTotal,
+            newLineItems: resp.newLineItems,
+            newShippingMethods: resp.newShippingMethods,
           });
         }
       );
