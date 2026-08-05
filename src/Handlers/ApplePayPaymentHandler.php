@@ -48,7 +48,7 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
         }
 
         return [
-            "customerCardName" => $this->getCustomerName($data),
+            "customerCardName" => $this->getCustomerName($data, $order),
             "paymentData" => $this->getPaymentData($data)
         ];
     }
@@ -74,20 +74,34 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
+     * Card holder name sent to Buckaroo (shown as the customer in Plaza).
+     * Prefer the Apple Pay billing contact, fall back to the shipping contact
+     * (express flow) and finally to the order customer — in the standard
+     * checkout the shop always knows the customer, so the transaction should
+     * never end up as "Customer Unknown".
+     *
      * @param mixed $data
+     * @param OrderEntity $order
      * @return string
      */
-    private function getCustomerName($data): string
+    private function getCustomerName($data, OrderEntity $order): string
     {
-        if (!is_object($data)) {
-            return '';
+        if (is_object($data)) {
+            foreach (['billingContact', 'shippingContact'] as $contactKey) {
+                if (!empty($data->{$contactKey}) &&
+                    !empty($data->{$contactKey}->givenName) &&
+                    !empty($data->{$contactKey}->familyName)
+                ) {
+                    return $data->{$contactKey}->givenName . ' ' . $data->{$contactKey}->familyName;
+                }
+            }
         }
-        if (!empty($data->billingContact) &&
-            !empty($data->billingContact->givenName) &&
-            !empty($data->billingContact->familyName)
-        ) {
-            return  $data->billingContact->givenName . ' ' . $data->billingContact->familyName;
+
+        $orderCustomer = $order->getOrderCustomer();
+        if ($orderCustomer !== null) {
+            return trim(($orderCustomer->getFirstName() ?? '') . ' ' . ($orderCustomer->getLastName() ?? ''));
         }
+
         return '';
     }
 }
