@@ -83,6 +83,8 @@ class ApplePayController extends AbstractPaymentController
                 "shippingMethods" => $this->getFormatedShippingMethods($cart, $salesChannelContext)
             ]);
         } catch (\Throwable $th) {
+            // error level: debug is not written in production, which hides the
+            // real cause behind the generic "unknown error" JSON response.
             $this->logger->error('[ApplePay] request failed: ' . (string)$th);
             return $this->response(
                 ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
@@ -467,6 +469,14 @@ class ApplePayController extends AbstractPaymentController
 
         $data = [];
         foreach ($contactData as $key => $value) {
+            if ($key === 'addressLines' && is_array($value)) {
+                $value = trim(implode(' ', array_filter($value, 'is_string')));
+            }
+
+            if ($value === null || $value === '' || $value === []) {
+                continue;
+            }
+
             if (isset($mappings[$key])) {
                 $data[$mappings[$key]] = $value;
             } else {
