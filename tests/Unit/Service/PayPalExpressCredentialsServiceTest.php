@@ -74,18 +74,6 @@ class PayPalExpressCredentialsServiceTest extends TestCase
         );
     }
 
-    public function testLiveModeReturnsNullClientIdsSoSdkDefaultsAreUsed(): void
-    {
-        $this->mockEnvironment('live');
-        $this->mockSettings([
-            'paypalExpressClientIdTest'           => 'test-client-id',
-            'paypalExpressCollectingClientIdTest' => 'test-collecting-client-id',
-        ]);
-
-        $this->assertNull($this->service->getClientId(self::SALES_CHANNEL_ID));
-        $this->assertNull($this->service->getCollectingClientId(self::SALES_CHANNEL_ID));
-    }
-
     public function testTestModeReturnsSandboxMerchantId(): void
     {
         $this->mockEnvironment('test');
@@ -110,36 +98,14 @@ class PayPalExpressCredentialsServiceTest extends TestCase
         $this->assertNull($this->service->getMerchantId(self::SALES_CHANNEL_ID));
     }
 
-    public function testTestModeReturnsConfiguredTestClientIds(): void
-    {
-        $this->mockEnvironment('test');
-        $this->mockSettings([
-            'paypalExpressClientIdTest'           => 'test-client-id',
-            'paypalExpressCollectingClientIdTest' => 'test-collecting-client-id',
-        ]);
-
-        $this->assertSame(
-            'test-client-id',
-            $this->service->getClientId(self::SALES_CHANNEL_ID)
-        );
-        $this->assertSame(
-            'test-collecting-client-id',
-            $this->service->getCollectingClientId(self::SALES_CHANNEL_ID)
-        );
-    }
-
     public function testEmptyOrWhitespaceSettingsReturnNull(): void
     {
         $this->mockEnvironment('test');
         $this->mockSettings([
-            'paypalExpressSandboxMerchantId'      => '   ',
-            'paypalExpressClientIdTest'           => '',
-            'paypalExpressCollectingClientIdTest' => null,
+            'paypalExpressSandboxMerchantId' => '   ',
         ]);
 
         $this->assertNull($this->service->getMerchantId(self::SALES_CHANNEL_ID));
-        $this->assertNull($this->service->getClientId(self::SALES_CHANNEL_ID));
-        $this->assertNull($this->service->getCollectingClientId(self::SALES_CHANNEL_ID));
     }
 
     public function testValuesAreTrimmed(): void
@@ -159,18 +125,14 @@ class PayPalExpressCredentialsServiceTest extends TestCase
     {
         $this->mockEnvironment('test');
         $this->mockSettings([
-            'paypalExpressmerchantid'             => 'live-merchant-id',
-            'paypalExpressSandboxMerchantId'      => 'sandbox-merchant-id',
-            'paypalExpressClientIdTest'           => 'test-client-id',
-            'paypalExpressCollectingClientIdTest' => 'test-collecting-client-id',
+            'paypalExpressmerchantid'        => 'live-merchant-id',
+            'paypalExpressSandboxMerchantId' => 'sandbox-merchant-id',
         ]);
 
         $this->assertSame(
             [
-                'merchantId'         => 'sandbox-merchant-id',
-                'clientId'           => 'test-client-id',
-                'collectingClientId' => 'test-collecting-client-id',
-                'isTestMode'         => true,
+                'merchantId' => 'sandbox-merchant-id',
+                'isTestMode' => true,
             ],
             $this->service->getCredentials(self::SALES_CHANNEL_ID)
         );
@@ -180,18 +142,14 @@ class PayPalExpressCredentialsServiceTest extends TestCase
     {
         $this->mockEnvironment('live');
         $this->mockSettings([
-            'paypalExpressmerchantid'             => 'live-merchant-id',
-            'paypalExpressSandboxMerchantId'      => 'sandbox-merchant-id',
-            'paypalExpressClientIdTest'           => 'test-client-id',
-            'paypalExpressCollectingClientIdTest' => 'test-collecting-client-id',
+            'paypalExpressmerchantid'        => 'live-merchant-id',
+            'paypalExpressSandboxMerchantId' => 'sandbox-merchant-id',
         ]);
 
         $this->assertSame(
             [
-                'merchantId'         => 'live-merchant-id',
-                'clientId'           => null,
-                'collectingClientId' => null,
-                'isTestMode'         => false,
+                'merchantId' => 'live-merchant-id',
+                'isTestMode' => false,
             ],
             $this->service->getCredentials(self::SALES_CHANNEL_ID)
         );

@@ -1023,24 +1023,6 @@
             <helpText lang="nl-NL">PayPal sandbox merchant id die wordt gebruikt wanneer de betaalmethode op Test staat.</helpText>
             <helpText lang="de-DE">PayPal-Sandbox-Händler-ID, die verwendet wird, wenn die Zahlungsmethode auf Test steht.</helpText>
         </input-field>
-        <input-field>
-            <name>paypalExpressClientIdTest</name>
-            <label lang="en-GB">PayPalClientId (Test)</label>
-            <label lang="nl-NL">PayPalClientId (Test)</label>
-            <label lang="de-DE">PayPalClientId (Test)</label>
-            <helpText lang="en-GB">PayPal (sandbox) client id used for PayPal Express when the payment method is set to Test.</helpText>
-            <helpText lang="nl-NL">PayPal (sandbox) client id die wordt gebruikt voor PayPal Express wanneer de betaalmethode op Test staat.</helpText>
-            <helpText lang="de-DE">PayPal-(Sandbox-)Client-ID, die für PayPal Express verwendet wird, wenn die Zahlungsmethode auf Test steht.</helpText>
-        </input-field>
-        <input-field>
-            <name>paypalExpressCollectingClientIdTest</name>
-            <label lang="en-GB">PayPalCollectingClientId (Test)</label>
-            <label lang="nl-NL">PayPalCollectingClientId (Test)</label>
-            <label lang="de-DE">PayPalCollectingClientId (Test)</label>
-            <helpText lang="en-GB">PayPal (sandbox) collecting client id used for PayPal Express when the payment method is set to Test.</helpText>
-            <helpText lang="nl-NL">PayPal (sandbox) collecting client id die wordt gebruikt voor PayPal Express wanneer de betaalmethode op Test staat.</helpText>
-            <helpText lang="de-DE">PayPal-(Sandbox-)Collecting-Client-ID, die für PayPal Express verwendet wird, wenn die Zahlungsmethode auf Test steht.</helpText>
-        </input-field>
     </card>
 
     <card>

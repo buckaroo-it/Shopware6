@@ -6,8 +6,6 @@ export default class PaypalExpressPlugin extends Plugin {
     static options = {
         page: 'unknown',
         merchantId: null,
-        clientId: null,
-        collectingClientId: null,
         isTestMode: false
     }
     httpClient = new HttpClient();
@@ -48,29 +46,23 @@ export default class PaypalExpressPlugin extends Plugin {
         }
         document.$emitter.subscribe('buckaroo_scripts_loaded', () => {
             this.sdk = BuckarooSdk.PayPal;
-            this.applyEnvironmentCredentials();
+            this.setSdkTestMode();
             this.sdk.initiate(this.sdkOptions);
         })
     }
 
     /**
-     * Apply the environment specific (sandbox) PayPal credentials to the
-     * Buckaroo SDK before it is initiated. In live mode nothing is changed,
-     * so the SDK keeps using its existing live PayPalClientId and
-     * PayPalCollectingClientId.
+     * Signal the environment to the Buckaroo SDK; it then selects the
+     * matching (sandbox/live) PayPal client ids internally, consistent
+     * with the implementation used in the other Buckaroo plugins.
      */
-    applyEnvironmentCredentials()
+    setSdkTestMode()
     {
-        if (this.options.isTestMode !== true) {
-            return;
-        }
-
-        if (this.options.clientId) {
-            this.sdk.testModePayPalClientId = this.options.clientId;
-        }
-
-        if (this.options.collectingClientId) {
-            this.sdk.testModePayPalCollectingClientId = this.options.collectingClientId;
+        if (
+            typeof BuckarooSdk.Base !== 'undefined' &&
+            typeof BuckarooSdk.Base.setTestMode === 'function'
+        ) {
+            BuckarooSdk.Base.setTestMode(this.options.isTestMode === true);
         }
     }
 

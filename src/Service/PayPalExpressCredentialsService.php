@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Service;
 
 /**
- * Central place for resolving the PayPal Express credentials
- * (merchant id, PayPalClientId, PayPalCollectingClientId) based on the
+ * Central place for resolving the PayPal Express credentials based on the
  * configured PayPal environment (live / test-sandbox).
  *
- * All PayPal Express SDK initializations must retrieve their credentials
- * through this service so live and sandbox credentials are never mixed.
+ * Only the merchant id is merchant specific. The PayPal (sandbox/live)
+ * client ids are managed by the Buckaroo Client SDK itself: the storefront
+ * signals the environment (isTestMode / Base.setTestMode) and the SDK
+ * selects the matching client ids internally, consistent with the
+ * implementation used in the other Buckaroo plugins.
  */
 class PayPalExpressCredentialsService
 {
@@ -18,8 +20,6 @@ class PayPalExpressCredentialsService
 
     public const SETTING_LIVE_MERCHANT_ID = 'paypalExpressmerchantid';
     public const SETTING_SANDBOX_MERCHANT_ID = 'paypalExpressSandboxMerchantId';
-    public const SETTING_TEST_CLIENT_ID = 'paypalExpressClientIdTest';
-    public const SETTING_TEST_COLLECTING_CLIENT_ID = 'paypalExpressCollectingClientIdTest';
 
     protected SettingsService $settingsService;
 
@@ -62,55 +62,17 @@ class PayPalExpressCredentialsService
     }
 
     /**
-     * Get the environment aware PayPalClientId.
-     * Live mode  -> null, the Buckaroo SDK uses its existing (live) PayPalClientId.
-     * Test mode  -> the configured sandbox PayPalClientId (Test).
-     *
-     * @param string|null $salesChannelId
-     *
-     * @return string|null
-     */
-    public function getClientId(?string $salesChannelId = null): ?string
-    {
-        if (!$this->isTestMode($salesChannelId)) {
-            return null;
-        }
-
-        return $this->getStringSetting(self::SETTING_TEST_CLIENT_ID, $salesChannelId);
-    }
-
-    /**
-     * Get the environment aware PayPalCollectingClientId.
-     * Live mode  -> null, the Buckaroo SDK uses its existing (live) PayPalCollectingClientId.
-     * Test mode  -> the configured sandbox PayPalCollectingClientId (Test).
-     *
-     * @param string|null $salesChannelId
-     *
-     * @return string|null
-     */
-    public function getCollectingClientId(?string $salesChannelId = null): ?string
-    {
-        if (!$this->isTestMode($salesChannelId)) {
-            return null;
-        }
-
-        return $this->getStringSetting(self::SETTING_TEST_COLLECTING_CLIENT_ID, $salesChannelId);
-    }
-
-    /**
      * Get all environment aware PayPal Express credentials at once.
      *
      * @param string|null $salesChannelId
      *
-     * @return array{merchantId: string|null, clientId: string|null, collectingClientId: string|null, isTestMode: bool}
+     * @return array{merchantId: string|null, isTestMode: bool}
      */
     public function getCredentials(?string $salesChannelId = null): array
     {
         return [
-            'merchantId'         => $this->getMerchantId($salesChannelId),
-            'clientId'           => $this->getClientId($salesChannelId),
-            'collectingClientId' => $this->getCollectingClientId($salesChannelId),
-            'isTestMode'         => $this->isTestMode($salesChannelId),
+            'merchantId' => $this->getMerchantId($salesChannelId),
+            'isTestMode' => $this->isTestMode($salesChannelId),
         ];
     }
 
