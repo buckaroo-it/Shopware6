@@ -29,11 +29,13 @@ class ClientService
      *
      * @param string $configMethodCode
      * @param string $salesChannelId
+     * @param string|null $culture culture code (ex. "nl-NL") sent to Buckaroo,
+     *                             used for the hosted payment page and payment instructions
      *
      * @return Client
      * @throws ClientInitException
      */
-    public function get(string $configMethodCode, ?string $salesChannelId = null): Client
+    public function get(string $configMethodCode, ?string $salesChannelId = null, ?string $culture = null): Client
     {
         $mode = $this->settingsService->getEnvironment($configMethodCode, $salesChannelId);
 
@@ -43,7 +45,8 @@ class ClientService
                 $this->settingsService->getSettingAsString('secretKey', $salesChannelId),
                 $this->getPaymentCode($configMethodCode, $salesChannelId),
                 $mode  == 'live' ? Config::LIVE_MODE : Config::TEST_MODE,
-                $this->shopwareVersion
+                $this->shopwareVersion,
+                $culture
             );
         } catch (\Throwable $th) {
             throw new ClientInitException("Cannot initiate buckaroo sdk client", 0, $th);

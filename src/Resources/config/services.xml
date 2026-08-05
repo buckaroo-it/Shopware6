@@ -174,6 +174,9 @@
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\PaymentServiceDecorator"/>
+            <call method="setLanguageResolver">
+                <argument type="service" id="Buckaroo\Shopware6\Service\BuckarooLanguageResolver"/>
+            </call>
         </service>
 
         <!-- Notification Service Factory for version compatibility -->
@@ -208,6 +211,8 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\CaptureService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\NotificationServiceFactory" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\KlarnaMorService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -221,6 +226,12 @@
 
         <service id="Buckaroo\Shopware6\Service\SettingsService">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\BuckarooLanguageResolver">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="language.repository"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\PaymentServiceDecorator">

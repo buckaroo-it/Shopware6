@@ -31,6 +31,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class AsyncPaymentService
 {
+    protected ?BuckarooLanguageResolver $languageResolver = null;
+
     public function __construct(
         public SettingsService $settingsService,
         public UrlService $urlService,
@@ -46,6 +48,16 @@ class AsyncPaymentService
         protected EntityRepository $orderTransactionRepository,
         protected SalesChannelContextServiceInterface $salesChannelContextService
     ) {
+    }
+
+    public function setLanguageResolver(BuckarooLanguageResolver $languageResolver): void
+    {
+        $this->languageResolver = $languageResolver;
+    }
+
+    public function getLanguageResolver(): ?BuckarooLanguageResolver
+    {
+        return $this->languageResolver;
     }
 
 
