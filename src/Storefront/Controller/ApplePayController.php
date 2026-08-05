@@ -83,7 +83,7 @@ class ApplePayController extends AbstractPaymentController
                 "shippingMethods" => $this->getFormatedShippingMethods($cart, $salesChannelContext)
             ]);
         } catch (\Throwable $th) {
-            $this->logger->debug((string)$th);
+            $this->logger->error('[ApplePay] request failed: ' . (string)$th);
             return $this->response(
                 ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                 true
@@ -131,7 +131,7 @@ class ApplePayController extends AbstractPaymentController
 
             if ($request->request->has('shippingContact')) {
                 $this->loginCustomer(
-                    $this->getCustomerData((array)$request->request->get('shippingContact')),
+                    $this->getCustomerData($request->request->all('shippingContact')),
                     $salesChannelContext
                 );
                 $cart = $this->cartService->calculateCart($cart, $salesChannelContext);
@@ -145,7 +145,7 @@ class ApplePayController extends AbstractPaymentController
                 "newShippingMethods" => $this->getFormatedShippingMethods($cart, $salesChannelContext),
             ]);
         } catch (\Throwable $th) {
-            $this->logger->debug((string)$th);
+            $this->logger->error('[ApplePay] request failed: ' . (string)$th);
             return $this->response(
                 ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                 true
@@ -180,7 +180,9 @@ class ApplePayController extends AbstractPaymentController
                 "redirect" => $this->getFinishPage($redirectPath)
             ]);
         } catch (\Throwable $th) {
-            $this->logger->debug((string)$th);
+            // error level: debug is not written in production, which hides the
+            // real cause behind the generic "unknown error" JSON response.
+            $this->logger->error('[ApplePay] request failed: ' . (string)$th);
             return $this->response(
                 ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                 true
