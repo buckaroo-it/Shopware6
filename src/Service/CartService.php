@@ -174,4 +174,15 @@ class CartService
         $token = $salesChannelContext->getToken();
         $this->cartPersister->delete($token, $salesChannelContext);
     }
+
+    /**
+     * Delete a persisted cart by its token. Used after an express/Apple Pay
+     * order has been placed: the plugin's custom order path bypasses
+     * Shopware's CartOrderRoute, which is where the cart would normally be
+     * deleted after being converted into an order.
+     */
+    public function deleteCartByToken(string $token, SalesChannelContext $salesChannelContext): void
+    {
+        $this->cartPersister->delete($token, $salesChannelContext);
+    }
 }

@@ -150,7 +150,6 @@ class CustomerService
             'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
             'languageId' => $this->salesChannelContext->getContext()->getLanguageId(),
             'groupId' => $this->salesChannelContext->getCurrentCustomerGroup()->getId(),
-            'defaultPaymentMethodId' => $this->salesChannelContext->getPaymentMethod()->getId(),
             'defaultShippingAddressId' => $addressId,
             'defaultBillingAddressId' => $addressId,
             'salutationId' => $salutationId,
@@ -162,6 +161,15 @@ class CustomerService
             'firstLogin' => new \DateTimeImmutable(),
             'addresses' => [$address],
         ];
+
+        // Shopware <= 6.6 still has a default payment method on the customer entity.
+        // The field was removed in Shopware 6.7 (deprecated in 6.6.5.0); writing it there
+        // makes the DAL reject the whole payload and breaks guest express checkout
+        // (Apple Pay / Google Pay QR flows).
+        if ($this->customerRepository->getDefinition()->getFields()->get('defaultPaymentMethodId') !== null) {
+            $customer['defaultPaymentMethodId'] = $this->salesChannelContext->getPaymentMethod()->getId();
+        }
+
         $this->customerRepository->create(
             [$customer],
             $this->salesChannelContext->getContext()

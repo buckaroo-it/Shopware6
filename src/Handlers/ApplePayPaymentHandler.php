@@ -42,7 +42,8 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
         }
 
         $data = json_decode($applePayInfo);
-        if ($data === false || !is_object($data)) {
+        // json_decode() returns null on failure (never false)
+        if ($data === null || !is_object($data)) {
             return [];
         }
 
