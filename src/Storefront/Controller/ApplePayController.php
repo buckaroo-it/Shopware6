@@ -185,6 +185,10 @@ class ApplePayController extends AbstractPaymentController
             $redirect = $this->getFinishPage($redirectPath);
 
             if ($redirect !== null) {
+                // Order placed and payment initiated successfully: delete the cart.
+                // The custom order path bypasses Shopware's CartOrderRoute, which is
+                // where the cart is normally removed after checkout — without this
+                // the paid cart stays in the storefront.
                 $this->deleteCartAfterOrder($request, $salesChannelContext);
             }
 
@@ -247,6 +251,12 @@ class ApplePayController extends AbstractPaymentController
         }
 
         if (in_array($request->request->get('page'), ['product', 'cart'])) {
+            // Express flow: the guest login performed during cart/update runs under a
+            // restored context token that never reaches the browser, so this request
+            // arrives with the original anonymous token and no customer. Create/log in
+            // the guest here from the full (post-authorisation) Apple Pay contact.
+            $this->ensureCustomer($request, $salesChannelContext);
+
             $updatedCart = $this->updateCartBillingAddress(
                 $cart,
                 $salesChannelContext,
@@ -268,6 +278,46 @@ class ApplePayController extends AbstractPaymentController
         return $order;
     }
 
+
+    /**
+     * Make sure the sales channel context has a customer for express orders.
+     * Uses the authorised Apple Pay contact (shipping preferred — it carries the
+     * full postal address; billing as fallback) to create and log in a guest.
+     */
+    private function ensureCustomer(Request $request, SalesChannelContext $salesChannelContext): void
+    {
+        if ($salesChannelContext->getCustomer() !== null) {
+            return;
+        }
+
+        $paymentData = $request->request->get('payment');
+        if (is_string($paymentData)) {
+            $paymentData = json_decode($paymentData, true);
+        }
+
+        $contact = null;
+        if (is_array($paymentData)) {
+            $contact = $paymentData['shippingContact'] ?? $paymentData['billingContact'] ?? null;
+
+            // The e-mail address is usually only present on the shipping contact;
+            // carry it over so the guest gets the real address either way.
+            if (is_array($contact) &&
+                empty($contact['emailAddress']) &&
+                !empty($paymentData['shippingContact']['emailAddress'])
+            ) {
+                $contact['emailAddress'] = $paymentData['shippingContact']['emailAddress'];
+            }
+        }
+
+        if (!is_array($contact) || $contact === []) {
+            throw new \InvalidArgumentException('Cannot create guest customer: no Apple Pay contact available');
+        }
+
+        $this->loginCustomer(
+            $this->getCustomerData($contact),
+            $salesChannelContext
+        );
+    }
 
     /**
      * @param Cart $cart
@@ -495,7 +545,10 @@ class ApplePayController extends AbstractPaymentController
             'postalCode' => 'postal_code',
             'addressLines' => 'street',
             'locality' => 'city',
-            'countryCode' => 'country_code'
+            'countryCode' => 'country_code',
+            // CustomerService reads 'email' — map Apple's key so the guest gets
+            // the shopper's real address instead of the no-reply fallback.
+            'emailAddress' => 'email'
         ];
 
         $data = [];
