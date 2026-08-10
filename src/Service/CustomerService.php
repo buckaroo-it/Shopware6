@@ -120,8 +120,9 @@ class CustomerService
     {
         $this->setSaleChannelContext($context);
 
-        $country = $context->getShippingLocation()->getCountry();
-        $countryCode = $country ? $country->getIso() : 'DE';
+        // ShippingLocation::getCountry() always returns a CountryEntity;
+        // only the ISO code itself is nullable.
+        $countryCode = $context->getShippingLocation()->getCountry()->getIso() ?? 'DE';
 
         return $this->create(new DataBag([
             'paymentToken' => $context->getToken(),
@@ -195,6 +196,11 @@ class CustomerService
      */
     protected function loginCreatedCustomer(CustomerEntity $customer): void
     {
+        // Bind the guest customer to the CURRENT (browser) context token — the same
+        // thing Shopware's LoginRoute does. The previous implementation restored a
+        // brand-new token that never reached the browser, so the shopper's session
+        // stayed anonymous and /checkout/finish redirected to the empty cart page
+        // instead of showing the order confirmation.
         $token = $this->salesChannelContext->getToken();
 
         $this->contextPersister->save(
@@ -325,6 +331,38 @@ class CustomerService
         if (!$this->salesChannelContext instanceof SalesChannelContext) {
             throw new CreateCartException('SaleChannelContext is required');
         }
+    }
+
+    /**
+     * Replace a guest customer's placeholder identity (name/email) with real
+     * data from the authorised Apple Pay contact. Updates the database record
+     * and keeps the in-memory entity in sync so the following order persist
+     * picks up the real values for the order customer.
+     */
+    public function updateCustomerIdentity(CustomerEntity $customer, DataBag $data): void
+    {
+        $this->validateSaleChannelContext();
+
+        $map = [
+            'first_name' => 'firstName',
+            'last_name'  => 'lastName',
+            'email'      => 'email',
+        ];
+
+        $update = ['id' => $customer->getId()];
+        foreach ($map as $key => $field) {
+            $value = $data->get($key);
+            if (is_string($value) && trim($value) !== '') {
+                $update[$field] = trim($value);
+            }
+        }
+
+        if (count($update) === 1) {
+            return;
+        }
+
+        $this->customerRepository->update([$update], $this->salesChannelContext->getContext());
+        $customer->assign($update);
     }
 
     /**

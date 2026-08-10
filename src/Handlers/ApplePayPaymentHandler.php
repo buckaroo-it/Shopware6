@@ -99,7 +99,7 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
 
         $orderCustomer = $order->getOrderCustomer();
         if ($orderCustomer !== null) {
-            return trim(($orderCustomer->getFirstName() ?? '') . ' ' . ($orderCustomer->getLastName() ?? ''));
+            return trim($orderCustomer->getFirstName() . ' ' . $orderCustomer->getLastName());
         }
 
         return '';
