@@ -328,6 +328,38 @@ class CustomerService
     }
 
     /**
+     * Replace a guest customer's placeholder identity (name/email) with real
+     * data from the authorised Apple Pay contact. Updates the database record
+     * and keeps the in-memory entity in sync so the following order persist
+     * picks up the real values for the order customer.
+     */
+    public function updateCustomerIdentity(CustomerEntity $customer, DataBag $data): void
+    {
+        $this->validateSaleChannelContext();
+
+        $map = [
+            'first_name' => 'firstName',
+            'last_name'  => 'lastName',
+            'email'      => 'email',
+        ];
+
+        $update = ['id' => $customer->getId()];
+        foreach ($map as $key => $field) {
+            $value = $data->get($key);
+            if (is_string($value) && trim($value) !== '') {
+                $update[$field] = trim($value);
+            }
+        }
+
+        if (count($update) === 1) {
+            return;
+        }
+
+        $this->customerRepository->update([$update], $this->salesChannelContext->getContext());
+        $customer->assign($update);
+    }
+
+    /**
      * Update customer entity with custom values
      *
      * @param CustomerEntity $customer

@@ -14,6 +14,7 @@ use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Symfony\Component\Routing\Annotation\Route;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -257,10 +258,26 @@ class ApplePayController extends AbstractPaymentController
             // the guest here from the full (post-authorisation) Apple Pay contact.
             $this->ensureCustomer($request, $salesChannelContext);
 
+            $paymentData = $request->request->get('payment');
+            if (is_string($paymentData)) {
+                $paymentData = json_decode($paymentData, true);
+            }
+
+            // The guest created during cart/update only had the redacted pre-auth
+            // contact (zip/city/country) — replace the placeholder name/email and
+            // shipping address with the authorised contact so the order does not
+            // show "Unknown Customer - Buckaroo Payments".
+            $this->updateGuestCustomerIdentity($paymentData, $salesChannelContext);
+
+            $updatedCart = $this->updateCartShippingAddress($cart, $salesChannelContext, $paymentData);
+            if ($updatedCart !== null) {
+                $cart = $updatedCart;
+            }
+
             $updatedCart = $this->updateCartBillingAddress(
                 $cart,
                 $salesChannelContext,
-                $request->request->get('payment')
+                $paymentData
             );
 
             if ($updatedCart !== null) {
@@ -349,6 +366,81 @@ class ApplePayController extends AbstractPaymentController
             $salesChannelContext,
             $shippingMethod
         );
+    }
+
+    /**
+     * Update the guest's placeholder identity (name/email) with the authorised
+     * Apple Pay contact. Only guests are touched — a logged-in account is never
+     * overwritten with wallet data.
+     *
+     * @param mixed $paymentData
+     */
+    private function updateGuestCustomerIdentity($paymentData, SalesChannelContext $salesChannelContext): void
+    {
+        $customer = $salesChannelContext->getCustomer();
+        if ($customer === null || $customer->getGuest() !== true || !is_array($paymentData)) {
+            return;
+        }
+
+        $contact = $paymentData['shippingContact'] ?? $paymentData['billingContact'] ?? null;
+        if (!is_array($contact) || $contact === []) {
+            return;
+        }
+
+        if (empty($contact['emailAddress']) && !empty($paymentData['shippingContact']['emailAddress'])) {
+            $contact['emailAddress'] = $paymentData['shippingContact']['emailAddress'];
+        }
+
+        $this->customerService
+            ->setSaleChannelContext($salesChannelContext)
+            ->updateCustomerIdentity($customer, $this->getCustomerData($contact));
+    }
+
+    /**
+     * Create the shipping address from the authorised (full) Apple Pay shipping
+     * contact, activate it and move the context's shipping location onto it, so
+     * the order delivery address is the real one instead of the redacted
+     * pre-authorisation placeholder.
+     *
+     * @param mixed $paymentData
+     */
+    protected function updateCartShippingAddress(
+        Cart $cart,
+        SalesChannelContext $salesChannelContext,
+        $paymentData
+    ): ?Cart {
+        if (is_string($paymentData)) {
+            $paymentData = json_decode($paymentData, true);
+        }
+
+        if (!is_array($paymentData) ||
+            !isset($paymentData['shippingContact']) ||
+            !is_array($paymentData['shippingContact'])
+        ) {
+            return null;
+        }
+
+        $customer = $salesChannelContext->getCustomer();
+        if ($customer === null) {
+            throw new \InvalidArgumentException('Customer cannot be null');
+        }
+
+        $address = $this->customerService
+            ->setSaleChannelContext($salesChannelContext)
+            ->createAddress(
+                $this->getCustomerData($paymentData['shippingContact']),
+                $customer
+            );
+
+        if ($address !== null) {
+            $customer->setActiveShippingAddress($address);
+            $salesChannelContext->assign([
+                'shippingLocation' => ShippingLocation::createFromAddress($address)
+            ]);
+            return $this->cartService->calculateCart($cart, $salesChannelContext);
+        }
+
+        return $cart;
     }
 
     /**
