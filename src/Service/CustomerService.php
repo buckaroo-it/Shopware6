@@ -120,8 +120,9 @@ class CustomerService
     {
         $this->setSaleChannelContext($context);
 
-        $country = $context->getShippingLocation()->getCountry();
-        $countryCode = $country ? $country->getIso() : 'DE';
+        // ShippingLocation::getCountry() always returns a CountryEntity;
+        // only the ISO code itself is nullable.
+        $countryCode = $context->getShippingLocation()->getCountry()->getIso() ?? 'DE';
 
         return $this->create(new DataBag([
             'paymentToken' => $context->getToken(),
@@ -195,6 +196,11 @@ class CustomerService
      */
     protected function loginCreatedCustomer(CustomerEntity $customer): void
     {
+        // Bind the guest customer to the CURRENT (browser) context token — the same
+        // thing Shopware's LoginRoute does. The previous implementation restored a
+        // brand-new token that never reached the browser, so the shopper's session
+        // stayed anonymous and /checkout/finish redirected to the empty cart page
+        // instead of showing the order confirmation.
         $token = $this->salesChannelContext->getToken();
 
         $this->contextPersister->save(
