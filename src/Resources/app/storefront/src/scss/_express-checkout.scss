@@ -1,0 +1,91 @@
+// ---------------------------------------------------------------------------
+// Buckaroo express checkout buttons
+// (PayPal Express, Apple Pay, Google Pay, iDEAL/Wero fast checkout)
+//
+// One shared styling hook (.bk-express-checkout) is used on every storefront
+// location that renders the express buttons — product detail page (buy
+// widget), shopping cart and the checkout/confirm page — so the buttons get
+// the same dimensions everywhere. The markup lives in the shared template:
+// views/storefront/buckaroo/express-checkout-buttons.html.twig
+//
+// Provider notes:
+// - Apple Pay renders Apple's official <apple-pay-button> web component.
+//   Its height is controlled via the documented CSS custom properties
+//   (Apple only requires a minimum height of 30px).
+// - Google Pay is rendered with buttonSizeMode "fill", i.e. Google's SDK
+//   sizes the button to this container (Google requires a minimum of 40px).
+// - PayPal is rendered by the Buckaroo Client SDK, which does not expose
+//   PayPal's style.height option. The PayPal smart button derives its height
+//   from its container width (roughly width / 10, capped at 55px by PayPal).
+//   The shared max-width below normalises that width on every page so PayPal
+//   renders at the same ~45px height as the other buttons, without touching
+//   the PayPal iframe itself (cropping or transforming it is not allowed by
+//   PayPal's integration guidelines).
+// ---------------------------------------------------------------------------
+
+$bk-express-button-height: 45px !default;
+$bk-express-button-max-width: 460px !default;
+$bk-express-button-spacing: 10px !default;
+$bk-express-button-radius: 4px !default;
+
+.bk-express-checkout {
+    display: block;
+    width: 100%;
+    max-width: $bk-express-button-max-width;
+    margin-top: $bk-express-button-spacing;
+
+    // --- Apple Pay (official <apple-pay-button> web component) ------------
+    .bk-apple-pay-button {
+        width: 100%;
+
+        apple-pay-button {
+            --apple-pay-button-height: #{$bk-express-button-height};
+            --apple-pay-button-border-radius: #{$bk-express-button-radius};
+            --apple-pay-button-box-sizing: border-box;
+            display: block;
+            width: 100%;
+            height: $bk-express-button-height;
+        }
+    }
+
+    // --- Google Pay (buttonSizeMode "fill": the button adopts the size ----
+    //     of this container)
+    .bk-google-pay-button {
+        width: 100%;
+        height: $bk-express-button-height;
+
+        > div {
+            width: 100%;
+            height: 100%;
+        }
+
+        button.gpay-button {
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+        }
+    }
+
+    // --- PayPal (sized by the PayPal SDK from the container width, --------
+    //     see note above). Reserve the expected height up front to avoid
+    //     layout shift while the PayPal iframe loads.
+    .buckaroo-paypal-express {
+        width: 100%;
+        min-height: $bk-express-button-height;
+    }
+
+    // --- iDEAL / Wero fast checkout ----------------------------------------
+    // The extra #id selector is needed to win over the global
+    // #fast-checkout-ideal-btn rule in base.scss.
+    #fast-checkout-ideal-btn,
+    .bk-ideal-fast-checkout {
+        height: $bk-express-button-height;
+        margin-top: 0;
+        padding: 8px 20px;
+        border-radius: $bk-express-button-radius;
+
+        img {
+            height: 28px;
+        }
+    }
+}
