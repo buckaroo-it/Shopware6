@@ -1,0 +1,51 @@
+{#
+    Shared markup for the Buckaroo express checkout buttons
+    (PayPal Express, Apple Pay, Google Pay, iDEAL/Wero fast checkout).
+
+    Every storefront location (product detail buy widget, shopping cart,
+    checkout confirm page) includes this template, so the buttons share one
+    structure and one styling hook: .bk-express-checkout
+    (see app/storefront/src/scss/_express-checkout.scss).
+
+    Parameters — a provider is skipped when its options are not passed:
+    - paypalOptions:    plugin options for [data-paypal-express]
+    - applePayOptions:  plugin options for [data-bk-applepay]
+    - googlePayOptions: plugin options for [data-bk-googlepay]
+    - idealOptions:     plugin options for [data-bk-ideal-fast-checkout]
+    - idealLogo:        logo file name for the iDEAL/Wero fast checkout button
+#}
+
+{% if paypalOptions ?? false %}
+    <div class="col-12 p-0 bk-express-checkout bk-express-checkout--paypal bk-paypal-express"
+         data-paypal-express
+         data-paypal-express-plugin-options='{{ paypalOptions|json_encode }}'>
+        <div class="buckaroo-paypal-express"></div>
+    </div>
+{% endif %}
+
+{% if applePayOptions ?? false %}
+    <div class="col-12 p-0 bk-express-checkout bk-express-checkout--applepay">
+        <div data-bk-applepay
+             data-buckaroo-apple-pay-plugin-options='{{ applePayOptions|json_encode }}'></div>
+        <div class="bk-apple-pay-button"></div>
+    </div>
+{% endif %}
+
+{% if googlePayOptions ?? false %}
+    <div class="col-12 p-0 bk-express-checkout bk-express-checkout--googlepay"
+         data-bk-googlepay
+         data-google-pay-plugin-options='{{ googlePayOptions|json_encode }}'>
+        <div class="bk-google-pay-button" id="google-pay-button-container"></div>
+    </div>
+{% endif %}
+
+{% if idealOptions ?? false %}
+    <div class="col-12 p-0 bk-express-checkout bk-express-checkout--ideal"
+         data-bk-ideal-fast-checkout
+         data-buckaroo-ideal-fast-checkout-plugin-options='{{ idealOptions|json_encode }}'>
+        <button type="button" class="bk-ideal-fast-checkout" id="fast-checkout-ideal-btn">
+            <img src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/#{idealLogo}.png") }}"
+                 alt="iDEAL | Wero Snel bestellen"/>
+        </button>
+    </div>
+{% endif %}
