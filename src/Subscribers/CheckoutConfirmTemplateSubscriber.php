@@ -321,11 +321,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'paypalIsTestMode'         => $this->paypalExpressCredentials->isTestMode($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
-            // Show the Apple Pay express button on the confirm page whenever
-            // Apple Pay is configured (merchant id set). The template also
-            // This is independent
-            // of the standard Apple Pay payment method (Place Order button).
-            'showApplePay'             => $this->getAppleMerchantId($salesChannelId) !== null,
+            'showApplePay'             => $this->showApplePayExpress($salesChannelId, 'checkout'),
             'isAppleDevice'            => $this->isAppleDevice($request),
             'googlepayMerchantId'      => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
@@ -471,7 +467,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'applePayMerchantId'        => $this->getAppleMerchantId($salesChannelId),
             'isAppleDevice'             => $this->isAppleDevice($request),
             'websiteKey'                => $this->settingsService->getSetting('websiteKey', $salesChannelId),
-            'showApplePay'              => $this->getSettingAsBool('applepayShowCart', $salesChannelId),
+            'showApplePay'              => $this->showApplePayExpress($salesChannelId, 'cart'),
             'showGooglePay'             => $this->getSettingAsBool('googlepayShowCart', $salesChannelId),
             'googlepayMerchantId'       => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
@@ -527,8 +523,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
         $request = $event->getRequest();
         $struct->assign([
-            'applepayShowProduct'       =>
-                $this->getSettingAsBool('applepayShowProduct', $salesChannelId),
+            'applepayShowProduct'       => $this->showApplePayExpress($salesChannelId, 'product'),
             'showPaypalExpress' => $this->showPaypalExpress($salesChannelId),
             'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
@@ -583,6 +578,34 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         return is_string($settings) ? $settings : null;
     }
+    /**
+     * Whether the Apple Pay express button may be rendered on a given storefront
+     * location. Requires a configured merchant id (guid) and the per-location
+     * visibility setting to be enabled.
+     *
+     * This is independent of the standard Apple Pay payment method, which is
+     * rendered from the selected payment method on the confirm page.
+     */
+    protected function showApplePayExpress(string $salesChannelId, string $page = 'product'): bool
+    {
+        $merchantId = $this->getAppleMerchantId($salesChannelId);
+        if ($merchantId === null || trim($merchantId) === '') {
+            return false;
+        }
+
+        $settings = [
+            'product'  => 'applepayShowProduct',
+            'cart'     => 'applepayShowCart',
+            'checkout' => 'applepayShowCheckout',
+        ];
+
+        if (!isset($settings[$page])) {
+            return false;
+        }
+
+        return $this->getSettingAsBool($settings[$page], $salesChannelId);
+    }
+
     protected function getAppleMerchantId(string $salesChannelId): ?string
     {
         $merchantId =  $this->settingsService->getSetting('applepayGuid', $salesChannelId);
