@@ -9,12 +9,17 @@ use Buckaroo\Shopware6\Buckaroo\Client;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 
+/**
+ * $transaction is typed as `object` rather than the modern PaymentTransactionStruct because
+ * that class does not exist on Shopware < 6.7 (this plugin also supports the legacy
+ * AsyncPaymentTransactionStruct via PaymentHandlerLegacy). Callers should narrow the type
+ * themselves, e.g. via instanceof checks, the same way CheckoutSubscriber::getOrder() does.
+ */
 class BeforePaymentRequestEvent implements ShopwareSalesChannelEvent
 {
 
-    protected PaymentTransactionStruct $transaction;
+    protected object $transaction;
 
     protected RequestDataBag $dataBag;
 
@@ -23,7 +28,7 @@ class BeforePaymentRequestEvent implements ShopwareSalesChannelEvent
     protected Client $client;
 
     public function __construct(
-        PaymentTransactionStruct $transaction,
+        object $transaction,
         RequestDataBag $dataBag,
         SalesChannelContext $context,
         Client $client
@@ -44,7 +49,7 @@ class BeforePaymentRequestEvent implements ShopwareSalesChannelEvent
         return $this->salesChannelContext->getContext();
     }
 
-    public function getAsyncPaymentTransaction(): PaymentTransactionStruct
+    public function getAsyncPaymentTransaction(): object
     {
         return $this->transaction;
     }
