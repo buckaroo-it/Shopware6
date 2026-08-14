@@ -6,6 +6,8 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\Buckaroo\Client;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
+use Buckaroo\Shopware6\Events\AfterPaymentRequestEvent;
+use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
 use Buckaroo\Shopware6\Handlers\PaymentFeeCalculator;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Buckaroo\Shopware6\PaymentMethods\AbstractPayment;
@@ -119,7 +121,9 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
                     )
                 );
 
-            // Skip legacy BeforePaymentRequestEvent in CI (expects modern struct)
+            $this->asyncPaymentService->dispatchEvent(
+                new BeforePaymentRequestEvent($transaction, $dataBag, $salesChannelContext, $client)
+            );
 
             return $this->handleResponse(
                 $client->execute(),
@@ -162,7 +166,9 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): RedirectResponse {
-        // Skip legacy AfterPaymentRequestEvent in CI (expects modern struct)
+        $this->asyncPaymentService->dispatchEvent(
+            new AfterPaymentRequestEvent($transaction, $dataBag, $salesChannelContext, $response, $paymentCode)
+        );
 
         $returnUrl = $this->getReturnUrl($transaction, $dataBag);
         $this->storeTransactionInfo($transaction, $response, $salesChannelContext, $paymentCode);

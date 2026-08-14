@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
+use Buckaroo\Shopware6\Events\AfterPaymentRequestEvent;
+use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\PaymentMethods\AbstractPayment;
 use Buckaroo\Shopware6\Buckaroo\Client;
@@ -134,9 +136,18 @@ class PaymentHandlerModern extends AbstractPaymentHandler
             // Allow specific payment handlers to configure the client
             $this->configureClient($client, $paymentCode, $salesChannelContext);
 
+            $this->asyncPaymentService->dispatchEvent(
+                new BeforePaymentRequestEvent($transaction, $dataBag, $salesChannelContext, $client)
+            );
+
             $response = $client->execute();
+
+            $this->asyncPaymentService->dispatchEvent(
+                new AfterPaymentRequestEvent($transaction, $dataBag, $salesChannelContext, $response, $paymentCode)
+            );
+
             $returnUrl = $this->urlGenerator->getReturnUrl($orderTransaction, $order, $dataBag);
-            
+
             return $this->responseHandler->handleResponse(
                 $response,
                 $orderTransaction,
