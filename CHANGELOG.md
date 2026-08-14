@@ -449,3 +449,4 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-901 Add support for Shopware 6.7.9.1 & 6.6.10.16
 - BTI-776 Add support for native refunds.
 - BTI-906 Rest API support for the “Capture on shipment” setting for Klarna (MoR).
+

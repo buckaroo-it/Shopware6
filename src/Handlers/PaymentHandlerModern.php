@@ -99,7 +99,8 @@ class PaymentHandlerModern extends AbstractPaymentHandler
                 $paymentCode,
                 $order->getSalesChannelId()
             );
-            $existingFee = (float) ($order->getCustomFieldsValue('buckarooFee') ?? 0.0);
+            $existingFeeValue = $order->getCustomFieldsValue('buckarooFee');
+            $existingFee = is_numeric($existingFeeValue) ? (float) $existingFeeValue : 0.0;
             if ($fee > 0 || $existingFee > 0) {
                 $this->feeCalculator->applyFeeToOrder($order->getId(), $fee, $salesChannelContext->getContext());
                 // Reload order to get updated total
@@ -129,7 +130,12 @@ class PaymentHandlerModern extends AbstractPaymentHandler
             $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
             $payload = array_merge_recursive($commonPayload, $methodPayload);
 
-            $client = $this->getClient($paymentCode, $order->getSalesChannelId(), $dataBag)
+            $culture = $this->resolveCulture($salesChannelContext, $request, $order);
+            if (!isset($payload['culture'])) {
+                $payload['culture'] = $culture;
+            }
+
+            $client = $this->getClient($paymentCode, $order->getSalesChannelId(), $dataBag, $culture)
                 ->setPayload($payload)
                 ->setAction($this->getMethodAction($dataBag, $salesChannelContext, $paymentCode));
 
@@ -277,8 +283,12 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         // Child classes can override this to configure the client
     }
 
-    private function getClient(string $paymentCode, string $salesChannelId, RequestDataBag $dataBag): Client
-    {
+    private function getClient(
+        string $paymentCode,
+        string $salesChannelId,
+        RequestDataBag $dataBag,
+        ?string $culture = null
+    ): Client {
         if (
             $paymentCode === 'paybybank' &&
             $dataBag->get('payBybankMethodId') === 'INGBNL2A' &&
@@ -286,7 +296,24 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         ) {
             $paymentCode = 'ideal';
         }
-        return $this->asyncPaymentService->clientService->get($paymentCode, $salesChannelId);
+        return $this->asyncPaymentService->clientService->get($paymentCode, $salesChannelId, $culture);
+    }
+
+    /**
+     * Resolve the Buckaroo culture code (ex. "nl-NL") for the current payment,
+     * based on the general "language" plugin setting.
+     */
+    private function resolveCulture(
+        SalesChannelContext $salesChannelContext,
+        ?Request $request = null,
+        ?OrderEntity $order = null
+    ): string {
+        $resolver = $this->asyncPaymentService->getLanguageResolver();
+        if ($resolver === null) {
+            return \Buckaroo\Shopware6\Service\BuckarooLanguageResolver::FALLBACK_CULTURE;
+        }
+
+        return $resolver->resolveLanguage($salesChannelContext, $request, $order);
     }
 
     /**

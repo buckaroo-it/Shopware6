@@ -5,7 +5,8 @@ export default class PaypalExpressPlugin extends Plugin {
 
     static options = {
         page: 'unknown',
-        merchantId: null
+        merchantId: null,
+        isTestMode: false
     }
     httpClient = new HttpClient();
 
@@ -24,6 +25,7 @@ export default class PaypalExpressPlugin extends Plugin {
         containerSelector: ".buckaroo-paypal-express",
         buckarooWebsiteKey: this.options.websiteKey,
         paypalMerchantId: this.options.merchantId,
+        isTestMode: this.options.isTestMode === true,
         currency: "EUR",
         amount: 0.1,
         createPaymentHandler: this.createPaymentHandler.bind(this),
@@ -44,8 +46,24 @@ export default class PaypalExpressPlugin extends Plugin {
         }
         document.$emitter.subscribe('buckaroo_scripts_loaded', () => {
             this.sdk = BuckarooSdk.PayPal;
+            this.setSdkTestMode();
             this.sdk.initiate(this.sdkOptions);
         })
+    }
+
+    /**
+     * Signal the environment to the Buckaroo SDK; it then selects the
+     * matching (sandbox/live) PayPal client ids internally, consistent
+     * with the implementation used in the other Buckaroo plugins.
+     */
+    setSdkTestMode()
+    {
+        if (
+            typeof BuckarooSdk.Base !== 'undefined' &&
+            typeof BuckarooSdk.Base.setTestMode === 'function'
+        ) {
+            BuckarooSdk.Base.setTestMode(this.options.isTestMode === true);
+        }
     }
 
     /**

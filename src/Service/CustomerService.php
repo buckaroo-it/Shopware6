@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 
@@ -56,13 +57,16 @@ class CustomerService
      */
     protected $eventDispatcher;
 
+    protected SalesChannelContextPersister $contextPersister;
+
     public function __construct(
         CustomerAddressService $customerAddressService,
         EntityRepository $customerRepository,
         EntityRepository $salutationRepository,
         EntityRepository $orderCustomerRepository,
         SalesChannelContextRestorer $restorer,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        SalesChannelContextPersister $contextPersister
     ) {
         $this->customerAddressService = $customerAddressService;
         $this->customerRepository = $customerRepository;
@@ -70,6 +74,7 @@ class CustomerService
         $this->orderCustomerRepository = $orderCustomerRepository;
         $this->restorer = $restorer;
         $this->eventDispatcher = $eventDispatcher;
+        $this->contextPersister = $contextPersister;
     }
 
     /**
@@ -115,8 +120,9 @@ class CustomerService
     {
         $this->setSaleChannelContext($context);
 
-        $country = $context->getShippingLocation()->getCountry();
-        $countryCode = $country ? $country->getIso() : 'DE';
+        // ShippingLocation::getCountry() always returns a CountryEntity;
+        // only the ISO code itself is nullable.
+        $countryCode = $context->getShippingLocation()->getCountry()->getIso() ?? 'DE';
 
         return $this->create(new DataBag([
             'paymentToken' => $context->getToken(),
@@ -150,7 +156,6 @@ class CustomerService
             'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
             'languageId' => $this->salesChannelContext->getContext()->getLanguageId(),
             'groupId' => $this->salesChannelContext->getCurrentCustomerGroup()->getId(),
-            'defaultPaymentMethodId' => $this->salesChannelContext->getPaymentMethod()->getId(),
             'defaultShippingAddressId' => $addressId,
             'defaultBillingAddressId' => $addressId,
             'salutationId' => $salutationId,
@@ -162,6 +167,15 @@ class CustomerService
             'firstLogin' => new \DateTimeImmutable(),
             'addresses' => [$address],
         ];
+
+        // Shopware <= 6.6 still has a default payment method on the customer entity.
+        // The field was removed in Shopware 6.7 (deprecated in 6.6.5.0); writing it there
+        // makes the DAL reject the whole payload and breaks guest express checkout
+        // (Apple Pay / Google Pay QR flows).
+        if ($this->customerRepository->getDefinition()->getFields()->get('defaultPaymentMethodId') !== null) {
+            $customer['defaultPaymentMethodId'] = $this->salesChannelContext->getPaymentMethod()->getId();
+        }
+
         $this->customerRepository->create(
             [$customer],
             $this->salesChannelContext->getContext()
@@ -182,9 +196,22 @@ class CustomerService
      */
     protected function loginCreatedCustomer(CustomerEntity $customer): void
     {
-        $context = $this->restorer->restoreByCustomer($customer->getId(), $this->salesChannelContext->getContext());
+        // Bind the guest customer to the CURRENT (browser) context token — the same
+        // thing Shopware's LoginRoute does. The previous implementation restored a
+        // brand-new token that never reached the browser, so the shopper's session
+        // stayed anonymous and /checkout/finish redirected to the empty cart page
+        // instead of showing the order confirmation.
+        $token = $this->salesChannelContext->getToken();
+
+        $this->contextPersister->save(
+            $token,
+            ['customerId' => $customer->getId()],
+            $this->salesChannelContext->getSalesChannelId(),
+            $customer->getId()
+        );
+
         $this->eventDispatcher->dispatch(
-            new CustomerLoginEvent($context, $customer, $context->getToken())
+            new CustomerLoginEvent($this->salesChannelContext, $customer, $token)
         );
     }
 
@@ -304,6 +331,38 @@ class CustomerService
         if (!$this->salesChannelContext instanceof SalesChannelContext) {
             throw new CreateCartException('SaleChannelContext is required');
         }
+    }
+
+    /**
+     * Replace a guest customer's placeholder identity (name/email) with real
+     * data from the authorised Apple Pay contact. Updates the database record
+     * and keeps the in-memory entity in sync so the following order persist
+     * picks up the real values for the order customer.
+     */
+    public function updateCustomerIdentity(CustomerEntity $customer, DataBag $data): void
+    {
+        $this->validateSaleChannelContext();
+
+        $map = [
+            'first_name' => 'firstName',
+            'last_name'  => 'lastName',
+            'email'      => 'email',
+        ];
+
+        $update = ['id' => $customer->getId()];
+        foreach ($map as $key => $field) {
+            $value = $data->get($key);
+            if (is_string($value) && trim($value) !== '') {
+                $update[$field] = trim($value);
+            }
+        }
+
+        if (count($update) === 1) {
+            return;
+        }
+
+        $this->customerRepository->update([$update], $this->salesChannelContext->getContext());
+        $customer->assign($update);
     }
 
     /**

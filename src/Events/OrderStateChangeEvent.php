@@ -12,11 +12,18 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\CaptureService;
 use Buckaroo\Shopware6\Service\InvoiceService;
+use Buckaroo\Shopware6\Service\KlarnaMorService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\TransactionService;
+use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Service\NotificationServiceFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
+use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 
 class OrderStateChangeEvent implements EventSubscriberInterface
 {
@@ -29,6 +36,10 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     protected OrderService $orderService;
 
     protected CaptureService $captureService;
+
+    protected KlarnaMorService $klarnaMorService;
+
+    protected StateTransitionService $stateTransitionService;
 
     protected object $notificationService; // Can be either NotificationService
 
@@ -45,7 +56,9 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         OrderService $orderService,
         LoggerInterface $logger,
         CaptureService $captureService,
-        NotificationServiceFactory $notificationServiceFactory
+        NotificationServiceFactory $notificationServiceFactory,
+        KlarnaMorService $klarnaMorService,
+        StateTransitionService $stateTransitionService
     ) {
         $this->transactionService = $transactionService;
         $this->invoiceService = $invoiceService;
@@ -54,6 +67,8 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         $this->logger = $logger;
         $this->captureService = $captureService;
         $this->notificationService = $notificationServiceFactory->getNotificationService();
+        $this->klarnaMorService = $klarnaMorService;
+        $this->stateTransitionService = $stateTransitionService;
     }
 
     /**
@@ -63,7 +78,253 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     {
         return [
             'state_enter.order_delivery.state.shipped' => 'onOrderDeliveryStateShipped',
+            'state_enter.order.state.cancelled' => 'onOrderStateCancelled',
+            StateMachineTransitionEvent::class => 'onStateMachineTransition',
         ];
+    }
+
+    /**
+     * Fallback path: StateMachineRegistry dispatches this class-based event for
+     * every state transition, independently of the `state_enter.*` business
+     * events. Deduplication with onOrderStateCancelled is handled by the
+     * `reservationCancelled` custom field and the transaction-state guards.
+     */
+    public function onStateMachineTransition(StateMachineTransitionEvent $event): void
+    {
+        if ($event->getEntityName() !== OrderDefinition::ENTITY_NAME) {
+            return;
+        }
+
+        if ($event->getToPlace()->getTechnicalName() !== OrderStates::STATE_CANCELLED) {
+            return;
+        }
+
+        $this->logger->info('Buckaroo Klarna MoR: order cancelled transition received (state machine)', [
+            'orderId' => $event->getEntityId(),
+        ]);
+
+        try {
+            $this->cancelKlarnaMorReservation(
+                $event->getEntityId(),
+                $event->getContext()
+            );
+        } catch (\Throwable $th) {
+            // Never let a Buckaroo failure break the merchant's order-cancellation flow.
+            $this->logger->error(__METHOD__ . ' ' . (string)$th);
+        }
+    }
+
+    /**
+     * When an order is cancelled from the Shopware Administration (or any other
+     * state-machine transition into `cancelled`), release the Klarna MoR
+     * authorization in Buckaroo if the payment transaction is still authorized.
+     */
+    public function onOrderStateCancelled(OrderStateMachineStateChangeEvent $event): void
+    {
+        $this->logger->info('Buckaroo Klarna MoR: order cancelled event received', [
+            'orderId' => $event->getOrder()->getId(),
+        ]);
+
+        try {
+            $this->cancelKlarnaMorReservation(
+                $event->getOrder()->getId(),
+                $event->getContext()
+            );
+        } catch (\Throwable $th) {
+            // Never let a Buckaroo failure break the merchant's order-cancellation flow.
+            $this->logger->error(__METHOD__ . ' ' . (string)$th);
+        }
+    }
+
+    /**
+     * Send a Klarna MoR CancelReservation datarequest to Buckaroo for an
+     * eligible cancelled order and synchronize the Shopware payment state.
+     */
+    public function cancelKlarnaMorReservation(string $orderId, Context $context): void
+    {
+        $order = $this->orderService->getOrderById(
+            $orderId,
+            [
+                'transactions',
+                'transactions.paymentMethod',
+                'transactions.paymentMethod.plugin',
+                'transactions.stateMachineState',
+                'deliveries',
+                'deliveries.stateMachineState',
+                'salesChannel',
+                'currency'
+            ],
+            $context
+        );
+
+        if ($order === null) {
+            $this->logger->debug(__METHOD__ . ' Cannot find order entity', ['orderId' => $orderId]);
+            return;
+        }
+
+        $customFields = $this->transactionService->getCustomFields($order, $context);
+
+        if (!$this->canCancelKlarnaMorReservation($order, $customFields)) {
+            return;
+        }
+
+        $this->logger->info('Buckaroo Klarna MoR: sending CancelReservation datarequest', [
+            'orderId'        => $order->getId(),
+            'orderNumber'    => $order->getOrderNumber(),
+            'dataRequestKey' => $customFields['dataRequestKey'],
+        ]);
+
+        $result = $this->klarnaMorService->execute(
+            Request::createFromGlobals(),
+            $order,
+            $context,
+            KlarnaMorService::ACTION_CANCEL_RESERVATION
+        );
+
+        if (isset($result['status']) && $result['status'] === true) {
+            $this->logger->info('Buckaroo Klarna MoR: reservation cancelled successfully', [
+                'orderId'     => $order->getId(),
+                'orderNumber' => $order->getOrderNumber(),
+            ]);
+
+            $orderTransactionId = $this->transactionService->getLastTransactionId($order);
+            if ($orderTransactionId !== null) {
+                $this->stateTransitionService->transitionPaymentState(
+                    'cancelled',
+                    $orderTransactionId,
+                    $context
+                );
+                $this->transactionService->saveTransactionData(
+                    $orderTransactionId,
+                    $context,
+                    ['reservationCancelled' => true]
+                );
+            }
+        } else {
+            $this->logger->error('Buckaroo Klarna MoR: CancelReservation datarequest failed', [
+                'orderId'     => $order->getId(),
+                'orderNumber' => $order->getOrderNumber(),
+                'message'     => $result['message'] ?? 'Unknown error',
+                'code'        => $result['code'] ?? null,
+            ]);
+        }
+
+        $this->createNotifications($result, $context);
+    }
+
+    /**
+     * Eligibility guards: Klarna MoR payment, authorization still active,
+     * not captured, not already cancelled/released, order not shipped.
+     *
+     * @param array<mixed> $customFields
+     */
+    private function canCancelKlarnaMorReservation(OrderEntity $order, array $customFields): bool
+    {
+        if (
+            !isset($customFields['brqPaymentMethod']) ||
+            !is_string($customFields['brqPaymentMethod']) ||
+            strtolower($customFields['brqPaymentMethod']) !== 'klarna'
+        ) {
+            return false;
+        }
+
+        if (
+            !isset($customFields['dataRequestKey']) ||
+            !is_string($customFields['dataRequestKey']) ||
+            $customFields['dataRequestKey'] === ''
+        ) {
+            $this->logger->debug('Buckaroo Klarna MoR: skipping cancellation, missing dataRequestKey', [
+                'orderId' => $order->getId(),
+            ]);
+            return false;
+        }
+
+        if (isset($customFields['captured'])) {
+            $this->logger->info('Buckaroo Klarna MoR: skipping cancellation, payment already captured', [
+                'orderId' => $order->getId(),
+            ]);
+            return false;
+        }
+
+        if (isset($customFields['reservationCancelled']) && $customFields['reservationCancelled'] === true) {
+            $this->logger->debug('Buckaroo Klarna MoR: skipping cancellation, reservation already cancelled', [
+                'orderId' => $order->getId(),
+            ]);
+            return false;
+        }
+
+        // Eligible while the Buckaroo authorization is still active. The Shopware
+        // transaction is either still `authorized`, or already `cancelled` locally
+        // (the admin cancel dialog cancels the payment together with the order,
+        // and that local transition does not release anything at Buckaroo).
+        // Captured/paid/refunded transactions are excluded.
+        $transactionState = $this->getLastTransactionState($order);
+        if (
+            !in_array(
+                $transactionState,
+                [OrderTransactionStates::STATE_AUTHORIZED, OrderTransactionStates::STATE_CANCELLED],
+                true
+            )
+        ) {
+            $this->logger->info(
+                'Buckaroo Klarna MoR: skipping cancellation, payment transaction is not authorized',
+                [
+                    'orderId'          => $order->getId(),
+                    'transactionState' => $transactionState,
+                ]
+            );
+            return false;
+        }
+
+        if ($this->isShipped($order)) {
+            $this->logger->info('Buckaroo Klarna MoR: skipping cancellation, order already shipped', [
+                'orderId' => $order->getId(),
+            ]);
+            return false;
+        }
+
+        return true;
+    }
+
+    private function getLastTransactionState(OrderEntity $order): ?string
+    {
+        $transactions = $order->getTransactions();
+        if ($transactions === null) {
+            return null;
+        }
+
+        $transaction = $transactions->last();
+        if ($transaction === null) {
+            return null;
+        }
+
+        $state = $transaction->getStateMachineState();
+
+        return $state !== null ? $state->getTechnicalName() : null;
+    }
+
+    private function isShipped(OrderEntity $order): bool
+    {
+        $deliveries = $order->getDeliveries();
+        if ($deliveries === null) {
+            return false;
+        }
+
+        foreach ($deliveries as $delivery) {
+            $state = $delivery->getStateMachineState();
+            if (
+                $state !== null &&
+                in_array(
+                    $state->getTechnicalName(),
+                    [OrderDeliveryStates::STATE_SHIPPED, OrderDeliveryStates::STATE_PARTIALLY_SHIPPED],
+                    true
+                )
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function onOrderDeliveryStateShipped(OrderStateMachineStateChangeEvent $event): bool
