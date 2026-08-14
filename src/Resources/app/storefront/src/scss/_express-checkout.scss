@@ -53,6 +53,7 @@ $bk-express-button-radius: 4px !default;
         @include bk-express-button-size;
 
         apple-pay-button {
+            --apple-pay-button-height: 100%;
             --apple-pay-button-border-radius: #{$bk-express-button-radius};
             --apple-pay-button-box-sizing: border-box;
             display: block;
