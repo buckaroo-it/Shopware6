@@ -117,6 +117,25 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
+     * Shopware 6.7: PaymentHandlerSimple::pay() never calls handleResponse(), so the
+     * PayPal payer details have to be written back from this hook instead. Without it
+     * the express guest keeps its placeholder name
+     * ("Unknown Customer - Buckaroo Payments").
+     *
+     * @param mixed $orderTransaction
+     */
+    protected function afterPaymentResponse(
+        ClientResponseInterface $response,
+        $orderTransaction,
+        OrderEntity $order,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): void {
+        $this->orderUpdater->update($response, $order, $salesChannelContext);
+    }
+
+    /**
      * Get seller protection data
      *
      * @param OrderEntity $order

@@ -371,7 +371,20 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                         'Payment was canceled'
                     );
                 }
-                
+
+                // Post-processing hook for handlers that need the successful response.
+                // The 6.5 path gets this through handleResponse(); this branch never
+                // calls handleResponse(), so without the hook PayPal Express never
+                // writes the payer's real name/address back onto the order.
+                $this->afterPaymentResponse(
+                    $response,
+                    $orderTransaction,
+                    $order,
+                    $dataBag,
+                    $salesChannelContext,
+                    $paymentCode
+                );
+
                 if ($response->hasRedirect()) {
                     return new RedirectResponse($response->getRedirectUrl());
                 }
@@ -438,6 +451,23 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 return new RedirectResponse($response->getRedirectUrl());
             }
             return new RedirectResponse('/checkout/finish');
+        }
+
+        /**
+         * Hook invoked after a successful Buckaroo response, before the redirect is
+         * built. Default implementation does nothing.
+         *
+         * @param mixed $orderTransaction
+         */
+        protected function afterPaymentResponse(
+            \Buckaroo\Shopware6\Buckaroo\ClientResponseInterface $response,
+            $orderTransaction,
+            \Shopware\Core\Checkout\Order\OrderEntity $order,
+            \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
+            \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
+            string $paymentCode
+        ): void {
+            // Default implementation - do nothing
         }
 
         public function finalize(

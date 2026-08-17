@@ -673,6 +673,7 @@
         <service id="Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData">
             <argument type="service" id="order_address.repository" />
             <argument type="service" id="order_customer.repository" />
+            <argument type="service" id="customer.repository" />
         </service>
 
         <service id="Buckaroo\Shopware6\Service\CustomerService">

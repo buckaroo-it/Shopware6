@@ -11,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 
 class UpdateOrderWithPaypalExpressData
@@ -25,12 +26,19 @@ class UpdateOrderWithPaypalExpressData
      */
     protected $orderCustomerRepository;
 
+    /**
+     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     */
+    protected $customerRepository;
+
     public function __construct(
         EntityRepository $orderAddressRepository,
-        EntityRepository $orderCustomerRepository
+        EntityRepository $orderCustomerRepository,
+        EntityRepository $customerRepository
     ) {
         $this->orderAddressRepository = $orderAddressRepository;
         $this->orderCustomerRepository = $orderCustomerRepository;
+        $this->customerRepository = $customerRepository;
     }
 
 
@@ -50,7 +58,7 @@ class UpdateOrderWithPaypalExpressData
             $saleChannelContext
         );
 
-        $this->updateCustomerEmail(
+        $this->updateCustomerDetails(
             $paypalData,
             $order,
             $saleChannelContext
@@ -59,7 +67,8 @@ class UpdateOrderWithPaypalExpressData
 
 
     /**
-     * Update paypal express customer with email
+     * Replace the express placeholder identity ("Unknown Customer - Buckaroo
+     * Payments") with the real PayPal payer name and e-mail.
      *
      * @param DataBag $paypalData
      * @param OrderEntity $order
@@ -67,11 +76,16 @@ class UpdateOrderWithPaypalExpressData
      *
      * @return void
      */
-    protected function updateCustomerEmail(
+    protected function updateCustomerDetails(
         DataBag $paypalData,
         OrderEntity $order,
         SalesChannelContext $salesChannelContext
-    ) {
+    ): void {
+        $details = $this->getPayerDetails($paypalData);
+
+        if ($details === []) {
+            return;
+        }
 
         $criteria = (new Criteria())->addFilter(
             new EqualsFilter(
@@ -80,21 +94,79 @@ class UpdateOrderWithPaypalExpressData
             )
         );
 
-        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity */
-        $customer = $this->orderCustomerRepository->search(
+        $orderCustomer = $this->orderCustomerRepository->search(
             $criteria,
             $salesChannelContext->getContext()
         )->first();
 
-        if ($customer === null) {
+        if (!$orderCustomer instanceof OrderCustomerEntity) {
             return;
         }
 
         $this->orderCustomerRepository->update(
-            [[
-                "id" => $customer->getId(),
-                "email" => $paypalData->get('payeremail')
-            ]],
+            [array_merge(['id' => $orderCustomer->getId()], $details)],
+            $salesChannelContext->getContext()
+        );
+
+        $this->updateGuestCustomer(
+            $orderCustomer->getCustomerId(),
+            $details,
+            $salesChannelContext
+        );
+    }
+
+    /**
+     * Payer name/e-mail from the Buckaroo response. Only keys that are actually
+     * present are returned, so valid data is never overwritten by a placeholder.
+     *
+     * @return array<string, string>
+     */
+    private function getPayerDetails(DataBag $paypalData): array
+    {
+        $map = [
+            'payerfirstname' => 'firstName',
+            'payerlastname'  => 'lastName',
+            'payeremail'     => 'email',
+        ];
+
+        $details = [];
+        foreach ($map as $source => $field) {
+            $value = $paypalData->get($source);
+            if (is_string($value) && trim($value) !== '') {
+                $details[$field] = trim($value);
+            }
+        }
+
+        return $details;
+    }
+
+    /**
+     * Mirror the payer details onto the guest customer record that was created for
+     * the express order, so the customer list does not show the placeholder either.
+     * Real accounts are never overwritten with wallet data.
+     *
+     * @param array<string, string> $details
+     */
+    private function updateGuestCustomer(
+        ?string $customerId,
+        array $details,
+        SalesChannelContext $salesChannelContext
+    ): void {
+        if ($customerId === null) {
+            return;
+        }
+
+        $customer = $this->customerRepository->search(
+            new Criteria([$customerId]),
+            $salesChannelContext->getContext()
+        )->first();
+
+        if (!$customer instanceof CustomerEntity || $customer->getGuest() !== true) {
+            return;
+        }
+
+        $this->customerRepository->update(
+            [array_merge(['id' => $customerId], $details)],
             $salesChannelContext->getContext()
         );
     }
@@ -150,14 +222,26 @@ class UpdateOrderWithPaypalExpressData
         DataBag $data,
         SalesChannelContext $salesChannelContext
     ): void {
-        $this->orderAddressRepository->update(
-            [[
-                'id' => $addressId,
-                'firstName' => $data->get('payerfirstname', 'Unknown'),
-                'lastName' => $data->get('payerlastname', 'Paypal Express'),
-                'street' =>  $data->get('address_line_1', 'Unknown'),
-            ]],
-            $salesChannelContext->getContext()
-        );
+        $map = [
+            'payerfirstname' => 'firstName',
+            'payerlastname'  => 'lastName',
+            'address_line_1' => 'street',
+            'postal_code'    => 'zipcode',
+            'admin_area_2'   => 'city',
+        ];
+
+        $update = ['id' => $addressId];
+        foreach ($map as $source => $field) {
+            $value = $data->get($source);
+            if (is_string($value) && trim($value) !== '') {
+                $update[$field] = trim($value);
+            }
+        }
+
+        if (count($update) === 1) {
+            return;
+        }
+
+        $this->orderAddressRepository->update([$update], $salesChannelContext->getContext());
     }
 }

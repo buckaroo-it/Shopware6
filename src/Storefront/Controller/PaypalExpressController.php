@@ -99,13 +99,13 @@ class PaypalExpressController extends AbstractPaymentController
         }
 
         try {
-            $cartToken = $request->request->get('cartToken');
+            $requestCartToken = $request->request->get('cartToken');
+            $cartToken = is_string($requestCartToken) && $requestCartToken !== ''
+                ? $requestCartToken
+                : $salesChannelContext->getToken();
 
             $redirectPath = $this->placeOrder(
-                $this->createOrder(
-                    $salesChannelContext,
-                    is_string($cartToken) && $cartToken !== '' ? $cartToken : null
-                ),
+                $this->createOrder($salesChannelContext, $cartToken),
                 $salesChannelContext,
                 new RequestDataBag([
                     "orderId" => $request->request->get('orderId'),
@@ -113,9 +113,18 @@ class PaypalExpressController extends AbstractPaymentController
                 ])
             );
 
+            $redirect = $this->getFinishPage($redirectPath);
+
+            if ($redirect !== null) {
+                // Order placed and payment initiated: delete the cart. This custom
+                // express order path bypasses Shopware's CartOrderRoute, which is where
+                // the cart is normally removed after checkout - without this the paid
+                // cart is still there when the shopper returns to the shop.
+                $this->deleteCartAfterOrder($cartToken, $salesChannelContext);
+            }
 
             return $this->response([
-                "redirect" => $this->getFinishPage($redirectPath)
+                "redirect" => $redirect
             ]);
         } catch (\Throwable $th) {
             // error level: debug is not written in production, which hides the
@@ -125,6 +134,21 @@ class PaypalExpressController extends AbstractPaymentController
                 ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                 true
             );
+        }
+    }
+
+    /**
+     * Delete the cart that was just converted into an order. The cart-page flow uses
+     * the session cart; the product-page flow uses its own temporary cart, so the
+     * shopper's session cart is left untouched there. Cleanup must never fail a
+     * successful payment.
+     */
+    private function deleteCartAfterOrder(string $cartToken, SalesChannelContext $salesChannelContext): void
+    {
+        try {
+            $this->cartService->deleteCartByToken($cartToken, $salesChannelContext);
+        } catch (\Throwable $th) {
+            $this->logger->warning('[PaypalExpress] could not delete cart after order: ' . $th->getMessage());
         }
     }
 
