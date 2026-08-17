@@ -572,11 +572,18 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             return false;
         }
     }
-    protected function getIdealFastCheckoutLogo(string $salesChannelId): ?string
+    /**
+     * Button style for the iDEAL fast checkout button: "light" (white button
+     * with a magenta outline, iDEAL's default) or "dark" (solid magenta).
+     *
+     * The stored setting still uses the historic idealFastCheckoutLogo*
+     * identifiers so existing sales channel configuration keeps working.
+     */
+    protected function getIdealFastCheckoutLogo(string $salesChannelId): string
     {
-        $settings = $this->settingsService->getSetting('idealFastCheckoutLogoScheme', $salesChannelId);
+        $setting = $this->settingsService->getSetting('idealFastCheckoutLogoScheme', $salesChannelId);
 
-        return is_string($settings) ? $settings : null;
+        return $setting === 'idealFastCheckoutLogoDark' ? 'dark' : 'light';
     }
     /**
      * Whether the Apple Pay express button may be rendered on a given storefront

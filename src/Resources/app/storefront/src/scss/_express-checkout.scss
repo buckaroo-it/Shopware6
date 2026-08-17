@@ -28,6 +28,10 @@
 $bk-express-button-spacing: 10px !default;
 $bk-express-button-radius: 4px !default;
 
+// Intrinsic size of iDEAL's supplied fast checkout button image.
+$bk-ideal-button-width: 225 !default;
+$bk-ideal-button-height: 42 !default;
+
 // PayPal smart button height tiers by container width
 $bk-express-height-xl: 55px !default; // container >= 500px
 $bk-express-height-lg: 45px !default; // 300 - 499px (default)
@@ -89,18 +93,50 @@ $bk-express-height-sm: 25px !default; // < 200px
         min-height: var(--bk-express-button-height, #{$bk-express-height-lg});
     }
 
-    // --- iDEAL / Wero fast checkout ----------------------------------------
-    // The extra #id selector is needed to win over the global
-    // #fast-checkout-ideal-btn rule in base.scss.
+    // --- iDEAL fast checkout ----------------------------------------------
+    // iDEAL ships this button as one finished image — frame, express mark,
+    // iDEAL logo and the "Snel bestellen" wordmark are baked in and may not
+    // be recomposed — so the button element is only a transparent hit area
+    // carrying that image, exactly as the Buckaroo Magento 2 plugin does it.
+    //
+    // Consequence: this is the one express button whose height is not taken
+    // from the tiers above. It follows iDEAL's intrinsic 225:42 ratio, since
+    // stretching the artwork to an arbitrary tier height would distort the
+    // logo and the wordmark. Width, column placement and vertical rhythm are
+    // still shared with the other buttons via .bk-express-checkout.
+    //
+    // The three state images are set by the template as custom properties so
+    // that Twig's asset() resolves the bundle path and any CDN prefix; see
+    // views/storefront/buckaroo/express-checkout-buttons.html.twig.
     #fast-checkout-ideal-btn,
     .bk-ideal-fast-checkout {
-        @include bk-express-button-size;
+        display: block;
+        width: 100%;
+        aspect-ratio: #{$bk-ideal-button-width} / #{$bk-ideal-button-height};
         margin-top: 0;
-        padding: 8px 20px;
-        border-radius: $bk-express-button-radius;
+        padding: 0;
+        border: 0;
+        background-color: transparent;
+        background-image: var(--bk-ideal-btn-default);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 100% 100%;
+        cursor: pointer;
 
-        img {
-            height: 60%;
+        &:hover,
+        &:active {
+            background-image: var(--bk-ideal-btn-pressed, var(--bk-ideal-btn-default));
+        }
+
+        &:focus-visible {
+            background-image: var(--bk-ideal-btn-focused, var(--bk-ideal-btn-default));
+            outline: none;
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
         }
     }
 }
@@ -110,9 +146,7 @@ $bk-express-height-sm: 25px !default; // < 200px
 @container (min-width: 500px) {
     .bk-express-checkout .bk-apple-pay-button,
     .bk-express-checkout .bk-google-pay-button,
-    .bk-express-checkout .buckaroo-paypal-express,
-    .bk-express-checkout #fast-checkout-ideal-btn,
-    .bk-express-checkout .bk-ideal-fast-checkout {
+    .bk-express-checkout .buckaroo-paypal-express {
         --bk-express-button-height: #{$bk-express-height-xl};
     }
 }
@@ -120,9 +154,7 @@ $bk-express-height-sm: 25px !default; // < 200px
 @container (max-width: 299.98px) {
     .bk-express-checkout .bk-apple-pay-button,
     .bk-express-checkout .bk-google-pay-button,
-    .bk-express-checkout .buckaroo-paypal-express,
-    .bk-express-checkout #fast-checkout-ideal-btn,
-    .bk-express-checkout .bk-ideal-fast-checkout {
+    .bk-express-checkout .buckaroo-paypal-express {
         --bk-express-button-height: #{$bk-express-height-md};
     }
 }
@@ -130,9 +162,7 @@ $bk-express-height-sm: 25px !default; // < 200px
 @container (max-width: 199.98px) {
     .bk-express-checkout .bk-apple-pay-button,
     .bk-express-checkout .bk-google-pay-button,
-    .bk-express-checkout .buckaroo-paypal-express,
-    .bk-express-checkout #fast-checkout-ideal-btn,
-    .bk-express-checkout .bk-ideal-fast-checkout {
+    .bk-express-checkout .buckaroo-paypal-express {
         --bk-express-button-height: #{$bk-express-height-sm};
     }
 }

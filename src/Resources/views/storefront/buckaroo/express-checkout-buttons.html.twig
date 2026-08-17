@@ -12,7 +12,8 @@
     - applePayOptions:  plugin options for [data-bk-applepay]
     - googlePayOptions: plugin options for [data-bk-googlepay]
     - idealOptions:     plugin options for [data-bk-ideal-fast-checkout]
-    - idealLogo:        logo file name for the iDEAL/Wero fast checkout button
+    - idealLogo:        button style for the iDEAL fast checkout button,
+                        "light" (default) or "dark"
 #}
 
 {% if paypalOptions ?? false %}
@@ -39,13 +40,27 @@
     </div>
 {% endif %}
 
+{#
+    iDEAL supplies the fast checkout button as one finished image per state:
+    the frame, the express mark, the iDEAL logo and the "Snel bestellen"
+    wordmark are baked in and may not be recomposed. The button element is
+    therefore only a transparent hit area carrying that image, and the three
+    state images are handed to the stylesheet as custom properties so that
+    asset() keeps resolving the bundle path (and any CDN prefix) for us.
+#}
 {% if idealOptions ?? false %}
+    {% set idealVariant = (idealLogo ?? '') == 'dark' ? 'dark' : 'light' %}
+    {% set idealAsset = "bundles/buckaroopayments/storefront/buckaroo/ideal/ideal-fast-checkout-#{idealVariant}" %}
     <div class="col-12 p-0 bk-express-checkout bk-express-checkout--ideal"
          data-bk-ideal-fast-checkout
          data-buckaroo-ideal-fast-checkout-plugin-options='{{ idealOptions|json_encode }}'>
-        <button type="button" class="bk-ideal-fast-checkout" id="fast-checkout-ideal-btn">
-            <img src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/#{idealLogo}.png") }}"
-                 alt="iDEAL | Wero Snel bestellen"/>
-        </button>
+        <button type="button"
+                class="bk-ideal-fast-checkout"
+                id="fast-checkout-ideal-btn"
+                data-variant="{{ idealVariant }}"
+                aria-label="{{ "buckaroo.checkout.idealFastCheckoutButtonLabel"|trans|striptags }}"
+                style="--bk-ideal-btn-default: url('{{ asset("#{idealAsset}-default.svg") }}');
+                       --bk-ideal-btn-pressed: url('{{ asset("#{idealAsset}-pressed.svg") }}');
+                       --bk-ideal-btn-focused: url('{{ asset("#{idealAsset}-focused.svg") }}');"></button>
     </div>
 {% endif %}
