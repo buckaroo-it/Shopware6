@@ -137,7 +137,7 @@ class OrderService
                 'HTTP_SW_CONTEXT_TOKEN' => $this->salesChannelContext->getToken(),
             ]);
 
-            if ($hasPay) {
+            if (method_exists($this->paymentService, 'pay')) {
                 // PaymentProcessor API (Shopware 6.7+).
                 // Depending on the exact 6.7.x version, pay() is either void or ?RedirectResponse.
                 $this->logger->info('[GooglePay][doPayment] Calling PaymentProcessor::pay()');
@@ -165,7 +165,7 @@ class OrderService
 
                 // void / null return — use the finishUrl we supplied to the processor.
                 return $finishUrl;
-            } elseif ($hasHandlePaymentByOrder) {
+            } elseif (method_exists($this->paymentService, 'handlePaymentByOrder')) {
                 // PaymentService API (Shopware 6.5-6.6) — returns a RedirectResponse.
                 $this->logger->info('[GooglePay][doPayment] Calling PaymentService::handlePaymentByOrder()');
 
@@ -221,7 +221,7 @@ class OrderService
     public function getOrderById(
         string $orderId,
         array $associations = ['lineItems'],
-        Context $context = null
+        ?Context $context = null
     ): ?OrderEntity {
         if (!$context instanceof Context) {
             $this->validateSaleChannelContext();

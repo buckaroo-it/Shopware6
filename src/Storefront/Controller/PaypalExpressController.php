@@ -156,17 +156,12 @@ class PaypalExpressController extends AbstractPaymentController
      * Create order from cart
      *
      * @param SalesChannelContext $salesChannelContext
-     * @param string|null $cartToken
+     * @param string $cartToken
      *
      * @return \Shopware\Core\Checkout\Order\OrderEntity
      */
-    protected function createOrder(SalesChannelContext $salesChannelContext, string $cartToken = null): OrderEntity
+    protected function createOrder(SalesChannelContext $salesChannelContext, string $cartToken): OrderEntity
     {
-
-        if (!is_string($cartToken)) {
-            $cartToken = $salesChannelContext->getToken();
-        }
-
         $cart = $this->getCartByToken($cartToken, $salesChannelContext);
 
         if ($cart === null) {
