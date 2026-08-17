@@ -28,6 +28,20 @@
 $bk-express-button-spacing: 10px !default;
 $bk-express-button-radius: 4px !default;
 
+// iDEAL fast checkout button. iDEAL fixes the lockup artwork and the frame
+// colours; everything else is ours. $bk-ideal-lockup-ratio is the lockup's
+// width / height and $bk-ideal-lockup-scale how much of the button height it
+// takes up — both measured from iDEAL's own button artwork, so the button
+// keeps iDEAL's proportions at whatever height the tiers give it.
+$bk-ideal-magenta: #cc0066 !default;
+$bk-ideal-magenta-pressed: #a80054 !default;
+$bk-ideal-surface: #fff !default;
+$bk-ideal-surface-pressed: #fbebf3 !default;
+$bk-ideal-button-radius: 5px !default;
+$bk-ideal-lockup-ratio: 7.294 !default;
+$bk-ideal-lockup-scale: 0.76 !default;
+$bk-ideal-lockup-inset: 24px !default;
+
 // PayPal smart button height tiers by container width
 $bk-express-height-xl: 55px !default; // container >= 500px
 $bk-express-height-lg: 45px !default; // 300 - 499px (default)
@@ -89,18 +103,56 @@ $bk-express-height-sm: 25px !default; // < 200px
         min-height: var(--bk-express-button-height, #{$bk-express-height-lg});
     }
 
-    // --- iDEAL / Wero fast checkout ----------------------------------------
-    // The extra #id selector is needed to win over the global
-    // #fast-checkout-ideal-btn rule in base.scss.
+    // --- iDEAL fast checkout ----------------------------------------------
+    // The frame is drawn here rather than taken from iDEAL's artwork, so the
+    // button follows the same height tiers as the buttons above instead of
+    // an aspect ratio of its own. Only the lockup is an image, sized off the
+    // button height so it keeps iDEAL's proportions; the second min() term
+    // stops it outgrowing a narrow button. The artwork URL is set by the
+    // template — see
+    // views/storefront/buckaroo/express-checkout-buttons.html.twig.
     #fast-checkout-ideal-btn,
     .bk-ideal-fast-checkout {
         @include bk-express-button-size;
         margin-top: 0;
-        padding: 8px 20px;
-        border-radius: $bk-express-button-radius;
+        padding: 0;
+        border: 1px solid $bk-ideal-magenta;
+        border-radius: $bk-ideal-button-radius;
+        background-color: $bk-ideal-surface;
+        background-image: var(--bk-ideal-btn-lockup);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: min(
+            calc(100% - #{$bk-ideal-lockup-inset}),
+            calc(var(--bk-express-button-height, #{$bk-express-height-lg}) * #{$bk-ideal-lockup-scale * $bk-ideal-lockup-ratio})
+        ) auto;
+        cursor: pointer;
+        transition: background-color 0.15s ease-in-out;
 
-        img {
-            height: 60%;
+        &:hover,
+        &:active {
+            background-color: $bk-ideal-surface-pressed;
+        }
+
+        &:focus-visible {
+            outline: 2px solid $bk-ideal-magenta;
+            outline-offset: 2px;
+        }
+
+        &[data-variant="dark"] {
+            background-color: $bk-ideal-magenta;
+
+            &:hover,
+            &:active {
+                border-color: $bk-ideal-magenta-pressed;
+                background-color: $bk-ideal-magenta-pressed;
+            }
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
         }
     }
 }
