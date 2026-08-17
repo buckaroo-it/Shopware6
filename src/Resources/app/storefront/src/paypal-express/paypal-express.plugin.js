@@ -99,8 +99,16 @@ export default class PaypalExpressPlugin extends Plugin {
     }
     onSuccessCallback()
     {
+        if (this.result === null || this.result === undefined) {
+            this.displayErrorMessage(this.options.i18n.cannot_create_payment);
+            return;
+        }
+
         if (this.result.error === true) {
-            this.displayErrorMessage(message);
+            // `message` (undefined) used to be passed here, which threw a
+            // ReferenceError and hid the real server-side error behind the
+            // generic "cannot create payment" message from onErrorCallback.
+            this.displayErrorMessage(this.result.message || this.options.i18n.cannot_create_payment);
         } else {
             if (this.result.redirect) {
                 window.location = this.result.redirect;
