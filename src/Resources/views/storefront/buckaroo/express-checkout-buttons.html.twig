@@ -41,16 +41,17 @@
 {% endif %}
 
 {#
-    iDEAL supplies the fast checkout button as one finished image per state:
-    the frame, the express mark, the iDEAL logo and the "Snel bestellen"
-    wordmark are baked in and may not be recomposed. The button element is
-    therefore only a transparent hit area carrying that image, and the three
-    state images are handed to the stylesheet as custom properties so that
+    Only iDEAL's lockup — the express mark, the iDEAL logo and the "Snel
+    bestellen" wordmark — is fixed artwork. The frame around it is a plain
+    fill, border and radius, so it is drawn in CSS instead of being baked
+    into the image. That lets the button span the full column and take the
+    same height as the other express buttons while the lockup keeps its own
+    proportions. The artwork goes to the stylesheet as a custom property so
     asset() keeps resolving the bundle path (and any CDN prefix) for us.
 #}
 {% if idealOptions ?? false %}
     {% set idealVariant = (idealLogo ?? '') == 'dark' ? 'dark' : 'light' %}
-    {% set idealAsset = "bundles/buckaroopayments/storefront/buckaroo/ideal/ideal-fast-checkout-#{idealVariant}" %}
+    {% set idealLockup = idealVariant == 'dark' ? 'ideal-snel-bestellen-inverted' : 'ideal-snel-bestellen' %}
     <div class="col-12 p-0 bk-express-checkout bk-express-checkout--ideal"
          data-bk-ideal-fast-checkout
          data-buckaroo-ideal-fast-checkout-plugin-options='{{ idealOptions|json_encode }}'>
@@ -59,8 +60,6 @@
                 id="fast-checkout-ideal-btn"
                 data-variant="{{ idealVariant }}"
                 aria-label="{{ "buckaroo.checkout.idealFastCheckoutButtonLabel"|trans|striptags }}"
-                style="--bk-ideal-btn-default: url('{{ asset("#{idealAsset}-default.svg") }}');
-                       --bk-ideal-btn-pressed: url('{{ asset("#{idealAsset}-pressed.svg") }}');
-                       --bk-ideal-btn-focused: url('{{ asset("#{idealAsset}-focused.svg") }}');"></button>
+                style="--bk-ideal-btn-lockup: url('{{ asset("bundles/buckaroopayments/storefront/buckaroo/ideal/#{idealLockup}.svg") }}');"></button>
     </div>
 {% endif %}

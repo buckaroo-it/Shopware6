@@ -28,9 +28,19 @@
 $bk-express-button-spacing: 10px !default;
 $bk-express-button-radius: 4px !default;
 
-// Intrinsic size of iDEAL's supplied fast checkout button image.
-$bk-ideal-button-width: 225 !default;
-$bk-ideal-button-height: 42 !default;
+// iDEAL fast checkout button. iDEAL fixes the lockup artwork and the frame
+// colours; everything else is ours. $bk-ideal-lockup-ratio is the lockup's
+// width / height and $bk-ideal-lockup-scale how much of the button height it
+// takes up — both measured from iDEAL's own button artwork, so the button
+// keeps iDEAL's proportions at whatever height the tiers give it.
+$bk-ideal-magenta: #cc0066 !default;
+$bk-ideal-magenta-pressed: #a80054 !default;
+$bk-ideal-surface: #fff !default;
+$bk-ideal-surface-pressed: #fbebf3 !default;
+$bk-ideal-button-radius: 5px !default;
+$bk-ideal-lockup-ratio: 7.294 !default;
+$bk-ideal-lockup-scale: 0.76 !default;
+$bk-ideal-lockup-inset: 24px !default;
 
 // PayPal smart button height tiers by container width
 $bk-express-height-xl: 55px !default; // container >= 500px
@@ -94,43 +104,49 @@ $bk-express-height-sm: 25px !default; // < 200px
     }
 
     // --- iDEAL fast checkout ----------------------------------------------
-    // iDEAL ships this button as one finished image — frame, express mark,
-    // iDEAL logo and the "Snel bestellen" wordmark are baked in and may not
-    // be recomposed — so the button element is only a transparent hit area
-    // carrying that image, exactly as the Buckaroo Magento 2 plugin does it.
-    //
-    // Consequence: this is the one express button whose height is not taken
-    // from the tiers above. It follows iDEAL's intrinsic 225:42 ratio, since
-    // stretching the artwork to an arbitrary tier height would distort the
-    // logo and the wordmark. Width, column placement and vertical rhythm are
-    // still shared with the other buttons via .bk-express-checkout.
-    //
-    // The three state images are set by the template as custom properties so
-    // that Twig's asset() resolves the bundle path and any CDN prefix; see
+    // The frame is drawn here rather than taken from iDEAL's artwork, so the
+    // button follows the same height tiers as the buttons above instead of
+    // an aspect ratio of its own. Only the lockup is an image, sized off the
+    // button height so it keeps iDEAL's proportions; the second min() term
+    // stops it outgrowing a narrow button. The artwork URL is set by the
+    // template — see
     // views/storefront/buckaroo/express-checkout-buttons.html.twig.
     #fast-checkout-ideal-btn,
     .bk-ideal-fast-checkout {
-        display: block;
-        width: 100%;
-        aspect-ratio: #{$bk-ideal-button-width} / #{$bk-ideal-button-height};
+        @include bk-express-button-size;
         margin-top: 0;
         padding: 0;
-        border: 0;
-        background-color: transparent;
-        background-image: var(--bk-ideal-btn-default);
+        border: 1px solid $bk-ideal-magenta;
+        border-radius: $bk-ideal-button-radius;
+        background-color: $bk-ideal-surface;
+        background-image: var(--bk-ideal-btn-lockup);
         background-repeat: no-repeat;
         background-position: center;
-        background-size: 100% 100%;
+        background-size: min(
+            calc(100% - #{$bk-ideal-lockup-inset}),
+            calc(var(--bk-express-button-height, #{$bk-express-height-lg}) * #{$bk-ideal-lockup-scale * $bk-ideal-lockup-ratio})
+        ) auto;
         cursor: pointer;
+        transition: background-color 0.15s ease-in-out;
 
         &:hover,
         &:active {
-            background-image: var(--bk-ideal-btn-pressed, var(--bk-ideal-btn-default));
+            background-color: $bk-ideal-surface-pressed;
         }
 
         &:focus-visible {
-            background-image: var(--bk-ideal-btn-focused, var(--bk-ideal-btn-default));
-            outline: none;
+            outline: 2px solid $bk-ideal-magenta;
+            outline-offset: 2px;
+        }
+
+        &[data-variant="dark"] {
+            background-color: $bk-ideal-magenta;
+
+            &:hover,
+            &:active {
+                border-color: $bk-ideal-magenta-pressed;
+                background-color: $bk-ideal-magenta-pressed;
+            }
         }
 
         &:disabled {
@@ -146,7 +162,9 @@ $bk-express-height-sm: 25px !default; // < 200px
 @container (min-width: 500px) {
     .bk-express-checkout .bk-apple-pay-button,
     .bk-express-checkout .bk-google-pay-button,
-    .bk-express-checkout .buckaroo-paypal-express {
+    .bk-express-checkout .buckaroo-paypal-express,
+    .bk-express-checkout #fast-checkout-ideal-btn,
+    .bk-express-checkout .bk-ideal-fast-checkout {
         --bk-express-button-height: #{$bk-express-height-xl};
     }
 }
@@ -154,7 +172,9 @@ $bk-express-height-sm: 25px !default; // < 200px
 @container (max-width: 299.98px) {
     .bk-express-checkout .bk-apple-pay-button,
     .bk-express-checkout .bk-google-pay-button,
-    .bk-express-checkout .buckaroo-paypal-express {
+    .bk-express-checkout .buckaroo-paypal-express,
+    .bk-express-checkout #fast-checkout-ideal-btn,
+    .bk-express-checkout .bk-ideal-fast-checkout {
         --bk-express-button-height: #{$bk-express-height-md};
     }
 }
@@ -162,7 +182,9 @@ $bk-express-height-sm: 25px !default; // < 200px
 @container (max-width: 199.98px) {
     .bk-express-checkout .bk-apple-pay-button,
     .bk-express-checkout .bk-google-pay-button,
-    .bk-express-checkout .buckaroo-paypal-express {
+    .bk-express-checkout .buckaroo-paypal-express,
+    .bk-express-checkout #fast-checkout-ideal-btn,
+    .bk-express-checkout .bk-ideal-fast-checkout {
         --bk-express-button-height: #{$bk-express-height-sm};
     }
 }
