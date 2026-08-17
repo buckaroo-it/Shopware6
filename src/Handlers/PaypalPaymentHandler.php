@@ -51,16 +51,22 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        // We dont really need this.
-        
-        // if ($dataBag->has('orderId')) {
-        //     return ['payPalOrderId' => $dataBag->get('orderId')];
-        // }
+        $payload = [];
+
+        // PayPal Express: the shopper already approved a PayPal order in the popup.
+        // Without payPalOrderId Buckaroo starts a *new* redirect-based PayPal
+        // transaction and answers with a RequiredAction redirect, which parks the
+        // shopper on redirect.ashx ("Redirecting, please wait...") instead of
+        // returning to the finish page.
+        if ($dataBag->has('orderId') && is_scalar($dataBag->get('orderId'))) {
+            $payload['payPalOrderId'] = (string)$dataBag->get('orderId');
+        }
 
         if ($this->isSellerProtection($salesChannelContext)) {
-            return $this->getSellerProtectionData($order);
+            $payload = array_merge($payload, $this->getSellerProtectionData($order));
         }
-        return [];
+
+        return $payload;
     }
 
     /**

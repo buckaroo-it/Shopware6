@@ -257,12 +257,14 @@ class OrderService
 
     private function getCheckoutUrls(string $orderId, RequestDataBag $data): ?array
     {
-        // Express-checkout flows (iDEAL, Google Pay, Apple Pay) need explicit finish/error
-        // URLs so Shopware's PaymentProcessor can build the transaction return URL correctly.
+        // Express-checkout flows (iDEAL, Google Pay, Apple Pay, PayPal Express) need explicit
+        // finish/error URLs so Shopware's PaymentProcessor can build the transaction return
+        // URL correctly.
         if (
             $data->get('idealFastCheckoutInfo') ||
             $data->get('googlePayInfo') ||
-            $data->get('applePayInfo')
+            $data->get('applePayInfo') ||
+            $data->get('paypalExpressInfo')
         ) {
             return [
                 'finishUrl' => '/checkout/finish?orderId=' . $orderId,
