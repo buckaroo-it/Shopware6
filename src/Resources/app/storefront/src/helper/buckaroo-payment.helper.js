@@ -246,9 +246,25 @@ export default class BuckarooPaymentHelper extends Plugin {
             })
         }
     }
+    /**
+     * Resolve the "field is required" message without ever touching a bare global.
+     * Order: data attribute rendered by twig -> legacy window global -> hardcoded fallback.
+     */
+    _getRequiredMessage()
+    {
+        const holder = document.querySelector('[data-bk-required-message]');
+        if (holder && holder.dataset.bkRequiredMessage) {
+            return holder.dataset.bkRequiredMessage;
+        }
+        if (typeof window.buckaroo_required_message === 'string'
+            && window.buckaroo_required_message.trim().length) {
+            return window.buckaroo_required_message;
+        }
+        return 'Please enter a valid value';
+    }
     _createMessageElement(forElement)
     {
-        let textMessage = buckaroo_required_message;
+        let textMessage = this._getRequiredMessage();
         let attributeTextMessage = forElement.getAttribute('required-message');
         if (attributeTextMessage != null && attributeTextMessage.length) {
             textMessage = attributeTextMessage;

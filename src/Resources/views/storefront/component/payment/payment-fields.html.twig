@@ -2,6 +2,21 @@
 
 
 {% block component_payment_method %}
+    {% block buckaroo_payment_globals %}
+        {# Carries the translated "field required" message to the storefront JS.
+           A data attribute (not an inline <script>) so it also survives
+           Shopware's AJAX re-render of the payment form. #}
+        <div class="buckaroo-required-message-holder d-none"
+             data-bk-required-message="{{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize|e('html_attr') }}"></div>
+
+        {% if page.extensions.buckaroo is defined and page.extensions.buckaroo.backLink %}
+            <script>
+                window.buckaroo_back_link = '{{ page.extensions.buckaroo.backLink|e('js') }}';
+                window.buckaroo_required_message = '{{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize|e('js') }}';
+            </script>
+        {% endif %}
+    {% endblock %}
+
     {% set bkSelectedPayments = page.paymentMethods|filter(payment => payment.id is same as(selectedPaymentMethodId)) %}
     {% set bkOtherPayments = page.paymentMethods|filter(payment => not (payment.id is same as(selectedPaymentMethodId))) %}
     {% set bkSortedPayments = bkSelectedPayments|merge(bkOtherPayments) %}
