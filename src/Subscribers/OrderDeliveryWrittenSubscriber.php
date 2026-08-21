@@ -28,9 +28,31 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * continues to be handled by {@see OrderStateChangeEvent}. In that path BOTH events
  * fire; deduplication is handled by the customFields['captured'] flag that
  * CaptureService persists synchronously after a successful capture.
+ *
+ * IMPORTANT: this path is opt-in per payment method, see
+ * self::CAPTURE_METHODS_ON_DAL_WRITE. It is deliberately NOT enabled for Klarna KP.
+ * A Klarna KP capture is a "Pay on reservation" call, and the reservation can already
+ * have been captured outside of Shopware (Buckaroo KlarnaKP AutoPay, a manual capture
+ * in the Payment Plaza, or a capture done by an older plugin version). In those cases
+ * customFields['captured'] is absent, so the canCapture* guards cannot deduplicate:
+ * every delivery write would retry the Pay and Buckaroo answers 491 "Pay on
+ * reservation ... is not possible: reservation has status FullyCaptured". That
+ * validation failure is pushed back to PushController and can flip an already
+ * refunded transaction to cancelled. Klarna KP therefore keeps the single-shot
+ * state_enter path only.
  */
 class OrderDeliveryWrittenSubscriber implements EventSubscriberInterface
 {
+    /**
+     * Buckaroo payment methods (lowercase `brqPaymentMethod`) for which a direct DAL
+     * write of the shipped state may trigger capture-on-shipment. Klarna MoR only: its
+     * capture is guarded by customFields['captured'] and ['dataRequestKey'], both of
+     * which the plugin itself always writes, so repeated writes are idempotent.
+     *
+     * @var array<int, string>
+     */
+    public const CAPTURE_METHODS_ON_DAL_WRITE = ['klarna'];
+
     private OrderStateChangeEvent $orderStateChangeEvent;
 
     private EntityRepository $orderDeliveryRepository;
@@ -139,7 +161,8 @@ class OrderDeliveryWrittenSubscriber implements EventSubscriberInterface
             $this->orderStateChangeEvent->triggerCaptureForShippedOrder(
                 $order->getId(),
                 $order->getSalesChannelId(),
-                $context
+                $context,
+                self::CAPTURE_METHODS_ON_DAL_WRITE
             );
         }
     }

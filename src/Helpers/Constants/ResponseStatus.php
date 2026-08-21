@@ -25,4 +25,11 @@ class ResponseStatus
     public const BUCKAROO_MUTATION_TYPE_INFORMATIONAL      = 'Informational';
     public const BUCKAROO_MUTATION_TYPE_PROCESSING         = 'Processing';
     public const BUCKAROO_BILLINK_CAPTURE_TYPE_ACCEPT      = 'C073';
+
+    /**
+     * Buckaroo transaction type of a Klarna KP Pay (pay on reservation) transaction.
+     * Present on the push that confirms the reservation was captured, whether that
+     * capture was initiated by this plugin, by KlarnaKP AutoPay, or in the Plaza.
+     */
+    public const BUCKAROO_KLARNAKP_PAY_TYPE                = 'V610';
 }

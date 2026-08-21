@@ -344,11 +344,18 @@ class OrderStateChangeEvent implements EventSubscriberInterface
      * Deduplication between the two paths is handled by the customFields['captured']
      * flag which CaptureService sets synchronously after a successful capture; the
      * canCapture* guards short-circuit when it is present.
+     *
+     * @param array<int, string>|null $onlyPaymentMethods When given, the trigger is
+     *        restricted to these Buckaroo payment methods (lowercase `brqPaymentMethod`
+     *        values). The direct DAL write path uses this to opt in one method at a time
+     *        instead of every capture-on-shipment method; see
+     *        OrderDeliveryWrittenSubscriber::CAPTURE_METHODS_ON_DAL_WRITE.
      */
     public function triggerCaptureForShippedOrder(
         string $orderId,
         ?string $salesChannelId,
-        Context $context
+        Context $context,
+        ?array $onlyPaymentMethods = null
     ): bool {
         $order = $this->orderService->getOrderById(
             $orderId,
@@ -380,6 +387,20 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             return false;
         }
 
+        if (
+            $onlyPaymentMethods !== null &&
+            !in_array(strtolower($customFields['brqPaymentMethod']), $onlyPaymentMethods, true)
+        ) {
+            $this->logger->debug(
+                'Buckaroo capture-on-shipment: payment method not enabled for this trigger path',
+                [
+                    'orderId'          => $orderId,
+                    'brqPaymentMethod' => $customFields['brqPaymentMethod'],
+                    'allowedMethods'   => $onlyPaymentMethods,
+                ]
+            );
+            return false;
+        }
 
         if (
             $this->canCaptureAfterpay(
