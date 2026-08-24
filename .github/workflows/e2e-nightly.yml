@@ -1,0 +1,25 @@
+name: E2E Nightly
+
+# Walks the whole range the plugin claims in composer.json (>=6.5.8.0 <6.8).
+# This is what turns that claim into something verified rather than asserted:
+# when Shopware ships a patch that moves a template or renames a block, this
+# goes red the next morning instead of surfacing in a support ticket.
+on:
+  schedule:
+    - cron: '15 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  matrix:
+    strategy:
+      fail-fast: false
+      matrix:
+        shopware:
+          - '6.7.13.0'   # newest
+          - '6.7.12.2'
+          - '6.7.11.1'
+          - '6.6.10.22'  # 6.6 extended support (until 2028-02-28)
+          - '6.5.8.19'   # 6.5 extended support (until 2027-02-28), our floor
+    uses: ./.github/workflows/e2e-shopware.yml
+    with:
+      shopware: ${{ matrix.shopware }}

@@ -1,0 +1,13 @@
+{
+  "name": "buckaroo-shopware6-e2e",
+  "private": true,
+  "description": "Shop-level regression tests run against a real Shopware instance.",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0"
+  }
+}

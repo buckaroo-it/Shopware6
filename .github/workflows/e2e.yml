@@ -1,0 +1,18 @@
+name: E2E
+
+# Fast gate: only the newest supported Shopware. The full range runs nightly.
+on:
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+    inputs:
+      shopware:
+        description: 'Shopware version to test'
+        required: false
+        default: '6.7.13.0'
+
+jobs:
+  latest:
+    uses: ./.github/workflows/e2e-shopware.yml
+    with:
+      shopware: ${{ github.event.inputs.shopware || '6.7.13.0' }}
