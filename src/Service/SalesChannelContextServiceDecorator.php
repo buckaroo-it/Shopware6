@@ -32,7 +32,9 @@ class SalesChannelContextServiceDecorator implements SalesChannelContextServiceI
                     $parameters->getLanguageId(),
                     $parameters->getCurrencyId(),
                     $parameters->getDomainId(),
-                    $parameters->getContext()
+                    $parameters->getOriginalContext(),
+                    $parameters->getCustomerId(),
+                    $parameters->getImitatingUserId()
                 );
             }
         }
