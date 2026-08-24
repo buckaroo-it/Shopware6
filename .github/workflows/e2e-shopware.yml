@@ -1,0 +1,119 @@
+name: E2E (reusable)
+
+# Runs the shop-level regression suite against one real Shopware version.
+# Called by e2e.yml (per PR, latest only) and e2e-nightly.yml (full matrix).
+on:
+  workflow_call:
+    inputs:
+      shopware:
+        description: 'Shopware version, must exist as a dockware/shopware tag'
+        required: true
+        type: string
+
+jobs:
+  e2e:
+    name: Shopware ${{ inputs.shopware }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout plugin
+        uses: actions/checkout@v4
+        with:
+          path: plugin
+
+      - name: Start Shopware ${{ inputs.shopware }}
+        run: |
+          docker run -d --rm --name shop -p 80:80 \
+            -e SHOPWARE_SKIP_BUNDLE_DUMP=1 \
+            dockware/shopware:${{ inputs.shopware }}
+
+      # -p 80:80 means the browser sends Host: localhost, which matches the
+      # sales channel domain dockware ships. Do not remap the port without also
+      # updating sales_channel_domain, or Shopware answers 400.
+      - name: Wait for the shop to answer
+        run: |
+          # Any HTTP status means the web server is answering. Do not gate on
+          # 200: a domain mismatch answers 400 on 6.7 and 500 on 6.5, and
+          # gating on specific codes made 6.5 look like it never booted.
+          for i in $(seq 1 90); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://localhost/ || true)
+            if [ -n "$code" ] && [ "$code" != "000" ]; then echo "shop up (HTTP $code)"; exit 0; fi
+            sleep 5
+          done
+          echo "::error::shop did not become ready"; docker logs shop | tail -50; exit 1
+
+      - name: Copy plugin into the container
+        run: |
+          docker exec shop mkdir -p /var/www/html/custom/plugins
+          docker cp plugin shop:/var/www/html/custom/plugins/BuckarooPayments
+          docker exec -u root shop chown -R www-data:www-data /var/www/html/custom/plugins
+
+      # Shopware 6.7.13 pins mcp/sdk ^0.6.0, which carries CVE-2026-53965 with no
+      # in-range fix, so Composer 2.10+ refuses to resolve it.
+      # Best-effort on purpose: the dockware images currently ship Composer
+      # 2.2.x, which predates advisory blocking and rejects the policy.* key
+      # outright. Keep the step so newer images stay unblocked.
+      - name: Allow the known mcp/sdk advisory (best effort)
+        run: |
+          docker exec -u www-data -w /var/www/html shop \
+            composer config policy.advisories.ignore-id.CVE-2026-53965 \
+            "no in-range fix; MCP server not enabled" \
+            || echo "composer in this image predates advisory blocking - nothing to ignore"
+
+      - name: Install plugin via composer path repository
+        run: |
+          docker exec -u www-data -w /var/www/html shop \
+            composer config repositories.buckaroo path 'custom/plugins/BuckarooPayments'
+          docker exec -u www-data -w /var/www/html shop \
+            composer require buckaroo/shopware6:'*' --no-interaction --no-scripts
+
+      - name: Activate plugin and build assets
+        run: |
+          docker exec -u www-data -w /var/www/html shop bin/console plugin:refresh
+          docker exec -u www-data -w /var/www/html shop bin/console plugin:install --activate BuckarooPayments
+          docker exec -u www-data -w /var/www/html shop bin/console assets:install
+          docker exec -u www-data -w /var/www/html shop bin/console theme:compile
+          docker exec -u www-data -w /var/www/html shop bin/console cache:clear
+
+      # First hit on a cold shop pays for cache + theme generation and can take
+      # minutes on 6.5/6.6. Warm it here so the suite's own timeouts are not
+      # measuring container start-up.
+      - name: Warm the storefront
+        run: |
+          for path in / /account/register /checkout/cart; do
+            curl -s -o /dev/null -w "warmed $path -> %{http_code}\n" --max-time 180 "http://localhost$path" || true
+          done
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        working-directory: plugin/tests/e2e
+        run: |
+          npm ci || npm install
+          npx playwright install chromium --with-deps
+
+      - name: Run E2E suite
+        working-directory: plugin/tests/e2e
+        env:
+          SHOP_BASE_URL: http://localhost
+          CI: 'true'
+        run: npx playwright test
+
+      - name: Shop logs on failure
+        if: failure()
+        run: docker logs shop | tail -100
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ inputs.shopware }}
+          path: |
+            plugin/tests/e2e/playwright-report
+            plugin/tests/e2e/test-results
+          retention-days: 7
+          if-no-files-found: ignore
