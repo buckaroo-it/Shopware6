@@ -37,20 +37,20 @@
         "plugin-icon": "src/Resources/public/plugin.png",
         "copyright": "(c) by Buckaroo",
         "label": {
-            "de-DE": "Buckaroo Payment",
-            "en-GB": "Buckaroo Payment"
+            "de-DE": "Buckaroo Payments",
+            "en-GB": "Buckaroo Payments"
         },
         "description": {
-            "de-DE": "Akzeptieren Sie iDEAL, Kreditkarten, PayPal, Bancontact, Klarna, Apple Pay und mehr über Buckaroo. Sichere Zahlungsabwicklung für Shopware 6, inklusive Rückerstattungen.",
-            "en-GB": "Accept iDEAL, credit cards, PayPal, Bancontact, Klarna, Apple Pay and more through Buckaroo. Secure payment processing for Shopware 6, with refunds from the admin."
+            "de-DE": "Das offizielle Buckaroo Zahlungs-Plugin für Shopware 6. Akzeptieren Sie eine Vielzahl lokaler und internationaler Zahlungsarten und erstatten Sie direkt in der Administration.",
+            "en-GB": "The official Buckaroo payment plugin for Shopware 6. Accept a wide range of local and international payment methods and issue refunds directly from the Administration."
         },
         "manufacturerLink": {
-            "de-DE": "https://store.shopware.com/buckaroo.html",
-            "en-GB": "https://store.shopware.com/en/buckaroo.html"
+            "de-DE": "https://store.shopware.com/de/extension-partners/buckaroo",
+            "en-GB": "https://store.shopware.com/en/extension-partners/buckaroo"
         },
         "supportLink": {
-            "de-DE": "https://support.buckaroo.nl/contact",
-            "en-GB": "https://support.buckaroo.nl/contact"
+            "de-DE": "https://docs.buckaroo.io/docs/contact-us",
+            "en-GB": "https://docs.buckaroo.io/docs/contact-us"
         }
     },
     "require-dev": {
