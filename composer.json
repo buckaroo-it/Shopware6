@@ -41,8 +41,8 @@
             "en-GB": "Buckaroo Payment"
         },
         "description": {
-            "de-DE": "Buckaroo Payment Plugins",
-            "en-GB": "Buckaroo Payment Plugin"
+            "de-DE": "Akzeptieren Sie iDEAL, Kreditkarten, PayPal, Bancontact, Klarna, Apple Pay und mehr über Buckaroo. Sichere Zahlungsabwicklung für Shopware 6, inklusive Rückerstattungen.",
+            "en-GB": "Accept iDEAL, credit cards, PayPal, Bancontact, Klarna, Apple Pay and more through Buckaroo. Secure payment processing for Shopware 6, with refunds from the admin."
         },
         "manufacturerLink": {
             "de-DE": "https://store.shopware.com/buckaroo.html",
