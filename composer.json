@@ -41,8 +41,8 @@
             "en-GB": "Buckaroo Payments"
         },
         "description": {
-            "de-DE": "Buckaroo Zahlungs-Plugin",
-            "en-GB": "Buckaroo Payment Plugin"
+            "de-DE": "Das offizielle Buckaroo Zahlungs-Plugin für Shopware 6. Akzeptieren Sie eine Vielzahl lokaler und internationaler Zahlungsarten und erstatten Sie direkt in der Administration.",
+            "en-GB": "The official Buckaroo payment plugin for Shopware 6. Accept a wide range of local and international payment methods and issue refunds directly from the Administration."
         },
         "manufacturerLink": {
             "de-DE": "https://store.shopware.com/de/extension-partners/buckaroo",
