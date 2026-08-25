@@ -12,14 +12,16 @@
         "ext-pcre": "*",
         "ext-fileinfo": "*",
         "buckaroo/sdk": "^1.23.2",
-        "shopware/core": "6.5.0.0 - 6.7.13.0"
+        "shopware/core": ">=6.5.8.0 <6.8"
     },
-    "authors": [{
-        "name": "Buckaroo",
-        "email": "support@buckaroo.nl",
-        "homepage": "https://www.buckaroo.nl",
-        "role": "Developer"
-    }],
+    "authors": [
+        {
+            "name": "Buckaroo",
+            "email": "support@buckaroo.nl",
+            "homepage": "https://www.buckaroo.nl",
+            "role": "Developer"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Buckaroo\\Shopware6\\": "src/"

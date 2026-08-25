@@ -1,6 +1,14 @@
 {% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
 
+{# Shopware renamed these blocks in 6.7 (base_header -> base_esi_header).
+   Both variants are declared so the minimal header/footer keep working on
+   6.5/6.6 and 6.7 alike; a block the parent chain does not define is simply
+   never rendered, so the unused variant is inert. #}
 {% block base_header %}
+	{% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
+{% endblock %}
+
+{% block base_esi_header %}
 	{% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
 {% endblock %}
 
@@ -22,5 +30,9 @@
 {% endblock %}
 
 {% block base_footer %}
+	{% sw_include '@Storefront/storefront/layout/footer/footer-minimal.html.twig' %}
+{% endblock %}
+
+{% block base_esi_footer %}
 	{% sw_include '@Storefront/storefront/layout/footer/footer-minimal.html.twig' %}
 {% endblock %}

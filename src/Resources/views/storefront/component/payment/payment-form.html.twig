@@ -1,0 +1,47 @@
+{% sw_extends '@Storefront/storefront/component/payment/payment-form.html.twig' %}
+
+{# Buckaroo payment-step customisations for Shopware 6.7+.
+   Companion to payment-fields.html.twig, which covers 6.5/6.6 - exactly one of
+   the two ever renders, so there is no duplicated markup:
+
+     6.5  core payment-form has no `component_payment_form_list`; it includes
+          payment-fields.html.twig  -> the payment-fields override renders.
+     6.6  `component_payment_form_list` exists only behind the
+          ACCESSIBILITY_TWEAKS feature flag; by default core still includes
+          payment-fields.html.twig  -> the payment-fields override renders
+          (this override takes over when that flag is enabled).
+     6.7  payment-fields.html.twig was removed and
+          `component_payment_form_list` is unconditional -> this override renders.
+
+   Note core no longer passes `visiblePaymentMethodsLimit` (6.6 supplied it to
+   the include, 6.7 dropped it), so the old collapse behaviour is intentionally
+   not reimplemented here - core no longer truncates the list. #}
+{% block component_payment_form_list %}
+    {% block buckaroo_payment_globals %}
+        {# Carries the translated "field required" message to the storefront JS.
+           A data attribute (not an inline <script>) so it also survives
+           Shopware's AJAX re-render of the payment form. #}
+        <div class="buckaroo-required-message-holder d-none"
+             data-bk-required-message="{{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize|e('html_attr') }}"></div>
+
+        {% if page.extensions.buckaroo is defined and page.extensions.buckaroo.backLink %}
+            <script>
+                window.buckaroo_back_link = '{{ page.extensions.buckaroo.backLink|e('js') }}';
+                window.buckaroo_required_message = '{{ "buckaroo.checkout.buckarooError"|trans|sw_sanitize|e('js') }}';
+            </script>
+        {% endif %}
+    {% endblock %}
+
+    {# Show the currently selected payment method first. #}
+    {% set bkSelectedId = selectedPaymentMethodId ?? context.paymentMethod.id %}
+    {% set bkSelectedPayments = page.paymentMethods|filter(payment => payment.id is same as(bkSelectedId)) %}
+    {% set bkOtherPayments = page.paymentMethods|filter(payment => not (payment.id is same as(bkSelectedId))) %}
+
+    <div class="payment-methods">
+        {% for payment in bkSelectedPayments|merge(bkOtherPayments) %}
+            {% block component_payment_form_method %}
+                {% sw_include '@Storefront/storefront/component/payment/payment-method.html.twig' %}
+            {% endblock %}
+        {% endfor %}
+    </div>
+{% endblock %}
