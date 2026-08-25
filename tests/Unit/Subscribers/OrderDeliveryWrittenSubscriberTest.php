@@ -143,7 +143,8 @@ class OrderDeliveryWrittenSubscriberTest extends TestCase
     /**
      * stateId in payload resolves to "shipped": subscriber must delegate to
      * OrderStateChangeEvent::triggerCaptureForShippedOrder with the parent
-     * order's id, salesChannelId, and the same context.
+     * order's id, salesChannelId, the same context, and the payment-method
+     * allow list that applies to this trigger path.
      */
     public function testDelegatesToOrderStateChangeEventWhenNewStateIsShipped(): void
     {
@@ -169,10 +170,31 @@ class OrderDeliveryWrittenSubscriberTest extends TestCase
             ->with(
                 self::ORDER_ID,
                 self::SALES_CHANNEL_ID,
-                $this->identicalTo($this->context)
+                $this->identicalTo($this->context),
+                OrderDeliveryWrittenSubscriber::CAPTURE_METHODS_ON_DAL_WRITE
             );
 
         $this->subscriber->onOrderDeliveryWritten($event);
+    }
+
+    /**
+     * The direct DAL write path is opt-in per payment method and must stay limited to
+     * Klarna MoR. Klarna KP must never be captured from this path: its reservation can
+     * already be FullyCaptured at Buckaroo without the plugin knowing, and a retried
+     * "Pay on reservation" returns 491, which PushController can turn into a cancelled
+     * payment state.
+     */
+    public function testOnlyKlarnaMorIsEnabledForTheDalWritePath(): void
+    {
+        $this->assertSame(
+            ['klarna'],
+            OrderDeliveryWrittenSubscriber::CAPTURE_METHODS_ON_DAL_WRITE
+        );
+
+        $this->assertNotContains(
+            'klarnakp',
+            OrderDeliveryWrittenSubscriber::CAPTURE_METHODS_ON_DAL_WRITE
+        );
     }
 
     /**
