@@ -37,20 +37,20 @@
         "plugin-icon": "src/Resources/public/plugin.png",
         "copyright": "(c) by Buckaroo",
         "label": {
-            "de-DE": "Buckaroo Payment",
-            "en-GB": "Buckaroo Payment"
+            "de-DE": "Buckaroo Payments",
+            "en-GB": "Buckaroo Payments"
         },
         "description": {
-            "de-DE": "Buckaroo Payment Plugins",
+            "de-DE": "Buckaroo Zahlungs-Plugin",
             "en-GB": "Buckaroo Payment Plugin"
         },
         "manufacturerLink": {
-            "de-DE": "https://store.shopware.com/buckaroo.html",
-            "en-GB": "https://store.shopware.com/en/buckaroo.html"
+            "de-DE": "https://store.shopware.com/de/extension-partners/buckaroo",
+            "en-GB": "https://store.shopware.com/en/extension-partners/buckaroo"
         },
         "supportLink": {
-            "de-DE": "https://support.buckaroo.nl/contact",
-            "en-GB": "https://support.buckaroo.nl/contact"
+            "de-DE": "https://docs.buckaroo.io/docs/contact-us",
+            "en-GB": "https://docs.buckaroo.io/docs/contact-us"
         }
     },
     "require-dev": {
