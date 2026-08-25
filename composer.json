@@ -72,6 +72,13 @@
     "config": {
         "allow-plugins": {
             "symfony/runtime": true
+        },
+        "policy": {
+            "advisories": {
+                "ignore-id": {
+                    "CVE-2026-53965": "CVE-2026-53965 (mcp/sdk unbounded SSE buffer in the MCP *client* HTTP transport). shopware/core 6.7.13.0 is the first release to require mcp/sdk and pins ^0.6.0, while the fix landed only in 0.7.1 - so Composer 2.10+ blocks 6.7.13 outright. Not exploitable here: the MCP server is opt-in via MCP_SERVER=1 and is not enabled. REMOVE this entry once Shopware ships a patch bumping mcp/sdk to ^0.7.1."
+                }
+            }
         }
     }
 }
