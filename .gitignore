@@ -5,3 +5,8 @@ vendor/
 composer.lock
 node_modules/
 src/Resources/app/administration/.tmp/
+# E2E (Playwright) generated output
+tests/e2e/test-results/
+tests/e2e/playwright-report/
+tests/e2e/playwright/.cache/
+.phpunit.result.cache
