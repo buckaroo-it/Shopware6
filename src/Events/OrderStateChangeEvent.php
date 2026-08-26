@@ -341,10 +341,6 @@ class OrderStateChangeEvent implements EventSubscriberInterface
      *  - onOrderDeliveryStateShipped (state-machine path via state_enter event)
      *  - OrderDeliveryWrittenSubscriber (direct DAL write path via order_delivery.written)
      *
-     * Deduplication between the two paths is handled by the customFields['captured']
-     * flag which CaptureService sets synchronously after a successful capture; the
-     * canCapture* guards short-circuit when it is present.
-     *
      * @param array<int, string>|null $onlyPaymentMethods When given, the trigger is
      *        restricted to these Buckaroo payment methods (lowercase `brqPaymentMethod`
      *        values). The direct DAL write path uses this to opt in one method at a time
@@ -441,6 +437,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         
         return $customFields['brqPaymentMethod'] === 'afterpay' &&
             !isset($customFields['captured']) &&
+            !CaptureService::isCaptureInFlight($customFields) &&
             $this->settingsService->getSetting('afterpayCaptureonshippent', $salesChannelId) &&
             isset($orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED]) &&
             $orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED] === true;
@@ -457,8 +454,15 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             return false;
         }
 
+        // Klarna MoR: capture-on-shipment is mandatory, but only ONE Pay may be sent
+        // per reservation. `captured` records a confirmed capture (synchronous success
+        // or the success push), the in-flight marker covers the window in which the
+        // engine is still processing an earlier Pay (791 Pending) — during a single
+        // ship action both the order_delivery.written and the
+        // state_enter.order_delivery.state.shipped paths fire this guard.
         return $customFields['brqPaymentMethod'] === 'klarna'
             && !isset($customFields['captured'])
+            && !CaptureService::isCaptureInFlight($customFields)
             && isset($customFields['dataRequestKey'])
             && (bool)$this->settingsService->getSetting('klarnaCaptureonshipment', $salesChannelId);
     }
@@ -476,6 +480,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
         return strtolower($customFields['brqPaymentMethod']) === 'klarnakp'
             && !isset($customFields['captured'])
+            && !CaptureService::isCaptureInFlight($customFields)
             && isset($customFields['reservationNumber'])
             && (bool)$this->settingsService->getSetting('klarnakpCaptureonshipment', $salesChannelId);
     }
@@ -499,6 +504,13 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     private function createNotifications(?array $result, Context $context): void
     {
         if ($result === null) {
+            return;
+        }
+
+        // Deduplicated captures (already captured / capture in flight) are the guards
+        // working as intended - never surface them as an admin warning next to the
+        // success notification of the capture that did run.
+        if (!empty($result['silent'])) {
             return;
         }
         $status = 'warning';

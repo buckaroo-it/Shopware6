@@ -21,6 +21,21 @@ class CaptureService
 
     public const ORDER_IS_AUTHORIZED = 'buckaroo_is_authorize';
 
+    public const CAPTURE_INITIATED = 'captureInitiated';
+
+    public const CAPTURE_IN_FLIGHT_SECONDS = 600;
+
+    /**
+     * Order ids for which this request already sent (or is currently sending) a
+     * capture request. Deduplicates the two capture-on-shipment trigger paths that
+     * fire within one PHP request (order_delivery.written and
+     * state_enter.order_delivery.state.shipped) without any database write - see the
+     * deadlock note on CAPTURE_INITIATED for why this must not be a DB flag.
+     *
+     * @var array<string, bool>
+     */
+    private array $inFlightOrderIds = [];
+
     protected TransactionService $transactionService;
 
     protected TranslatorInterface $translator;
@@ -91,6 +106,21 @@ class CaptureService
             return $validationErrors;
         }
 
+        // In-memory guard: the ship action fires both order_delivery.written and
+        // state_enter.order_delivery.state.shipped in the same request. Never send a
+        // second capture for an order this request already captured. Deliberately NOT
+        // a database write - see the deadlock note on CAPTURE_INITIATED.
+        // `silent`: this is the dedup working as intended, not a problem a merchant
+        // needs to see - the capture triggers must not raise a notification for it.
+        if (isset($this->inFlightOrderIds[$order->getId()])) {
+            return [
+                'status' => false,
+                'silent' => true,
+                'message' => $this->translator->trans("buckaroo.capture.capture_in_progress")
+            ];
+        }
+        $this->inFlightOrderIds[$order->getId()] = true;
+
         $client = $this->getClient(
             $paymentCode,
             $order->getSalesChannelId()
@@ -111,8 +141,28 @@ class CaptureService
                 ),
             );
 
+        try {
+            $response = $client->execute();
+        } catch (\Throwable $th) {
+            // The connection failed but the engine may still have accepted and
+            // processed the capture (e.g. a timeout while the engine waited on its
+            // own result push). Persist the in-flight marker - safe now, the
+            // outbound call is over - so no retry fires before the push has had the
+            // chance to record `captured`; the marker expires after
+            // CAPTURE_IN_FLIGHT_SECONDS.
+            $transactionId = $this->getLastTransactionIdOrNull($order);
+            if ($transactionId !== null) {
+                $this->transactionService->saveTransactionData(
+                    $transactionId,
+                    $context,
+                    [self::CAPTURE_INITIATED => time()]
+                );
+            }
+            throw $th;
+        }
+
         return $this->handleResponse(
-            $client->execute(),
+            $response,
             $order,
             $context,
             $paymentCode
@@ -136,6 +186,8 @@ class CaptureService
         Context $context,
         string $paymentCode
     ): array {
+        $transactionId = $this->getLastTransactionIdOrNull($order);
+
         if ($response->isSuccess()) {
             if (
                 !$this->invoiceService->isInvoiced($order->getId(), $context) &&
@@ -148,13 +200,11 @@ class CaptureService
                 $this->invoiceService->generateInvoice($order, $context);
             }
 
-            $transactionId = $order->getTransactions()?->last()?->getId();
-
             if ($transactionId !== null) {
                 $this->transactionService->saveTransactionData(
                     $transactionId,
                     $context,
-                    ['captured' => 1]
+                    ['captured' => 1, self::CAPTURE_INITIATED => 0]
                 );
             }
 
@@ -170,11 +220,57 @@ class CaptureService
             ];
         }
 
+        // The engine accepted the request but processes it asynchronously (791). This
+        // is the normal flow for a Klarna MoR "Pay on reservation": the definitive
+        // result arrives via push. Persist the in-flight marker (safe post-call) so
+        // no second capture is sent in the meantime, and report it as initiated
+        // instead of failed.
+        if ($response->isPendingProcessing()) {
+            if ($transactionId !== null) {
+                $this->transactionService->saveTransactionData(
+                    $transactionId,
+                    $context,
+                    [self::CAPTURE_INITIATED => time()]
+                );
+            }
+
+            return [
+                'status' => true,
+                'message' => $this->translator->trans("buckaroo.capture.capture_pending"),
+            ];
+        }
+
+        // Definitive failure: nothing was persisted before the call, so a later
+        // shipment event or a manual capture can simply retry.
         return [
             'status'  => false,
             'message' => $response->getSomeError(),
             'code'    => $response->getStatusCode(),
         ];
+    }
+
+    /**
+     * Whether a capture request for this transaction is currently in flight: it was
+     * handed to the Buckaroo engine less than CAPTURE_IN_FLIGHT_SECONDS ago and no
+     * definitive result has been recorded yet. Shared by the capture-on-shipment
+     * triggers (OrderStateChangeEvent) and validate().
+     *
+     * @param array<mixed> $customFields
+     */
+    public static function isCaptureInFlight(array $customFields): bool
+    {
+        $initiatedAt = $customFields[self::CAPTURE_INITIATED] ?? null;
+
+        if (!is_numeric($initiatedAt) || (int)$initiatedAt <= 0) {
+            return false;
+        }
+
+        return (time() - (int)$initiatedAt) < self::CAPTURE_IN_FLIGHT_SECONDS;
+    }
+
+    private function getLastTransactionIdOrNull(OrderEntity $order): ?string
+    {
+        return $order->getTransactions()?->last()?->getId();
     }
 
     private function getCurrencyIso(OrderEntity $order): string
@@ -300,10 +396,23 @@ class CaptureService
             ];
         }
 
+        // `silent`: an already handled capture is the dedup guards doing their job.
+        // The automatic capture-on-shipment triggers skip the admin notification for
+        // silent results; a manual capture (CaptureController) still returns the
+        // message to the caller as its response.
         if (!empty($customFields['captured']) && ($customFields['captured'] == 1)) {
             return [
                 'status' => false,
+                'silent' => true,
                 'message' => $this->translator->trans("buckaroo.capture.already_captured")
+            ];
+        }
+
+        if (self::isCaptureInFlight($customFields)) {
+            return [
+                'status' => false,
+                'silent' => true,
+                'message' => $this->translator->trans("buckaroo.capture.capture_in_progress")
             ];
         }
         return null;
