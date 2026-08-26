@@ -149,14 +149,6 @@ class SignatureValidationService
     }
     private function getCorrectKey(string $key): string
     {
-        if ($key === 'brq_SERVICE_knaken_Buyer_UUID') {
-            $key = 'brq_SERVICE_knaken_Buyer UUID';
-        }
-
-        if ($key === 'brq_SERVICE_knaken_Buyer_Name') {
-            $key = 'brq_SERVICE_knaken_Buyer Name';
-        }
-
         if ($key === 'brq_SERVICE_boekenbon_Additional_Info') {
             $key = 'brq_SERVICE_boekenbon_Additional Info';
         }

@@ -40,11 +40,11 @@ Card payments run through Hosted Fields, which keeps the card entry inside your 
 
 ## Requirements
 
-| Requirement | Supported versions |
+| Requirement | Supported versions   |
 |---|---|
-| Shopware | 6.5.0 up to 6.7.6.0 |
-| PHP | 8.2 or higher |
-| Composer | 2.x |
+| Shopware | 6.5.8.0 up to 6.7.x |
+| PHP | 8.2 or higher        |
+| Composer | 2.x                  |
 
 You also need a Buckaroo account. Don't have one yet? [Request an account](https://www.buckaroo.nl/start).
 
@@ -114,14 +114,13 @@ The plugin supports the following payment methods. Each one can be enabled or di
 | [Alipay](https://docs.buckaroo.io/docs/alipay) | [Apple Pay](https://docs.buckaroo.io/docs/apple-pay) | [Bancontact](https://docs.buckaroo.io/docs/bancontact) |
 | [Bank Transfer](https://docs.buckaroo.io/docs/transfer) | [Belfius](https://docs.buckaroo.io/docs/belfius) | [Billink](https://docs.buckaroo.io/docs/billink) |
 | [Bizum](https://docs.buckaroo.io/docs/bizum) | [Blik](https://docs.buckaroo.io/docs/blik) | [Credit and debit cards](https://docs.buckaroo.io/docs/creditcards) |
-| [EPS](https://docs.buckaroo.io/docs/eps) | [Giftcards](https://docs.buckaroo.io/docs/giftcards) | [GoSettle](https://docs.buckaroo.io/docs/gosettle) |
-| [Google Pay](https://docs.buckaroo.io/docs/google-pay) | [iDEAL / Wero](https://docs.buckaroo.io/docs/ideal) | [iDEAL QR](https://docs.buckaroo.io/docs/ideal-qr) |
-| [In3](https://docs.buckaroo.io/docs/in3) | [KBC](https://docs.buckaroo.io/docs/kbc) | [Klarna](https://docs.buckaroo.io/docs/klarna-kp) |
-| [MB Way](https://docs.buckaroo.io/docs/mb-way) | [Multibanco](https://docs.buckaroo.io/docs/multibanco) | [Pay by Bank](https://docs.buckaroo.io/docs/pay-by-bank) |
-| [PayPal](https://docs.buckaroo.io/docs/paypal) | [PayPerEmail](https://docs.buckaroo.io/docs/payperemail) | [Przelewy24](https://docs.buckaroo.io/docs/przelewy24) |
-| [Riverty](https://docs.buckaroo.io/docs/riverty) | [SEPA Direct Debit](https://docs.buckaroo.io/docs/sepa-direct-debit) | [Swish](https://docs.buckaroo.io/docs/swish) |
-| [Trustly](https://docs.buckaroo.io/docs/trustly) | [Twint](https://docs.buckaroo.io/docs/twint) | [WeChatPay](https://docs.buckaroo.io/docs/wechatpay) |
-| [Wero](https://docs.buckaroo.io/docs/wero) |  |  |
+| [EPS](https://docs.buckaroo.io/docs/eps) | [Giftcards](https://docs.buckaroo.io/docs/giftcards) | [Google Pay](https://docs.buckaroo.io/docs/google-pay) |
+| [iDEAL / Wero](https://docs.buckaroo.io/docs/ideal) | [iDEAL QR](https://docs.buckaroo.io/docs/ideal-qr) | [In3](https://docs.buckaroo.io/docs/in3) |
+| [KBC](https://docs.buckaroo.io/docs/kbc) | [Klarna](https://docs.buckaroo.io/docs/klarna-kp) | [MB Way](https://docs.buckaroo.io/docs/mb-way) |
+| [Multibanco](https://docs.buckaroo.io/docs/multibanco) | [Pay by Bank](https://docs.buckaroo.io/docs/pay-by-bank) | [PayPal](https://docs.buckaroo.io/docs/paypal) |
+| [PayPerEmail](https://docs.buckaroo.io/docs/payperemail) | [Przelewy24](https://docs.buckaroo.io/docs/przelewy24) | [Riverty](https://docs.buckaroo.io/docs/riverty) |
+| [SEPA Direct Debit](https://docs.buckaroo.io/docs/sepa-direct-debit) | [Swish](https://docs.buckaroo.io/docs/swish) | [Trustly](https://docs.buckaroo.io/docs/trustly) |
+| [Twint](https://docs.buckaroo.io/docs/twint) | [WeChatPay](https://docs.buckaroo.io/docs/wechatpay) | [Wero](https://docs.buckaroo.io/docs/wero) |
 
 > [!IMPORTANT]
 > All supported methods appear in the Shopware administration, but you need an active Buckaroo subscription for a method before you can offer it in your checkout.

@@ -251,66 +251,6 @@ class SignatureValidationServiceTest extends TestCase
     }
 
     /**
-     * Test: it handles knaken buyer UUID key transformation
-     */
-    public function testCalculateSignatureTransformsKnakenBuyerUUID(): void
-    {
-        // Arrange
-        $secretKey = 'test-key';
-        $postData = [
-            'brq_SERVICE_knaken_Buyer_UUID' => 'uuid-123', // Should be transformed to space
-            'brq_amount' => '100.00'
-        ];
-
-        // Key should be transformed to 'brq_SERVICE_knaken_Buyer UUID' (with space)
-        $signatureString = 'brq_amount=100.00brq_SERVICE_knaken_Buyer UUID=uuid-123' . $secretKey;
-        $expectedSignature = sha1($signatureString);
-        $postData['brq_signature'] = $expectedSignature;
-
-        $request = new Request([], $postData);
-
-        $this->settingsService
-            ->method('getSetting')
-            ->willReturn($secretKey);
-
-        // Act
-        $result = $this->signatureValidationService->validateSignature($request);
-
-        // Assert
-        $this->assertTrue($result);
-    }
-
-    /**
-     * Test: it handles knaken buyer name key transformation
-     */
-    public function testCalculateSignatureTransformsKnakenBuyerName(): void
-    {
-        // Arrange
-        $secretKey = 'test-key';
-        $postData = [
-            'brq_SERVICE_knaken_Buyer_Name' => 'John Doe',
-            'brq_amount' => '100.00'
-        ];
-
-        // Key should be transformed to 'brq_SERVICE_knaken_Buyer Name' (with space)
-        $signatureString = 'brq_amount=100.00brq_SERVICE_knaken_Buyer Name=John Doe' . $secretKey;
-        $expectedSignature = sha1($signatureString);
-        $postData['brq_signature'] = $expectedSignature;
-
-        $request = new Request([], $postData);
-
-        $this->settingsService
-            ->method('getSetting')
-            ->willReturn($secretKey);
-
-        // Act
-        $result = $this->signatureValidationService->validateSignature($request);
-
-        // Assert
-        $this->assertTrue($result);
-    }
-
-    /**
      * Test: it skips non-scalar values in signature calculation
      */
     public function testCalculateSignatureSkipsNonScalarValues(): void
