@@ -470,4 +470,3 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-1256 Fixed inconsistent express checkout button heights across the storefront pages.
 - BTI-1257 Fixed the Apple Pay express button always being displayed on the checkout page, even when it should be hidden.
 - BTI-1365 Fixed the Auto Capture and Capture on Shipment settings causing incorrect capture and refund handling for KlarnaKP.
-- BTI-1340 Removed goSettle as a payment method, as it is deprecated.

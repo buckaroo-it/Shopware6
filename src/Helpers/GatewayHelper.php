@@ -33,7 +33,6 @@ use Buckaroo\Shopware6\PaymentMethods\Creditcard;
 use Buckaroo\Shopware6\PaymentMethods\Multibanco;
 use Buckaroo\Shopware6\PaymentMethods\Creditcards;
 use Buckaroo\Shopware6\PaymentMethods\PayPerEmail;
-use Buckaroo\Shopware6\PaymentMethods\Knaken;
 use Buckaroo\Shopware6\PaymentMethods\SepaDirectDebit;
 use Buckaroo\Shopware6\PaymentMethods\Swish;
 use Buckaroo\Shopware6\PaymentMethods\Bizum;
@@ -73,7 +72,6 @@ class GatewayHelper
         IdealQr::class,
         MBWay::class,
         Multibanco::class,
-        Knaken::class,
         Swish::class,
         Bizum::class,
         Twint::class,
