@@ -76,6 +76,35 @@ jobs:
           docker exec -u www-data -w /var/www/html shop bin/console theme:compile
           docker exec -u www-data -w /var/www/html shop bin/console cache:clear
 
+      # plugin:install --activate marks the payment methods active but does not
+      # attach them to a sales channel, and Shopware only offers methods listed
+      # in sales_channel_payment_method. Without this the confirm page shows
+      # only Shopware's own three methods, so every buckaroo assertion is
+      # testing an empty set - which is exactly how a page-wide [class*="bk-"]
+      # check stayed green here while zero buckaroo methods rendered.
+      - name: Make the buckaroo methods selectable in the storefront
+        run: |
+          docker exec shop mysql -uroot -proot shopware -e "
+            INSERT IGNORE INTO sales_channel_payment_method (sales_channel_id, payment_method_id)
+            SELECT sc.id, pm.id
+            FROM sales_channel sc
+            CROSS JOIN payment_method pm
+            JOIN plugin p ON pm.plugin_id = p.id
+            WHERE p.name = 'BuckarooPayments' AND pm.active = 1;"
+          attached=$(docker exec shop mysql -uroot -proot shopware -N -e "
+            SELECT COUNT(*) FROM sales_channel_payment_method scpm
+            JOIN payment_method pm ON scpm.payment_method_id = pm.id
+            JOIN plugin p ON pm.plugin_id = p.id
+            WHERE p.name = 'BuckarooPayments';")
+          echo "buckaroo methods attached to sales channels: $attached"
+          # Fail here rather than letting the suite report a confusing template
+          # failure when the real problem is an unconfigured shop.
+          if [ "$attached" -eq 0 ]; then
+            echo "::error::no buckaroo payment method could be attached to a sales channel"
+            exit 1
+          fi
+          docker exec -u www-data -w /var/www/html shop bin/console cache:clear
+
       # First hit on a cold shop pays for cache + theme generation and can take
       # minutes on 6.5/6.6. Warm it here so the suite's own timeouts are not
       # measuring container start-up.
