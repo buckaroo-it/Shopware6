@@ -76,31 +76,59 @@ jobs:
           docker exec -u www-data -w /var/www/html shop bin/console theme:compile
           docker exec -u www-data -w /var/www/html shop bin/console cache:clear
 
-      # plugin:install --activate marks the payment methods active but does not
-      # attach them to a sales channel, and Shopware only offers methods listed
-      # in sales_channel_payment_method. Without this the confirm page shows
-      # only Shopware's own three methods, so every buckaroo assertion is
-      # testing an empty set - which is exactly how a page-wide [class*="bk-"]
-      # check stayed green here while zero buckaroo methods rendered.
+      # A fresh install renders zero buckaroo methods on the confirm page, for
+      # two independent reasons. Both are environment setup, not plugin bugs,
+      # and both silently reduced the buckaroo assertions to an empty set - a
+      # page-wide [class*="bk-"] check stayed green here while nothing buckaroo
+      # rendered at all, because the override tags Shopware's own methods with
+      # a bare `bk-` too.
+      #
+      # mysql runs as root over the socket: dockware's default exec user gets
+      # EACCES on /var/run/mysqld/mysqld.sock, and -u www-data does too.
       - name: Make the buckaroo methods selectable in the storefront
         run: |
-          docker exec shop mysql -uroot -proot shopware -e "
-            INSERT IGNORE INTO sales_channel_payment_method (sales_channel_id, payment_method_id)
-            SELECT sc.id, pm.id
-            FROM sales_channel sc
-            CROSS JOIN payment_method pm
+          # 1. plugin:install --activate marks the methods active but never
+          #    writes sales_channel_payment_method, and Shopware only offers
+          #    methods attached to the sales channel.
+          docker exec -i -u root shop mysql -uroot -proot shopware <<'SQL'
+          INSERT IGNORE INTO sales_channel_payment_method (sales_channel_id, payment_method_id)
+          SELECT sc.id, pm.id
+          FROM sales_channel sc
+          CROSS JOIN payment_method pm
+          JOIN plugin p ON pm.plugin_id = p.id
+          WHERE p.name = 'BuckarooPayments' AND pm.active = 1;
+          SQL
+
+          # 2. CheckoutConfirmTemplateSubscriber::hideNotEnabledPaymentMethods
+          #    drops every method whose <buckarooKey>Enabled setting is falsy,
+          #    and a fresh install has no such settings at all.
+          docker exec -i -u root shop mysql -uroot -proot shopware <<'SQL'
+          INSERT INTO system_config (id, configuration_key, configuration_value, sales_channel_id, created_at)
+          SELECT UNHEX(REPLACE(UUID(), '-', '')),
+                 CONCAT('BuckarooPayments.config.', bkey, 'Enabled'),
+                 '{"_value": true}', NULL, NOW()
+          FROM (
+            SELECT DISTINCT JSON_UNQUOTE(JSON_EXTRACT(pmt.custom_fields, '$.buckaroo_key')) AS bkey
+            FROM payment_method pm
             JOIN plugin p ON pm.plugin_id = p.id
-            WHERE p.name = 'BuckarooPayments' AND pm.active = 1;"
-          attached=$(docker exec shop mysql -uroot -proot shopware -N -e "
-            SELECT COUNT(*) FROM sales_channel_payment_method scpm
-            JOIN payment_method pm ON scpm.payment_method_id = pm.id
-            JOIN plugin p ON pm.plugin_id = p.id
-            WHERE p.name = 'BuckarooPayments';")
+            JOIN payment_method_translation pmt ON pmt.payment_method_id = pm.id
+            WHERE p.name = 'BuckarooPayments'
+              AND JSON_EXTRACT(pmt.custom_fields, '$.buckaroo_key') IS NOT NULL
+          ) keys_found
+          WHERE bkey NOT IN (
+            SELECT REPLACE(REPLACE(configuration_key, 'BuckarooPayments.config.', ''), 'Enabled', '')
+            FROM system_config WHERE configuration_key LIKE 'BuckarooPayments.config.%Enabled'
+          );
+          SQL
+
+          attached=$(docker exec -u root shop mysql -uroot -proot shopware -N -e "SELECT COUNT(*) FROM sales_channel_payment_method scpm JOIN payment_method pm ON scpm.payment_method_id = pm.id JOIN plugin p ON pm.plugin_id = p.id WHERE p.name = 'BuckarooPayments';")
+          enabled=$(docker exec -u root shop mysql -uroot -proot shopware -N -e "SELECT COUNT(*) FROM system_config WHERE configuration_key LIKE 'BuckarooPayments.config.%Enabled';")
           echo "buckaroo methods attached to sales channels: $attached"
+          echo "buckaroo methods enabled in config: $enabled"
           # Fail here rather than letting the suite report a confusing template
           # failure when the real problem is an unconfigured shop.
-          if [ "$attached" -eq 0 ]; then
-            echo "::error::no buckaroo payment method could be attached to a sales channel"
+          if [ "$attached" -eq 0 ] || [ "$enabled" -eq 0 ]; then
+            echo "::error::buckaroo methods could not be made selectable (attached=$attached enabled=$enabled)"
             exit 1
           fi
           docker exec -u www-data -w /var/www/html shop bin/console cache:clear
