@@ -450,3 +450,24 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-776 Add support for native refunds.
 - BTI-906 Rest API support for the “Capture on shipment” setting for Klarna (MoR).
 
+# 3.5.0 
+
+- BTI-1391 Add support for Shopware 6.7.13.1 & 6.6.10.23.
+- BTI-1374 Added support for Shopware 6.7.13.
+- BTI-1230 Added support for Shopware 6.7.12.
+- BTI-1149 Added a general language setting for the payment gateway, so the checkout language can be set centrally instead of per payment method.
+- BTI-1060 Added sandbox environment support for PayPal Express.
+- BTI-1133 Added Apple Pay support for all web browsers instead of Safari only.
+- BTI-1134 Added support for Klarna (MoR) cancellations triggered from Shopware.
+- BTI-1176 Removed the optional customer fields for Billink in the checkout, reducing the number of steps for the consumer.
+- BTI-1258 Improved the design of the iDEAL | Wero Fast Checkout button so it matches the rest of the storefront.
+- BTI-1384 Add automated compatibility testing against Shopware versions.
+- BTI-1288 Updated the README.md file.
+- BTI-1340 We’ve removed the payment method GoSettle (discontinued).
+- BTI-970 Fixed Apple Pay not being visible in the checkout for a specific merchant configuration.
+- BTI-1046 Fixed Credit Card Hosted Fields not being editable during checkout on Shopware 6.5.
+- BTI-1069 Fixed the culture in the transaction request always being sent as en-GB instead of the actual checkout language.
+- BTI-1256 Fixed inconsistent express checkout button heights across the storefront pages.
+- BTI-1257 Fixed the Apple Pay express button always being displayed on the checkout page, even when it should be hidden.
+- BTI-1365 Fixed the Auto Capture and Capture on Shipment settings causing incorrect capture and refund handling for KlarnaKP.
+- BTI-1340 Removed goSettle as a payment method, as it is deprecated.
