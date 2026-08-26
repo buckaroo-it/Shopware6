@@ -42,18 +42,25 @@ test.describe('checkout payment step', () => {
     const radios = page.locator('.payment-method-input');
     await expect(radios.first()).toBeAttached();
 
-    // Buckaroo's payment-method override tags each of its methods with bk-<key>.
-    // Anchor to the radios rather than a theme container class: a bare
-    // [class*="bk-"] page-wide would stay green on any unrelated bk- element,
-    // and container class names differ across 6.5/6.6/6.7 themes.
-    const bkTagged = await radios.evaluateAll((els) =>
-      els.filter((el) => {
-        const wrap = el.closest('.payment-method') || el.parentElement;
-        if (!wrap) return false;
-        return /(^|\s)bk-/.test(wrap.className || '') || !!wrap.querySelector('[class*="bk-"]');
-      }).length
+    // Buckaroo's payment-method override tags each radio's wrapper with
+    // bk-<key>, e.g. bk-ideal. Shopware's own methods (invoice, prepayment,
+    // cash on delivery) go through the same override and come out with a bare
+    // `bk-` and no key, so presence of the prefix proves nothing: a page-wide
+    // [class*="bk-"] counted all 33 methods on a real shop. Require a
+    // non-empty key, which only a rendered buckaroo method produces.
+    const buckarooKeys = await radios.evaluateAll((els) =>
+      els
+        .map((el) => {
+          const wrap = el.parentElement;
+          const match = (wrap && wrap.className || '').match(/(?:^|\s)bk-([A-Za-z0-9_]+)(?:\s|$)/);
+          return match ? match[1] : null;
+        })
+        .filter(Boolean)
     );
-    expect(bkTagged, 'no buckaroo-tagged payment method rendered').toBeGreaterThan(0);
+    expect(
+      buckarooKeys.length,
+      'no buckaroo payment method rendered (payment-method override not applied)'
+    ).toBeGreaterThan(0);
   });
 
   test('buckaroo required-message holder is rendered (payment-form override alive)', async () => {
