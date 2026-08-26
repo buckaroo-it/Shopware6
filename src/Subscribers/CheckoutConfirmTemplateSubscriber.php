@@ -9,6 +9,7 @@ use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\In3LogoService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\PayByBankService;
+use Buckaroo\Shopware6\Service\PayPalExpressCredentialsService;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Buckaroo\Shopware6\Service\IdealIssuerService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -68,6 +69,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected TranslatorInterface $translator;
     protected PayByBankService $payByBankService;
     protected In3LogoService $in3LogoService;
+    protected PayPalExpressCredentialsService $paypalExpressCredentials;
 
     public function __construct(
         SalesChannelRepository $paymentMethodRepository,
@@ -76,7 +78,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         TranslatorInterface $translator,
         PayByBankService $payByBankService,
         In3LogoService $in3LogoService,
-        IdealIssuerService $idealIssuerService
+        IdealIssuerService $idealIssuerService,
+        PayPalExpressCredentialsService $paypalExpressCredentials
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->settingsService = $settingsService;
@@ -85,6 +88,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $this->payByBankService = $payByBankService;
         $this->in3LogoService = $in3LogoService;
         $this->idealIssuerService = $idealIssuerService;
+        $this->paypalExpressCredentials = $paypalExpressCredentials;
     }
 
     /**
@@ -315,9 +319,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'checkout'),
             'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
-            'applepayHostedPaymentPage' =>
-                $this->getSettingAsInt('applepayHostedPaymentPage', $salesChannelId) === 1,
+            'paypalIsTestMode'         => $this->paypalExpressCredentials->isTestMode($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
+            'showApplePay'             => $this->showApplePayExpress($salesChannelId, 'checkout'),
             'isAppleDevice'            => $this->isAppleDevice($request),
             'googlepayMerchantId'      => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
@@ -456,15 +460,14 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $request = $event->getRequest();
 
         $struct->assign([
-            'applepayHostedPaymentPage' =>
-                $this->getSettingAsInt('applepayHostedPaymentPage', $salesChannelId) === 1,
             'showPaypalExpress'         => $this->showPaypalExpress($salesChannelId, 'cart'),
             'showIdealFastCheckout'     => $this->showIdealFastCheckout($salesChannelId, 'cart'),
             'paypalMerchantId'          => $this->getPaypalExpressMerchantId($salesChannelId),
+            'paypalIsTestMode'          => $this->paypalExpressCredentials->isTestMode($salesChannelId),
             'applePayMerchantId'        => $this->getAppleMerchantId($salesChannelId),
             'isAppleDevice'             => $this->isAppleDevice($request),
             'websiteKey'                => $this->settingsService->getSetting('websiteKey', $salesChannelId),
-            'showApplePay'              => $this->getSettingAsBool('applepayShowCart', $salesChannelId),
+            'showApplePay'              => $this->showApplePayExpress($salesChannelId, 'cart'),
             'showGooglePay'             => $this->getSettingAsBool('googlepayShowCart', $salesChannelId),
             'googlepayMerchantId'       => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
@@ -520,13 +523,11 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
         $request = $event->getRequest();
         $struct->assign([
-            'applepayShowProduct'       =>
-                $this->getSettingAsBool('applepayShowProduct', $salesChannelId),
-            'applepayHostedPaymentPage' =>
-                $this->getSettingAsInt('applepayHostedPaymentPage', $salesChannelId) === 1,
+            'applepayShowProduct'       => $this->showApplePayExpress($salesChannelId, 'product'),
             'showPaypalExpress' => $this->showPaypalExpress($salesChannelId),
             'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
+            'paypalIsTestMode' => $this->paypalExpressCredentials->isTestMode($salesChannelId),
             'applePayMerchantId' => $this->getAppleMerchantId($salesChannelId),
             'isAppleDevice' => $this->isAppleDevice($request),
             'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId),
@@ -550,13 +551,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             in_array($page, $locations) &&
             $this->getPaypalExpressMerchantId($salesChannelId) != null;
     }
+    /**
+     * Get the environment aware (live/sandbox) PayPal Express merchant id.
+     * Credential selection is centralized in PayPalExpressCredentialsService.
+     */
     protected function getPaypalExpressMerchantId(string $salesChannelId): ?string
     {
-        $merchantId =  $this->settingsService->getSetting('paypalExpressmerchantid', $salesChannelId);
-        if ($merchantId !== null && is_scalar($merchantId)) {
-            return (string)$merchantId;
-        }
-        return null;
+        return $this->paypalExpressCredentials->getMerchantId($salesChannelId);
     }
     protected function showIdealFastCheckout(string $salesChannelId, string $page = 'product'): bool
     {
@@ -571,12 +572,47 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             return false;
         }
     }
-    protected function getIdealFastCheckoutLogo(string $salesChannelId): ?string
+    /**
+     * Button style for the iDEAL fast checkout button: "light" (white button
+     * with a magenta outline, iDEAL's default) or "dark" (solid magenta).
+     *
+     * The stored setting still uses the historic idealFastCheckoutLogo*
+     * identifiers so existing sales channel configuration keeps working.
+     */
+    protected function getIdealFastCheckoutLogo(string $salesChannelId): string
     {
-        $settings = $this->settingsService->getSetting('idealFastCheckoutLogoScheme', $salesChannelId);
+        $setting = $this->settingsService->getSetting('idealFastCheckoutLogoScheme', $salesChannelId);
 
-        return is_string($settings) ? $settings : null;
+        return $setting === 'idealFastCheckoutLogoDark' ? 'dark' : 'light';
     }
+    /**
+     * Whether the Apple Pay express button may be rendered on a given storefront
+     * location. Requires a configured merchant id (guid) and the per-location
+     * visibility setting to be enabled.
+     *
+     * This is independent of the standard Apple Pay payment method, which is
+     * rendered from the selected payment method on the confirm page.
+     */
+    protected function showApplePayExpress(string $salesChannelId, string $page = 'product'): bool
+    {
+        $merchantId = $this->getAppleMerchantId($salesChannelId);
+        if ($merchantId === null || trim($merchantId) === '') {
+            return false;
+        }
+
+        $settings = [
+            'product'  => 'applepayShowProduct',
+            'cart'     => 'applepayShowCart',
+            'checkout' => 'applepayShowCheckout',
+        ];
+
+        if (!isset($settings[$page])) {
+            return false;
+        }
+
+        return $this->getSettingAsBool($settings[$page], $salesChannelId);
+    }
+
     protected function getAppleMerchantId(string $salesChannelId): ?string
     {
         $merchantId =  $this->settingsService->getSetting('applepayGuid', $salesChannelId);
@@ -998,14 +1034,14 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     private function isAppleDevice($request): bool
     {
         $userAgent = $request->server->get('HTTP_USER_AGENT');
-        
+
         if (!is_string($userAgent) || empty($userAgent)) {
             return false;
         }
-        
+
         // Check for Apple devices: iPhone, iPad, iPod, Macintosh, Mac OS X
         $applePattern = '/(iphone|ipad|ipod|macintosh|mac os x)/i';
-        
+
         return preg_match($applePattern, $userAgent) === 1;
     }
 }

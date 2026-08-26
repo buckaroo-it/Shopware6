@@ -1,0 +1,65 @@
+{#
+    Shared markup for the Buckaroo express checkout buttons
+    (PayPal Express, Apple Pay, Google Pay, iDEAL/Wero fast checkout).
+
+    Every storefront location (product detail buy widget, shopping cart,
+    checkout confirm page) includes this template, so the buttons share one
+    structure and one styling hook: .bk-express-checkout
+    (see app/storefront/src/scss/_express-checkout.scss).
+
+    Parameters — a provider is skipped when its options are not passed:
+    - paypalOptions:    plugin options for [data-paypal-express]
+    - applePayOptions:  plugin options for [data-bk-applepay]
+    - googlePayOptions: plugin options for [data-bk-googlepay]
+    - idealOptions:     plugin options for [data-bk-ideal-fast-checkout]
+    - idealLogo:        button style for the iDEAL fast checkout button,
+                        "light" (default) or "dark"
+#}
+
+{% if paypalOptions ?? false %}
+    <div class="col-12 p-0 bk-express-checkout bk-express-checkout--paypal bk-paypal-express"
+         data-paypal-express
+         data-paypal-express-plugin-options='{{ paypalOptions|json_encode }}'>
+        <div class="buckaroo-paypal-express"></div>
+    </div>
+{% endif %}
+
+{% if applePayOptions ?? false %}
+    <div class="col-12 p-0 bk-express-checkout bk-express-checkout--applepay">
+        <div data-bk-applepay
+             data-buckaroo-apple-pay-plugin-options='{{ applePayOptions|json_encode }}'></div>
+        <div class="bk-apple-pay-button"></div>
+    </div>
+{% endif %}
+
+{% if googlePayOptions ?? false %}
+    <div class="col-12 p-0 bk-express-checkout bk-express-checkout--googlepay"
+         data-bk-googlepay
+         data-google-pay-plugin-options='{{ googlePayOptions|json_encode }}'>
+        <div class="bk-google-pay-button" id="google-pay-button-container"></div>
+    </div>
+{% endif %}
+
+{#
+    Only iDEAL's lockup — the express mark, the iDEAL logo and the "Snel
+    bestellen" wordmark — is fixed artwork. The frame around it is a plain
+    fill, border and radius, so it is drawn in CSS instead of being baked
+    into the image. That lets the button span the full column and take the
+    same height as the other express buttons while the lockup keeps its own
+    proportions. The artwork goes to the stylesheet as a custom property so
+    asset() keeps resolving the bundle path (and any CDN prefix) for us.
+#}
+{% if idealOptions ?? false %}
+    {% set idealVariant = (idealLogo ?? '') == 'dark' ? 'dark' : 'light' %}
+    {% set idealLockup = idealVariant == 'dark' ? 'ideal-snel-bestellen-inverted' : 'ideal-snel-bestellen' %}
+    <div class="col-12 p-0 bk-express-checkout bk-express-checkout--ideal"
+         data-bk-ideal-fast-checkout
+         data-buckaroo-ideal-fast-checkout-plugin-options='{{ idealOptions|json_encode }}'>
+        <button type="button"
+                class="bk-ideal-fast-checkout"
+                id="fast-checkout-ideal-btn"
+                data-variant="{{ idealVariant }}"
+                aria-label="{{ "buckaroo.checkout.idealFastCheckoutButtonLabel"|trans|striptags }}"
+                style="--bk-ideal-btn-lockup: url('{{ asset("bundles/buckaroopayments/storefront/buckaroo/ideal/#{idealLockup}.svg") }}');"></button>
+    </div>
+{% endif %}

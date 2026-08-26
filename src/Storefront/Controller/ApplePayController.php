@@ -14,6 +14,7 @@ use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Symfony\Component\Routing\Annotation\Route;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -83,7 +84,9 @@ class ApplePayController extends AbstractPaymentController
                 "shippingMethods" => $this->getFormatedShippingMethods($cart, $salesChannelContext)
             ]);
         } catch (\Throwable $th) {
-            $this->logger->debug((string)$th);
+            // error level: debug is not written in production, which hides the
+            // real cause behind the generic "unknown error" JSON response.
+            $this->logger->error('[ApplePay] request failed: ' . (string)$th);
             return $this->response(
                 ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                 true
@@ -95,7 +98,7 @@ class ApplePayController extends AbstractPaymentController
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      */
-    #[Route("/buckaroo/apple/cart/update", name: "frontend.action.buckaroo.appleUpdateCart", options: ["seo" => false], methods: ["POST"], defaults: ["XmlHttpRequest" => true])]
+    #[Route("/buckaroo/apple/cart/update", name: "frontend.action.buckaroo.appleUpdateCart", options: ["seo" => false], methods: ["POST"], defaults: ["XmlHttpRequest" => true, "_routeScope" => ["storefront"]])]
     public function updateCart(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         if (!$request->request->has('cartToken')) {
@@ -130,8 +133,11 @@ class ApplePayController extends AbstractPaymentController
             }
 
             if ($request->request->has('shippingContact')) {
+                // shippingContact is a nested JSON object. On Symfony 7 (Shopware 6.7)
+                // InputBag::get() throws BadRequestException for non-scalar values,
+                // so the array variant all($key) must be used here.
                 $this->loginCustomer(
-                    $this->getCustomerData((array)$request->request->get('shippingContact')),
+                    $this->getCustomerData($request->request->all('shippingContact')),
                     $salesChannelContext
                 );
                 $cart = $this->cartService->calculateCart($cart, $salesChannelContext);
@@ -145,7 +151,9 @@ class ApplePayController extends AbstractPaymentController
                 "newShippingMethods" => $this->getFormatedShippingMethods($cart, $salesChannelContext),
             ]);
         } catch (\Throwable $th) {
-            $this->logger->debug((string)$th);
+            // error level: debug is not written in production, which hides the
+            // real cause behind the generic "unknown error" JSON response.
+            $this->logger->error('[ApplePay] request failed: ' . (string)$th);
             return $this->response(
                 ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                 true
@@ -157,12 +165,16 @@ class ApplePayController extends AbstractPaymentController
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
      */
-    #[Route("/buckaroo/apple/order/create", name: "frontend.action.buckaroo.appleCreateOrder", options: ["seo" => false], methods: ["POST"], defaults: ["XmlHttpRequest" => true])]
+    #[Route("/buckaroo/apple/order/create", name: "frontend.action.buckaroo.appleCreateOrder", options: ["seo" => false], methods: ["POST"], defaults: ["XmlHttpRequest" => true, "_routeScope" => ["storefront"]])]
     public function createAppleOrder(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
 
-        $this->overrideChannelPaymentMethod($salesChannelContext, 'ApplePayPaymentHandler');
         try {
+            // Inside the try: a failure here must return JSON, not a 500 page —
+            // an HTML 500 leaves the Apple Pay sheet waiting for completePayment()
+            // until it times out (~30s) and fails on the device.
+            $this->overrideChannelPaymentMethod($salesChannelContext, 'ApplePayPaymentHandler');
+
             $redirectPath = $this->placeOrder(
                 $this->createOrder($salesChannelContext, $request),
                 $salesChannelContext,
@@ -171,16 +183,48 @@ class ApplePayController extends AbstractPaymentController
                 ])
             );
 
+            $redirect = $this->getFinishPage($redirectPath);
+
+            if ($redirect !== null) {
+                // Order placed and payment initiated successfully: delete the cart.
+                // The custom order path bypasses Shopware's CartOrderRoute, which is
+                // where the cart is normally removed after checkout — without this
+                // the paid cart stays in the storefront.
+                $this->deleteCartAfterOrder($request, $salesChannelContext);
+            }
 
             return $this->response([
-                "redirect" => $this->getFinishPage($redirectPath)
+                "redirect" => $redirect
             ]);
         } catch (\Throwable $th) {
-            $this->logger->debug((string)$th);
+            // error level: debug is not written in production, which hides the
+            // real cause behind the generic "unknown error" JSON response.
+            $this->logger->error('[ApplePay] request failed: ' . (string)$th);
             return $this->response(
                 ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
                 true
             );
+        }
+    }
+
+    /**
+     * Delete the cart that was just converted into an order. Deletes by the
+     * same token the order was created from (standard checkout and cart-page
+     * express use the session cart; product-page express uses its own
+     * temporary cart, so the shopper's session cart is left untouched there).
+     * Cleanup must never fail a successful payment.
+     */
+    private function deleteCartAfterOrder(Request $request, SalesChannelContext $salesChannelContext): void
+    {
+        try {
+            $cartToken = $request->request->get('cartToken');
+            if (!is_string($cartToken) || $cartToken === '') {
+                $cartToken = $salesChannelContext->getToken();
+            }
+
+            $this->cartService->deleteCartByToken($cartToken, $salesChannelContext);
+        } catch (\Throwable $th) {
+            $this->logger->warning('[ApplePay] could not delete cart after order: ' . $th->getMessage());
         }
     }
 
@@ -208,10 +252,32 @@ class ApplePayController extends AbstractPaymentController
         }
 
         if (in_array($request->request->get('page'), ['product', 'cart'])) {
+            // Express flow: the guest login performed during cart/update runs under a
+            // restored context token that never reaches the browser, so this request
+            // arrives with the original anonymous token and no customer. Create/log in
+            // the guest here from the full (post-authorisation) Apple Pay contact.
+            $this->ensureCustomer($request, $salesChannelContext);
+
+            $paymentData = $request->request->get('payment');
+            if (is_string($paymentData)) {
+                $paymentData = json_decode($paymentData, true);
+            }
+
+            // The guest created during cart/update only had the redacted pre-auth
+            // contact (zip/city/country) — replace the placeholder name/email and
+            // shipping address with the authorised contact so the order does not
+            // show "Unknown Customer - Buckaroo Payments".
+            $this->updateGuestCustomerIdentity($paymentData, $salesChannelContext);
+
+            $updatedCart = $this->updateCartShippingAddress($cart, $salesChannelContext, $paymentData);
+            if ($updatedCart !== null) {
+                $cart = $updatedCart;
+            }
+
             $updatedCart = $this->updateCartBillingAddress(
                 $cart,
                 $salesChannelContext,
-                $request->request->get('payment')
+                $paymentData
             );
 
             if ($updatedCart !== null) {
@@ -229,6 +295,46 @@ class ApplePayController extends AbstractPaymentController
         return $order;
     }
 
+
+    /**
+     * Make sure the sales channel context has a customer for express orders.
+     * Uses the authorised Apple Pay contact (shipping preferred — it carries the
+     * full postal address; billing as fallback) to create and log in a guest.
+     */
+    private function ensureCustomer(Request $request, SalesChannelContext $salesChannelContext): void
+    {
+        if ($salesChannelContext->getCustomer() !== null) {
+            return;
+        }
+
+        $paymentData = $request->request->get('payment');
+        if (is_string($paymentData)) {
+            $paymentData = json_decode($paymentData, true);
+        }
+
+        $contact = null;
+        if (is_array($paymentData)) {
+            $contact = $paymentData['shippingContact'] ?? $paymentData['billingContact'] ?? null;
+
+            // The e-mail address is usually only present on the shipping contact;
+            // carry it over so the guest gets the real address either way.
+            if (is_array($contact) &&
+                empty($contact['emailAddress']) &&
+                !empty($paymentData['shippingContact']['emailAddress'])
+            ) {
+                $contact['emailAddress'] = $paymentData['shippingContact']['emailAddress'];
+            }
+        }
+
+        if (!is_array($contact) || $contact === []) {
+            throw new \InvalidArgumentException('Cannot create guest customer: no Apple Pay contact available');
+        }
+
+        $this->loginCustomer(
+            $this->getCustomerData($contact),
+            $salesChannelContext
+        );
+    }
 
     /**
      * @param Cart $cart
@@ -260,6 +366,81 @@ class ApplePayController extends AbstractPaymentController
             $salesChannelContext,
             $shippingMethod
         );
+    }
+
+    /**
+     * Update the guest's placeholder identity (name/email) with the authorised
+     * Apple Pay contact. Only guests are touched — a logged-in account is never
+     * overwritten with wallet data.
+     *
+     * @param mixed $paymentData
+     */
+    private function updateGuestCustomerIdentity($paymentData, SalesChannelContext $salesChannelContext): void
+    {
+        $customer = $salesChannelContext->getCustomer();
+        if ($customer === null || $customer->getGuest() !== true || !is_array($paymentData)) {
+            return;
+        }
+
+        $contact = $paymentData['shippingContact'] ?? $paymentData['billingContact'] ?? null;
+        if (!is_array($contact) || $contact === []) {
+            return;
+        }
+
+        if (empty($contact['emailAddress']) && !empty($paymentData['shippingContact']['emailAddress'])) {
+            $contact['emailAddress'] = $paymentData['shippingContact']['emailAddress'];
+        }
+
+        $this->customerService
+            ->setSaleChannelContext($salesChannelContext)
+            ->updateCustomerIdentity($customer, $this->getCustomerData($contact));
+    }
+
+    /**
+     * Create the shipping address from the authorised (full) Apple Pay shipping
+     * contact, activate it and move the context's shipping location onto it, so
+     * the order delivery address is the real one instead of the redacted
+     * pre-authorisation placeholder.
+     *
+     * @param mixed $paymentData
+     */
+    protected function updateCartShippingAddress(
+        Cart $cart,
+        SalesChannelContext $salesChannelContext,
+        $paymentData
+    ): ?Cart {
+        if (is_string($paymentData)) {
+            $paymentData = json_decode($paymentData, true);
+        }
+
+        if (!is_array($paymentData) ||
+            !isset($paymentData['shippingContact']) ||
+            !is_array($paymentData['shippingContact'])
+        ) {
+            return null;
+        }
+
+        $customer = $salesChannelContext->getCustomer();
+        if ($customer === null) {
+            throw new \InvalidArgumentException('Customer cannot be null');
+        }
+
+        $address = $this->customerService
+            ->setSaleChannelContext($salesChannelContext)
+            ->createAddress(
+                $this->getCustomerData($paymentData['shippingContact']),
+                $customer
+            );
+
+        if ($address !== null) {
+            $customer->setActiveShippingAddress($address);
+            $salesChannelContext->assign([
+                'shippingLocation' => ShippingLocation::createFromAddress($address)
+            ]);
+            return $this->cartService->calculateCart($cart, $salesChannelContext);
+        }
+
+        return $cart;
     }
 
     /**
@@ -367,10 +548,11 @@ class ApplePayController extends AbstractPaymentController
             )->getShippingCosts()->getTotalPrice();
 
             $shippingMethods[] = [
-                'label' => $shippingMethod->getName(),
-                'amount' => $amount,
+                'label' => $shippingMethod->getName() ?? '',
+                // Apple Pay expects string amounts ("4.99"); null detail renders as "null" on the sheet
+                'amount' => $this->formatNumber($amount),
                 'identifier' => $shippingMethod->getId(),
-                'detail' => $shippingMethod->getDescription()
+                'detail' => $shippingMethod->getDescription() ?? ''
             ];
         }
 
@@ -455,11 +637,27 @@ class ApplePayController extends AbstractPaymentController
             'postalCode' => 'postal_code',
             'addressLines' => 'street',
             'locality' => 'city',
-            'countryCode' => 'country_code'
+            'countryCode' => 'country_code',
+            // CustomerService reads 'email' — map Apple's key so the guest gets
+            // the shopper's real address instead of the no-reply fallback.
+            'emailAddress' => 'email'
         ];
 
         $data = [];
         foreach ($contactData as $key => $value) {
+            // Apple sends addressLines as an array of street lines — the DAL
+            // expects a plain string for street, so flatten it here.
+            if ($key === 'addressLines' && is_array($value)) {
+                $value = trim(implode(' ', array_filter($value, 'is_string')));
+            }
+
+            // Redacted (pre-authorisation) contacts contain empty strings/arrays
+            // for the hidden fields; skip them so downstream defaults apply
+            // instead of writing empty/array values into the DAL.
+            if ($value === null || $value === '' || $value === []) {
+                continue;
+            }
+
             if (isset($mappings[$key])) {
                 $data[$mappings[$key]] = $value;
             } else {

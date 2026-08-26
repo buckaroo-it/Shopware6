@@ -1,11 +1,13 @@
 {% block buckaroo_payment_method_creditcards %}
     {% if page.extensions.buckaroo.creditcards|length > 0 %}
-<div class="tailwind-wrapper" id="tailwind-wrapper-creditcards">
+
+<div class="tailwind-wrapper" id="tailwind-wrapper-creditcards" data-buckaroo-hosted-fields="true">
     <!-- All your custom content here -->
     <div class="tailwind-form">
         <!-- Form elements styled with Tailwind -->
         <div class="buckaroo-creditcards">
-            <form id="confirmOrderForm" class="bg-white px-8 pt-6 pb-8">
+
+            <div class="bg-white px-8 pt-6 pb-8">
                 <div class="mb-4">
                     <h1 class="text-2xl font-bold">Payment</h1>
                 </div>
@@ -64,7 +66,7 @@
                         Cancel
                     </a>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

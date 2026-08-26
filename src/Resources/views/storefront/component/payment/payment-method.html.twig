@@ -3,7 +3,7 @@
     {% if payment.translated.customFields.is_buckaroo %}
         <div class="payment-method">
 
-            {% if payment.translated.customFields.buckaroo_key !== 'applepay'|| (payment.translated.customFields.buckaroo_key === 'applepay' && (page.extensions.buckaroo.applepayHostedPaymentPage && page.extensions.buckaroo.isAppleDevice)) %}
+            {# Apple Pay is always selectable: the official Apple Pay SDK is cross-browser and the storefront JS disables the Place Order button when Apple Pay is unavailable. #}
                 <div class="payment-form-group form-group mb-4">
                     {% block component_payment_method_control %}
                         <div class="form-check custom-radio payment-method-radio bk-{{ payment.translated.customFields.buckaroo_key }}">
@@ -70,7 +70,6 @@
                         </div>
                     {% endblock %}
                 </div>
-            {% endif %}
 
             {% block buckaroo_payment_method_inputs %}
                 {% if payment.translated.customFields.is_buckaroo and payment.id is same as(selectedPaymentMethodId) %}
@@ -137,8 +136,6 @@
                                 {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/wechatpay.html.twig' %}
                             {% elseif buckarooKey == 'multibanco' %}
                                 {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/multibanco.html.twig' %}
-                            {% elseif buckarooKey == 'knaken' %}
-                                {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/knaken.html.twig' %}
                             {% endif %}
                         {% endblock %}
                     </div>
@@ -149,8 +146,4 @@
     {% else %}
         {{ parent() }}
     {% endif %}
-{% endblock %}
-
-{% block component_payment_fieldset_template %}
-    {{ parent() }}
 {% endblock %}

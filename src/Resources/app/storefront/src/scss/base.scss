@@ -1,3 +1,6 @@
+// Shared express checkout button styling (Apple Pay, Google Pay, PayPal, iDEAL/Wero)
+@import "express-checkout";
+
 .tailwind-wrapper {
     .bg-white {
         background-color: #fff;
@@ -370,43 +373,10 @@
     object-fit: contain;
 }
 
-.bk-ideal-fast-checkout {
-    margin-top: 15px;
-}
-#fast-checkout-ideal-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    height: 50px;
-    padding: 10px 20px;
-    background-color: #cb0066;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #000;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    text-decoration: none;
-}
-
-#fast-checkout-ideal-btn img {
-    height: 32px;
-    width: auto;
-}
-
-#fast-checkout-ideal-btn:hover {
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-#fast-checkout-ideal-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    box-shadow: none;
-    pointer-events: none;
-}
+// The iDEAL fast checkout button is styled entirely in _express-checkout.scss
+// so that it stays in step with the other express checkout buttons. It used
+// to be a pink #cb0066 pill with the iDEAL | Wero logo dropped inside, which
+// is not a button style iDEAL sanctions.
 
 // Buckaroo PayPerEmail shared styles (used across Shopware 6.5 - 6.7)
 .bkr-payperemail {

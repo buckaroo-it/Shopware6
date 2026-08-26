@@ -29,30 +29,26 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): array {
-        $usingApplepayHostedPaymentPageConfig = $this->asyncPaymentService->settingsService->getSetting(
-            'applepayHostedPaymentPage',
-            $salesChannelContext->getSalesChannelId()
-        );
-
-        if ($usingApplepayHostedPaymentPageConfig == 1) {
-            return array(
-                'continueOnIncomplete' => '1',
-            );
-        }
-
         $applePayInfo = $dataBag->get('applePayInfo');
+        // TEMP DIAGNOSTIC: does the Apple Pay token reach the handler?
+        $this->asyncPaymentService->logger->info('[ApplePay][getMethodPayload]', [
+            'dataBagKeys'          => array_keys($dataBag->all()),
+            'applePayInfoIsString' => is_string($applePayInfo),
+            'applePayInfoLength'   => is_string($applePayInfo) ? strlen($applePayInfo) : 0,
+        ]);
 
         if (!is_string($applePayInfo)) {
             return [];
         }
 
         $data = json_decode($applePayInfo);
-        if ($data === false || !is_object($data)) {
+        // json_decode() returns null on failure (never false)
+        if ($data === null || !is_object($data)) {
             return [];
         }
 
         return [
-            "customerCardName" => $this->getCustomerName($data),
+            "customerCardName" => $this->getCustomerName($data, $order),
             "paymentData" => $this->getPaymentData($data)
         ];
     }
@@ -78,20 +74,35 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
+     * Card holder name sent to Buckaroo (shown as the customer in Plaza).
+     * Prefer the Apple Pay billing contact, fall back to the shipping contact
+     * (express flow) and finally to the order customer — in the standard
+     * checkout the shop always knows the customer, so the transaction should
+     * never end up as "Customer Unknown".
+     *
      * @param mixed $data
+     * @param OrderEntity $order
      * @return string
      */
-    private function getCustomerName($data): string
+    private function getCustomerName($data, OrderEntity $order): string
     {
-        if (!is_object($data)) {
-            return '';
+        if (is_object($data)) {
+            foreach (['billingContact', 'shippingContact'] as $contactKey) {
+                if (!empty($data->{$contactKey}) &&
+                    !empty($data->{$contactKey}->givenName) &&
+                    !empty($data->{$contactKey}->familyName)
+                ) {
+                    return $data->{$contactKey}->givenName . ' ' . $data->{$contactKey}->familyName;
+                }
+            }
         }
-        if (!empty($data->billingContact) &&
-            !empty($data->billingContact->givenName) &&
-            !empty($data->billingContact->familyName)
-        ) {
-            return  $data->billingContact->givenName . ' ' . $data->billingContact->familyName;
+
+        $orderCustomer = $order->getOrderCustomer();
+        if ($orderCustomer !== null) {
+            return trim($orderCustomer->getFirstName() . ' ' . $orderCustomer->getLastName());
         }
+
         return '';
     }
 }
+

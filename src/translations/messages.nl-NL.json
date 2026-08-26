@@ -9,7 +9,9 @@
             "capture_not_supported": "Capture wordt niet ondersteund.",
             "already_captured": "Deze bestelling is al gecaptured.",
             "captured_amount": "Succesvol gecaptured bedrag van %amount% %currency%",
-            "general_capture_error": "Helaas is er een fout opgetreden bij het verwerken van uw capture. Probeer het opnieuw."
+            "general_capture_error": "Helaas is er een fout opgetreden bij het verwerken van uw capture. Probeer het opnieuw.",
+            "capture_in_progress": "Er loopt al een capture-verzoek voor deze bestelling",
+            "capture_pending": "Capture-verzoek naar Buckaroo verzonden, wachten op bevestiging"
         },
         "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available",
         "payperemail": {

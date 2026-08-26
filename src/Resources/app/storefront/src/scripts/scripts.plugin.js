@@ -6,14 +6,48 @@ export default class BuckarooLoadScripts extends Plugin {
     {
         return new Promise((resolve) => {
             var script = document.createElement("script");
-            script.src = "https://checkout.buckaroo.nl/api/buckaroosdk/script/en-US";
-            // script.src = "https://testcheckout.buckaroo.nl/api/buckaroosdk/script/en-US";
+            script.src = this.getSdkUrl();
             script.async = true;
             document.head.appendChild(script);
             script.onload = () => {
                 resolve();
             };
         })
+    }
+
+    /**
+     * Resolve the Buckaroo Client SDK url for the current environment.
+     *
+     * When PayPal Express runs in test mode the sandbox SDK build is loaded
+     * (testcheckout), which uses the PayPal sandbox client ids. Otherwise
+     * the live endpoint is used, so live stores are unaffected.
+     */
+    getSdkUrl()
+    {
+        const base = this.isPaypalExpressTestMode()
+            ? "https://testcheckout.buckaroo.nl"
+            : "https://checkout.buckaroo.nl";
+
+        return `${base}/api/buckaroosdk/script/en-US`;
+    }
+
+    /**
+     * Whether a PayPal Express button on the current page is configured
+     * to run in test (sandbox) mode.
+     */
+    isPaypalExpressTestMode()
+    {
+        const element = document.querySelector('[data-paypal-express-plugin-options]');
+        if (!element) {
+            return false;
+        }
+
+        try {
+            const options = JSON.parse(element.getAttribute('data-paypal-express-plugin-options'));
+            return options.isTestMode === true;
+        } catch (e) {
+            return false;
+        }
     }
     loadJquery()
     {

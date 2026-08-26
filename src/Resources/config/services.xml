@@ -135,6 +135,10 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
         </service>
 
+        <service id="Buckaroo\Shopware6\Service\PayPalExpressCredentialsService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+        </service>
+
         <service id="Buckaroo\Shopware6\Service\TestCredentialsService">
             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
@@ -170,6 +174,9 @@
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\PaymentServiceDecorator"/>
+            <call method="setLanguageResolver">
+                <argument type="service" id="Buckaroo\Shopware6\Service\BuckarooLanguageResolver"/>
+            </call>
         </service>
 
         <!-- Notification Service Factory for version compatibility -->
@@ -204,6 +211,8 @@
             <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\CaptureService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\NotificationServiceFactory" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\KlarnaMorService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -217,6 +226,12 @@
 
         <service id="Buckaroo\Shopware6\Service\SettingsService">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\BuckarooLanguageResolver">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="language.repository"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\PaymentServiceDecorator">
@@ -310,13 +325,6 @@
         </service>
 
         <service id="Buckaroo\Shopware6\Handlers\KbcPaymentHandler">
-            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
-            <tag name="shopware.payment.method" />
-
-            <tag name="shopware.payment.method.async" />
-        </service>
-
-        <service id="Buckaroo\Shopware6\Handlers\KnakenPaymentHandler">
             <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
             <tag name="shopware.payment.method" />
 
@@ -658,6 +666,7 @@
         <service id="Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData">
             <argument type="service" id="order_address.repository" />
             <argument type="service" id="order_customer.repository" />
+            <argument type="service" id="customer.repository" />
         </service>
 
         <service id="Buckaroo\Shopware6\Service\CustomerService">
@@ -667,6 +676,7 @@
             <argument type="service" id="order_customer.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
         </service>
 
         <service id="Buckaroo\Shopware6\Service\CustomerAddressService">
@@ -699,6 +709,7 @@
             <argument type="service" id="Buckaroo\Shopware6\Service\PayByBankService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\In3LogoService"/>
             <argument type="service" id="Buckaroo\Shopware6\Service\IdealIssuerService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\PayPalExpressCredentialsService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

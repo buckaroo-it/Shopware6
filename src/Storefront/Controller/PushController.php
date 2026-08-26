@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
+use Buckaroo\Shopware6\Helpers\KlarnaKpCaptureDetector;
+use Buckaroo\Shopware6\Service\CaptureService;
 use Shopware\Storefront\Controller\StorefrontController;
 use Buckaroo\Shopware6\Service\SignatureValidationService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -43,6 +45,32 @@ class PushController extends StorefrontController
         'I069',
         'I106',
         'I108'
+    ];
+
+    /**
+     * Payment states in which the transaction is settled. A failure push (technical
+     * error, validation failure 491, rejected, cancelled) must never move a transaction
+     * that is already in one of these states: such a push reports a rejected follow-up
+     * operation - a pay/capture on an already captured reservation, a declined refund -
+     * and not a failed payment.
+     *
+     * The refunded states matter in particular: without them a Klarna KP 491 "Pay on
+     * reservation ... reservation has status FullyCaptured" push arriving after a refund
+     * falls through to the fail/cancel fallback and flips the payment to cancelled.
+     *
+     * `authorized` is deliberately NOT in this list. An authorization is not settled, so
+     * a failure push against it is plausibly a real payment failure.
+     *
+     * Values are the plugin's internal status names consumed by
+     * StateTransitionService::getCorrectTransitionAction().
+     *
+     * @var array<int, string>
+     */
+    public const SETTLED_PAYMENT_STATES = [
+        'paid',
+        'pay_partially',
+        'refunded',
+        'partial_refunded',
     ];
 
     private LoggerInterface $logger;
@@ -349,9 +377,27 @@ class PushController extends StorefrontController
                         // already in authorized state, meaning this is a capture (pay) push.
                         if (!$this->stateTransitionService->canTransitionStatus('authorize', $orderTransactionId, $context)) {
                             $paymentState = $paymentSuccesStatus;
+                            // This success push confirms the Klarna MoR capture (Pay on the
+                            // reservation). Record it durably and release the in-flight
+                            // marker, so no capture-on-shipment trigger (state_enter, DAL
+                            // write, or a later shipment) can ever send a second Pay —
+                            // Buckaroo rejects those with OrderService_Capture_InvalidOrderStatus.
+                            $data['captured'] = 1;
+                            $data[CaptureService::CAPTURE_INITIATED] = 0;
                         }
                     }
                 }
+                // The engine may have paid the Klarna KP reservation itself (AutoPay) or
+                // it may have been paid in the Plaza. Record that, otherwise
+                // capture-on-shipment keeps retrying a Pay on a FullyCaptured
+                // reservation and Buckaroo answers 491.
+                if (KlarnaKpCaptureDetector::isEngineCapture($request)) {
+                    $this->logger->info(
+                        __METHOD__ . "|44|Klarna KP reservation already captured by the payment engine"
+                    );
+                    $data['captured'] = 1;
+                }
+
                 $this->logger->info(__METHOD__ . "|45|", [$paymentState, $brqAmount, $totalPrice]);
 
                 $this->setPaymentState(
@@ -425,13 +471,15 @@ class PushController extends StorefrontController
         )) {
             if (
                 $this->stateTransitionService->isTransitionPaymentState(
-                    ['paid', 'pay_partially'],
+                    self::SETTLED_PAYMENT_STATES,
                     $orderTransactionId,
                     $context
                 ) ||
                 $this->stateTransitionService->isOrderPaid($order)
             ) {
-                $this->logger->info(__METHOD__ . '|Push ignored because order is already paid');
+                $this->logger->info(
+                    __METHOD__ . '|Failure push ignored because the transaction is already settled'
+                );
                 return $this->response('buckaroo.messages.skippedPush');
             }
             if ($this->stateTransitionService->canTransitionStatus('fail', $orderTransactionId, $context)) {
@@ -458,7 +506,7 @@ class PushController extends StorefrontController
         if ($status === ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER) {
             if (
                 $this->stateTransitionService->isTransitionPaymentState(
-                    ['paid', 'pay_partially'],
+                    self::SETTLED_PAYMENT_STATES,
                     $orderTransactionId,
                     $context
                 ) ||
@@ -497,7 +545,7 @@ class PushController extends StorefrontController
         string $status
     ): void {
         if ($this->stateTransitionService->isTransitionPaymentState(
-            ['paid', 'pay_partially'],
+            self::SETTLED_PAYMENT_STATES,
             $orderTransactionId,
             $salesChannelContext->getContext()
         )) {

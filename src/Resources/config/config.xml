@@ -167,6 +167,87 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field type="single-select">
+            <name>language</name>
+            <label lang="en-GB">Language</label>
+            <label lang="de-DE">Sprache</label>
+            <label lang="nl-NL">Taal</label>
+            <label lang="fr-FR">Langue</label>
+            <label lang="es-ES">Idioma</label>
+            <helpText lang="en-GB">Select the language used for the Buckaroo payment gateway and payment instructions. Choose a dynamic option, use the default Shopware sales channel language, or select a fixed language.</helpText>
+            <helpText lang="de-DE">Wählen Sie die Sprache aus, die für das Buckaroo Payment Gateway und die Zahlungsanweisungen verwendet wird. Wählen Sie eine dynamische Option, verwenden Sie die Standardsprache des Shopware-Verkaufskanals oder wählen Sie eine feste Sprache aus.</helpText>
+            <helpText lang="nl-NL">Selecteer de taal die wordt gebruikt voor de Buckaroo payment gateway en betaalinstructies. Kies een dynamische optie, gebruik de standaardtaal van het Shopware-verkoopkanaal of selecteer een vaste taal.</helpText>
+            <helpText lang="fr-FR">Sélectionnez la langue utilisée pour la passerelle de paiement Buckaroo et les instructions de paiement. Choisissez une option dynamique, utilisez la langue par défaut du canal de vente Shopware ou sélectionnez une langue fixe.</helpText>
+            <helpText lang="es-ES">Seleccione el idioma que se utilizará para la pasarela de pago Buckaroo y las instrucciones de pago. Elija una opción dinámica, utilice el idioma predeterminado del canal de ventas de Shopware o seleccione una lengua fija.</helpText>
+            <defaultValue>browser</defaultValue>
+            <options>
+                <option>
+                    <id>browser</id>
+                    <name lang="en-GB">Dynamic based on the customer's browser language</name>
+                    <name lang="de-DE">Dynamisch basierend auf der Browsersprache des Kunden</name>
+                    <name lang="nl-NL">Dynamisch op basis van de browsertaal van de klant</name>
+                    <name lang="fr-FR">Dynamique selon la langue du navigateur du client</name>
+                    <name lang="es-ES">Dinámico según el idioma del navegador del cliente</name>
+                </option>
+                <option>
+                    <id>billing_country</id>
+                    <name lang="en-GB">Dynamic based on the customer's billing country</name>
+                    <name lang="de-DE">Dynamisch basierend auf dem Rechnungsland des Kunden</name>
+                    <name lang="nl-NL">Dynamisch op basis van het factuurland van de klant</name>
+                    <name lang="fr-FR">Dynamique selon le pays de facturation du client</name>
+                    <name lang="es-ES">Dinámico según el país de facturación del cliente</name>
+                </option>
+                <option>
+                    <id>sales_channel</id>
+                    <name lang="en-GB">Default Shopware sales channel language</name>
+                    <name lang="de-DE">Standardsprache des Shopware-Verkaufskanals</name>
+                    <name lang="nl-NL">Standaardtaal van het Shopware-verkoopkanaal</name>
+                    <name lang="fr-FR">Langue par défaut du canal de vente Shopware</name>
+                    <name lang="es-ES">Idioma predeterminado del canal de ventas de Shopware</name>
+                </option>
+                <option>
+                    <id>en</id>
+                    <name lang="en-GB">English</name>
+                    <name lang="de-DE">Englisch</name>
+                    <name lang="nl-NL">Engels</name>
+                    <name lang="fr-FR">Anglais</name>
+                    <name lang="es-ES">Inglés</name>
+                </option>
+                <option>
+                    <id>nl</id>
+                    <name lang="en-GB">Dutch</name>
+                    <name lang="de-DE">Niederländisch</name>
+                    <name lang="nl-NL">Nederlands</name>
+                    <name lang="fr-FR">Néerlandais</name>
+                    <name lang="es-ES">Neerlandés</name>
+                </option>
+                <option>
+                    <id>de</id>
+                    <name lang="en-GB">German</name>
+                    <name lang="de-DE">Deutsch</name>
+                    <name lang="nl-NL">Duits</name>
+                    <name lang="fr-FR">Allemand</name>
+                    <name lang="es-ES">Alemán</name>
+                </option>
+                <option>
+                    <id>fr</id>
+                    <name lang="en-GB">French</name>
+                    <name lang="de-DE">Französisch</name>
+                    <name lang="nl-NL">Frans</name>
+                    <name lang="fr-FR">Français</name>
+                    <name lang="es-ES">Francés</name>
+                </option>
+                <option>
+                    <id>es</id>
+                    <name lang="en-GB">Spanish</name>
+                    <name lang="de-DE">Spanisch</name>
+                    <name lang="nl-NL">Spaans</name>
+                    <name lang="fr-FR">Espagnol</name>
+                    <name lang="es-ES">Español</name>
+                </option>
+            </options>
+        </input-field>
     </card>
     
     <card>
@@ -564,25 +645,25 @@
 
         <input-field type="single-select">
             <name>idealFastCheckoutLogoScheme</name>
-            <label lang="en-GB">iDEAL | Wero fast checkout logo color scheme</label>
-            <label lang="de-DE">iDEAL | Wero fast checkout logo color scheme</label>
-            <label lang="nl-NL">iDEAL | Wero fast checkout logo color scheme</label>
-            <label lang="fr-FR">iDEAL | Wero fast checkout logo color scheme</label>
+            <label lang="en-GB">iDEAL fast checkout button style</label>
+            <label lang="de-DE">iDEAL fast checkout button style</label>
+            <label lang="nl-NL">iDEAL fast checkout button style</label>
+            <label lang="fr-FR">iDEAL fast checkout button style</label>
             <defaultValue>idealFastCheckoutLogoLight</defaultValue>
             <options>
                 <option>
-                    <id>idealFastCheckoutLogoDark</id>
-                    <name lang="en-GB">Dark</name>
-                    <name lang="nl-NL">Dark</name>
-                    <name lang="de-DE">Dark</name>
-                    <name lang="fr-FR">Dark</name>
+                    <id>idealFastCheckoutLogoLight</id>
+                    <name lang="en-GB">Light - white button, magenta outline</name>
+                    <name lang="nl-NL">Light - white button, magenta outline</name>
+                    <name lang="de-DE">Light - white button, magenta outline</name>
+                    <name lang="fr-FR">Light - white button, magenta outline</name>
                 </option>
                 <option>
-                    <id>idealFastCheckoutLogoLight</id>
-                    <name lang="en-GB">Light</name>
-                    <name lang="nl-NL">Light</name>
-                    <name lang="de-DE">Light</name>
-                    <name lang="fr-FR">Light</name>
+                    <id>idealFastCheckoutLogoDark</id>
+                    <name lang="en-GB">Dark - solid magenta button</name>
+                    <name lang="nl-NL">Dark - solid magenta button</name>
+                    <name lang="de-DE">Dark - solid magenta button</name>
+                    <name lang="fr-FR">Dark - solid magenta button</name>
                 </option>
             </options>
         </input-field>
@@ -1010,6 +1091,18 @@
             <label lang="en-GB">Paypal express merchant id</label>
             <label lang="nl-NL">Paypal express merchant id</label>
             <label lang="de-DE">Paypal express merchant id</label>
+            <helpText lang="en-GB">PayPal merchant id used when the payment method is set to Live.</helpText>
+            <helpText lang="nl-NL">PayPal merchant id die wordt gebruikt wanneer de betaalmethode op Live staat.</helpText>
+            <helpText lang="de-DE">PayPal-Händler-ID, die verwendet wird, wenn die Zahlungsmethode auf Live steht.</helpText>
+        </input-field>
+        <input-field>
+            <name>paypalExpressSandboxMerchantId</name>
+            <label lang="en-GB">Paypal express sandbox merchant id</label>
+            <label lang="nl-NL">Paypal express sandbox merchant id</label>
+            <label lang="de-DE">Paypal express sandbox merchant id</label>
+            <helpText lang="en-GB">PayPal sandbox merchant id used when the payment method is set to Test.</helpText>
+            <helpText lang="nl-NL">PayPal sandbox merchant id die wordt gebruikt wanneer de betaalmethode op Test staat.</helpText>
+            <helpText lang="de-DE">PayPal-Sandbox-Händler-ID, die verwendet wird, wenn die Zahlungsmethode auf Test steht.</helpText>
         </input-field>
     </card>
 
@@ -1163,59 +1256,6 @@
         </input-field>
     </card>
 
-    <card>
-        <title>goSettle</title>
-        <name>knaken</name>
-        <input-field type="bool">
-            <name>knakenEnabled</name>
-            <label lang="en-GB">Enabled</label>
-            <label lang="nl-NL">Ingeschakeld</label>
-            <label lang="de-DE">Aktiviert</label>
-			<label lang="fr-FR">Activé</label>
-        </input-field>
-        
-        <input-field type="single-select">
-            <name>knakenEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
-            <defaultValue>test</defaultValue>
-            <options>
-                <option>
-                    <id>test</id>
-                    <name>Test</name>
-                </option>
-                <option>
-                    <id>live</id>
-                    <name>Live</name>
-                </option>
-            </options>
-        </input-field>
-
-        <input-field>
-            <name>knakenLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">This displays the payment method name entered in the checkout (Frontend label).</helpText>
-			<helpText lang="de-DE">Hier wird der im Checkout eingegebene Name der Zahlungsmethode (Frontend-Label) angezeigt.</helpText>
-			<helpText lang="nl-NL">Dit weergeeft de ingevoerde betaalmethode naam in de checkout (Frontend-label).</helpText>
-			<helpText lang="fr-FR">Cela affiche le nom du mode de paiement saisi lors du paiement (Étiquette frontale).</helpText>
-            <defaultValue>KBC</defaultValue>
-        </input-field>
-
-        <input-field type="text">
-            <name>knakenFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
-        </input-field>
-    </card>
     <card>
         <title>Sepa Direct Debit</title>
         <name>sepadirectdebit</name>
@@ -1393,24 +1433,6 @@
             <helpText lang="fr-FR">La clé GUID peut être récupérée dans Buckaroo Plaza à "Mon Buckaroo" > "Général".</helpText>
         </input-field>
     
-        <input-field type="single-select">
-            <name>applepayHostedPaymentPage</name>
-            <label lang="en-GB">Using a Hosted Payment Page</label>
-            <label lang="de-DE">Verwendung einer gehosteten Zahlungsseite</label>
-            <label lang="nl-NL">Een gehoste betaalpagina gebruiken</label>
-			<label lang="fr-FR">Utilisation d’une page de paiement hébergée</label>
-            <defaultValue>0</defaultValue>
-            <options>
-                <option>
-                    <id>1</id>
-                    <name>Yes</name>
-                </option>
-                <option>
-                    <id>0</id>
-                    <name>No</name>
-                </option>
-            </options>
-        </input-field>
 
         <input-field type="single-select">
             <name>applepayShowProduct</name>
@@ -1437,6 +1459,29 @@
             <label lang="de-DE">Apple Pay-Schaltfläche im Warenkorb anzeigen</label>
             <label lang="nl-NL">Toon Apple Pay-knop in de winkelwagen</label>
 			<label lang="fr-FR">Afficher le bouton Apple Pay sur la page du panier</label>
+            <defaultValue>0</defaultValue>
+            <options>
+                <option>
+                    <id>1</id>
+                    <name>Yes</name>
+                </option>
+                <option>
+                    <id>0</id>
+                    <name>No</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>applepayShowCheckout</name>
+            <label lang="en-GB">Show Apple Pay button on checkout page</label>
+            <label lang="de-DE">Apple Pay-Schaltfläche auf der Checkout-Seite anzeigen</label>
+            <label lang="nl-NL">Toon Apple Pay-knop op de checkoutpagina</label>
+			<label lang="fr-FR">Afficher le bouton Apple Pay sur la page de paiement</label>
+            <helpText lang="en-GB">Shows the Apple Pay express button above the payment methods on the checkout confirm page. This is independent of the standard Apple Pay payment method.</helpText>
+            <helpText lang="de-DE">Zeigt die Apple Pay Express-Schaltfläche oberhalb der Zahlungsarten auf der Checkout-Bestätigungsseite an. Dies ist unabhängig von der Standard-Zahlungsart Apple Pay.</helpText>
+            <helpText lang="nl-NL">Toont de Apple Pay express-knop boven de betaalmethoden op de checkoutpagina. Dit staat los van de standaard Apple Pay-betaalmethode.</helpText>
+            <helpText lang="fr-FR">Affiche le bouton express Apple Pay au-dessus des modes de paiement sur la page de paiement. Ceci est indépendant du mode de paiement Apple Pay standard.</helpText>
             <defaultValue>0</defaultValue>
             <options>
                 <option>

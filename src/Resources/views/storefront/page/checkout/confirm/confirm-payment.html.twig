@@ -14,8 +14,8 @@
             }
         } %}
 
+
         <div data-bk-applepay data-buckaroo-apple-pay-plugin-options='{{ applePayConfig|json_encode }}'></div>
-        <div class="bk-apple-pay-button" style="margin-top: 10px;"></div>
     {% endif %}
 
     {% if context.paymentMethod.formattedHandlerIdentifier == 'handler_buckaroo_googlepaypaymenthandler' %}
@@ -33,43 +33,34 @@
         </div>
     {% endif %}
 
-
-    {% if page.extensions.buckaroo.showPaypalExpress %}
-        {% set paypalExpressOptions = {
-            page: "checkout",
-            merchantId: page.extensions.buckaroo.paypalMerchantId,
-            websiteKey: page.extensions.buckaroo.websiteKey,
-            i18n: {
-                cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
-                cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
-            }
+    {% if page.extensions.buckaroo %}
+        {% set buckaroo = page.extensions.buckaroo %}
+        {% set expressI18n = {
+            cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
+            cannot_create_payment: "buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
         } %}
 
-        <div style="margin-top:15px;" class="bk-paypal-express" data-paypal-express data-paypal-express-plugin-options='{{ paypalExpressOptions|json_encode }}'>
-            <div class="buckaroo-paypal-express"></div>
-        </div>
-
-    {% endif %}
-
-    {% if page.extensions.buckaroo.showIdealFastCheckout %}
-        <div class="col-12 p-0">
-            {% set idealFastCheckoutConfig = {
+        {% sw_include '@BuckarooPayments/storefront/buckaroo/express-checkout-buttons.html.twig' with {
+            paypalOptions: buckaroo.showPaypalExpress ? {
                 page: "checkout",
-                websiteKey: page.extensions.buckaroo.websiteKey,
-                i18n: {
-                    cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
-                    cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
-                }
-            } %}
-            <div data-bk-ideal-fast-checkout data-buckaroo-ideal-fast-checkout-plugin-options='{{ idealFastCheckoutConfig|json_encode }}'>
-                <button class="bk-ideal-fast-checkout" id="fast-checkout-ideal-btn" style="">
-                    <img
-                            src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/#{page.extensions.buckaroo.idealFastCheckoutLogo}.png")}}"
-                            alt="iDEAL | Wero Snel bestellen"
-                    />
-                </button>
-            </div>
-        </div>
+                merchantId: buckaroo.paypalMerchantId,
+                isTestMode: buckaroo.paypalIsTestMode,
+                websiteKey: buckaroo.websiteKey,
+                i18n: expressI18n
+            } : null,
+            applePayOptions: buckaroo.showApplePay ? {
+                page: "cart",
+                merchantId: buckaroo.applePayMerchantId,
+                cultureCode: page.header.activeLanguage.translationCode.code,
+                i18n: expressI18n
+            } : null,
+            idealOptions: buckaroo.showIdealFastCheckout ? {
+                page: "checkout",
+                websiteKey: buckaroo.websiteKey,
+                i18n: expressI18n
+            } : null,
+            idealLogo: buckaroo.idealFastCheckoutLogo
+        } %}
     {% endif %}
 
 {% endblock %}

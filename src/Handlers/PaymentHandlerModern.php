@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
+use Buckaroo\Shopware6\Events\AfterPaymentRequestEvent;
+use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\PaymentMethods\AbstractPayment;
 use Buckaroo\Shopware6\Buckaroo\Client;
@@ -14,7 +16,6 @@ use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
@@ -97,7 +98,8 @@ class PaymentHandlerModern extends AbstractPaymentHandler
                 $paymentCode,
                 $order->getSalesChannelId()
             );
-            $existingFee = (float) ($order->getCustomFieldsValue('buckarooFee') ?? 0.0);
+            $existingFeeValue = $order->getCustomFieldsValue('buckarooFee');
+            $existingFee = is_numeric($existingFeeValue) ? (float) $existingFeeValue : 0.0;
             if ($fee > 0 || $existingFee > 0) {
                 $this->feeCalculator->applyFeeToOrder($order->getId(), $fee, $salesChannelContext->getContext());
                 // Reload order to get updated total
@@ -127,16 +129,30 @@ class PaymentHandlerModern extends AbstractPaymentHandler
             $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
             $payload = array_merge_recursive($commonPayload, $methodPayload);
 
-            $client = $this->getClient($paymentCode, $order->getSalesChannelId(), $dataBag)
+            $culture = $this->resolveCulture($salesChannelContext, $request, $order);
+            if (!isset($payload['culture'])) {
+                $payload['culture'] = $culture;
+            }
+
+            $client = $this->getClient($paymentCode, $order->getSalesChannelId(), $dataBag, $culture)
                 ->setPayload($payload)
                 ->setAction($this->getMethodAction($dataBag, $salesChannelContext, $paymentCode));
 
             // Allow specific payment handlers to configure the client
             $this->configureClient($client, $paymentCode, $salesChannelContext);
 
+            $this->asyncPaymentService->dispatchEvent(
+                new BeforePaymentRequestEvent($transaction, $dataBag, $salesChannelContext, $client)
+            );
+
             $response = $client->execute();
+
+            $this->asyncPaymentService->dispatchEvent(
+                new AfterPaymentRequestEvent($transaction, $dataBag, $salesChannelContext, $response, $paymentCode)
+            );
+
             $returnUrl = $this->urlGenerator->getReturnUrl($orderTransaction, $order, $dataBag);
-            
+
             return $this->responseHandler->handleResponse(
                 $response,
                 $orderTransaction,
@@ -266,8 +282,12 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         // Child classes can override this to configure the client
     }
 
-    private function getClient(string $paymentCode, string $salesChannelId, RequestDataBag $dataBag): Client
-    {
+    private function getClient(
+        string $paymentCode,
+        string $salesChannelId,
+        RequestDataBag $dataBag,
+        ?string $culture = null
+    ): Client {
         if (
             $paymentCode === 'paybybank' &&
             $dataBag->get('payBybankMethodId') === 'INGBNL2A' &&
@@ -275,7 +295,24 @@ class PaymentHandlerModern extends AbstractPaymentHandler
         ) {
             $paymentCode = 'ideal';
         }
-        return $this->asyncPaymentService->clientService->get($paymentCode, $salesChannelId);
+        return $this->asyncPaymentService->clientService->get($paymentCode, $salesChannelId, $culture);
+    }
+
+    /**
+     * Resolve the Buckaroo culture code (ex. "nl-NL") for the current payment,
+     * based on the general "language" plugin setting.
+     */
+    private function resolveCulture(
+        SalesChannelContext $salesChannelContext,
+        ?Request $request = null,
+        ?OrderEntity $order = null
+    ): string {
+        $resolver = $this->asyncPaymentService->getLanguageResolver();
+        if ($resolver === null) {
+            return \Buckaroo\Shopware6\Service\BuckarooLanguageResolver::FALLBACK_CULTURE;
+        }
+
+        return $resolver->resolveLanguage($salesChannelContext, $request, $order);
     }
 
     /**

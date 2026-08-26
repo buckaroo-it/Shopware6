@@ -10,7 +10,7 @@ use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -30,7 +30,7 @@ class IdealFastCheckoutController extends AbstractPaymentController
 {
     private LoggerInterface $logger;
     private SalesChannelContextPersister $contextPersister;
-    private SalesChannelContextService $contextService;
+    private SalesChannelContextServiceInterface $contextService;
     private AbstractRegisterRoute $registerRoute;
 
     /**
@@ -46,7 +46,7 @@ class IdealFastCheckoutController extends AbstractPaymentController
         SalesChannelRepository $paymentMethodRepository,
         LoggerInterface $logger,
         SalesChannelContextPersister $contextPersister,
-        SalesChannelContextService $contextService,
+        SalesChannelContextServiceInterface $contextService,
         AbstractRegisterRoute $registerRoute,
         EntityRepository $salutationRepository
     ) {

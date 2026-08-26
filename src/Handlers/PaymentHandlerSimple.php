@@ -268,7 +268,8 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     $paymentCode,
                     $salesChannelContext->getSalesChannelId()
                 );
-                $existingFee = (float) ($order->getCustomFieldsValue('buckarooFee') ?? 0.0);
+                $existingFeeValue = $order->getCustomFieldsValue('buckarooFee');
+                $existingFee = is_numeric($existingFeeValue) ? (float) $existingFeeValue : 0.0;
                 if ($fee > 0 || $existingFee > 0) {
                     $feeCalculator->applyFeeToOrder($order->getId(), $fee, $context);
                     // Reload order to get updated total
@@ -313,13 +314,22 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
                 $methodAction = $this->getMethodAction($dataBag, $salesChannelContext, $paymentCode);
 
+                // Resolve the gateway language (HPP & payment instructions)
+                $culture = $this->resolveCulture($salesChannelContext, $request, $order);
+
                 // Process payment using existing services
                 $client = $this->asyncPaymentService->clientService->get(
                     $paymentCode,
-                    $salesChannelContext->getSalesChannelId()
+                    $salesChannelContext->getSalesChannelId(),
+                    $culture
                 );
-                
-                $client->setPayload(array_merge_recursive($commonPayload, $methodPayload))
+
+                $payload = array_merge_recursive($commonPayload, $methodPayload);
+                if (!isset($payload['culture'])) {
+                    $payload['culture'] = $culture;
+                }
+
+                $client->setPayload($payload)
                        ->setAction($methodAction);
 
                 // Allow specific payment handlers to configure the client
@@ -361,7 +371,20 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                         'Payment was canceled'
                     );
                 }
-                
+
+                // Post-processing hook for handlers that need the successful response.
+                // The 6.5 path gets this through handleResponse(); this branch never
+                // calls handleResponse(), so without the hook PayPal Express never
+                // writes the payer's real name/address back onto the order.
+                $this->afterPaymentResponse(
+                    $response,
+                    $orderTransaction,
+                    $order,
+                    $dataBag,
+                    $salesChannelContext,
+                    $paymentCode
+                );
+
                 if ($response->hasRedirect()) {
                     return new RedirectResponse($response->getRedirectUrl());
                 }
@@ -428,6 +451,23 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 return new RedirectResponse($response->getRedirectUrl());
             }
             return new RedirectResponse('/checkout/finish');
+        }
+
+        /**
+         * Hook invoked after a successful Buckaroo response, before the redirect is
+         * built. Default implementation does nothing.
+         *
+         * @param mixed $orderTransaction
+         */
+        protected function afterPaymentResponse(
+            \Buckaroo\Shopware6\Buckaroo\ClientResponseInterface $response,
+            $orderTransaction,
+            \Shopware\Core\Checkout\Order\OrderEntity $order,
+            \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
+            \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
+            string $paymentCode
+        ): void {
+            // Default implementation - do nothing
         }
 
         public function finalize(
