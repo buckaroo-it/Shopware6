@@ -42,9 +42,25 @@ test.describe('checkout payment step', () => {
     const radios = page.locator('.payment-method-input');
     await expect(radios.first()).toBeAttached();
 
-    // Buckaroo's payment-method override tags each of its methods with bk-<key>.
-    const bk = page.locator('[class*="bk-"]');
-    expect(await bk.count(), 'no buckaroo-tagged payment method rendered').toBeGreaterThan(0);
+    // Buckaroo's payment-method override tags each radio's wrapper with
+    // bk-<key>, e.g. bk-ideal. Shopware's own methods (invoice, prepayment,
+    // cash on delivery) go through the same override and come out with a bare
+    // `bk-` and no key, so presence of the prefix proves nothing: a page-wide
+    // [class*="bk-"] counted all 33 methods on a real shop. Require a
+    // non-empty key, which only a rendered buckaroo method produces.
+    const buckarooKeys = await radios.evaluateAll((els) =>
+      els
+        .map((el) => {
+          const wrap = el.parentElement;
+          const match = (wrap && wrap.className || '').match(/(?:^|\s)bk-([A-Za-z0-9_]+)(?:\s|$)/);
+          return match ? match[1] : null;
+        })
+        .filter(Boolean)
+    );
+    expect(
+      buckarooKeys.length,
+      'no buckaroo payment method rendered (payment-method override not applied)'
+    ).toBeGreaterThan(0);
   });
 
   test('buckaroo required-message holder is rendered (payment-form override alive)', async () => {
@@ -58,11 +74,16 @@ test.describe('checkout payment step', () => {
     expect(msg && msg.trim().length, 'required-message attribute is empty').toBeTruthy();
   });
 
-  test('selected payment method is listed first', async () => {
-    const checkedIndex = await page.locator('.payment-method-input').evaluateAll(
-      (els) => els.findIndex((e) => e.checked)
-    );
-    // -1 means nothing preselected, which is acceptable; 0 means ordering applied.
-    expect([0, -1]).toContain(checkedIndex);
+  test('selected payment method is preselected and listed first', async () => {
+    const inputs = page.locator('.payment-method-input');
+    // Guard the sample itself: with no radios the index check below is vacuous.
+    expect(await inputs.count(), 'no payment method radios rendered').toBeGreaterThan(0);
+
+    const checkedIndex = await inputs.evaluateAll((els) => els.findIndex((e) => e.checked));
+    // Shopware always preselects the sales channel default, so -1 means the
+    // payment list failed to render its selection - that is a failure, not an
+    // acceptable outcome, and accepting it made this test unfalsifiable.
+    expect(checkedIndex, 'no payment method is preselected').toBeGreaterThanOrEqual(0);
+    expect(checkedIndex, 'preselected payment method is not listed first').toBe(0);
   });
 });

@@ -10,16 +10,33 @@ on:
   workflow_dispatch:
 
 jobs:
+  # The newest patch of each supported series is resolved at run time, so a
+  # fresh Shopware release is covered the next night with no edit here.
+  resolve:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.build.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: build
+        run: |
+          set -e
+          latest_67=$(python3 .github/scripts/resolve-dockware-tag.py 6.7)
+          latest_66=$(python3 .github/scripts/resolve-dockware-tag.py 6.6)  # extended support until 2028-02-28
+          latest_65=$(python3 .github/scripts/resolve-dockware-tag.py 6.5)  # extended support until 2027-02-28, our floor
+          # Two older 6.7 patches stay pinned: the resolver only yields the
+          # newest per series, and drift often shows up one patch back.
+          matrix=$(python3 -c 'import json,sys; print(json.dumps(sys.argv[1:]))' \
+            "$latest_67" '6.7.12.2' '6.7.11.1' "$latest_66" "$latest_65")
+          echo "matrix: $matrix"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
   matrix:
+    needs: resolve
     strategy:
       fail-fast: false
       matrix:
-        shopware:
-          - '6.7.13.0'   # newest
-          - '6.7.12.2'
-          - '6.7.11.1'
-          - '6.6.10.22'  # 6.6 extended support (until 2028-02-28)
-          - '6.5.8.19'   # 6.5 extended support (until 2027-02-28), our floor
+        shopware: ${{ fromJson(needs.resolve.outputs.matrix) }}
     uses: ./.github/workflows/e2e-shopware.yml
     with:
       shopware: ${{ matrix.shopware }}
