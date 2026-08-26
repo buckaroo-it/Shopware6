@@ -21,10 +21,48 @@ class CaptureService
 
     public const ORDER_IS_AUTHORIZED = 'buckaroo_is_authorize';
 
-
+    /**
+     * Transaction custom field holding the unix timestamp at which a capture request
+     * was handed to the Buckaroo engine without a definitive synchronous result: the
+     * engine answered 791 Pending processing (normal for a Klarna MoR "Pay on
+     * reservation"), or the connection failed after the request may already have been
+     * accepted. While present and fresh, no new capture request may be sent; the
+     * definitive result arrives via push, which records `captured`.
+     *
+     * The `captured` flag alone cannot deduplicate this: it is only written after a
+     * response that reports immediate success, while both the order_delivery.written
+     * and state_enter.order_delivery.state.shipped events fire a capture trigger
+     * within the same request.
+     *
+     * IMPORTANT: this marker is deliberately persisted only AFTER the HTTP call
+     * returns, never before it. The capture triggers run inside the state-machine's
+     * open database transaction; a write to order_transaction before the call would
+     * hold a row lock for the full duration of the outbound request. Buckaroo delivers
+     * the result push BEFORE answering the API call, and PushController writes the
+     * same order_transaction row - so a pre-call write deadlocks the ship action
+     * against its own push until the HTTP client times out. Same-request deduplication
+     * is handled in memory instead (see $inFlightOrderIds).
+     */
     public const CAPTURE_INITIATED = 'captureInitiated';
 
+    /**
+     * How long (seconds) the in-flight marker blocks a new capture attempt when no
+     * `captured` confirmation has arrived. Prevents a stale marker (e.g. a crash
+     * between marker write and HTTP call) from permanently blocking the mandatory
+     * Klarna MoR capture-on-shipment flow.
+     */
     public const CAPTURE_IN_FLIGHT_SECONDS = 600;
+
+    /**
+     * Order ids for which this request already sent (or is currently sending) a
+     * capture request. Deduplicates the two capture-on-shipment trigger paths that
+     * fire within one PHP request (order_delivery.written and
+     * state_enter.order_delivery.state.shipped) without any database write - see the
+     * deadlock note on CAPTURE_INITIATED for why this must not be a DB flag.
+     *
+     * @var array<string, bool>
+     */
+    private array $inFlightOrderIds = [];
 
     protected TransactionService $transactionService;
 
@@ -96,19 +134,17 @@ class CaptureService
             return $validationErrors;
         }
 
-        // Mark the capture as in flight BEFORE contacting Buckaroo. This write is
-        // synchronous, so a second capture trigger for the same shipment (the ship
-        // action fires both order_delivery.written and state_enter.*.shipped) is
-        // rejected by validate() even when the engine answers asynchronously and
-        // `captured` cannot be set yet.
-        $inFlightTransactionId = $this->getLastTransactionIdOrNull($order);
-        if ($inFlightTransactionId !== null) {
-            $this->transactionService->saveTransactionData(
-                $inFlightTransactionId,
-                $context,
-                [self::CAPTURE_INITIATED => time()]
-            );
+        // In-memory guard: the ship action fires both order_delivery.written and
+        // state_enter.order_delivery.state.shipped in the same request. Never send a
+        // second capture for an order this request already captured. Deliberately NOT
+        // a database write - see the deadlock note on CAPTURE_INITIATED.
+        if (isset($this->inFlightOrderIds[$order->getId()])) {
+            return [
+                'status' => false,
+                'message' => $this->translator->trans("buckaroo.capture.capture_in_progress")
+            ];
         }
+        $this->inFlightOrderIds[$order->getId()] = true;
 
         $client = $this->getClient(
             $paymentCode,
@@ -130,8 +166,28 @@ class CaptureService
                 ),
             );
 
+        try {
+            $response = $client->execute();
+        } catch (\Throwable $th) {
+            // The connection failed but the engine may still have accepted and
+            // processed the capture (e.g. a timeout while the engine waited on its
+            // own result push). Persist the in-flight marker - safe now, the
+            // outbound call is over - so no retry fires before the push has had the
+            // chance to record `captured`; the marker expires after
+            // CAPTURE_IN_FLIGHT_SECONDS.
+            $transactionId = $this->getLastTransactionIdOrNull($order);
+            if ($transactionId !== null) {
+                $this->transactionService->saveTransactionData(
+                    $transactionId,
+                    $context,
+                    [self::CAPTURE_INITIATED => time()]
+                );
+            }
+            throw $th;
+        }
+
         return $this->handleResponse(
-            $client->execute(),
+            $response,
             $order,
             $context,
             $paymentCode
@@ -191,25 +247,26 @@ class CaptureService
 
         // The engine accepted the request but processes it asynchronously (791). This
         // is the normal flow for a Klarna MoR "Pay on reservation": the definitive
-        // result arrives via push. Keep the in-flight marker so no second capture is
-        // sent in the meantime, and report it as initiated instead of failed.
+        // result arrives via push. Persist the in-flight marker (safe post-call) so
+        // no second capture is sent in the meantime, and report it as initiated
+        // instead of failed.
         if ($response->isPendingProcessing()) {
+            if ($transactionId !== null) {
+                $this->transactionService->saveTransactionData(
+                    $transactionId,
+                    $context,
+                    [self::CAPTURE_INITIATED => time()]
+                );
+            }
+
             return [
                 'status' => true,
                 'message' => $this->translator->trans("buckaroo.capture.capture_pending"),
             ];
         }
 
-        // Definitive failure: release the in-flight marker so the capture can be
-        // retried (manually or by a later shipment event).
-        if ($transactionId !== null) {
-            $this->transactionService->saveTransactionData(
-                $transactionId,
-                $context,
-                [self::CAPTURE_INITIATED => 0]
-            );
-        }
-
+        // Definitive failure: nothing was persisted before the call, so a later
+        // shipment event or a manual capture can simply retry.
         return [
             'status'  => false,
             'message' => $response->getSomeError(),

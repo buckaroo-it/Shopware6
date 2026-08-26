@@ -533,15 +533,16 @@ class CaptureServiceTest extends TestCase
             ->method('getCustomFields')
             ->willReturn($customFields);
 
-        $savedData = [];
+        // Exactly ONE write, and only AFTER the response: a write before the
+        // Buckaroo call would hold a row lock on order_transaction that deadlocks
+        // the ship action against its own result push.
         $this->transactionService
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method('saveTransactionData')
-            ->willReturnCallback(
-                function (string $txId, $context, array $data) use (&$savedData, $transactionId): void {
-                    $this->assertSame($transactionId, $txId);
-                    $savedData[] = $data;
-                }
+            ->with(
+                $transactionId,
+                $this->context,
+                ['captured' => 1, CaptureService::CAPTURE_INITIATED => 0]
             );
 
         $client = $this->createMock(Client::class);
@@ -553,15 +554,126 @@ class CaptureServiceTest extends TestCase
         // Assert
         $this->assertIsArray($result);
         $this->assertTrue($result['status']);
+    }
 
-        // First write: the in-flight marker, persisted BEFORE the Buckaroo call.
+    /**
+     * Test: the second capture trigger within the same request (the ship action
+     * fires both order_delivery.written and state_enter.order_delivery.state.shipped)
+     * is rejected in memory - only ONE request reaches the Buckaroo client
+     */
+    public function testSecondCaptureInSameRequestIsRejected(): void
+    {
+        // Arrange
+        $request = new Request();
+        $order = $this->createOrder(100.00);
+        $order->setCustomFields([CaptureService::ORDER_IS_AUTHORIZED => true]);
+
+        $this->transactionService
+            ->method('isBuckarooPaymentMethod')
+            ->willReturn(true);
+
+        $this->transactionService
+            ->method('getCustomFields')
+            ->willReturn([
+                'serviceName' => 'klarna',
+                'canCapture' => 1,
+                'dataRequestKey' => 'DRK-123',
+            ]);
+
+        $client = $this->createMock(Client::class);
+        $client->method('setAction')->willReturnSelf();
+        $client->method('setPayload')->willReturnSelf();
+
+        $response = $this->createMock(ClientResponseInterface::class);
+        $response->method('isSuccess')->willReturn(false);
+        $response->method('isPendingProcessing')->willReturn(true);
+        $client
+            ->expects($this->once())
+            ->method('execute')
+            ->willReturn($response);
+
+        // The Buckaroo client may be built only once.
+        $this->clientService
+            ->expects($this->once())
+            ->method('get')
+            ->willReturn($client);
+
+        $this->urlService
+            ->method('getReturnUrl')
+            ->willReturn('https://example.com/push');
+
+        $this->translator
+            ->method('trans')
+            ->willReturnArgument(0);
+
+        // Act
+        $first = $this->captureService->capture($request, $order, $this->context);
+        $second = $this->captureService->capture($request, $order, $this->context);
+
+        // Assert
+        $this->assertTrue($first['status']);
+        $this->assertFalse($second['status']);
+        $this->assertSame('buckaroo.capture.capture_in_progress', $second['message']);
+    }
+
+    /**
+     * Test: when the connection fails mid-request the engine may still have
+     * processed the capture - the in-flight marker is persisted (post-call) before
+     * the exception bubbles up, so no immediate retry can send a duplicate Pay
+     */
+    public function testCapturePersistsInFlightMarkerOnConnectionFailure(): void
+    {
+        // Arrange
+        $request = new Request();
+        $order = $this->createOrder(100.00);
+        $order->setCustomFields([CaptureService::ORDER_IS_AUTHORIZED => true]);
+
+        $this->transactionService
+            ->method('isBuckarooPaymentMethod')
+            ->willReturn(true);
+
+        $this->transactionService
+            ->method('getCustomFields')
+            ->willReturn([
+                'serviceName' => 'klarna',
+                'canCapture' => 1,
+                'dataRequestKey' => 'DRK-123',
+            ]);
+
+        $savedData = [];
+        $this->transactionService
+            ->expects($this->once())
+            ->method('saveTransactionData')
+            ->willReturnCallback(
+                function (string $txId, $context, array $data) use (&$savedData): void {
+                    $savedData[] = $data;
+                }
+            );
+
+        $client = $this->createMock(Client::class);
+        $client->method('setAction')->willReturnSelf();
+        $client->method('setPayload')->willReturnSelf();
+        $client->method('execute')->willThrowException(new \RuntimeException('cURL error 28'));
+
+        $this->clientService
+            ->method('get')
+            ->willReturn($client);
+
+        $this->urlService
+            ->method('getReturnUrl')
+            ->willReturn('https://example.com/push');
+
+        // Act + Assert
+        try {
+            $this->captureService->capture($request, $order, $this->context);
+            $this->fail('Expected the connection failure to bubble up');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('cURL error 28', $e->getMessage());
+        }
+
+        $this->assertCount(1, $savedData);
         $this->assertArrayHasKey(CaptureService::CAPTURE_INITIATED, $savedData[0]);
         $this->assertGreaterThan(0, $savedData[0][CaptureService::CAPTURE_INITIATED]);
-        // Second write: the confirmed capture, releasing the marker.
-        $this->assertSame(
-            ['captured' => 1, CaptureService::CAPTURE_INITIATED => 0],
-            $savedData[1]
-        );
     }
 
     /**
@@ -649,7 +761,8 @@ class CaptureServiceTest extends TestCase
     /**
      * Test: a 791 pending-processing response (Klarna MoR Pay is processed
      * asynchronously by the engine) is reported as initiated - not as a failure -
-     * and the in-flight marker is kept so no second Pay can be sent before the push
+     * and the in-flight marker is persisted (post-call, never before the request)
+     * so no second Pay can be sent before the push arrives
      */
     public function testCaptureKeepsInFlightMarkerOnPendingProcessing(): void
     {
@@ -670,7 +783,7 @@ class CaptureServiceTest extends TestCase
                 'dataRequestKey' => 'DRK-123',
             ]);
 
-        // Only the in-flight marker write; nothing may clear it on pending.
+        // Exactly one write: the post-call in-flight marker; nothing may clear it.
         $savedData = [];
         $this->transactionService
             ->expects($this->once())
@@ -712,10 +825,10 @@ class CaptureServiceTest extends TestCase
     }
 
     /**
-     * Test: a definitive failure releases the in-flight marker so the capture can
-     * be retried by a later shipment event or manually
+     * Test: a definitive failure persists nothing, so the capture can simply be
+     * retried by a later shipment event or manually
      */
-    public function testCaptureReleasesInFlightMarkerOnFailure(): void
+    public function testCaptureWritesNothingOnDefinitiveFailure(): void
     {
         // Arrange
         $request = new Request();
@@ -734,15 +847,9 @@ class CaptureServiceTest extends TestCase
                 'dataRequestKey' => 'DRK-123',
             ]);
 
-        $savedData = [];
         $this->transactionService
-            ->expects($this->exactly(2))
-            ->method('saveTransactionData')
-            ->willReturnCallback(
-                function (string $txId, $context, array $data) use (&$savedData): void {
-                    $savedData[] = $data;
-                }
-            );
+            ->expects($this->never())
+            ->method('saveTransactionData');
 
         $client = $this->createMock(Client::class);
         $client->method('setAction')->willReturnSelf();
@@ -765,7 +872,7 @@ class CaptureServiceTest extends TestCase
         // Assert
         $this->assertIsArray($result);
         $this->assertFalse($result['status']);
-        $this->assertSame([CaptureService::CAPTURE_INITIATED => 0], $savedData[1]);
+        $this->assertSame('Engine error', $result['message']);
     }
 
     /**
