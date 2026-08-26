@@ -506,6 +506,13 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         if ($result === null) {
             return;
         }
+
+        // Deduplicated captures (already captured / capture in flight) are the guards
+        // working as intended - never surface them as an admin warning next to the
+        // success notification of the capture that did run.
+        if (!empty($result['silent'])) {
+            return;
+        }
         $status = 'warning';
         if (isset($result['status']) && $result['status'] === true) {
             $status = 'success';

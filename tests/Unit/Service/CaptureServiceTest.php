@@ -614,6 +614,8 @@ class CaptureServiceTest extends TestCase
         $this->assertTrue($first['status']);
         $this->assertFalse($second['status']);
         $this->assertSame('buckaroo.capture.capture_in_progress', $second['message']);
+        // Expected dedup outcome: the capture triggers must not notify about it.
+        $this->assertTrue($second['silent']);
     }
 
     /**
@@ -720,6 +722,8 @@ class CaptureServiceTest extends TestCase
         $this->assertIsArray($result);
         $this->assertFalse($result['status']);
         $this->assertSame('Capture already in progress', $result['message']);
+        // Expected dedup outcome: the capture triggers must not notify about it.
+        $this->assertTrue($result['silent']);
     }
 
     /**

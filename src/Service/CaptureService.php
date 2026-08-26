@@ -110,9 +110,12 @@ class CaptureService
         // state_enter.order_delivery.state.shipped in the same request. Never send a
         // second capture for an order this request already captured. Deliberately NOT
         // a database write - see the deadlock note on CAPTURE_INITIATED.
+        // `silent`: this is the dedup working as intended, not a problem a merchant
+        // needs to see - the capture triggers must not raise a notification for it.
         if (isset($this->inFlightOrderIds[$order->getId()])) {
             return [
                 'status' => false,
+                'silent' => true,
                 'message' => $this->translator->trans("buckaroo.capture.capture_in_progress")
             ];
         }
@@ -393,9 +396,14 @@ class CaptureService
             ];
         }
 
+        // `silent`: an already handled capture is the dedup guards doing their job.
+        // The automatic capture-on-shipment triggers skip the admin notification for
+        // silent results; a manual capture (CaptureController) still returns the
+        // message to the caller as its response.
         if (!empty($customFields['captured']) && ($customFields['captured'] == 1)) {
             return [
                 'status' => false,
+                'silent' => true,
                 'message' => $this->translator->trans("buckaroo.capture.already_captured")
             ];
         }
@@ -403,6 +411,7 @@ class CaptureService
         if (self::isCaptureInFlight($customFields)) {
             return [
                 'status' => false,
+                'silent' => true,
                 'message' => $this->translator->trans("buckaroo.capture.capture_in_progress")
             ];
         }
