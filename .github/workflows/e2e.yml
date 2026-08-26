@@ -7,12 +7,29 @@ on:
   workflow_dispatch:
     inputs:
       shopware:
-        description: 'Shopware version to test'
+        description: 'Shopware version to test (blank = newest 6.7 on dockware)'
         required: false
-        default: '6.7.13.0'
 
 jobs:
+  # The version is resolved at run time, not pinned. A pinned default meant a
+  # new Shopware patch went untested until somebody edited this file.
+  resolve:
+    runs-on: ubuntu-latest
+    outputs:
+      shopware: ${{ steps.pick.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: pick
+        run: |
+          tag="${{ github.event.inputs.shopware }}"
+          if [ -z "$tag" ]; then
+            tag=$(python3 .github/scripts/resolve-dockware-tag.py 6.7)
+          fi
+          echo "resolved Shopware image tag: $tag"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
   latest:
+    needs: resolve
     uses: ./.github/workflows/e2e-shopware.yml
     with:
-      shopware: ${{ github.event.inputs.shopware || '6.7.13.0' }}
+      shopware: ${{ needs.resolve.outputs.shopware }}

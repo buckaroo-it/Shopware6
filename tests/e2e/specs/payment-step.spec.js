@@ -43,8 +43,17 @@ test.describe('checkout payment step', () => {
     await expect(radios.first()).toBeAttached();
 
     // Buckaroo's payment-method override tags each of its methods with bk-<key>.
-    const bk = page.locator('[class*="bk-"]');
-    expect(await bk.count(), 'no buckaroo-tagged payment method rendered').toBeGreaterThan(0);
+    // Anchor to the radios rather than a theme container class: a bare
+    // [class*="bk-"] page-wide would stay green on any unrelated bk- element,
+    // and container class names differ across 6.5/6.6/6.7 themes.
+    const bkTagged = await radios.evaluateAll((els) =>
+      els.filter((el) => {
+        const wrap = el.closest('.payment-method') || el.parentElement;
+        if (!wrap) return false;
+        return /(^|\s)bk-/.test(wrap.className || '') || !!wrap.querySelector('[class*="bk-"]');
+      }).length
+    );
+    expect(bkTagged, 'no buckaroo-tagged payment method rendered').toBeGreaterThan(0);
   });
 
   test('buckaroo required-message holder is rendered (payment-form override alive)', async () => {
@@ -58,11 +67,16 @@ test.describe('checkout payment step', () => {
     expect(msg && msg.trim().length, 'required-message attribute is empty').toBeTruthy();
   });
 
-  test('selected payment method is listed first', async () => {
-    const checkedIndex = await page.locator('.payment-method-input').evaluateAll(
-      (els) => els.findIndex((e) => e.checked)
-    );
-    // -1 means nothing preselected, which is acceptable; 0 means ordering applied.
-    expect([0, -1]).toContain(checkedIndex);
+  test('selected payment method is preselected and listed first', async () => {
+    const inputs = page.locator('.payment-method-input');
+    // Guard the sample itself: with no radios the index check below is vacuous.
+    expect(await inputs.count(), 'no payment method radios rendered').toBeGreaterThan(0);
+
+    const checkedIndex = await inputs.evaluateAll((els) => els.findIndex((e) => e.checked));
+    // Shopware always preselects the sales channel default, so -1 means the
+    // payment list failed to render its selection - that is a failure, not an
+    // acceptable outcome, and accepting it made this test unfalsifiable.
+    expect(checkedIndex, 'no payment method is preselected').toBeGreaterThanOrEqual(0);
+    expect(checkedIndex, 'preselected payment method is not listed first').toBe(0);
   });
 });
