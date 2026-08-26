@@ -21,36 +21,8 @@ class CaptureService
 
     public const ORDER_IS_AUTHORIZED = 'buckaroo_is_authorize';
 
-    /**
-     * Transaction custom field holding the unix timestamp at which a capture request
-     * was handed to the Buckaroo engine without a definitive synchronous result: the
-     * engine answered 791 Pending processing (normal for a Klarna MoR "Pay on
-     * reservation"), or the connection failed after the request may already have been
-     * accepted. While present and fresh, no new capture request may be sent; the
-     * definitive result arrives via push, which records `captured`.
-     *
-     * The `captured` flag alone cannot deduplicate this: it is only written after a
-     * response that reports immediate success, while both the order_delivery.written
-     * and state_enter.order_delivery.state.shipped events fire a capture trigger
-     * within the same request.
-     *
-     * IMPORTANT: this marker is deliberately persisted only AFTER the HTTP call
-     * returns, never before it. The capture triggers run inside the state-machine's
-     * open database transaction; a write to order_transaction before the call would
-     * hold a row lock for the full duration of the outbound request. Buckaroo delivers
-     * the result push BEFORE answering the API call, and PushController writes the
-     * same order_transaction row - so a pre-call write deadlocks the ship action
-     * against its own push until the HTTP client times out. Same-request deduplication
-     * is handled in memory instead (see $inFlightOrderIds).
-     */
     public const CAPTURE_INITIATED = 'captureInitiated';
 
-    /**
-     * How long (seconds) the in-flight marker blocks a new capture attempt when no
-     * `captured` confirmation has arrived. Prevents a stale marker (e.g. a crash
-     * between marker write and HTTP call) from permanently blocking the mandatory
-     * Klarna MoR capture-on-shipment flow.
-     */
     public const CAPTURE_IN_FLIGHT_SECONDS = 600;
 
     /**

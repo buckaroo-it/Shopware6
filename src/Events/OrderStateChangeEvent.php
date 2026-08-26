@@ -341,19 +341,6 @@ class OrderStateChangeEvent implements EventSubscriberInterface
      *  - onOrderDeliveryStateShipped (state-machine path via state_enter event)
      *  - OrderDeliveryWrittenSubscriber (direct DAL write path via order_delivery.written)
      *
-     * Deduplication between the two paths is layered:
-     *  - an in-memory per-request guard in CaptureService: the second trigger in the
-     *    same request never sends a request (kept out of the database on purpose - a
-     *    pre-call DB write deadlocks the ship action against its own Buckaroo push,
-     *    see CaptureService::CAPTURE_INITIATED);
-     *  - customFields['captured']: a confirmed capture (synchronous success response,
-     *    or the success push for an asynchronously processed capture), checked by the
-     *    canCapture* guards and CaptureService::validate();
-     *  - customFields[CaptureService::CAPTURE_INITIATED]: persisted after a 791
-     *    Pending processing response or a connection failure, blocking cross-request
-     *    retries until the push records `captured` (expires after
-     *    CaptureService::CAPTURE_IN_FLIGHT_SECONDS).
-     *
      * @param array<int, string>|null $onlyPaymentMethods When given, the trigger is
      *        restricted to these Buckaroo payment methods (lowercase `brqPaymentMethod`
      *        values). The direct DAL write path uses this to opt in one method at a time
