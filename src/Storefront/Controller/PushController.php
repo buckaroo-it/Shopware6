@@ -19,6 +19,7 @@ use Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Buckaroo\Shopware6\Helpers\KlarnaKpCaptureDetector;
+use Buckaroo\Shopware6\Service\CaptureService;
 use Shopware\Storefront\Controller\StorefrontController;
 use Buckaroo\Shopware6\Service\SignatureValidationService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -376,6 +377,13 @@ class PushController extends StorefrontController
                         // already in authorized state, meaning this is a capture (pay) push.
                         if (!$this->stateTransitionService->canTransitionStatus('authorize', $orderTransactionId, $context)) {
                             $paymentState = $paymentSuccesStatus;
+                            // This success push confirms the Klarna MoR capture (Pay on the
+                            // reservation). Record it durably and release the in-flight
+                            // marker, so no capture-on-shipment trigger (state_enter, DAL
+                            // write, or a later shipment) can ever send a second Pay —
+                            // Buckaroo rejects those with OrderService_Capture_InvalidOrderStatus.
+                            $data['captured'] = 1;
+                            $data[CaptureService::CAPTURE_INITIATED] = 0;
                         }
                     }
                 }

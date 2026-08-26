@@ -21,6 +21,11 @@ class CaptureService
 
     public const ORDER_IS_AUTHORIZED = 'buckaroo_is_authorize';
 
+
+    public const CAPTURE_INITIATED = 'captureInitiated';
+
+    public const CAPTURE_IN_FLIGHT_SECONDS = 600;
+
     protected TransactionService $transactionService;
 
     protected TranslatorInterface $translator;
@@ -91,6 +96,20 @@ class CaptureService
             return $validationErrors;
         }
 
+        // Mark the capture as in flight BEFORE contacting Buckaroo. This write is
+        // synchronous, so a second capture trigger for the same shipment (the ship
+        // action fires both order_delivery.written and state_enter.*.shipped) is
+        // rejected by validate() even when the engine answers asynchronously and
+        // `captured` cannot be set yet.
+        $inFlightTransactionId = $this->getLastTransactionIdOrNull($order);
+        if ($inFlightTransactionId !== null) {
+            $this->transactionService->saveTransactionData(
+                $inFlightTransactionId,
+                $context,
+                [self::CAPTURE_INITIATED => time()]
+            );
+        }
+
         $client = $this->getClient(
             $paymentCode,
             $order->getSalesChannelId()
@@ -136,6 +155,8 @@ class CaptureService
         Context $context,
         string $paymentCode
     ): array {
+        $transactionId = $this->getLastTransactionIdOrNull($order);
+
         if ($response->isSuccess()) {
             if (
                 !$this->invoiceService->isInvoiced($order->getId(), $context) &&
@@ -148,13 +169,11 @@ class CaptureService
                 $this->invoiceService->generateInvoice($order, $context);
             }
 
-            $transactionId = $order->getTransactions()?->last()?->getId();
-
             if ($transactionId !== null) {
                 $this->transactionService->saveTransactionData(
                     $transactionId,
                     $context,
-                    ['captured' => 1]
+                    ['captured' => 1, self::CAPTURE_INITIATED => 0]
                 );
             }
 
@@ -170,11 +189,56 @@ class CaptureService
             ];
         }
 
+        // The engine accepted the request but processes it asynchronously (791). This
+        // is the normal flow for a Klarna MoR "Pay on reservation": the definitive
+        // result arrives via push. Keep the in-flight marker so no second capture is
+        // sent in the meantime, and report it as initiated instead of failed.
+        if ($response->isPendingProcessing()) {
+            return [
+                'status' => true,
+                'message' => $this->translator->trans("buckaroo.capture.capture_pending"),
+            ];
+        }
+
+        // Definitive failure: release the in-flight marker so the capture can be
+        // retried (manually or by a later shipment event).
+        if ($transactionId !== null) {
+            $this->transactionService->saveTransactionData(
+                $transactionId,
+                $context,
+                [self::CAPTURE_INITIATED => 0]
+            );
+        }
+
         return [
             'status'  => false,
             'message' => $response->getSomeError(),
             'code'    => $response->getStatusCode(),
         ];
+    }
+
+    /**
+     * Whether a capture request for this transaction is currently in flight: it was
+     * handed to the Buckaroo engine less than CAPTURE_IN_FLIGHT_SECONDS ago and no
+     * definitive result has been recorded yet. Shared by the capture-on-shipment
+     * triggers (OrderStateChangeEvent) and validate().
+     *
+     * @param array<mixed> $customFields
+     */
+    public static function isCaptureInFlight(array $customFields): bool
+    {
+        $initiatedAt = $customFields[self::CAPTURE_INITIATED] ?? null;
+
+        if (!is_numeric($initiatedAt) || (int)$initiatedAt <= 0) {
+            return false;
+        }
+
+        return (time() - (int)$initiatedAt) < self::CAPTURE_IN_FLIGHT_SECONDS;
+    }
+
+    private function getLastTransactionIdOrNull(OrderEntity $order): ?string
+    {
+        return $order->getTransactions()?->last()?->getId();
     }
 
     private function getCurrencyIso(OrderEntity $order): string
@@ -304,6 +368,13 @@ class CaptureService
             return [
                 'status' => false,
                 'message' => $this->translator->trans("buckaroo.capture.already_captured")
+            ];
+        }
+
+        if (self::isCaptureInFlight($customFields)) {
+            return [
+                'status' => false,
+                'message' => $this->translator->trans("buckaroo.capture.capture_in_progress")
             ];
         }
         return null;

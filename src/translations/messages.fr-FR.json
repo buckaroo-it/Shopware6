@@ -9,7 +9,9 @@
             "capture_not_supported": "La capture n'est pas prise en charge",
             "already_captured": "Cette commande a déjà été capturée",
             "captured_amount": "Montant capturé avec succès de %amount% %currency%",
-            "general_capture_error": "Malheureusement, une erreur s'est produite lors du traitement de votre capture. Veuillez réessayer."
+            "general_capture_error": "Malheureusement, une erreur s'est produite lors du traitement de votre capture. Veuillez réessayer.",
+            "capture_in_progress": "Une demande de capture est déjà en cours pour cette commande",
+            "capture_pending": "Demande de capture envoyée à Buckaroo, en attente de confirmation"
         },
         "cannotRefundMissingPayment": "Cannot refund order, no payment transaction is available",
         "payperemail": {

@@ -341,9 +341,14 @@ class OrderStateChangeEvent implements EventSubscriberInterface
      *  - onOrderDeliveryStateShipped (state-machine path via state_enter event)
      *  - OrderDeliveryWrittenSubscriber (direct DAL write path via order_delivery.written)
      *
-     * Deduplication between the two paths is handled by the customFields['captured']
-     * flag which CaptureService sets synchronously after a successful capture; the
-     * canCapture* guards short-circuit when it is present.
+     * Deduplication between the two paths is handled by two transaction custom fields,
+     * both checked by the canCapture* guards and by CaptureService::validate():
+     *  - customFields['captured']: a confirmed capture (synchronous success response,
+     *    or the success push for an asynchronously processed capture);
+     *  - customFields[CaptureService::CAPTURE_INITIATED]: an in-flight marker persisted
+     *    BEFORE the capture request is handed to Buckaroo, covering captures the engine
+     *    processes asynchronously (e.g. Klarna MoR Pay, 791 Pending processing) where
+     *    `captured` cannot be set from the synchronous response.
      *
      * @param array<int, string>|null $onlyPaymentMethods When given, the trigger is
      *        restricted to these Buckaroo payment methods (lowercase `brqPaymentMethod`
@@ -441,6 +446,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         
         return $customFields['brqPaymentMethod'] === 'afterpay' &&
             !isset($customFields['captured']) &&
+            !CaptureService::isCaptureInFlight($customFields) &&
             $this->settingsService->getSetting('afterpayCaptureonshippent', $salesChannelId) &&
             isset($orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED]) &&
             $orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED] === true;
@@ -457,8 +463,15 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             return false;
         }
 
+        // Klarna MoR: capture-on-shipment is mandatory, but only ONE Pay may be sent
+        // per reservation. `captured` records a confirmed capture (synchronous success
+        // or the success push), the in-flight marker covers the window in which the
+        // engine is still processing an earlier Pay (791 Pending) — during a single
+        // ship action both the order_delivery.written and the
+        // state_enter.order_delivery.state.shipped paths fire this guard.
         return $customFields['brqPaymentMethod'] === 'klarna'
             && !isset($customFields['captured'])
+            && !CaptureService::isCaptureInFlight($customFields)
             && isset($customFields['dataRequestKey'])
             && (bool)$this->settingsService->getSetting('klarnaCaptureonshipment', $salesChannelId);
     }
@@ -476,6 +489,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
         return strtolower($customFields['brqPaymentMethod']) === 'klarnakp'
             && !isset($customFields['captured'])
+            && !CaptureService::isCaptureInFlight($customFields)
             && isset($customFields['reservationNumber'])
             && (bool)$this->settingsService->getSetting('klarnakpCaptureonshipment', $salesChannelId);
     }
