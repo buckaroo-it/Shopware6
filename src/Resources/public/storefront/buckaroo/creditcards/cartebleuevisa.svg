@@ -19,7 +19,7 @@
 	.st13{fill-rule:evenodd;clip-rule:evenodd;fill:#B3DBF4;}
 	.st14{fill-rule:evenodd;clip-rule:evenodd;fill:#6BBCE9;}
 	.st15{fill-rule:evenodd;clip-rule:evenodd;fill:#1E4B8F;}
-	.st16{}
+	.st16{filter:url(#Adobe_OpacityMaskFilter);}
 	.st17{clip-path:url(#SVGID_2_);fill:url(#SVGID_4_);}
 	.st18{clip-path:url(#SVGID_2_);mask:url(#SVGID_3_);fill:url(#SVGID_5_);}
 	.st19{fill-rule:evenodd;clip-rule:evenodd;fill:#758EB7;}
@@ -127,12 +127,12 @@
 	.st121{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F7A91B;}
 	.st122{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A91C;}
 	.st123{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6AA1B;}
-	.st124{}
+	.st124{filter:url(#Adobe_OpacityMaskFilter_1_);}
 	.st125{fill:url(#SVGID_12_);}
 	.st126{mask:url(#SVGID_11_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7224;}
 	.st127{fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;}
 	.st128{fill-rule:evenodd;clip-rule:evenodd;fill:#EA6624;}
-	.st129{}
+	.st129{filter:url(#Adobe_OpacityMaskFilter_2_);}
 	.st130{fill:url(#SVGID_14_);}
 	.st131{mask:url(#SVGID_13_);fill-rule:evenodd;clip-rule:evenodd;fill:#E65725;}
 	.st132{fill-rule:evenodd;clip-rule:evenodd;fill:#D62128;}
@@ -258,7 +258,9 @@
 			<use xlink:href="#SVGID_1_"  style="overflow:visible;"/>
 		</clipPath>
 		<defs>
-			
+			<filter id="Adobe_OpacityMaskFilter" filterUnits="userSpaceOnUse" x="11.62" y="19.01" width="20.82" height="13.73">
+				<feColorMatrix  type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+			</filter>
 		</defs>
 		<mask maskUnits="userSpaceOnUse" x="11.62" y="19.01" width="20.82" height="13.73" id="SVGID_3_">
 			<g class="st16">
