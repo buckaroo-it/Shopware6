@@ -6,6 +6,8 @@ namespace Buckaroo\Shopware6\Handlers;
 
 // phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
 
+use Buckaroo\Shopware6\Events\AfterPaymentRequestEvent;
+use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
@@ -335,7 +337,17 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 // Allow specific payment handlers to configure the client
                 $this->configureClient($client, $paymentCode, $salesChannelContext);
 
+                // Same hook PaymentHandlerLegacy/PaymentHandlerModern expose: plugins like
+                // BuckarooSubscription extend the request (e.g. Subscriptions/StartRecurrent) here.
+                $this->asyncPaymentService->dispatchEvent(
+                    new BeforePaymentRequestEvent($transaction, $dataBag, $salesChannelContext, $client)
+                );
+
                 $response = $client->execute();
+
+                $this->asyncPaymentService->dispatchEvent(
+                    new AfterPaymentRequestEvent($transaction, $dataBag, $salesChannelContext, $response, $paymentCode)
+                );
 
                 $this->asyncPaymentService->logger->info('Buckaroo API response', [
                     'paymentCode' => $paymentCode,
