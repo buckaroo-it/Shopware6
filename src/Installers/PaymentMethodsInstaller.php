@@ -317,7 +317,6 @@ class PaymentMethodsInstaller implements InstallerInterface
             ['transferDateDue' => 7],
             ['payperemailEnabledfrontend' => true],
             ['BillinkFinancialwarning' => true],
-            ['klarnakpFinancialwarning' => true],
             ['capayableFinancialwarning' => true],
             ['afterpayFinancialwarning' => true],
             ['idealShowissuers' => true],
