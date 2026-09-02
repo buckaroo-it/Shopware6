@@ -24,8 +24,16 @@
 // and lets agencies override it without patching the plugin.
 $bk-hf-placeholder-color: $input-placeholder-color !default;
 
+// The block is the last thing inside the selected payment method, so nothing
+// else separates the Submit row from the next method in the list. This keeps
+// the same rhythm the Storefront skin puts between payment methods, which is
+// `.form-group`'s 20px — a skin literal with no variable to reference.
+$bk-hf-block-spacing: 20px !default;
+
 .bk-hosted-fields {
     --bk-hf-placeholder-color: #{$bk-hf-placeholder-color};
+
+    margin-bottom: $bk-hf-block-spacing;
 }
 
 .bk-hosted-field {
