@@ -12,7 +12,8 @@
         "ext-pcre": "*",
         "ext-fileinfo": "*",
         "buckaroo/sdk": "^1.24.3",
-        "shopware/core": ">=6.5.8.0 <6.8"
+        "shopware/core": ">=6.5.8.0 <6.8",
+        "shopware/storefront": ">=6.5.8.0 <6.8"
     },
     "authors": [
         {
@@ -57,7 +58,6 @@
         "phpunit/phpunit": "^9.6",
         "squizlabs/php_codesniffer": "*",
         "phpstan/phpstan": "^2.2",
-        "shopware/storefront": "*",
         "shopware/administration": "*",
         "deployer/deployer": "^7.3"
     },
