@@ -47,7 +47,10 @@ class GooglePayPaymentHandler extends PaymentHandlerSimple
 
         $paymentData = $this->getPaymentData($data);
         if ($paymentData === '') {
-            $logger->error('GooglePayPaymentHandler: getPaymentData returned empty string. Decoded data: ' . substr(json_encode($data), 0, 300));
+            // json_encode() returns false on failure, which substr() rejects on
+            // PHP 8 - this branch already runs while something is wrong, so it
+            // must not raise a TypeError of its own.
+            $logger->error('GooglePayPaymentHandler: getPaymentData returned empty string. Decoded data: ' . substr((string)json_encode($data), 0, 300));
         }
 
         $logger->info('GooglePayPaymentHandler: getMethodPayload succeeded, paymentData length: ' . strlen($paymentData));

@@ -83,22 +83,30 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           tools: composer:v2, phpstan, psalm
           
-      - name: Install dev dependencies only
-        run: |
-          composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --no-scripts || \
-          composer update phpunit/phpunit --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --prefer-stable
-        
+      # `composer install` resolves shopware/core from composer.lock, which is
+      # what lets PHPStan see the Shopware symbols. Without it every
+      # Shopware\Core reference becomes an "unknown class" error and the
+      # analysis is meaningless, so a bare install failure must not be
+      # swallowed into the phpunit-only fallback here.
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --no-scripts
+
       - name: Check PHP syntax
         run: find src tests -name "*.php" -print0 | xargs -0 -n1 php -l
-        
-      - name: Run PHPStan (if configured)
-        run: |
-          if [ -f phpstan.neon ] || [ -f phpstan.neon.dist ]; then
-            vendor/bin/phpstan analyze --no-progress || echo "PHPStan found issues but continuing"
-          else
-            echo "PHPStan not configured, skipping"
-          fi
-        continue-on-error: true
+
+      # These two gates used to be advisory: PHPStan ran with
+      # `|| echo "... but continuing"` plus continue-on-error, and PHPCS was
+      # not run at all. A level 9 config that cannot fail a PR only documents
+      # an intention, so both now fail the job.
+      #
+      # Pre-existing violations live in phpstan-baseline.neon. New ones are not
+      # covered by it and will fail here; shrink the baseline as they get fixed
+      # rather than adding to it.
+      - name: Run PHPStan
+        run: composer phpstan
+
+      - name: Run PHPCS
+        run: composer phpcs
         
   test-summary:
     name: Test Summary

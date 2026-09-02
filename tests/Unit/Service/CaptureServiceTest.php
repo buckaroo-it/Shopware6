@@ -44,7 +44,7 @@ class CaptureServiceTest extends TestCase
     /** @var ClientService&MockObject */
     private ClientService $clientService;
 
-    /** @var object Context mock */  
+    /** @var object Context mock */
     private $context;
 
     protected function setUp(): void

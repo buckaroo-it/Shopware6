@@ -1,0 +1,391 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method Buckaroo\\Shopware6\\Buckaroo\\ClientResponse\:\:getRedirectUrl\(\) should return string but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Buckaroo/ClientResponse.php
+
+		-
+			message: '#^Call to function is_object\(\) with object will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Events/OrderStateChangeEvent.php
+
+		-
+			message: '#^Cannot cast mixed to float\.$#'
+			identifier: cast.double
+			count: 1
+			path: src/Handlers/AfterPayOld.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 1
+			path: src/Handlers/AfterPayOld.php
+
+		-
+			message: '#^Cannot access offset ''value'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Handlers/AfterPayPaymentHandler.php
+
+		-
+			message: '#^Call to function is_array\(\) with non\-empty\-array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Handlers/BillinkPaymentHandler.php
+
+		-
+			message: '#^Cannot access offset ''value'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Handlers/BillinkPaymentHandler.php
+
+		-
+			message: '#^Cannot cast mixed to float\.$#'
+			identifier: cast.double
+			count: 1
+			path: src/Handlers/BillinkPaymentHandler.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Handlers/BillinkPaymentHandler.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between Shopware\\Core\\Checkout\\Cart\\Tax\\Struct\\CalculatedTaxCollection and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Handlers/BillinkPaymentHandler.php
+
+		-
+			message: '#^Parameter \#1 \$string of function strlen expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Handlers/In3PaymentHandler.php
+
+		-
+			message: '#^Parameter \#1 \$string of function strlen expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Handlers/In3V2.php
+
+		-
+			message: '#^Cannot access offset ''value'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Handlers/KlarnaKpPaymentHandler.php
+
+		-
+			message: '#^Cannot cast mixed to float\.$#'
+			identifier: cast.double
+			count: 2
+			path: src/Handlers/KlarnaPaymentHandler.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 1
+			path: src/Handlers/KlarnaPaymentHandler.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 3
+			path: src/Handlers/KlarnaPaymentHandler.php
+
+		-
+			message: '#^Binary operation "\." between ''\+'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Handlers/TransferPaymentHandler.php
+
+		-
+			message: '#^Instanceof between Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice and Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Helpers/CheckoutHelper.php
+
+		-
+			message: '#^Instanceof between Symfony\\Component\\HttpFoundation\\Session\\SessionInterface and Symfony\\Component\\HttpFoundation\\Session\\SessionInterface will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Helpers/CheckoutHelper.php
+
+		-
+			message: '#^PHPDoc tag @SuppressWarnings has invalid value \(\(PHPMD\.StaticAccess\)\)\: Unexpected token "\.StaticAccess\)", expected ''\)'' at offset 143 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Installers/MediaInstaller.php
+
+		-
+			message: '#^Binary operation "\." between mixed and ''/'' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Installers/PaymentMethodsInstaller.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_diff expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Migration/Migration1744014276RemoveIssuerForHostedFields.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\DBAL\\Connection\:\:getSchemaManager\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Migration/Migration1769900000IdealWeroRebrand.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Doctrine\\DBAL\\Connection and ''createSchemaManager'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Migration/Migration1769900000IdealWeroRebrand.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Service/BuckarooLanguageResolver.php
+
+		-
+			message: '#^Cannot cast mixed to float\.$#'
+			identifier: cast.double
+			count: 1
+			path: src/Service/BuckarooTransactionService.php
+
+		-
+			message: '#^Instanceof between Shopware\\Core\\System\\SalesChannel\\SalesChannelContext and Shopware\\Core\\System\\SalesChannel\\SalesChannelContext will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Service/CartService.php
+
+		-
+			message: '#^Method Buckaroo\\Shopware6\\Service\\CartService\:\:validateSaleChannelContext\(\) returns void but does not have any side effects\.$#'
+			identifier: void.pure
+			count: 1
+			path: src/Service/CartService.php
+
+		-
+			message: '#^Instanceof between Shopware\\Core\\System\\SalesChannel\\SalesChannelContext and Shopware\\Core\\System\\SalesChannel\\SalesChannelContext will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Service/CustomerAddressService.php
+
+		-
+			message: '#^Method Buckaroo\\Shopware6\\Service\\CustomerAddressService\:\:validateSaleChannelContext\(\) returns void but does not have any side effects\.$#'
+			identifier: void.pure
+			count: 1
+			path: src/Service/CustomerAddressService.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Service/CustomerService.php
+
+		-
+			message: '#^Call to function is_float\(\) with float will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Service/FormatRequestParamService.php
+
+		-
+			message: '#^Call to function is_int\(\) with \*NEVER\* will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Service/FormatRequestParamService.php
+
+		-
+			message: '#^Method Buckaroo\\Shopware6\\Service\\FormatRequestParamService\:\:getStreet\(\) should return string but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/FormatRequestParamService.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between Shopware\\Core\\Checkout\\Cart\\Tax\\Struct\\CalculatedTaxCollection and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 2
+			path: src/Service/FormatRequestParamService.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Service/FormatRequestParamService.php
+
+		-
+			message: '#^Offset ''AddShippingInfo''\|''CancelReservation''\|''ExtendReservation''\|''UpdateReservation'' on array\{CancelReservation\: ''cancelReserve'', UpdateReservation\: ''updateReserve'', ExtendReservation\: ''extendReserve'', AddShippingInfo\: ''addShippingInfo''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Service/KlarnaMorService.php
+
+		-
+			message: '#^Instanceof between Shopware\\Core\\System\\SalesChannel\\SalesChannelContext and Shopware\\Core\\System\\SalesChannel\\SalesChannelContext will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Service/OrderService.php
+
+		-
+			message: '#^Method Buckaroo\\Shopware6\\Service\\OrderService\:\:validateSaleChannelContext\(\) returns void but does not have any side effects\.$#'
+			identifier: void.pure
+			count: 1
+			path: src/Service/OrderService.php
+
+		-
+			message: '#^Parameter \#2 \$array of function join expects array\<string\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/PayLinkService.php
+
+		-
+			message: '#^Binary operation "\+" between \(float\|int\) and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Service/RefundService.php
+
+		-
+			message: '#^Call to function is_array\(\) with non\-empty\-array\<mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Service/RefundService.php
+
+		-
+			message: '#^Cannot access offset ''totalAmount'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Service/RefundService.php
+
+		-
+			message: '#^Binary operation "\.\=" between string and mixed results in an error\.$#'
+			identifier: assignOp.invalid
+			count: 1
+			path: src/Service/SignatureValidationService.php
+
+		-
+			message: '#^Call to an undefined method Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity\:\:getDomains\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Service/UrlService.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getUrl\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Service/UrlService.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 2
+			path: src/Service/UrlService.php
+
+		-
+			message: '#^Cannot access offset ''emailAddress'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Storefront/Controller/ApplePayController.php
+
+		-
+			message: '#^Parameter \#1 \$contactData of method Buckaroo\\Shopware6\\Storefront\\Controller\\ApplePayController\:\:getCustomerData\(\) expects array\<mixed\>, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Storefront/Controller/ApplePayController.php
+
+		-
+			message: '#^Binary operation "\+" between float and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 4
+			path: src/Storefront/Controller/PushController.php
+
+		-
+			message: '#^Binary operation "\." between ''Buckaroo\\\\Shopware6…'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Storefront/Controller/PushController.php
+
+		-
+			message: '#^Binary operation "\." between mixed and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Storefront/Controller/SupportController.php
+
+		-
+			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Storefront/Controller/SupportController.php
+
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Storefront/Framework/Twig/BuckarooTwigExtension.php
+
+		-
+			message: '#^Call to function is_array\(\) with non\-empty\-array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Subscribers/CheckoutConfirmTemplateSubscriber.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Shopware\\Storefront\\Page\\Checkout\\Confirm\\CheckoutConfirmPage and ''getCart'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Subscribers/CheckoutConfirmTemplateSubscriber.php
+
+		-
+			message: '#^PHPDoc tag @var with type Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderAddress\\OrderAddressEntity is not subtype of native type Shopware\\Core\\Checkout\\Customer\\Aggregate\\CustomerAddress\\CustomerAddressEntity\|null\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Subscribers/CheckoutConfirmTemplateSubscriber.php
+
+		-
+			message: '#^PHPDoc tag @var with type Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderAddress\\OrderAddressEntity is not subtype of native type null\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Subscribers/CheckoutConfirmTemplateSubscriber.php
+
+		-
+			message: '#^Possibly invalid array key type mixed\.$#'
+			identifier: offsetAccess.invalidOffset
+			count: 6
+			path: src/Subscribers/CheckoutConfirmTemplateSubscriber.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between Shopware\\Core\\Checkout\\Cart\\Cart and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Subscribers/CheckoutConfirmTemplateSubscriber.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between Shopware\\Core\\Checkout\\Order\\OrderEntity and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Subscribers/CheckoutConfirmTemplateSubscriber.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between Symfony\\Component\\HttpFoundation\\Session\\SessionInterface and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Subscribers/PaymentContextRestoreSubscriber.php
+
+		-
+			message: '#^Call to an undefined method Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity\:\:getStateMachineState\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Subscribers/PaymentTokenInvalidatedSubscriber.php
+
+		-
+			message: '#^Method Buckaroo\\Shopware6\\Subscribers\\PaymentTokenInvalidatedSubscriber\:\:decodeJwtPayload\(\) should return array\<string, mixed\> but returns array\<mixed, mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Subscribers/PaymentTokenInvalidatedSubscriber.php
+
+		-
+			message: '#^Parameter \#1 \$path of method Buckaroo\\Shopware6\\Subscribers\\PaymentTokenInvalidatedSubscriber\:\:makeAbsolute\(\) expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Subscribers/PaymentTokenInvalidatedSubscriber.php
