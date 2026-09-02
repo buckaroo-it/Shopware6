@@ -1,9 +1,3 @@
-# Known pre-existing violations live in phpstan-baseline.neon so that CI can
-# fail on new ones. Shrink that file as the entries get fixed; do not
-# regenerate it to absorb new errors.
-includes:
-    - phpstan-baseline.neon
-
 parameters:
     level: 9
     paths:

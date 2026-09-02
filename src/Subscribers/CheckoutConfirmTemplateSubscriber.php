@@ -998,6 +998,33 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
 
     /**
+     * Helper method to safely cast setting values to integer
+     * Handles different setting representations and validates type before conversion
+     */
+    private function getSettingAsInt(string $key, string $salesChannelId, int $default = 0): int
+    {
+        $value = $this->settingsService->getSetting($key, $salesChannelId);
+        
+        if ($value === null) {
+            return $default;
+        }
+        
+        if (is_int($value)) {
+            return $value;
+        }
+        
+        if (is_bool($value)) {
+            return $value ? 1 : 0;
+        }
+        
+        if (is_string($value) || is_float($value)) {
+            return intval($value);
+        }
+        
+        return $default;
+    }
+
+    /**
      * Check if the request is from an Apple device (iPhone, iPad, iPod, Mac)
      *
      * @param \Symfony\Component\HttpFoundation\Request $request
