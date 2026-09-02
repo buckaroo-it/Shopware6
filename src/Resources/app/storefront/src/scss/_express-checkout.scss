@@ -1,13 +1,13 @@
 // ---------------------------------------------------------------------------
 // Buckaroo express checkout buttons
 // (PayPal Express, Apple Pay, Google Pay, iDEAL/Wero fast checkout)
-//
+
 // One shared styling hook (.bk-express-checkout) is used on every storefront
 // location that renders the express buttons — product detail page (buy
 // widget), shopping cart and the checkout/confirm page — so the buttons get
 // the same dimensions everywhere. The markup lives in the shared template:
 // views/storefront/buckaroo/express-checkout-buttons.html.twig
-//
+
 // Sizing approach:
 // PayPal is rendered by the Buckaroo Client SDK, which does not expose
 // PayPal's style.height option. The PayPal smart button snaps to discrete
@@ -17,7 +17,7 @@
 // container and all other buttons follow the same width tiers via container
 // queries — the buttons span the full column width and match each other's
 // height on every page and at every viewport size.
-//
+
 // Provider notes:
 // - Apple Pay renders Apple's official <apple-pay-button> web component;
 //   it fills its sized wrapper via --apple-pay-button-height: 100%.
