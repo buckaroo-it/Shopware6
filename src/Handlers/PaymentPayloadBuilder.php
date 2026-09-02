@@ -77,5 +77,4 @@ class PaymentPayloadBuilder
             'type'          => IPProtocolVersion::getVersion($remoteIp)
         ];
     }
-
 }

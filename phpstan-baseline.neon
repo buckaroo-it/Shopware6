@@ -1,0 +1,36 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Cannot cast mixed to float\\.$#"
+			count: 1
+			path: src/Handlers/AfterPayOld.php
+
+		-
+			message: "#^Call to an undefined method Doctrine\\\\DBAL\\\\Connection\\:\\:getSchemaManager\\(\\)\\.$#"
+			count: 1
+			path: src/Migration/Migration1769900000IdealWeroRebrand.php
+
+		-
+			message: "#^Offset 'AddShippingInfo'\\|'CancelReservation'\\|'ExtendReservation'\\|'UpdateReservation' on array\\{CancelReservation\\: 'cancelReserve', UpdateReservation\\: 'updateReserve', ExtendReservation\\: 'extendReserve', AddShippingInfo\\: 'addShippingInfo'\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: src/Service/KlarnaMorService.php
+
+		-
+			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getDomains\\(\\)\\.$#"
+			count: 2
+			path: src/Service/UrlService.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getUrl\\(\\)\\.$#"
+			count: 2
+			path: src/Service/UrlService.php
+
+		-
+			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getStateMachineState\\(\\)\\.$#"
+			count: 1
+			path: src/Subscribers/PaymentTokenInvalidatedSubscriber.php
+
+		-
+			message: "#^Parameter \\#1 \\$path of method Buckaroo\\\\Shopware6\\\\Subscribers\\\\PaymentTokenInvalidatedSubscriber\\:\\:makeAbsolute\\(\\) expects string\\|null, mixed given\\.$#"
+			count: 2
+			path: src/Subscribers/PaymentTokenInvalidatedSubscriber.php
