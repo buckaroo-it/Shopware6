@@ -1,0 +1,81 @@
+// ---------------------------------------------------------------------------
+// Buckaroo Credit Card Hosted Fields
+//
+// Each card input is an <iframe> served from Buckaroo's PCI domain, so no
+// Storefront CSS can reach the input itself. The styling is therefore split
+// in two, and this file owns the half that CSS can still reach:
+//
+//   * the wrapper <div> is a real Storefront .form-control and carries every
+//     visible property — font, border, radius, height, padding, focus ring
+//     and invalid state — so the fields follow whatever the merchant's theme
+//     defines instead of values baked into the plugin;
+//   * the input inside the iframe is made borderless and transparent through
+//     the SDK's baseStyling API, which buckaroo-payment.creditcard.js derives
+//     from this wrapper's computed style. That indirection is why everything
+//     here stays expressed in Bootstrap/Shopware variables.
+//
+// The SDK measures the wrapper with getComputedStyle() at the moment a field
+// is mounted and sizes its iframe to the content box plus 2px. The wrapper
+// consequently needs a definite height, and centres and clips that overhang.
+// ---------------------------------------------------------------------------
+
+// Placeholders live inside the iframe, so the SDK has to be told their colour
+// in JS. Publishing it as a custom property keeps the value in the theme layer
+// and lets agencies override it without patching the plugin.
+$bk-hf-placeholder-color: $input-placeholder-color !default;
+
+// The block is the last thing inside the selected payment method, so nothing
+// else separates the Submit row from the next method in the list. This keeps
+// the same rhythm the Storefront skin puts between payment methods, which is
+// `.form-group`'s 20px — a skin literal with no variable to reference.
+$bk-hf-block-spacing: 20px !default;
+
+.bk-hosted-fields {
+    --bk-hf-placeholder-color: #{$bk-hf-placeholder-color};
+
+    margin-bottom: $bk-hf-block-spacing;
+}
+
+.bk-hosted-field {
+    display: flex;
+    align-items: center;
+    height: $input-height;
+    overflow: hidden;
+
+    // The SDK sizes the iframe in pixels once, at mount time, and offers no
+    // re-measure API. Stretching the element to its wrapper keeps the field
+    // from overflowing when the surrounding column changes width afterwards.
+    iframe {
+        display: block;
+        width: 100%;
+        border: 0;
+    }
+
+    // Themes that leave $enable-validation-icons on would add a background
+    // icon and extra padding-right after the SDK has measured the wrapper,
+    // which would push the iframe out of the field. The border colour that
+    // Bootstrap applies alongside it is the part we actually want.
+    &.is-valid,
+    &.is-invalid {
+        padding-right: $input-padding-x;
+        background-image: none;
+    }
+
+    // The focused input is inside the iframe, so its focus ring cannot reach
+    // the wrapper's border. The SDK reports Focus/Blur per field and the
+    // storefront JS mirrors them onto this class.
+    &.bk-hosted-field--focus {
+        border-color: $input-focus-border-color;
+        box-shadow: $input-btn-focus-box-shadow;
+
+        &.is-invalid {
+            border-color: $form-feedback-invalid-color;
+        }
+    }
+}
+
+.bk-hosted-fields-actions {
+    display: flex;
+    align-items: center;
+    gap: map-get($spacers, 3);
+}
