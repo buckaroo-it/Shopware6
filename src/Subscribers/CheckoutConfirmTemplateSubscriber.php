@@ -408,7 +408,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $methods = [
             'Billink',
-            'klarnakp',
             'capayable',
             'afterpay'
         ];
