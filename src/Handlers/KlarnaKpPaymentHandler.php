@@ -205,4 +205,5 @@ class KlarnaKpPaymentHandler extends PaymentHandlerSimple
 
         return self::ARTICLE_TYPE_GENERAL;
     }
+
 }
