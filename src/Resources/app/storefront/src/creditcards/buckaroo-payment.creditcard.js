@@ -4,6 +4,33 @@ const SDK_SCRIPT_ID = 'buckaroo-sdk';
 const SDK_SCRIPT_URL = 'https://hostedfields-externalapi.prod-pci.buckaroo.io/v1/sdk';
 
 /**
+ * The SDK reports every event against one of these target types. `Global`
+ * carries the detected card scheme rather than a field, so it has no markup.
+ */
+const FIELD_WRAPPER_IDS = {
+    CardHolderName: 'cc-name-wrapper',
+    CardNumber: 'cc-number-wrapper',
+    ExpiryDate: 'cc-expiry-wrapper',
+    Cvc: 'cc-cvc-wrapper',
+};
+
+const FIELD_ERROR_IDS = {
+    CardHolderName: 'cc-name-error',
+    CardNumber: 'cc-number-error',
+    ExpiryDate: 'cc-expiry-error',
+    Cvc: 'cc-cvc-error',
+};
+
+/** Wrapper class mirroring the focus state of the input inside the iframe. */
+const FOCUS_CLASS = 'bk-hosted-field--focus';
+
+/** Storefront class that reveals the sibling .invalid-feedback element. */
+const INVALID_CLASS = 'is-invalid';
+
+/** Matches a computed background that would leave the iframe see-through. */
+const TRANSPARENT_BACKGROUND = /^(transparent|rgba\(0,\s*0,\s*0,\s*0\))$/;
+
+/**
  * OAuth token cache shared between plugin instances (module scope).
  *
  * Shopware replaces the checkout DOM on payment method switches, address or
@@ -100,12 +127,7 @@ export default class BuckarooCreditCards extends Plugin {
     }
 
     async _initializeHostedFields() {
-        const requiredWrappers = [
-            '#cc-name-wrapper',
-            '#cc-number-wrapper',
-            '#cc-expiry-wrapper',
-            '#cc-cvc-wrapper',
-        ];
+        const requiredWrappers = Object.values(FIELD_WRAPPER_IDS).map((id) => `#${id}`);
         if (!requiredWrappers.every((selector) => this.el.querySelector(selector))) {
             console.error('Buckaroo Hosted Fields wrappers are missing from the checkout DOM.');
             return;
@@ -123,43 +145,16 @@ export default class BuckarooCreditCards extends Plugin {
 
         await this.sdkClient.setSupportedServices(tokenData.issuers);
 
-        await this.sdkClient.startSession((event) => {
-            this.sdkClient.handleValidation(
-                event,
-                'cc-name-error',
-                'cc-number-error',
-                'cc-expiry-error',
-                'cc-cvc-error'
-            );
+        /**
+         * A field is "touched" once the shopper has left it. Until then its
+         * validation message stays unwritten, so the form does not greet the
+         * shopper with errors for fields they have not filled in yet.
+         */
+        this._touchedFields = new Set();
 
-            this._updateButtonState();
+        await this.sdkClient.startSession((event) => this._handleFieldEvent(event));
 
-            const issuerField = document.getElementById('selected-issuer');
-            if (issuerField) {
-                issuerField.value = this.sdkClient.getService();
-            }
-        });
-
-        const cardLogoStyling = {
-            height: '80%',
-            position: 'absolute',
-            border: '1px solid gray',
-            radius: '5px',
-            opacity: '1',
-            transition: 'all 0.3s ease',
-            right: '5px',
-            backgroundColor: 'inherit',
-        };
-
-        const styling = {
-            fontSize: '14px',
-            fontFamily: 'Consolas, Liberation Mono, Menlo, Courier, monospace',
-            textAlign: 'left',
-            background: 'inherit',
-            color: 'black',
-            placeholderColor: 'grey',
-            cardLogoStyling,
-        };
+        const { baseStyling: styling, cardLogoStyling } = this._buildFieldStyling();
 
         await this.sdkClient.mountCardHolderName('#cc-name-wrapper', {
             id: 'ccname',
@@ -189,6 +184,130 @@ export default class BuckarooCreditCards extends Plugin {
             labelSelector: '#cc-expiry-label',
             baseStyling: styling,
         });
+    }
+
+    /**
+     * Builds the styling the SDK applies inside its iframes.
+     *
+     * The card inputs render on Buckaroo's own domain, so no Storefront CSS
+     * reaches them and the SDK's styling API is the only way in. Rather than
+     * hardcoding a look, the values are read back from the wrapper element —
+     * a real `.form-control` — so the fields follow whatever font, size and
+     * colours the merchant's theme gives Storefront inputs.
+     *
+     * The wrapper draws the border, radius and padding (see
+     * scss/_hosted-fields.scss), which is why the input inside the iframe is
+     * told to render nothing but text.
+     */
+    _buildFieldStyling() {
+        const reference = this.el.querySelector(`#${FIELD_WRAPPER_IDS.CardHolderName}`);
+        const computed = window.getComputedStyle(reference);
+
+        // Placeholders cannot be reached with CSS either, so the theme colour
+        // travels to the SDK through a custom property on the wrapper.
+        const placeholderColor =
+            computed.getPropertyValue('--bk-hf-placeholder-color').trim() || computed.color;
+
+        // A see-through background would make the iframe fall back to the
+        // browser default instead of the field it sits in.
+        const background = computed.backgroundColor;
+
+        return {
+            baseStyling: {
+                fontSize: computed.fontSize,
+                fontFamily: computed.fontFamily,
+                fontStyle: 'normal',
+                fontWeight: computed.fontWeight,
+                textAlign: 'left',
+                textTransform: 'none',
+                background: TRANSPARENT_BACKGROUND.test(background) ? 'inherit' : background,
+                color: computed.color,
+                placeholderColor,
+                border: 'none',
+                borderRadius: '0',
+                padding: '0',
+                boxShadow: 'none',
+            },
+            cardLogoStyling: {
+                height: '80%',
+                position: 'absolute',
+                border: 'none',
+                borderRadius: computed.borderRadius,
+                opacity: '1',
+                transition: 'all 0.3s ease',
+                right: '0',
+                backgroundColor: 'inherit',
+            },
+        };
+    }
+
+    /**
+     * Handles one validation event from the SDK.
+     *
+     * Focus and invalid states are reported by the SDK but happen inside the
+     * iframe, so neither can style the wrapper by itself — both are mirrored
+     * onto the wrapper here using the Storefront's own form classes.
+     */
+    _handleFieldEvent(event) {
+        const wrapper = this._getFieldWrapper(event.targetType);
+
+        if (wrapper) {
+            if (event.eventType === 'Focus') {
+                wrapper.classList.add(FOCUS_CLASS);
+            } else if (event.eventType === 'Blur') {
+                wrapper.classList.remove(FOCUS_CLASS);
+                this._touchedFields.add(event.targetType);
+            }
+        }
+
+        // handleValidation() also records the per-field state that
+        // formIsValid() reads, so it has to run for every event. Passing null
+        // for a field the shopper has not left yet suppresses only its
+        // message, leaving the validation logic itself untouched.
+        this.sdkClient.handleValidation(
+            event,
+            this._visibleErrorId('CardHolderName'),
+            this._visibleErrorId('CardNumber'),
+            this._visibleErrorId('ExpiryDate'),
+            this._visibleErrorId('Cvc')
+        );
+
+        this._syncFieldValidity(event.targetType, wrapper);
+
+        this._updateButtonState();
+
+        const issuerField = document.getElementById('selected-issuer');
+        if (issuerField) {
+            issuerField.value = this.sdkClient.getService();
+        }
+    }
+
+    /** The error element id for a field, or null while it is untouched. */
+    _visibleErrorId(targetType) {
+        return this._touchedFields.has(targetType) ? FIELD_ERROR_IDS[targetType] : null;
+    }
+
+    _getFieldWrapper(targetType) {
+        const wrapperId = FIELD_WRAPPER_IDS[targetType];
+
+        return wrapperId ? this.el.querySelector(`#${wrapperId}`) : null;
+    }
+
+    /**
+     * The SDK writes the message into the feedback element but never reveals
+     * it. Marking the wrapper invalid is what makes Bootstrap show the
+     * sibling `.invalid-feedback` and colour the border.
+     */
+    _syncFieldValidity(targetType, wrapper) {
+        const errorId = FIELD_ERROR_IDS[targetType];
+        if (!wrapper || !errorId) {
+            return;
+        }
+
+        const errorElement = document.getElementById(errorId);
+        const hasError = Boolean(errorElement && errorElement.innerText.trim());
+
+        wrapper.classList.toggle(INVALID_CLASS, hasError);
     }
 
     async _handleSubmit(event) {
@@ -247,22 +366,18 @@ export default class BuckarooCreditCards extends Plugin {
             document.querySelector('.checkout-confirm-tos-checkbox');
         const tosIsChecked = tosCheckbox ? tosCheckbox.checked : true;
 
-        const disabled = !formIsValid || !tosIsChecked;
-
-        payButton.disabled = disabled;
-        payButton.style.backgroundColor = disabled ? '#ff5555' : '';
-        payButton.style.cursor = disabled ? 'not-allowed' : '';
-        payButton.style.opacity = disabled ? '0.5' : '';
+        // The disabled look comes from the theme's own .btn:disabled styling
+        // rather than a hardcoded colour, so it matches the rest of checkout.
+        payButton.disabled = !formIsValid || !tosIsChecked;
 
         const hint = this.el.querySelector('.buckaroo-hf-error');
         if (hint) {
-            if (formIsValid && !tosIsChecked) {
-                hint.textContent = 'Please accept the terms and conditions to place your order.';
-                hint.style.display = 'block';
-            } else {
-                hint.textContent = '';
-                hint.style.display = 'none';
-            }
+            const message = formIsValid && !tosIsChecked
+                ? 'Please accept the terms and conditions to place your order.'
+                : '';
+
+            hint.textContent = message;
+            hint.classList.toggle('d-block', message !== '');
         }
     }
 
