@@ -127,7 +127,7 @@ class PushController extends StorefrontController
     {
 
 
-        $this->logger->info(__METHOD__ . "|1|", [$_POST]);
+        $this->logger->info(__METHOD__ . "|1|", [$request->request->all()]);
 
         $status             = (string)$request->request->get('brq_statuscode');
         $context            = $salesChannelContext->getContext();
@@ -254,7 +254,7 @@ class PushController extends StorefrontController
             return $this->response('buckaroo.messages.paymentError', false);
         }
 
-        if (!$this->checkDuplicatePush($order, $orderTransactionId, $context)) {
+        if (!$this->checkDuplicatePush($request, $order, $orderTransactionId, $context)) {
             return $this->response('buckaroo.messages.pushAlreadySend', false);
         }
 
@@ -632,6 +632,7 @@ class PushController extends StorefrontController
     }
 
     private function checkDuplicatePush(
+        Request $request,
         OrderEntity $order,
         string $orderTransactionId,
         Context $context
@@ -639,7 +640,7 @@ class PushController extends StorefrontController
         $rand = range(0, 6, 2);
         shuffle($rand);
         usleep(array_shift($rand) * 1000000);
-        $postData = $_POST;
+        $postData = $request->request->all();
         $calculated = $this->signatureValidationService->calculatePushHash($postData);
         $this->logger->info(__METHOD__ . "|calculated|" . $calculated);
 
