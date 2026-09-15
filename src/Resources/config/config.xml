@@ -1633,6 +1633,29 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field type="single-select">
+            <name>googlepayShowCheckout</name>
+            <label lang="en-GB">Show Google Pay button on checkout page</label>
+            <label lang="de-DE">Google Pay-Schaltfläche auf der Checkout-Seite anzeigen</label>
+            <label lang="nl-NL">Toon Google Pay-knop op de checkoutpagina</label>
+            <label lang="fr-FR">Afficher le bouton Google Pay sur la page de paiement</label>
+            <helpText lang="en-GB">Shows the Google Pay express button above the payment methods on the checkout confirm page. This is independent of the standard Google Pay payment method.</helpText>
+            <helpText lang="de-DE">Zeigt die Google Pay Express-Schaltfläche oberhalb der Zahlungsarten auf der Checkout-Bestätigungsseite an. Dies ist unabhängig von der Standard-Zahlungsart Google Pay.</helpText>
+            <helpText lang="nl-NL">Toont de Google Pay express-knop boven de betaalmethoden op de checkoutpagina. Dit staat los van de standaard Google Pay-betaalmethode.</helpText>
+            <helpText lang="fr-FR">Affiche le bouton express Google Pay au-dessus des modes de paiement sur la page de paiement. Ceci est indépendant du mode de paiement Google Pay standard.</helpText>
+            <defaultValue>0</defaultValue>
+            <options>
+                <option>
+                    <id>1</id>
+                    <name>Yes</name>
+                </option>
+                <option>
+                    <id>0</id>
+                    <name>No</name>
+                </option>
+            </options>
+        </input-field>
     </card>
 
     <card>

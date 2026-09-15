@@ -323,6 +323,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'showApplePay'             => $this->showApplePayExpress($salesChannelId, 'checkout'),
             'isAppleDevice'            => $this->isAppleDevice($request),
+            'showGooglePay'            => $this->getSettingAsBool('googlepayShowCheckout', $salesChannelId),
             'googlepayMerchantId'      => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
             'googlepayButtonStyle'     => $this->getGooglepayButtonStyle($salesChannelId),
