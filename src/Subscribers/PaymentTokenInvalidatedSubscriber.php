@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Subscribers;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -70,7 +71,8 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
             $redirectUrl = $this->resolveRedirectUrl($paymentToken, $request);
         } catch (\Throwable $e) {
             $this->logger->warning(
-                'Buckaroo: Could not resolve redirect URL for invalidated payment token — leaving default error handling in place',
+                'Buckaroo: Could not resolve redirect URL for invalidated payment token'
+                . ' — leaving default error handling in place',
                 ['exception' => $e->getMessage()]
             );
             return;
@@ -107,8 +109,8 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
         $payload = $this->decodeJwtPayload($paymentToken);
 
         // 'ful' and 'eul' are stored as relative paths (e.g. /checkout/finish?orderId=...)
-        $finishUrl     = $this->makeAbsolute($payload['ful'] ?? null, $request);
-        $errorUrl      = $this->makeAbsolute($payload['eul'] ?? null, $request);
+        $finishUrl     = $this->makeAbsolute($this->stringClaim($payload, 'ful'), $request);
+        $errorUrl      = $this->makeAbsolute($this->stringClaim($payload, 'eul'), $request);
         $transactionId = isset($payload['sub']) && is_string($payload['sub']) ? $payload['sub'] : null;
 
         if ($transactionId !== null) {
@@ -158,6 +160,18 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
         return $data;
     }
 
+    /**
+     * JWT claims are untrusted input, so a claim is only used when it really is a string.
+     *
+     * @param array<string, mixed> $payload
+     */
+    private function stringClaim(array $payload, string $claim): ?string
+    {
+        $value = $payload[$claim] ?? null;
+
+        return is_string($value) ? $value : null;
+    }
+
     private function makeAbsolute(?string $path, Request $request): ?string
     {
         if ($path === null || $path === '') {
@@ -180,7 +194,7 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
             ->search($criteria, Context::createDefaultContext())
             ->first();
 
-        if ($transaction === null) {
+        if (!$transaction instanceof OrderTransactionEntity) {
             return false;
         }
 

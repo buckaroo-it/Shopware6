@@ -147,6 +147,9 @@ class GooglePayController extends AbstractPaymentController
                 $cartToken = $salesChannelContext->getToken();
             }
             $preLoadedCart = $this->getCartByToken($cartToken, $salesChannelContext);
+            if ($preLoadedCart === null) {
+                throw new \Exception('Cannot find cart', 1);
+            }
             $this->logger->info('[GooglePay] createGoogleOrder — cart pre-loaded', ['cartToken' => $cartToken]);
 
             if (!$salesChannelContext->getCustomer()) {

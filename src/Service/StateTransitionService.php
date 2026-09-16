@@ -86,11 +86,15 @@ class StateTransitionService
                 $this->orderTransactionStateHandler->reopen($orderTransactionId, $context);
                 $this->transitionPaymentState($status, $orderTransactionId, $context);
             } catch (IllegalTransitionException $reopenException) {
-                $this->logger->warning(__METHOD__ . '|Cannot reopen transaction to apply paid transition; state may already be correct', [
-                    'orderTransactionId' => $orderTransactionId,
-                    'originalError'      => $exception->getMessage(),
-                    'reopenError'        => $reopenException->getMessage(),
-                ]);
+                $this->logger->warning(
+                    __METHOD__
+                    . '|Cannot reopen transaction to apply paid transition; state may already be correct',
+                    [
+                        'orderTransactionId' => $orderTransactionId,
+                        'originalError'      => $exception->getMessage(),
+                        'reopenError'        => $reopenException->getMessage(),
+                    ]
+                );
             }
         }
     }

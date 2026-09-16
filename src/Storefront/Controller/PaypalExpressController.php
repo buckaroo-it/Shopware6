@@ -251,7 +251,7 @@ class PaypalExpressController extends AbstractPaymentController
 
         $customer = $request->request->all()['customer'];
 
-        if (!isset($customer['shipping_address'])) {
+        if (!is_array($customer) || !isset($customer['shipping_address'])) {
             throw new InvalidParameterException("Invalid payment request", 1);
         }
         $dataBag = new DataBag((array)$customer['shipping_address']);

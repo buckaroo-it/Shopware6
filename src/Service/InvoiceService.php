@@ -6,7 +6,6 @@ namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
@@ -140,20 +139,22 @@ class InvoiceService
             return;
         }
 
-        $data = new ParameterBag();
-        $data->set(
-            'recipients',
-            [
-                $customer->getEmail() => $customer->getFirstName() . ' ' . $customer->getLastName(),
-            ]
-        );
-
-        $data->set('senderName', $mailTemplate->getTranslation('senderName'));
-        $data->set('salesChannelId', $order->getSalesChannelId());
+        // Built as a literal so the shape matches the MailData type AbstractMailService
+        // expects; translations are untyped, hence the narrowing.
+        $senderName = $mailTemplate->getTranslation('senderName');
+        $subject = $mailTemplate->getTranslation('subject');
         $contentHtml = 'Hello! Your invoice attached';
-        $data->set('contentHtml', $contentHtml);
-        $data->set('contentPlain', $contentHtml);
-        $data->set('subject', $mailTemplate->getTranslation('subject'));
+
+        $data = [
+            'recipients' => [
+                $customer->getEmail() => $customer->getFirstName() . ' ' . $customer->getLastName(),
+            ],
+            'senderName' => is_string($senderName) ? $senderName : null,
+            'salesChannelId' => $order->getSalesChannelId(),
+            'contentHtml' => $contentHtml,
+            'contentPlain' => $contentHtml,
+            'subject' => is_string($subject) ? $subject : '',
+        ];
 
         $documents = [];
         foreach ($documentIds as $documentId) {
@@ -161,11 +162,11 @@ class InvoiceService
         }
 
         if (!empty($documents)) {
-            $data->set('binAttachments', $documents);
+            $data['binAttachments'] = $documents;
         }
 
         $this->mailService->send(
-            $data->all(),
+            $data,
             $context,
             [
                 'order' => $order,
@@ -187,7 +188,7 @@ class InvoiceService
      * @param string $documentId
      * @param Context $context
      *
-     * @return array<mixed>
+     * @return array{content: resource|string, fileName: string|null, mimeType: string|null}
      * @throws \Throwable
      */
     private function getDocument(string $documentId, Context $context): array

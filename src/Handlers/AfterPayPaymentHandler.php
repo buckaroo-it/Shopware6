@@ -402,8 +402,11 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
      *
      * @return string
      */
-    private function getCategory(OrderAddressEntity $address, string $salesChannelContextId, string $resolvedCoc = ''): string
-    {
+    private function getCategory(
+        OrderAddressEntity $address,
+        string $salesChannelContextId,
+        string $resolvedCoc = ''
+    ): string {
         $coc = !empty($resolvedCoc) ? $resolvedCoc : ($address->getVatId() ?? '');
         if (
             $this->isCustomerB2B($salesChannelContextId) &&

@@ -34,6 +34,10 @@ class IdealQrOrderRepository
 
         $createdIds = $result->getPrimaryKeys(IdealQrOrderDefinition::ENTITY_NAME);
         $primaryKey = reset($createdIds);
+        if (!is_string($primaryKey)) {
+            return null;
+        }
+
         /** @var IdealQrOrderEntity|null */
         return $this->entityRepository
             ->search(new Criteria([$primaryKey]), $salesChannelContext->getContext())

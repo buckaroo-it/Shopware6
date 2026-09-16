@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * PHPUnit Bootstrap File
- * 
+ *
  * This bootstrap file handles both scenarios:
  * 1. Running tests within a Shopware installation (local development)
  * 2. Running tests in isolation (CI/CD, standalone plugin testing)
