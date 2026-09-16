@@ -462,10 +462,12 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
     protected function getRequestBag(RequestDataBag $currentBag): RequestDataBag
     {
         if ($this->isUpdateOrder($currentBag)) {
-            $request = new Request($_GET, $_POST);
-            return new RequestDataBag(
-                $request->request->all()
-            );
+            $request = $this->asyncPaymentService->checkoutHelper->getCurrentRequest();
+            if ($request !== null) {
+                return new RequestDataBag(
+                    $request->request->all()
+                );
+            }
         }
         return $currentBag;
     }

@@ -60,6 +60,16 @@ class CheckoutHelper
     }
 
     /**
+     * Get the request currently being handled, if any.
+     *
+     * Returns null outside of an HTTP request (CLI commands, message queue workers).
+     */
+    public function getCurrentRequest(): ?Request
+    {
+        return $this->requestStack->getCurrentRequest();
+    }
+
+    /**
      *
      * @param string $orderId
      * @param float $fee
