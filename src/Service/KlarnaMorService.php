@@ -102,7 +102,8 @@ class KlarnaMorService
             $extraPayload
         );
 
-        $sdkMethod = self::SDK_METHOD_MAP[$action] ?? $action;
+        // $action is validated against ALLOWED_ACTIONS above, so the map always has it.
+        $sdkMethod = self::SDK_METHOD_MAP[$action];
 
         $client = $this->getClient($order->getSalesChannelId())
             ->setAction($sdkMethod)

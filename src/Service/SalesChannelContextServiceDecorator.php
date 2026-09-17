@@ -9,7 +9,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-
 class SalesChannelContextServiceDecorator implements SalesChannelContextServiceInterface
 {
     public function __construct(

@@ -35,22 +35,35 @@ class GooglePayPaymentHandler extends PaymentHandlerSimple
         $logger = $this->asyncPaymentService->logger;
 
         if (!is_string($googlePayInfo) || $googlePayInfo === '') {
-            $logger->error('GooglePayPaymentHandler: googlePayInfo is missing or not a string. DataBag keys: ' . implode(', ', array_keys($dataBag->all())));
+            $logger->error(
+                'GooglePayPaymentHandler: googlePayInfo is missing or not a string. DataBag keys: '
+                . implode(', ', array_keys($dataBag->all()))
+            );
             return [];
         }
 
         $data = json_decode($googlePayInfo);
         if ($data === false || !is_object($data)) {
-            $logger->error('GooglePayPaymentHandler: failed to decode googlePayInfo JSON. Value (truncated): ' . substr($googlePayInfo, 0, 200));
+            $logger->error(
+                'GooglePayPaymentHandler: failed to decode googlePayInfo JSON. Value (truncated): '
+                . substr($googlePayInfo, 0, 200)
+            );
             return [];
         }
 
         $paymentData = $this->getPaymentData($data);
         if ($paymentData === '') {
-            $logger->error('GooglePayPaymentHandler: getPaymentData returned empty string. Decoded data: ' . substr(json_encode($data), 0, 300));
+            $encodedData = json_encode($data);
+            $logger->error(
+                'GooglePayPaymentHandler: getPaymentData returned empty string. Decoded data: '
+                . substr(is_string($encodedData) ? $encodedData : '', 0, 300)
+            );
         }
 
-        $logger->info('GooglePayPaymentHandler: getMethodPayload succeeded, paymentData length: ' . strlen($paymentData));
+        $logger->info(
+            'GooglePayPaymentHandler: getMethodPayload succeeded, paymentData length: '
+            . strlen($paymentData)
+        );
 
         return [
             'paymentData'      => $paymentData,

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
@@ -57,6 +58,23 @@ class CheckoutHelper
         }
         
         return $session;
+    }
+
+    /**
+     * Get the current session, or null when the request has none.
+     *
+     * Payment processing must not depend on a session: pay() also runs for store-api /
+     * headless checkouts and PSP callbacks, where no session exists. Callers that only
+     * use the session for storefront conveniences use this instead of getSession(),
+     * which throws.
+     */
+    public function getSessionIfAvailable(): ?SessionInterface
+    {
+        try {
+            return $this->requestStack->getSession();
+        } catch (SessionNotFoundException $e) {
+            return null;
+        }
     }
 
     /**

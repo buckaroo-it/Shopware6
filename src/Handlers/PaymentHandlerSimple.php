@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -495,7 +496,14 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
         }
 
         /**
-         * Extract context token from request (headers first, then parameters)
+         * Extract context token from request (headers first, then parameters, finally the
+         * sales channel context the routing layer already resolved for this request).
+         *
+         * pay() also runs where no customer session exists (store-api/headless checkouts,
+         * PSP callbacks), so the token must never be read from the session. Shopware
+         * resolves the SalesChannelContext for every storefront and store-api request and
+         * stores it on the request; in the storefront that context carries the very token
+         * the session holds, which makes the request the session independent source of truth.
          */
         private function getContextTokenFromRequest(Request $request): string
         {
@@ -503,10 +511,12 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             if (empty($contextToken)) {
                 $contextToken = $request->get('sw-context-token', '');
             }
-            if (empty($contextToken) && $request->hasSession()) {
-                $sessionToken = $request->getSession()->get('sw-context-token');
-                if (is_string($sessionToken) && $sessionToken !== '') {
-                    $contextToken = $sessionToken;
+            if (empty($contextToken)) {
+                $resolvedContext = $request->attributes->get(
+                    PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT
+                );
+                if ($resolvedContext instanceof SalesChannelContext) {
+                    $contextToken = $resolvedContext->getToken();
                 }
             }
             if (empty($contextToken) || !is_string($contextToken)) {

@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class UrlService
 {
@@ -51,7 +54,7 @@ class UrlService
         $criteria->addAssociation('domains');
 
         $salesChannel = $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->first();
-        if ($salesChannel === null) {
+        if (!$salesChannel instanceof SalesChannelEntity) {
             return $this->getReturnUrl('buckaroo.payment.push');
         }
 
@@ -75,7 +78,11 @@ class UrlService
         }
 
         $firstDomain = $domains->first();
-        return $firstDomain !== null ? rtrim($firstDomain->getUrl(), '/') . '/buckaroo/push' : $this->getReturnUrl('buckaroo.payment.push');
+        if ($firstDomain === null) {
+            return $this->getReturnUrl('buckaroo.payment.push');
+        }
+
+        return rtrim($firstDomain->getUrl(), '/') . '/buckaroo/push';
     }
 
     /**
@@ -94,7 +101,7 @@ class UrlService
         $criteria->addAssociation('domains');
 
         $salesChannel = $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->first();
-        if ($salesChannel === null) {
+        if (!$salesChannel instanceof SalesChannelEntity) {
             return $this->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
         }
 
@@ -118,7 +125,11 @@ class UrlService
         }
 
         $firstDomain = $domains->first();
-        return $firstDomain !== null ? rtrim($firstDomain->getUrl(), '/') . '/buckaroo/cancel' : $this->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
+        if ($firstDomain === null) {
+            return $this->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
+        }
+
+        return rtrim($firstDomain->getUrl(), '/') . '/buckaroo/cancel';
     }
 
     /**
@@ -130,8 +141,10 @@ class UrlService
      *
      * Returns null when no domain shares the same scheme + host as $url.
      */
-    private function findDomainForUrl(iterable $domains, string $url): ?object
-    {
+    private function findDomainForUrl(
+        SalesChannelDomainCollection $domains,
+        string $url
+    ): ?SalesChannelDomainEntity {
         $urlOrigin = $this->extractOrigin($url);
         if ($urlOrigin === null) {
             return null;
@@ -191,7 +204,8 @@ class UrlService
 
     /**
      * Generate absolute URL for a route with parameters.
-     * Use this instead of getSaleBaseUrl() + forwardToRoute() to avoid double path segments (e.g. /en/en/) when using language prefixes like localhost/en.
+     * Use this instead of getSaleBaseUrl() + forwardToRoute() to avoid double path segments
+     * (e.g. /en/en/) when using language prefixes like localhost/en.
      *
      * @param string $route
      * @param array<mixed> $parameters
