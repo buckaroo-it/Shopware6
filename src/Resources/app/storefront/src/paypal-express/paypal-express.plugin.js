@@ -42,7 +42,7 @@ export default class PaypalExpressPlugin extends Plugin {
     init()
     {
         if (this.merchantId === null) {
-            alert('Merchant id is required');
+            console.error('Buckaroo PayPal Express: merchant id is required');
         }
         document.$emitter.subscribe('buckaroo_scripts_loaded', () => {
             this.sdk = BuckarooSdk.PayPal;

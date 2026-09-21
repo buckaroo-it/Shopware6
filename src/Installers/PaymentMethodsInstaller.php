@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Installers;
 
+use Psr\Log\LoggerInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\BuckarooPayments;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -35,6 +37,13 @@ class PaymentMethodsInstaller implements InstallerInterface
     public $mediaRepository;
     /** @var SystemConfigService */
     private $systemConfigService;
+    /**
+     * Shopware's public filesystem. Writing through it instead of touching the
+     * document root directly keeps the plugin working on read-only or
+     * non-local (e.g. object storage) deployments.
+     */
+    private ?FilesystemOperator $publicFilesystem = null;
+    private ?LoggerInterface $logger = null;
 
     /**
      * PaymentMethodsInstaller constructor.
@@ -61,6 +70,25 @@ class PaymentMethodsInstaller implements InstallerInterface
         /** @var SystemConfigService */
         $systemConfigService = $this->getDependency($container, SystemConfigService::class);
         $this->systemConfigService = $systemConfigService;
+
+        // Both are optional: a missing filesystem or logger must never break the install.
+        try {
+            $publicFilesystem = $container->get('shopware.filesystem.public');
+            if ($publicFilesystem instanceof FilesystemOperator) {
+                $this->publicFilesystem = $publicFilesystem;
+            }
+        } catch (\Throwable $filesystemError) {
+            $this->publicFilesystem = null;
+        }
+
+        try {
+            $logger = $container->get('logger');
+            if ($logger instanceof LoggerInterface) {
+                $this->logger = $logger;
+            }
+        } catch (\Throwable $loggerError) {
+            $this->logger = null;
+        }
     }
 
     /**
@@ -255,18 +283,50 @@ class PaymentMethodsInstaller implements InstallerInterface
      */
     protected function copyAppleDomainAssociationFile(): void
     {
-        $root = $_SERVER['DOCUMENT_ROOT'] ? $_SERVER['DOCUMENT_ROOT'] . '/' : getcwd() . '/public' . '/';
+        $target = '.well-known/apple-developer-merchantid-domain-association';
+        $source = __DIR__ . '/../Resources/views/storefront/_resources/apple-developer-merchantid-domain-association';
 
-        if (!file_exists($root . '.well-known/apple-developer-merchantid-domain-association')) {
-            if (!file_exists($root . '.well-known')) {
-                mkdir($root . '.well-known', 0775, true);
+        if ($this->publicFilesystem === null) {
+            $this->logAppleDomainWarning('public filesystem is unavailable');
+
+            return;
+        }
+
+        try {
+            if ($this->publicFilesystem->fileExists($target)) {
+                return;
             }
 
-            copy(
-                __DIR__ . '/../Resources/views/storefront/_resources/apple-developer-merchantid-domain-association',
-                $root . '/.well-known/apple-developer-merchantid-domain-association'
-            );
+            $contents = file_get_contents($source);
+            if ($contents === false) {
+                $this->logAppleDomainWarning(sprintf('could not read "%s"', $source));
+
+                return;
+            }
+
+            // write() creates the .well-known directory when it does not exist yet.
+            $this->publicFilesystem->write($target, $contents);
+        } catch (\Throwable $writeError) {
+            $this->logAppleDomainWarning($writeError->getMessage());
         }
+    }
+
+    /**
+     * Apple Pay stays unavailable without this file, so a failure must be visible
+     * in the log rather than silently swallowed - but it must not fail the install.
+     */
+    private function logAppleDomainWarning(string $reason): void
+    {
+        $message = '[BuckarooPayments][PaymentMethodsInstaller] Could not publish the Apple Pay '
+            . 'domain association file: ' . $reason;
+
+        if ($this->logger !== null) {
+            $this->logger->warning($message);
+
+            return;
+        }
+
+        error_log($message);
     }
 
     /**

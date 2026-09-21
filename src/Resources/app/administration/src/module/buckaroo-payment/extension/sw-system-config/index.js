@@ -40,7 +40,7 @@ Component.override('sw-system-config', {
                         Object.keys(response).forEach(key => {
                             const value = response[key];
 
-                            if (value && typeof value === 'object' && value.hasOwnProperty('_value')) {
+                            if (value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, '_value')) {
                                 processedData[key] = value._value;
                             } else {
                                 processedData[key] = value;

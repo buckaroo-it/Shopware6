@@ -11,6 +11,13 @@ parameters:
     ignoreErrors:
         - identifier: missingType.iterableValue
         - identifier: missingType.generics
+        # MediaInstaller deletes its own temporary upload file, which it creates
+        # with tempnam(sys_get_temp_dir(), ...) - precisely what this rule asks
+        # for. The write never touches the project directory.
+        -
+            identifier: shopware.forbidLocalDiskWrite
+            path: ./src/Installers/MediaInstaller.php
+            message: '#Usage of unlink is forbidden to local files#'
     treatPhpDocTypesAsCertain: false
     # composer.lock is not committed, so every environment resolves its own
     # shopware/core within ">=6.5.8.0 <6.8". Baselined errors that happen not

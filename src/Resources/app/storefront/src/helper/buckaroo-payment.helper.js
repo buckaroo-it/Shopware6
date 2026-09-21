@@ -22,7 +22,7 @@ export default class BuckarooPaymentHelper extends Plugin {
             this._registerEvents();
         } catch (e) {
             // do nothing
-            console.log('init error', e);
+            console.error('init error', e);
         }
     }
 

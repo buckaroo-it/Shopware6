@@ -102,7 +102,7 @@ Component.register("buckaroo-toggle-status", {
                 }
             }
 
-            if (val && typeof val === 'object' && val.hasOwnProperty('_value')) {
+            if (val && typeof val === 'object' && Object.prototype.hasOwnProperty.call(val, '_value')) {
                 val = val._value;
             }
             
