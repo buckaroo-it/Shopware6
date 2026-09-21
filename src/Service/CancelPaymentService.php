@@ -81,6 +81,7 @@ class CancelPaymentService
                 ->setPayload(
                     $this->getPayload(
                         $order,
+                        $context,
                         $bkTransactionId,
                         $orderTransactionId,
                         (float)$amount,
@@ -147,6 +148,7 @@ class CancelPaymentService
      * Get request parameters
      *
      * @param OrderEntity $order
+     * @param Context $context
      * @param mixed $transactionKey
      * @param string $orderTransactionId
      * @param float $amount
@@ -156,6 +158,7 @@ class CancelPaymentService
      */
     private function getPayload(
         OrderEntity $order,
+        Context $context,
         $transactionKey,
         string $orderTransactionId,
         float $amount,
@@ -171,8 +174,8 @@ class CancelPaymentService
             'invoice'                => $order->getOrderNumber(),
             'amountCredit'           => $amount,
             'currency'               => $this->getCurrencyIso($order),
-            'pushURL'                => $this->urlService->getPushUrlForOrder($order),
-            'pushURLFailure'         => $this->urlService->getPushUrlForOrder($order),
+            'pushURL'                => $this->urlService->getPushUrlForOrder($order, $context),
+            'pushURLFailure'         => $this->urlService->getPushUrlForOrder($order, $context),
             'clientIP'               => $this->getIp(),
             'originalTransactionKey' => (string)$transactionKey,
             'additionalParameters'   => [

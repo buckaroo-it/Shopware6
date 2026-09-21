@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -345,8 +346,17 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             ),
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
             'returnURL'     => $returnUrl,
-            'returnURLCancel' => $this->buildCancelUrlWithToken($order, $contextToken, $returnUrl),
-            'pushURL'       => $this->asyncPaymentService->urlService->getPushUrlForOrder($order, $returnUrl),
+            'returnURLCancel' => $this->buildCancelUrlWithToken(
+                $order,
+                $salesChannelContext->getContext(),
+                $contextToken,
+                $returnUrl
+            ),
+            'pushURL'       => $this->asyncPaymentService->urlService->getPushUrlForOrder(
+                $order,
+                $salesChannelContext->getContext(),
+                $returnUrl
+            ),
 
             'additionalParameters' => [
                 'orderTransactionId' => $transaction->getOrderTransaction()->getId(),
@@ -371,10 +381,11 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
 
     private function buildCancelUrlWithToken(
         OrderEntity $order,
+        Context $context,
         string $contextToken,
         ?string $returnUrl = null
     ): string {
-        $url = $this->asyncPaymentService->urlService->getCancelUrlForOrder($order, $returnUrl);
+        $url = $this->asyncPaymentService->urlService->getCancelUrlForOrder($order, $context, $returnUrl);
         $separator = str_contains($url, '?') ? '&' : '?';
         return $url . $separator . 'sw-context-token=' . rawurlencode($contextToken);
     }

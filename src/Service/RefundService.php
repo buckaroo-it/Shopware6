@@ -165,6 +165,7 @@ class RefundService
                     $this->getCommonRequestPayload(
                         $request,
                         $order,
+                        $context,
                         $transaction['transactions'],
                         $amount
                     ),
@@ -341,6 +342,7 @@ class RefundService
      *
      * @param Request $request
      * @param OrderEntity $order
+     * @param Context $context
      * @param mixed $transactionKey
      * @param float $amount
      *
@@ -349,6 +351,7 @@ class RefundService
     private function getCommonRequestPayload(
         Request $request,
         OrderEntity $order,
+        Context $context,
         $transactionKey,
         float $amount
     ): array {
@@ -368,8 +371,8 @@ class RefundService
                 $order->getSalesChannelId(),
                 'refundLabel'
             ),
-            'pushURL'                => $this->urlService->getPushUrlForOrder($order),
-            'pushURLFailure'         => $this->urlService->getPushUrlForOrder($order),
+            'pushURL'                => $this->urlService->getPushUrlForOrder($order, $context),
+            'pushURLFailure'         => $this->urlService->getPushUrlForOrder($order, $context),
             'clientIP'               => $this->getIp($request),
             'originalTransactionKey' => (string)$transactionKey,
             'additionalParameters'   => [

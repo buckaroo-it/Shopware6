@@ -47,13 +47,16 @@ class UrlService
      * the longest prefix of $baseUrl is selected. This handles both different-host storefronts
      * (www.shop.com vs kiosk.shop.com) and same-host language-path storefronts (shop.com/en vs
      * shop.com/de) without falling back on non-deterministic languageId or first() ordering.
+     *
+     * The sales channel lookup runs on the caller's $context, so the sales channel, language and
+     * permission scope of the request are preserved in multi-sales-channel installations.
      */
-    public function getPushUrlForOrder(OrderEntity $order, ?string $baseUrl = null): string
+    public function getPushUrlForOrder(OrderEntity $order, Context $context, ?string $baseUrl = null): string
     {
         $criteria = new Criteria([$order->getSalesChannelId()]);
         $criteria->addAssociation('domains');
 
-        $salesChannel = $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->first();
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->first();
         if (!$salesChannel instanceof SalesChannelEntity) {
             return $this->getReturnUrl('buckaroo.payment.push');
         }
@@ -94,13 +97,16 @@ class UrlService
      * the longest prefix of $baseUrl is selected. This handles both different-host storefronts
      * (www.shop.com vs kiosk.shop.com) and same-host language-path storefronts (shop.com/en vs
      * shop.com/de) without falling back on non-deterministic languageId or first() ordering.
+     *
+     * The sales channel lookup runs on the caller's $context, so the sales channel, language and
+     * permission scope of the request are preserved in multi-sales-channel installations.
      */
-    public function getCancelUrlForOrder(OrderEntity $order, ?string $baseUrl = null): string
+    public function getCancelUrlForOrder(OrderEntity $order, Context $context, ?string $baseUrl = null): string
     {
         $criteria = new Criteria([$order->getSalesChannelId()]);
         $criteria->addAssociation('domains');
 
-        $salesChannel = $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->first();
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->first();
         if (!$salesChannel instanceof SalesChannelEntity) {
             return $this->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
         }
