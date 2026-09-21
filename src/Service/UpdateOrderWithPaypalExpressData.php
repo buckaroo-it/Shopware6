@@ -97,7 +97,7 @@ class UpdateOrderWithPaypalExpressData
         $orderCustomer = $this->orderCustomerRepository->search(
             $criteria,
             $salesChannelContext->getContext()
-        )->first();
+        )->getEntities()->first();
 
         if (!$orderCustomer instanceof OrderCustomerEntity) {
             return;
@@ -159,7 +159,7 @@ class UpdateOrderWithPaypalExpressData
         $customer = $this->customerRepository->search(
             new Criteria([$customerId]),
             $salesChannelContext->getContext()
-        )->first();
+        )->getEntities()->first();
 
         if (!$customer instanceof CustomerEntity || $customer->getGuest() !== true) {
             return;

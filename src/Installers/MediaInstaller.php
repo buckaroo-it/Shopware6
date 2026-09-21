@@ -445,7 +445,7 @@ class MediaInstaller implements InstallerInterface
         );
 
         /** @var MediaEntity|null */
-        return $this->mediaRepository->search($criteria, $context)->first();
+        return $this->mediaRepository->search($criteria, $context)->getEntities()->first();
     }
 
     private function getMediaId(string $mediaName, Context $context): ?string
@@ -535,7 +535,7 @@ class MediaInstaller implements InstallerInterface
         $criteria->setLimit(1);
 
         /** @var MediaFolderEntity|null */
-        $defaultFolder = $this->mediaFolderRepository->search($criteria, $context)->first();
+        $defaultFolder = $this->mediaFolderRepository->search($criteria, $context)->getEntities()->first();
         if ($defaultFolder === null) {
             return null;
         }

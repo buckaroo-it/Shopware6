@@ -248,7 +248,7 @@ class CustomerService
         $customer = $this->customerRepository->search(
             $criteria,
             $this->salesChannelContext->getContext()
-        )->first();
+        )->getEntities()->first();
 
 
         if ($customer === null) {
@@ -279,7 +279,7 @@ class CustomerService
         $salutation = $this->salutationRepository->search(
             (new Criteria())->setLimit(1),
             $this->salesChannelContext->getContext()
-        )->first();
+        )->getEntities()->first();
 
         /** @var \Shopware\Core\System\Salutation\SalutationEntity|null $salutation */
         if ($salutation === null) {

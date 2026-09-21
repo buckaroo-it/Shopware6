@@ -253,7 +253,7 @@ class AsyncPaymentService
         $criteria->addAssociation('order.orderCustomer');
 
         /** @var OrderTransactionEntity|null $result */
-        $result = $this->orderTransactionRepository->search($criteria, $context)->first();
+        $result = $this->orderTransactionRepository->search($criteria, $context)->getEntities()->first();
 
         return $result;
     }

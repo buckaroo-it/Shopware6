@@ -40,7 +40,7 @@ class ContextService
         $country = $this->countryRepository->search(
             new Criteria([$salesChannelContext->getSalesChannel()->getCountryId()]),
             $salesChannelContext->getContext()
-        )->first();
+        )->getEntities()->first();
 
         if ($country !== null) {
             return $country->getIso();

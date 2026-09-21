@@ -205,7 +205,7 @@ class CheckoutHelper
         $orderCriteria->addAssociation('billingAddress.country');
 
         /** @var \Shopware\Core\Checkout\Order\OrderEntity|null */
-        return $this->orderRepository->search($orderCriteria, $context)->first();
+        return $this->orderRepository->search($orderCriteria, $context)->getEntities()->first();
     }
 
     /**
@@ -237,7 +237,7 @@ class CheckoutHelper
         $orderCriteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
 
         /** @var \Shopware\Core\Checkout\Order\OrderEntity|null */
-        return $this->orderRepository->search($orderCriteria, $context)->first();
+        return $this->orderRepository->search($orderCriteria, $context)->getEntities()->first();
     }
 
     public function saveBuckarooTransaction(Request $request, Context $context): ?string

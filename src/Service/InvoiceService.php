@@ -51,7 +51,7 @@ class InvoiceService
         $criteria->addAssociation('documentType');
         $criteria->addFilter(new EqualsFilter('documentType.technicalName', InvoiceRenderer::TYPE));
 
-        return $this->documentRepository->search($criteria, $context)->first() !== null;
+        return $this->documentRepository->search($criteria, $context)->getEntities()->first() !== null;
     }
 
     /**
@@ -120,7 +120,7 @@ class InvoiceService
         $criteria->setLimit(1);
 
         /** @var MailTemplateEntity|null $mailTemplate */
-        $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
+        $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->getEntities()->first();
 
         return $mailTemplate;
     }

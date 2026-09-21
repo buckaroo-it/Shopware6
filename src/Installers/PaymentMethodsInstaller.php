@@ -232,7 +232,7 @@ class PaymentMethodsInstaller implements InstallerInterface
         );
 
         /** @var MediaEntity|null $media */
-        $media = $this->mediaRepository->search($criteria, $context)->first();
+        $media = $this->mediaRepository->search($criteria, $context)->getEntities()->first();
 
         if ($media === null) {
             return null;
