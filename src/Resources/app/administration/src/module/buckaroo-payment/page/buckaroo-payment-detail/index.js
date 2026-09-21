@@ -1,7 +1,7 @@
 import template from './buckaroo-payment-detail.html.twig';
 import './buckaroo-payment-detail.scss';
 
-const { Component, Filter, Context } = Shopware;
+const { Component, Context } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 
 Component.register('buckaroo-payment-detail', {
@@ -267,7 +267,7 @@ Component.register('buckaroo-payment-detail', {
             this.isAuthorized = order?.transactions?.last()?.stateMachineState?.technicalName === "authorized";
         },
 
-        refundOrder(transaction, amount) {
+        refundOrder(transaction) {
             let that = this;
             that.isRefundPossible = false;
             this.BuckarooPaymentService.refundPayment(transaction, this.transactionsToRefund, this.orderItems, this.getCustomRefundAmount())

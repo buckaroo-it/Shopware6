@@ -183,7 +183,7 @@ class BuckarooTransactionEntityRepository
      */
     public function findByOrderId(string $id, Context $context, array $sortBy = []): EntityCollection
     {
-        $filter = ['order_id' => $id];
+        $filter = ['orderId' => $id];
 
         /** @var BuckarooTransactionEntityCollection<BuckarooTransactionEntity> */
         $entities = $this->baseRepository

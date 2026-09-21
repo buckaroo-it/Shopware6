@@ -1,5 +1,5 @@
-import Plugin from "src/plugin-system/plugin.class";
 import HttpClient from "src/service/http-client.service";
+const Plugin = window.PluginBaseClass;
 
 export default class IdealQrPlugin extends Plugin {
   static options = {
@@ -22,7 +22,6 @@ export default class IdealQrPlugin extends Plugin {
   }
 
   singlePullStatus() {
-    this.options;
     this.httpClient.post(
       this.options.pullUrl,
       JSON.stringify({

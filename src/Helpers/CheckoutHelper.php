@@ -264,22 +264,22 @@ class CheckoutHelper
         }
         
         return [
-            'order_id'             => $this->sanitizeRequestValue($request->request->get('ADD_orderId')),
-            'order_transaction_id' => $this->sanitizeRequestValue($request->request->get('ADD_orderTransactionId')),
+            'orderId'              => $this->sanitizeRequestValue($request->request->get('ADD_orderId')),
+            'orderTransactionId'   => $this->sanitizeRequestValue($request->request->get('ADD_orderTransactionId')),
             'amount'               => $this->sanitizeRequestValue($request->request->get('brq_amount')),
-            'amount_credit'        => $this->sanitizeRequestValue($request->request->get('brq_amount_credit')),
+            'amountCredit'         => $this->sanitizeRequestValue($request->request->get('brq_amount_credit')),
             'currency'             => $this->sanitizeRequestValue($request->request->get('brq_currency')),
             'ordernumber'          => $this->sanitizeRequestValue($request->request->get('brq_invoicenumber')),
             'statuscode'           => $this->sanitizeRequestValue($request->request->get('brq_statuscode')),
-            'transaction_method'   => $this->sanitizeRequestValue($request->request->get('brq_transaction_method')),
-            'transaction_type'     => $this->sanitizeRequestValue($transactionType),
+            'transactionMethod'    => $this->sanitizeRequestValue($request->request->get('brq_transaction_method')),
+            'transactionType'      => $this->sanitizeRequestValue($transactionType),
             'transactions'         => $this->sanitizeRequestValue($request->request->get('brq_transactions')),
             'relatedtransaction'   => $this->sanitizeRequestValue(
                 $request->request->get('brq_relatedtransaction_partialpayment')
             ),
             'type'                 => $type,
-            'created_at'           => $now,
-            'updated_at'           => $now,
+            'createdAtDate'        => $now,
+            'updatedAtDate'        => $now,
         ];
     }
 

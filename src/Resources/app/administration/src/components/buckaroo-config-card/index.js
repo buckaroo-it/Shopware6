@@ -524,7 +524,6 @@ Component.register('buckaroo-config-card', {
                     } else if (Array.isArray(eventOrValue)) {
                         const totalCharacters = eventOrValue.filter(item => typeof item === 'string' && item.length === 1).length;
                         const hasCommas = eventOrValue.some(item => item === ',');
-                        const hasLongStrings = eventOrValue.some(item => typeof item === 'string' && item.length > 1);
 
                         const isCharacterArray = totalCharacters > 10 && hasCommas;
 

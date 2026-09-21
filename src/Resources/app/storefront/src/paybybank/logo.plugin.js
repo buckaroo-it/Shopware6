@@ -1,4 +1,4 @@
-import Plugin from "src/plugin-system/plugin.class";
+const Plugin = window.PluginBaseClass;
 
 const BK_SELECTED_ISSUER_EVENT_NAME = "bk-paybybank-selected";
 export default class BuckarooPayByBankLogo extends Plugin {

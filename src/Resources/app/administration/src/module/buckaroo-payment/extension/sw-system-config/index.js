@@ -7,7 +7,7 @@ Component.override('sw-system-config', {
     
     watch: {
         currentSalesChannelId: {
-            handler(newVal, oldVal) {
+            handler(newVal) {
                 if (newVal && this.domain === 'BuckarooPayments.config') {
                     this.loadBuckarooConfigData();
                 }

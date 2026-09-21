@@ -1,5 +1,5 @@
 import HttpClient from 'src/service/http-client.service';
-import Plugin from 'src/plugin-system/plugin.class';
+const Plugin = window.PluginBaseClass;
 
 export default class PaypalExpressPlugin extends Plugin {
 

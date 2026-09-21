@@ -1,6 +1,4 @@
-import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
-import Iterator from 'src/helper/iterator.helper';
+const Plugin = window.PluginBaseClass;
 
 export default class BuckarooPaymentHelper extends Plugin {
     get buckarooInputs()
@@ -308,7 +306,7 @@ export default class BuckarooPaymentHelper extends Plugin {
 
         const confirmButton = document.getElementById('confirmFormSubmit');
         if (confirmButton) {
-            confirmButton.addEventListener('click', (event) => {
+            confirmButton.addEventListener('click', () => {
                 confirmButton.disabled = true;
 
                 setTimeout(() => {

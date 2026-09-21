@@ -10,14 +10,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * Class BuckarooTransactionEntity
  *
- * The property names below intentionally mirror the storage names used in
- * BuckarooTransactionEntityDefinition (snake_case). The DAL hydrates and writes
- * by property name, and the plugin reads these fields through
- * Entity::get('order_id'), Entity::get('amount_credit'), etc.
+ * The property names below are the camelCase property names declared in
+ * BuckarooTransactionEntityDefinition; the snake_case storage (column) names
+ * stay unchanged. The DAL hydrates and writes by property name, and the plugin
+ * reads these fields through Entity::get('orderId'), Entity::get('amountCredit'),
+ * etc.
  *
- * `created_at` / `updated_at` are declared as regular DateTimeFields in the
- * definition (defaultFields() is intentionally empty), so they are separate from
- * the inherited Entity::$createdAt / Entity::$updatedAt properties.
+ * The `created_at` / `updated_at` columns are declared as regular DateTimeFields
+ * in the definition (defaultFields() is intentionally empty). They are mapped to
+ * $createdAtDate / $updatedAtDate so they stay separate from the inherited
+ * Entity::$createdAt / Entity::$updatedAt properties.
  *
  * @package Buckaroo\Shopware6\Entity\Transaction
  */
@@ -25,13 +27,13 @@ class BuckarooTransactionEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected ?string $order_id = null;
+    protected ?string $orderId = null;
 
-    protected ?string $order_transaction_id = null;
+    protected ?string $orderTransactionId = null;
 
     protected ?string $amount = null;
 
-    protected ?string $amount_credit = null;
+    protected ?string $amountCredit = null;
 
     protected ?string $currency = null;
 
@@ -39,9 +41,9 @@ class BuckarooTransactionEntity extends Entity
 
     protected ?string $statuscode = null;
 
-    protected ?string $transaction_method = null;
+    protected ?string $transactionMethod = null;
 
-    protected ?string $transaction_type = null;
+    protected ?string $transactionType = null;
 
     protected ?string $transactions = null;
 
@@ -49,30 +51,30 @@ class BuckarooTransactionEntity extends Entity
 
     protected ?string $type = null;
 
-    protected ?string $refunded_items = null;
+    protected ?string $refundedItems = null;
 
-    protected ?\DateTimeInterface $created_at = null;
+    protected ?\DateTimeInterface $createdAtDate = null;
 
-    protected ?\DateTimeInterface $updated_at = null;
+    protected ?\DateTimeInterface $updatedAtDate = null;
 
     public function getOrderId(): ?string
     {
-        return $this->order_id;
+        return $this->orderId;
     }
 
     public function setOrderId(?string $orderId): void
     {
-        $this->order_id = $orderId;
+        $this->orderId = $orderId;
     }
 
     public function getOrderTransactionId(): ?string
     {
-        return $this->order_transaction_id;
+        return $this->orderTransactionId;
     }
 
     public function setOrderTransactionId(?string $orderTransactionId): void
     {
-        $this->order_transaction_id = $orderTransactionId;
+        $this->orderTransactionId = $orderTransactionId;
     }
 
     public function getAmount(): ?string
@@ -87,12 +89,12 @@ class BuckarooTransactionEntity extends Entity
 
     public function getAmountCredit(): ?string
     {
-        return $this->amount_credit;
+        return $this->amountCredit;
     }
 
     public function setAmountCredit(?string $amountCredit): void
     {
-        $this->amount_credit = $amountCredit;
+        $this->amountCredit = $amountCredit;
     }
 
     public function getCurrency(): ?string
@@ -127,22 +129,22 @@ class BuckarooTransactionEntity extends Entity
 
     public function getTransactionMethod(): ?string
     {
-        return $this->transaction_method;
+        return $this->transactionMethod;
     }
 
     public function setTransactionMethod(?string $transactionMethod): void
     {
-        $this->transaction_method = $transactionMethod;
+        $this->transactionMethod = $transactionMethod;
     }
 
     public function getTransactionType(): ?string
     {
-        return $this->transaction_type;
+        return $this->transactionType;
     }
 
     public function setTransactionType(?string $transactionType): void
     {
-        $this->transaction_type = $transactionType;
+        $this->transactionType = $transactionType;
     }
 
     public function getTransactions(): ?string
@@ -177,22 +179,22 @@ class BuckarooTransactionEntity extends Entity
 
     public function getCreatedAtDate(): ?\DateTimeInterface
     {
-        return $this->created_at;
+        return $this->createdAtDate;
     }
 
     public function setCreatedAtDate(?\DateTimeInterface $createdAt): void
     {
-        $this->created_at = $createdAt;
+        $this->createdAtDate = $createdAt;
     }
 
     public function getUpdatedAtDate(): ?\DateTimeInterface
     {
-        return $this->updated_at;
+        return $this->updatedAtDate;
     }
 
     public function setUpdatedAtDate(?\DateTimeInterface $updatedAt): void
     {
-        $this->updated_at = $updatedAt;
+        $this->updatedAtDate = $updatedAt;
     }
 
     /**
@@ -204,7 +206,7 @@ class BuckarooTransactionEntity extends Entity
         $this->validateAndRepairRefundedItems();
 
         // At this point, we know the data is valid JSON
-        $refundedItems = json_decode((string)$this->refunded_items, true);
+        $refundedItems = json_decode((string)$this->refundedItems, true);
 
         // This should not happen after validation, but added for extra safety
         return is_array($refundedItems) ? $refundedItems : [];
@@ -232,7 +234,7 @@ class BuckarooTransactionEntity extends Entity
             );
         }
 
-        $this->refunded_items = $encodedItems;
+        $this->refundedItems = $encodedItems;
         return $this;
     }
 
@@ -297,12 +299,12 @@ class BuckarooTransactionEntity extends Entity
     public function validateAndRepairRefundedItems(): bool
     {
         // Try to decode current data
-        if (empty($this->refunded_items)) {
-            $this->refunded_items = '[]';
+        if (empty($this->refundedItems)) {
+            $this->refundedItems = '[]';
             return true;
         }
 
-        $decoded = json_decode($this->refunded_items, true);
+        $decoded = json_decode($this->refundedItems, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             // Data is corrupted, reset to empty array
@@ -310,13 +312,13 @@ class BuckarooTransactionEntity extends Entity
                 'Corrupted refunded items data detected and reset in BuckarooTransactionEntity: %s',
                 json_last_error_msg()
             ));
-            $this->refunded_items = '[]';
+            $this->refundedItems = '[]';
             return false;
         }
 
         // Ensure it's an array
         if (!is_array($decoded)) {
-            $this->refunded_items = '[]';
+            $this->refundedItems = '[]';
             return false;
         }
 
@@ -330,7 +332,7 @@ class BuckarooTransactionEntity extends Entity
      */
     public function getRefundedItemsRaw(): string
     {
-        return $this->refunded_items ?? '';
+        return $this->refundedItems ?? '';
     }
 
     /**
@@ -340,11 +342,11 @@ class BuckarooTransactionEntity extends Entity
      */
     public function hasValidRefundedItemsData(): bool
     {
-        if (empty($this->refunded_items)) {
+        if (empty($this->refundedItems)) {
             return true; // Empty is considered valid
         }
 
-        json_decode($this->refunded_items, true);
+        json_decode($this->refundedItems, true);
         return json_last_error() === JSON_ERROR_NONE;
     }
 }

@@ -1,6 +1,6 @@
 import HttpClient from "src/service/http-client.service";
-import Plugin from "src/plugin-system/plugin.class";
 import FormSerializeUtil from "src/utility/form/form-serialize.util";
+const Plugin = window.PluginBaseClass;
 
 export default class GooglePayPlugin extends Plugin {
   static options = {
@@ -36,7 +36,7 @@ export default class GooglePayPlugin extends Plugin {
         return this.retrieveCartData();
       })
       .then((cartData) => {
-        return this.checkIsAvailable(cartData).then((available) => {
+        return this.checkIsAvailable().then((available) => {
           if (available) {
             this.renderButton(cartData);
           } else {
@@ -132,10 +132,9 @@ export default class GooglePayPlugin extends Plugin {
   /**
    * Check whether Google Pay is available in this browser/device.
    * google.payments.api is guaranteed to be loaded by this point (loadBuckarooSdk resolves both).
-   * @param {object} cartData
    * @returns {Promise<boolean>}
    */
-  checkIsAvailable(cartData) {
+  checkIsAvailable() {
     return new Promise((resolve) => {
       if (!window.BuckarooSdk || !window.BuckarooSdk.GooglePay) {
         resolve(false);
@@ -279,7 +278,7 @@ export default class GooglePayPlugin extends Plugin {
 
     paymentsClient
       .loadPaymentData(paymentRequest)
-      .then((paymentData) => this.captureFunds(paymentData, cartData))
+      .then((paymentData) => this.captureFunds(paymentData))
       .then((result) => {
         if (!result || !result.success) {
           this.setConfirmButtonDisabled(false);
@@ -378,10 +377,9 @@ export default class GooglePayPlugin extends Plugin {
   /**
    * Send payment token to backend and create the order
    * @param {object} paymentData  Google Pay paymentData object
-   * @param {object} cartData
    * @returns {Promise}
    */
-  captureFunds(paymentData, cartData) {
+  captureFunds(paymentData) {
     const body = {
       payment: JSON.stringify(paymentData),
       cartToken: this.cartToken,
@@ -396,7 +394,7 @@ export default class GooglePayPlugin extends Plugin {
           let resp = null;
           try {
             resp = response ? JSON.parse(response) : null;
-          } catch (e) {
+          } catch {
             // unparseable response — fall through to error handling below
           }
 

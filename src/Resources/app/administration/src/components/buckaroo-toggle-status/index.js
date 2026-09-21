@@ -33,7 +33,7 @@ Component.register("buckaroo-toggle-status", {
 
     watch: {
         value: {
-            handler(newVal) {
+            handler() {
                 this.status = this.getStatus();
             },
             deep: true,
