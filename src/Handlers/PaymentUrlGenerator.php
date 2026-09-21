@@ -7,6 +7,7 @@ namespace Buckaroo\Shopware6\Handlers;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 class PaymentUrlGenerator
@@ -70,15 +71,17 @@ class PaymentUrlGenerator
      * the cancel URL always matches the domain the customer actually used.
      *
      * @param OrderEntity $order Order to determine the correct sales channel domain
+     * @param Context $context Caller context used to resolve the sales channel domains
      * @param string|null $contextToken Sales channel context token to preserve session
      * @param string|null $returnUrl Checkout return URL used to pin the correct domain
      */
     public function getCancelRedirectUrlForOrder(
         OrderEntity $order,
+        Context $context,
         ?string $contextToken = null,
         ?string $returnUrl = null
     ): string {
-        $url = $this->asyncPaymentService->urlService->getCancelUrlForOrder($order, $returnUrl);
+        $url = $this->asyncPaymentService->urlService->getCancelUrlForOrder($order, $context, $returnUrl);
         if ($contextToken !== null && $contextToken !== '') {
             $separator = str_contains($url, '?') ? '&' : '?';
             $url .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
@@ -101,10 +104,11 @@ class PaymentUrlGenerator
      * When $returnUrl is provided (the checkout return URL), its origin is used as the base so
      * the push URL always matches the domain the customer actually used.
      *
+     * @param Context $context Caller context used to resolve the sales channel domains
      * @param string|null $returnUrl Checkout return URL used to pin the correct domain
      */
-    public function getPushUrl(OrderEntity $order, ?string $returnUrl = null): string
+    public function getPushUrl(OrderEntity $order, Context $context, ?string $returnUrl = null): string
     {
-        return $this->asyncPaymentService->urlService->getPushUrlForOrder($order, $returnUrl);
+        return $this->asyncPaymentService->urlService->getPushUrlForOrder($order, $context, $returnUrl);
     }
 }

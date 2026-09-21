@@ -98,7 +98,7 @@ class KlarnaMorService
         }
 
         $payload = array_merge(
-            $this->getCommonPayload($request, $order, $dataRequestKey),
+            $this->getCommonPayload($request, $order, $context, $dataRequestKey),
             $extraPayload
         );
 
@@ -132,12 +132,17 @@ class KlarnaMorService
     /**
      * @param Request $request
      * @param OrderEntity $order
+     * @param Context $context
      * @param string $dataRequestKey
      *
      * @return array<mixed>
      */
-    private function getCommonPayload(Request $request, OrderEntity $order, string $dataRequestKey): array
-    {
+    private function getCommonPayload(
+        Request $request,
+        OrderEntity $order,
+        Context $context,
+        string $dataRequestKey
+    ): array {
         $currency = $order->getCurrency();
 
         return [
@@ -145,7 +150,7 @@ class KlarnaMorService
             'invoice'        => $order->getOrderNumber(),
             'currency'       => $currency !== null ? $currency->getIsoCode() : 'EUR',
             'dataRequestKey' => $dataRequestKey,
-            'pushURL'        => $this->urlService->getPushUrlForOrder($order),
+            'pushURL'        => $this->urlService->getPushUrlForOrder($order, $context),
             'clientIP'       => $this->getIp($request),
             'additionalParameters' => [
                 'orderTransactionId' => $this->getLastTransactionId($order),

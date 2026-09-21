@@ -131,6 +131,7 @@ class CaptureService
                     $this->getCommonRequestPayload(
                         $request,
                         $order,
+                        $context,
                         $originalTransactionKey,
                         $action
                     ),
@@ -287,6 +288,7 @@ class CaptureService
      *
      * @param Request $request
      * @param OrderEntity $order
+     * @param Context $context
      * @param string $transactionKey
      *
      * @return array<mixed>
@@ -294,6 +296,7 @@ class CaptureService
     private function getCommonRequestPayload(
         Request $request,
         OrderEntity $order,
+        Context $context,
         string $transactionKey,
         string $action
     ): array {
@@ -302,7 +305,7 @@ class CaptureService
             'invoice' => $order->getOrderNumber(),
             'amountDebit' => $order->getAmountTotal(),
             'currency' => $this->getCurrencyIso($order),
-            'pushURL' => $this->urlService->getPushUrlForOrder($order),
+            'pushURL' => $this->urlService->getPushUrlForOrder($order, $context),
             'clientIP' => $this->getIp($request),
             'additionalParameters' => [
                 'orderTransactionId' => $this->getLastTransactionId($order),

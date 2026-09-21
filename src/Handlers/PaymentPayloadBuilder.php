@@ -54,10 +54,15 @@ class PaymentPayloadBuilder
             'returnURL'     => $finalReturnUrl,
             'returnURLCancel' => $this->urlGenerator->getCancelRedirectUrlForOrder(
                 $order,
+                $salesChannelContext->getContext(),
                 $salesChannelContext->getToken(),
                 $finalReturnUrl
             ),
-            'pushURL'       => $this->urlGenerator->getPushUrl($order, $finalReturnUrl),
+            'pushURL'       => $this->urlGenerator->getPushUrl(
+                $order,
+                $salesChannelContext->getContext(),
+                $finalReturnUrl
+            ),
             'additionalParameters' => [
                 'orderTransactionId' => $orderTransaction->getId(),
                 'orderId' => $order->getId(),
