@@ -33,6 +33,10 @@ class IdealQrOrderRepository
         ], $salesChannelContext->getContext());
 
         $createdIds = $result->getPrimaryKeys(IdealQrOrderDefinition::ENTITY_NAME);
+
+        // reset() yields false on an empty result, and Criteria([false]) is not
+        // a valid id list. Nothing was created in that case, so report it the
+        // same way a missing entity is reported.
         $primaryKey = reset($createdIds);
         if (!is_string($primaryKey)) {
             return null;

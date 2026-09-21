@@ -1,10 +1,10 @@
 // ---------------------------------------------------------------------------
 // Buckaroo Credit Card Hosted Fields
-//
+
 // Each card input is an <iframe> served from Buckaroo's PCI domain, so no
 // Storefront CSS can reach the input itself. The styling is therefore split
 // in two, and this file owns the half that CSS can still reach:
-//
+
 //   * the wrapper <div> is a real Storefront .form-control and carries every
 //     visible property — font, border, radius, height, padding, focus ring
 //     and invalid state — so the fields follow whatever the merchant's theme
@@ -13,7 +13,7 @@
 //     the SDK's baseStyling API, which buckaroo-payment.creditcard.js derives
 //     from this wrapper's computed style. That indirection is why everything
 //     here stays expressed in Bootstrap/Shopware variables.
-//
+
 // The SDK measures the wrapper with getComputedStyle() at the moment a field
 // is mounted and sizes its iframe to the content box plus 2px. The wrapper
 // consequently needs a definite height, and centres and clips that overhang.
@@ -29,6 +29,12 @@ $bk-hf-placeholder-color: $input-placeholder-color !default;
 // the same rhythm the Storefront skin puts between payment methods, which is
 // `.form-group`'s 20px — a skin literal with no variable to reference.
 $bk-hf-block-spacing: 20px !default;
+
+// Gap between the Submit button and the Cancel link. A literal rather than
+// map-get($spacers, 3): the module-system map.get would need a `@use "sass:map"`
+// at the top of a partial the theme compiler pulls in with legacy @import, and
+// the global map-get is what stylelint's scss/no-global-function-names rejects.
+$bk-hf-action-gap: 1rem !default;
 
 .bk-hosted-fields {
     --bk-hf-placeholder-color: #{$bk-hf-placeholder-color};
@@ -77,5 +83,5 @@ $bk-hf-block-spacing: 20px !default;
 .bk-hosted-fields-actions {
     display: flex;
     align-items: center;
-    gap: map-get($spacers, 3);
+    gap: $bk-hf-action-gap;
 }

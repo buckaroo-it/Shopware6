@@ -1,0 +1,55 @@
+# Paths excluded from the marketplace package.
+#
+# Everything here is development-only. Shipping it broke the Store's static
+# analysis: that environment installs runtime requirements only, so any file
+# referencing a require-dev package resolves to nothing and the analyser aborts
+# with internal errors before it produces a single real finding.
+#
+# deploy.php needs deployer/deployer, and all 51 files under tests/ extend
+# PHPUnit\Framework\TestCase - both require-dev.
+#
+# rsync exclude syntax: a leading slash anchors the pattern to the package root,
+# so `/tests` cannot match a directory of the same name nested inside src/.
+#
+# Used by .github/workflows/bundle.yml (release packaging) and
+# .github/workflows/extension-verifier.yml (which validates the built package).
+
+/.git
+/.github
+/.gitignore
+/.idea
+/.packageignore
+/.phpunit.result.cache
+
+# Deployer recipe - deployer/deployer is require-dev
+/deploy.php
+
+# Test suite - phpunit/phpunit is require-dev
+/tests
+/phpunit.xml
+
+/phpcs.xml
+
+# phpstan.neon, its baseline and stubs/ deliberately DO ship.
+#
+# The Store's analysis picks up the extension's own phpstan.neon, and
+# stubs/shopware-core-stubs.php conditionally declares the classes that exist
+# in only some supported versions - AsyncPaymentTransactionStruct and
+# AsynchronousPaymentHandlerInterface are gone in 6.7, but the check resolves
+# shopware/core to the highest version our constraint allows. Without the stubs
+# the run aborts on an internal error before reporting anything, which is the
+# same failure this file exists to prevent.
+#
+# Verified with `shopware-cli extension validate --full --only phpstan`:
+#   stubs + phpstan.neon excluded -> 1 problem, an internal error, run aborts
+#   stubs + phpstan.neon shipped  -> 96 errors, 0 internal errors, run completes
+# phpstan-baseline.neon must ship too, because phpstan.neon includes it.
+
+# Root build tooling. Shopware reads src/Resources/app/*/package.json for
+# plugin assets, never this one; it only drives the legacy admin webpack build
+# whose output is committed under src/Resources/public.
+/package.json
+/package-lock.json
+/webpack.legacy.config.js
+
+/CONTRIBUTING.md

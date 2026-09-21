@@ -255,7 +255,7 @@ class PaypalExpressController extends AbstractPaymentController
             throw new InvalidParameterException("Invalid payment request", 1);
         }
         $dataBag = new DataBag((array)$customer['shipping_address']);
-        $dataBag->set('paymentToken', $customer['paymentToken']);
+        $dataBag->set('paymentToken', $customer['paymentToken'] ?? null);
 
         return $dataBag;
     }

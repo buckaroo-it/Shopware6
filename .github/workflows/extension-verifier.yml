@@ -2,6 +2,12 @@ name: Extension Verifier
 
 # Runs the same static validation the Shopware Store applies on upload, so
 # store-blocking findings surface here instead of at submission time.
+#
+# This validates the *packaged* extension, not the working tree. v3.5.0 showed
+# why that distinction matters: the Store's analysis aborted on unresolvable
+# symbols coming from files that only exist in the package (deploy.php, tests/)
+# and from Storefront classes that were declared require-dev. Validating the
+# checkout with dev dependencies installed cannot reproduce either.
 on:
   pull_request:
     branches: [ main, master, develop ]
@@ -20,5 +26,29 @@ jobs:
       - name: Setup shopware-cli
         uses: shopware/shopware-cli-action@v1
 
+      # Same exclusion list the release packaging uses, so what is validated
+      # here is what actually gets uploaded.
+      - name: Build the package
+        run: |
+          mkdir -p ~/pkg/BuckarooPayments
+          rsync -r --exclude-from="$GITHUB_WORKSPACE/.packageignore" \
+            "$GITHUB_WORKSPACE/" ~/pkg/BuckarooPayments/
+          echo "--- packaged contents (top level) ---"
+          ls -A ~/pkg/BuckarooPayments
+
+      # Deliberately no `composer install` here: the verifier resolves the
+      # extension's dependencies itself, and a vendor/ directory in the package
+      # makes it skip that resolution, after which every Shopware class comes
+      # back as not found.
+
+      # A fast, deterministic gate for the one regression that stopped the
+      # v3.5.0 analysis - a Shopware bundle referenced from PHP while sitting in
+      # require-dev. This gates; the verifier below does not yet.
+      - name: Check every referenced Shopware bundle is a runtime requirement
+        run: php .github/scripts/check-runtime-symbols.php ~/pkg/BuckarooPayments
+
+      # --full is what runs PHPStan, i.e. what the Store shows as its static
+      # code analysis. Plain `validate` only lints the manifest and config and
+      # returns clean on a package the Store rejects.
       - name: Validate extension
-        run: shopware-cli extension validate .
+        run: shopware-cli extension validate --full ~/pkg/BuckarooPayments

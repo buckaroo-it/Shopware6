@@ -1,3 +1,9 @@
+# Known pre-existing violations live in phpstan-baseline.neon so that CI can
+# fail on new ones. Shrink that file as the entries get fixed; do not
+# regenerate it to absorb new errors.
+includes:
+    - phpstan-baseline.neon
+
 parameters:
     level: 9
     paths:
@@ -6,5 +12,9 @@ parameters:
         - identifier: missingType.iterableValue
         - identifier: missingType.generics
     treatPhpDocTypesAsCertain: false
+    # composer.lock is not committed, so every environment resolves its own
+    # shopware/core within ">=6.5.8.0 <6.8". Baselined errors that happen not
+    # to reproduce against a given resolution must not fail the build.
+    reportUnmatchedIgnoredErrors: false
     scanFiles:
         - ./stubs/shopware-core-stubs.php

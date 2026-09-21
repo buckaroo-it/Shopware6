@@ -11,10 +11,13 @@ jobs:
         id: generate-name
         run: echo "archiveName=BuckarooPayments-${GITHUB_REF#refs/tags/}.zip" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v4
+      # Exclusions live in .packageignore so the release package and the
+      # extension-verifier workflow that checks it cannot drift apart.
       - name: Pack for marketplace
         run: |
           mkdir -p ~/tmp/BuckarooPayments
-          rsync -r --exclude='.git' --exclude='.git' --exclude='.idea' ${{ github.workspace }}/ ~/tmp/BuckarooPayments/
+          rsync -r --exclude-from='${{ github.workspace }}/.packageignore' \
+            ${{ github.workspace }}/ ~/tmp/BuckarooPayments/
           cd ~/tmp
           find . -type f -exec chmod 644 {} \;
           find . -type d -exec chmod 755 {} \;

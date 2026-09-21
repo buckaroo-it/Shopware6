@@ -264,10 +264,15 @@ abstract class AbstractPaymentController extends StorefrontController
     /**
      * Get cart by token
      *
+     * Never null: CartService::load() returns a non-nullable Cart, and
+     * Shopware's cart persister throws when the token has no cart rather than
+     * returning one. The previous `Cart|null` here made every caller look like
+     * it was passing a nullable cart on to code that requires one.
+     *
      * @param mixed $token
      * @param SalesChannelContext $salesChannelContext
      *
-     * @return Cart|null
+     * @return Cart
      */
     protected function getCartByToken($token, SalesChannelContext $salesChannelContext)
     {
