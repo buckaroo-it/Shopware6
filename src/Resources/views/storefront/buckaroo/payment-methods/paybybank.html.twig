@@ -31,7 +31,7 @@
                                 class="custom-control-input bank-method-input">
                                 <label class="custom-control-label bank-method-label" for="bankMethod{{ issuer.code }}">
                                     <img src="{{ asset("bundles/buckaroopayments/storefront/buckaroo/issuers/#{issuer.imgName}.svg")}}" wdith="45" class="bank-method-image" alt="{{ issuer.name }}" title="{{ issuer.name }}">
-                                    <strong>{{ issuer.name }}</strong>
+                                    <strong class="bank-method-name">{{ issuer.name }}</strong>
                                 </label>
                             </div>
                         {% endfor %}

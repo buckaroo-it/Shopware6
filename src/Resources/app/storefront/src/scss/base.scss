@@ -9,6 +9,9 @@
     top: 30px;
     right: 27px;
 
+    // The card brand image (#card_kind_img) is not rendered by one of this
+    // plugin's templates, so it cannot be given a class to target.
+    // stylelint-disable-next-line selector-max-type
     img{
         width: 45px;
         max-height: 30px;
@@ -38,6 +41,10 @@
         .custom-control-label {
             display: flex;
             align-items: center;
+
+            // .custom-control-label is Shopware's own radio markup; the issuer
+            // image inside it carries no class this plugin controls.
+            // stylelint-disable-next-line selector-max-type
             img {
                 margin: 0 5px;
             }
@@ -90,14 +97,14 @@
         padding-bottom: 5px;
         cursor: pointer;
         display: block;
-        strong {
+        .bank-method-name {
             display: block;
             text-align: center;
             font-size: 12px;
             flex: 100% 0 0;
         }
 
-        img {
+        .bank-method-image {
             padding: 10px 20px;
             width: 100%;
         }
@@ -113,7 +120,7 @@
     align-items: center;
 }
 
-.bk-ideal-qr img {
+.bk-ideal-qr-image {
     max-height: 50vh;
 }
 
@@ -144,8 +151,8 @@
     .payment-method-label {
         display: flex;
         
-        img.payment-method-image,
-        img.bk-payment-image {
+        .payment-method-image,
+        .bk-payment-image {
             order: 2;
             flex: 0 0 30%;
             margin-left: 2rem;
@@ -155,6 +162,9 @@
             order: 1;
             flex: 0 0 70%;
 
+            // The description is merchant-authored rich text rendered with |raw,
+            // so its paragraphs cannot be given a class.
+            // stylelint-disable-next-line selector-max-type
             p {
                 margin: 0;
             }
@@ -162,16 +172,20 @@
     }
 }
 
-.footer-logo {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    max-height: 38px !important;
-    max-width: 100px !important;
-    width: auto !important;
-    height: auto !important;
-    min-height: 20px !important;
-    min-width: 60px !important;
+// The payment logos this plugin renders in the footer override
+// (layout/footer/footer.html.twig) reuse Shopware's .footer-logo class, so the
+// theme's own rules apply too. Scoping to .footer-logos > .footer-logo.is-payment
+// wins on specificity, which is why none of these need !important.
+.footer-logos .footer-logo.is-payment {
+    display: block;
+    visibility: visible;
+    opacity: 1;
+    max-height: 38px;
+    max-width: 100px;
+    width: auto;
+    height: auto;
+    min-height: 20px;
+    min-width: 60px;
     object-fit: contain;
 }
 
