@@ -218,13 +218,20 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         // This ensures the order total in Shopware matches the amount sent to Buckaroo
     }
 
+    /**
+     * Storefront only convenience, see PaymentResponseHandler::handleRedirectResponse().
+     * PaymentHandlerSimple delegates here on Shopware 6.5/6.6, where pay() is reachable
+     * through the store-api as well, so a missing session must not fail the payment.
+     */
     private function handleRedirectResponse(
         AsyncPaymentTransactionStruct $transaction
     ): void {
-        $this->asyncPaymentService
-            ->checkoutHelper
-            ->getSession()
-            ->set('buckaroo_latest_order', $transaction->getOrder()->getId());
+        $session = $this->asyncPaymentService->checkoutHelper->getSessionIfAvailable();
+        if ($session === null) {
+            return;
+        }
+
+        $session->set('buckaroo_latest_order', $transaction->getOrder()->getId());
     }
 
     private function handlePaymentStatus(
@@ -462,10 +469,12 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
     protected function getRequestBag(RequestDataBag $currentBag): RequestDataBag
     {
         if ($this->isUpdateOrder($currentBag)) {
-            $request = new Request($_GET, $_POST);
-            return new RequestDataBag(
-                $request->request->all()
-            );
+            $request = $this->asyncPaymentService->checkoutHelper->getCurrentRequest();
+            if ($request !== null) {
+                return new RequestDataBag(
+                    $request->request->all()
+                );
+            }
         }
         return $currentBag;
     }

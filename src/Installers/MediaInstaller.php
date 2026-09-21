@@ -106,7 +106,10 @@ class MediaInstaller implements InstallerInterface
         try {
             $mediaFolderId = $this->getOrCreateMediaFolder($context->getContext());
         } catch (\Throwable $folderError) {
-            $this->logMediaWarning('Could not create or resolve Buckaroo media folder; skipping media import.', $folderError);
+            $this->logMediaWarning(
+                'Could not create or resolve Buckaroo media folder; skipping media import.',
+                $folderError
+            );
             return;
         }
 
@@ -469,7 +472,10 @@ class MediaInstaller implements InstallerInterface
         try {
             $mediaFolderId = $this->getOrCreateMediaFolder($context);
         } catch (\Throwable $folderError) {
-            $this->logMediaWarning('Could not create or resolve Buckaroo media folder; skipping media update.', $folderError);
+            $this->logMediaWarning(
+                'Could not create or resolve Buckaroo media folder; skipping media update.',
+                $folderError
+            );
             return;
         }
 

@@ -121,16 +121,29 @@ class PaymentResponseHandler
         );
     }
 
+    /**
+     * Remembers the order the customer was last redirected to Buckaroo for, so the
+     * storefront back button and the cancel route can offer "payment canceled" instead
+     * of a bare cart page.
+     *
+     * This is a storefront only convenience and must stay optional: the payment handler
+     * that reaches this code also runs without a session (store-api / headless
+     * checkouts), and the cancel route recovers the same order id from the
+     * additionalParameters Buckaroo posts back.
+     */
     private function handleRedirectResponse(OrderTransactionEntity $orderTransaction): void
     {
         $order = $orderTransaction->getOrder();
         if ($order === null) {
             return;
         }
-        $this->asyncPaymentService
-            ->checkoutHelper
-            ->getSession()
-            ->set('buckaroo_latest_order', $order->getId());
+
+        $session = $this->asyncPaymentService->checkoutHelper->getSessionIfAvailable();
+        if ($session === null) {
+            return;
+        }
+
+        $session->set('buckaroo_latest_order', $order->getId());
     }
 
     private function redirectToFinishPage(OrderTransactionEntity $orderTransaction): RedirectResponse

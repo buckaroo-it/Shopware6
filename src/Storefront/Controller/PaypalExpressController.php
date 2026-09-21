@@ -251,9 +251,6 @@ class PaypalExpressController extends AbstractPaymentController
 
         $customer = $request->request->all()['customer'];
 
-        // `customer` arrives straight from the request, so it is only known to
-        // be mixed here: without the is_array() guard a scalar would be read as
-        // a string offset instead of being rejected as an invalid request.
         if (!is_array($customer) || !isset($customer['shipping_address'])) {
             throw new InvalidParameterException("Invalid payment request", 1);
         }

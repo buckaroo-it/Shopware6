@@ -52,7 +52,11 @@ class PaymentPayloadBuilder
             'amountDebit'   => $this->feeCalculator->getOrderTotalWithFee($order, $salesChannelId, $paymentCode),
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
             'returnURL'     => $finalReturnUrl,
-            'returnURLCancel' => $this->urlGenerator->getCancelRedirectUrlForOrder($order, $salesChannelContext->getToken(), $finalReturnUrl),
+            'returnURLCancel' => $this->urlGenerator->getCancelRedirectUrlForOrder(
+                $order,
+                $salesChannelContext->getToken(),
+                $finalReturnUrl
+            ),
             'pushURL'       => $this->urlGenerator->getPushUrl($order, $finalReturnUrl),
             'additionalParameters' => [
                 'orderTransactionId' => $orderTransaction->getId(),

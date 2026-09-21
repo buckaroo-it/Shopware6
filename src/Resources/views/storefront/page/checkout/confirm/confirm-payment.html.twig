@@ -28,9 +28,14 @@
             environment: page.extensions.buckaroo.googlepayEnvironment
         } %}
 
-        <div data-bk-googlepay data-google-pay-plugin-options='{{ googlePayConfig|json_encode }}'>
-            <div id="google-pay-button-container"></div>
-        </div>
+        {#
+            No #google-pay-button-container here: with page "checkout" the storefront
+            plugin wires #confirmFormSubmit instead of rendering a button, so the
+            container was never filled. It also has to stay out of the markup because
+            the express button below renders into a container of that id, and a
+            document-wide lookup would otherwise resolve to this one first.
+        #}
+        <div data-bk-googlepay data-google-pay-plugin-options='{{ googlePayConfig|json_encode }}'></div>
     {% endif %}
 
     {% if page.extensions.buckaroo %}
@@ -40,6 +45,13 @@
             cannot_create_payment: "buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
         } %}
 
+        {#
+            Apple Pay and Google Pay are passed page: "cart" here on purpose. Both
+            express buttons render their own button and take the address from the
+            wallet, which is the cart flow. page: "checkout" is reserved for the
+            standard payment method, where the storefront plugin wires
+            #confirmFormSubmit instead of rendering a button.
+        #}
         {% sw_include '@BuckarooPayments/storefront/buckaroo/express-checkout-buttons.html.twig' with {
             paypalOptions: buckaroo.showPaypalExpress ? {
                 page: "checkout",
@@ -53,6 +65,14 @@
                 merchantId: buckaroo.applePayMerchantId,
                 cultureCode: page.header.activeLanguage.translationCode.code,
                 i18n: expressI18n
+            } : null,
+            googlePayOptions: buckaroo.showGooglePay ? {
+                page: "cart",
+                merchantId: buckaroo.googlepayMerchantId,
+                gatewayMerchantId: buckaroo.googlepayGatewayMerchantId,
+                merchantName: buckaroo.websiteKey,
+                buttonColor: buckaroo.googlepayButtonStyle,
+                environment: buckaroo.googlepayEnvironment
             } : null,
             idealOptions: buckaroo.showIdealFastCheckout ? {
                 page: "checkout",
