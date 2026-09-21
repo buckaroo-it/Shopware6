@@ -47,11 +47,11 @@ class PaymentContextCookieSubscriber implements EventSubscriberInterface
         $response = $event->getResponse();
         $expire = new \DateTimeImmutable('+' . self::CONTEXT_TOKEN_LIFETIME_DAYS . ' days');
 
-        $cookie = Cookie::create('sw-context-token')
+        $cookie = Cookie::create('sw-context-token', secure: true)
             ->withValue($contextToken)
             ->withExpires($expire)
             ->withPath('/')
-            ->withSecure($request->isSecure())
+            ->withSecure(true)
             ->withHttpOnly(false)
             ->withSameSite(Cookie::SAMESITE_LAX);
 
