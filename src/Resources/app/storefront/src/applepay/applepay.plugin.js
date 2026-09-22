@@ -1,7 +1,7 @@
-import HttpClient from "src/service/http-client.service";
-import Plugin from "src/plugin-system/plugin.class";
+import { post } from "../helper/buckaroo-http";
 import FormSerializeUtil from "src/utility/form/form-serialize.util";
 import ApplePay from "./sdk";
+const Plugin = window.PluginBaseClass;
 
 export default class ApplePayPlugin extends Plugin {
   static options = {
@@ -9,7 +9,6 @@ export default class ApplePayPlugin extends Plugin {
     merchantId: null,
     cultureCode: "nl-NL",
   };
-  httpClient = new HttpClient();
 
   url = "/buckaroo";
 
@@ -128,7 +127,7 @@ export default class ApplePayPlugin extends Plugin {
     }
 
     return new Promise((resolve, reject) => {
-      this.httpClient.post(
+      post(
         `${this.url}/apple/cart/get`,
         JSON.stringify({
           form: formData,
@@ -154,40 +153,39 @@ export default class ApplePayPlugin extends Plugin {
    * synchronously from a click handler with already-fetched cart data.
    */
   initApplePayment(cart) {
-    const self = this;
     try {
       const options = new ApplePay.PayOptions(
         cart.storeName,
         cart.country,
         cart.currency,
-        self.options.cultureCode,
-        self.options.merchantId,
+        this.options.cultureCode,
+        this.options.merchantId,
         cart.lineItems,
         cart.totals,
         "shipping",
-        self.isCheckout(cart.shippingMethods, []),
-        self.captureFunds.bind(self),
-        self.isCheckout(self.updateCart.bind(self), null),
-        self.isCheckout(self.updateCart.bind(self), null),
+        this.isCheckout(cart.shippingMethods, []),
+        this.captureFunds.bind(this),
+        this.isCheckout(this.updateCart.bind(this), null),
+        this.isCheckout(this.updateCart.bind(this), null),
         // Billing: keep the card holder name in standard checkout too — it is
         // forwarded to Buckaroo as customerCardName (matches the old SDK and
         // the Magento implementation, which used the full default field set).
-        self.isCheckout(["email", "name", "postalAddress"], ["name"]),
-        self.isCheckout(["email", "name", "postalAddress"], []),
+        this.isCheckout(["email", "name", "postalAddress"], ["name"]),
+        this.isCheckout(["email", "name", "postalAddress"], []),
       );
 
-      self.payment = new ApplePay.PayPayment(options);
-      self.payment.beginPayment();
+      this.payment = new ApplePay.PayPayment(options);
+      this.payment.beginPayment();
     } catch (e) {
       // Apple Pay cannot open here. Keep window.isApplePay true so no order is
       // placed without authorisation; surface a message and re-enable the button.
       console.warn("Apple Pay could not open the payment sheet:", e);
-      self.displayErrorMessage(
-        (self.options.i18n && self.options.i18n.cannot_create_payment) ||
+      this.displayErrorMessage(
+        (this.options.i18n && this.options.i18n.cannot_create_payment) ||
           "Apple Pay is not available in this browser."
       );
-      if (self.options.page === "checkout") {
-        self.setConfirmButtonDisabled(false);
+      if (this.options.page === "checkout") {
+        this.setConfirmButtonDisabled(false);
       }
     }
   }
@@ -207,7 +205,7 @@ export default class ApplePayPlugin extends Plugin {
    */
   captureFunds(payment) {
     return new Promise((resolve) => {
-      this.httpClient.post(
+      post(
         `${this.url}/apple/order/create`,
         JSON.stringify({
           payment: JSON.stringify(payment),
@@ -215,10 +213,10 @@ export default class ApplePayPlugin extends Plugin {
           page: this.options.page,
         }),
         (response) => {
-          let resp = null;
+          let resp;
           try {
             resp = JSON.parse(response);
-          } catch (e) {
+          } catch {
             resp = { error: true };
           }
           if (resp && resp.redirect) {
@@ -269,14 +267,14 @@ export default class ApplePayPlugin extends Plugin {
     }
 
     return new Promise((resolve) => {
-      this.httpClient.post(
+      post(
         `${this.url}/apple/cart/update`,
         JSON.stringify(request),
         (response) => {
-          let resp = null;
+          let resp;
           try {
             resp = JSON.parse(response);
-          } catch (e) {
+          } catch {
             resp = { error: true, message: null };
           }
 

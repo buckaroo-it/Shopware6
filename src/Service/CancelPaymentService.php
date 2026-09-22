@@ -58,7 +58,7 @@ class CancelPaymentService
             }
 
             $amount = $transaction->get('amount');
-            $paymentCode = $transaction->get('transaction_method');
+            $paymentCode = $transaction->get('transactionMethod');
 
             if (
                 !is_scalar($amount) ||
@@ -105,7 +105,7 @@ class CancelPaymentService
             return;
         }
 
-        $amountCredit = $transaction->get('amount_credit');
+        $amountCredit = $transaction->get('amountCredit');
 
         if (!is_scalar($amountCredit)) {
             $amountCredit = 0;
@@ -127,7 +127,7 @@ class CancelPaymentService
             ->save(
                 (string)$transactionId,
                 [
-                    'amount_credit' => (string)((float)$amountCredit + (float)$transactionAmount)
+                    'amountCredit' => (string)((float)$amountCredit + (float)$transactionAmount)
                 ],
                 $context,
                 []

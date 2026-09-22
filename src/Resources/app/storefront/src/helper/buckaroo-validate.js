@@ -1,4 +1,4 @@
-import Plugin from 'src/plugin-system/plugin.class';
+const Plugin = window.PluginBaseClass;
 
 export default class BuckarooPaymentValidateSubmit extends Plugin {
 
@@ -9,7 +9,7 @@ export default class BuckarooPaymentValidateSubmit extends Plugin {
             this._toggleApplePay();
             this._getActivePayByBankLogo();
         } catch (e) {
-            console.log('init error', e);
+            console.error('init error', e);
         }
     }
 

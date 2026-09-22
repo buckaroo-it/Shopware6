@@ -1,7 +1,7 @@
 import template from './buckaroo-payment-detail.html.twig';
 import './buckaroo-payment-detail.scss';
 
-const { Component, Filter, Context } = Shopware;
+const { Component, Context } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 
 Component.register('buckaroo-payment-detail', {
@@ -159,7 +159,6 @@ Component.register('buckaroo-payment-detail', {
         },
 
         createdComponent() {
-            let that = this;
             const orderId = this.$route.params.id;
 
             this.systemConfigApiService.getValues('BuckarooPayments.config', null)
@@ -177,7 +176,7 @@ Component.register('buckaroo-payment-detail', {
             orderCriteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
 
             orderRepository.get(orderId, Context.api, orderCriteria).then((order) => {
-                that.checkedIsAuthorized(order);
+                this.checkedIsAuthorized(order);
                 const buckarooKey = order.transactions &&
                     order.transactions.last().paymentMethod &&
                     order.transactions.last().paymentMethod.customFields &&
@@ -185,25 +184,25 @@ Component.register('buckaroo-payment-detail', {
                         ? order.transactions.last().paymentMethod.customFields.buckaroo_key.toLowerCase()
                         : '';
 
-                that.isCapturePossible = !!buckarooKey &&
-                    (['klarnakp', 'billink', 'afterpay', 'klarna', 'wero'].includes(buckarooKey) || that.isAfterpayCapturePossible(order));
+                this.isCapturePossible = !!buckarooKey &&
+                    (['klarnakp', 'billink', 'afterpay', 'klarna', 'wero'].includes(buckarooKey) || this.isAfterpayCapturePossible(order));
 
-                that.isKlarnaMor = buckarooKey === 'klarna';
+                this.isKlarnaMor = buckarooKey === 'klarna';
 
-                that.isPaylinkVisible = that.isPaylinkAvailable = this.getConfigValue('paylinkEnabled') && order.stateMachineState && order.stateMachineState.technicalName && order.stateMachineState.technicalName == 'open' && order.transactions && order.transactions.last().stateMachineState.technicalName == 'open';
+                this.isPaylinkVisible = this.isPaylinkAvailable = this.getConfigValue('paylinkEnabled') && order.stateMachineState && order.stateMachineState.technicalName && order.stateMachineState.technicalName == 'open' && order.transactions && order.transactions.last().stateMachineState.technicalName == 'open';
             });
 
             this.BuckarooPaymentService.getBuckarooTransaction(orderId)
                 .then((response) => {
-                    that.orderItems = [];
-                    that.transactionsToRefund = [];
-                    that.relatedResources = [];
+                    this.orderItems = [];
+                    this.transactionsToRefund = [];
+                    this.relatedResources = [];
 
                     this.$emit('loading-change', false);
 
                     if (response.orderItems && Array.isArray(response.orderItems)) {
                         response.orderItems.forEach((element) => {
-                            that.orderItems.push({
+                            this.orderItems.push({
                                 id: element.id,
                                 name: element.name,
                                 quantity: element.quantity,
@@ -216,12 +215,12 @@ Component.register('buckaroo-payment-detail', {
                     }
 
                     // Use backend-calculated total (single source of truth)
-                    that.buckaroo_refund_amount = response.refundTotals ? response.refundTotals.totalAmount : 0;
-                    that.currency = response.refundTotals ? response.refundTotals.currency : 'EUR';
+                    this.buckaroo_refund_amount = response.refundTotals ? response.refundTotals.totalAmount : 0;
+                    this.currency = response.refundTotals ? response.refundTotals.currency : 'EUR';
 
                     if (response.transactionsToRefund && Array.isArray(response.transactionsToRefund)) {
                         response.transactionsToRefund.forEach((element) => {
-                            that.transactionsToRefund.push({
+                            this.transactionsToRefund.push({
                                 id: element.id,
                                 transactions: element.transactions,
                                 amount: element.total,
@@ -230,14 +229,14 @@ Component.register('buckaroo-payment-detail', {
                                 transaction_method: element.transaction_method,
                                 logo: element.transaction_method ? element.logo : null
                             });
-                            that.currency = element.currency;
+                            this.currency = element.currency;
                         });
                     }
-                    that.recalculateRefundItems();
+                    this.recalculateRefundItems();
 
                     if (response.transactions && Array.isArray(response.transactions)) {
                         response.transactions.forEach((element) => {
-                            that.relatedResources.push({
+                            this.relatedResources.push({
                                 id: element.id,
                                 transaction_key: element.transaction,
                                 total: element.total,
@@ -254,7 +253,7 @@ Component.register('buckaroo-payment-detail', {
 
                 })
                 .catch((errorResponse) => {
-                    console.log('errorResponse', errorResponse);
+                    console.error('errorResponse', errorResponse);
                 });
 
         },
@@ -267,27 +266,26 @@ Component.register('buckaroo-payment-detail', {
             this.isAuthorized = order?.transactions?.last()?.stateMachineState?.technicalName === "authorized";
         },
 
-        refundOrder(transaction, amount) {
-            let that = this;
-            that.isRefundPossible = false;
+        refundOrder(transaction) {
+            this.isRefundPossible = false;
             this.BuckarooPaymentService.refundPayment(transaction, this.transactionsToRefund, this.orderItems, this.getCustomRefundAmount())
                 .then((response) => {
                     for (const key in response) {
                         if (response[key].status) {
                             this.$store.dispatch('notification/createNotification', {
                                 variant: 'success',
-                                title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                                message: that.$tc(response[key].message) + response[key].amount
+                                title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
+                                message: this.$tc(response[key].message) + response[key].amount
                             });
                         } else {
                             this.$store.dispatch('notification/createNotification', {
                                 variant: 'error',
-                                title: that.$tc('buckaroo-payment.settingsForm.titleError'),
-                                message: that.$tc(response[key].message)
+                                title: this.$tc('buckaroo-payment.settingsForm.titleError'),
+                                message: this.$tc(response[key].message)
                             });
                         }
                     }
-                    that.isRefundPossible = true;
+                    this.isRefundPossible = true;
                     this.createdComponent();
                 })
                 .catch((errorResponse) => {
@@ -296,31 +294,30 @@ Component.register('buckaroo-payment-detail', {
                         title: this.$tc('buckaroo-payment.settingsForm.titleError'),
                         message: errorResponse.response.data.message
                     });
-                    that.isRefundPossible = true;
+                    this.isRefundPossible = true;
                 });
         },
 
         createPaylink(transaction) {
-            let that = this;
-            that.isPaylinkAvailable = false;
+            this.isPaylinkAvailable = false;
             this.BuckarooPaymentService.createPaylink(transaction, this.transactionsToRefund, this.orderItems)
                 .then((response) => {
                     if (response.status) {
-                        that.paylinkMessage = that.$tc(response.message) + response.paylinkhref;
-                        that.paylink = response.paylink;
+                        this.paylinkMessage = this.$tc(response.message) + response.paylinkhref;
+                        this.paylink = response.paylink;
                         this.$store.dispatch('notification/createNotification', {
                             variant: 'success',
-                            title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                            message: that.paylinkMessage
+                            title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
+                            message: this.paylinkMessage
                         });
                     } else {
                         this.$store.dispatch('notification/createNotification', {
                             variant: 'error',
-                            title: that.$tc('buckaroo-payment.settingsForm.titleError'),
-                            message: that.$tc(response.message)
+                            title: this.$tc('buckaroo-payment.settingsForm.titleError'),
+                            message: this.$tc(response.message)
                         });
                     }
-                    that.isPaylinkAvailable = true;
+                    this.isPaylinkAvailable = true;
                 })
                 .catch((errorResponse) => {
                     this.$store.dispatch('notification/createNotification', {
@@ -328,7 +325,7 @@ Component.register('buckaroo-payment-detail', {
                         title: this.$tc('buckaroo-payment.settingsForm.titleError'),
                         message: errorResponse.response.data.message
                     });
-                    that.isPaylinkAvailable = true;
+                    this.isPaylinkAvailable = true;
                 });
         },
 
@@ -337,55 +334,53 @@ Component.register('buckaroo-payment-detail', {
         },
 
         captureOrder(transaction) {
-            let that = this;
-            that.isCapturePossible = false;
+            this.isCapturePossible = false;
             this.BuckarooPaymentService.captureOrder(transaction, this.transactionsToRefund, this.orderItems)
                 .then((response) => {
                     if (response.status) {
                         this.$store.dispatch('notification/createNotification', {
                             variant: 'success',
-                            title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
+                            title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
                             message: response.message
                         });
                     } else {
                         this.$store.dispatch('notification/createNotification', {
                             variant: 'error',
-                            title: that.$tc('buckaroo-payment.settingsForm.titleError'),
+                            title: this.$tc('buckaroo-payment.settingsForm.titleError'),
                             message: response.message
                         });
                     }
-                    that.isCapturePossible = true;
+                    this.isCapturePossible = true;
                     this.createdComponent();
                 })
                 .catch((errorResponse) => {
                     this.$store.dispatch('notification/createNotification', {
                         variant: 'error',
                         title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                        message: that.$tc(errorResponse.response.data.message)
+                        message: this.$tc(errorResponse.response.data.message)
                     });
-                    that.isCapturePossible = true;
+                    this.isCapturePossible = true;
                 });
         },
 
         klarnaMor(action) {
-            let that = this;
-            that.isLoading = true;
+            this.isLoading = true;
             this.BuckarooPaymentService.klarnaMor(this.orderId, action)
                 .then((response) => {
                     if (response.status) {
                         this.$store.dispatch('notification/createNotification', {
                             variant: 'success',
-                            title: that.$tc('buckaroo-payment.settingsForm.titleSuccess'),
+                            title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
                             message: response.message
                         });
                     } else {
                         this.$store.dispatch('notification/createNotification', {
                             variant: 'error',
-                            title: that.$tc('buckaroo-payment.settingsForm.titleError'),
+                            title: this.$tc('buckaroo-payment.settingsForm.titleError'),
                             message: response.message
                         });
                     }
-                    that.isLoading = false;
+                    this.isLoading = false;
                     this.createdComponent();
                 })
                 .catch((errorResponse) => {
@@ -396,7 +391,7 @@ Component.register('buckaroo-payment-detail', {
                             ? errorResponse.response.data.message
                             : 'An error occurred'
                     });
-                    that.isLoading = false;
+                    this.isLoading = false;
                 });
         }
     }

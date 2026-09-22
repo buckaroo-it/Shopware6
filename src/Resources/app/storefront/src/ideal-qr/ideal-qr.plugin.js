@@ -1,5 +1,5 @@
-import Plugin from "src/plugin-system/plugin.class";
-import HttpClient from "src/service/http-client.service";
+import { post } from "../helper/buckaroo-http";
+const Plugin = window.PluginBaseClass;
 
 export default class IdealQrPlugin extends Plugin {
   static options = {
@@ -7,8 +7,6 @@ export default class IdealQrPlugin extends Plugin {
     pullUrl: null,
     interval: 5000,
   };
-
-  httpClient = new HttpClient();
 
   init() {
     this.pullStatus();
@@ -22,8 +20,7 @@ export default class IdealQrPlugin extends Plugin {
   }
 
   singlePullStatus() {
-    this.options;
-    this.httpClient.post(
+    post(
       this.options.pullUrl,
       JSON.stringify({
         orderId: this.options.orderId,

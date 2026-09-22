@@ -11,6 +11,50 @@ parameters:
     ignoreErrors:
         - identifier: missingType.iterableValue
         - identifier: missingType.generics
+        # MediaInstaller deletes its own temporary upload file, which it creates
+        # with tempnam(sys_get_temp_dir(), ...) - precisely what this rule asks
+        # for. The write never touches the project directory.
+        -
+            identifier: shopware.forbidLocalDiskWrite
+            path: ./src/Installers/MediaInstaller.php
+            message: '#Usage of unlink is forbidden to local files#'
+        # Deprecated-for-6.8 APIs that have no replacement inside ">=6.5.8.0 <6.8".
+        # These are scoped to the files that need them, so a deprecated API used
+        # anywhere else still fails the build.
+        #
+        # TokenFactoryInterfaceV2 / TokenStruct -> PaymentTokenGenerator,
+        # PaymentTokenLifecycle and PaymentToken. Verified against the published
+        # tags: those three classes are absent in 6.5.8.0, 6.6.10.0, 6.7.0.0 and
+        # 6.7.2.0, and first appear in 6.7.5.0 - so they cannot be used while the
+        # plugin still supports 6.5 and 6.6.
+        -
+            identifier: parameter.deprecatedInterface
+            paths:
+                - ./src/Service/UrlService.php
+                - ./src/Service/PaymentServiceDecorator.php
+        -
+            identifier: method.deprecatedInterface
+            paths:
+                - ./src/Service/UrlService.php
+                - ./src/Service/PaymentServiceDecorator.php
+        -
+            identifier: method.deprecatedClass
+            paths:
+                - ./src/Service/UrlService.php
+                - ./src/Service/PaymentServiceDecorator.php
+        -
+            identifier: new.deprecatedClass
+            path: ./src/Service/UrlService.php
+        # CookieProviderInterface -> CookieGroupCollectEvent. That event does not
+        # exist in any published Shopware release: Framework/Cookie/ on the
+        # storefront trunk holds only AppCookieProvider, CookieProvider and
+        # CookieProviderInterface. There is nothing to migrate to yet.
+        -
+            identifier: class.implementsDeprecatedInterface
+            path: ./src/Storefront/Framework/Cookie/BuckarooCookieProvider.php
+        -
+            identifier: parameter.deprecatedInterface
+            path: ./src/Storefront/Framework/Cookie/BuckarooCookieProvider.php
     treatPhpDocTypesAsCertain: false
     # composer.lock is not committed, so every environment resolves its own
     # shopware/core within ">=6.5.8.0 <6.8". Baselined errors that happen not

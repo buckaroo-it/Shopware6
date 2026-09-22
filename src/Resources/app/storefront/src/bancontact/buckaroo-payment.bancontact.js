@@ -1,4 +1,4 @@
-import Plugin from 'src/plugin-system/plugin.class';
+const Plugin = window.PluginBaseClass;
 
 export default class BuckarooPaymentBancontact extends Plugin {
     init()
@@ -53,7 +53,7 @@ export default class BuckarooPaymentBancontact extends Plugin {
         }
     }
 
-    _handleInputChanged(event)
+    _handleInputChanged()
     {
         this._CheckValidate();
         this._getEncryptedData();

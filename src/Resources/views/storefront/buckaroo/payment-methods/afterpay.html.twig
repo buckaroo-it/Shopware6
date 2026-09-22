@@ -14,7 +14,7 @@
                  context.customer.activeBillingAddress.company|length == 0 and
                  context.customer.activeShippingAddress.company|length == 0
             %}
-                   <p style="color:red"> {{ "buckaroo.checkout.company_required"|trans|sw_sanitize }}</p>
+                   <p class="bk-error-text"> {{ "buckaroo.checkout.company_required"|trans|sw_sanitize }}</p>
             {% endif %}
             {% set isAfterpayB2B =  (
                     page.extensions.buckaroo.afterpay_customer_type == 'both' and
@@ -47,7 +47,7 @@
                            name="buckaroo_afterpay_coc"
                            placeholder="{{ "buckaroo.checkout.CocPlaceholder"|trans|striptags }}"
                            required="required">
-                    <label class="form-label" style="display:none; color:red" for="buckaroo_afterpay_coc" id="buckarooCocError">
+                    <label class="form-label bk-field-error" for="buckaroo_afterpay_coc" id="buckarooCocError">
                         {{ "buckaroo.checkout.buckarooMobileCocError"|trans|sw_sanitize }}
                     </label>
                 </div>
@@ -66,7 +66,7 @@
                        value=""
                        required="required"
                        minlength="10">
-                <label class="form-label" style="display:none; color:red" for="buckarooAfterpayPhone" id="buckarooMobilePhoneError">
+                <label class="form-label bk-field-error" for="buckarooAfterpayPhone" id="buckarooMobilePhoneError">
                     {{ "buckaroo.checkout.buckarooMobilePhoneError"|trans|sw_sanitize }}
                 </label>
             </div>
@@ -84,7 +84,7 @@
                     form="confirmOrderForm"
                     required="required"
                     >
-                    <label class="form-label" style="display:none; color:red" for="buckaroo_afterpay_DoB" id="buckarooDoBError">
+                    <label class="form-label bk-field-error" for="buckaroo_afterpay_DoB" id="buckarooDoBError">
                         {{ "buckaroo.checkout.buckarooDoBError"|trans|sw_sanitize }}
                     </label>
                 </div>
