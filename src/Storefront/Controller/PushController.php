@@ -129,6 +129,23 @@ class PushController extends StorefrontController
 
         $this->logger->info(__METHOD__ . "|1|", [$request->request->all()]);
 
+        $salesChannelId     = $salesChannelContext->getSalesChannelId();
+
+        /*
+         * The Buckaroo signature is the only thing that authenticates a push. It is therefore
+         * verified before a single push parameter is acted on, and there is deliberately no
+         * exception to it: until the signature over the body has been verified the whole body
+         * is attacker controlled, so no parameter in it - iDEAL Fast Checkout included - can
+         * be trusted to grant itself an exemption.
+         */
+        if (!$this->signatureValidationService->validateSignature(
+            $request,
+            $salesChannelId
+        )) {
+            $this->logger->info(__METHOD__ . "|5|");
+            return $this->response('buckaroo.messages.signatureIncorrect', false);
+        }
+
         $status             = (string)$request->request->get('brq_statuscode');
         $context            = $salesChannelContext->getContext();
 
@@ -150,7 +167,6 @@ class PushController extends StorefrontController
         $mutationType       = (string)$request->request->get('brq_mutationtype');
         $brqPaymentMethod   = (string)$request->request->get('brq_transaction_method');
         $originalTransactionKey   = (string)$request->request->get('brq_transactions');
-        $salesChannelId     =  $salesChannelContext->getSalesChannelId();
 
         if ($this->isIdealQrRequest($request)) {
             $entity = $this->getIdealQrEntity($request, $salesChannelContext);
@@ -179,14 +195,6 @@ class PushController extends StorefrontController
         if (empty($brqOrderId) || empty($orderTransactionId)) {
             $this->logger->warning(__METHOD__ . "|Missing order or transaction ID|orderId:" . $brqOrderId . "|transactionId:" . $orderTransactionId . "|invoice:" . $brqInvoicenumber);
             return $this->response('buckaroo.messages.paymentError', false);
-        }
-
-        if (!$this->signatureValidationService->validateSignature(
-            $request,
-            $salesChannelId
-        ) && !$this->isIdealFastCheckout($request)) {
-            $this->logger->info(__METHOD__ . "|5|");
-            return $this->response('buckaroo.messages.signatureIncorrect', false);
         }
 
         if ($this->isIdealFastCheckout($request)) {
