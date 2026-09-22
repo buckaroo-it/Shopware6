@@ -224,7 +224,6 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
 
         $transaction = $this->orderTransactionRepository
             ->search($criteria, $context)
-            ->getEntities()
             ->first();
 
         if (!$transaction instanceof OrderTransactionEntity) {

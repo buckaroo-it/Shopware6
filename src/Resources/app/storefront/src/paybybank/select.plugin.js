@@ -1,4 +1,5 @@
-const Plugin = window.PluginBaseClass;
+import HttpClient from "src/service/http-client.service";
+import Plugin from "src/plugin-system/plugin.class";
 
 const BK_IS_MOBILE_EVENT_NAME = "bk-is-mobile";
 const BK_SELECTED_ISSUER_EVENT_NAME = "bk-paybybank-selected";
@@ -6,6 +7,8 @@ export default class BuckarooPayByBankSelect extends Plugin {
   static options = {
     issuerSelected: "",
   };
+
+  httpClient = new HttpClient();
 
   init() {
     this.listenToIsMobile();

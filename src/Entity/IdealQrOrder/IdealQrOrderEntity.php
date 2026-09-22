@@ -59,8 +59,4 @@ class IdealQrOrderEntity extends Entity
     {
         return $this->invoice;
     }
-    public function setInvoice(int $invoice): void
-    {
-        $this->invoice = $invoice;
-    }
 }

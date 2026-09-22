@@ -61,7 +61,7 @@ class RiveryProductImageUrlService
             ->addSorting(new FieldSorting('height', FieldSorting::DESCENDING));
 
         /** @var \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity */
-        $thumbnail = $this->thumbnailRepository->search($criteria, $context)->getEntities()->first();
+        $thumbnail = $this->thumbnailRepository->search($criteria, $context)->first();
 
         if (
             $this->legacyGenerator !== null &&
@@ -79,7 +79,7 @@ class RiveryProductImageUrlService
             ->addAssociations(['cover', 'cover.thumbnails']);
 
         /** @var \Shopware\Core\Content\Product\ProductEntity */
-        $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
+        $product = $this->productRepository->search($criteria, $context)->first();
         if ($product) {
             return $product->getCover()
                 ?->getMedia();

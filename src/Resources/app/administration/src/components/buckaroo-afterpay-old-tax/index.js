@@ -67,9 +67,9 @@ Component.register('buckaroo-afterpay-old-tax', {
                             if (eventOrValue && typeof eventOrValue === 'object') {
                                 if (eventOrValue.target) {
                                     actualValue = eventOrValue.target.value;
-                                } else if (Object.prototype.hasOwnProperty.call(eventOrValue, 'value')) {
+                                } else if (eventOrValue.hasOwnProperty('value')) {
                                     actualValue = eventOrValue.value;
-                                } else if (Object.prototype.hasOwnProperty.call(eventOrValue, 'id')) {
+                                } else if (eventOrValue.hasOwnProperty('id')) {
                                     actualValue = eventOrValue.id;
                                 }
                             }

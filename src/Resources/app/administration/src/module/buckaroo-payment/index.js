@@ -8,6 +8,10 @@ import './page/buckaroo-payment-detail';
 
 import './page/buckaroo-payment-config';
 
+import nlNL from './snippet/nl-NL.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
+
 Module.register('buckaroo-payment', {
     type: 'plugin',
     name: 'BuckarooPayment',
@@ -17,6 +21,12 @@ Module.register('buckaroo-payment', {
     targetVersion: '1.0.0',
     color: '#000000',
     icon: 'default-action-settings',
+
+    snippets: {
+        'nl-NL': nlNL,
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routeMiddleware(next, currentRoute) {
         if (currentRoute.name === 'sw.order.detail') {

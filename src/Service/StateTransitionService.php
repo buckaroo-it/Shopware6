@@ -240,7 +240,7 @@ class StateTransitionService
         $criteria->addFilter(new EqualsFilter('technicalName', $stateName));
 
         /** @var \Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity|null */
-        return $this->stateMachineRepository->search($criteria, $context)->getEntities()->first();
+        return $this->stateMachineRepository->search($criteria, $context)->first();
     }
 
     public function changeOrderStatus(OrderEntity $order, Context $context, string $transitionName): void

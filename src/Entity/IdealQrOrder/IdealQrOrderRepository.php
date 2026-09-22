@@ -59,7 +59,6 @@ class IdealQrOrderRepository
         /** @var IdealQrOrderEntity|null */
         return $this->entityRepository
             ->search($criteria, $salesChannelContext->getContext())
-            ->getEntities()
             ->first();
     }
 }

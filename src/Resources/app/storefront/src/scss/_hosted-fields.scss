@@ -51,7 +51,6 @@ $bk-hf-action-gap: 1rem !default;
     // The SDK sizes the iframe in pixels once, at mount time, and offers no
     // re-measure API. Stretching the element to its wrapper keeps the field
     // from overflowing when the surrounding column changes width afterwards.
-    // stylelint-disable-next-line selector-max-type
     iframe {
         display: block;
         width: 100%;

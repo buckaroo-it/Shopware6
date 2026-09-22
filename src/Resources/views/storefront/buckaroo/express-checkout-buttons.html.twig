@@ -55,12 +55,6 @@
     <div class="col-12 p-0 bk-express-checkout bk-express-checkout--ideal"
          data-bk-ideal-fast-checkout
          data-buckaroo-ideal-fast-checkout-plugin-options='{{ idealOptions|json_encode }}'>
-        {# The lockup URL has to be resolved by asset(): it accounts for the shop's
-           base path and any asset CDN. The stylesheet consumes it through the
-           --bk-ideal-btn-lockup custom property (see _express-checkout.scss), which is
-           why this one style attribute stays inline - SCSS has no variable that
-           reproduces asset() for a plugin's own bundles/ files, so hard-coding the path
-           there would break subfolder and CDN installations. #}
         <button type="button"
                 class="bk-ideal-fast-checkout"
                 id="fast-checkout-ideal-btn"

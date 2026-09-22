@@ -6,7 +6,6 @@ namespace Buckaroo\Shopware6\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 use Buckaroo\Shopware6\BuckarooPayments;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * Integration test to verify plugin configuration and structure.
@@ -71,32 +70,36 @@ class PluginConfigurationTest extends TestCase
         $this->assertEquals('shopware-platform-plugin', $config['type']);
     }
 
-    public function testPluginHasServicesConfig(): void
+    public function testPluginHasServicesXml(): void
     {
-        $servicesPath = __DIR__ . '/../../src/Resources/config/services.yaml';
-
+        $servicesPath = __DIR__ . '/../../src/Resources/config/services.xml';
+        
         $this->assertFileExists(
             $servicesPath,
-            "services.yaml should exist in plugin Resources/config"
+            "services.xml should exist in plugin Resources/config"
         );
     }
 
-    public function testPluginServicesConfigIsValid(): void
+    public function testPluginServicesXmlIsValid(): void
     {
-        $servicesPath = __DIR__ . '/../../src/Resources/config/services.yaml';
-
+        $servicesPath = __DIR__ . '/../../src/Resources/config/services.xml';
+        
         if (!file_exists($servicesPath)) {
-            $this->markTestSkipped('services.yaml not found');
+            $this->markTestSkipped('services.xml not found');
         }
 
-        // The same flags Symfony's YamlFileLoader parses service files with: the
-        // definitions use !service for the inline Monolog handler and !php/const
-        // for its log level.
-        $parsed = Yaml::parseFile($servicesPath, Yaml::PARSE_CUSTOM_TAGS | Yaml::PARSE_CONSTANT);
+        $content = file_get_contents($servicesPath);
+        $this->assertNotFalse($content, "services.xml should be readable");
 
-        $this->assertIsArray($parsed, "services.yaml should parse to an array");
-        $this->assertArrayHasKey('services', $parsed, "services.yaml should declare a services key");
-        $this->assertNotEmpty($parsed['services'], "services.yaml should define at least one service");
+        // Verify it's valid XML
+        $prevUseErrors = libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($content);
+        $errors = libxml_get_errors();
+        libxml_clear_errors();
+        libxml_use_internal_errors($prevUseErrors);
+
+        $this->assertNotFalse($xml, "services.xml should be valid XML");
+        $this->assertEmpty($errors, "services.xml should not have XML errors");
     }
 
     public function testPluginHasPaymentMethodDirectory(): void

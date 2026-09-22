@@ -56,7 +56,7 @@ class UrlService
         $criteria = new Criteria([$order->getSalesChannelId()]);
         $criteria->addAssociation('domains');
 
-        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->first();
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->first();
         if (!$salesChannel instanceof SalesChannelEntity) {
             return $this->getReturnUrl('buckaroo.payment.push');
         }
@@ -106,7 +106,7 @@ class UrlService
         $criteria = new Criteria([$order->getSalesChannelId()]);
         $criteria->addAssociation('domains');
 
-        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->first();
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->first();
         if (!$salesChannel instanceof SalesChannelEntity) {
             return $this->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
         }

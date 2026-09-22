@@ -1,6 +1,6 @@
-import { post } from "../helper/buckaroo-http";
+import HttpClient from "src/service/http-client.service";
+import Plugin from "src/plugin-system/plugin.class";
 import FormSerializeUtil from "src/utility/form/form-serialize.util";
-const Plugin = window.PluginBaseClass;
 
 export default class GooglePayPlugin extends Plugin {
   static options = {
@@ -13,6 +13,7 @@ export default class GooglePayPlugin extends Plugin {
     environment: "TEST",
   };
 
+  httpClient = new HttpClient();
   url = "/buckaroo";
   cartToken = null;
   googlePayment = null;
@@ -35,7 +36,7 @@ export default class GooglePayPlugin extends Plugin {
         return this.retrieveCartData();
       })
       .then((cartData) => {
-        return this.checkIsAvailable().then((available) => {
+        return this.checkIsAvailable(cartData).then((available) => {
           if (available) {
             this.renderButton(cartData);
           } else {
@@ -131,9 +132,10 @@ export default class GooglePayPlugin extends Plugin {
   /**
    * Check whether Google Pay is available in this browser/device.
    * google.payments.api is guaranteed to be loaded by this point (loadBuckarooSdk resolves both).
+   * @param {object} cartData
    * @returns {Promise<boolean>}
    */
-  checkIsAvailable() {
+  checkIsAvailable(cartData) {
     return new Promise((resolve) => {
       if (!window.BuckarooSdk || !window.BuckarooSdk.GooglePay) {
         resolve(false);
@@ -277,7 +279,7 @@ export default class GooglePayPlugin extends Plugin {
 
     paymentsClient
       .loadPaymentData(paymentRequest)
-      .then((paymentData) => this.captureFunds(paymentData))
+      .then((paymentData) => this.captureFunds(paymentData, cartData))
       .then((result) => {
         if (!result || !result.success) {
           this.setConfirmButtonDisabled(false);
@@ -348,7 +350,7 @@ export default class GooglePayPlugin extends Plugin {
     const body = { form: formData, page: this.options.page };
 
     return new Promise((resolve, reject) => {
-      post(
+      this.httpClient.post(
         `${this.url}/googlepay/cart/get`,
         JSON.stringify(body),
         (response) => {
@@ -376,9 +378,10 @@ export default class GooglePayPlugin extends Plugin {
   /**
    * Send payment token to backend and create the order
    * @param {object} paymentData  Google Pay paymentData object
+   * @param {object} cartData
    * @returns {Promise}
    */
-  captureFunds(paymentData) {
+  captureFunds(paymentData, cartData) {
     const body = {
       payment: JSON.stringify(paymentData),
       cartToken: this.cartToken,
@@ -386,14 +389,14 @@ export default class GooglePayPlugin extends Plugin {
     };
 
     return new Promise((resolve) => {
-      post(
+      this.httpClient.post(
         `${this.url}/googlepay/order/create`,
         JSON.stringify(body),
         (response) => {
           let resp = null;
           try {
             resp = response ? JSON.parse(response) : null;
-          } catch {
+          } catch (e) {
             // unparseable response — fall through to error handling below
           }
 

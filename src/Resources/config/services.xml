@@ -1,0 +1,760 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityDefinition">
+            <tag name="shopware.entity.definition" entity="buckaroo_transaction" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderDefinition">
+            <tag name="shopware.entity.definition" entity="buckaroo_ideal_qr_order" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository">
+            <argument type="service" id="buckaroo_ideal_qr_order.repository"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository">
+            <argument type="service" id="buckaroo_transaction.repository"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\RiveryProductImageUrlService">
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="media_thumbnail.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface" on-invalid="null"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\AfterPayOld">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Helpers\Logger" class="Monolog\Logger">
+            <argument type="string">buckaroo_payment</argument>
+            <call method="pushHandler">
+                <argument type="service">
+                    <service class="Monolog\Handler\StreamHandler">
+                        <argument type="string">%kernel.logs_dir%/buckaroo_payment.log</argument>
+                        <argument type="constant">Monolog\Logger::DEBUG</argument>
+                    </service>
+                </argument>
+            </call>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\TransactionService">
+            <argument type="service" id="order_transaction.repository"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\IdealIssuerService">
+            <argument type="service" id="cache.object" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
+        </service>
+
+         <service id="Buckaroo\Shopware6\Service\In3LogoService">
+            <argument type="service" id="payment_method.repository"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\UrlService">
+             <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+             <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface"/>
+             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
+             <argument type="service" id="sales_channel.repository"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\StateTransitionService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <argument type="service" id="state_machine_state.repository" />
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\RefundService">
+            <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
+            <argument type="service" id="translator" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\CancelPaymentService">
+            <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\CaptureService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\InvoiceService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
+            <argument type="service" id="translator" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\KlarnaMorService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
+            <argument type="service" id="translator"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\PayLinkService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
+            <argument type="service" id="translator" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\InvoiceService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
+            <argument type="service" id="document.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
+            <argument type="service" id="mail_template.repository"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\BuckarooTransactionService">
+             <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+             <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
+             <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\FormatRequestParamService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\RiveryProductImageUrlService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\SignatureValidationService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\PayPalExpressCredentialsService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\TestCredentialsService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
+            <argument type="service" id="translator" />
+        </service>
+
+
+        <service id="Buckaroo\Shopware6\Service\Buckaroo\ClientService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument>%kernel.shopware_version%</argument>
+        </service>
+        
+        <service id="Buckaroo\Shopware6\Helpers\CheckoutHelper">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="order.repository" />
+            <argument type="service" id="Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\AsyncPaymentService" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\Buckaroo\ClientService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
+            <argument type="service" id="Psr\Log\LoggerInterface"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\FormatRequestParamService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\PaymentStateService"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CancelPaymentService"/>
+            <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\PaymentServiceDecorator"/>
+            <call method="setLanguageResolver">
+                <argument type="service" id="Buckaroo\Shopware6\Service\BuckarooLanguageResolver"/>
+            </call>
+        </service>
+
+        <!-- Notification Service Factory for version compatibility -->
+        <service id="Buckaroo\Shopware6\Service\NotificationServiceFactory">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Subscribers\PaymentReturnContextSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Subscribers\PaymentTokenInvalidatedSubscriber">
+            <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface"/>
+            <argument type="service" id="Psr\Log\LoggerInterface"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Subscribers\PaymentContextRestoreSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Subscribers\PaymentContextCookieSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Events\OrderStateChangeEvent">
+            <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\InvoiceService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CaptureService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\NotificationServiceFactory" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\KlarnaMorService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Subscribers\OrderDeliveryWrittenSubscriber">
+            <argument type="service" id="Buckaroo\Shopware6\Events\OrderStateChangeEvent"/>
+            <argument type="service" id="order_delivery.repository"/>
+            <argument type="service" id="state_machine_state.repository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\SettingsService">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\BuckarooLanguageResolver">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="language.repository"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\PaymentServiceDecorator">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\PaymentStateService" class="Buckaroo\Shopware6\Service\PaymentStateService" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="translator" />
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <argument type="service" id="Psr\Log\LoggerInterface"/>
+        </service>
+        <service id="Buckaroo\Shopware6\Handlers\PaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\IdealPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\BancontactPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\BlikPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\CreditcardsPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Handlers\AfterPayOld" />
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+
+        <service id="Buckaroo\Shopware6\Handlers\PaypalPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData" />
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\TransferPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\KbcPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\MBWayPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\MultibancoPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\SepaDirectDebitPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\PayconiqPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\ApplePayPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\GooglePayPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\GiftcardsPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\In3PaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\EpsPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\P24PaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\AlipayPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\WeChatPayPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\TrustlyPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\SwishPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\BizumPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\KlarnaPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\KlarnaKpPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\KlarnainPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\BillinkPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\BelfiusPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\PayByBankPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\PayPerEmailPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\PayLinkService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\TwintPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Handlers\WeroPaymentHandler">
+            <argument type="service" id="Buckaroo\Shopware6\Service\AsyncPaymentService"/>
+            <tag name="shopware.payment.method" />
+
+            <tag name="shopware.payment.method.async" />
+        </service>
+        <!-- /Payment methods -->
+
+        <!-- Controllers -->
+
+         <service id="Buckaroo\Shopware6\Storefront\Controller\IdealQrController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <call method="setTwig">
+                <argument type="service" id="twig"/>
+            </call>
+        </service>
+
+
+        <service id="Buckaroo\Shopware6\Storefront\Controller\SupportController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\TestCredentialsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\BuckarooTransactionService"/>
+            <argument type="service" id="tax.repository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\In3LogoService"/>
+            <argument>%kernel.shopware_version%</argument>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Storefront\Controller\PushController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SignatureValidationService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\TransactionService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\StateTransitionService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\InvoiceService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\CheckoutHelper"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
+            <argument type="service" id="Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Storefront\Controller\RefundController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\RefundService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Storefront\Controller\CaptureController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\CaptureService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Storefront\Controller\KlarnaMorController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\KlarnaMorService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+        
+        <service id="Buckaroo\Shopware6\Storefront\Controller\PaylinkController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\PayLinkService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Storefront\Controller\PaypalExpressController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\CartService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Storefront\Controller\IdealFastCheckoutController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\CartService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute"/>
+            <argument type="service" id="salutation.repository"/>
+            <call method="setContainer">
+                    <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+         <service id="Buckaroo\Shopware6\Storefront\Controller\CartController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Storefront\Controller\ApplePayController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\CartService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\ContextService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Storefront\Controller\GooglePayController" public="true">
+            <argument type="service" id="Buckaroo\Shopware6\Service\CartService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\OrderService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\ContextService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+
+
+
+        <!-- /Controllers -->
+
+        <service id="Buckaroo\Shopware6\Service\ContextService">
+             <argument type="service" id="country.repository" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\CartService">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\PayByBankService">
+            <argument type="service" id="assets.packages"/>
+        </service>
+        
+
+        <service id="Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData">
+            <argument type="service" id="order_address.repository" />
+            <argument type="service" id="order_customer.repository" />
+            <argument type="service" id="customer.repository" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\CustomerService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\CustomerAddressService"/>
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="order_customer.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\CustomerAddressService">
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="country.repository"/>
+        </service>
+
+        <!-- Payment Service Factory for version compatibility -->
+        <service id="Buckaroo\Shopware6\Service\PaymentServiceFactory">
+            <!-- Shopware 6.7+: PaymentProcessor (on-invalid="null" so it is skipped on older versions) -->
+            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentProcessor" on-invalid="null"/>
+            <!-- Shopware 6.5-6.6: PaymentService (on-invalid="null" so it is skipped on 6.7+) -->
+            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService" on-invalid="null"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\OrderService">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\PaymentServiceFactory"/>
+            <argument type="service" id="order_address.repository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Helpers\Logger"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber" >
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\UrlService"/>
+            <argument type="service" id="translator" />
+            <argument type="service" id="Buckaroo\Shopware6\Service\PayByBankService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\In3LogoService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\IdealIssuerService"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\PayPalExpressCredentialsService"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Storefront\Controller\BuckarooTokenController" public="true">
+            <argument type="service" id="http_client"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Resources\snippet\de_DE\GermanTranslations">
+            <tag name="shopware.snippet.file"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Resources\snippet\en_GB\EnglishTranslations">
+            <tag name="shopware.snippet.file"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Resources\snippet\nl_NL\DutchTranslations">
+            <tag name="shopware.snippet.file"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Resources\snippet\fr_FR\FrenchTranslations">
+            <tag name="shopware.snippet.file"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Service\SalesChannelContextServiceDecorator"
+                decorates="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService">
+            <argument type="service" id="Buckaroo\Shopware6\Service\SalesChannelContextServiceDecorator.inner"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+
+        <service id="Buckaroo\Shopware6\Storefront\Framework\Cookie\BuckarooCookieProvider"
+                decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
+             <argument type="service" 
+                       id="Buckaroo\Shopware6\Storefront\Framework\Cookie\BuckarooCookieProvider.inner" />
+        </service>
+
+        <service id="Buckaroo\Shopware6\Storefront\Framework\Twig\BuckarooTwigExtension">
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="Buckaroo\Shopware6\Service\SettingsService"/>
+            <tag name="twig.extension"/>
+        </service>
+
+    </services>
+</container>

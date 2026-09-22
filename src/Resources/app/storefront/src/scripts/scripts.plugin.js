@@ -1,4 +1,4 @@
-const Plugin = window.PluginBaseClass;
+import Plugin from 'src/plugin-system/plugin.class';
 
 export default class BuckarooLoadScripts extends Plugin {
 
@@ -45,7 +45,7 @@ export default class BuckarooLoadScripts extends Plugin {
         try {
             const options = JSON.parse(element.getAttribute('data-paypal-express-plugin-options'));
             return options.isTestMode === true;
-        } catch {
+        } catch (e) {
             return false;
         }
     }

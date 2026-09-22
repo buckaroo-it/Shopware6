@@ -21,17 +21,6 @@ use Psr\Log\LoggerInterface;
 
 class PaymentStateService
 {
-    /**
-     * Transition names that move an order transaction into the "in progress" payment state.
-     *
-     * Shopware renamed this transition from `do_pay` to `process` in 6.7
-     * (Migration1742302302RenamePaidTransitionActions) and removes
-     * StateMachineTransitionActions::ACTION_DO_PAY in 6.8, so no single constant covers
-     * the supported range. The state machine only ever offers one of the two names, so
-     * matching both keeps the check correct on 6.5/6.6 and on 6.7+.
-     */
-    private const PROCESS_TRANSITIONS = ['do_pay', 'process'];
-
     protected TranslatorInterface $translator;
     protected OrderTransactionStateHandler $transactionStateHandler;
     protected StateMachineRegistry $stateMachineRegistry;
@@ -106,7 +95,7 @@ class PaymentStateService
         Context $context
     ): void {
         if ($this->isPendingPaymentRequest($request) &&
-            $this->canTransitionAny($availableTransitions, self::PROCESS_TRANSITIONS)) {
+            $this->canTransition($availableTransitions, StateMachineTransitionActions::ACTION_DO_PAY)) {
             $this->transactionStateHandler->process($transactionId, $context);
             return;
         }
@@ -179,28 +168,6 @@ class PaymentStateService
     private function canTransition(array $availableTransitions, string $transition): bool
     {
         return in_array($transition, $availableTransitions, true);
-    }
-
-    /**
-     * Check if any of the given transitions is available.
-     *
-     * Used where the same state change is exposed under different names depending on
-     * the Shopware version, see self::PROCESS_TRANSITIONS.
-     *
-     * @param array<mixed> $availableTransitions
-     * @param array<string> $transitions
-     *
-     * @return boolean
-     */
-    private function canTransitionAny(array $availableTransitions, array $transitions): bool
-    {
-        foreach ($transitions as $transition) {
-            if ($this->canTransition($availableTransitions, $transition)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

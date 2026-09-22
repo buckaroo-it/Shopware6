@@ -212,7 +212,7 @@ class OrderDeliveryWrittenSubscriber implements EventSubscriberInterface
         $criteria = new Criteria([$stateId]);
         $criteria->addAssociation('stateMachine');
 
-        $state = $this->stateMachineStateRepository->search($criteria, $context)->getEntities()->first();
+        $state = $this->stateMachineStateRepository->search($criteria, $context)->first();
 
         if (!$state instanceof StateMachineStateEntity) {
             return '';

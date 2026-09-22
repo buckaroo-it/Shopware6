@@ -77,7 +77,7 @@ class In3LogoService
         $criteria->addAssociation('media');
 
         /** @var PaymentMethodEntity|null */
-        $method = $this->paymentMethodRepository->search($criteria, $context)->getEntities()->first();
+        $method = $this->paymentMethodRepository->search($criteria, $context)->first();
         if ($method === null) {
             return null;
         }

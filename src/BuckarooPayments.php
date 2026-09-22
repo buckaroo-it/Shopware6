@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 class BuckarooPayments extends Plugin
 {
@@ -26,10 +28,8 @@ class BuckarooPayments extends Plugin
         // Handle class aliasing for Shopware 6.5+ compatibility
         $this->handlePaymentHandlerCompatibility();
 
-        // Resources/config/services.xml is already loaded by parent::build(),
-        // which runs Shopware\Core\Framework\Bundle::registerContainerFile()
-        // over Resources/config/services.* - loading it again here would only
-        // redefine the same services.
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/Resources/config'));
+        $loader->load('services.xml');
     }
 
     /**

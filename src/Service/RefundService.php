@@ -255,7 +255,7 @@ class RefundService
                 $bkTransaction = $this->buckarooTransactionEntityRepository
                     ->getById($transactionId, $context);
                 if ($bkTransaction !== null) {
-                    $refunded_items = $bkTransaction->get("refundedItems");
+                    $refunded_items = $bkTransaction->get("refunded_items");
                 }
 
                 if (!is_string($refunded_items)) {
@@ -280,8 +280,8 @@ class RefundService
 
                 $amountCredit = 0;
                 $transaction = $this->buckarooTransactionEntityRepository->getById($transactionId, $context);
-                if ($transaction !== null && is_scalar($transaction->get('amountCredit'))) {
-                    $amountCredit = (float)$transaction->get('amountCredit');
+                if ($transaction !== null && is_scalar($transaction->get('amount_credit'))) {
+                    $amountCredit = (float)$transaction->get('amount_credit');
                 }
 
 
@@ -289,8 +289,8 @@ class RefundService
                     ->save(
                         $transactionId,
                         [
-                            'refundedItems' => json_encode($orderItemsRefunded),
-                            'amountCredit' => (string)($amountCredit + $amount)
+                            'refunded_items' => json_encode($orderItemsRefunded),
+                            'amount_credit' => (string)($amountCredit + $amount)
                         ],
                         $context,
                         []

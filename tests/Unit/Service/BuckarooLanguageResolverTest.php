@@ -12,10 +12,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -114,16 +112,8 @@ class BuckarooLanguageResolverTest extends TestCase
             $language->setLocale($locale);
         }
 
-        $languages = $language !== null ? [$language] : [];
-
-        $searchResult = new EntitySearchResult(
-            'language',
-            count($languages),
-            new LanguageCollection($languages),
-            null,
-            new Criteria(),
-            Context::createDefaultContext()
-        );
+        $searchResult = $this->createMock(EntitySearchResult::class);
+        $searchResult->method('first')->willReturn($language);
 
         $this->languageRepository->method('search')->willReturn($searchResult);
     }

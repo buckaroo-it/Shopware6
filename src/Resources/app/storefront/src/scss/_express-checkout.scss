@@ -66,8 +66,6 @@ $bk-express-height-sm: 25px !default; // < 200px
     .bk-apple-pay-button {
         @include bk-express-button-size;
 
-        // Apple renders this web component; it takes no class of ours.
-        // stylelint-disable-next-line selector-max-type
         apple-pay-button {
             --apple-pay-button-height: 100%;
             --apple-pay-button-border-radius: #{$bk-express-button-radius};
@@ -83,15 +81,11 @@ $bk-express-height-sm: 25px !default; // < 200px
     .bk-google-pay-button {
         @include bk-express-button-size;
 
-        // The Google Pay SDK injects this wrapper element.
-        // stylelint-disable-next-line selector-max-type
         > div {
             width: 100%;
             height: 100%;
         }
 
-        // .gpay-button is rendered by the Google Pay SDK.
-        // stylelint-disable-next-line selector-max-type
         button.gpay-button {
             width: 100%;
             height: 100%;

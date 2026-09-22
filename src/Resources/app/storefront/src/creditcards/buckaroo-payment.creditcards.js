@@ -1,4 +1,4 @@
-const Plugin = window.PluginBaseClass;
+import Plugin from 'src/plugin-system/plugin.class';
 
 export default class BuckarooPaymentCreditcards extends Plugin {
     init()

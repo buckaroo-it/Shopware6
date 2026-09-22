@@ -47,7 +47,7 @@ Component.register("buckaroo-main-config", {
 
     watch: {
         value: {
-            handler() {
+            handler(newVal, oldVal) {
                 this.$nextTick(() => {
                     this.$forceUpdate();
                 });

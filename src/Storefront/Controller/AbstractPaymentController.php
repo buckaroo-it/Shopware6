@@ -381,7 +381,6 @@ abstract class AbstractPaymentController extends StorefrontController
             $criteria,
             $salesChannelContext
         )
-            ->getEntities()
             ->first();
     }
 }

@@ -71,7 +71,7 @@ class PaymentServiceDecorator
         $minimalCriteria->addAssociation('salesChannel'); // Only load sales channel
         
         /** @var OrderEntity|null $minimalOrder */
-        $minimalOrder = $this->orderRepository->search($minimalCriteria, $validationContext)->getEntities()->first();
+        $minimalOrder = $this->orderRepository->search($minimalCriteria, $validationContext)->first();
 
         if ($minimalOrder === null) {
             throw PaymentException::asyncProcessInterrupted(
@@ -111,7 +111,7 @@ class PaymentServiceDecorator
         $fullCriteria->addAssociation('language');
 
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search($fullCriteria, $salesChannelAwareContext)->getEntities()->first();
+        $order = $this->orderRepository->search($fullCriteria, $salesChannelAwareContext)->first();
 
         if ($order === null) {
             throw PaymentException::asyncProcessInterrupted(

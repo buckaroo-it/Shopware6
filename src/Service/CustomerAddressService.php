@@ -58,7 +58,7 @@ class CustomerAddressService
         return $this->customerAddressRepository->search(
             (new Criteria([$addressId]))->addAssociation('country'),
             $this->salesChannelContext->getContext()
-        )->getEntities()->first();
+        )->first();
     }
 
     /**
@@ -115,7 +115,7 @@ class CustomerAddressService
         $country = $this->countryRepository->search(
             $criteria,
             $this->salesChannelContext->getContext()
-        )->getEntities()->first();
+        )->first();
 
         if ($country === null) {
             throw new CreateCustomerAddressException('Cannot create address, cannot find country');

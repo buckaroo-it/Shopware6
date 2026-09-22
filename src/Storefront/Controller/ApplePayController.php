@@ -619,7 +619,7 @@ class ApplePayController extends AbstractPaymentController
         return $this->shippingMethodRepository->search(
             $criteria,
             $salesChannelContext->getContext()
-        )->getEntities()->first();
+        )->first();
     }
 
     /**

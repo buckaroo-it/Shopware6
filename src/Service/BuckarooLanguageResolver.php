@@ -204,7 +204,7 @@ class BuckarooLanguageResolver
         $criteria->addAssociation('locale');
 
         /** @var LanguageEntity|null $language */
-        $language = $this->languageRepository->search($criteria, $context)->getEntities()->first();
+        $language = $this->languageRepository->search($criteria, $context)->first();
 
         if ($language === null || $language->getLocale() === null) {
             return null;

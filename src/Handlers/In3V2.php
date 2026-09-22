@@ -131,7 +131,7 @@ class In3V2
 
             $coc = $dataBag->get('buckaroo_capayablein3_COCNumber');
             if (empty($coc)) {
-                $coc = $this->asyncPaymentService->getAddressVatId($billingAddress) ?? '';
+                $coc = $billingAddress->getVatId() ?? '';
             }
 
             return [

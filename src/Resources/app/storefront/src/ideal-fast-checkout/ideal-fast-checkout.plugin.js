@@ -1,5 +1,5 @@
-import { post } from '../helper/buckaroo-http';
-const Plugin = window.PluginBaseClass;
+import HttpClient from 'src/service/http-client.service';
+import Plugin from 'src/plugin-system/plugin.class';
 
 export default class IdealFastCheckoutPlugin extends Plugin {
 
@@ -15,6 +15,7 @@ export default class IdealFastCheckoutPlugin extends Plugin {
         }
     }
 
+    httpClient = new HttpClient();
     url = '/buckaroo';
     result = null;
     cartToken = null;
@@ -116,7 +117,7 @@ export default class IdealFastCheckoutPlugin extends Plugin {
 
     sendPostRequest(url, data) {
         return new Promise((resolve, reject) => {
-            post(
+            this.httpClient.post(
                 url,
                 JSON.stringify(data),
                 (response) => {
