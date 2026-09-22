@@ -22,6 +22,41 @@
     display:none;
     color:red;
 }
+
+// Validation messages rendered hidden and revealed by the storefront JS.
+// Deliberately without !important: buckaroo-payment.helper.js and
+// buckaroo-payment.bancontact.js toggle these with element.style.display, and an
+// inline style only wins over a class rule that is not marked important.
+// Bootstrap's .d-none would break every one of these messages for that reason.
+.bk-field-error {
+    display: none;
+    color: red;
+}
+
+// Static validation notice, visible as soon as it is rendered.
+.bk-error-text {
+    color: red;
+}
+
+.bk-creditcard-select {
+    max-width: 300px;
+    margin-left: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+// Shown by select.plugin.js on mobile widths - same element.style.display
+// toggling as the validation messages above, so no !important here either.
+.bk-paybybank-mobile {
+    display: none;
+}
+
+.buckaroo-payment-inputs {
+    margin-top: 15px;
+}
+
+.bk-bancontactmrcash {
+    margin-top: 15px;
+}
 .payment .custom-control-label::before {
     border-radius: 3px;
 }
@@ -221,6 +256,12 @@
         margin-bottom: 1rem;
     }
 
+    // The cancelled page reuses the confirmation layout with a warning palette.
+    .bkr-icon--warning {
+        background: #fff3cd;
+        color: #664d03;
+    }
+
     .bkr-title {
         font-weight: 700;
         font-size: 1.5rem;
@@ -242,6 +283,12 @@
         padding: .5rem .75rem;
         display: inline-block;
         margin: .25rem 0 1rem;
+    }
+
+    .bkr-badge--warning {
+        background: #fff3cd;
+        border-color: #ffe69c;
+        color: #664d03;
     }
 
     .bkr-actions {

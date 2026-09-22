@@ -49,7 +49,7 @@
                         </div>
                     </div>
                 </div>
-                <select class="bk-paybybank-mobile form-control" style="display:none" id="payBybankMethod" name="payBybankMethodId" form="confirmOrderForm" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
+                <select class="bk-paybybank-mobile form-control" id="payBybankMethod" name="payBybankMethodId" form="confirmOrderForm" required="required" required-message="{{ "buckaroo.checkout.bankRequiredError"|trans|sw_sanitize }}">
                     <option value="">{{ "buckaroo.checkout.selectBankIssuer"|trans }}</option>
                         {% for issuer in page.extensions.buckaroo.payByBankIssuers %}
                             <option {% if issuer.selected === true %} selected {% endif %} value="{{ issuer.code }}">{{ issuer.name }}</option>
