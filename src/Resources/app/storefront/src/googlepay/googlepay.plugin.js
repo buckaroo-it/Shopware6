@@ -1,4 +1,4 @@
-import HttpClient from "src/service/http-client.service";
+import { post } from "../helper/buckaroo-http";
 import FormSerializeUtil from "src/utility/form/form-serialize.util";
 const Plugin = window.PluginBaseClass;
 
@@ -13,7 +13,6 @@ export default class GooglePayPlugin extends Plugin {
     environment: "TEST",
   };
 
-  httpClient = new HttpClient();
   url = "/buckaroo";
   cartToken = null;
   googlePayment = null;
@@ -349,7 +348,7 @@ export default class GooglePayPlugin extends Plugin {
     const body = { form: formData, page: this.options.page };
 
     return new Promise((resolve, reject) => {
-      this.httpClient.post(
+      post(
         `${this.url}/googlepay/cart/get`,
         JSON.stringify(body),
         (response) => {
@@ -387,7 +386,7 @@ export default class GooglePayPlugin extends Plugin {
     };
 
     return new Promise((resolve) => {
-      this.httpClient.post(
+      post(
         `${this.url}/googlepay/order/create`,
         JSON.stringify(body),
         (response) => {

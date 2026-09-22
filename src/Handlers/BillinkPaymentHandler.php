@@ -171,7 +171,9 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
             }
         }
 
-        $vatId = $this->asyncPaymentService->getBillingAddress($order)->getVatId();
+        $vatId = $this->asyncPaymentService->getAddressVatId(
+            $this->asyncPaymentService->getBillingAddress($order)
+        );
         if (is_string($vatId) && !empty(trim($vatId))) {
             return ['vATNumber' => trim($vatId)];
         }
@@ -196,7 +198,7 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
         $coc = is_string($input) && !empty(trim($input)) ? trim($input) : '';
 
         if (empty($coc)) {
-            $coc = $billingAddress->getVatId() ?? '';
+            $coc = $this->asyncPaymentService->getAddressVatId($billingAddress) ?? '';
         }
 
         if (!empty($coc)) {

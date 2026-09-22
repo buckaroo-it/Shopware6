@@ -1,4 +1,4 @@
-import HttpClient from 'src/service/http-client.service';
+import { post } from '../helper/buckaroo-http';
 const Plugin = window.PluginBaseClass;
 
 export default class PaypalExpressPlugin extends Plugin {
@@ -8,7 +8,6 @@ export default class PaypalExpressPlugin extends Plugin {
         merchantId: null,
         isTestMode: false
     }
-    httpClient = new HttpClient();
 
 
     url = '/buckaroo';
@@ -150,7 +149,7 @@ export default class PaypalExpressPlugin extends Plugin {
             data.cartToken = this.cartToken;
         }
         return new Promise((resolve) => {
-            this.httpClient.post(
+            post(
                 `${this.url}/paypal/pay`,
                 JSON.stringify(data),
                 (response) => {
@@ -200,7 +199,7 @@ export default class PaypalExpressPlugin extends Plugin {
 
 
         return new Promise((resolve) => {
-            this.httpClient.post(
+            post(
                 `${this.url}/paypal/create`,
                 JSON.stringify(payload),
                 (response) => {

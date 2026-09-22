@@ -1,4 +1,3 @@
-import HttpClient from "src/service/http-client.service";
 const Plugin = window.PluginBaseClass;
 
 const BK_IS_MOBILE_EVENT_NAME = "bk-is-mobile";
@@ -7,8 +6,6 @@ export default class BuckarooPayByBankSelect extends Plugin {
   static options = {
     issuerSelected: "",
   };
-
-  httpClient = new HttpClient();
 
   init() {
     this.listenToIsMobile();

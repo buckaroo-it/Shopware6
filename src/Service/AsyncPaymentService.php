@@ -124,6 +124,27 @@ class AsyncPaymentService
         return $address;
     }
 
+    /**
+     * Read the legacy address-level VAT ID without calling OrderAddressEntity::getVatId(),
+     * which Shopware deprecated in 6.7.6.0 and removes in 6.8.
+     *
+     * Shopware itself has not written this field since 6.3 - Migration1602745374 moved the
+     * value to the customer-level vatIds and the storefront address form never exposed it -
+     * so it only holds a value when an integration sets it through the API. Going through
+     * has()/get() keeps that value readable on 6.5-6.7 and returns null once the field is
+     * gone, instead of fataling on a missing method.
+     */
+    public function getAddressVatId(OrderAddressEntity $orderAddress): ?string
+    {
+        if (!$orderAddress->has('vatId')) {
+            return null;
+        }
+
+        $vatId = $orderAddress->get('vatId');
+
+        return is_string($vatId) ? $vatId : null;
+    }
+
     public function getCountry(OrderAddressEntity $orderAddress): CountryEntity
     {
         $country = $orderAddress->getCountry();
