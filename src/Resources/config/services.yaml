@@ -50,7 +50,7 @@ services:
     Buckaroo\Shopware6\Service\FormatRequestParamService:
         arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Service\RiveryProductImageUrlService']
     Buckaroo\Shopware6\Service\SignatureValidationService:
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService']
+        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Helpers\Logger']
     Buckaroo\Shopware6\Service\PayPalExpressCredentialsService:
         arguments: ['@Buckaroo\Shopware6\Service\SettingsService']
     Buckaroo\Shopware6\Service\TestCredentialsService:

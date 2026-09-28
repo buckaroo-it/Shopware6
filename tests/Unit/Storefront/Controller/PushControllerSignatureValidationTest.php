@@ -216,8 +216,9 @@ class PushControllerSignatureValidationTest extends TestCase
     }
 
     /**
-     * Sign the push the way Buckaroo does, by running the plugin's own signature
-     * implementation over the parameters. Nothing here reimplements the algorithm.
+     * Sign the push the way Buckaroo does. The signature algorithm itself lives in the
+     * Buckaroo PHP SDK (the single source of truth); this mirrors it over the signed
+     * fields so the controller flow can be exercised with a genuinely valid signature.
      *
      * @param array<string, string> $postData
      *
@@ -225,17 +226,24 @@ class PushControllerSignatureValidationTest extends TestCase
      */
     private function signed(array $postData): array
     {
-        $method = new \ReflectionMethod(SignatureValidationService::class, 'calculateSignature');
-        $method->setAccessible(true);
+        $data = array_filter($postData, static function ($key): bool {
+            $key = strtolower((string) $key);
 
-        /** @var string $signature */
-        $signature = $method->invoke(
-            $this->signatureValidationService(),
-            $postData,
-            self::SALES_CHANNEL_ID
-        );
+            return $key !== 'brq_signature'
+                && in_array(explode('_', $key)[0], ['brq', 'add', 'cust'], true);
+        }, ARRAY_FILTER_USE_KEY);
 
-        $postData['brq_signature'] = $signature;
+        uksort($data, static function ($a, $b): int {
+            return strcmp(strtolower((string) $a), strtolower((string) $b));
+        });
+
+        $signatureString = '';
+        foreach ($data as $key => $value) {
+            $signatureString .= $key . '=' . html_entity_decode((string) $value);
+        }
+        $signatureString .= self::SECRET_KEY;
+
+        $postData['brq_signature'] = sha1($signatureString);
 
         return $postData;
     }
@@ -247,7 +255,7 @@ class PushControllerSignatureValidationTest extends TestCase
             ->with('secretKey', self::SALES_CHANNEL_ID)
             ->willReturn(self::SECRET_KEY);
 
-        return new SignatureValidationService($settingsService);
+        return new SignatureValidationService($settingsService, $this->createMock(LoggerInterface::class));
     }
 
     /**
