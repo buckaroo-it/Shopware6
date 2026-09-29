@@ -470,3 +470,20 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-1256 Fixed inconsistent express checkout button heights across the storefront pages.
 - BTI-1257 Fixed the Apple Pay express button always being displayed on the checkout page, even when it should be hidden.
 - BTI-1365 Fixed the Auto Capture and Capture on Shipment settings causing incorrect capture and refund handling for KlarnaKP.
+
+# 3.6.0
+
+- BTI-1508 Add support for Shopware 6.7.14.2.
+- BTI-1588 Update to use PHP SDK v1.24.6 for the plugin.
+- BTI-1518 Add "Show Google Pay button on checkout page" setting.
+- BTI-1450 Declare the 15 buckaroo_transaction fields on the entity.
+- BTI-1420 Fixed checking iDEAL transactions without invoice number and amount after updating to v3.5.0 for a specific merchant.
+- BTI-1589 Fixed a null type issue in the request resolver for subscriptions.
+- BTI-1452 Pass the context down instead of using Context::createDefaultContext().
+- BTI-1426 Removed the date of birth field and financial warning for Klarna (KP).
+- BTI-1451 Set the secure flag on the payment context cookie.
+- BTI-1448 Read webhook and payment data from the Request instead of superglobals.
+- BTI-1425 Restyled the default Hosted Fields styling to be more in line with Shopware's default styling.
+- BTI-1449 Removed session access from the payment handlers.
+- BTI-1582 Security improvement.
+- BTI-1424 Resolved static code analysis warnings.
