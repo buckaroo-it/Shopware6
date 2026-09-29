@@ -45,8 +45,8 @@ class PaymentContextCookieSubscriberTest extends TestCase
         $this->assertInstanceOf(Cookie::class, $cookie);
         $this->assertSame(self::TOKEN, $cookie->getValue());
         $this->assertSame('/', $cookie->getPath());
-        $this->assertTrue($cookie->isSecure(), 'SameSite=none cookies must be secure.');
-        $this->assertTrue($cookie->isHttpOnly(), 'The context token must not be readable by page scripts.');
+        $this->assertTrue($cookie->isSecure());
+        $this->assertTrue($cookie->isHttpOnly());
         $this->assertSame(Cookie::SAMESITE_NONE, $cookie->getSameSite());
         $this->assertGreaterThan(time(), $cookie->getExpiresTime());
         $this->assertLessThanOrEqual(time() + 2 * 3600, $cookie->getExpiresTime());

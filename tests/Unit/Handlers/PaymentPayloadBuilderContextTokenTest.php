@@ -64,7 +64,6 @@ class PaymentPayloadBuilderContextTokenTest extends TestCase
         $this->assertArrayNotHasKey('sw-context-token', $payload['additionalParameters']);
         $this->assertStringNotContainsString(self::TOKEN, (string) json_encode($payload));
 
-        // ...but the browser that started the payment receives it in the payment context cookie
         $response = new Response();
         (new PaymentContextCookieSubscriber())->onKernelResponse(new ResponseEvent(
             $this->createMock(HttpKernelInterface::class),

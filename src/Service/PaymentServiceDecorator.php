@@ -127,9 +127,8 @@ class PaymentServiceDecorator
     }
 
     /**
-     * Get context token from current request (restored by PaymentContextRestoreSubscriber or the
-     * request's own context header). Preserves customer session when returning from external payment gateway.
-     * Never read from query or body parameters, those can be set by anyone who crafts a link.
+     * Get context token from current request.
+     * Preserves customer session when returning from external payment gateway.
      */
     private function getContextTokenFromRequest(): ?string
     {

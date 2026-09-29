@@ -13,11 +13,8 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Keeps the customer's context token in a dedicated cookie while they are at Buckaroo.
- * The storefront session cookie is SameSite=lax, so the browser drops it when Buckaroo sends the
- * customer back with a cross-site POST. This cookie is SameSite=none and is therefore sent on that
- * return, which lets PaymentContextRestoreSubscriber restore the session without the token ever
- * appearing in a URL.
+ * Keeps the customer's context token in a cookie while they are at Buckaroo,
+ * so PaymentContextRestoreSubscriber can restore the session on return.
  */
 class PaymentContextCookieSubscriber implements EventSubscriberInterface
 {
@@ -35,8 +32,7 @@ class PaymentContextCookieSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Marks the current request so its response hands the customer's own context token to the browser.
-     * Only the browser that is already using that context may receive it.
+     * Marks the current request so its response sets the payment context cookie.
      */
     public static function rememberForReturn(?Request $request, SalesChannelContext $salesChannelContext): void
     {

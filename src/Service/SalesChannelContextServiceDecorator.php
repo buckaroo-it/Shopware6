@@ -48,8 +48,6 @@ class SalesChannelContextServiceDecorator implements SalesChannelContextServiceI
         if ($request === null) {
             return null;
         }
-        // Never read the token from query or body parameters: only the token restored by
-        // PaymentContextRestoreSubscriber or the request's own context header are trusted.
         $token = $request->attributes->get('sw-context-token')
             ?? $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         return is_string($token) && $token !== '' ? $token : null;

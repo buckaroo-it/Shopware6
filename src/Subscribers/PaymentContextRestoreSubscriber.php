@@ -11,15 +11,13 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Restores the sales channel context token when returning from Buckaroo.
- * The session cookie may not be sent on the cross-site return, but the payment context cookie
- * (see PaymentContextCookieSubscriber) is. Setting the token in the session early allows the
- * rest of the request to use the correct context. The token is never taken from the URL.
+ * Restores the sales channel context token from the payment context cookie when returning from Buckaroo.
+ * Setting the token in the session early allows the rest of the request to use the correct context.
  */
 class PaymentContextRestoreSubscriber implements EventSubscriberInterface
 {
     /**
-     * Routes Buckaroo redirects the customer back to. Only these may restore the context token.
+     * Routes Buckaroo redirects the customer back to.
      */
     private const RESTORE_ROUTES = [
         'payment.finalize.transaction',
@@ -51,9 +49,6 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // The token is only needed when the browser lost its session on the cross-site return.
-        // When the visitor still has a live session with its own context, never replace it
-        // (e.g. the customer logged in on another tab while paying, which renews the token).
         if ($this->hasOtherLiveContext($request, $contextToken)) {
             return;
         }

@@ -34,8 +34,6 @@ class PaymentPayloadBuilder
         $defaultReturnUrl = $this->urlGenerator->getDefaultReturnUrl($orderTransaction, $order);
         $finalReturnUrl = $returnUrl ?: $defaultReturnUrl;
 
-        // The browser may drop the session cookie when Buckaroo redirects back cross-site. The context
-        // token travels in a dedicated cookie instead of the return URL, so it never leaves the shop.
         PaymentContextCookieSubscriber::rememberForReturn(
             $this->asyncPaymentService->checkoutHelper->getCurrentRequest(),
             $salesChannelContext

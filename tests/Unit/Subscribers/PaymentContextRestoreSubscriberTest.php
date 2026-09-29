@@ -100,7 +100,6 @@ class PaymentContextRestoreSubscriberTest extends TestCase
     public function testItRestoresWhenTheSessionCookieWasNotSent(): void
     {
         $request = $this->createRequest('payment.finalize.transaction', self::TOKEN);
-        // A fresh session started by the storefront because the cookie was lost on the cross-site return
         $session = $this->attachSession($request, false);
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, self::OTHER_TOKEN);
 
