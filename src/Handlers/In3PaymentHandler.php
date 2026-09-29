@@ -113,7 +113,7 @@ class In3PaymentHandler extends PaymentHandlerSimple
 
             $coc = $dataBag->get('buckaroo_capayablein3_COCNumber');
             if (empty($coc)) {
-                $coc = $billingAddress->getVatId() ?? '';
+                $coc = $this->asyncPaymentService->getAddressVatId($billingAddress) ?? '';
             }
 
             return [

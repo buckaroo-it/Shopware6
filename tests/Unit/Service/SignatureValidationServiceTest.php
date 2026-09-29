@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use Buckaroo\Shopware6\Service\SignatureValidationService;
 use Buckaroo\Shopware6\Service\SettingsService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class SignatureValidationServiceTest extends TestCase
@@ -17,10 +18,14 @@ class SignatureValidationServiceTest extends TestCase
     /** @var SettingsService&MockObject */
     private SettingsService $settingsService;
 
+    /** @var LoggerInterface&MockObject */
+    private LoggerInterface $logger;
+
     protected function setUp(): void
     {
         $this->settingsService = $this->createMock(SettingsService::class);
-        $this->signatureValidationService = new SignatureValidationService($this->settingsService);
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->signatureValidationService = new SignatureValidationService($this->settingsService, $this->logger);
     }
 
     /**
@@ -253,20 +258,18 @@ class SignatureValidationServiceTest extends TestCase
     /**
      * Test: it skips non-scalar values in signature calculation
      */
-    public function testCalculateSignatureSkipsNonScalarValues(): void
+    public function testValidateSignatureRejectsNonScalarValues(): void
     {
-        // Arrange
+        // Arrange: a signed field that is not scalar is not part of Buckaroo's push
+        // format. The SDK does not silently skip it; validation fails closed and the
+        // push is rejected rather than authenticated on a partial payload.
         $secretKey = 'test-key';
         $postData = [
             'brq_amount' => '100.00',
-            'brq_array_field' => ['should' => 'be-skipped'], // Non-scalar, should be ignored
-            'brq_currency' => 'EUR'
+            'brq_array_field' => ['unexpected' => 'array'],
+            'brq_currency' => 'EUR',
+            'brq_signature' => sha1('brq_amount=100.00brq_currency=EUR' . $secretKey),
         ];
-
-        // Only scalar values should be in signature
-        $signatureString = 'brq_amount=100.00brq_currency=EUR' . $secretKey;
-        $expectedSignature = sha1($signatureString);
-        $postData['brq_signature'] = $expectedSignature;
 
         $request = new Request([], $postData);
 
@@ -278,7 +281,7 @@ class SignatureValidationServiceTest extends TestCase
         $result = $this->signatureValidationService->validateSignature($request);
 
         // Assert
-        $this->assertTrue($result);
+        $this->assertFalse($result);
     }
 
     /**
@@ -443,5 +446,33 @@ class SignatureValidationServiceTest extends TestCase
 
         // Assert
         $this->assertTrue($result);
+    }
+
+    /**
+     * Test: a push that duplicates the signature field under a different letter casing
+     * (e.g. brq_signature + BRQ_SIGNATURE) is rejected. Field names are case-insensitive
+     * to consumers, so such an ambiguous payload must never authenticate.
+     */
+    public function testValidateSignatureRejectsCaseCollidingSignatureField(): void
+    {
+        // Arrange
+        $secretKey = 'test-secret-key';
+        $postData = [
+            'brq_amount' => '100.00',
+            'brq_signature' => sha1('brq_amount=100.00' . $secretKey),
+            'BRQ_SIGNATURE' => 'attacker-controlled',
+        ];
+
+        $request = new Request([], $postData);
+
+        $this->settingsService
+            ->method('getSetting')
+            ->willReturn($secretKey);
+
+        // Act
+        $result = $this->signatureValidationService->validateSignature($request);
+
+        // Assert
+        $this->assertFalse($result);
     }
 }

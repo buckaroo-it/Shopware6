@@ -25,7 +25,7 @@ const TRANSITION_METHODS = [
 function getOrderDetailStore() {
     try {
         return Shopware.Store.get('swOrderDetail');
-    } catch (e) {
+    } catch {
         // Store not registered (transition triggered outside the order detail
         // page) - nothing to indicate, run the transition unchanged.
         return null;

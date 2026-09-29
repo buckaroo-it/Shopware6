@@ -238,7 +238,7 @@ class OrderService
         $entity = $this->orderRepository->search(
             $criteria,
             $context
-        )->first();
+        )->getEntities()->first();
         return $entity instanceof OrderEntity ? $entity : null;
     }
 

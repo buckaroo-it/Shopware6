@@ -323,6 +323,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'showApplePay'             => $this->showApplePayExpress($salesChannelId, 'checkout'),
             'isAppleDevice'            => $this->isAppleDevice($request),
+            'showGooglePay'            => $this->getSettingAsBool('googlepayShowCheckout', $salesChannelId),
             'googlepayMerchantId'      => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
             'googlepayButtonStyle'     => $this->getGooglepayButtonStyle($salesChannelId),
@@ -408,7 +409,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $methods = [
             'Billink',
-            'klarnakp',
             'capayable',
             'afterpay'
         ];
@@ -993,33 +993,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         
         if (is_string($value)) {
             return $value === '1' || strtolower($value) === 'true';
-        }
-        
-        return $default;
-    }
-
-    /**
-     * Helper method to safely cast setting values to integer
-     * Handles different setting representations and validates type before conversion
-     */
-    private function getSettingAsInt(string $key, string $salesChannelId, int $default = 0): int
-    {
-        $value = $this->settingsService->getSetting($key, $salesChannelId);
-        
-        if ($value === null) {
-            return $default;
-        }
-        
-        if (is_int($value)) {
-            return $value;
-        }
-        
-        if (is_bool($value)) {
-            return $value ? 1 : 0;
-        }
-        
-        if (is_string($value) || is_float($value)) {
-            return intval($value);
         }
         
         return $default;

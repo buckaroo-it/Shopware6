@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Subscribers;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,7 +73,8 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
             $redirectUrl = $this->resolveRedirectUrl($paymentToken, $request);
         } catch (\Throwable $e) {
             $this->logger->warning(
-                'Buckaroo: Could not resolve redirect URL for invalidated payment token — leaving default error handling in place',
+                'Buckaroo: Could not resolve redirect URL for invalidated payment token'
+                . ' — leaving default error handling in place',
                 ['exception' => $e->getMessage()]
             );
             return;
@@ -105,15 +109,16 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
     private function resolveRedirectUrl(string $paymentToken, Request $request): string
     {
         $payload = $this->decodeJwtPayload($paymentToken);
+        $context = $this->resolveContext($request);
 
         // 'ful' and 'eul' are stored as relative paths (e.g. /checkout/finish?orderId=...)
-        $finishUrl     = $this->makeAbsolute($payload['ful'] ?? null, $request);
-        $errorUrl      = $this->makeAbsolute($payload['eul'] ?? null, $request);
+        $finishUrl     = $this->makeAbsolute($this->stringClaim($payload, 'ful'), $request);
+        $errorUrl      = $this->makeAbsolute($this->stringClaim($payload, 'eul'), $request);
         $transactionId = isset($payload['sub']) && is_string($payload['sub']) ? $payload['sub'] : null;
 
-        if ($transactionId !== null) {
+        if ($transactionId !== null && $context !== null) {
             try {
-                if ($this->isPaymentSuccessful($transactionId)) {
+                if ($this->isPaymentSuccessful($transactionId, $context)) {
                     return $finishUrl ?? $this->accountOrdersUrl();
                 }
 
@@ -158,6 +163,18 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
         return $data;
     }
 
+    /**
+     * JWT claims are untrusted input, so a claim is only used when it really is a string.
+     *
+     * @param array<string, mixed> $payload
+     */
+    private function stringClaim(array $payload, string $claim): ?string
+    {
+        $value = $payload[$claim] ?? null;
+
+        return is_string($value) ? $value : null;
+    }
+
     private function makeAbsolute(?string $path, Request $request): ?string
     {
         if ($path === null || $path === '') {
@@ -171,16 +188,46 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
         return $request->getSchemeAndHttpHost() . $path;
     }
 
-    private function isPaymentSuccessful(string $transactionId): bool
+    /**
+     * Resolve the context of the request that triggered the exception.
+     *
+     * Shopware resolves the context before the controller runs, so for the token-invalidated
+     * exception - which is thrown inside the payment controller - the request always carries it.
+     * Returns null when it is genuinely absent (the exception fired before context resolution);
+     * in that case no context is invented and the transaction state lookup is skipped.
+     */
+    private function resolveContext(Request $request): ?Context
+    {
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        if ($context instanceof Context) {
+            return $context;
+        }
+
+        $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        if ($salesChannelContext instanceof SalesChannelContext) {
+            return $salesChannelContext->getContext();
+        }
+
+        $this->logger->warning(
+            'Buckaroo: No context on the request for an invalidated payment token'
+            . ' - skipping the transaction state lookup and using the token claims',
+            ['path' => $request->getPathInfo()]
+        );
+
+        return null;
+    }
+
+    private function isPaymentSuccessful(string $transactionId, Context $context): bool
     {
         $criteria = new Criteria([$transactionId]);
         $criteria->addAssociation('stateMachineState');
 
         $transaction = $this->orderTransactionRepository
-            ->search($criteria, Context::createDefaultContext())
+            ->search($criteria, $context)
+            ->getEntities()
             ->first();
 
-        if ($transaction === null) {
+        if (!$transaction instanceof OrderTransactionEntity) {
             return false;
         }
 

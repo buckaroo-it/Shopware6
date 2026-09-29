@@ -60,9 +60,11 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
         // up that anonymous token and /checkout/finish would redirect to the register page.
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
 
-        $session = $request->getSession();
-        if ($session !== null) {
-            $session->set('sw-context-token', $contextToken);
+        // Storefront returns carry a session; store-api / headless returns do not, and
+        // Request::getSession() throws in that case. The attribute and header set above
+        // are what the context resolution actually relies on, so skipping is safe.
+        if ($request->hasSession()) {
+            $request->getSession()->set('sw-context-token', $contextToken);
         }
     }
 }

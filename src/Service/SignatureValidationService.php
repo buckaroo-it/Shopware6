@@ -4,38 +4,62 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Buckaroo\Config\DefaultConfig;
+use Buckaroo\Handlers\Reply\ReplyHandler;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class SignatureValidationService
 {
     protected SettingsService $settingsService;
 
-    public function __construct(SettingsService $settingsService)
+    protected LoggerInterface $logger;
+
+    public function __construct(SettingsService $settingsService, LoggerInterface $logger)
     {
         $this->settingsService = $settingsService;
+        $this->logger = $logger;
     }
 
     /**
-     * Generate/calculate the signature with the buckaroo config value and check if thats equal to the signature
-     * received from the push
+     * Validate the Buckaroo push signature.
+     *
+     * Validation is delegated to the Buckaroo PHP SDK (>= 1.24.5), which is the single
+     * source of truth for the push signature algorithm. Besides recalculating the SHA1
+     * over the signed fields, the SDK rejects requests that try to smuggle the signature
+     * through case-variant field names and compares hashes in constant time.
      *
      * @return bool
      */
-    public function validateSignature(Request $request, ?string $salesChannelId = null)
+    public function validateSignature(Request $request, ?string $salesChannelId = null): bool
     {
         $postData = $request->request->all();
 
-        if (!isset($postData['brq_signature'])) {
+        if (!isset($postData['brq_signature']) || !is_string($postData['brq_signature'])) {
             return false;
         }
 
-        $signature = $this->calculateSignature($postData, $salesChannelId);
+        try {
+            $secretKey = $this->settingsService->getSetting('secretKey', $salesChannelId);
 
-        if ($signature !== $postData['brq_signature']) {
+            $replyHandler = new ReplyHandler(
+                new DefaultConfig(
+                    '',
+                    is_string($secretKey) ? $secretKey : ''
+                ),
+                $postData
+            );
+
+            $replyHandler->validate();
+
+            return $replyHandler->isValid();
+        } catch (\Throwable $exception) {
+            $this->logger->error(
+                'Buckaroo push signature validation failed: ' . $exception->getMessage()
+            );
+
             return false;
         }
-
-        return true;
     }
     /**
      * @param array<mixed> $postData
@@ -61,39 +85,6 @@ class SignatureValidationService
 
         return SHA1($calculatedString);
     }
-
-    /**
-     * Determines the signature using array sorting and the SHA1 hash algorithm
-     *
-     * @param array<mixed> $postData
-     *
-     * @return string
-     */
-    protected function calculateSignature(array $postData, string $salesChannelId = null): string
-    {
-        $copyData = $postData;
-        unset($copyData['brq_signature']);
-
-        $sortableArray = $this->buckarooArraySort($copyData);
-
-        $signatureString = '';
-
-        foreach ($sortableArray as $brq_key => $value) {
-            if (is_scalar($value)) {
-                $brq_key = $this->getCorrectKey((string)$brq_key);
-                $value = $this->decodePushValue($brq_key, (string)$value);
-                $signatureString .= $brq_key . '=' . $value;
-            }
-        }
-
-        $signatureString .= $this->settingsService->getSetting('secretKey', $salesChannelId);
-
-        $signature = SHA1($signatureString);
-
-        return $signature;
-    }
-
-
 
     /**
      * @param string $brq_key
@@ -147,15 +138,6 @@ class SignatureValidationService
 
         return $decodedValue;
     }
-    private function getCorrectKey(string $key): string
-    {
-        if ($key === 'brq_SERVICE_boekenbon_Additional_Info') {
-            $key = 'brq_SERVICE_boekenbon_Additional Info';
-        }
-
-        return $key;
-    }
-
     /**
      * Sort the array so that the signature can be calculated identical to the way buckaroo does.
      *

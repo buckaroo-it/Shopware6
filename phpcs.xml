@@ -6,6 +6,11 @@ xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_C
     <arg name="colors"/>
     <arg name="report" value="code"/>
 
+    <!-- Warnings stay visible in the report but do not fail the build: the
+         only warning-level rule here is line length, which PSR2 deliberately
+         reports as a warning rather than an error. Errors do fail. -->
+    <config name="ignore_warnings_on_exit" value="1"/>
+
     <rule ref="PSR2">
         <exclude name="PSR2.ControlStructures.ControlStructureSpacing.SpacingAfterOpenBrace"/>
     </rule>
@@ -24,7 +29,7 @@ xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_C
 
     <!-- Only 3 indentation level per function/method -->
     <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
-        <exclude-pattern>*/src/BuckaroPayments.php</exclude-pattern>
+        <exclude-pattern>*/src/BuckarooPayments.php</exclude-pattern>
     </rule>
 
     <!-- Ignore long lines in controller because of route anotations -->

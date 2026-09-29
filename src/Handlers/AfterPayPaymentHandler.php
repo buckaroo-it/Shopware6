@@ -299,7 +299,7 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
         $coc = is_string($input) && !empty(trim($input)) ? trim($input) : '';
 
         if (empty($coc)) {
-            $coc = $address->getVatId() ?? '';
+            $coc = $this->asyncPaymentService->getAddressVatId($address) ?? '';
         }
         return $coc;
     }
@@ -320,7 +320,7 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
     ): array {
         $coc = $type === 'billing'
             ? $this->resolveCoc($address, $dataBag)
-            : ($address->getVatId() ?? '');
+            : ($this->asyncPaymentService->getAddressVatId($address) ?? '');
 
         if (
             $this->isCustomerB2B($salesChannelContextId) &&
@@ -402,9 +402,14 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
      *
      * @return string
      */
-    private function getCategory(OrderAddressEntity $address, string $salesChannelContextId, string $resolvedCoc = ''): string
-    {
-        $coc = !empty($resolvedCoc) ? $resolvedCoc : ($address->getVatId() ?? '');
+    private function getCategory(
+        OrderAddressEntity $address,
+        string $salesChannelContextId,
+        string $resolvedCoc = ''
+    ): string {
+        $coc = !empty($resolvedCoc)
+            ? $resolvedCoc
+            : ($this->asyncPaymentService->getAddressVatId($address) ?? '');
         if (
             $this->isCustomerB2B($salesChannelContextId) &&
             $this->asyncPaymentService->getCountry($address)->getIso() === 'NL' &&

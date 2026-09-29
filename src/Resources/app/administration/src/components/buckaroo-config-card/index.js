@@ -296,19 +296,6 @@ Component.register('buckaroo-config-card', {
                         || element.options
                         || []
                 };
-
-                // Debug logging to inspect how the multi-select is bound
-                const sampleOption = Array.isArray(binding.config?.options) && binding.config.options.length > 0
-                    ? binding.config.options[0]
-                    : null;
-                console.debug('[BuckarooConfigCard] getElementBind multi-select binding', {
-                    fieldName,
-                    bindingType: binding.type,
-                    componentName: binding.componentName,
-                    optionsCount: Array.isArray(binding.config?.options) ? binding.config.options.length : 0,
-                    currentValue,
-                    sampleOption
-                });
             }
             
             // Only set binding.label for SW >= 6.7.4.0; older versions already show the label and would show duplicates
@@ -442,7 +429,7 @@ Component.register('buckaroo-config-card', {
                 }
             }
 
-            if (val && typeof val === 'object' && val.hasOwnProperty('_value')) {
+            if (val && typeof val === 'object' && Object.prototype.hasOwnProperty.call(val, '_value')) {
                 val = val._value;
             }
             return val;
@@ -517,14 +504,13 @@ Component.register('buckaroo-config-card', {
                         } else {
                             actualValue = target.value;
                         }
-                    } else if (eventOrValue.hasOwnProperty('value')) {
+                    } else if (Object.prototype.hasOwnProperty.call(eventOrValue, 'value')) {
                         actualValue = eventOrValue.value;
-                    } else if (eventOrValue.hasOwnProperty('id') && eventOrValue.hasOwnProperty('name')) {
+                    } else if (Object.prototype.hasOwnProperty.call(eventOrValue, 'id') && Object.prototype.hasOwnProperty.call(eventOrValue, 'name')) {
                         actualValue = eventOrValue.id;
                     } else if (Array.isArray(eventOrValue)) {
                         const totalCharacters = eventOrValue.filter(item => typeof item === 'string' && item.length === 1).length;
                         const hasCommas = eventOrValue.some(item => item === ',');
-                        const hasLongStrings = eventOrValue.some(item => typeof item === 'string' && item.length > 1);
 
                         const isCharacterArray = totalCharacters > 10 && hasCommas;
 
@@ -609,12 +595,6 @@ Component.register('buckaroo-config-card', {
                 // This ensures components like sw-multi-select keep multiple selections
                 // instead of degrading to a single selected option.
                 if (element && element.type === 'multi-select') {
-                    console.debug('[BuckarooConfigCard] onFieldInput before normalize (multi-select)', {
-                        fieldName,
-                        rawEvent: eventOrValue,
-                        rawValue: actualValue
-                    });
-
                     if (Array.isArray(actualValue)) {
                         // Normalize array items to primitive ids / values
                         actualValue = actualValue
@@ -637,11 +617,6 @@ Component.register('buckaroo-config-card', {
                         // Fallback: wrap single primitive value into an array
                         actualValue = [actualValue];
                     }
-
-                    console.debug('[BuckarooConfigCard] onFieldInput after normalize (multi-select)', {
-                        fieldName,
-                        normalizedValue: actualValue
-                    });
                 }
                 
                 const cleanFieldName = fieldName.replace('BuckarooPayments.config.', '');

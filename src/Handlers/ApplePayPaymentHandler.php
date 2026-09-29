@@ -105,4 +105,3 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
         return '';
     }
 }
-
