@@ -81,7 +81,7 @@ class TransactionService
         $criteria->addFilter($filter);
 
         /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity|null */
-        return $this->transactionRepository->search($criteria, $context)->first();
+        return $this->transactionRepository->search($criteria, $context)->getEntities()->first();
     }
 
     /**
@@ -92,7 +92,7 @@ class TransactionService
     {
         $criteria = new Criteria([$transactionId]);
         /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity|null */
-        return $this->transactionRepository->search($criteria, $context)->first();
+        return $this->transactionRepository->search($criteria, $context)->getEntities()->first();
     }
 
     /**

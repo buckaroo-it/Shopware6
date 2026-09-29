@@ -31,11 +31,38 @@ jobs:
       # -p 80:80 means the browser sends Host: localhost, which matches the
       # sales channel domain dockware ships. Do not remap the port without also
       # updating sales_channel_domain, or Shopware answers 400.
+      # dockware 6.7.13 stopped shipping Shopware pre-extracted: the image now
+      # carries /var/www/html/shopware.tar.zst and unpacks it during container
+      # start. Apache answers 403 from the not-yet-existing docroot roughly 75
+      # seconds before that finishes, so "the shop answers HTTP" no longer
+      # implies "the shop is installed" - the old gate returned on that 403 and
+      # the composer step then ran against an empty /var/www/html and died with
+      #   File "./composer.json" cannot be found in the current directory
+      #
+      # Gate on what the next steps actually need instead: the project root and
+      # a working console. On the older pre-extracted images both hold on the
+      # first probe, so nothing is slowed down there.
+      - name: Wait for Shopware to finish installing
+        run: |
+          for i in $(seq 1 120); do
+            if docker exec -u www-data -w /var/www/html shop \
+                 sh -c 'test -f composer.json && php bin/console --version' >/dev/null 2>&1; then
+              echo "shopware installed after $(( i * 5 ))s"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::shopware did not finish installing"
+          docker logs shop | tail -80
+          exit 1
+
+      # Extraction restarts Apache, so the web server can still be down for a
+      # few seconds after the install completes. Any HTTP status means it is
+      # answering again. Do not gate on 200: a domain mismatch answers 400 on
+      # 6.7 and 500 on 6.5, and gating on specific codes made 6.5 look like it
+      # never booted.
       - name: Wait for the shop to answer
         run: |
-          # Any HTTP status means the web server is answering. Do not gate on
-          # 200: a domain mismatch answers 400 on 6.7 and 500 on 6.5, and
-          # gating on specific codes made 6.5 look like it never booted.
           for i in $(seq 1 90); do
             code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://localhost/ || true)
             if [ -n "$code" ] && [ "$code" != "000" ]; then echo "shop up (HTTP $code)"; exit 0; fi

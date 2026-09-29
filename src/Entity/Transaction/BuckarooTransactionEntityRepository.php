@@ -47,6 +47,7 @@ class BuckarooTransactionEntityRepository
             /** @var BuckarooTransactionEntity $buckarooTransactionEntity|null */
             $buckarooTransactionEntity = $this->baseRepository
                 ->search($this->buildCriteria($id, $additionalConditions), $context)
+                ->getEntities()
                 ->first();
 
             if ($buckarooTransactionEntity !== null) {
@@ -78,6 +79,7 @@ class BuckarooTransactionEntityRepository
         /** @var BuckarooTransactionEntity|null */
         return $this->baseRepository
             ->search(new Criteria([$id]), $context)
+            ->getEntities()
             ->first();
     }
 
@@ -101,6 +103,7 @@ class BuckarooTransactionEntityRepository
                 $this->buildCriteria(null, $filter, $sortBy),
                 $context
             )
+            ->getEntities()
             ->first();
     }
 
@@ -183,7 +186,7 @@ class BuckarooTransactionEntityRepository
      */
     public function findByOrderId(string $id, Context $context, array $sortBy = []): EntityCollection
     {
-        $filter = ['order_id' => $id];
+        $filter = ['orderId' => $id];
 
         /** @var BuckarooTransactionEntityCollection<BuckarooTransactionEntity> */
         $entities = $this->baseRepository

@@ -81,7 +81,7 @@ class PaylinkController extends StorefrontController
 
         try {
             return new JsonResponse(
-                $this->payLinkService->create($request, $order)
+                $this->payLinkService->create($request, $order, $context)
             );
         } catch (\Exception $exception) {
             $this->logger->debug((string)$exception);

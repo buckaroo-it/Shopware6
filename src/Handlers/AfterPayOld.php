@@ -244,7 +244,7 @@ class AfterPayOld
     private function getItemVatCategory(array $item): int
     {
         $vatRate = null;
-        if (isset($item['vatRate'])) {
+        if (isset($item['vatRate']) && is_numeric($item['vatRate'])) {
             $vatRate = (float)$item['vatRate'];
         }
 

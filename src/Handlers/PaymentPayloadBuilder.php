@@ -52,8 +52,17 @@ class PaymentPayloadBuilder
             'amountDebit'   => $this->feeCalculator->getOrderTotalWithFee($order, $salesChannelId, $paymentCode),
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
             'returnURL'     => $finalReturnUrl,
-            'returnURLCancel' => $this->urlGenerator->getCancelRedirectUrlForOrder($order, $salesChannelContext->getToken(), $finalReturnUrl),
-            'pushURL'       => $this->urlGenerator->getPushUrl($order, $finalReturnUrl),
+            'returnURLCancel' => $this->urlGenerator->getCancelRedirectUrlForOrder(
+                $order,
+                $salesChannelContext->getContext(),
+                $salesChannelContext->getToken(),
+                $finalReturnUrl
+            ),
+            'pushURL'       => $this->urlGenerator->getPushUrl(
+                $order,
+                $salesChannelContext->getContext(),
+                $finalReturnUrl
+            ),
             'additionalParameters' => [
                 'orderTransactionId' => $orderTransaction->getId(),
                 'orderId' => $order->getId(),
@@ -77,5 +86,4 @@ class PaymentPayloadBuilder
             'type'          => IPProtocolVersion::getVersion($remoteIp)
         ];
     }
-
 }

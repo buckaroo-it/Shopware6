@@ -106,7 +106,10 @@ class MediaInstaller implements InstallerInterface
         try {
             $mediaFolderId = $this->getOrCreateMediaFolder($context->getContext());
         } catch (\Throwable $folderError) {
-            $this->logMediaWarning('Could not create or resolve Buckaroo media folder; skipping media import.', $folderError);
+            $this->logMediaWarning(
+                'Could not create or resolve Buckaroo media folder; skipping media import.',
+                $folderError
+            );
             return;
         }
 
@@ -164,12 +167,26 @@ class MediaInstaller implements InstallerInterface
             ]
         ];
 
+        // Collect the existing ids first so the repository is hit once instead of
+        // once per entry (the DAL delete() accepts the whole batch).
+        $existingIds = [];
+        foreach ($mediaList as $media) {
+            $mediaId = $this->getMediaId($media['name'], $context);
+            if ($mediaId !== null) {
+                $existingIds[] = ['id' => $mediaId];
+            }
+        }
+
+        if ($existingIds !== []) {
+            try {
+                $this->mediaRepository->delete($existingIds, $context);
+            } catch (\Throwable $mediaError) {
+                $this->logMediaWarning('Failed to remove existing additional media', $mediaError);
+            }
+        }
+
         foreach ($mediaList as $media) {
             try {
-                if ($mediaId = $this->getMediaId($media['name'], $context)) {
-                    $this->mediaRepository->delete([['id' => $mediaId]], $context);
-                }
-
                 $this->createMediaObject($media['path'], $mediaFolderId, $media['name'], $context);
             } catch (\Throwable $mediaError) {
                 $this->logMediaWarning(
@@ -442,7 +459,7 @@ class MediaInstaller implements InstallerInterface
         );
 
         /** @var MediaEntity|null */
-        return $this->mediaRepository->search($criteria, $context)->first();
+        return $this->mediaRepository->search($criteria, $context)->getEntities()->first();
     }
 
     private function getMediaId(string $mediaName, Context $context): ?string
@@ -469,7 +486,10 @@ class MediaInstaller implements InstallerInterface
         try {
             $mediaFolderId = $this->getOrCreateMediaFolder($context);
         } catch (\Throwable $folderError) {
-            $this->logMediaWarning('Could not create or resolve Buckaroo media folder; skipping media update.', $folderError);
+            $this->logMediaWarning(
+                'Could not create or resolve Buckaroo media folder; skipping media update.',
+                $folderError
+            );
             return;
         }
 
@@ -529,7 +549,7 @@ class MediaInstaller implements InstallerInterface
         $criteria->setLimit(1);
 
         /** @var MediaFolderEntity|null */
-        $defaultFolder = $this->mediaFolderRepository->search($criteria, $context)->first();
+        $defaultFolder = $this->mediaFolderRepository->search($criteria, $context)->getEntities()->first();
         if ($defaultFolder === null) {
             return null;
         }

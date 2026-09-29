@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -218,13 +219,20 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         // This ensures the order total in Shopware matches the amount sent to Buckaroo
     }
 
+    /**
+     * Storefront only convenience, see PaymentResponseHandler::handleRedirectResponse().
+     * PaymentHandlerSimple delegates here on Shopware 6.5/6.6, where pay() is reachable
+     * through the store-api as well, so a missing session must not fail the payment.
+     */
     private function handleRedirectResponse(
         AsyncPaymentTransactionStruct $transaction
     ): void {
-        $this->asyncPaymentService
-            ->checkoutHelper
-            ->getSession()
-            ->set('buckaroo_latest_order', $transaction->getOrder()->getId());
+        $session = $this->asyncPaymentService->checkoutHelper->getSessionIfAvailable();
+        if ($session === null) {
+            return;
+        }
+
+        $session->set('buckaroo_latest_order', $transaction->getOrder()->getId());
     }
 
     private function handlePaymentStatus(
@@ -338,8 +346,17 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             ),
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
             'returnURL'     => $returnUrl,
-            'returnURLCancel' => $this->buildCancelUrlWithToken($order, $contextToken, $returnUrl),
-            'pushURL'       => $this->asyncPaymentService->urlService->getPushUrlForOrder($order, $returnUrl),
+            'returnURLCancel' => $this->buildCancelUrlWithToken(
+                $order,
+                $salesChannelContext->getContext(),
+                $contextToken,
+                $returnUrl
+            ),
+            'pushURL'       => $this->asyncPaymentService->urlService->getPushUrlForOrder(
+                $order,
+                $salesChannelContext->getContext(),
+                $returnUrl
+            ),
 
             'additionalParameters' => [
                 'orderTransactionId' => $transaction->getOrderTransaction()->getId(),
@@ -364,10 +381,11 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
 
     private function buildCancelUrlWithToken(
         OrderEntity $order,
+        Context $context,
         string $contextToken,
         ?string $returnUrl = null
     ): string {
-        $url = $this->asyncPaymentService->urlService->getCancelUrlForOrder($order, $returnUrl);
+        $url = $this->asyncPaymentService->urlService->getCancelUrlForOrder($order, $context, $returnUrl);
         $separator = str_contains($url, '?') ? '&' : '?';
         return $url . $separator . 'sw-context-token=' . rawurlencode($contextToken);
     }
@@ -462,10 +480,12 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
     protected function getRequestBag(RequestDataBag $currentBag): RequestDataBag
     {
         if ($this->isUpdateOrder($currentBag)) {
-            $request = new Request($_GET, $_POST);
-            return new RequestDataBag(
-                $request->request->all()
-            );
+            $request = $this->asyncPaymentService->checkoutHelper->getCurrentRequest();
+            if ($request !== null) {
+                return new RequestDataBag(
+                    $request->request->all()
+                );
+            }
         }
         return $currentBag;
     }

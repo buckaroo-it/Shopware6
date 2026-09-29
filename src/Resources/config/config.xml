@@ -1633,6 +1633,29 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field type="single-select">
+            <name>googlepayShowCheckout</name>
+            <label lang="en-GB">Show Google Pay button on checkout page</label>
+            <label lang="de-DE">Google Pay-Schaltfläche auf der Checkout-Seite anzeigen</label>
+            <label lang="nl-NL">Toon Google Pay-knop op de checkoutpagina</label>
+            <label lang="fr-FR">Afficher le bouton Google Pay sur la page de paiement</label>
+            <helpText lang="en-GB">Shows the Google Pay express button above the payment methods on the checkout confirm page. This is independent of the standard Google Pay payment method.</helpText>
+            <helpText lang="de-DE">Zeigt die Google Pay Express-Schaltfläche oberhalb der Zahlungsarten auf der Checkout-Bestätigungsseite an. Dies ist unabhängig von der Standard-Zahlungsart Google Pay.</helpText>
+            <helpText lang="nl-NL">Toont de Google Pay express-knop boven de betaalmethoden op de checkoutpagina. Dit staat los van de standaard Google Pay-betaalmethode.</helpText>
+            <helpText lang="fr-FR">Affiche le bouton express Google Pay au-dessus des modes de paiement sur la page de paiement. Ceci est indépendant du mode de paiement Google Pay standard.</helpText>
+            <defaultValue>0</defaultValue>
+            <options>
+                <option>
+                    <id>1</id>
+                    <name>Yes</name>
+                </option>
+                <option>
+                    <id>0</id>
+                    <name>No</name>
+                </option>
+            </options>
+        </input-field>
     </card>
 
     <card>
@@ -2702,15 +2725,6 @@
         </input-field>
 
         <input-field type="bool">
-            <name>klarnaFinancialwarning</name>
-            <label lang="en-GB">Consumer Financial Warning</label>
-            <label lang="nl-NL">Financiële Waarschuwing</label>
-            <helpText lang="en-GB">Due to the regulations for BNPL methods in The Netherlands you'll have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.</helpText>
-            <helpText lang="nl-NL">Vanwege de voorschriften voor achteraf betaalmethoden in Nederland dien je klanten te waarschuwen voor het gebruik van een achteraf betaalmethode omdat het gemakkelijk kan leiden tot schulden. Wanneer deze functie is ingeschakeld, wordt er een waarschuwing weergegeven tijdens het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland.</helpText>
-            <defaultValue>1</defaultValue>
-        </input-field>
-
-        <input-field type="bool">
             <name>klarnaCaptureonshipment</name>
             <label lang="en-GB">Capture on shipment</label>
             <label lang="nl-NL">Vastleggen bij verzending</label>
@@ -2774,15 +2788,6 @@
             <label lang="nl-NL">Ingeschakeld Klarna Pay later (authorize/capture)</label>
             <label lang="de-DE">Aktiviert Klarna Pay later (authorize/capture)</label>
 			<label lang="fr-FR">Klarna Pay Later activé (autorisation/capture)</label>
-        </input-field>
-
-        <input-field type="bool">
-            <name>klarnakpFinancialwarning</name>
-            <label lang="en-GB">Consumer Financial Warning</label>
-            <label lang="nl-NL">Financiële Waarschuwing</label>
-            <helpText lang="en-GB">Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.</helpText>
-			<helpText lang="nl-NL">Vanwege de voorschriften voor achteraf betaalmethoden in Nederland dien je klanten te waarschuwen voor het gebruik van een achteraf betaalmethode omdat het gemakkelijk kan leiden tot schulden. Wanneer deze functie is ingeschakeld, wordt er een waarschuwing weergegeven tijdens het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland.</helpText>
-            <defaultValue>1</defaultValue>
         </input-field>
 
         <input-field type="bool">

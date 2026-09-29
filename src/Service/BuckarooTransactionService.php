@@ -88,15 +88,15 @@ class BuckarooTransactionService
         $collection = $this->buckarooTransactionEntityRepository->findByOrderId(
             $orderId,
             $context,
-            ['created_at' => 'DESC']
+            ['createdAtDate' => 'DESC']
         );
         foreach ($collection as $buckarooTransactionEntity) {
-            $refunded_items = $buckarooTransactionEntity->get("refunded_items");
+            $refunded_items = $buckarooTransactionEntity->get("refundedItems");
             if (is_scalar($refunded_items)) {
                 $orderRefundedItems[] = json_decode((string)$refunded_items, true);
             }
 
-            if (!$buckarooTransactionEntity->get("transaction_method")) {
+            if (!$buckarooTransactionEntity->get("transactionMethod")) {
                 continue;
             }
             $transactions = $buckarooTransactionEntity->get("transactions");
@@ -122,12 +122,12 @@ class BuckarooTransactionService
             }
 
             if (
-                is_scalar($buckarooTransactionEntity->get("amount_credit"))
+                is_scalar($buckarooTransactionEntity->get("amountCredit"))
             ) {
-                $amount -= (float)$buckarooTransactionEntity->get("amount_credit");
+                $amount -= (float)$buckarooTransactionEntity->get("amountCredit");
             }
 
-            $createdAt = $buckarooTransactionEntity->get("created_at");
+            $createdAt = $buckarooTransactionEntity->get("createdAtDate");
             $formatedCreatedAt = '';
             if ($createdAt instanceof \DateTime) {
                 $formatedCreatedAt = $createdAt->format('Y-m-d H:i:s');
@@ -141,7 +141,7 @@ class BuckarooTransactionService
                 'shipping_costs'      => $shipping_costs,
                 'vat'                 => $vat_show,
                 'total_excluding_vat' => $vat ? round(($amount - (($amount / 100) * $vat)), 2) : $amount,
-                'transaction_method'  => $buckarooTransactionEntity->get("transaction_method"),
+                'transaction_method'  => $buckarooTransactionEntity->get("transactionMethod"),
                 'created_at'          => $formatedCreatedAt,
             ];
 
@@ -154,7 +154,7 @@ class BuckarooTransactionService
                     'transactions'       => $transactions,
                     'total'              => $amount,
                     'currency'           => $buckarooTransactionEntity->get("currency"),
-                    'transaction_method' => $buckarooTransactionEntity->get("transaction_method"),
+                    'transaction_method' => $buckarooTransactionEntity->get("transactionMethod"),
                 ];
             }
         }

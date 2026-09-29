@@ -6,6 +6,8 @@ namespace Buckaroo\Shopware6\Handlers;
 
 // phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
 
+use Buckaroo\Shopware6\Events\AfterPaymentRequestEvent;
+use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
@@ -13,6 +15,7 @@ use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -335,7 +338,17 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 // Allow specific payment handlers to configure the client
                 $this->configureClient($client, $paymentCode, $salesChannelContext);
 
+                // Same hook PaymentHandlerLegacy/PaymentHandlerModern expose: plugins like
+                // BuckarooSubscription extend the request (e.g. Subscriptions/StartRecurrent) here.
+                $this->asyncPaymentService->dispatchEvent(
+                    new BeforePaymentRequestEvent($transaction, $dataBag, $salesChannelContext, $client)
+                );
+
                 $response = $client->execute();
+
+                $this->asyncPaymentService->dispatchEvent(
+                    new AfterPaymentRequestEvent($transaction, $dataBag, $salesChannelContext, $response, $paymentCode)
+                );
 
                 $this->asyncPaymentService->logger->info('Buckaroo API response', [
                     'paymentCode' => $paymentCode,
@@ -483,7 +496,14 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
         }
 
         /**
-         * Extract context token from request (headers first, then parameters)
+         * Extract context token from request (headers first, then parameters, finally the
+         * sales channel context the routing layer already resolved for this request).
+         *
+         * pay() also runs where no customer session exists (store-api/headless checkouts,
+         * PSP callbacks), so the token must never be read from the session. Shopware
+         * resolves the SalesChannelContext for every storefront and store-api request and
+         * stores it on the request; in the storefront that context carries the very token
+         * the session holds, which makes the request the session independent source of truth.
          */
         private function getContextTokenFromRequest(Request $request): string
         {
@@ -491,10 +511,12 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             if (empty($contextToken)) {
                 $contextToken = $request->get('sw-context-token', '');
             }
-            if (empty($contextToken) && $request->hasSession()) {
-                $sessionToken = $request->getSession()->get('sw-context-token');
-                if (is_string($sessionToken) && $sessionToken !== '') {
-                    $contextToken = $sessionToken;
+            if (empty($contextToken)) {
+                $resolvedContext = $request->attributes->get(
+                    PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT
+                );
+                if ($resolvedContext instanceof SalesChannelContext) {
+                    $contextToken = $resolvedContext->getToken();
                 }
             }
             if (empty($contextToken) || !is_string($contextToken)) {

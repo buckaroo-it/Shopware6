@@ -7,6 +7,7 @@ namespace Buckaroo\Shopware6\Service;
 use Buckaroo\Shopware6\Buckaroo\Client;
 use Buckaroo\Shopware6\Service\UrlService;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\TransactionService;
 use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
@@ -42,12 +43,14 @@ class PayLinkService
     /**
      * @param Request $request
      * @param OrderEntity $order
+     * @param Context $context Caller context, used to resolve the sales channel domain for the push URL
      *
      * @return array<mixed>|null
      */
     public function create(
         Request $request,
-        OrderEntity $order
+        OrderEntity $order,
+        Context $context
     ): ?array {
         if (!$this->transactionService->isBuckarooPaymentMethod($order)) {
             return null;
@@ -65,7 +68,7 @@ class PayLinkService
         )
             ->setAction('paymentInvitation')
             ->setPayload(
-                $this->getRequestPayload($request, $order)
+                $this->getRequestPayload($request, $order, $context)
             );
 
         return $this->handleResponse(
@@ -112,12 +115,14 @@ class PayLinkService
      *
      * @param Request $request
      * @param OrderEntity $order
+     * @param Context $context
      *
      * @return array<mixed>
      */
     private function getRequestPayload(
         Request $request,
-        OrderEntity $order
+        OrderEntity $order,
+        Context $context
     ): array {
         $customer = $order->getOrderCustomer();
         $salesChannelId = $order->getSalesChannelId();
@@ -164,7 +169,7 @@ class PayLinkService
             'invoice'                => $order->getOrderNumber(),
             'amountDebit'            => $order->getAmountTotal(),
             'currency'               => $currency->getIsoCode(),
-            'pushURL'                => $this->urlService->getPushUrlForOrder($order),
+            'pushURL'                => $this->urlService->getPushUrlForOrder($order, $context),
             'clientIP'               => $this->getIp($request),
             'returnURL'              => $returnUrl,
             'returnURLCancel'        => $cancelUrl,

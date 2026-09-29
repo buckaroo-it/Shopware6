@@ -55,7 +55,6 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
                 'operatingCountry' => $this->asyncPaymentService->getCountry(
                     $this->asyncPaymentService->getBillingAddress($order)
                 )->getIso(),
-                'pno'    => $this->getBirthDate($dataBag),
                 'gender' => $this->getGender($order, $dataBag),
             ],
             $this->getBillingData($order, $dataBag),
@@ -257,30 +256,5 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
         }
 
         return 1;
-    }
-
-    /**
-     * Get birth date
-     *
-     * @param RequestDataBag $dataBag
-     *
-     * @return null|string
-     */
-    private function getBirthDate(RequestDataBag $dataBag)
-    {
-        if (!$dataBag->has('buckaroo_klarna_DoB')) {
-            return null;
-        }
-
-        $dateString = $dataBag->get('buckaroo_klarna_DoB');
-        if (!is_scalar($dateString)) {
-            return null;
-        }
-        $date = strtotime((string)$dateString);
-        if ($date === false) {
-            return null;
-        }
-
-        return @date("d/m/Y", $date);
     }
 }

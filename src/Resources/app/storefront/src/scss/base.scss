@@ -1,212 +1,17 @@
 // Shared express checkout button styling (Apple Pay, Google Pay, PayPal, iDEAL/Wero)
 @import "express-checkout";
 
-.tailwind-wrapper {
-    .bg-white {
-        background-color: #fff;
-    }
-
-    .px-8 {
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-
-    .pt-6 {
-        padding-top: 1.5rem;
-    }
-
-    .pb-8 {
-        padding-bottom: 2rem;
-    }
-
-    .mb-4 {
-        margin-bottom: 1rem;
-    }
-
-    .mb-6 {
-        margin-bottom: 1.5rem;
-    }
-
-    .mt-1 {
-        margin-top: 0.25rem;
-    }
-
-    .block {
-        display: block;
-    }
-
-    .text-2xl {
-        font-size: 1.5rem;
-        line-height: 2rem;
-    }
-
-    .font-bold {
-        font-weight: 700;
-    }
-
-    .text-sm {
-        font-size: 0.875rem;
-        line-height: 1.25rem;
-    }
-
-    .text-xs {
-        font-size: 0.75rem;
-        line-height: 1rem;
-    }
-
-    .text-gray-500 {
-        color: #6b7280;
-    }
-
-    .text-gray-700 {
-        color: #374151;
-    }
-
-    .text-red-500 {
-        color: #ef4444;
-    }
-
-    .text-red-600 {
-        color: #dc2626;
-    }
-
-    .text-gray-800 {
-        color: #1f2937;
-    }
-
-    .shadow {
-        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    }
-
-    .h-12 {
-        height: 3rem;
-    }
-
-    .appearance-none {
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-    }
-
-    .border {
-        border-width: 1px;
-        border-color: #d1d5db;
-    }
-
-    .rounded {
-        border-radius: 0.25rem;
-    }
-
-    .w-full {
-        width: 100%;
-    }
-
-    .py-2 {
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-    }
-
-    .px-3 {
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
-    }
-
-    .leading-tight {
-        line-height: 1.25;
-    }
-
-    .focus\:outline-none:focus {
-        outline: none;
-    }
-
-    .focus\:shadow-outline:focus {
-        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
-    }
-
-    .grid {
-        display: grid;
-    }
-
-    .grid-cols-2 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .gap-4 {
-        gap: 1rem;
-    }
-
-    .col-span-1 {
-        grid-column: span 1 / span 1;
-    }
-
-    .flex {
-        display: flex;
-    }
-
-    .items-center {
-        align-items: center;
-    }
-
-    .justify-between {
-        justify-content: space-between;
-    }
-
-    .inline-block {
-        display: inline-block;
-    }
-
-    .align-baseline {
-        vertical-align: baseline;
-    }
-
-    .hover\:text-gray-800:hover {
-        color: #1f2937;
-    }
-
-    .hover\:bg-red-600:hover {
-        background-color: #dc2626;
-    }
-
-    .bg-\[\#ff5555\] {
-        background-color: #ff5555;
-    }
-
-    .text-white {
-        color: #ffffff;
-    }
-
-    .py-2 {
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-    }
-
-    .px-4 {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-
-    .rounded {
-        border-radius: 0.25rem;
-    }
-
-    .hidden {
-        display: none;
-    }
-
-    .italic {
-        font-style: italic;
-    }
-
-    a.hover\:text-gray-800:hover {
-        color: #1f2937;
-    }
-}
+// Credit Card Hosted Fields (Buckaroo SDK iframes styled as Storefront inputs)
+@import "hosted-fields";
 
 .card_kind{
     position: absolute;
     top: 30px;
     right: 27px;
 
+    // The card brand image (#card_kind_img) is not rendered by one of this
+    // plugin's templates, so it cannot be given a class to target.
+    // stylelint-disable-next-line selector-max-type
     img{
         width: 45px;
         max-height: 30px;
@@ -216,6 +21,41 @@
 #P24CurrencyError{
     display:none;
     color:red;
+}
+
+// Validation messages rendered hidden and revealed by the storefront JS.
+// Deliberately without !important: buckaroo-payment.helper.js and
+// buckaroo-payment.bancontact.js toggle these with element.style.display, and an
+// inline style only wins over a class rule that is not marked important.
+// Bootstrap's .d-none would break every one of these messages for that reason.
+.bk-field-error {
+    display: none;
+    color: red;
+}
+
+// Static validation notice, visible as soon as it is rendered.
+.bk-error-text {
+    color: red;
+}
+
+.bk-creditcard-select {
+    max-width: 300px;
+    margin-left: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+// Shown by select.plugin.js on mobile widths - same element.style.display
+// toggling as the validation messages above, so no !important here either.
+.bk-paybybank-mobile {
+    display: none;
+}
+
+.buckaroo-payment-inputs {
+    margin-top: 15px;
+}
+
+.bk-bancontactmrcash {
+    margin-top: 15px;
 }
 .payment .custom-control-label::before {
     border-radius: 3px;
@@ -236,6 +76,10 @@
         .custom-control-label {
             display: flex;
             align-items: center;
+
+            // .custom-control-label is Shopware's own radio markup; the issuer
+            // image inside it carries no class this plugin controls.
+            // stylelint-disable-next-line selector-max-type
             img {
                 margin: 0 5px;
             }
@@ -288,14 +132,14 @@
         padding-bottom: 5px;
         cursor: pointer;
         display: block;
-        strong {
+        .bank-method-name {
             display: block;
             text-align: center;
             font-size: 12px;
             flex: 100% 0 0;
         }
 
-        img {
+        .bank-method-image {
             padding: 10px 20px;
             width: 100%;
         }
@@ -311,7 +155,7 @@
     align-items: center;
 }
 
-.bk-ideal-qr img {
+.bk-ideal-qr-image {
     max-height: 50vh;
 }
 
@@ -342,8 +186,8 @@
     .payment-method-label {
         display: flex;
         
-        img.payment-method-image,
-        img.bk-payment-image {
+        .payment-method-image,
+        .bk-payment-image {
             order: 2;
             flex: 0 0 30%;
             margin-left: 2rem;
@@ -353,6 +197,9 @@
             order: 1;
             flex: 0 0 70%;
 
+            // The description is merchant-authored rich text rendered with |raw,
+            // so its paragraphs cannot be given a class.
+            // stylelint-disable-next-line selector-max-type
             p {
                 margin: 0;
             }
@@ -360,16 +207,20 @@
     }
 }
 
-.footer-logo {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    max-height: 38px !important;
-    max-width: 100px !important;
-    width: auto !important;
-    height: auto !important;
-    min-height: 20px !important;
-    min-width: 60px !important;
+// The payment logos this plugin renders in the footer override
+// (layout/footer/footer.html.twig) reuse Shopware's .footer-logo class, so the
+// theme's own rules apply too. Scoping to .footer-logos > .footer-logo.is-payment
+// wins on specificity, which is why none of these need !important.
+.footer-logos .footer-logo.is-payment {
+    display: block;
+    visibility: visible;
+    opacity: 1;
+    max-height: 38px;
+    max-width: 100px;
+    width: auto;
+    height: auto;
+    min-height: 20px;
+    min-width: 60px;
     object-fit: contain;
 }
 
@@ -405,6 +256,12 @@
         margin-bottom: 1rem;
     }
 
+    // The cancelled page reuses the confirmation layout with a warning palette.
+    .bkr-icon--warning {
+        background: #fff3cd;
+        color: #664d03;
+    }
+
     .bkr-title {
         font-weight: 700;
         font-size: 1.5rem;
@@ -426,6 +283,12 @@
         padding: .5rem .75rem;
         display: inline-block;
         margin: .25rem 0 1rem;
+    }
+
+    .bkr-badge--warning {
+        background: #fff3cd;
+        border-color: #ffe69c;
+        color: #664d03;
     }
 
     .bkr-actions {
