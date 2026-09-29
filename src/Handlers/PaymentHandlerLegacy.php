@@ -14,11 +14,11 @@ use Buckaroo\Shopware6\PaymentMethods\AbstractPayment;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Buckaroo\Shopware6\Service\Exceptions\BuckarooPaymentRejectException;
+use Buckaroo\Shopware6\Subscribers\PaymentContextCookieSubscriber;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -332,9 +332,13 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         $order = $transaction->getOrder();
         $returnUrl = $this->getReturnUrl($transaction, $dataBag);
         $salesChannelId = $salesChannelContext->getSalesChannelId();
-        $contextToken = $salesChannelContext->getToken();
-        $separator = str_contains($returnUrl, '?') ? '&' : '?';
-        $returnUrl .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
+
+        // The browser may drop the session cookie when Buckaroo redirects back cross-site. The context
+        // token travels in a dedicated cookie instead of the return URL, so it never leaves the shop.
+        PaymentContextCookieSubscriber::rememberForReturn(
+            $this->asyncPaymentService->checkoutHelper->getCurrentRequest(),
+            $salesChannelContext
+        );
 
         return [
             'order'         => $order->getOrderNumber(),
@@ -346,10 +350,9 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             ),
             'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
             'returnURL'     => $returnUrl,
-            'returnURLCancel' => $this->buildCancelUrlWithToken(
+            'returnURLCancel' => $this->asyncPaymentService->urlService->getCancelUrlForOrder(
                 $order,
                 $salesChannelContext->getContext(),
-                $contextToken,
                 $returnUrl
             ),
             'pushURL'       => $this->asyncPaymentService->urlService->getPushUrlForOrder(
@@ -361,7 +364,6 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
             'additionalParameters' => [
                 'orderTransactionId' => $transaction->getOrderTransaction()->getId(),
                 'orderId' => $order->getId(),
-                'sw-context-token' => $salesChannelContext->getToken()
             ],
 
             'description' => $this->asyncPaymentService
@@ -379,16 +381,6 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         return $this->paymentFeeCalculator->getOrderTotalWithFee($order, $salesChannelId, $paymentCode);
     }
 
-    private function buildCancelUrlWithToken(
-        OrderEntity $order,
-        Context $context,
-        string $contextToken,
-        ?string $returnUrl = null
-    ): string {
-        $url = $this->asyncPaymentService->urlService->getCancelUrlForOrder($order, $context, $returnUrl);
-        $separator = str_contains($url, '?') ? '&' : '?';
-        return $url . $separator . 'sw-context-token=' . rawurlencode($contextToken);
-    }
 
     private function getIp(): array
     {

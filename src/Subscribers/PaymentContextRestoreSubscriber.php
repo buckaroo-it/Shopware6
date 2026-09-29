@@ -11,15 +11,15 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Restores the sales channel context token from the request when returning from Buckaroo.
- * When the user returns from the payment gateway, sw-context-token may be in the URL but
- * session cookies might not have been sent (cross-site redirect). Setting the token in the
- * session early allows the rest of the request to use the correct context.
+ * Restores the sales channel context token when returning from Buckaroo.
+ * The session cookie may not be sent on the cross-site return, but the payment context cookie
+ * (see PaymentContextCookieSubscriber) is. Setting the token in the session early allows the
+ * rest of the request to use the correct context. The token is never taken from the URL.
  */
 class PaymentContextRestoreSubscriber implements EventSubscriberInterface
 {
     /**
-     * Routes Buckaroo redirects the customer back to. Only these may restore a context token from the URL.
+     * Routes Buckaroo redirects the customer back to. Only these may restore the context token.
      */
     private const RESTORE_ROUTES = [
         'payment.finalize.transaction',
@@ -41,10 +41,7 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
         }
 
         $request = $event->getRequest();
-        $contextToken = $request->query->get('add_sw-context-token')
-            ?? $request->request->get('add_sw-context-token')
-            ?? $request->query->get('sw-context-token')
-            ?? $request->request->get('sw-context-token');
+        $contextToken = $request->cookies->get(PaymentContextCookieSubscriber::COOKIE_NAME);
 
         if (!is_string($contextToken) || $contextToken === '') {
             return;
@@ -55,8 +52,8 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
         }
 
         // The token is only needed when the browser lost its session on the cross-site return.
-        // When the visitor still has a live session with its own context, never replace it with a
-        // token taken from the URL, otherwise a crafted link could push a foreign session onto them.
+        // When the visitor still has a live session with its own context, never replace it
+        // (e.g. the customer logged in on another tab while paying, which renews the token).
         if ($this->hasOtherLiveContext($request, $contextToken)) {
             return;
         }

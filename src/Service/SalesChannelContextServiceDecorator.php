@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -47,12 +48,10 @@ class SalesChannelContextServiceDecorator implements SalesChannelContextServiceI
         if ($request === null) {
             return null;
         }
+        // Never read the token from query or body parameters: only the token restored by
+        // PaymentContextRestoreSubscriber or the request's own context header are trusted.
         $token = $request->attributes->get('sw-context-token')
-            ?? $request->query->get('add_sw-context-token')
-            ?? $request->request->get('add_sw-context-token')
-            ?? $request->query->get('sw-context-token')
-            ?? $request->request->get('sw-context-token')
-            ?? $request->cookies->get('sw-context-token');
+            ?? $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         return is_string($token) && $token !== '' ? $token : null;
     }
 }

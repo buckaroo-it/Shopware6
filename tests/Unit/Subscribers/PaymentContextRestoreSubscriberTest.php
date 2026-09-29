@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Tests\Unit\Subscribers;
 
+use Buckaroo\Shopware6\Subscribers\PaymentContextCookieSubscriber;
 use Buckaroo\Shopware6\Subscribers\PaymentContextRestoreSubscriber;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\PlatformRequest;
@@ -28,9 +29,9 @@ class PaymentContextRestoreSubscriberTest extends TestCase
     /**
      * @dataProvider restoreRouteProvider
      */
-    public function testItRestoresTheTokenOnPaymentReturnRoutes(string $route): void
+    public function testItRestoresTheTokenFromTheCookieOnPaymentReturnRoutes(string $route): void
     {
-        $request = $this->createRequest($route, ['sw-context-token' => self::TOKEN]);
+        $request = $this->createRequest($route, self::TOKEN);
 
         $this->dispatch($request);
 
@@ -50,19 +51,23 @@ class PaymentContextRestoreSubscriberTest extends TestCase
         ];
     }
 
-    public function testItRestoresThePrefixedPostParameter(): void
+    public function testItNeverTakesTheTokenFromTheUrlOrBody(): void
     {
-        $request = $this->createRequest('payment.finalize.transaction', [], ['add_sw-context-token' => self::TOKEN]);
+        $request = new Request(
+            ['sw-context-token' => self::TOKEN, 'add_sw-context-token' => self::TOKEN],
+            ['sw-context-token' => self::TOKEN, 'add_sw-context-token' => self::TOKEN]
+        );
+        $request->attributes->set('_route', 'payment.finalize.transaction');
 
         $this->dispatch($request);
 
-        $this->assertSame(self::TOKEN, $request->attributes->get('sw-context-token'));
+        $this->assertNull($request->attributes->get('sw-context-token'));
+        $this->assertNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
-    public function testItIgnoresOtherRoutesEvenWhenThePathContainsPayment(): void
+    public function testItIgnoresOtherRoutes(): void
     {
-        $request = $this->createRequest('frontend.detail.page', ['sw-context-token' => self::TOKEN]);
-        $request->server->set('REQUEST_URI', '/payment-terminal/p/123');
+        $request = $this->createRequest('frontend.detail.page', self::TOKEN);
 
         $this->dispatch($request);
 
@@ -72,7 +77,7 @@ class PaymentContextRestoreSubscriberTest extends TestCase
 
     public function testItDoesNotReplaceTheContextOfALiveSession(): void
     {
-        $request = $this->createRequest('frontend.checkout.finish.page', ['sw-context-token' => self::TOKEN]);
+        $request = $this->createRequest('frontend.checkout.finish.page', self::TOKEN);
         $session = $this->attachSession($request, true);
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, self::OTHER_TOKEN);
 
@@ -84,7 +89,7 @@ class PaymentContextRestoreSubscriberTest extends TestCase
 
     public function testItRestoresWhenTheLiveSessionAlreadyHoldsTheSameToken(): void
     {
-        $request = $this->createRequest('frontend.checkout.finish.page', ['sw-context-token' => self::TOKEN]);
+        $request = $this->createRequest('frontend.checkout.finish.page', self::TOKEN);
         $this->attachSession($request, true)->set(PlatformRequest::HEADER_CONTEXT_TOKEN, self::TOKEN);
 
         $this->dispatch($request);
@@ -94,7 +99,7 @@ class PaymentContextRestoreSubscriberTest extends TestCase
 
     public function testItRestoresWhenTheSessionCookieWasNotSent(): void
     {
-        $request = $this->createRequest('payment.finalize.transaction', ['sw-context-token' => self::TOKEN]);
+        $request = $this->createRequest('payment.finalize.transaction', self::TOKEN);
         // A fresh session started by the storefront because the cookie was lost on the cross-site return
         $session = $this->attachSession($request, false);
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, self::OTHER_TOKEN);
@@ -105,9 +110,9 @@ class PaymentContextRestoreSubscriberTest extends TestCase
         $this->assertSame(self::TOKEN, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
-    public function testItDoesNothingWithoutAToken(): void
+    public function testItDoesNothingWithoutTheCookie(): void
     {
-        $request = $this->createRequest('payment.finalize.transaction');
+        $request = $this->createRequest('payment.finalize.transaction', null);
 
         $this->dispatch($request);
 
@@ -116,21 +121,21 @@ class PaymentContextRestoreSubscriberTest extends TestCase
 
     public function testItIgnoresSubRequests(): void
     {
-        $request = $this->createRequest('payment.finalize.transaction', ['sw-context-token' => self::TOKEN]);
+        $request = $this->createRequest('payment.finalize.transaction', self::TOKEN);
 
         $this->dispatch($request, HttpKernelInterface::SUB_REQUEST);
 
         $this->assertNull($request->attributes->get('sw-context-token'));
     }
 
-    /**
-     * @param array<string, string> $query
-     * @param array<string, string> $post
-     */
-    private function createRequest(string $route, array $query = [], array $post = []): Request
+    private function createRequest(string $route, ?string $cookieToken): Request
     {
-        $request = new Request($query, $post);
+        $request = new Request();
         $request->attributes->set('_route', $route);
+
+        if ($cookieToken !== null) {
+            $request->cookies->set(PaymentContextCookieSubscriber::COOKIE_NAME, $cookieToken);
+        }
 
         return $request;
     }
