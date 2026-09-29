@@ -474,7 +474,7 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 # 3.6.0
 
 - BTI-1508 Add support for Shopware 6.7.14.2.
-- BTI-1588 Update to use PHP SDK v1.24.5 for the plugin.
+- BTI-1588 Update to use PHP SDK v1.24.6 for the plugin.
 - BTI-1518 Add "Show Google Pay button on checkout page" setting.
 - BTI-1450 Declare the 15 buckaroo_transaction fields on the entity.
 - BTI-1420 Fixed checking iDEAL transactions without invoice number and amount after updating to v3.5.0 for a specific merchant.
