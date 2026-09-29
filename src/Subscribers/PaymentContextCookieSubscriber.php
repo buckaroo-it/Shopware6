@@ -69,7 +69,7 @@ class PaymentContextCookieSubscriber implements EventSubscriberInterface
 
         if (is_string($contextToken) && $contextToken !== '') {
             $response->headers->setCookie(
-                Cookie::create(self::COOKIE_NAME)
+                Cookie::create(self::COOKIE_NAME, secure: true)
                     ->withValue($contextToken)
                     ->withExpires(new \DateTimeImmutable(self::LIFETIME))
                     ->withPath('/')
