@@ -52,7 +52,7 @@ class PaymentContextCookieSubscriber implements EventSubscriberInterface
             ->withExpires($expire)
             ->withPath('/')
             ->withSecure(true)
-            ->withHttpOnly(false)
+            ->withHttpOnly(true)
             ->withSameSite(Cookie::SAMESITE_LAX);
 
         $response->headers->setCookie($cookie);

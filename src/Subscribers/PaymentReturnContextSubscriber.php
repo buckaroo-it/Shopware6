@@ -40,10 +40,8 @@ class PaymentReturnContextSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $contextToken = $request->query->get('add_sw-context-token')
-            ?? $request->request->get('add_sw-context-token')
-            ?? $request->query->get('sw-context-token')
-            ?? $request->request->get('sw-context-token');
+        // Only forward a token that PaymentContextRestoreSubscriber accepted for this request
+        $contextToken = $request->attributes->get('sw-context-token');
         if (!is_string($contextToken) || $contextToken === '') {
             return;
         }

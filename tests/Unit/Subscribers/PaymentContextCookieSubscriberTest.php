@@ -65,7 +65,7 @@ class PaymentContextCookieSubscriberTest extends TestCase
         $this->assertSame('sw-context-token', $cookie->getName());
         $this->assertSame(self::TOKEN, $cookie->getValue());
         $this->assertSame('/', $cookie->getPath());
-        $this->assertFalse($cookie->isHttpOnly());
+        $this->assertTrue($cookie->isHttpOnly(), 'The context token must not be readable by page scripts.');
         $this->assertSame(Cookie::SAMESITE_LAX, $cookie->getSameSite());
         $this->assertGreaterThan(time(), $cookie->getExpiresTime());
     }

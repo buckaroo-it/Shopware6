@@ -6,6 +6,7 @@ namespace Buckaroo\Shopware6\Subscribers;
 
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -17,6 +18,15 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class PaymentContextRestoreSubscriber implements EventSubscriberInterface
 {
+    /**
+     * Routes Buckaroo redirects the customer back to. Only these may restore a context token from the URL.
+     */
+    private const RESTORE_ROUTES = [
+        'payment.finalize.transaction',
+        'frontend.checkout.finish.page',
+        'frontend.action.buckaroo.cancel',
+    ];
+
     public static function getSubscribedEvents(): array
     {
         return [
@@ -40,13 +50,14 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Only restore for payment return, checkout finish, and cancel routes
-        $path = (string) $request->getPathInfo();
-        $isPaymentReturn = str_contains($path, '/payment/') || str_contains($path, 'payment');
-        $isCheckoutFinish = str_contains($path, 'checkout/finish');
-        $isBuckarooCancel = str_contains($path, 'buckaroo/cancel');
+        if (!in_array($request->attributes->get('_route'), self::RESTORE_ROUTES, true)) {
+            return;
+        }
 
-        if (!$isPaymentReturn && !$isCheckoutFinish && !$isBuckarooCancel) {
+        // The token is only needed when the browser lost its session on the cross-site return.
+        // When the visitor still has a live session with its own context, never replace it with a
+        // token taken from the URL, otherwise a crafted link could push a foreign session onto them.
+        if ($this->hasOtherLiveContext($request, $contextToken)) {
             return;
         }
 
@@ -66,5 +77,16 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
         if ($request->hasSession()) {
             $request->getSession()->set('sw-context-token', $contextToken);
         }
+    }
+
+    private function hasOtherLiveContext(Request $request, string $contextToken): bool
+    {
+        if (!$request->hasPreviousSession()) {
+            return false;
+        }
+
+        $sessionToken = $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+
+        return is_string($sessionToken) && $sessionToken !== '' && !hash_equals($sessionToken, $contextToken);
     }
 }
