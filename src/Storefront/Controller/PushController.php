@@ -73,6 +73,12 @@ class PushController extends StorefrontController
         'partial_refunded',
     ];
 
+    /**
+     * Order transaction custom field holding the identity (transaction key, status code,
+     * transaction type, mutation type) of every push accepted for processing.
+     */
+    public const PROCESSED_PUSHES_FIELD = 'buckarooProcessedPushes';
+
     private LoggerInterface $logger;
 
     private CheckoutHelper $checkoutHelper;
@@ -125,6 +131,24 @@ class PushController extends StorefrontController
     #[Route(path: "/buckaroo/push", defaults: ['_routeScope' => ['storefront']], options: ["seo" => false], name: "buckaroo.payment.push", methods: ["POST"])]
     public function pushBuckaroo(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
+        $claimedTransactionId = null;
+
+        try {
+            return $this->handlePush($request, $salesChannelContext, $claimedTransactionId);
+        } catch (\Throwable $exception) {
+            // Processing did not complete, so Buckaroo's retry of this push must not be ignored.
+            if ($claimedTransactionId !== null) {
+                $this->releaseProcessedPush($request, $claimedTransactionId, $salesChannelContext->getContext());
+            }
+            throw $exception;
+        }
+    }
+
+    private function handlePush(
+        Request $request,
+        SalesChannelContext $salesChannelContext,
+        ?string &$claimedTransactionId
+    ): JsonResponse {
 
 
         $this->logger->info(__METHOD__ . "|1|", [$request->request->all()]);
@@ -197,6 +221,12 @@ class PushController extends StorefrontController
             return $this->response('buckaroo.messages.paymentError', false);
         }
 
+        // Before anything acts on the push: authorize, iDEAL Fast Checkout and payment updates.
+        if (!$this->claimPush($request, $orderTransactionId, $context)) {
+            return $this->response('buckaroo.messages.pushAlreadySend', false);
+        }
+        $claimedTransactionId = $orderTransactionId;
+
         if ($this->isIdealFastCheckout($request)) {
             $this->updateIdealFastCheckout($request, $salesChannelContext);
         }
@@ -208,6 +238,7 @@ class PushController extends StorefrontController
         $this->eventDispatcher->dispatch($event);
 
         if (!$event->canContinue()) {
+            $this->releaseProcessedPush($request, $orderTransactionId, $context);
             return $this->response('buckaroo.messages.pushInterrupted');
         }
         // end handle event
@@ -657,6 +688,11 @@ class PushController extends StorefrontController
 
         $this->logger->info(__METHOD__ . "|pushHash|" . $pushHash);
         $customFields['pushHash'] = $calculated;
+
+        $processedPushes = $this->getProcessedPushes($orderTransactionId, $context);
+        if (count($processedPushes) > 0) {
+            $customFields[self::PROCESSED_PUSHES_FIELD] = $processedPushes;
+        }
         $this->transactionService->updateTransactionCustomFields($orderTransactionId, $customFields, $context);
         if ($pushHash === $calculated) {
             $this->logger->info(__METHOD__ . "|pushHash === calculated|");
@@ -664,6 +700,110 @@ class PushController extends StorefrontController
         }
 
         return true;
+    }
+
+    /**
+     * Record the push as processed, or return false when it already was.
+     */
+    private function claimPush(Request $request, string $orderTransactionId, Context $context): bool
+    {
+        $pushKey = $this->getProcessedPushKey($request);
+        if ($pushKey === null) {
+            return true;
+        }
+
+        $orderTransaction = $this->transactionService->getOrderTransactionById($context, $orderTransactionId);
+        if ($orderTransaction === null) {
+            return true;
+        }
+
+        $customFields = $orderTransaction->getCustomFields() ?? [];
+        $processedPushes = $this->filterProcessedPushes($customFields);
+        if (in_array($pushKey, $processedPushes, true)) {
+            $this->logger->info(__METHOD__ . "|push already processed|" . $pushKey);
+            return false;
+        }
+
+        $processedPushes[] = $pushKey;
+        $customFields[self::PROCESSED_PUSHES_FIELD] = $processedPushes;
+        $this->transactionService->updateTransactionCustomFields($orderTransactionId, $customFields, $context);
+
+        return true;
+    }
+
+    /**
+     * Buckaroo transaction keys are unique per payment, refund, etc. Together with the
+     * status code, transaction type and mutation type they identify a push, so an
+     * informational push never blocks the processing push of the same transaction.
+     */
+    private function getProcessedPushKey(Request $request): ?string
+    {
+        $transactionKey = trim((string)$request->request->get('brq_transactions'));
+        $status = trim((string)$request->request->get('brq_statuscode'));
+
+        if ($transactionKey === '' || $status === '') {
+            return null;
+        }
+
+        return strtoupper(implode('|', [
+            $transactionKey,
+            $status,
+            trim((string)$request->request->get('brq_transaction_type')),
+            trim((string)$request->request->get('brq_mutationtype')),
+        ]));
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function getProcessedPushes(string $orderTransactionId, Context $context): array
+    {
+        $orderTransaction = $this->transactionService->getOrderTransactionById($context, $orderTransactionId);
+
+        return $this->filterProcessedPushes($orderTransaction?->getCustomFields() ?? []);
+    }
+
+    /**
+     * @param array<mixed> $customFields
+     *
+     * @return array<int, string>
+     */
+    private function filterProcessedPushes(array $customFields): array
+    {
+        $processedPushes = $customFields[self::PROCESSED_PUSHES_FIELD] ?? [];
+
+        if (!is_array($processedPushes)) {
+            return [];
+        }
+
+        return array_values(array_filter($processedPushes, 'is_string'));
+    }
+
+    /**
+     * Forget a push whose processing failed, so Buckaroo's retry of it is not ignored.
+     */
+    private function releaseProcessedPush(Request $request, string $orderTransactionId, Context $context): void
+    {
+        $pushKey = $this->getProcessedPushKey($request);
+        if ($pushKey === null) {
+            return;
+        }
+
+        try {
+            $this->transactionService->saveTransactionData(
+                $orderTransactionId,
+                $context,
+                [
+                    self::PROCESSED_PUSHES_FIELD => array_values(
+                        array_diff($this->getProcessedPushes($orderTransactionId, $context), [$pushKey])
+                    )
+                ]
+            );
+        } catch (\Throwable $exception) {
+            $this->logger->warning(
+                __METHOD__ . "|could not release processed push|" . $pushKey . "|" . $exception->getMessage()
+            );
+        }
     }
 
     protected function isIdealQrRequest(Request $request): bool
