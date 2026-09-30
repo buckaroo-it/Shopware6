@@ -15,6 +15,7 @@ use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Service\TransactionService;
 use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
 use Buckaroo\Shopware6\Storefront\Controller\PushController;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,6 +68,34 @@ class PushControllerDuplicatePushTest extends TestCase
         $transactionService->method('getCustomFields')->willReturn(['pushHash' => 'stored-hash']);
 
         $this->assertFalse(
+            $this->invokeCheckDuplicatePush(
+                $this->createController($signatureValidationService, $transactionService),
+                new Request([], ['brq_amount' => '10.00'])
+            )
+        );
+    }
+
+    public function testHashUpdateKeepsThePushesClaimedOnTheTransaction(): void
+    {
+        $signatureValidationService = $this->createMock(SignatureValidationService::class);
+        $signatureValidationService->method('calculatePushHash')->willReturn('new-hash');
+
+        $orderTransaction = new OrderTransactionEntity();
+        $orderTransaction->setId('order-transaction-id');
+        $orderTransaction->setCustomFields([PushController::PROCESSED_PUSHES_FIELD => ['KEY-1|190|C021|PROCESSING']]);
+
+        $transactionService = $this->createMock(TransactionService::class);
+        $transactionService->method('getOrderTransactionById')->willReturn($orderTransaction);
+        // Custom fields of another (the last) transaction of the order, without the claimed pushes.
+        $transactionService->method('getCustomFields')->willReturn(['pushHash' => 'old-hash']);
+        $transactionService->expects($this->once())
+            ->method('updateTransactionCustomFields')
+            ->with('order-transaction-id', [
+                'pushHash' => 'new-hash',
+                PushController::PROCESSED_PUSHES_FIELD => ['KEY-1|190|C021|PROCESSING'],
+            ]);
+
+        $this->assertTrue(
             $this->invokeCheckDuplicatePush(
                 $this->createController($signatureValidationService, $transactionService),
                 new Request([], ['brq_amount' => '10.00'])
