@@ -6,6 +6,8 @@ namespace Buckaroo\Shopware6\Tests\Unit\Subscribers;
 
 use Buckaroo\Shopware6\Subscribers\PaymentContextCookieSubscriber;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +18,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class PaymentContextCookieSubscriberTest extends TestCase
 {
     private const TOKEN = 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6';
+    private const OTHER_TOKEN = 'ffffffffffffffffffffffffffffffff';
 
     private PaymentContextCookieSubscriber $subscriber;
 
@@ -32,21 +35,29 @@ class PaymentContextCookieSubscriberTest extends TestCase
         );
     }
 
-    public function testItSetsASecureCookieWhenTokenWasRestoredFromTheUrl(): void
+    public function testItSetsTheCookieWhenThePaymentStartRememberedTheToken(): void
     {
-        $request = new Request(['sw-context-token' => self::TOKEN]);
-        $request->attributes->set('sw-context-token', self::TOKEN);
+        $request = $this->createRequestWithContext(self::TOKEN);
+        PaymentContextCookieSubscriber::rememberForReturn($request, $this->createContext(self::TOKEN));
 
         $cookie = $this->dispatch($request);
 
         $this->assertInstanceOf(Cookie::class, $cookie);
-        $this->assertTrue($cookie->isSecure(), 'The payment context cookie must be marked as HTTPS-only.');
+        $this->assertSame(self::TOKEN, $cookie->getValue());
+        $this->assertSame('/', $cookie->getPath());
+        $this->assertTrue($cookie->isSecure());
+        $this->assertTrue($cookie->isHttpOnly());
+        $this->assertSame(Cookie::SAMESITE_NONE, $cookie->getSameSite());
+        $this->assertGreaterThan(time(), $cookie->getExpiresTime());
+        $this->assertLessThanOrEqual(time() + 2 * 3600, $cookie->getExpiresTime());
     }
 
     public function testItKeepsTheCookieSecureOnANonSecureRequest(): void
     {
-        $request = Request::create('http://shop.test/checkout/cart?sw-context-token=' . self::TOKEN);
-        $request->attributes->set('sw-context-token', self::TOKEN);
+        $context = $this->createContext(self::TOKEN);
+        $request = Request::create('http://shop.test/checkout/order', 'POST');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        PaymentContextCookieSubscriber::rememberForReturn($request, $context);
 
         $cookie = $this->dispatch($request);
 
@@ -54,59 +65,94 @@ class PaymentContextCookieSubscriberTest extends TestCase
         $this->assertTrue($cookie->isSecure());
     }
 
-    public function testItPreservesTheRemainingCookieAttributes(): void
+    public function testItNeverHandsOutATokenOfAnotherContext(): void
     {
-        $request = new Request(['sw-context-token' => self::TOKEN]);
-        $request->attributes->set('sw-context-token', self::TOKEN);
+        $request = $this->createRequestWithContext(self::OTHER_TOKEN);
+        PaymentContextCookieSubscriber::rememberForReturn($request, $this->createContext(self::TOKEN));
+
+        $this->assertNull($this->dispatch($request));
+    }
+
+    public function testItDoesNothingWithoutAResolvedRequestContext(): void
+    {
+        $request = new Request();
+        PaymentContextCookieSubscriber::rememberForReturn($request, $this->createContext(self::TOKEN));
+
+        $this->assertNull($this->dispatch($request));
+    }
+
+    public function testItAcceptsAMissingRequest(): void
+    {
+        PaymentContextCookieSubscriber::rememberForReturn(null, $this->createContext(self::TOKEN));
+
+        $this->addToAssertionCount(1);
+    }
+
+    public function testItIgnoresTokensInTheUrl(): void
+    {
+        $request = new Request(['sw-context-token' => self::TOKEN], ['add_sw-context-token' => self::TOKEN]);
+
+        $this->assertNull($this->dispatch($request));
+    }
+
+    public function testItClearsTheCookieOnTheFinishPage(): void
+    {
+        $request = new Request([], [], ['_route' => 'frontend.checkout.finish.page']);
+        $request->cookies->set(PaymentContextCookieSubscriber::COOKIE_NAME, self::TOKEN);
 
         $cookie = $this->dispatch($request);
 
         $this->assertInstanceOf(Cookie::class, $cookie);
-        $this->assertSame('sw-context-token', $cookie->getName());
-        $this->assertSame(self::TOKEN, $cookie->getValue());
-        $this->assertSame('/', $cookie->getPath());
-        $this->assertFalse($cookie->isHttpOnly());
-        $this->assertSame(Cookie::SAMESITE_LAX, $cookie->getSameSite());
-        $this->assertGreaterThan(time(), $cookie->getExpiresTime());
+        $this->assertTrue($cookie->isCleared());
     }
 
-    public function testItAlsoHandlesThePrefixedRequestParameters(): void
+    public function testItLeavesTheCookieOnOtherPages(): void
     {
-        $request = new Request([], ['add_sw-context-token' => self::TOKEN]);
-        $request->attributes->set('sw-context-token', self::TOKEN);
-
-        $this->assertInstanceOf(Cookie::class, $this->dispatch($request));
-    }
-
-    public function testItDoesNothingWhenThereIsNoContextTokenAttribute(): void
-    {
-        $request = new Request(['sw-context-token' => self::TOKEN]);
+        $request = new Request([], [], ['_route' => 'payment.finalize.transaction']);
+        $request->cookies->set(PaymentContextCookieSubscriber::COOKIE_NAME, self::TOKEN);
 
         $this->assertNull($this->dispatch($request));
     }
 
-    public function testItDoesNothingWhenTheTokenDidNotComeFromTheUrl(): void
+    public function testItIgnoresSubRequests(): void
     {
+        $request = $this->createRequestWithContext(self::TOKEN);
+        PaymentContextCookieSubscriber::rememberForReturn($request, $this->createContext(self::TOKEN));
+
+        $this->assertNull($this->dispatch($request, HttpKernelInterface::SUB_REQUEST));
+    }
+
+    private function createRequestWithContext(string $token): Request
+    {
+        $context = $this->createContext($token);
         $request = new Request();
-        $request->attributes->set('sw-context-token', self::TOKEN);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
 
-        $this->assertNull($this->dispatch($request));
+        return $request;
     }
 
-    private function dispatch(Request $request): ?Cookie
+    private function createContext(string $token): SalesChannelContext
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getToken')->willReturn($token);
+
+        return $context;
+    }
+
+    private function dispatch(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST): ?Cookie
     {
         $response = new Response();
         $event = new ResponseEvent(
             $this->createMock(HttpKernelInterface::class),
             $request,
-            HttpKernelInterface::MAIN_REQUEST,
+            $type,
             $response
         );
 
         $this->subscriber->onKernelResponse($event);
 
         foreach ($response->headers->getCookies() as $cookie) {
-            if ($cookie->getName() === 'sw-context-token') {
+            if ($cookie->getName() === PaymentContextCookieSubscriber::COOKIE_NAME) {
                 return $cookie;
             }
         }

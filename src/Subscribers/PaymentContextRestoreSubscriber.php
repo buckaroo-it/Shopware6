@@ -6,17 +6,25 @@ namespace Buckaroo\Shopware6\Subscribers;
 
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Restores the sales channel context token from the request when returning from Buckaroo.
- * When the user returns from the payment gateway, sw-context-token may be in the URL but
- * session cookies might not have been sent (cross-site redirect). Setting the token in the
- * session early allows the rest of the request to use the correct context.
+ * Restores the sales channel context token from the payment context cookie when returning from Buckaroo.
+ * Setting the token in the session early allows the rest of the request to use the correct context.
  */
 class PaymentContextRestoreSubscriber implements EventSubscriberInterface
 {
+    /**
+     * Routes Buckaroo redirects the customer back to.
+     */
+    private const RESTORE_ROUTES = [
+        'payment.finalize.transaction',
+        'frontend.checkout.finish.page',
+        'frontend.action.buckaroo.cancel',
+    ];
+
     public static function getSubscribedEvents(): array
     {
         return [
@@ -31,22 +39,17 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
         }
 
         $request = $event->getRequest();
-        $contextToken = $request->query->get('add_sw-context-token')
-            ?? $request->request->get('add_sw-context-token')
-            ?? $request->query->get('sw-context-token')
-            ?? $request->request->get('sw-context-token');
+        $contextToken = $request->cookies->get(PaymentContextCookieSubscriber::COOKIE_NAME);
 
         if (!is_string($contextToken) || $contextToken === '') {
             return;
         }
 
-        // Only restore for payment return, checkout finish, and cancel routes
-        $path = (string) $request->getPathInfo();
-        $isPaymentReturn = str_contains($path, '/payment/') || str_contains($path, 'payment');
-        $isCheckoutFinish = str_contains($path, 'checkout/finish');
-        $isBuckarooCancel = str_contains($path, 'buckaroo/cancel');
+        if (!in_array($request->attributes->get('_route'), self::RESTORE_ROUTES, true)) {
+            return;
+        }
 
-        if (!$isPaymentReturn && !$isCheckoutFinish && !$isBuckarooCancel) {
+        if ($this->hasOtherLiveContext($request, $contextToken)) {
             return;
         }
 
@@ -66,5 +69,16 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
         if ($request->hasSession()) {
             $request->getSession()->set('sw-context-token', $contextToken);
         }
+    }
+
+    private function hasOtherLiveContext(Request $request, string $contextToken): bool
+    {
+        if (!$request->hasPreviousSession()) {
+            return false;
+        }
+
+        $sessionToken = $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+
+        return is_string($sessionToken) && $sessionToken !== '' && !hash_equals($sessionToken, $contextToken);
     }
 }

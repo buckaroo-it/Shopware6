@@ -68,9 +68,6 @@ services:
     # Notification Service Factory for version compatibility
     Buckaroo\Shopware6\Service\NotificationServiceFactory:
         arguments: ['@service_container']
-    Buckaroo\Shopware6\Subscribers\PaymentReturnContextSubscriber:
-        tags:
-            - kernel.event_subscriber
     Buckaroo\Shopware6\Subscribers\PaymentTokenInvalidatedSubscriber:
         tags:
             - kernel.event_subscriber

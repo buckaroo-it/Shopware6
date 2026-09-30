@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -126,7 +127,7 @@ class PaymentServiceDecorator
     }
 
     /**
-     * Get context token from current request (cookie or Buckaroo add_ params).
+     * Get context token from current request.
      * Preserves customer session when returning from external payment gateway.
      */
     private function getContextTokenFromRequest(): ?string
@@ -136,11 +137,7 @@ class PaymentServiceDecorator
             return null;
         }
         $token = $request->attributes->get('sw-context-token')
-            ?? $request->query->get('add_sw-context-token')
-            ?? $request->request->get('add_sw-context-token')
-            ?? $request->query->get('sw-context-token')
-            ?? $request->request->get('sw-context-token')
-            ?? $request->cookies->get('sw-context-token');
+            ?? $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         return is_string($token) && $token !== '' ? $token : null;
     }
 

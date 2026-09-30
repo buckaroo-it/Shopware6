@@ -6,6 +6,7 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
+use Buckaroo\Shopware6\Subscribers\PaymentContextCookieSubscriber;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -33,18 +34,10 @@ class PaymentPayloadBuilder
         $defaultReturnUrl = $this->urlGenerator->getDefaultReturnUrl($orderTransaction, $order);
         $finalReturnUrl = $returnUrl ?: $defaultReturnUrl;
 
-        // Always append sw-context-token to the return URL so the guest session is restored when
-        // Buckaroo redirects back (cross-domain redirect may not preserve browser cookies reliably).
-        // This applies to both the direct finish-page URL and the SW 6.7+ payment.finalize.transaction
-        // URL: without the token the CheckoutFinishController cannot verify the guest order and
-        // redirects to the empty cart.
-        if (!str_contains($finalReturnUrl, 'sw-context-token=')) {
-            $contextToken = $salesChannelContext->getToken();
-            if ($contextToken !== '') {
-                $separator = str_contains($finalReturnUrl, '?') ? '&' : '?';
-                $finalReturnUrl .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
-            }
-        }
+        PaymentContextCookieSubscriber::rememberForReturn(
+            $this->asyncPaymentService->checkoutHelper->getCurrentRequest(),
+            $salesChannelContext
+        );
 
         return [
             'order'         => $order->getOrderNumber(),
@@ -55,7 +48,7 @@ class PaymentPayloadBuilder
             'returnURLCancel' => $this->urlGenerator->getCancelRedirectUrlForOrder(
                 $order,
                 $salesChannelContext->getContext(),
-                $salesChannelContext->getToken(),
+                null,
                 $finalReturnUrl
             ),
             'pushURL'       => $this->urlGenerator->getPushUrl(
@@ -66,7 +59,6 @@ class PaymentPayloadBuilder
             'additionalParameters' => [
                 'orderTransactionId' => $orderTransaction->getId(),
                 'orderId' => $order->getId(),
-                'sw-context-token' => $salesChannelContext->getToken()
             ],
             'description' => $this->asyncPaymentService->settingsService->getParsedLabel(
                 $order,
