@@ -6,6 +6,7 @@ namespace Buckaroo\Shopware6\Tests\Unit\Service;
 
 use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
 use Buckaroo\Shopware6\Service\PaymentStateService;
+use Buckaroo\Shopware6\Service\SignatureValidationService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -44,12 +45,16 @@ class PaymentStateProcessTransitionTest extends TestCase
         $this->transactionStateHandler = $this->createMock(OrderTransactionStateHandler::class);
         $this->stateMachineRegistry    = $this->createMock(StateMachineRegistry::class);
 
+        $signatureValidationService = $this->createMock(SignatureValidationService::class);
+        $signatureValidationService->method('validateReturnSignature')->willReturn(true);
+
         $this->paymentStateService = new PaymentStateService(
             $this->transactionStateHandler,
             $this->stateMachineRegistry,
             $this->createMock(TranslatorInterface::class),
             $this->createMock(AccountService::class),
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $signatureValidationService
         );
     }
 

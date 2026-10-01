@@ -33,8 +33,27 @@ class SignatureValidationService
      */
     public function validateSignature(Request $request, ?string $salesChannelId = null): bool
     {
-        $postData = $request->request->all();
+        return $this->validateData($request->request->all(), $salesChannelId);
+    }
 
+    /**
+     * Validate the Buckaroo signature of a shopper returning from Buckaroo. Buckaroo sends
+     * the return fields either in the body (POST) or in the query string (GET).
+     */
+    public function validateReturnSignature(Request $request, ?string $salesChannelId = null): bool
+    {
+        $data = $request->request->has('brq_signature')
+            ? $request->request->all()
+            : $request->query->all();
+
+        return $this->validateData($data, $salesChannelId);
+    }
+
+    /**
+     * @param array<mixed> $postData
+     */
+    private function validateData(array $postData, ?string $salesChannelId): bool
+    {
         if (!isset($postData['brq_signature']) || !is_string($postData['brq_signature'])) {
             return false;
         }
