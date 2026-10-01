@@ -16,7 +16,9 @@ use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Service\TransactionService;
 use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
 use Buckaroo\Shopware6\Storefront\Controller\PushController;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\DependencyInjection\Container;
@@ -74,7 +76,7 @@ class PushControllerReplayTest extends TestCase
         $stateTransitionService->expects($this->once())->method('isTransitionPaymentState')->willReturn(true);
 
         $checkoutHelper = $this->createMock(CheckoutHelper::class);
-        $checkoutHelper->method('getOrderById')->willReturn(null);
+        $checkoutHelper->method('getOrderById')->willReturnOnConsecutiveCalls($this->order(), null);
 
         $response = $this->handlePush($this->pushData(['brq_transaction_type' => 'I872']), [
             'transactionService' => $transactionService,
@@ -106,7 +108,10 @@ class PushControllerReplayTest extends TestCase
             );
 
         $checkoutHelper = $this->createMock(CheckoutHelper::class);
-        $checkoutHelper->method('getOrderById')->willThrowException(new \RuntimeException('database gone'));
+        $checkoutHelper->method('getOrderById')->willReturnOnConsecutiveCalls(
+            $this->order(),
+            $this->throwException(new \RuntimeException('database gone'))
+        );
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('database gone');
@@ -226,7 +231,7 @@ class PushControllerReplayTest extends TestCase
         $stateTransitionService = $services['stateTransitionService']
             ?? $this->untouchable(StateTransitionService::class);
         /** @var CheckoutHelper $checkoutHelper */
-        $checkoutHelper = $services['checkoutHelper'] ?? $this->untouchable(CheckoutHelper::class);
+        $checkoutHelper = $services['checkoutHelper'] ?? $this->checkoutHelperFindingOnlyTheOrder();
         /** @var EventDispatcherInterface $eventDispatcher */
         $eventDispatcher = $services['eventDispatcher'] ?? $this->untouchable(EventDispatcherInterface::class);
 
@@ -255,6 +260,34 @@ class PushControllerReplayTest extends TestCase
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         return $controller->pushBuckaroo(new Request([], $postData), $salesChannelContext);
+    }
+
+    /**
+     * The push is bound to its order before it is claimed; nothing else may be called.
+     *
+     * @return CheckoutHelper&\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function checkoutHelperFindingOnlyTheOrder()
+    {
+        $checkoutHelper = $this->createMock(CheckoutHelper::class);
+        $checkoutHelper->method('getOrderById')->willReturn($this->order());
+        $checkoutHelper->expects($this->never())
+            ->method($this->logicalNot($this->equalTo('getOrderById')));
+
+        return $checkoutHelper;
+    }
+
+    private function order(): OrderEntity
+    {
+        $orderTransaction = new OrderTransactionEntity();
+        $orderTransaction->setId(self::TRANSACTION_ID);
+
+        $order = new OrderEntity();
+        $order->setId('order-id');
+        $order->setSalesChannelId('sales-channel-id');
+        $order->setTransactions(new OrderTransactionCollection([$orderTransaction]));
+
+        return $order;
     }
 
     /**

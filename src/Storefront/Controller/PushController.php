@@ -204,7 +204,7 @@ class PushController extends StorefrontController
         if (empty($brqOrderId) || empty($orderTransactionId)) {
             if (!empty($brqInvoicenumber)) {
                 $this->logger->info(__METHOD__ . "|Attempting order lookup by invoice number|" . $brqInvoicenumber);
-                $order = $this->checkoutHelper->getOrderByOrderNumber($brqInvoicenumber, $context);
+                $order = $this->checkoutHelper->getOrderByOrderNumber($brqInvoicenumber, $context, $salesChannelId);
                 if ($order !== null) {
                     $brqOrderId = $order->getId();
                     $lastTransactionId = $this->transactionService->getLastTransactionId($order);
@@ -218,6 +218,10 @@ class PushController extends StorefrontController
 
         if (empty($brqOrderId) || empty($orderTransactionId)) {
             $this->logger->warning(__METHOD__ . "|Missing order or transaction ID|orderId:" . $brqOrderId . "|transactionId:" . $orderTransactionId . "|invoice:" . $brqInvoicenumber);
+            return $this->response('buckaroo.messages.paymentError', false);
+        }
+
+        if (!$this->isPushForOrder($request, $brqOrderId, $orderTransactionId, $salesChannelId, $context)) {
             return $this->response('buckaroo.messages.paymentError', false);
         }
 
@@ -696,6 +700,52 @@ class PushController extends StorefrontController
         $this->transactionService->updateTransactionCustomFields($orderTransactionId, $customFields, $context);
         if ($pushHash === $calculated) {
             $this->logger->info(__METHOD__ . "|pushHash === calculated|");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check that the push belongs to an order of the current sales channel, and matches that
+     * order's transaction and currency.
+     */
+    private function isPushForOrder(
+        Request $request,
+        string $orderId,
+        string $orderTransactionId,
+        string $salesChannelId,
+        Context $context
+    ): bool {
+        $order = $this->checkoutHelper->getOrderById($orderId, $context);
+        if ($order === null) {
+            $this->logger->warning(__METHOD__ . "|Push rejected: order not found|orderId:" . $orderId);
+            return false;
+        }
+
+        if ($order->getSalesChannelId() !== $salesChannelId) {
+            $this->logger->warning(
+                __METHOD__ . "|Push rejected: order belongs to another sales channel|orderId:" . $orderId
+            );
+            return false;
+        }
+
+        $transactions = $order->getTransactions();
+        if ($transactions === null || $transactions->get($orderTransactionId) === null) {
+            $this->logger->warning(
+                __METHOD__ . "|Push rejected: transaction is not on the order|orderId:" . $orderId .
+                "|transactionId:" . $orderTransactionId
+            );
+            return false;
+        }
+
+        $currency = trim((string)$request->request->get('brq_currency'));
+        $orderCurrency = $order->getCurrency()?->getIsoCode();
+        if ($currency !== '' && strcasecmp($currency, (string)$orderCurrency) !== 0) {
+            $this->logger->warning(
+                __METHOD__ . "|Push rejected: currency does not match the order|orderId:" . $orderId .
+                "|currency:" . $currency . "|orderCurrency:" . $orderCurrency
+            );
             return false;
         }
 
