@@ -58,6 +58,13 @@ interface ClientResponseInterface
      */
     public function getStatusCode(): ?int;
 
+    /**
+     * Get the HTTP status code of the Buckaroo response
+     *
+     * @return int|null HTTP status, null when not available
+     */
+    public function getHttpStatusCode(): ?int;
+
     public function isTestMode(): bool;
 
      /**

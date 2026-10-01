@@ -37,12 +37,40 @@ class ClientService
      */
     public function get(string $configMethodCode, ?string $salesChannelId = null, ?string $culture = null): Client
     {
+        return $this->getWithCredentials(
+            $configMethodCode,
+            $this->settingsService->getSettingAsString('websiteKey', $salesChannelId),
+            $this->settingsService->getSettingAsString('secretKey', $salesChannelId),
+            $salesChannelId,
+            $culture
+        );
+    }
+
+    /**
+     * Get buckaroo client with the given credentials instead of the stored ones
+     *
+     * @param string $configMethodCode
+     * @param string $websiteKey
+     * @param string $secretKey
+     * @param string|null $salesChannelId
+     * @param string|null $culture
+     *
+     * @return Client
+     * @throws ClientInitException
+     */
+    public function getWithCredentials(
+        string $configMethodCode,
+        string $websiteKey,
+        string $secretKey,
+        ?string $salesChannelId = null,
+        ?string $culture = null
+    ): Client {
         $mode = $this->settingsService->getEnvironment($configMethodCode, $salesChannelId);
 
         try {
             return new Client(
-                $this->settingsService->getSettingAsString('websiteKey', $salesChannelId),
-                $this->settingsService->getSettingAsString('secretKey', $salesChannelId),
+                $websiteKey,
+                $secretKey,
                 $this->getPaymentCode($configMethodCode, $salesChannelId),
                 $mode  == 'live' ? Config::LIVE_MODE : Config::TEST_MODE,
                 $this->shopwareVersion,
