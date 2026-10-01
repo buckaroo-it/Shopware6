@@ -95,7 +95,7 @@ services:
     Buckaroo\Shopware6\Service\PaymentStateService:
         class: Buckaroo\Shopware6\Service\PaymentStateService
         public: true
-        arguments: ['@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler', '@Shopware\Core\System\StateMachine\StateMachineRegistry', '@translator', '@Shopware\Core\Checkout\Customer\SalesChannel\AccountService', '@Psr\Log\LoggerInterface']
+        arguments: ['@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler', '@Shopware\Core\System\StateMachine\StateMachineRegistry', '@translator', '@Shopware\Core\Checkout\Customer\SalesChannel\AccountService', '@Psr\Log\LoggerInterface', '@Buckaroo\Shopware6\Service\SignatureValidationService']
     Buckaroo\Shopware6\Handlers\PaymentHandler:
         tags:
             - shopware.payment.method
