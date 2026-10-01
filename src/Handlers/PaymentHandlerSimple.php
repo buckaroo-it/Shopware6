@@ -101,9 +101,41 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 ): string {
                     return $this->parent->getMethodAction($dataBag, $salesChannelContext, $paymentCode);
                 }
+
+                protected function beforePayLegacy(
+                    AsyncPaymentTransactionStruct $transaction,
+                    RequestDataBag $dataBag,
+                    SalesChannelContext $salesChannelContext
+                ): void {
+                    $this->parent->runBeforePayLegacy($transaction, $dataBag, $salesChannelContext);
+                }
             };
-            
+
             return $legacyHandler->pay($transaction, $dataBag, $salesChannelContext);
+        }
+
+        /**
+         * Lets the delegated legacy handler run this handler's beforePayLegacy() hook.
+         *
+         * @internal
+         */
+        public function runBeforePayLegacy(
+            AsyncPaymentTransactionStruct $transaction,
+            RequestDataBag $dataBag,
+            SalesChannelContext $salesChannelContext
+        ): void {
+            $this->beforePayLegacy($transaction, $dataBag, $salesChannelContext);
+        }
+
+        /**
+         * Hook for specific handlers to run logic before the legacy pay flow.
+         */
+        protected function beforePayLegacy(
+            AsyncPaymentTransactionStruct $transaction,
+            RequestDataBag $dataBag,
+            SalesChannelContext $salesChannelContext
+        ): void {
+            // Default no-op
         }
 
         public function finalize(
@@ -251,7 +283,11 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 
                 // Extract request data
                 $dataBag = new RequestDataBag($request->request->all());
-                
+
+                // Same pre-pay hook PaymentHandlerModern runs, e.g. Riverty flags the
+                // order as authorized here so capture-on-shipment can pick it up.
+                $this->beforePayModern($transaction, $dataBag, $context);
+
                 // Get payment configuration
                 if (empty($this->paymentClass)) {
                     throw new \Exception('Payment class not set.');
@@ -417,6 +453,17 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     'Payment processing failed: ' . $e->getMessage()
                 );
             }
+        }
+
+        /**
+         * Hook for specific handlers to run logic before the pay flow.
+         */
+        protected function beforePayModern(
+            PaymentTransactionStruct $transaction,
+            RequestDataBag $dataBag,
+            Context $context
+        ): void {
+            // Default no-op
         }
 
         /**
