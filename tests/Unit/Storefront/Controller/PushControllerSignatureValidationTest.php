@@ -166,8 +166,7 @@ class PushControllerSignatureValidationTest extends TestCase
     }
 
     /**
-     * With no secret configured for the sales channel the signature is sha1(fields), which
-     * anyone can compute. Such a push is rejected before anything is looked up.
+     * A push to a sales channel without a secret key is rejected before anything is looked up.
      *
      * @dataProvider missingSecretKeyProvider
      */
@@ -190,9 +189,8 @@ class PushControllerSignatureValidationTest extends TestCase
     }
 
     /**
-     * A push validly signed for this sales channel cannot settle an order of another sales
-     * channel, a transaction of another order, or an order in another currency. It is
-     * rejected before it is claimed or acted on: every other collaborator is untouchable.
+     * A push that does not match its order's sales channel, transaction or currency is
+     * rejected before it is claimed or processed.
      *
      * @dataProvider unboundOrderProvider
      *

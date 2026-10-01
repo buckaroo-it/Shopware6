@@ -42,7 +42,7 @@ class SignatureValidationService
         try {
             $secretKey = $this->settingsService->getSetting('secretKey', $salesChannelId);
 
-            // Signed with an empty secret, the signature is sha1(fields) and anyone can compute it.
+            // A secret key is required to validate the push.
             if (!is_string($secretKey) || trim($secretKey) === '') {
                 $this->logger->warning(
                     'Buckaroo push rejected: no secret key is configured for sales channel ' .

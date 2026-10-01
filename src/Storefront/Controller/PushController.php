@@ -707,9 +707,8 @@ class PushController extends StorefrontController
     }
 
     /**
-     * The signature only proves the push was signed with the secret of the sales channel it
-     * was posted to. Bind it to an order of that sales channel, and to that order's own
-     * transaction and currency, so a validly signed push cannot settle someone else's order.
+     * Check that the push belongs to an order of the current sales channel, and matches that
+     * order's transaction and currency.
      */
     private function isPushForOrder(
         Request $request,

@@ -134,8 +134,7 @@ class SignatureValidationServiceTest extends TestCase
     }
 
     /**
-     * Without a secret the signature is sha1(fields), which anyone can compute, so the push
-     * is rejected even though that signature matches.
+     * A push is rejected when no secret key is configured.
      *
      * @dataProvider missingSecretKeyProvider
      */
