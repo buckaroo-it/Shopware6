@@ -42,10 +42,20 @@ class SignatureValidationService
         try {
             $secretKey = $this->settingsService->getSetting('secretKey', $salesChannelId);
 
+            // Signed with an empty secret, the signature is sha1(fields) and anyone can compute it.
+            if (!is_string($secretKey) || trim($secretKey) === '') {
+                $this->logger->warning(
+                    'Buckaroo push rejected: no secret key is configured for sales channel ' .
+                    ($salesChannelId ?? 'default')
+                );
+
+                return false;
+            }
+
             $replyHandler = new ReplyHandler(
                 new DefaultConfig(
                     '',
-                    is_string($secretKey) ? $secretKey : ''
+                    $secretKey
                 ),
                 $postData
             );

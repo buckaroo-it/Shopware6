@@ -134,6 +134,42 @@ class SignatureValidationServiceTest extends TestCase
     }
 
     /**
+     * Without a secret the signature is sha1(fields), which anyone can compute, so the push
+     * is rejected even though that signature matches.
+     *
+     * @dataProvider missingSecretKeyProvider
+     */
+    public function testValidateSignatureRejectsPushWhenSecretKeyIsMissing(mixed $secretKey): void
+    {
+        $postData = ['brq_amount' => '50.00'];
+        $postData['brq_signature'] = sha1('brq_amount=50.00');
+
+        $this->settingsService
+            ->method('getSetting')
+            ->with('secretKey', 'sales-channel-without-secret')
+            ->willReturn($secretKey);
+
+        $this->assertFalse(
+            $this->signatureValidationService->validateSignature(
+                new Request([], $postData),
+                'sales-channel-without-secret'
+            )
+        );
+    }
+
+    /**
+     * @return array<string, array{mixed}>
+     */
+    public static function missingSecretKeyProvider(): array
+    {
+        return [
+            'not configured' => [null],
+            'empty' => [''],
+            'whitespace only' => ['   '],
+        ];
+    }
+
+    /**
      * Test: it sorts array keys case-insensitively for signature calculation
      */
     public function testValidateSignatureSortsKeysCorrectly(): void

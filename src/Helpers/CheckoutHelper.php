@@ -213,12 +213,19 @@ class CheckoutHelper
      *
      * @param string $orderNumber
      * @param Context $context
+     * @param string|null $salesChannelId limit the lookup to this sales channel's orders
      * @return OrderEntity|null
      */
-    public function getOrderByOrderNumber(string $orderNumber, Context $context): ?OrderEntity
-    {
+    public function getOrderByOrderNumber(
+        string $orderNumber,
+        Context $context,
+        ?string $salesChannelId = null
+    ): ?OrderEntity {
         $orderCriteria = new Criteria();
         $orderCriteria->addFilter(new EqualsFilter('orderNumber', $orderNumber));
+        if ($salesChannelId !== null) {
+            $orderCriteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
+        }
         $orderCriteria->addAssociation('orderCustomer.salutation');
         $orderCriteria->addAssociation('orderCustomer.customer');
         $orderCriteria->addAssociation('stateMachineState');
