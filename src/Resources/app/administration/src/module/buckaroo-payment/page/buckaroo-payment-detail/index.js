@@ -8,6 +8,7 @@ Component.register('buckaroo-payment-detail', {
     template,
 
     inject: [
+        'acl',
         'repositoryFactory',
         'BuckarooPaymentService',
         'systemConfigApiService'

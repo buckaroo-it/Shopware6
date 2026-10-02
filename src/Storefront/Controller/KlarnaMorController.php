@@ -40,7 +40,7 @@ class KlarnaMorController extends StorefrontController
      */
     #[Route(
         path: "/api/_action/buckaroo/klarna-mor",
-        defaults: ['_routeScope' => ['api'], 'auth_required' => true],
+        defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['order.editor']],
         name: "api.action.buckaroo.klarna_mor",
         methods: ["POST"]
     )]
