@@ -14,7 +14,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * Only an explicit `test` environment may send a payment to the Buckaroo test endpoint.
  * A missing, empty or unknown environment is live, and methods without an environment
- * field of their own use the environment of the method they belong to.
+ * field of their own use the environment of the method they belong to, unless they are
+ * switched live on their own key.
  */
 class ClientServiceTest extends TestCase
 {
@@ -68,6 +69,17 @@ class ClientServiceTest extends TestCase
 
         $this->assertSame(Config::LIVE_MODE, $this->modeOf($live));
         $this->assertSame(Config::TEST_MODE, $this->modeOf($test));
+    }
+
+    /**
+     * The admin Live/Off toggle stores `idealqrEnvironment = live`; that choice is kept
+     * even when iDEAL itself is in test.
+     */
+    public function testIdealQrSwitchedLiveInTheAdminIsLive(): void
+    {
+        $client = $this->clientFor('idealqr', ['idealEnvironment' => 'test', 'idealqrEnvironment' => 'live']);
+
+        $this->assertSame(Config::LIVE_MODE, $this->modeOf($client));
     }
 
     public function testIdealQrWithoutStoredEnvironmentIsNotTestMode(): void

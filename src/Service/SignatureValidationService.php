@@ -76,7 +76,7 @@ class SignatureValidationService
                     '',
                     $secretKey
                 ),
-                $postData
+                $this->normalizeSignedData($postData)
             );
 
             $replyHandler->validate();
@@ -90,6 +90,42 @@ class SignatureValidationService
             return false;
         }
     }
+
+    /**
+     * Restore the fields to the form Buckaroo signed them in before the SDK hashes them:
+     * PHP replaces spaces in field names with underscores, and Buckaroo signs most values
+     * url-decoded, while the SDK only decodes HTML entities.
+     *
+     * @param array<mixed> $postData
+     *
+     * @return array<mixed>
+     */
+    private function normalizeSignedData(array $postData): array
+    {
+        $normalized = [];
+
+        foreach ($postData as $key => $value) {
+            $key = $this->getCorrectKey((string)$key);
+
+            if (is_string($value)) {
+                $value = $this->decodePushValue($key, $value);
+            }
+
+            $normalized[$key] = $value;
+        }
+
+        return $normalized;
+    }
+
+    private function getCorrectKey(string $key): string
+    {
+        if ($key === 'brq_SERVICE_boekenbon_Additional_Info') {
+            $key = 'brq_SERVICE_boekenbon_Additional Info';
+        }
+
+        return $key;
+    }
+
     /**
      * @param array<mixed> $postData
      *
