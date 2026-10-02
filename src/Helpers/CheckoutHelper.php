@@ -350,6 +350,17 @@ class CheckoutHelper
     }
 
     /**
+     * @param string $method buckaroo key of the payment method
+     * @param string|null $salesChannelId
+     *
+     * @return bool
+     */
+    public function isTestEnvironment(string $method, ?string $salesChannelId = null): bool
+    {
+        return $this->settingsService->isTestEnvironment($method, $salesChannelId);
+    }
+
+    /**
      * Compare two amounts for equality with proper type safety and precision handling
      *
      * @param mixed $amount1
