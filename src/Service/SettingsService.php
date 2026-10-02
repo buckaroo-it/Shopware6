@@ -10,6 +10,17 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class SettingsService
 {
     /**
+     * Methods without an environment setting, mapped to the method whose
+     * environment they use.
+     *
+     * @var array<string, string>
+     */
+    public const SHARED_ENVIRONMENT_METHODS = [
+        'idealqr' => 'ideal',
+        'klarnain' => 'klarna',
+    ];
+
+    /**
      * @var SystemConfigService
      */
     public $systemConfigService;
@@ -125,6 +136,25 @@ class SettingsService
     public function getEnvironment(string $method = '', string $salesChannelId = null): string
     {
         return $this->getSettingAsString($method . 'Environment', $salesChannelId);
+    }
+
+    /**
+     * Check if the method is configured for the Buckaroo test environment
+     *
+     * Only an explicit `test` means test: a missing, empty or unknown environment
+     * is live. Methods without an environment field of their own use the
+     * environment of the method they belong to.
+     *
+     * @param string $method
+     * @param string|null $salesChannelId
+     *
+     * @return bool
+     */
+    public function isTestEnvironment(string $method, ?string $salesChannelId = null): bool
+    {
+        $method = self::SHARED_ENVIRONMENT_METHODS[$method] ?? $method;
+
+        return strtolower(trim($this->getEnvironment($method, $salesChannelId))) === 'test';
     }
 
     public function getBuckarooFee(string $buckarooKey, string $salesChannelId = null): float

@@ -8,8 +8,10 @@ use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderEntity;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Buckaroo\Shopware6\Helpers\GatewayHelper;
 use Buckaroo\Shopware6\Service\InvoiceService;
 use Symfony\Component\Routing\Annotation\Route;
 use Buckaroo\Shopware6\Events\PushProcessingEvent;
@@ -731,9 +733,25 @@ class PushController extends StorefrontController
         }
 
         $transactions = $order->getTransactions();
-        if ($transactions === null || $transactions->get($orderTransactionId) === null) {
+        $orderTransaction = $transactions?->get($orderTransactionId);
+        if ($orderTransaction === null) {
             $this->logger->warning(
                 __METHOD__ . "|Push rejected: transaction is not on the order|orderId:" . $orderId .
+                "|transactionId:" . $orderTransactionId
+            );
+            return false;
+        }
+
+        if (!$this->isPushForWebsite($request, $salesChannelId)) {
+            $this->logger->warning(
+                __METHOD__ . "|Push rejected: website key does not match the sales channel|orderId:" . $orderId
+            );
+            return false;
+        }
+
+        if (!$this->isPushForEnvironment($request, $orderTransaction, $salesChannelId)) {
+            $this->logger->warning(
+                __METHOD__ . "|Push rejected: test push for a payment method configured live|orderId:" . $orderId .
                 "|transactionId:" . $orderTransactionId
             );
             return false;
@@ -750,6 +768,63 @@ class PushController extends StorefrontController
         }
 
         return true;
+    }
+
+    /**
+     * A push that names a website key must name the one of the sales channel.
+     */
+    private function isPushForWebsite(Request $request, string $salesChannelId): bool
+    {
+        $websiteKey = trim((string)$request->request->get('brq_websitekey'));
+        if ($websiteKey === '') {
+            return true;
+        }
+
+        $configuredWebsiteKey = $this->checkoutHelper->getSettingsValue('websiteKey', $salesChannelId);
+
+        return is_scalar($configuredWebsiteKey) &&
+            strcasecmp($websiteKey, trim((string)$configuredWebsiteKey)) === 0;
+    }
+
+    /**
+     * A test push is only accepted for a payment method configured for the test environment.
+     * Otherwise a payment made on the Buckaroo test environment, where no money is moved,
+     * would mark the order paid, authorized or refunded.
+     */
+    private function isPushForEnvironment(
+        Request $request,
+        OrderTransactionEntity $orderTransaction,
+        string $salesChannelId
+    ): bool {
+        $isTestPush = in_array(
+            strtolower(trim((string)$request->request->get('brq_test'))),
+            ['true', '1'],
+            true
+        );
+        if (!$isTestPush) {
+            return true;
+        }
+
+        $buckarooKey = $this->getBuckarooKey($orderTransaction);
+
+        return $buckarooKey !== null && $this->checkoutHelper->isTestEnvironment($buckarooKey, $salesChannelId);
+    }
+
+    private function getBuckarooKey(OrderTransactionEntity $orderTransaction): ?string
+    {
+        $handlerIdentifier = $orderTransaction->getPaymentMethod()?->getHandlerIdentifier();
+        if ($handlerIdentifier === null) {
+            return null;
+        }
+
+        foreach (GatewayHelper::GATEWAYS as $gateway) {
+            $paymentMethod = new $gateway();
+            if ($paymentMethod->getPaymentHandler() === $handlerIdentifier) {
+                return $paymentMethod->getBuckarooKey();
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -65,14 +65,16 @@ class ClientService
         ?string $salesChannelId = null,
         ?string $culture = null
     ): Client {
-        $mode = $this->settingsService->getEnvironment($configMethodCode, $salesChannelId);
+        $mode = $this->settingsService->isTestEnvironment($configMethodCode, $salesChannelId)
+            ? Config::TEST_MODE
+            : Config::LIVE_MODE;
 
         try {
             return new Client(
                 $websiteKey,
                 $secretKey,
                 $this->getPaymentCode($configMethodCode, $salesChannelId),
-                $mode  == 'live' ? Config::LIVE_MODE : Config::TEST_MODE,
+                $mode,
                 $this->shopwareVersion,
                 $culture
             );

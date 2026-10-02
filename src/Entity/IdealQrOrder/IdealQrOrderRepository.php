@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Entity\IdealQrOrder;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,14 +24,14 @@ class IdealQrOrderRepository
 
     public function create(
         OrderTransactionEntity $orderTransactionEntity,
-        SalesChannelContext $salesChannelContext
+        Context $context
     ): ?IdealQrOrderEntity {
         $result = $this->entityRepository->create([
             [
                 'orderId' => $orderTransactionEntity->getOrderId(),
                 'orderTransactionId' => $orderTransactionEntity->getId(),
             ]
-        ], $salesChannelContext->getContext());
+        ], $context);
 
         $createdIds = $result->getPrimaryKeys(IdealQrOrderDefinition::ENTITY_NAME);
 
@@ -44,7 +45,7 @@ class IdealQrOrderRepository
 
         /** @var IdealQrOrderEntity|null */
         return $this->entityRepository
-            ->search(new Criteria([$primaryKey]), $salesChannelContext->getContext())
+            ->search(new Criteria([$primaryKey]), $context)
             ->getEntities()
             ->first();
     }
