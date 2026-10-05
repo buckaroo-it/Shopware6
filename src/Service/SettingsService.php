@@ -11,7 +11,8 @@ class SettingsService
 {
     /**
      * Methods without an environment setting, mapped to the method whose
-     * environment they use.
+     * environment they use. An explicit `live` on the method's own key, as written
+     * by the admin Live/Off toggle, still makes the method live.
      *
      * @var array<string, string>
      */
@@ -143,7 +144,7 @@ class SettingsService
      *
      * Only an explicit `test` means test: a missing, empty or unknown environment
      * is live. Methods without an environment field of their own use the
-     * environment of the method they belong to.
+     * environment of the method they belong to, unless their own key is `live`.
      *
      * @param string $method
      * @param string|null $salesChannelId
@@ -152,9 +153,19 @@ class SettingsService
      */
     public function isTestEnvironment(string $method, ?string $salesChannelId = null): bool
     {
-        $method = self::SHARED_ENVIRONMENT_METHODS[$method] ?? $method;
+        if (isset(self::SHARED_ENVIRONMENT_METHODS[$method])) {
+            if ($this->getNormalizedEnvironment($method, $salesChannelId) === 'live') {
+                return false;
+            }
+            $method = self::SHARED_ENVIRONMENT_METHODS[$method];
+        }
 
-        return strtolower(trim($this->getEnvironment($method, $salesChannelId))) === 'test';
+        return $this->getNormalizedEnvironment($method, $salesChannelId) === 'test';
+    }
+
+    private function getNormalizedEnvironment(string $method, ?string $salesChannelId): string
+    {
+        return strtolower(trim($this->getEnvironment($method, $salesChannelId)));
     }
 
     public function getBuckarooFee(string $buckarooKey, string $salesChannelId = null): float

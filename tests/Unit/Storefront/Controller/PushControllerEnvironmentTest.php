@@ -51,6 +51,35 @@ class PushControllerEnvironmentTest extends TestCase
         $this->assertRejected($response);
     }
 
+    /**
+     * The signature covers the HTML-decoded value, so an encoded `true` is still a signed
+     * test push and must not be read as live.
+     *
+     * @dataProvider encodedTestFlags
+     */
+    public function testEncodedTestFlagForALiveMethodIsRejected(string $testFlag): void
+    {
+        $response = $this->handlePush(
+            $this->pushData(['brq_test' => $testFlag]),
+            $this->checkoutHelper(testEnvironment: false),
+            $this->untouchable(TransactionService::class)
+        );
+
+        $this->assertRejected($response);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function encodedTestFlags(): array
+    {
+        return [
+            'decimal entity' => ['&#116;rue'],
+            'hex entity' => ['&#x74;rue'],
+            'unknown value' => ['yes'],
+        ];
+    }
+
     public function testSignedTestPushForAMethodThatIsNotBuckarooIsRejected(): void
     {
         $response = $this->handlePush(

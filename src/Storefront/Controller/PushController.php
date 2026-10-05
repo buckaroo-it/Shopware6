@@ -790,18 +790,21 @@ class PushController extends StorefrontController
      * A test push is only accepted for a payment method configured for the test environment.
      * Otherwise a payment made on the Buckaroo test environment, where no money is moved,
      * would mark the order paid, authorized or refunded.
+     *
+     * Only an explicit live value counts as a live push. The signature covers the decoded
+     * value, so an encoded variant of a signed `true` must not pass as live.
      */
     private function isPushForEnvironment(
         Request $request,
         OrderTransactionEntity $orderTransaction,
         string $salesChannelId
     ): bool {
-        $isTestPush = in_array(
+        $isLivePush = in_array(
             strtolower(trim((string)$request->request->get('brq_test'))),
-            ['true', '1'],
+            ['', 'false', '0'],
             true
         );
-        if (!$isTestPush) {
+        if ($isLivePush) {
             return true;
         }
 
