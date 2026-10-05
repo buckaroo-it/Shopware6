@@ -18,6 +18,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 
 class PaymentStateService
 {
@@ -37,19 +38,22 @@ class PaymentStateService
     protected StateMachineRegistry $stateMachineRegistry;
     protected AccountService $accountService;
     protected LoggerInterface $logger;
+    protected SignatureValidationService $signatureValidationService;
 
     public function __construct(
         OrderTransactionStateHandler $transactionStateHandler,
         StateMachineRegistry $stateMachineRegistry,
         TranslatorInterface $translator,
         AccountService $accountService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        SignatureValidationService $signatureValidationService
     ) {
         $this->transactionStateHandler = $transactionStateHandler;
         $this->stateMachineRegistry = $stateMachineRegistry;
         $this->translator = $translator;
         $this->accountService = $accountService;
         $this->logger = $logger;
+        $this->signatureValidationService = $signatureValidationService;
     }
 
     public function finalizePayment(
@@ -62,7 +66,12 @@ class PaymentStateService
             $frameworkContext = $context instanceof \Shopware\Core\System\SalesChannel\SalesChannelContext
                 ? $context->getContext()
                 : $context;
-            $this->handlePaymentFinalization($request, $transaction, $frameworkContext);
+            $this->handlePaymentFinalization(
+                $request,
+                $transaction,
+                $frameworkContext,
+                $this->getSalesChannelId($context)
+            );
         } catch (PaymentException $e) {
             $this->logger->error('Payment finalization failed', [
                 'transactionId' => $this->getTransactionId($transaction),
@@ -78,23 +87,55 @@ class PaymentStateService
         Request $request,
         PaymentTransactionStruct|\Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct $transaction,
         Context $context,
+        ?string $salesChannelId
     ): void {
+        // `cancel` is set by the plugin on its own cancel URL, not by Buckaroo.
+        if ($request->query->getBoolean('cancel')) {
+            $this->throwUserCanceled($transaction);
+        }
+
+        // The Buckaroo status is only used when it is signed; otherwise the push decides.
+        if (!$this->signatureValidationService->validateReturnSignature($request, $salesChannelId)) {
+            $this->logger->info('Buckaroo return without valid signature, payment state is left to the push', [
+                'transactionId' => $this->getTransactionId($transaction),
+            ]);
+            return;
+        }
+
         if ($this->shouldCancelPayment($request)) {
-            throw PaymentException::asyncProcessInterrupted(
-                $this->getTransactionId($transaction),
-                $this->translator->trans('buckaroo.userCanceled'),
-                new \Exception($this->translator->trans('buckaroo.userCanceled'))
-            );
+            $this->throwUserCanceled($transaction);
         }
         $txId = $this->getTransactionId($transaction);
         $availableTransitions = $this->getAvailableTransitions($txId, $context);
         $this->processPaymentState($request, $availableTransitions, $txId, $context);
     }
 
+    /**
+     * @param PaymentTransactionStruct|\Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct $transaction
+     */
+    private function throwUserCanceled($transaction): never
+    {
+        throw PaymentException::asyncProcessInterrupted(
+            $this->getTransactionId($transaction),
+            $this->translator->trans('buckaroo.userCanceled'),
+            new \Exception($this->translator->trans('buckaroo.userCanceled'))
+        );
+    }
+
+    private function getSalesChannelId(Context|SalesChannelContext $context): ?string
+    {
+        if ($context instanceof SalesChannelContext) {
+            return $context->getSalesChannelId();
+        }
+
+        $source = $context->getSource();
+
+        return $source instanceof SalesChannelApiSource ? $source->getSalesChannelId() : null;
+    }
+
     private function shouldCancelPayment(Request $request): bool
     {
-        return $request->query->getBoolean('cancel') ||
-            $this->isGroupTransactionCancel($request) ||
+        return $this->isGroupTransactionCancel($request) ||
             $this->isPayPalPending($request) ||
             $this->isCanceledPaymentRequest($request);
     }

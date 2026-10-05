@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Buckaroo\Shopware6\Buckaroo\Client;
+use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Buckaroo\Shopware6\Service\UrlService;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -43,7 +44,7 @@ class TestCredentialsService
     {
         $salesChannelId = $request->get('saleChannelId');
 
-        if (!(is_string($salesChannelId) || is_null($salesChannelId))) {
+        if (!(is_null($salesChannelId) || (is_string($salesChannelId) && Uuid::isValid($salesChannelId)))) {
             return [
                 'status' => 'error',
                 'message' => $this->translator->trans("buckaroo-payment.test_api.connection_failed"),
@@ -60,26 +61,27 @@ class TestCredentialsService
             ];
         }
 
-        $this->settingsService->setSetting(
-            'websiteKey',
-            (string)$websiteKeyId,
-            $salesChannelId
-        );
-        $this->settingsService->setSetting(
-            'secretKey',
-            (string)$secretKeyId,
-            $salesChannelId
-        );
-
-        $client = $this->getClientService(
-            'ideal',
-            $salesChannelId
-        )->setPayload([
-            'clientIP' => $this->getIp($request),
-        ]);
-
         try {
-            $client->execute();
+            // test with the submitted credentials only, nothing is persisted
+            $response = $this->clientService
+                ->getWithCredentials(
+                    'ideal',
+                    (string)$websiteKeyId,
+                    (string)$secretKeyId,
+                    $salesChannelId
+                )
+                ->setPayload([
+                    'clientIP' => $this->getIp($request),
+                ])
+                ->execute();
+
+            if (!$this->isAuthenticated($response)) {
+                return [
+                    'status' => 'error',
+                    'message' => $this->translator->trans("buckaroo-payment.test_api.connection_failed"),
+                ];
+            }
+
             return [
                 'status' => 'success',
                 'message' => $this->translator->trans("buckaroo-payment.test_api.connection_ready"),
@@ -92,17 +94,21 @@ class TestCredentialsService
         }
     }
     /**
-     * Get buckaroo client
+     * The test request is incomplete on purpose, so a validation failure is expected;
+     * the credentials are accepted when Buckaroo answers with 2xx and a transaction status
      *
-     * @param string $paymentCode
-     * @param string $salesChannelId
+     * @param ClientResponseInterface $response
      *
-     * @return Client
+     * @return bool
      */
-    private function getClientService(string $paymentCode, string $salesChannelId = null): Client
+    private function isAuthenticated(ClientResponseInterface $response): bool
     {
-        return $this->clientService
-            ->get($paymentCode, $salesChannelId);
+        $httpStatusCode = $response->getHttpStatusCode();
+
+        return $httpStatusCode !== null &&
+            $httpStatusCode >= 200 &&
+            $httpStatusCode < 300 &&
+            $response->getStatusCode() !== null;
     }
 
     /**

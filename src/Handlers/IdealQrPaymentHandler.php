@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Handlers;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Buckaroo\Shopware6\PaymentMethods\IdealQr;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
@@ -21,7 +22,7 @@ class IdealQrPaymentHandler extends PaymentHandlerSimple
 
     public string $paymentClass = IdealQr::class;
 
-    protected int $invoice;
+    protected ?int $invoice = null;
 
     protected IdealQrOrderRepository $idealQrRepository;
 
@@ -37,37 +38,30 @@ class IdealQrPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
-     * Override parameters common, remove invoice field
-     *
-     * @param OrderTransactionEntity $orderTransaction
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     * @param string|null $returnUrl
-     *
-     * @return array<mixed>
+     * Create the iDEAL QR order, its invoice is the QR purchase id
      */
-    protected function getCommonRequestPayload(
-        $orderTransaction,
-        OrderEntity $order,
+    protected function beforePayLegacy(
+        \Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode,
-        ?string $returnUrl
-    ): array {
-        $this->createIdealQrOrder($orderTransaction, $order, $salesChannelContext);
-        $payload = parent::getCommonRequestPayload(
-            $orderTransaction,
-            $order,
-            $dataBag,
-            $salesChannelContext,
-            $paymentCode,
-            $returnUrl
-        );
-        unset($payload['invoice']);
-        return $payload;
+        SalesChannelContext $salesChannelContext
+    ): void {
+        $this->createIdealQrOrder($transaction->getOrderTransaction(), $salesChannelContext->getContext());
     }
+
+    /**
+     * Create the iDEAL QR order, its invoice is the QR purchase id
+     */
+    protected function beforePayModern(
+        PaymentTransactionStruct $transaction,
+        RequestDataBag $dataBag,
+        Context $context
+    ): void {
+        $this->createIdealQrOrder(
+            $this->asyncPaymentService->getTransaction($transaction->getOrderTransactionId(), $context),
+            $context
+        );
+    }
+
     /**
      * Get parameters for specific payment method
      *
@@ -85,7 +79,16 @@ class IdealQrPaymentHandler extends PaymentHandlerSimple
         string $paymentCode
     ): array {
 
-        $fee =  $this->getFee($paymentCode, $salesChannelContext->getSalesChannelId());
+        if ($this->invoice === null) {
+            throw new \RuntimeException('Cannot create iDEAL QR order');
+        }
+
+        // The fee is already applied to the order total before the payload is built
+        $amount = (new PaymentFeeCalculator($this->asyncPaymentService))->getOrderTotalWithFee(
+            $order,
+            $salesChannelContext->getSalesChannelId(),
+            $paymentCode
+        );
 
         $expiration = (new \DateTime('now', new \DateTimeZone('Europe/Amsterdam')))
             ->add(new \DateInterval("P1D"))->format('Y-m-d H:i:s');
@@ -93,7 +96,7 @@ class IdealQrPaymentHandler extends PaymentHandlerSimple
             'imageSize' => '1000',
             'purchaseId' => self::IDEAL_QR_INVOICE_PREFIX . $this->invoice,
             'isOneOff' => true,
-            'amount' => $order->getAmountTotal() + $fee,
+            'amount' => $amount,
             'amountIsChangeable' => false,
             'expiration' => $expiration,
             'isProcessing' => false,
@@ -167,12 +170,15 @@ class IdealQrPaymentHandler extends PaymentHandlerSimple
             ]);
     }
 
-    private function createIdealQrOrder(
-        OrderTransactionEntity $orderTransaction,
-        OrderEntity $order,
-        SalesChannelContext $salesChannelContext
-    ): void {
-        $entity = $this->idealQrRepository->create($orderTransaction, $salesChannelContext);
+    private function createIdealQrOrder(?OrderTransactionEntity $orderTransaction, Context $context): void
+    {
+        // The handler is a shared service, never reuse the invoice of an earlier payment
+        $this->invoice = null;
+        if ($orderTransaction === null) {
+            return;
+        }
+
+        $entity = $this->idealQrRepository->create($orderTransaction, $context);
         if ($entity !== null) {
             $this->invoice = $entity->getInvoice();
         }

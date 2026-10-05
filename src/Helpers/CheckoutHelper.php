@@ -213,12 +213,19 @@ class CheckoutHelper
      *
      * @param string $orderNumber
      * @param Context $context
+     * @param string|null $salesChannelId limit the lookup to this sales channel's orders
      * @return OrderEntity|null
      */
-    public function getOrderByOrderNumber(string $orderNumber, Context $context): ?OrderEntity
-    {
+    public function getOrderByOrderNumber(
+        string $orderNumber,
+        Context $context,
+        ?string $salesChannelId = null
+    ): ?OrderEntity {
         $orderCriteria = new Criteria();
         $orderCriteria->addFilter(new EqualsFilter('orderNumber', $orderNumber));
+        if ($salesChannelId !== null) {
+            $orderCriteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
+        }
         $orderCriteria->addAssociation('orderCustomer.salutation');
         $orderCriteria->addAssociation('orderCustomer.customer');
         $orderCriteria->addAssociation('stateMachineState');
@@ -340,6 +347,17 @@ class CheckoutHelper
     public function getSettingsValue(string $value, ?string $salesChannelId = null)
     {
         return $this->settingsService->getSetting($value, $salesChannelId);
+    }
+
+    /**
+     * @param string $method buckaroo key of the payment method
+     * @param string|null $salesChannelId
+     *
+     * @return bool
+     */
+    public function isTestEnvironment(string $method, ?string $salesChannelId = null): bool
+    {
+        return $this->settingsService->isTestEnvironment($method, $salesChannelId);
     }
 
     /**

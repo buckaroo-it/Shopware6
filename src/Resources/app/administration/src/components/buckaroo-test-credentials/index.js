@@ -11,7 +11,7 @@ Component.register("buckaroo-test-credentials", {
             isLoading: false,
         }
     },
-    inject: [ 'BuckarooPaymentSettingsService' ],
+    inject: [ 'acl', 'BuckarooPaymentSettingsService' ],
 
     props: {
         config: {
@@ -24,7 +24,8 @@ Component.register("buckaroo-test-credentials", {
     },
     computed: {
         enabled: function() {
-            return (this.getConfigValue('websiteKey') || '').length > 0 &&
+            return this.acl.can('system_config:update') &&
+            (this.getConfigValue('websiteKey') || '').length > 0 &&
             (this.getConfigValue('secretKey') || '').length > 0
         }
     },

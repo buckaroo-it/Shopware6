@@ -12,7 +12,7 @@
             <sw-container columns="1fr 440px" class="sw-order-detail__summary">
                 <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data"><dt></dt> <dd>
             
-                        <sw-button @click="createPaylink(orderId)" :disabled="!isPaylinkAvailable">
+                        <sw-button @click="createPaylink(orderId)" :disabled="!isPaylinkAvailable || !acl.can('order.editor')">
                             {{ $tc('buckaroo-payment.paymentDetail.paylinkButton') }}
                         </sw-button></dd>
                 </sw-description-list>
@@ -92,7 +92,7 @@
 
             <sw-container columns="1fr 440px" class="sw-order-detail__summary">
                 <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data"><dt></dt><dd>
-                    <sw-button @click="refundOrder(orderId, buckaroo_refund_amount)" :disabled="!isRefundPossible || isAuthorized">
+                    <sw-button @click="refundOrder(orderId, buckaroo_refund_amount)" :disabled="!isRefundPossible || isAuthorized || !acl.can('order_refund.editor')">
                     {{ $tc('buckaroo-payment.paymentDetail.buttonTitle') }}
                     </sw-button></dd>
                 </sw-description-list>
@@ -106,7 +106,7 @@
 
             <sw-container columns="1fr 440px" class="sw-order-detail__summary">
                 <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data"><dt></dt><dd>
-                        <sw-button @click="captureOrder(orderId)" :disabled="!isCapturePossible">
+                        <sw-button @click="captureOrder(orderId)" :disabled="!isCapturePossible || !acl.can('order.editor')">
                             {{ $tc('buckaroo-payment.paymentDetail.payButton') }}
                         </sw-button></dd>
                 </sw-description-list>
@@ -122,7 +122,7 @@
                 <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
                     <dt>{{ $tc('buckaroo-payment.paymentDetail.klarnaMorCancel') }}</dt>
                     <dd>
-                        <sw-button variant="danger" @click="klarnaMor('CancelReservation')" :disabled="isLoading">
+                        <sw-button variant="danger" @click="klarnaMor('CancelReservation')" :disabled="isLoading || !acl.can('order.editor')">
                             {{ $tc('buckaroo-payment.paymentDetail.klarnaMorCancelButton') }}
                         </sw-button>
                     </dd>
@@ -133,7 +133,7 @@
                 <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
                     <dt>{{ $tc('buckaroo-payment.paymentDetail.klarnaMorUpdate') }}</dt>
                     <dd>
-                        <sw-button @click="klarnaMor('UpdateReservation')" :disabled="isLoading">
+                        <sw-button @click="klarnaMor('UpdateReservation')" :disabled="isLoading || !acl.can('order.editor')">
                             {{ $tc('buckaroo-payment.paymentDetail.klarnaMorUpdateButton') }}
                         </sw-button>
                     </dd>
@@ -144,7 +144,7 @@
                 <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
                     <dt>{{ $tc('buckaroo-payment.paymentDetail.klarnaMorExtend') }}</dt>
                     <dd>
-                        <sw-button @click="klarnaMor('ExtendReservation')" :disabled="isLoading">
+                        <sw-button @click="klarnaMor('ExtendReservation')" :disabled="isLoading || !acl.can('order.editor')">
                             {{ $tc('buckaroo-payment.paymentDetail.klarnaMorExtendButton') }}
                         </sw-button>
                     </dd>
@@ -155,7 +155,7 @@
                 <sw-description-list grid="265px 1fr" class="sw-order-detail__summary-data">
                     <dt>{{ $tc('buckaroo-payment.paymentDetail.klarnaMorShipping') }}</dt>
                     <dd>
-                        <sw-button @click="klarnaMor('AddShippingInfo')" :disabled="isLoading">
+                        <sw-button @click="klarnaMor('AddShippingInfo')" :disabled="isLoading || !acl.can('order.editor')">
                             {{ $tc('buckaroo-payment.paymentDetail.klarnaMorShippingButton') }}
                         </sw-button>
                     </dd>

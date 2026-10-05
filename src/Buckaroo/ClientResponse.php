@@ -6,6 +6,7 @@ namespace Buckaroo\Shopware6\Buckaroo;
 
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Buckaroo\Transaction\Response\TransactionResponse;
+use Psr\Http\Message\ResponseInterface;
 
 class ClientResponse implements ClientResponseInterface
 {
@@ -114,6 +115,21 @@ class ClientResponse implements ClientResponseInterface
     public function getStatusCode(): ?int
     {
         return $this->response->getStatusCode();
+    }
+
+    /**
+     * Get the HTTP status code of the Buckaroo response
+     *
+     * @return int|null HTTP status, null when not available
+     */
+    public function getHttpStatusCode(): ?int
+    {
+        $httpResponse = $this->response->getHttpResponse();
+        if ($httpResponse instanceof ResponseInterface) {
+            return $httpResponse->getStatusCode();
+        }
+
+        return null;
     }
 
     public function isTestMode(): bool

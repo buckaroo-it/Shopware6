@@ -18,8 +18,11 @@ use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
 use Buckaroo\Shopware6\Storefront\Controller\PushController;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\DependencyInjection\Container;
@@ -162,6 +165,109 @@ class PushControllerSignatureValidationTest extends TestCase
         );
     }
 
+    /**
+     * A push to a sales channel without a secret key is rejected before anything is looked up.
+     *
+     * @dataProvider missingSecretKeyProvider
+     */
+    public function testPushToSalesChannelWithoutSecretKeyIsRejected(?string $secretKey): void
+    {
+        $this->assertSignatureRejected(
+            $this->handlePush($this->signed($this->regularPushData(), ''), [], $secretKey)
+        );
+    }
+
+    /**
+     * @return array<string, array{string|null}>
+     */
+    public static function missingSecretKeyProvider(): array
+    {
+        return [
+            'not configured' => [null],
+            'empty' => [''],
+        ];
+    }
+
+    /**
+     * A push that does not match its order's sales channel, transaction or currency is
+     * rejected before it is claimed or processed.
+     *
+     * @dataProvider unboundOrderProvider
+     *
+     * @param array<string, string> $overrides
+     */
+    public function testSignedPushNotBoundToItsOrderIsRejected(OrderEntity $order, array $overrides): void
+    {
+        $response = $this->handlePush(
+            $this->signed($overrides + $this->regularPushData()),
+            ['checkoutHelper' => $this->checkoutHelperFindingOnly($order)]
+        );
+
+        $this->assertSame(
+            ['status' => false, 'message' => 'buckaroo.messages.paymentError'],
+            $this->decode($response)
+        );
+    }
+
+    /**
+     * @return array<string, array{OrderEntity, array<string, string>}>
+     */
+    public static function unboundOrderProvider(): array
+    {
+        return [
+            'order of another sales channel' => [self::boundOrder('other-sales-channel-id'), []],
+            'transaction not on the order' => [self::boundOrder(self::SALES_CHANNEL_ID, 'other-transaction-id'), []],
+            'currency does not match the order' => [self::boundOrder(), ['brq_currency' => 'USD']],
+        ];
+    }
+
+    /**
+     * The binding check accepts the genuine push: same sales channel, its own transaction
+     * and the order currency (compared case-insensitively). Reaching the authorize handling
+     * shows the push got past the binding check.
+     */
+    public function testSignedPushBoundToItsOrderIsProcessed(): void
+    {
+        $stateTransitionService = $this->createMock(StateTransitionService::class);
+        $stateTransitionService->expects($this->once())->method('isTransitionPaymentState')->willReturn(true);
+
+        $response = $this->handlePush(
+            $this->signed(['brq_currency' => 'eur', 'brq_transaction_type' => 'I872'] + $this->regularPushData()),
+            [
+                'stateTransitionService' => $stateTransitionService,
+                'checkoutHelper' => $this->checkoutHelperWithoutOrder(),
+                'eventDispatcher' => $this->createMock(EventDispatcherInterface::class),
+            ]
+        );
+
+        $this->assertSame(
+            ['status' => false, 'message' => 'buckaroo.messages.paymentError'],
+            $this->decode($response)
+        );
+    }
+
+    /**
+     * The order-number fallback only looks in the sales channel the push was posted to.
+     */
+    public function testOrderNumberFallbackIsScopedToTheSalesChannel(): void
+    {
+        $postData = $this->regularPushData();
+        unset($postData['ADD_orderId'], $postData['ADD_orderTransactionId']);
+
+        $checkoutHelper = $this->createMock(CheckoutHelper::class);
+        $checkoutHelper->expects($this->once())
+            ->method('getOrderByOrderNumber')
+            ->with('INV-001', $this->isInstanceOf(Context::class), self::SALES_CHANNEL_ID)
+            ->willReturn(null);
+
+        $response = $this->handlePush($this->signed($postData), ['checkoutHelper' => $checkoutHelper]);
+
+        $this->assertSame(
+            ['status' => false, 'message' => 'buckaroo.messages.paymentError'],
+            $this->decode($response)
+        );
+    }
+
     private function assertSignatureRejected(JsonResponse $response): void
     {
         $this->assertSame(
@@ -224,7 +330,7 @@ class PushControllerSignatureValidationTest extends TestCase
      *
      * @return array<string, string>
      */
-    private function signed(array $postData): array
+    private function signed(array $postData, string $secretKey = self::SECRET_KEY): array
     {
         $data = array_filter($postData, static function ($key): bool {
             $key = strtolower((string) $key);
@@ -241,19 +347,19 @@ class PushControllerSignatureValidationTest extends TestCase
         foreach ($data as $key => $value) {
             $signatureString .= $key . '=' . html_entity_decode((string) $value);
         }
-        $signatureString .= self::SECRET_KEY;
+        $signatureString .= $secretKey;
 
         $postData['brq_signature'] = sha1($signatureString);
 
         return $postData;
     }
 
-    private function signatureValidationService(): SignatureValidationService
+    private function signatureValidationService(?string $secretKey = self::SECRET_KEY): SignatureValidationService
     {
         $settingsService = $this->createMock(SettingsService::class);
         $settingsService->method('getSetting')
             ->with('secretKey', self::SALES_CHANNEL_ID)
-            ->willReturn(self::SECRET_KEY);
+            ->willReturn($secretKey);
 
         return new SignatureValidationService($settingsService, $this->createMock(LoggerInterface::class));
     }
@@ -265,9 +371,13 @@ class PushControllerSignatureValidationTest extends TestCase
      *
      * @param array<string, string> $postData
      * @param array<string, object> $services
+     * @param string|null $secretKey the secret key configured for the sales channel
      */
-    private function handlePush(array $postData, array $services = []): JsonResponse
-    {
+    private function handlePush(
+        array $postData,
+        array $services = [],
+        ?string $secretKey = self::SECRET_KEY
+    ): JsonResponse {
         /** @var TransactionService $transactionService */
         $transactionService = $services['transactionService'] ?? $this->untouchable(TransactionService::class);
         /** @var StateTransitionService $stateTransitionService */
@@ -287,7 +397,7 @@ class PushControllerSignatureValidationTest extends TestCase
         $customerService = $services['customerService'] ?? $this->untouchable(CustomerService::class);
 
         $controller = new PushController(
-            $this->signatureValidationService(),
+            $this->signatureValidationService($secretKey),
             $transactionService,
             $stateTransitionService,
             $invoiceService,
@@ -324,12 +434,50 @@ class PushControllerSignatureValidationTest extends TestCase
         return $mock;
     }
 
+    /**
+     * Finds the order when the push is bound to it, then no longer, so processing ends with
+     * the payment error response right after the claim and Fast Checkout update.
+     */
     private function checkoutHelperWithoutOrder(): CheckoutHelper
     {
         $checkoutHelper = $this->createMock(CheckoutHelper::class);
-        $checkoutHelper->method('getOrderById')->willReturn(null);
+        $checkoutHelper->method('getOrderById')->willReturnOnConsecutiveCalls(self::boundOrder(), null);
 
         return $checkoutHelper;
+    }
+
+    private function checkoutHelperFindingOnly(OrderEntity $order): CheckoutHelper
+    {
+        $checkoutHelper = $this->createMock(CheckoutHelper::class);
+        $checkoutHelper->expects($this->once())->method('getOrderById')->with('order-id')->willReturn($order);
+        $checkoutHelper->expects($this->never())
+            ->method($this->logicalNot($this->equalTo('getOrderById')));
+
+        return $checkoutHelper;
+    }
+
+    /**
+     * The order the regular push refers to, in the sales channel the push is posted to.
+     */
+    private static function boundOrder(
+        string $salesChannelId = self::SALES_CHANNEL_ID,
+        string $transactionId = 'order-transaction-id',
+        string $currencyIso = 'EUR'
+    ): OrderEntity {
+        $orderTransaction = new OrderTransactionEntity();
+        $orderTransaction->setId($transactionId);
+
+        $currency = new CurrencyEntity();
+        $currency->setId('currency-id');
+        $currency->setIsoCode($currencyIso);
+
+        $order = new OrderEntity();
+        $order->setId('order-id');
+        $order->setSalesChannelId($salesChannelId);
+        $order->setTransactions(new OrderTransactionCollection([$orderTransaction]));
+        $order->setCurrency($currency);
+
+        return $order;
     }
 
     private function salesChannelContext(): SalesChannelContext

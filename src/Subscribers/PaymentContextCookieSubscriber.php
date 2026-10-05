@@ -4,20 +4,25 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Sets the sw-context-token cookie when we restored it from the URL (payment return).
- * With SameSite=lax, the session cookie may not be sent on cross-site redirect from Buckaroo.
- * By explicitly setting this cookie in the response, the next request (redirect to cart)
- * will have it, allowing context restoration without cookie_samesite: null.
+ * Keeps the customer's context token in a cookie while they are at Buckaroo,
+ * so PaymentContextRestoreSubscriber can restore the session on return.
  */
 class PaymentContextCookieSubscriber implements EventSubscriberInterface
 {
-    private const CONTEXT_TOKEN_LIFETIME_DAYS = 1;
+    public const COOKIE_NAME = 'buckaroo-payment-context';
+
+    private const ATTRIBUTE_TOKEN = '_buckaroo_payment_context_token';
+
+    private const LIFETIME = '+2 hours';
 
     public static function getSubscribedEvents(): array
     {
@@ -26,35 +31,56 @@ class PaymentContextCookieSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * Marks the current request so its response sets the payment context cookie.
+     */
+    public static function rememberForReturn(?Request $request, SalesChannelContext $salesChannelContext): void
+    {
+        if ($request === null) {
+            return;
+        }
+
+        $requestContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        $token = $salesChannelContext->getToken();
+
+        if (!$requestContext instanceof SalesChannelContext
+            || $token === ''
+            || $requestContext->getToken() !== $token
+        ) {
+            return;
+        }
+
+        $request->attributes->set(self::ATTRIBUTE_TOKEN, $token);
+    }
+
     public function onKernelResponse(ResponseEvent $event): void
     {
+        if (!$event->isMainRequest()) {
+            return;
+        }
+
         $request = $event->getRequest();
-        $contextToken = $request->attributes->get('sw-context-token');
-
-        if (!is_string($contextToken) || $contextToken === '') {
-            return;
-        }
-
-        // Only set cookie when we restored from URL (token was in query, not cookie)
-        $tokenFromUrl = $request->query->has('sw-context-token')
-            || $request->query->has('add_sw-context-token')
-            || $request->request->has('sw-context-token')
-            || $request->request->has('add_sw-context-token');
-        if (!$tokenFromUrl) {
-            return;
-        }
-
         $response = $event->getResponse();
-        $expire = new \DateTimeImmutable('+' . self::CONTEXT_TOKEN_LIFETIME_DAYS . ' days');
+        $contextToken = $request->attributes->get(self::ATTRIBUTE_TOKEN);
 
-        $cookie = Cookie::create('sw-context-token', secure: true)
-            ->withValue($contextToken)
-            ->withExpires($expire)
-            ->withPath('/')
-            ->withSecure(true)
-            ->withHttpOnly(false)
-            ->withSameSite(Cookie::SAMESITE_LAX);
+        if (is_string($contextToken) && $contextToken !== '') {
+            $response->headers->setCookie(
+                Cookie::create(self::COOKIE_NAME, secure: true)
+                    ->withValue($contextToken)
+                    ->withExpires(new \DateTimeImmutable(self::LIFETIME))
+                    ->withPath('/')
+                    ->withSecure(true)
+                    ->withHttpOnly(true)
+                    ->withSameSite(Cookie::SAMESITE_NONE)
+            );
+            return;
+        }
 
-        $response->headers->setCookie($cookie);
+        // The customer is back on the finish page, the token is no longer needed
+        if ($request->attributes->get('_route') === 'frontend.checkout.finish.page'
+            && $request->cookies->has(self::COOKIE_NAME)
+        ) {
+            $response->headers->clearCookie(self::COOKIE_NAME, '/', null, true, true, Cookie::SAMESITE_NONE);
+        }
     }
 }

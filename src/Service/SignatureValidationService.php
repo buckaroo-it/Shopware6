@@ -33,8 +33,27 @@ class SignatureValidationService
      */
     public function validateSignature(Request $request, ?string $salesChannelId = null): bool
     {
-        $postData = $request->request->all();
+        return $this->validateData($request->request->all(), $salesChannelId);
+    }
 
+    /**
+     * Validate the Buckaroo signature of a shopper returning from Buckaroo. Buckaroo sends
+     * the return fields either in the body (POST) or in the query string (GET).
+     */
+    public function validateReturnSignature(Request $request, ?string $salesChannelId = null): bool
+    {
+        $data = $request->request->has('brq_signature')
+            ? $request->request->all()
+            : $request->query->all();
+
+        return $this->validateData($data, $salesChannelId);
+    }
+
+    /**
+     * @param array<mixed> $postData
+     */
+    private function validateData(array $postData, ?string $salesChannelId): bool
+    {
         if (!isset($postData['brq_signature']) || !is_string($postData['brq_signature'])) {
             return false;
         }
@@ -42,12 +61,22 @@ class SignatureValidationService
         try {
             $secretKey = $this->settingsService->getSetting('secretKey', $salesChannelId);
 
+            // A secret key is required to validate the push.
+            if (!is_string($secretKey) || trim($secretKey) === '') {
+                $this->logger->warning(
+                    'Buckaroo push rejected: no secret key is configured for sales channel ' .
+                    ($salesChannelId ?? 'default')
+                );
+
+                return false;
+            }
+
             $replyHandler = new ReplyHandler(
                 new DefaultConfig(
                     '',
-                    is_string($secretKey) ? $secretKey : ''
+                    $secretKey
                 ),
-                $postData
+                $this->normalizeSignedData($postData)
             );
 
             $replyHandler->validate();
@@ -61,6 +90,42 @@ class SignatureValidationService
             return false;
         }
     }
+
+    /**
+     * Restore the fields to the form Buckaroo signed them in before the SDK hashes them:
+     * PHP replaces spaces in field names with underscores, and Buckaroo signs most values
+     * url-decoded, while the SDK only decodes HTML entities.
+     *
+     * @param array<mixed> $postData
+     *
+     * @return array<mixed>
+     */
+    private function normalizeSignedData(array $postData): array
+    {
+        $normalized = [];
+
+        foreach ($postData as $key => $value) {
+            $key = $this->getCorrectKey((string)$key);
+
+            if (is_string($value)) {
+                $value = $this->decodePushValue($key, $value);
+            }
+
+            $normalized[$key] = $value;
+        }
+
+        return $normalized;
+    }
+
+    private function getCorrectKey(string $key): string
+    {
+        if ($key === 'brq_SERVICE_boekenbon_Additional_Info') {
+            $key = 'brq_SERVICE_boekenbon_Additional Info';
+        }
+
+        return $key;
+    }
+
     /**
      * @param array<mixed> $postData
      *

@@ -134,6 +134,41 @@ class SignatureValidationServiceTest extends TestCase
     }
 
     /**
+     * A push is rejected when no secret key is configured.
+     *
+     * @dataProvider missingSecretKeyProvider
+     */
+    public function testValidateSignatureRejectsPushWhenSecretKeyIsMissing(mixed $secretKey): void
+    {
+        $postData = ['brq_amount' => '50.00'];
+        $postData['brq_signature'] = sha1('brq_amount=50.00');
+
+        $this->settingsService
+            ->method('getSetting')
+            ->with('secretKey', 'sales-channel-without-secret')
+            ->willReturn($secretKey);
+
+        $this->assertFalse(
+            $this->signatureValidationService->validateSignature(
+                new Request([], $postData),
+                'sales-channel-without-secret'
+            )
+        );
+    }
+
+    /**
+     * @return array<string, array{mixed}>
+     */
+    public static function missingSecretKeyProvider(): array
+    {
+        return [
+            'not configured' => [null],
+            'empty' => [''],
+            'whitespace only' => ['   '],
+        ];
+    }
+
+    /**
      * Test: it sorts array keys case-insensitively for signature calculation
      */
     public function testValidateSignatureSortsKeysCorrectly(): void
@@ -474,5 +509,118 @@ class SignatureValidationServiceTest extends TestCase
 
         // Assert
         $this->assertFalse($result);
+    }
+
+    /**
+     * Test: Buckaroo signs the boekenbon field with a space in its name, which PHP turns
+     * into an underscore when parsing the request. The original name is restored before hashing.
+     */
+    public function testValidateSignatureRestoresBoekenbonAdditionalInfoKey(): void
+    {
+        // Arrange
+        $secretKey = 'test-key';
+        $postData = [
+            'brq_amount' => '100.00',
+            'brq_SERVICE_boekenbon_Additional_Info' => 'info',
+            'brq_signature' => sha1(
+                'brq_amount=100.00brq_SERVICE_boekenbon_Additional Info=info' . $secretKey
+            ),
+        ];
+
+        $request = new Request([], $postData);
+
+        $this->settingsService
+            ->method('getSetting')
+            ->willReturn($secretKey);
+
+        // Act
+        $result = $this->signatureValidationService->validateSignature($request);
+
+        // Assert
+        $this->assertTrue($result);
+    }
+
+    /**
+     * Test: values that are not exempt are url-decoded before hashing, so encoded
+     * characters such as %XX and + match the value Buckaroo signed.
+     */
+    public function testValidateSignatureUrlDecodesNonExemptValues(): void
+    {
+        // Arrange
+        $secretKey = 'test-key';
+        $postData = [
+            'brq_amount' => '100.00',
+            'brq_statusmessage' => 'Transaction+successfully+processed%3A+100%25',
+            'brq_signature' => sha1(
+                'brq_amount=100.00brq_statusmessage=Transaction successfully processed: 100%' . $secretKey
+            ),
+        ];
+
+        $request = new Request([], $postData);
+
+        $this->settingsService
+            ->method('getSetting')
+            ->willReturn($secretKey);
+
+        // Act
+        $result = $this->signatureValidationService->validateSignature($request);
+
+        // Assert
+        $this->assertTrue($result);
+    }
+
+    /**
+     * Test: a signature over the still-encoded value of a non-exempt field is rejected,
+     * as Buckaroo signs the decoded value.
+     */
+    public function testValidateSignatureRejectsSignatureOverEncodedNonExemptValue(): void
+    {
+        // Arrange
+        $secretKey = 'test-key';
+        $postData = [
+            'brq_amount' => '100.00',
+            'brq_statusmessage' => 'a+b%2Bc',
+            'brq_signature' => sha1('brq_amount=100.00brq_statusmessage=a+b%2Bc' . $secretKey),
+        ];
+
+        $request = new Request([], $postData);
+
+        $this->settingsService
+            ->method('getSetting')
+            ->willReturn($secretKey);
+
+        // Act
+        $result = $this->signatureValidationService->validateSignature($request);
+
+        // Assert
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test: the same key and value normalisation applies to the return signature.
+     */
+    public function testValidateReturnSignatureNormalizesKeysAndValues(): void
+    {
+        // Arrange
+        $secretKey = 'test-key';
+        $query = [
+            'brq_SERVICE_boekenbon_Additional_Info' => 'info',
+            'brq_statusmessage' => 'a+b%2Bc',
+            'brq_signature' => sha1(
+                'brq_SERVICE_boekenbon_Additional Info=infobrq_statusmessage=a b+c' . $secretKey
+            ),
+        ];
+
+        $request = new Request($query);
+
+        $this->settingsService
+            ->method('getSetting')
+            ->willReturn($secretKey);
+
+        // Act
+        $result = $this->signatureValidationService->validateReturnSignature($request);
+
+        // Assert
+        $this->assertTrue($result);
     }
 }
