@@ -487,3 +487,15 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-1449 Removed session access from the payment handlers.
 - BTI-1582 Security improvement.
 - BTI-1424 Resolved static code analysis warnings.
+
+# 3.7.0
+
+- BTI-1621 Security update.
+- BTI-1622 Fixed an uncaught crash caused by the browserslist resolution.
+- BTI-1624 Improved the handling of the session token on the payment return.
+- BTI-1625 Pushes that were already processed for the same transaction and status are no longer processed again.
+- BTI-1626 The payment return page now validates the Buckaroo signature before updating the payment status.
+- BTI-1669 Improved the push validation.
+- BTI-1670 Payment methods without a configured environment are no longer processed, and test pushes are rejected for live payment methods.
+- BTI-1671 Added ACL privileges to the Buckaroo admin API routes.
+- BTI-1675 Fixed Riverty orders not being captured on shipment.
