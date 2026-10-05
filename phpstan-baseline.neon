@@ -115,12 +115,6 @@ parameters:
 			path: src/Helpers/CheckoutHelper.php
 
 		-
-			message: '#^PHPDoc tag @SuppressWarnings has invalid value \(\(PHPMD\.StaticAccess\)\)\: Unexpected token "\.StaticAccess\)", expected ''\)'' at offset 143 on line 5$#'
-			identifier: phpDoc.parseError
-			count: 1
-			path: src/Installers/MediaInstaller.php
-
-		-
 			message: '#^Binary operation "\." between mixed and ''/'' results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 1

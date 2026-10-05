@@ -111,7 +111,7 @@ class Client
      * @param string|null $method
      * @return mixed
      */
-    public function build(string $action, array $payload, string $method = null)
+    public function build(string $action, array $payload, ?string $method = null)
     {
         if ($method === null) {
             $method = $this->paymentCode;

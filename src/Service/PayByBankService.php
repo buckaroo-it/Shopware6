@@ -68,7 +68,7 @@ class PayByBankService
      *
      * @return array
      */
-    public function getIssuers(CustomerEntity $customer = null): array
+    public function getIssuers(?CustomerEntity $customer = null): array
     {
         $savedBankIssuer = $this->getActiveIssuer($customer);
 
@@ -80,7 +80,7 @@ class PayByBankService
         }, $this->payByBankIssuers);
     }
 
-    public function getActiveIssuer(CustomerEntity $customer = null): ?string
+    public function getActiveIssuer(?CustomerEntity $customer = null): ?string
     {
         if ($customer === null) {
             return null;
@@ -116,7 +116,7 @@ class PayByBankService
         );
     }
 
-    public function getIssuerLogos(CustomerEntity $customer = null): array
+    public function getIssuerLogos(?CustomerEntity $customer = null): array
     {
         $issuers = $this->getIssuers($customer);
         $logos = [];

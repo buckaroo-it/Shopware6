@@ -14,7 +14,7 @@ class ClientInitException extends \Exception
     public function __construct(
         string $message = "Failed to initialize Buckaroo client",
         int $code = 0,
-        \Throwable $previous = null
+        ?\Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
     }
@@ -26,7 +26,7 @@ class ClientInitException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function connectionFailed(string $endpoint, \Throwable $previous = null): self
+    public static function connectionFailed(string $endpoint, ?\Throwable $previous = null): self
     {
         return new self("Failed to connect to Buckaroo endpoint: {$endpoint}", 0, $previous);
     }
@@ -38,7 +38,7 @@ class ClientInitException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function configurationError(string $configKey, \Throwable $previous = null): self
+    public static function configurationError(string $configKey, ?\Throwable $previous = null): self
     {
         return new self("Configuration error for key '{$configKey}': Invalid or missing configuration", 0, $previous);
     }
@@ -52,7 +52,7 @@ class ClientInitException extends \Exception
      */
     public static function authenticationFailed(
         string $reason = "Invalid credentials",
-        \Throwable $previous = null
+        ?\Throwable $previous = null
     ): self {
         return new self("Authentication failed: {$reason}", 0, $previous);
     }

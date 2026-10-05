@@ -14,7 +14,7 @@ class BuckarooPaymentRejectException extends \Exception
     public function __construct(
         string $message = "Payment was rejected by Buckaroo",
         int $code = 0,
-        \Throwable $previous = null
+        ?\Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
     }
@@ -26,7 +26,7 @@ class BuckarooPaymentRejectException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function insufficientFunds(float $amount, \Throwable $previous = null): self
+    public static function insufficientFunds(float $amount, ?\Throwable $previous = null): self
     {
         return new self("Insufficient funds for payment amount: {$amount}", 0, $previous);
     }
@@ -38,7 +38,7 @@ class BuckarooPaymentRejectException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function invalidCard(string $reason = "Card validation failed", \Throwable $previous = null): self
+    public static function invalidCard(string $reason = "Card validation failed", ?\Throwable $previous = null): self
     {
         return new self("Invalid card: {$reason}", 0, $previous);
     }
@@ -50,7 +50,7 @@ class BuckarooPaymentRejectException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function expiredCard(string $expiryDate, \Throwable $previous = null): self
+    public static function expiredCard(string $expiryDate, ?\Throwable $previous = null): self
     {
         return new self("Card expired on: {$expiryDate}", 0, $previous);
     }
@@ -64,7 +64,7 @@ class BuckarooPaymentRejectException extends \Exception
      */
     public static function fraudDetected(
         string $reason = "Fraud detection triggered",
-        \Throwable $previous = null
+        ?\Throwable $previous = null
     ): self {
         return new self("Fraud detected: {$reason}", 0, $previous);
     }
@@ -78,7 +78,7 @@ class BuckarooPaymentRejectException extends \Exception
      */
     public static function threeDSecureFailed(
         string $reason = "3D Secure authentication failed",
-        \Throwable $previous = null
+        ?\Throwable $previous = null
     ): self {
         return new self("3D Secure failed: {$reason}", 0, $previous);
     }
@@ -91,7 +91,7 @@ class BuckarooPaymentRejectException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function bankRejection(string $bankCode, string $reason, \Throwable $previous = null): self
+    public static function bankRejection(string $bankCode, string $reason, ?\Throwable $previous = null): self
     {
         return new self("Bank '{$bankCode}' rejected payment: {$reason}", 0, $previous);
     }
