@@ -169,7 +169,7 @@ class PaymentMethodsInstaller implements InstallerInterface
     private function upsertPaymentMethod(
         PaymentMethodInterface $paymentMethod,
         Context $context,
-        string $paymentMethodId = null
+        ?string $paymentMethodId = null
     ): void {
         $pluginId = $this->pluginIdProvider->getPluginIdByBaseClass(BuckarooPayments::class, $context);
 

@@ -166,7 +166,7 @@ class FormatRequestParamService
      *
      * @return array<mixed>
      */
-    public function getProductLineData(OrderEntity $order, callable $callback = null): array
+    public function getProductLineData(OrderEntity $order, ?callable $callback = null): array
     {
         $lines = $this->getOrderLinesArray($order);
 
@@ -292,7 +292,7 @@ class FormatRequestParamService
      *
      * @return array<mixed>
      */
-    protected function getBuckarooFeeArray(OrderEntity $order, string $paymentCode = null): array
+    protected function getBuckarooFeeArray(OrderEntity $order, ?string $paymentCode = null): array
     {
         $line = [];
         $buckarooFeeValue = $order->getCustomFieldsValue('buckarooFee');

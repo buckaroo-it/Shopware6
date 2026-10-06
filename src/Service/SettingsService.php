@@ -50,7 +50,7 @@ class SettingsService
      *
      * @return string
      */
-    public function getSettingAsString(string $setting, string $salesChannelId = null)
+    public function getSettingAsString(string $setting, ?string $salesChannelId = null)
     {
         $setting = $this->getSetting($setting, $salesChannelId);
         if (!is_scalar($setting)) {
@@ -67,7 +67,7 @@ class SettingsService
      *
      * @return void
      */
-    public function setSetting(string $setting, $value, string $salesChannelId = null): void
+    public function setSetting(string $setting, $value, ?string $salesChannelId = null): void
     {
         if (is_scalar($value) || is_array($value) || is_null($value)) {
             $this->systemConfigService->set('BuckarooPayments.config.' . $setting, $value, $salesChannelId);
@@ -81,7 +81,7 @@ class SettingsService
      *
      * @return string
      */
-    public function getShopName(string $salesChannelId = null): string
+    public function getShopName(?string $salesChannelId = null): string
     {
         $shopName = $this->systemConfigService->get('core.basicInformation.shopName', $salesChannelId);
         if (!is_string($shopName)) {
@@ -134,7 +134,7 @@ class SettingsService
      *
      * @return string
      */
-    public function getEnvironment(string $method = '', string $salesChannelId = null): string
+    public function getEnvironment(string $method = '', ?string $salesChannelId = null): string
     {
         return $this->getSettingAsString($method . 'Environment', $salesChannelId);
     }
@@ -168,7 +168,7 @@ class SettingsService
         return strtolower(trim($this->getEnvironment($method, $salesChannelId)));
     }
 
-    public function getBuckarooFee(string $buckarooKey, string $salesChannelId = null): float
+    public function getBuckarooFee(string $buckarooKey, ?string $salesChannelId = null): float
     {
         $buckarooFee = $this->getSetting($buckarooKey . 'Fee', $salesChannelId);
         if (is_scalar($buckarooFee)) {
@@ -184,7 +184,7 @@ class SettingsService
      * @param string|null $salesChannelId
      * @return string
      */
-    public function getBuckarooFeeRaw(string $buckarooKey, string $salesChannelId = null): string
+    public function getBuckarooFeeRaw(string $buckarooKey, ?string $salesChannelId = null): string
     {
         $buckarooFee = $this->getSetting($buckarooKey . 'Fee', $salesChannelId);
         if (is_scalar($buckarooFee)) {
@@ -200,7 +200,7 @@ class SettingsService
      * @param string|null $salesChannelId
      * @return bool
      */
-    public function isBuckarooFeePercentage(string $buckarooKey, string $salesChannelId = null): bool
+    public function isBuckarooFeePercentage(string $buckarooKey, ?string $salesChannelId = null): bool
     {
         $feeRaw = $this->getBuckarooFeeRaw($buckarooKey, $salesChannelId);
         return strpos($feeRaw, '%') !== false;
@@ -215,7 +215,7 @@ class SettingsService
      * @param string|null $salesChannelId
      * @return float
      */
-    public function calculateBuckarooFee(string $buckarooKey, float $orderTotal, string $salesChannelId = null): float
+    public function calculateBuckarooFee(string $buckarooKey, float $orderTotal, ?string $salesChannelId = null): float
     {
         $feeRaw = $this->getBuckarooFeeRaw($buckarooKey, $salesChannelId);
         
@@ -234,7 +234,7 @@ class SettingsService
         return $this->getBuckarooFee($buckarooKey, $salesChannelId);
     }
 
-    public function getEnabled(string $method = '', string $salesChannelId = null): bool
+    public function getEnabled(string $method = '', ?string $salesChannelId = null): bool
     {
         return $this->getSetting($method . 'Enabled', $salesChannelId) != 0;
     }

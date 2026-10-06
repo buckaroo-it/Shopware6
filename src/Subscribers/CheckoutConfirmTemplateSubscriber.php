@@ -162,7 +162,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $event->getPage()->setPaymentMethods($paymentMethods);
     }
 
-    public function isPayPermMailDisabledInFrontend(string $salesChannelId = null): bool
+    public function isPayPermMailDisabledInFrontend(?string $salesChannelId = null): bool
     {
         return $this->settingsService->getSetting('payperemailEnabledfrontend', $salesChannelId) === false;
     }
@@ -662,7 +662,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
         return 'TEST';
     }
-    protected function getIdealRenderMode(string $salesChannelId = null): int
+    protected function getIdealRenderMode(?string $salesChannelId = null): int
     {
         $mode = $this->settingsService->getSetting('idealRenderMode', $salesChannelId);
 
@@ -676,8 +676,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected function getBuckarooFeeLabel(
         string $buckarooKey,
         CurrencyEntity $currency,
-        string $salesChannelId = null,
-        string $label = null,
+        ?string $salesChannelId = null,
+        ?string $label = null,
         float $cartTotal = 0.0
     ): string {
         if ($label === null) {
@@ -886,7 +886,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      *
      * @return boolean
      */
-    private function isCompanyEmpty(string $company = null)
+    private function isCompanyEmpty(?string $company = null)
     {
         return null === $company || strlen(trim($company)) === 0;
     }
@@ -913,7 +913,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      *
      * @return boolean
      */
-    private function isPhoneEmpty(CustomerAddressEntity $address = null): bool
+    private function isPhoneEmpty(?CustomerAddressEntity $address = null): bool
     {
         if ($address === null) {
             return true;

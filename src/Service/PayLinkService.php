@@ -249,7 +249,7 @@ class PayLinkService
      *
      * @return integer|null
      */
-    private function getExpireDays(string $salesChannelId = null): ?int
+    private function getExpireDays(?string $salesChannelId = null): ?int
     {
         $payperemailExpireDays = $this->settingsService->getSetting('payperemailExpireDays', $salesChannelId);
 
@@ -266,7 +266,7 @@ class PayLinkService
      *
      * @return mixed
      */
-    private function getExpirationDate(string $salesChannelId = null)
+    private function getExpirationDate(?string $salesChannelId = null)
     {
         $payperemailExpireDays = $this->getExpireDays($salesChannelId);
 
@@ -283,7 +283,7 @@ class PayLinkService
      *
      * @return string
      */
-    public function getPayPerEmailPaymentMethodsAllowed(string $salesChannelId = null): string
+    public function getPayPerEmailPaymentMethodsAllowed(?string $salesChannelId = null): string
     {
         $payperemailAllowed = $this->settingsService->getSetting('payperemailAllowed', $salesChannelId);
 

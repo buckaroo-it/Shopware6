@@ -45,7 +45,7 @@ class MediaInstaller implements InstallerInterface
      * MediaInstaller constructor.
      * @param ContainerInterface $container
      */
-    public function __construct(ContainerInterface $container = null)
+    public function __construct(?ContainerInterface $container = null)
     {
         if ($container === null) {
             throw new \Exception("Container is null", 1);
@@ -355,7 +355,7 @@ class MediaInstaller implements InstallerInterface
         return $svg;
     }
 
-    private function logMediaWarning(string $message, \Throwable $exception = null): void
+    private function logMediaWarning(string $message, ?\Throwable $exception = null): void
     {
         $fullMessage = '[BuckarooPayments][MediaInstaller] ' . $message;
         if ($exception !== null) {
@@ -389,7 +389,6 @@ class MediaInstaller implements InstallerInterface
      * @param PaymentMethodInterface $paymentMethod
      * @param Context $context
      * @throws \Throwable
-     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     private function addMedia(PaymentMethodInterface $paymentMethod, string $mediaFolderId, Context $context): ?string
     {
@@ -517,7 +516,7 @@ class MediaInstaller implements InstallerInterface
     private function updateMediaOnPaymentMethod(
         PaymentMethodInterface $paymentMethod,
         Context $context,
-        string $mediaId = null
+        ?string $mediaId = null
     ): void {
         if ($mediaId === null) {
             return;
