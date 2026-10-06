@@ -170,7 +170,11 @@ class GooglePayExpressCheckoutConfigTest extends TestCase
         ));
 
         $this->assertMatchesRegularExpression(
-            "/'showGooglePay'\s*=>\s*\\\$this->getSettingAsBool\('" . self::GOOGLEPAY_CHECKOUT . "'/",
+            "/'showGooglePay'\s*=>\s*\\\$this->showGooglePayExpress\(\\\$salesChannelId,\s*'checkout'\)/",
+            $subscriber
+        );
+        $this->assertMatchesRegularExpression(
+            "/'checkout'\s*=>\s*'" . self::GOOGLEPAY_CHECKOUT . "'/",
             $subscriber
         );
     }
