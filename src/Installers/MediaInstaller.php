@@ -23,6 +23,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 
 class MediaInstaller implements InstallerInterface
 {
@@ -113,9 +115,21 @@ class MediaInstaller implements InstallerInterface
             return;
         }
 
-        foreach (GatewayHelper::GATEWAYS as $gateway) {
+        $paymentMethods = $this->getPaymentMethodsWithMedia();
+
+        try {
+            $existingMediaIds = $this->getMediaIdsByName(
+                array_map([$this, 'getMediaName'], $paymentMethods),
+                $context->getContext()
+            );
+        } catch (\Throwable $lookupError) {
+            $this->logMediaWarning('Could not look up existing Buckaroo media; skipping media import.', $lookupError);
+            return;
+        }
+
+        foreach ($paymentMethods as $gateway => $paymentMethod) {
             try {
-                $this->addMedia(new $gateway(), $mediaFolderId, $context->getContext());
+                $this->addMedia($paymentMethod, $mediaFolderId, $existingMediaIds, $context->getContext());
             } catch (\Throwable $mediaError) {
                 $this->logMediaWarning(
                     sprintf('Failed to install media for gateway "%s"', $gateway),
@@ -136,8 +150,14 @@ class MediaInstaller implements InstallerInterface
      */
     public function uninstall(UninstallContext $context): void
     {
-        foreach (GatewayHelper::GATEWAYS as $gateway) {
-            $this->removeMedia(new $gateway(), $context->getContext());
+        $paymentMethods = $this->getPaymentMethodsWithMedia();
+        $existingMediaIds = $this->getMediaIdsByName(
+            array_map([$this, 'getMediaName'], $paymentMethods),
+            $context->getContext()
+        );
+
+        foreach ($paymentMethods as $paymentMethod) {
+            $this->removeMedia($paymentMethod, $existingMediaIds, $context->getContext());
         }
         $this->removeMediaFolderIdByName(self::BUCKAROO_FOLDER, $context->getContext());
     }
@@ -167,15 +187,12 @@ class MediaInstaller implements InstallerInterface
             ]
         ];
 
-        // Collect the existing ids first so the repository is hit once instead of
-        // once per entry (the DAL delete() accepts the whole batch).
-        $existingIds = [];
-        foreach ($mediaList as $media) {
-            $mediaId = $this->getMediaId($media['name'], $context);
-            if ($mediaId !== null) {
-                $existingIds[] = ['id' => $mediaId];
-            }
-        }
+        // Look up the existing ids in one query and delete them in one batch
+        // instead of hitting the repository once per entry.
+        $existingIds = array_map(
+            static fn (string $mediaId): array => ['id' => $mediaId],
+            array_values($this->getMediaIdsByName(array_column($mediaList, 'name'), $context))
+        );
 
         if ($existingIds !== []) {
             try {
@@ -387,36 +404,69 @@ class MediaInstaller implements InstallerInterface
 
     /**
      * @param PaymentMethodInterface $paymentMethod
+     * @param array<string, string> $existingMediaIds media ids keyed by media name, kept in sync
      * @param Context $context
      * @throws \Throwable
      */
-    private function addMedia(PaymentMethodInterface $paymentMethod, string $mediaFolderId, Context $context): ?string
-    {
+    private function addMedia(
+        PaymentMethodInterface $paymentMethod,
+        string $mediaFolderId,
+        array &$existingMediaIds,
+        Context $context
+    ): ?string {
         if (!$paymentMethod->getMedia()) {
             return null;
         }
 
-        if ($this->hasMediaAlreadyInstalled($this->getMediaName($paymentMethod), $context)) {
+        $mediaName = $this->getMediaName($paymentMethod);
+        if (isset($existingMediaIds[$mediaName])) {
             return null;
         }
 
-        return $this->createMediaObject(
+        $mediaId = $this->createMediaObject(
             $paymentMethod->getMedia(),
             $mediaFolderId,
-            $this->getMediaName($paymentMethod),
+            $mediaName,
             $context
         );
+        $existingMediaIds[$mediaName] = $mediaId;
+
+        return $mediaId;
     }
 
-    private function removeMedia(PaymentMethodInterface $paymentMethod, Context $context): void
-    {
+    /**
+     * @param array<string, string> $existingMediaIds media ids keyed by media name, kept in sync
+     */
+    private function removeMedia(
+        PaymentMethodInterface $paymentMethod,
+        array &$existingMediaIds,
+        Context $context
+    ): void {
         if (!$paymentMethod->getMedia()) {
             return;
         }
 
-        if ($mediaId = $this->getMediaId($this->getMediaName($paymentMethod), $context)) {
-            $this->mediaRepository->delete([['id' => $mediaId]], $context);
+        $mediaName = $this->getMediaName($paymentMethod);
+        if (isset($existingMediaIds[$mediaName])) {
+            $this->mediaRepository->delete([['id' => $existingMediaIds[$mediaName]]], $context);
+            unset($existingMediaIds[$mediaName]);
         }
+    }
+
+    /**
+     * @return array<class-string, PaymentMethodInterface> gateways that ship an icon, keyed by class
+     */
+    private function getPaymentMethodsWithMedia(): array
+    {
+        $paymentMethods = [];
+        foreach (GatewayHelper::GATEWAYS as $gateway) {
+            $paymentMethod = new $gateway();
+            if ($paymentMethod->getMedia()) {
+                $paymentMethods[$gateway] = $paymentMethod;
+            }
+        }
+
+        return $paymentMethods;
     }
 
     /**
@@ -438,35 +488,63 @@ class MediaInstaller implements InstallerInterface
     }
 
     /**
-     * @param string $mediaName
-     * @param Context $context
-     * @return bool
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     * Resolve the ids of the already installed media in a single query.
+     *
+     * @param array<string> $mediaNames
+     * @return array<string, string> media id keyed by media name (first match per name)
      */
-    private function hasMediaAlreadyInstalled(string $mediaName, Context $context): bool
+    private function getMediaIdsByName(array $mediaNames, Context $context): array
     {
-        return $this->getMediaFromRepo($mediaName, $context) !== null;
-    }
+        if ($mediaNames === []) {
+            return [];
+        }
 
-    private function getMediaFromRepo(string $mediaName, Context $context): ?MediaEntity
-    {
         $criteria = (new Criteria())->addFilter(
-            new EqualsFilter(
-                'fileName',
-                $mediaName
-            )
+            new EqualsAnyFilter('fileName', array_values(array_unique($mediaNames)))
         );
 
-        /** @var MediaEntity|null */
-        return $this->mediaRepository->search($criteria, $context)->getEntities()->first();
+        $mediaEntities = $this->mediaRepository->search($criteria, $context)->getEntities();
+
+        $mediaIds = [];
+        /** @var MediaEntity $media */
+        foreach ($mediaEntities as $media) {
+            $fileName = $media->getFileName();
+            if ($fileName !== null && !isset($mediaIds[$fileName])) {
+                $mediaIds[$fileName] = $media->getId();
+            }
+        }
+
+        return $mediaIds;
     }
 
-    private function getMediaId(string $mediaName, Context $context): ?string
+    /**
+     * Resolve the payment method ids for the given handlers in a single query.
+     *
+     * @param array<string> $handlerIdentifiers
+     * @return array<string, string> payment method id keyed by handler identifier
+     */
+    private function getPaymentMethodIdsByHandler(array $handlerIdentifiers, Context $context): array
     {
-        /** @var MediaEntity|null $media */
-        $media = $this->getMediaFromRepo($mediaName, $context);
+        if ($handlerIdentifiers === []) {
+            return [];
+        }
 
-        return $media !== null ? $media->getId() : null;
+        $criteria = (new Criteria())->addFilter(
+            new EqualsAnyFilter('handlerIdentifier', array_values(array_unique($handlerIdentifiers)))
+        );
+
+        $paymentMethodEntities = $this->paymentMethodRepository->search($criteria, $context)->getEntities();
+
+        $paymentMethodIds = [];
+        /** @var PaymentMethodEntity $paymentMethod */
+        foreach ($paymentMethodEntities as $paymentMethod) {
+            $handlerIdentifier = $paymentMethod->getHandlerIdentifier();
+            if (!isset($paymentMethodIds[$handlerIdentifier])) {
+                $paymentMethodIds[$handlerIdentifier] = $paymentMethod->getId();
+            }
+        }
+
+        return $paymentMethodIds;
     }
 
     /**
@@ -492,12 +570,30 @@ class MediaInstaller implements InstallerInterface
             return;
         }
 
-        foreach (GatewayHelper::GATEWAYS as $gateway) {
+        $paymentMethods = $this->getPaymentMethodsWithMedia();
+
+        try {
+            $existingMediaIds = $this->getMediaIdsByName(
+                array_map([$this, 'getMediaName'], $paymentMethods),
+                $context
+            );
+            $paymentMethodIds = $this->getPaymentMethodIdsByHandler(
+                array_map(
+                    static fn (PaymentMethodInterface $paymentMethod): string => $paymentMethod->getPaymentHandler(),
+                    $paymentMethods
+                ),
+                $context
+            );
+        } catch (\Throwable $lookupError) {
+            $this->logMediaWarning('Could not look up existing Buckaroo media; skipping media update.', $lookupError);
+            return;
+        }
+
+        foreach ($paymentMethods as $gateway => $gatewayObject) {
             try {
-                $gatewayObject = new $gateway();
-                $this->removeMedia($gatewayObject, $context);
-                $mediaId = $this->addMedia($gatewayObject, $mediaFolderId, $context);
-                $this->updateMediaOnPaymentMethod($gatewayObject, $context, $mediaId);
+                $this->removeMedia($gatewayObject, $existingMediaIds, $context);
+                $mediaId = $this->addMedia($gatewayObject, $mediaFolderId, $existingMediaIds, $context);
+                $this->updateMediaOnPaymentMethod($gatewayObject, $paymentMethodIds, $context, $mediaId);
             } catch (\Throwable $mediaError) {
                 $this->logMediaWarning(
                     sprintf('Failed to update media for gateway "%s"', $gateway),
@@ -513,8 +609,12 @@ class MediaInstaller implements InstallerInterface
         }
     }
 
+    /**
+     * @param array<string, string> $paymentMethodIds payment method id keyed by handler identifier
+     */
     private function updateMediaOnPaymentMethod(
         PaymentMethodInterface $paymentMethod,
+        array $paymentMethodIds,
         Context $context,
         ?string $mediaId = null
     ): void {
@@ -522,12 +622,7 @@ class MediaInstaller implements InstallerInterface
             return;
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('handlerIdentifier', $paymentMethod->getPaymentHandler()));
-
-        $paymentMethodHandlerId = $this->paymentMethodRepository
-            ->searchIds($criteria, $context)
-            ->firstId();
+        $paymentMethodHandlerId = $paymentMethodIds[$paymentMethod->getPaymentHandler()] ?? null;
         if ($paymentMethodHandlerId !== null) {
             $this->paymentMethodRepository->update(
                 [
