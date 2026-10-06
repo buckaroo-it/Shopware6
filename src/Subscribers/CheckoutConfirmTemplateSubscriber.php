@@ -323,7 +323,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'showApplePay'             => $this->showApplePayExpress($salesChannelId, 'checkout'),
             'isAppleDevice'            => $this->isAppleDevice($request),
-            'showGooglePay'            => $this->getSettingAsBool('googlepayShowCheckout', $salesChannelId),
+            'showGooglePay'            => $this->showGooglePayExpress($salesChannelId, 'checkout'),
             'googlepayMerchantId'      => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
             'googlepayButtonStyle'     => $this->getGooglepayButtonStyle($salesChannelId),
@@ -468,7 +468,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'isAppleDevice'             => $this->isAppleDevice($request),
             'websiteKey'                => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'showApplePay'              => $this->showApplePayExpress($salesChannelId, 'cart'),
-            'showGooglePay'             => $this->getSettingAsBool('googlepayShowCart', $salesChannelId),
+            'showGooglePay'             => $this->showGooglePayExpress($salesChannelId, 'cart'),
             'googlepayMerchantId'       => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
             'googlepayButtonStyle'      => $this->getGooglepayButtonStyle($salesChannelId),
@@ -531,7 +531,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'applePayMerchantId' => $this->getAppleMerchantId($salesChannelId),
             'isAppleDevice' => $this->isAppleDevice($request),
             'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId),
-            'googlepayShowProduct'      => $this->getSettingAsBool('googlepayShowProduct', $salesChannelId),
+            'googlepayShowProduct'      => $this->showGooglePayExpress($salesChannelId, 'product'),
             'googlepayMerchantId'       => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
             'googlepayButtonStyle'      => $this->getGooglepayButtonStyle($salesChannelId),
@@ -546,6 +546,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
     protected function showPaypalExpress(string $salesChannelId, string $page = 'product'): bool
     {
+        if (!$this->settingsService->getEnabled('paypal', $salesChannelId)) {
+            return false;
+        }
+
         $locations = $this->settingsService->getSetting('paypalExpresslocation', $salesChannelId);
         return is_array($locations) &&
             in_array($page, $locations) &&
@@ -587,14 +591,15 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
     /**
      * Whether the Apple Pay express button may be rendered on a given storefront
-     * location. Requires a configured merchant id (guid) and the per-location
-     * visibility setting to be enabled.
-     *
-     * This is independent of the standard Apple Pay payment method, which is
-     * rendered from the selected payment method on the confirm page.
+     * location. Requires the Apple Pay payment method to be enabled, a configured
+     * merchant id (guid) and the per-location visibility setting to be enabled.
      */
     protected function showApplePayExpress(string $salesChannelId, string $page = 'product'): bool
     {
+        if (!$this->settingsService->getEnabled('applepay', $salesChannelId)) {
+            return false;
+        }
+
         $merchantId = $this->getAppleMerchantId($salesChannelId);
         if ($merchantId === null || trim($merchantId) === '') {
             return false;
@@ -604,6 +609,30 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'product'  => 'applepayShowProduct',
             'cart'     => 'applepayShowCart',
             'checkout' => 'applepayShowCheckout',
+        ];
+
+        if (!isset($settings[$page])) {
+            return false;
+        }
+
+        return $this->getSettingAsBool($settings[$page], $salesChannelId);
+    }
+
+    /**
+     * Whether the Google Pay express button may be rendered on a given storefront
+     * location. Requires the Google Pay payment method to be enabled and the
+     * per-location visibility setting to be enabled.
+     */
+    protected function showGooglePayExpress(string $salesChannelId, string $page = 'product'): bool
+    {
+        if (!$this->settingsService->getEnabled('googlepay', $salesChannelId)) {
+            return false;
+        }
+
+        $settings = [
+            'product'  => 'googlepayShowProduct',
+            'cart'     => 'googlepayShowCart',
+            'checkout' => 'googlepayShowCheckout',
         ];
 
         if (!isset($settings[$page])) {
