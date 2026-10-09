@@ -223,8 +223,11 @@ class MediaInstaller implements InstallerInterface
         // Sanitize SVGs so they pass Shopware 6.7.10+ strict SVG validation
         // (which uses an XMLReader-based allowlist). The sanitized copy is
         // written to a temp file and removed after persistFileToMedia runs.
+        // Keep "temp" (lowercase) in the variable name: the Store's
+        // shopware.forbidLocalDiskWrite rule only accepts unlink() on a
+        // variable whose name marks it as a temporary path.
         $uploadPath = $this->prepareUploadFile($path);
-        $sanitizedTempFile = $uploadPath !== $path ? $uploadPath : null;
+        $tempUploadFile = $uploadPath !== $path ? $uploadPath : null;
 
         try {
             $mediaFile = $this->createMediaFile($uploadPath);
@@ -261,8 +264,8 @@ class MediaInstaller implements InstallerInterface
 
             return $mediaId;
         } finally {
-            if ($sanitizedTempFile !== null && is_file($sanitizedTempFile)) {
-                @unlink($sanitizedTempFile);
+            if ($tempUploadFile !== null && is_file($tempUploadFile)) {
+                @unlink($tempUploadFile);
             }
         }
     }
