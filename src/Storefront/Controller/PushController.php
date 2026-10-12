@@ -81,6 +81,22 @@ class PushController extends StorefrontController
      */
     public const PROCESSED_PUSHES_FIELD = 'buckarooProcessedPushes';
 
+    /**
+     * The only push parameters that are logged. The push body also carries the signature,
+     * customer personal data (iDEAL Fast Checkout) and ADD_ parameters such as the context
+     * token, none of which may end up in the logs.
+     */
+    private const LOGGED_PUSH_FIELDS = [
+        'brq_transactions',
+        'brq_statuscode',
+        'brq_invoicenumber',
+        'brq_ordernumber',
+        'brq_transaction_method',
+        'brq_primary_service',
+        'brq_transaction_type',
+        'brq_mutationtype',
+    ];
+
     private LoggerInterface $logger;
 
     private CheckoutHelper $checkoutHelper;
@@ -153,7 +169,7 @@ class PushController extends StorefrontController
     ): JsonResponse {
 
 
-        $this->logger->info(__METHOD__ . "|1|", [$request->request->all()]);
+        $this->logger->info(__METHOD__ . "|1|", $this->getPushLogContext($request));
 
         $salesChannelId     = $salesChannelContext->getSalesChannelId();
 
@@ -857,6 +873,21 @@ class PushController extends StorefrontController
         $this->transactionService->updateTransactionCustomFields($orderTransactionId, $customFields, $context);
 
         return true;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getPushLogContext(Request $request): array
+    {
+        $context = [];
+        foreach (self::LOGGED_PUSH_FIELDS as $field) {
+            if ($request->request->has($field)) {
+                $context[$field] = (string)$request->request->get($field);
+            }
+        }
+
+        return $context;
     }
 
     /**
