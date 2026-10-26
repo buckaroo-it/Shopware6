@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Entity\Transaction;
 
-use Buckaroo\Shopware6\Migration\Migration1590572335BuckarooTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -22,6 +21,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class BuckarooTransactionEntityDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'buckaroo_transaction';
+
     /**
      * @inheritDoc
      *
@@ -29,7 +30,7 @@ class BuckarooTransactionEntityDefinition extends EntityDefinition
      */
     public function getEntityName(): string
     {
-        return Migration1590572335BuckarooTransaction::TABLE;
+        return self::ENTITY_NAME;
     }
 
     /**
