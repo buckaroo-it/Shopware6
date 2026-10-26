@@ -320,47 +320,28 @@ class SignatureValidationServiceTest extends TestCase
     }
 
     /**
-     * Test: it calculates push hash excluding specific fields
+     * Test: the signed push data carries the values the signature was validated over
      */
-    public function testCalculatePushHashExcludesSpecificFields(): void
+    public function testGetSignedPushDataReturnsTheValuesAsSigned(): void
     {
-        // Arrange - Using current date/time for hash calculation
-        $currentDateTime = date("YmdHi");
-        
-        $postData = [
-            'brq_amount' => '100.00',
-            'brq_signature' => 'should-be-excluded',
-            'brq_timestamp' => 'should-be-excluded',
-            'brq_customer_name' => 'should-be-excluded',
-            'brq_currency' => 'EUR'
-        ];
+        $request = new Request([], [
+            'brq_transactions' => '%6Bey-123',
+            'brq_mutationtype' => 'Processing',
+            'brq_customer_name' => 'J%20Doe',
+            'brq_SERVICE_boekenbon_Additional_Info' => 'info',
+            'brq_list' => ['not', 'a', 'string'],
+        ]);
 
-        // Hash should only include amount and currency, not signature, timestamp, or customer_name
-        $expectedString = $currentDateTime . 'brq_amount=100.00' . 'brq_currency=EUR';
-        $expectedHash = sha1($expectedString);
-
-        // Act
-        $result = $this->signatureValidationService->calculatePushHash($postData);
-
-        // Assert
-        $this->assertSame($expectedHash, $result);
-    }
-
-    /**
-     * Test: it calculates push hash with current timestamp
-     */
-    public function testCalculatePushHashIncludesCurrentTimestamp(): void
-    {
-        // Arrange
-        $postData = [
-            'brq_amount' => '50.00'
-        ];
-
-        // Act
-        $result = $this->signatureValidationService->calculatePushHash($postData);
-
-        // Assert - Should be a 40-character SHA1 hash
-        $this->assertMatchesRegularExpression('/^[a-f0-9]{40}$/', $result);
+        $this->assertSame(
+            [
+                'brq_transactions' => 'key-123',
+                'brq_mutationtype' => 'Processing',
+                'brq_customer_name' => 'J%20Doe',
+                'brq_SERVICE_boekenbon_Additional Info' => 'info',
+                'brq_list' => ['not', 'a', 'string'],
+            ],
+            $this->signatureValidationService->getSignedPushData($request)
+        );
     }
 
     /**

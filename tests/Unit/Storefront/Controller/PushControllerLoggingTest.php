@@ -10,6 +10,7 @@ use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\Service\InvoiceService;
 use Buckaroo\Shopware6\Service\OrderService;
+use Buckaroo\Shopware6\Service\ProcessedPushService;
 use Buckaroo\Shopware6\Service\SignatureValidationService;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Service\TransactionService;
@@ -72,7 +73,8 @@ class PushControllerLoggingTest extends TestCase
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(IdealQrOrderRepository::class),
             $this->createMock(OrderService::class),
-            $this->createMock(CustomerService::class)
+            $this->createMock(CustomerService::class),
+            $this->createMock(ProcessedPushService::class)
         );
 
         $translator = $this->createMock(TranslatorInterface::class);

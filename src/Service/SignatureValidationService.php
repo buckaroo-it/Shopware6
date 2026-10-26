@@ -50,6 +50,17 @@ class SignatureValidationService
     }
 
     /**
+     * The push fields with the values the signature was validated over. Values are decoded
+     * the way Buckaroo signed them, so two encodings of the same signed value are equal.
+     *
+     * @return array<mixed>
+     */
+    public function getSignedPushData(Request $request): array
+    {
+        return $this->normalizeSignedData($request->request->all());
+    }
+
+    /**
      * @param array<mixed> $postData
      */
     private function validateData(array $postData, ?string $salesChannelId): bool
@@ -127,31 +138,6 @@ class SignatureValidationService
     }
 
     /**
-     * @param array<mixed> $postData
-     *
-     * @return string
-     */
-    public function calculatePushHash(array $postData): string
-    {
-        $copyData = $postData;
-        unset($copyData['brq_signature']);
-        unset($copyData['brq_timestamp']);
-        unset($copyData['brq_customer_name']);
-
-        $sortableArray = $this->buckarooArraySort($copyData);
-
-        $calculatedString = Date("YmdHi");
-        foreach ($sortableArray as $brq_key => $value) {
-            if (is_scalar($value)) {
-                $value = $this->decodePushValue($brq_key, (string)$value);
-                $calculatedString .= $brq_key . '=' . $value;
-            }
-        }
-
-        return SHA1($calculatedString);
-    }
-
-    /**
      * @param string $brq_key
      * @param string $brq_value
      *
@@ -202,33 +188,5 @@ class SignatureValidationService
         }
 
         return $decodedValue;
-    }
-    /**
-     * Sort the array so that the signature can be calculated identical to the way buckaroo does.
-     *
-     * @param array<mixed> $arrayToUse
-     *
-     * @return array<mixed> $sortableArray
-     */
-    protected function buckarooArraySort(array $arrayToUse): array
-    {
-        $arrayToSort   = [];
-        $originalArray = [];
-
-        foreach ($arrayToUse as $key => $value) {
-            $arrayToSort[strtolower($key)]   = $value;
-            $originalArray[strtolower($key)] = $key;
-        }
-
-        ksort($arrayToSort);
-
-        $sortableArray = [];
-
-        foreach ($arrayToSort as $key => $value) {
-            $key                 = $originalArray[$key];
-            $sortableArray[$key] = $value;
-        }
-
-        return $sortableArray;
     }
 }
