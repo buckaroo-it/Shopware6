@@ -9,6 +9,12 @@ services:
     Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderDefinition:
         tags:
             - shopware.entity.definition: { entity: buckaroo_ideal_qr_order }
+    Buckaroo\Shopware6\Entity\IdealQrOrder\OrderIdealQrOrderExtension:
+        tags:
+            - shopware.entity.extension
+    Buckaroo\Shopware6\Entity\IdealQrOrder\OrderTransactionIdealQrOrderExtension:
+        tags:
+            - shopware.entity.extension
     Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository:
         arguments: ['@buckaroo_ideal_qr_order.repository']
     Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository:
