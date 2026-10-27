@@ -499,3 +499,16 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-1670 Payment methods without a configured environment are no longer processed, and test pushes are rejected for live payment methods.
 - BTI-1671 Added ACL privileges to the Buckaroo admin API routes.
 - BTI-1675 Fixed Riverty orders not being captured on shipment.
+
+# 3.8.0
+
+- BTI-1453 Moved the installer file writes to the system temp directory.
+- BTI-1455 Lifted the repository call out of the media installer loop.
+- BTI-1592 Express checkout buttons are hidden and express orders are blocked when the payment method is disabled.
+- BTI-1627 The full push body is no longer logged at info level.
+- BTI-1699 Fixed PHP 8.4 implicit nullable deprecations.
+- BTI-1856 Fixed PHP 8.2 dynamic property deprecations on BuckarooStruct.
+- BTI-1857 Fixed the dal:validate crash and the iDEAL QR order definition errors.
+- BTI-1858 Fixed missing labels and debug warnings on the Buckaroo admin settings page.
+- BTI-1871 Pushes now require the push fields and are recorded atomically, and the processed push table has a DAL entity definition.
+- Removed the inline style from the iDEAL fast checkout button to clear the Shopware Store code review warning.
