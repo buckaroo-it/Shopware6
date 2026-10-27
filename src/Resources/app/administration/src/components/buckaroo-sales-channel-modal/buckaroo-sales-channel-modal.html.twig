@@ -1,0 +1,41 @@
+<sw-modal
+    class="bk-sales-channel-modal"
+    :title="$t('buckaroo-payment.paymentList.availability.modalTitle', { name: paymentTitle })"
+    variant="small"
+    @modal-close="$emit('close')"
+>
+    <p class="bk-sales-channel-modal__description">
+        {{ $tc('buckaroo-payment.paymentList.availability.modalDescription') }}
+    </p>
+
+    <sw-checkbox-field
+        v-for="salesChannel in salesChannels"
+        :key="salesChannel.id"
+        class="bk-sales-channel-modal__option"
+        :label="salesChannel.name"
+        :value="isSelected(salesChannel.id)"
+        :disabled="isSaving"
+        @update:value="onToggle(salesChannel.id, $event)"
+        @change="onToggle(salesChannel.id, $event)"
+    />
+
+    <template #modal-footer>
+        <sw-button
+            size="small"
+            :disabled="isSaving"
+            @click="$emit('close')"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+
+        <sw-button
+            variant="primary"
+            size="small"
+            :disabled="!hasChanges"
+            :is-loading="isSaving"
+            @click="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button>
+    </template>
+</sw-modal>

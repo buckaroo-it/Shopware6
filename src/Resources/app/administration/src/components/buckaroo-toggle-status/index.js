@@ -1,13 +1,30 @@
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 import template from "./buckaroo-toggle-status.html.twig";
 import './style.scss'
+import { isPaymentEnabled, getPaymentMode, SHARED_ENVIRONMENT_METHODS } from '../../utils/payment-status';
 
 Component.register("buckaroo-toggle-status", {
     template,
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
+
     props: {
         method: {
             type: String,
             required: true
+        },
+        label: {
+            type: String,
+            required: false,
+            default: ''
+        },
+        // Title of the method whose test mode this method follows (e.g. iDEAL for iDEAL QR)
+        sharedEnvironmentLabel: {
+            type: String,
+            required: false,
+            default: ''
         },
         value: {
             required: true
@@ -20,15 +37,23 @@ Component.register("buckaroo-toggle-status", {
     emits: ['input'],
 
     inject: ['systemConfigApiService'],
+
     data() {
         return {
-            status: 'disabled',
+            status: 'off',
             isLoading: false,
         }
     },
 
-    mounted() {
-        this.status = this.getStatus();
+    computed: {
+        options() {
+            return ['live', 'test', 'off'];
+        },
+
+        // Methods without their own environment can only be forced to live; test follows the parent method
+        isTestUnavailable() {
+            return Boolean(SHARED_ENVIRONMENT_METHODS[this.method]);
+        }
     },
 
     watch: {
@@ -40,125 +65,66 @@ Component.register("buckaroo-toggle-status", {
             immediate: true
         }
     },
+
     methods: {
         getStatus() {
-            const isActive = this.isActive();
-            const environment = this.getEnvironment();
-            return isActive ? environment : 'disabled';
+            return isPaymentEnabled(this.value, this.method) ? getPaymentMode(this.value, this.method) : 'off';
         },
-        isActive() {
-            const enabled = this.getValueForName(`${this.method}Enabled`);
-            if (typeof enabled === 'string') {
-                return enabled.toLowerCase() === 'true';
-            }
-            return Boolean(enabled);
-        },
-        getEnvironment() {
-            const env = this.getValueForName(`${this.method}Environment`);
-            
-            if (env === undefined || env === null || env === '') {
-                return 'test';
-            }
-            const validEnvs = ['test', 'live'];
-            return validEnvs.includes(env) ? env : 'test';
-        },
-        getValueForName(name) {
-            const key = `BuckarooPayments.config.${name}`;
-            if (!this.value || typeof this.value !== 'object') {
-                return null;
-            }
 
-            let val = undefined;
-
-            if (this.value[key] !== undefined) {
-                val = this.value[key];
-            }
-            else if (this.value[name] !== undefined) {
-                val = this.value[name];
-            }
-            else if (this.value['BuckarooPayments.config'] && typeof this.value['BuckarooPayments.config'] === 'object') {
-                if (this.value['BuckarooPayments.config'][name] !== undefined) {
-                    val = this.value['BuckarooPayments.config'][name];
-                }
-            }
-            else {
-                const variations = [
-                    name,
-                    name.toLowerCase(),
-                    name.charAt(0).toLowerCase() + name.slice(1),
-                    name.charAt(0).toUpperCase() + name.slice(1)
-                ];
-                
-                for (const variation of variations) {
-                    const variationKey = `BuckarooPayments.config.${variation}`;
-                    if (this.value[variationKey] !== undefined) {
-                        val = this.value[variationKey];
-                        break;
-                    }
-                    if (this.value[variation] !== undefined) {
-                        val = this.value[variation];
-                        break;
-                    }
-                }
-            }
-
-            if (val && typeof val === 'object' && Object.prototype.hasOwnProperty.call(val, '_value')) {
-                val = val._value;
-            }
-            
-            return val;
+        isOptionDisabled(option) {
+            return this.isLoading || (option === 'test' && this.isTestUnavailable);
         },
+
         setStatus(status) {
-            this.status = status;
-            this.saveStatus();
+            if (status === this.status || this.isOptionDisabled(status)) {
+                return;
+            }
+
+            this.saveStatus(status);
         },
-        getClass(buttonStatus) {
-            return this.status === buttonStatus ? 'active' : '';
-        },
-        async saveStatus() {
+
+        async saveStatus(status) {
             const enabledKey = `BuckarooPayments.config.${this.method}Enabled`;
             const environmentKey = `BuckarooPayments.config.${this.method}Environment`;
+            const previousValue = this.value;
 
-            let data = {[enabledKey]: false};
-            const updatedValue = { ...this.value };
-            updatedValue[enabledKey] = false;
-
-            if (['live', 'test'].indexOf(this.status) !== -1) {
-                data = {
-                    [enabledKey]: true,
-                    [environmentKey]: this.status
-                }
-                updatedValue[enabledKey] = true;
-                updatedValue[environmentKey] = this.status;
+            const data = { [enabledKey]: status !== 'off' };
+            if (status !== 'off') {
+                data[environmentKey] = status;
             }
 
-            this.$emit('input', updatedValue);
+            this.status = status;
+            this.$emit('input', this.withValues(this.value, data));
 
             this.isLoading = true;
             try {
-                await this.systemConfigApiService
-                .batchSave({[this.currentSalesChannelId]: data})
-                .finally(() => {
-                    this.isLoading = false;
+                await this.systemConfigApiService.batchSave({
+                    [this.currentSalesChannelId]: data
                 });
-                this.renderSuccess();
+                this.createNotificationSuccess({
+                    message: this.$tc('sw-extension-store.component.sw-extension-config.messageSaveSuccess'),
+                });
             } catch (error) {
-                this.renderError(error);
+                this.$emit('input', previousValue);
+                this.status = this.getStatus();
+                this.createNotificationError({
+                    message: error?.message || String(error),
+                });
+            } finally {
+                this.isLoading = false;
             }
-           
-        },
-        renderSuccess() {
-            this.$store.dispatch('notification/createNotification', {
-                variant: 'success',
-                message: this.$tc('sw-extension-store.component.sw-extension-config.messageSaveSuccess'),
-            });
         },
 
-        renderError(err) {
-            this.$store.dispatch('notification/createNotification', {
-                variant: 'error',
-                message: err,
+        // The settings form keeps both full ("BuckarooPayments.config.x") and short ("x") keys; update both
+        withValues(value, data) {
+            const updated = { ...value };
+
+            Object.entries(data).forEach(([key, fieldValue]) => {
+                updated[key] = fieldValue;
+                updated[key.replace('BuckarooPayments.config.', '')] = fieldValue;
             });
+
+            return updated;
         }
     }
 })

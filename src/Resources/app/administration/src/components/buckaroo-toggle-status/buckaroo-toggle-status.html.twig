@@ -1,29 +1,27 @@
-<div class="bk-toogle-wrap">
-    <button
-            type="button"
-            :disabled="isLoading"
-            :class="`live ${getClass('live')}`"
-            @click="setStatus('live')"
+<div
+    class="bk-toggle-status"
+    role="radiogroup"
+    :aria-label="$t('buckaroo-payment.paymentList.toggleLabel', { name: label })"
+>
+    <span
+        v-for="option in options"
+        :key="option"
+        class="bk-toggle-status__option-wrap"
+        v-tooltip="{
+            message: $t('buckaroo-payment.paymentList.testUnavailable', { parent: sharedEnvironmentLabel }),
+            disabled: !(option === 'test' && isTestUnavailable)
+        }"
     >
-        Live
-    </button>
-
-    <button
-            v-if="method !== 'idealqr'"
+        <button
             type="button"
-            :disabled="isLoading"
-            :class="`test ${getClass('test')}`"
-            @click="setStatus('test')"
-    >
-        Test
-    </button>
-
-    <button
-            type="button"
-            :disabled="isLoading"
-            :class="`disabled ${getClass('disabled')}`"
-            @click="setStatus('disabled')"
-    >
-        Off
-    </button>
+            role="radio"
+            class="bk-toggle-status__option"
+            :class="[`is--${option}`, { 'is--selected': status === option }]"
+            :aria-checked="status === option"
+            :disabled="isOptionDisabled(option)"
+            @click="setStatus(option)"
+        >
+            {{ $tc(`buckaroo-payment.paymentList.${option}`) }}
+        </button>
+    </span>
 </div>

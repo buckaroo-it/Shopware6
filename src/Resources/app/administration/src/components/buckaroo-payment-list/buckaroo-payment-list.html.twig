@@ -1,33 +1,101 @@
 <sw-card
+    class="bk-payment-list"
     position-identifier="bk-config-payment-list"
     :title="$tc('buckaroo-payment.payment-methods')"
 >
-<div class="bk-payment-wrap">
- <template
-    v-for="payment in payments" >
-    <div class="bk-payment">
-        <div class="bk-payment-inner">
-        <router-link  :title="$tc('buckaroo-payment.configure-payment')" :to="{name: 'buckaroo.payment.config', params: {namespace: 'BuckarooPayments', paymentCode: payment.code } }">
-            <div class="bk-payment-img">
-                <img :src="assetFilter(`buckaroopayments/images/${payment.logo}`)" alt="Payment logo">
-            </div>
-            <div class="bk-payment-name">
-                {{ getPaymentTitle(payment.code) }}
-            </div>
-        </router-link>
+    <p class="bk-payment-list__summary">
+        {{ $t('buckaroo-payment.paymentList.summary', { active: activeCount, total: payments.length }) }}
+    </p>
 
-        <buckaroo-toggle-status
-            :currentSalesChannelId="currentSalesChannelId"
-            :method="payment.code"
-            :value="value"
-            @input="$emit('input', $event)"
-        />
+    <div class="bk-payment-list__grid">
+        <div
+            v-for="payment in sortedPayments"
+            :key="payment.code"
+            class="bk-payment-tile"
+        >
+            <router-link
+                class="bk-payment-tile__body"
+                :to="configRoute(payment.code)"
+                :title="$tc('buckaroo-payment.configure-payment')"
+            >
+                <span class="bk-payment-tile__logo">
+                    <img
+                        :src="assetFilter(`buckaroopayments/images/${payment.logo}`)"
+                        alt=""
+                    >
+                </span>
 
-        <router-link class="bk-link" :title="$tc('buckaroo-payment.configure-payment')" :to="{name: 'buckaroo.payment.config', params: {namespace: 'BuckarooPayments', paymentCode: payment.code } }">
-            {{$tc('buckaroo-payment.configure-link')}}
-        </router-link>
+                <span class="bk-payment-tile__name">
+                    {{ payment.title }}
+                </span>
+            </router-link>
+
+            <div
+                v-if="getAvailabilityIssue(payment.code)"
+                class="bk-payment-tile__warning"
+                role="status"
+            >
+                <span
+                    class="bk-payment-tile__warning-title"
+                    v-tooltip="$tc(`buckaroo-payment.paymentList.availability.${getAvailabilityIssue(payment.code)}`)"
+                >
+                    <sw-icon
+                        name="regular-exclamation-triangle"
+                        size="12px"
+                    />
+                    {{ $tc('buckaroo-payment.paymentList.availability.title') }}
+                </span>
+
+                <router-link
+                    v-if="getAvailabilityIssue(payment.code) === 'inactive'"
+                    class="bk-payment-tile__warning-action"
+                    :to="paymentSettingsRoute(payment.code)"
+                >
+                    {{ $tc('buckaroo-payment.paymentList.availability.openSettings') }}
+                </router-link>
+
+                <button
+                    v-else
+                    type="button"
+                    class="bk-payment-tile__warning-action"
+                    @click="openAssignModal(payment)"
+                >
+                    {{ $tc('buckaroo-payment.paymentList.availability.assign') }}
+                </button>
+            </div>
+
+            <div class="bk-payment-tile__footer">
+                <buckaroo-toggle-status
+                    :currentSalesChannelId="currentSalesChannelId"
+                    :method="payment.code"
+                    :label="payment.title"
+                    :sharedEnvironmentLabel="getSharedEnvironmentTitle(payment.code)"
+                    :value="value"
+                    @input="$emit('input', $event)"
+                />
+
+                <router-link
+                    class="bk-payment-tile__configure"
+                    :to="configRoute(payment.code)"
+                    :aria-label="$tc('buckaroo-payment.configure-payment')"
+                    v-tooltip="$tc('buckaroo-payment.configure-payment')"
+                >
+                    <sw-icon
+                        name="regular-cog"
+                        size="16px"
+                    />
+                </router-link>
+            </div>
         </div>
     </div>
- </template>
- </div>
+
+    <buckaroo-sales-channel-modal
+        v-if="assignModalPayment"
+        :payment-method-id="paymentMethodsByCode[assignModalPayment.code].id"
+        :payment-title="assignModalPayment.title"
+        :sales-channels="salesChannels"
+        :assigned-sales-channel-ids="paymentMethodsByCode[assignModalPayment.code].salesChannelIds"
+        @close="closeAssignModal"
+        @saved="onAssignSaved"
+    />
 </sw-card>

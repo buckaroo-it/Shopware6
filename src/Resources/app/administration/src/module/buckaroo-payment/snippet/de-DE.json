@@ -118,8 +118,30 @@
         "missing_transaction": "Transaktion der Bestellung nicht gefunden",
         "general_request_error": "Leider ist ein Fehler bei der Bearbeitung Ihrer Anfrage aufgetreten. Bitte versuchen Sie es erneut.",
         "in3LogoLabel": "Zahlungslogo:",
-        "configure-payment": "Configure payment",
-        "configure-link": "Configure",
-        "payment-methods": "Payment methods"
+        "configure-payment": "Zahlungsart konfigurieren",
+        "configure-link": "Konfigurieren",
+        "payment-methods": "Zahlungsarten",
+        "paymentList": {
+            "summary": "{active} von {total} Zahlungsarten aktiv",
+            "live": "Live",
+            "test": "Test",
+            "off": "Aus",
+            "toggleLabel": "Status von {name}",
+            "testUnavailable": "Der Testmodus folgt der Einstellung von {parent}.",
+            "availability": {
+                "title": "Nicht im Checkout sichtbar",
+                "inactive": "Diese Zahlungsart ist in den Shopware-Zahlungseinstellungen deaktiviert. Shopware zeigt sie im Checkout nicht an, auch wenn sie in Buckaroo aktiv ist.",
+                "notInSalesChannel": "Diese Zahlungsart ist dem ausgewählten Verkaufskanal in Shopware noch nicht zugewiesen. Shopware zeigt nur Zahlungsarten an, die dem Verkaufskanal zugewiesen sind. Dies ist unabhängig von der Buckaroo-Einstellung.",
+                "noSalesChannel": "Diese Zahlungsart ist in Shopware noch keinem Verkaufskanal zugewiesen. Shopware zeigt nur Zahlungsarten an, die einem Verkaufskanal zugewiesen sind. Dies ist unabhängig von der Buckaroo-Einstellung.",
+                "assign": "Verkaufskanäle zuweisen",
+                "openSettings": "Zahlungseinstellungen öffnen",
+                "modalTitle": "Verkaufskanäle für {name}",
+                "modalDescription": "Wählen Sie, in welchen Verkaufskanälen Shopware diese Zahlungsart anbietet. Kunden sehen sie im Checkout nur in den ausgewählten Verkaufskanälen, unabhängig von der Buckaroo-Einstellung."
+            }
+        },
+        "paymentSettings": {
+            "statusLabel": "Status",
+            "statusHelp": "Live nimmt echte Zahlungen an. Test nutzt die Buckaroo-Testumgebung, es wird kein echtes Geld abgebucht. Aus blendet diese Zahlungsart im Checkout aus."
+        }
     }
 }

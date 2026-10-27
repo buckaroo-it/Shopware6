@@ -1,4 +1,5 @@
 import template from './buckaroo-config-card.html.twig';
+import { SHARED_ENVIRONMENT_METHODS, isPaymentEnabled, getPaymentMode } from '../../utils/payment-status';
 
 const { Component } = Shopware;
 
@@ -43,6 +44,134 @@ Component.register('buckaroo-config-card', {
         }
     },
     computed: {
+        /**
+         * Payment method code when this card belongs to a payment method with an on/off setting,
+         * so the Live / Test / Off control replaces its "Enabled" and "Test or Live" fields.
+         */
+        statusPaymentCode() {
+            const code = this.card?.name;
+
+            if (!code || code === 'general') {
+                return null;
+            }
+
+            const hasEnabledField = (this.card.elements || [])
+                .some(element => element?.name === `BuckarooPayments.config.${code}Enabled`);
+
+            return hasEnabledField ? code : null;
+        },
+
+        statusSharedEnvironmentTitle() {
+            const parent = SHARED_ENVIRONMENT_METHODS[this.statusPaymentCode];
+            const parentCard = parent && this.configSettings.find(card => card.name === parent);
+
+            return parentCard ? this.getInlineSnippet(parentCard.title) : '';
+        },
+
+        // Settings that make up the status: the method's own "Enabled" and "Environment",
+        // plus the environment of the method it shares its test mode with (iDEAL QR → iDEAL)
+        statusFieldNames() {
+            const code = this.statusPaymentCode;
+
+            if (!code) {
+                return [];
+            }
+
+            const names = [`${code}Enabled`, `${code}Environment`];
+            if (SHARED_ENVIRONMENT_METHODS[code]) {
+                names.push(`${SHARED_ENVIRONMENT_METHODS[code]}Environment`);
+            }
+
+            return names;
+        },
+
+        // "All Sales Channels" values, used when the selected sales channel has none of its own
+        statusInheritedValues() {
+            if (!this.isNotDefaultSalesChannel || typeof this.methods?.getInheritedValue !== 'function') {
+                return {};
+            }
+
+            return this.statusFieldNames.reduce((values, name) => {
+                const fullName = `BuckarooPayments.config.${name}`;
+                values[fullName] = this.methods.getInheritedValue({
+                    name: fullName,
+                    type: name.endsWith('Enabled') ? 'bool' : 'single-select',
+                    config: {}
+                });
+
+                return values;
+            }, {});
+        },
+
+        /**
+         * Status from the selected sales channel's own settings, falling back to inherited
+         * values per field. Null when the channel has no own "Enabled" value (= inherited).
+         *
+         * @returns {'live'|'test'|'off'|null}
+         */
+        statusOwnValue() {
+            const code = this.statusPaymentCode;
+
+            if (!code) {
+                return null;
+            }
+
+            const ownEnabled = this.getValueForName(`${code}Enabled`);
+            if (this.isNotDefaultSalesChannel && (ownEnabled === null || ownEnabled === undefined)) {
+                return null;
+            }
+
+            const merged = { ...this.statusInheritedValues };
+            this.statusFieldNames.forEach((name) => {
+                const ownValue = this.getValueForName(name);
+                if (ownValue !== null && ownValue !== undefined && ownValue !== '') {
+                    merged[`BuckarooPayments.config.${name}`] = ownValue;
+                }
+            });
+
+            return this.getStatusFromValues(merged);
+        },
+
+        /**
+         * @returns {'live'|'test'|'off'|null}
+         */
+        statusInheritedValue() {
+            return this.isNotDefaultSalesChannel ? this.getStatusFromValues(this.statusInheritedValues) : null;
+        },
+
+        // Methods that follow another method's test mode can't be set to test themselves
+        statusOptions() {
+            const options = SHARED_ENVIRONMENT_METHODS[this.statusPaymentCode]
+                ? ['live', 'off']
+                : ['live', 'test', 'off'];
+
+            return options.map(option => ({
+                value: option,
+                label: this.$tc(`buckaroo-payment.paymentList.${option}`)
+            }));
+        },
+
+        statusHelpText() {
+            const parts = [this.$tc('buckaroo-payment.paymentSettings.statusHelp')];
+
+            if (this.statusSharedEnvironmentTitle) {
+                parts.push(this.$t('buckaroo-payment.paymentList.testUnavailable', { parent: this.statusSharedEnvironmentTitle }));
+            }
+
+            // Keep the help text of the hidden "Enabled" field visible (e.g. the Hosted Fields warning)
+            const enabledElement = (this.card?.elements || [])
+                .find(element => element?.name === `BuckarooPayments.config.${this.statusPaymentCode}Enabled`);
+            const enabledHelp = enabledElement?.config?.helpText
+                ? this.getInlineSnippet(enabledElement.config.helpText)
+                : '';
+
+            if (typeof enabledHelp === 'string' && enabledHelp.trim()) {
+                parts.push(enabledHelp.trim());
+            }
+
+            return parts.join(' ');
+        },
+
         canShowCredentialTester() {
             const key = this.getValueForName('websiteKey');
             const secretKey = this.getValueForName('secretKey');
@@ -105,6 +234,45 @@ Component.register('buckaroo-config-card', {
     },
 
     methods: {
+        /**
+         * @returns {'live'|'test'|'off'}
+         */
+        getStatusFromValues(values) {
+            return isPaymentEnabled(values, this.statusPaymentCode)
+                ? getPaymentMode(values, this.statusPaymentCode)
+                : 'off';
+        },
+
+        /**
+         * Status maps to the hidden "Enabled" and "Environment" fields; saved with the page's Save button.
+         * Null restores inheritance from "All Sales Channels" for both fields.
+         */
+        onStatusChange(status) {
+            // The inherit wrapper emits "update:value" (6.6+) or "input" (6.5); handle each change once
+            if ((status !== null && typeof status !== 'string') || status === this.statusOwnValue) {
+                return;
+            }
+
+            const code = this.statusPaymentCode;
+            const updatedValue = { ...this.value };
+            const setField = (name, fieldValue) => {
+                updatedValue[name] = fieldValue;
+                updatedValue[`BuckarooPayments.config.${name}`] = fieldValue;
+            };
+
+            if (status === null) {
+                setField(`${code}Enabled`, null);
+                setField(`${code}Environment`, null);
+            } else {
+                setField(`${code}Enabled`, status !== 'off');
+                if (status !== 'off') {
+                    setField(`${code}Environment`, status);
+                }
+            }
+
+            this.$emit('input', updatedValue);
+        },
+
         fetchShopwareVersion() {
             const service = this.BuckarooPaymentSettingsService;
             if (service && typeof service.getSupportVersion === 'function') {
@@ -441,6 +609,11 @@ Component.register('buckaroo-config-card', {
             }
             
             const name = element.name.replace('BuckarooPayments.config.', '');
+
+            // Replaced by the Live / Test / Off control at the top of the card
+            if (this.statusPaymentCode && [`${this.statusPaymentCode}Enabled`, `${this.statusPaymentCode}Environment`].includes(name)) {
+                return false;
+            }
 
             const advancedToggleFields = [
                 'orderStatus',

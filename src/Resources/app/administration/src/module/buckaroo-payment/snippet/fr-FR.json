@@ -118,8 +118,30 @@
         "missing_transaction": "Transaction de commande introuvable",
         "general_request_error": "Malheureusement, une erreur s'est produite lors du traitement de votre demande. Veuillez réessayer.",
         "in3LogoLabel":"Logo de paiement:",
-        "configure-payment": "Configure payment",
-        "configure-link": "Configure",
-        "payment-methods": "Payment methods"
+        "configure-payment": "Configurer le moyen de paiement",
+        "configure-link": "Configurer",
+        "payment-methods": "Moyens de paiement",
+        "paymentList": {
+            "summary": "{active} moyens de paiement actifs sur {total}",
+            "live": "Live",
+            "test": "Test",
+            "off": "Désactivé",
+            "toggleLabel": "Statut de {name}",
+            "testUnavailable": "Le mode test suit le paramètre de {parent}.",
+            "availability": {
+                "title": "Non affiché au paiement",
+                "inactive": "Ce moyen de paiement est désactivé dans les paramètres de paiement de Shopware. Shopware ne l'affiche pas au paiement, même s'il est actif dans Buckaroo.",
+                "notInSalesChannel": "Ce moyen de paiement n'est pas encore attribué au canal de vente sélectionné dans Shopware. Shopware n'affiche que les moyens de paiement attribués au canal de vente. Ce réglage est indépendant du paramètre Buckaroo.",
+                "noSalesChannel": "Ce moyen de paiement n'est encore attribué à aucun canal de vente dans Shopware. Shopware n'affiche que les moyens de paiement attribués à un canal de vente. Ce réglage est indépendant du paramètre Buckaroo.",
+                "assign": "Attribuer des canaux de vente",
+                "openSettings": "Ouvrir les paramètres de paiement",
+                "modalTitle": "Canaux de vente pour {name}",
+                "modalDescription": "Choisissez dans quels canaux de vente Shopware propose ce moyen de paiement. Les clients ne le voient au paiement que dans les canaux de vente sélectionnés, indépendamment du paramètre Buckaroo."
+            }
+        },
+        "paymentSettings": {
+            "statusLabel": "Statut",
+            "statusHelp": "Live accepte de vrais paiements. Test utilise l'environnement de test Buckaroo, aucun argent réel n'est débité. Désactivé masque ce moyen de paiement au paiement."
+        }
     }
 }

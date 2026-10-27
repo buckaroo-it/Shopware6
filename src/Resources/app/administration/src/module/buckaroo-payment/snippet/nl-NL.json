@@ -118,8 +118,30 @@
         "missing_transaction": "Order transactie niet gevonden",
         "general_request_error": "Helaas is er een fout opgetreden tijdens het verwerken van uw aanvraag. Probeer het opnieuw.",
         "in3LogoLabel":"Betaalmethode Logo:",
-        "configure-payment": "Configure payment",
-        "configure-link": "Configure",
-        "payment-methods": "Payment methods"
+        "configure-payment": "Betaalmethode configureren",
+        "configure-link": "Configureren",
+        "payment-methods": "Betaalmethoden",
+        "paymentList": {
+            "summary": "{active} van {total} betaalmethoden actief",
+            "live": "Live",
+            "test": "Test",
+            "off": "Uit",
+            "toggleLabel": "Status van {name}",
+            "testUnavailable": "De testmodus volgt de instelling van {parent}.",
+            "availability": {
+                "title": "Niet zichtbaar bij afrekenen",
+                "inactive": "Deze betaalmethode is uitgeschakeld in de Shopware-betaalinstellingen. Shopware toont hem niet bij het afrekenen, ook niet als hij in Buckaroo actief is.",
+                "notInSalesChannel": "Deze betaalmethode is in Shopware nog niet gekoppeld aan het geselecteerde verkoopkanaal. Shopware toont alleen betaalmethoden die aan het verkoopkanaal zijn gekoppeld. Dit staat los van de Buckaroo-instelling.",
+                "noSalesChannel": "Deze betaalmethode is in Shopware nog aan geen enkel verkoopkanaal gekoppeld. Shopware toont alleen betaalmethoden die aan een verkoopkanaal zijn gekoppeld. Dit staat los van de Buckaroo-instelling.",
+                "assign": "Verkoopkanalen koppelen",
+                "openSettings": "Betaalinstellingen openen",
+                "modalTitle": "Verkoopkanalen voor {name}",
+                "modalDescription": "Kies in welke verkoopkanalen Shopware deze betaalmethode aanbiedt. Klanten zien hem bij het afrekenen alleen in de geselecteerde verkoopkanalen, ongeacht de Buckaroo-instelling."
+            }
+        },
+        "paymentSettings": {
+            "statusLabel": "Status",
+            "statusHelp": "Live accepteert echte betalingen. Test gebruikt de testomgeving van Buckaroo, er wordt geen echt geld afgeschreven. Uit verbergt deze betaalmethode bij het afrekenen."
+        }
     }
 }

@@ -5,7 +5,6 @@
     <card>
         <name>general</name>
         <title>Configuration</title>
-		<title lang="en-GB">Configuration</title>
         <title lang="de-DE">Konfiguration</title>
         <title lang="nl-NL">Configuratie</title>
 		<title lang="fr-FR">Configuration</title>
@@ -13,14 +12,14 @@
         <input-field type="password">
             <name>websiteKey</name>
             <autocomplete>new-password</autocomplete>
-            <label lang="en-GB">Website key:</label>
-            <label lang="de-DE">website-Schlüssel:</label>
-            <label lang="nl-NL">Website key:</label>
-			<label lang="fr-FR">Clé du site web:</label>
-            <description>Enter your Buckaroo "Website key".</description>
-            <description lang="de-DE">Geben Sie Ihren Buckaroo "Website-Schlüssel" ein.</description>
-            <description lang="nl-NL">Voer uw Buckaroo "Website key" in.</description>
-			<description lang="fr-FR">Entrez votre 'Clé de site web' Buckaroo.</description>
+            <label lang="en-GB">Website key</label>
+            <label lang="de-DE">Website-Schlüssel</label>
+            <label lang="nl-NL">Website key</label>
+			<label lang="fr-FR">Clé du site web</label>
+            <placeholder lang="en-GB">Enter your Buckaroo website key.</placeholder>
+            <placeholder lang="de-DE">Buckaroo-Website-Schlüssel eingeben.</placeholder>
+            <placeholder lang="nl-NL">Voer uw Buckaroo website key in.</placeholder>
+            <placeholder lang="fr-FR">Entrez votre clé de site web Buckaroo.</placeholder>
             <helpText>The Website key can be retrieved in the Buckaroo Plaza at "Settings" > "Websites".</helpText>
             <helpText lang="de-DE">Der "Website-Schlüssel" kann auf der "Buckaroo Plaza" unter "Settings" > "Websites" abgerufen werden.</helpText>
             <helpText lang="nl-NL">De "Website key" kan worden opgehaald in de Buckaroo Plaza bij "Instellingen" > "Websites". Neem voor ondersteuning contact op met Buckaroo.</helpText>
@@ -29,14 +28,14 @@
 
         <input-field type="password">
             <name>secretKey</name>
-            <label lang="en-GB">Secret key:</label>
-            <label lang="de-DE">Geheimer Schlüssel:</label>
-            <label lang="nl-NL">Secret key:</label>
-			<label lang="fr-FR">Clé secrète:</label>
-            <description>Enter your Buckaroo "Secret key".</description>
-            <description lang="nl-NL">Voer de "Secret key" van Buckaroo in.</description>
-            <description lang="de-DE">Geben Sie Ihren "geheimen Buckaroo-Schlüssel" ein.</description>
-			<description lang="fr-FR">Entrez votre "Clé secrète" Buckaroo.</description>
+            <label lang="en-GB">Secret key</label>
+            <label lang="de-DE">Geheimer Schlüssel</label>
+            <label lang="nl-NL">Secret key</label>
+			<label lang="fr-FR">Clé secrète</label>
+            <placeholder lang="en-GB">Enter your Buckaroo secret key.</placeholder>
+            <placeholder lang="de-DE">Geheimen Buckaroo-Schlüssel eingeben.</placeholder>
+            <placeholder lang="nl-NL">Voer uw Buckaroo secret key in.</placeholder>
+            <placeholder lang="fr-FR">Entrez votre clé secrète Buckaroo.</placeholder>
             <helpText>The "Secret key" can be retrieved in the "Buckaroo Plaza" at "Settings" > "Secret Key".</helpText>
             <helpText lang="nl-NL">De "Secret key" kan worden opgehaald in de Buckaroo Plaza bij "Instellingen" > "Secret Key".</helpText>
             <helpText lang="de-DE">Der "Geheimschlüssel" kann im "Buckaroo Plaza" unter "Einstellungen" > "Geheimschlüssel" abgerufen werden.</helpText>
@@ -45,14 +44,10 @@
 
         <input-field>
             <name>transactionLabel</name>
-            <label lang="en-GB">Transaction description:</label>
-            <label lang="de-DE">Transaktion Beschreibung:</label>
-            <label lang="nl-NL">Transactiebeschrijving:</label>
-			<label lang="fr-FR">Description de la transaction:</label>
-            <description>The transaction description, shown in Buckaroo plaza and visible on bank account of consumers. You can also add the order number with the following {order_number} tag.</description>
-            <description lang="de-DE">Die Transaktion beschreibung, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</description>
-            <description lang="nl-NL">De transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</description>
-			<description lang="fr-FR">La description de la transaction, qui est visible sur la place Buckaroo et visible sur le compte bancaire du consommateur. Vous pouvez également ajouter le numéro de commande avec la balise {order_number} suivante.</description>
+            <label lang="en-GB">Transaction description</label>
+            <label lang="de-DE">Transaktionsbeschreibung</label>
+            <label lang="nl-NL">Transactiebeschrijving</label>
+			<label lang="fr-FR">Description de la transaction</label>
             <helpText>The transaction description, shown in Buckaroo plaza and visible on bank account of consumers. You can also add the order number with the following {order_number} tag.</helpText>
             <helpText lang="de-DE">Die Transaktionsbeschreibung, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</helpText>
             <helpText lang="nl-NL">De transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</helpText>
@@ -61,14 +56,10 @@
 
         <input-field>
             <name>refundLabel</name>
-            <label lang="en-GB">Refund description:</label>
-            <label lang="de-DE">Refund Beschreibung:</label>
-            <label lang="nl-NL">Refund beschrijving:</label>
-			<label lang="fr-FR">Description du remboursement:</label>
-            <description>The refund transaction description, shown in Buckaroo plaza and visible on bank account of consumers. You can also add the order number with the following {order_number} tag.</description>
-            <description lang="de-DE">Die Beschreibung der Rückerstattungstransaktion, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</description>
-            <description lang="nl-NL">De refund transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</description>
-			<description lang="fr-FR">La description de la transaction de remboursement, qui est visible sur la place Buckaroo et visible sur le compte bancaire du consommateur. Vous pouvez également ajouter le numéro de commande avec la balise {order_number} suivante.</description>
+            <label lang="en-GB">Refund description</label>
+            <label lang="de-DE">Rückerstattungsbeschreibung</label>
+            <label lang="nl-NL">Refund beschrijving</label>
+			<label lang="fr-FR">Description du remboursement</label>
             <helpText>The transaction description, shown in Buckaroo plaza and it is also visible on the bank account of consumers. You can also add the order number with the following {order_number} tag.</helpText>
             <helpText lang="de-DE">Die Beschreibung der Rückerstattungstransaktion, die im Buckaroo Plaza angezeigt wird und auf dem Bankkonto des Verbrauchers sichtbar ist. Sie können die Bestellnummer auch mit dem folgenden {order_number}-Tag hinzufügen.</helpText>
             <helpText lang="nl-NL">De refund transactiebeschrijving, die zichtbaar is in de Buckaroo plaza en zichtbaar is op de bankrekening van consumenten. U kunt het bestelnummer ook toevoegen met de volgende {order_number} tag.</helpText>
@@ -77,20 +68,20 @@
 
         <input-field type="bool">
             <name>advancedConfiguration</name>
-            <label lang="en-GB">Advanced Configuration</label>
+            <label lang="en-GB">Advanced configuration</label>
             <label lang="de-DE">Erweiterte Konfiguration</label>
             <label lang="nl-NL">Geavanceerde configuratie</label>
 			<label lang="fr-FR">Configuration avancée</label>
-            <helpText lang="en-GB">Advanced settings for the payment plugin</helpText>
-            <helpText lang="de-DE">Erweiterte Einstellungen für das Zahlungs-Plugin</helpText>
-            <helpText lang="nl-NL">Geavanceerde instellingen voor de payment plugin</helpText>
-			<helpText lang="fr-FR">Paramètres avancés pour le plugin de paiement</helpText>
+            <helpText lang="en-GB">Advanced settings for the payment plugin.</helpText>
+            <helpText lang="de-DE">Erweiterte Einstellungen für das Zahlungs-Plugin.</helpText>
+            <helpText lang="nl-NL">Geavanceerde instellingen voor de payment plugin.</helpText>
+			<helpText lang="fr-FR">Paramètres avancés pour le plugin de paiement.</helpText>
         </input-field>
 
         <input-field type="bool">
             <name>sendInvoiceEmail</name>
             <label lang="en-GB">Send transactional invoice email</label>
-            <label lang="de-DE">Senden Sie eine Transaktionsrechnungs-E-Mail</label>
+            <label lang="de-DE">Transaktionsrechnungs-E-Mail senden</label>
             <label lang="nl-NL">Verzend transactionele factuur-e-mail</label>
 			<label lang="fr-FR">Envoyer un e-mail de facture transactionnelle</label>
             <helpText lang="en-GB">Send a mail after successful payment.</helpText>
@@ -101,10 +92,10 @@
 
         <input-field type="single-select">
             <name>paymentSuccesStatus</name>
-            <label lang="en-GB">Payment success status:</label>
-            <label lang="de-DE">Status des Zahlungserfolgs:</label>
-            <label lang="nl-NL">Successtatus van betaling:</label>
-			<label lang="fr-FR">État de réussite du paiement:</label>
+            <label lang="en-GB">Payment success status</label>
+            <label lang="de-DE">Status des Zahlungserfolgs</label>
+            <label lang="nl-NL">Successtatus van betaling</label>
+			<label lang="fr-FR">État de réussite du paiement</label>
             <helpText lang="en-GB">This status will be given to orders that are paid.</helpText>
             <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde bestellingen.</helpText>
             <helpText lang="de-DE">Dieser Status wird für bezahlte Bestellungen vergeben.</helpText>
@@ -120,10 +111,10 @@
 
         <input-field type="single-select">
             <name>automaticallyCloseOpenOrders</name>
-            <label lang="en-GB">Automatically close open orders:</label>
-            <label lang="de-DE">Offene Bestellungen automatisch schließen:</label>
-            <label lang="nl-NL">Openstaande bestellingen automatisch annuleren:</label>
-			<label lang="fr-FR">Fermer automatiquement les commandes ouvertes:</label>
+            <label lang="en-GB">Automatically close open orders</label>
+            <label lang="de-DE">Offene Bestellungen automatisch schließen</label>
+            <label lang="nl-NL">Openstaande bestellingen automatisch annuleren</label>
+			<label lang="fr-FR">Fermer automatiquement les commandes ouvertes</label>
             <helpText lang="en-GB">If a payment transaction fails, the order and delivery statuses will automatically be updated to 'Cancelled' to ensure that the stock is properly restored.</helpText>
             <helpText lang="nl-NL">Als een betalingstransactie mislukt, worden de bestel- en leveringsstatus automatisch bijgewerkt naar 'Geannuleerd' om ervoor te zorgen dat de voorraad correct wordt hersteld.</helpText>
             <helpText lang="de-DE">Wenn eine Zahlungstransaktion fehlschlägt, werden der Bestell- und Lieferstatus automatisch auf „Storniert“ gesetzt, um sicherzustellen, dass der Lagerbestand korrekt zurückgesetzt wird.</helpText>
@@ -143,14 +134,14 @@
 
         <input-field type="single-select">
             <name>orderStatus</name>
-            <label lang="en-GB">Order status:</label>
-            <label lang="de-DE">Bestellstatus:</label>
-            <label lang="nl-NL">Order status:</label>
-			<label lang="fr-FR">Statut de la commande:</label>
-            <helpText lang="en-GB">This status will be given to paid orders</helpText>
-            <helpText lang="de-DE">Dieser Status wird für bezahlte Bestellungen vergeben</helpText>
-            <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde orders</helpText>
-			<helpText lang="fr-FR">Ce statut est attribué aux commandes payées</helpText>
+            <label lang="en-GB">Order status</label>
+            <label lang="de-DE">Bestellstatus</label>
+            <label lang="nl-NL">Order status</label>
+			<label lang="fr-FR">Statut de la commande</label>
+            <helpText lang="en-GB">This status will be given to paid orders.</helpText>
+            <helpText lang="de-DE">Dieser Status wird für bezahlte Bestellungen vergeben.</helpText>
+            <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde orders.</helpText>
+			<helpText lang="fr-FR">Ce statut est attribué aux commandes payées.</helpText>
             <defaultValue>open</defaultValue>
             <options>
                 <option>
@@ -163,7 +154,7 @@
                 </option>
                 <option>
                     <id>process</id>
-                    <name>In Progress</name>
+                    <name>In progress</name>
                 </option>
             </options>
         </input-field>
@@ -267,10 +258,10 @@
 
         <input-field type="single-select">
             <name>creditcardEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
+            <label lang="en-GB">Test or Live</label>
             <label lang="de-DE">Test oder Live</label>
             <label lang="nl-NL">Test of Live</label>
-			<label lang="fr-FR">Tester ou vivre:</label>
+			<label lang="fr-FR">Tester ou vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -301,26 +292,26 @@
             <name>creditcardFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
             <helpText lang="en-GB">Enter a fixed amount (e.g., 2.50) or a percentage (e.g., 3%)</helpText>
             <helpText lang="nl-NL">Voer een vast bedrag in (bijv. 2,50) of een percentage (bijv. 3%)</helpText>
-            <helpText lang="de-DE">Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz (z. B. 3 %) ein</helpText>
+            <helpText lang="de-DE">Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz (z. B. 3 %) ein.</helpText>
             <helpText lang="fr-FR">Entrez un montant fixe (par exemple 2,50) ou un pourcentage (par exemple 3%)</helpText>
         </input-field>
 
         <input-field type="multi-select">
             <name>allowedcreditcard</name>
-            <label lang="en-GB">Allowed Credit and debit cards:</label>
-            <label lang="nl-NL">Toegestane Creditcards en debetkaarten:</label>
-            <label lang="de-DE">Erlaubte Karten:</label>
-			<label lang="fr-FR">Cartes de crédit et cartes de débit autorisées:</label>
+            <label lang="en-GB">Allowed credit and debit cards</label>
+            <label lang="nl-NL">Toegestane creditcards en debetkaarten</label>
+            <label lang="de-DE">Erlaubte Karten</label>
+			<label lang="fr-FR">Cartes de crédit et cartes de débit autorisées</label>
             <options>
                 <option>
                     <id>mastercard</id>
-                    <name>MasterCard</name>
+                    <name>Mastercard</name>
                 </option>
                 <option>
                     <id>visa</id>
@@ -369,7 +360,6 @@
     <card>
         <name>creditcards</name>
         <title>Cards (Hosted Fields)</title>
-		<title lang="gb-GB">Credit and debit card (Hosted Fields)</title>
         <title lang="nl-NL">Creditcard en debetkaart (Hosted Fields)</title>
         <title lang="de-DE">Kartenzahlung (Hosted Fields)</title>
 		<title lang="fr-FR">Cartes de crédit et de débit (Hosted Fields)</title>
@@ -388,10 +378,10 @@
 
         <input-field type="single-select">
             <name>creditcardsEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -422,22 +412,22 @@
             <name>creditcardsFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
 
         <input-field type="multi-select">
             <name>allowedcreditcards</name>
-            <label lang="en-GB">Allowed Credit and debit cards:</label>
-            <label lang="nl-NL">Toegestane Creditcards en debetkaarten:</label>
-            <label lang="de-DE">Erlaubte Karten:</label>
-			<label lang="fr-FR">Cartes de crédit et de débit autorisées:</label>
+            <label lang="en-GB">Allowed credit and debit cards</label>
+            <label lang="nl-NL">Toegestane creditcards en debetkaarten</label>
+            <label lang="de-DE">Erlaubte Karten</label>
+			<label lang="fr-FR">Cartes de crédit et de débit autorisées</label>
             <options>
                 <option>
                     <id>MasterCard</id>
-                    <name>MasterCard</name>
+                    <name>Mastercard</name>
                 </option>
                 <option>
                     <id>Visa</id>
@@ -455,14 +445,14 @@
         </input-field>
         <input-field type="password">
             <name>clientId</name>
-            <label lang="en-GB">Client ID:</label>
-            <label lang="de-DE">Client ID:</label>
-            <label lang="nl-NL">Client ID:</label>
-            <label lang="fr-FR">Client ID:</label>
-            <description>Enter your Buckaroo "Client ID".</description>
-            <description lang="de-DE">Geben Sie Ihren Buckaroo "Client ID" ein.</description>
-            <description lang="nl-NL">Voer uw Buckaroo "Client ID" in.</description>
-            <description lang="fr-FR">Entrez votre 'Client ID' Buckaroo.</description>
+            <label lang="en-GB">Client ID</label>
+            <label lang="de-DE">Client ID</label>
+            <label lang="nl-NL">Client ID</label>
+            <label lang="fr-FR">Client ID</label>
+            <placeholder lang="en-GB">Enter your Buckaroo client ID.</placeholder>
+            <placeholder lang="de-DE">Buckaroo-Client-ID eingeben.</placeholder>
+            <placeholder lang="nl-NL">Voer uw Buckaroo client ID in.</placeholder>
+            <placeholder lang="fr-FR">Entrez votre ID client Buckaroo.</placeholder>
             <helpText>The Client ID can be retrieved in the Buckaroo Plaza at "Settings" > "Websites".</helpText>
             <helpText lang="de-DE">Der "Client ID" kann auf der "Buckaroo Plaza" unter "Settings" > "Websites" abgerufen werden.</helpText>
             <helpText lang="nl-NL">De "Client ID" kan worden opgehaald in de Buckaroo Plaza bij "Instellingen" > "Websites". Neem voor ondersteuning contact op met Buckaroo.</helpText>
@@ -470,14 +460,14 @@
         </input-field>
         <input-field type="password">
             <name>clientSecret</name>
-            <label lang="en-GB">Client Secret:</label>
-            <label lang="de-DE">Client Secret:</label>
-            <label lang="nl-NL">Client Secret:</label>
-            <label lang="fr-FR">Client Secret:</label>
-            <description>Enter your Buckaroo "Client Secret".</description>
-            <description lang="de-DE">Geben Sie Ihren Buckaroo "Client Secrete" ein.</description>
-            <description lang="nl-NL">Voer uw Buckaroo "Client Secrete" in.</description>
-            <description lang="fr-FR">Entrez votre 'Client Secrete' Buckaroo.</description>
+            <label lang="en-GB">Client secret</label>
+            <label lang="de-DE">Client Secret</label>
+            <label lang="nl-NL">Client secret</label>
+            <label lang="fr-FR">Client secret</label>
+            <placeholder lang="en-GB">Enter your Buckaroo client secret.</placeholder>
+            <placeholder lang="de-DE">Buckaroo-Client-Secret eingeben.</placeholder>
+            <placeholder lang="nl-NL">Voer uw Buckaroo client secret in.</placeholder>
+            <placeholder lang="fr-FR">Entrez votre secret client Buckaroo.</placeholder>
             <helpText>The Client Secrete can be retrieved in the Buckaroo Plaza at "Settings" > "Websites".</helpText>
             <helpText lang="de-DE">Der "Client Secrete" kann auf der "Buckaroo Plaza" unter "Settings" > "Websites" abgerufen werden.</helpText>
             <helpText lang="nl-NL">De "Client Secrete" kan worden opgehaald in de Buckaroo Plaza bij "Instellingen" > "Websites". Neem voor ondersteuning contact op met Buckaroo.</helpText>
@@ -513,10 +503,10 @@
             <name>idealqrFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
 
     </card>
@@ -527,7 +517,7 @@
 
         <input-field type="single-select">
             <name>paymentHandler</name>
-            <label lang="en-GB">Select Payment Type</label>
+            <label lang="en-GB">Select payment type</label>
             <label lang="nl-NL">Selecteer betalingstype</label>
             <label lang="de-DE">Zahlungstyp auswählen</label>
             <label lang="fr-FR">Sélectionnez le type de paiement</label>
@@ -560,9 +550,9 @@
 
         <input-field type="single-select">
             <name>idealEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
 			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
@@ -594,13 +584,13 @@
             <name>idealFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
             <helpText lang="en-GB">Enter a fixed amount (e.g., 2.50) or a percentage (e.g., 3%)</helpText>
             <helpText lang="nl-NL">Voer een vast bedrag in (bijv. 2,50) of een percentage (bijv. 3%)</helpText>
-            <helpText lang="de-DE">Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz (z. B. 3 %) ein</helpText>
+            <helpText lang="de-DE">Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz (z. B. 3 %) ein.</helpText>
             <helpText lang="fr-FR">Entrez un montant fixe (par exemple 2,50) ou un pourcentage (par exemple 3%)</helpText>
         </input-field>
 
@@ -609,16 +599,16 @@
             <name>idealFastCheckout</name>
             <label lang="en-GB">iDEAL | Wero fast checkout configuration</label>
             <label lang="nl-NL">iDEAL | Wero snel bestellen</label>
-            <label lang="de-DE">iDEAL | Wero schneller checkout</label>
-            <label lang="fr-FR">paiement rapide iDEAL | Wero</label>
+            <label lang="de-DE">iDEAL | Wero schneller Checkout</label>
+            <label lang="fr-FR">Paiement rapide iDEAL | Wero</label>
         </input-field>
 
         <input-field type="bool">
             <name>idealFastCheckoutEnabled</name>
-            <label lang="en-GB">Fast Checkout Enabled</label>
-            <label lang="nl-NL">Fast Checkout Ingeschakeld</label>
-            <label lang="de-DE">Fast Checkout Aktiviert</label>
-            <label lang="fr-FR">Fast Checkout Activé</label>
+            <label lang="en-GB">Fast checkout enabled</label>
+            <label lang="nl-NL">Fast checkout ingeschakeld</label>
+            <label lang="de-DE">Fast Checkout aktiviert</label>
+            <label lang="fr-FR">Fast checkout activé</label>
         </input-field>
 
         <input-field type="multi-select">
@@ -683,9 +673,9 @@
 
         <input-field type="single-select">
             <name>paybybankEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
 			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
@@ -752,10 +742,10 @@
 
         <input-field type="single-select">
             <name>bancontactmrcashEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -786,16 +776,16 @@
             <name>bancontactmrcashFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-            <label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+            <label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
 
         <input-field type="single-select">
             <name>redirectBancontact</name>
-            <label lang="en-GB">Client Side Encryption</label>
-            <label lang="nl-NL">Client Side Encryption</label>
+            <label lang="en-GB">Client-side encryption</label>
+            <label lang="nl-NL">Client-side encryption</label>
             <label lang="de-DE">Clientseitige Verschlüsselung</label>
             <label lang="fr-FR">Cryptage côté client</label>
             <defaultValue>enabledRedirect</defaultValue>
@@ -832,10 +822,10 @@
 
         <input-field type="single-select">
             <name>blikEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-            <label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+            <label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -866,10 +856,10 @@
             <name>blikFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
 
 
@@ -888,8 +878,8 @@
 
         <input-field type="bool">
             <name>afterpayFinancialwarning</name>
-            <label lang="en-GB">Consumer Financial Warning</label>
-            <label lang="nl-NL">Financiële Waarschuwing</label>
+            <label lang="en-GB">Consumer financial warning</label>
+            <label lang="nl-NL">Financiële waarschuwing</label>
             <helpText lang="en-GB">Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.</helpText>
 			<helpText lang="nl-NL">Vanwege de voorschriften voor achteraf betaalmethoden in Nederland dien je klanten te waarschuwen voor het gebruik van een achteraf betaalmethode omdat het gemakkelijk kan leiden tot schulden. Wanneer deze functie is ingeschakeld, wordt er een waarschuwing weergegeven tijdens het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland.</helpText>
             <defaultValue>1</defaultValue>
@@ -897,10 +887,10 @@
 
         <input-field type="single-select">
             <name>afterpayEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -916,7 +906,7 @@
 
         <input-field type="bool">
             <name>afterpayAuthorize</name>
-            <label lang="en-GB">Enable Authorize-Capture flow</label>
+            <label lang="en-GB">Enable authorize-capture flow</label>
             <label lang="nl-NL">Ingeschakeld Authorize-Capture flow</label>
             <label lang="de-DE">Aktiviert Authorize-Capture flow</label>
 			<label lang="fr-FR">Activé Authorize-Capture flow</label>
@@ -924,7 +914,7 @@
 
         <input-field type="bool">
             <name>afterpayCaptureonshippent</name>
-            <label lang="en-GB">Enable Automatic capture on shipped</label>
+            <label lang="en-GB">Enable automatic capture on shipped</label>
             <label lang="nl-NL">Ingeschakeld Automatic capture on shipped</label>
             <label lang="de-DE">Aktiviert Automatic capture on shipped</label>
 			<label lang="fr-FR">Activé Automatic capture on shipped</label>
@@ -932,7 +922,7 @@
 
         <input-field type="single-select">
             <name>afterpayPaymentstatus</name>
-            <label lang="en-GB">Payment status when automatic capture on shipment is enabled:</label>
+            <label lang="en-GB">Payment status when automatic capture on shipment is enabled</label>
             <defaultValue>authorize</defaultValue>
             <options>
                 <option>
@@ -951,7 +941,6 @@
             <label lang="en-GB">Enabled Riverty Old</label>
             <label lang="nl-NL">Ingeschakeld Riverty Old</label>
             <label lang="de-DE">Aktiviert Riverty Old</label>
-            <label lang="de-DE">false</label>
         </input-field>
 
         <component name="buckaroo-afterpay-old-tax">
@@ -969,28 +958,28 @@
             <name>afterpayFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
 
         <input-field type="single-select">
             <name>afterpayCustomerType</name>
-            <label lang="en-GB">Riverty customer type:</label>
-            <label lang="de-DE">Riverty customer type:</label>
-            <label lang="nl-NL">Riverty customer type:</label>
+            <label lang="en-GB">Riverty customer type</label>
+            <label lang="de-DE">Riverty customer type</label>
+            <label lang="nl-NL">Riverty customer type</label>
             <helpText lang="en-GB">This setting determines whether you accept Riverty payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.</helpText>
             <helpText lang="de-DE">Deze instelling bepaalt of je Riverty-betalingen accepteert voor B2C, B2B of beide klanttypes. Wanneer B2B word geselecteerd wordt deze methode enkel getoond wanneer er een bedrijfsnaam is ingevuld in het checkout proces.</helpText>
             <defaultValue>both</defaultValue>
             <options>
                 <option>
                     <id>b2b</id>
-                    <name>B2B (Business-to-Business)</name>
+                    <name>B2B (business-to-business)</name>
                 </option>
                 <option>
                     <id>b2c</id>
-                    <name>B2C (Business-to-consumer) </name>
+                    <name>B2C (business-to-consumer)</name>
                 </option>
                 <option>
                     <id>both</id>
@@ -1014,10 +1003,10 @@
         
         <input-field type="single-select">
             <name>paypalEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1048,24 +1037,24 @@
             <name>paypalFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
 
         <input-field type="bool">
             <name>paypalSellerprotection</name>
-            <label lang="en-GB">Enabled Seller Protection</label>
+            <label lang="en-GB">Enabled seller protection</label>
             <label lang="nl-NL">Ingeschakeld Seller Protection</label>
             <label lang="de-DE">Aktiviert Seller Protection</label>
         </input-field>
 
         <input-field type="multi-select">
             <name>paypalExpresslocation</name>
-            <label lang="en-GB">Display Paypal Express button:</label>
-            <label lang="nl-NL">Paypal Express-knop weergeven:</label>
-            <label lang="de-DE">Zeigen Sie die Paypal Express-Schaltfläche an:</label>
+            <label lang="en-GB">Display PayPal Express button</label>
+            <label lang="nl-NL">PayPal Express-knop weergeven</label>
+            <label lang="de-DE">PayPal Express-Schaltfläche anzeigen</label>
             <defaultValue>["none"]</defaultValue>
             <options>
                 <option>
@@ -1088,18 +1077,18 @@
         </input-field>
          <input-field>
             <name>paypalExpressmerchantid</name>
-            <label lang="en-GB">Paypal express merchant id</label>
-            <label lang="nl-NL">Paypal express merchant id</label>
-            <label lang="de-DE">Paypal express merchant id</label>
+            <label lang="en-GB">PayPal Express merchant ID</label>
+            <label lang="nl-NL">PayPal Express merchant ID</label>
+            <label lang="de-DE">PayPal Express Merchant-ID</label>
             <helpText lang="en-GB">PayPal merchant id used when the payment method is set to Live.</helpText>
             <helpText lang="nl-NL">PayPal merchant id die wordt gebruikt wanneer de betaalmethode op Live staat.</helpText>
             <helpText lang="de-DE">PayPal-Händler-ID, die verwendet wird, wenn die Zahlungsmethode auf Live steht.</helpText>
         </input-field>
         <input-field>
             <name>paypalExpressSandboxMerchantId</name>
-            <label lang="en-GB">Paypal express sandbox merchant id</label>
-            <label lang="nl-NL">Paypal express sandbox merchant id</label>
-            <label lang="de-DE">Paypal express sandbox merchant id</label>
+            <label lang="en-GB">PayPal Express sandbox merchant ID</label>
+            <label lang="nl-NL">PayPal Express sandbox merchant ID</label>
+            <label lang="de-DE">PayPal Express Sandbox-Merchant-ID</label>
             <helpText lang="en-GB">PayPal sandbox merchant id used when the payment method is set to Test.</helpText>
             <helpText lang="nl-NL">PayPal sandbox merchant id die wordt gebruikt wanneer de betaalmethode op Test staat.</helpText>
             <helpText lang="de-DE">PayPal-Sandbox-Händler-ID, die verwendet wird, wenn die Zahlungsmethode auf Test steht.</helpText>
@@ -1107,7 +1096,7 @@
     </card>
 
     <card>
-    <title>Bank Transfer</title>
+    <title>Bank transfer</title>
         <name>transfer</name>
         <input-field type="bool">
             <name>transferEnabled</name>
@@ -1119,10 +1108,10 @@
         
         <input-field type="single-select">
             <name>transferEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1153,10 +1142,10 @@
             <name>transferFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
 
         <input-field type="single-select">
@@ -1215,10 +1204,10 @@
         
         <input-field type="single-select">
             <name>KBCPaymentButtonEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1249,15 +1238,15 @@
             <name>KBCPaymentButtonFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
 
     <card>
-        <title>Sepa Direct Debit</title>
+        <title>SEPA Direct Debit</title>
         <name>sepadirectdebit</name>
         <input-field type="bool">
             <name>sepadirectdebitEnabled</name>
@@ -1269,10 +1258,10 @@
         
         <input-field type="single-select">
             <name>sepadirectdebitEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1303,10 +1292,10 @@
             <name>sepadirectdebitFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
 
@@ -1323,10 +1312,10 @@
         
         <input-field type="single-select">
             <name>payconiqEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1357,10 +1346,10 @@
             <name>payconiqFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
 
@@ -1377,10 +1366,10 @@
         
         <input-field type="single-select">
             <name>applepayEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1411,22 +1400,22 @@
             <name>applepayFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
 
         <input-field>
             <name>applepayGuid</name>
-            <label lang="en-GB">Guid:</label>
-            <label lang="de-DE">Guid:</label>
-            <label lang="nl-NL">Guid:</label>
-            <label lang="fr-FR">Guid:</label>
-            <description>Enter your Buckaroo guid key.</description>
-            <description lang="de-DE">Geben Sie Ihren Buckaroo-GUID-Schlüssel ein.</description>
-            <description lang="nl-NL">Voer uw Buckaroo-GUID in.</description>
-            <description lang="fr-FR">Entrez votre clé de Guid Buckaroo.</description>
+            <label lang="en-GB">GUID</label>
+            <label lang="de-DE">GUID</label>
+            <label lang="nl-NL">GUID</label>
+            <label lang="fr-FR">GUID</label>
+            <placeholder lang="en-GB">Enter your Buckaroo GUID.</placeholder>
+            <placeholder lang="de-DE">Buckaroo-GUID eingeben.</placeholder>
+            <placeholder lang="nl-NL">Voer uw Buckaroo GUID in.</placeholder>
+            <placeholder lang="fr-FR">Entrez votre GUID Buckaroo.</placeholder>
             <helpText>The guid key can be retrieved in Buckaroo Plaza at "My Buckaroo" > "General".</helpText>
             <helpText lang="de-DE">Der GUID-Schlüssel kann im Buckaroo Plaza unter "Mein Buckaroo" > "Allgemein" abgerufen werden.</helpText>
             <helpText lang="nl-NL">De Guid kan worden opgehaald in de Buckaroo Plaza in het menu bij "Mijn Buckaroo" > "Algemeen".</helpText>
@@ -1509,10 +1498,10 @@
 
         <input-field type="single-select">
             <name>googlepayEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-            <label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+            <label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1543,10 +1532,10 @@
             <name>googlepayFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-            <label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+            <label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
 
         <input-field type="text">
@@ -1563,7 +1552,7 @@
 
         <input-field type="text">
             <name>googlepayGatewayMerchantId</name>
-            <label lang="en-GB">Buckaroo Gateway Merchant ID</label>
+            <label lang="en-GB">Buckaroo gateway merchant ID</label>
             <label lang="de-DE">Buckaroo Gateway-Merchant-ID</label>
             <label lang="nl-NL">Buckaroo Gateway Merchant-ID</label>
             <label lang="fr-FR">ID marchand passerelle Buckaroo</label>
@@ -1659,10 +1648,9 @@
     </card>
 
     <card>
-        <title>Giftcards cards</title>
-		<title lang="en-GB">Giftcards</title>
-        <title lang="nl-NL">Cadeaubonnen kaarten</title>
-        <title lang="de-DE">Geschenkkarten Karten</title>
+        <title>Gift cards</title>
+        <title lang="nl-NL">Cadeaubonnen</title>
+        <title lang="de-DE">Geschenkkarten</title>
 		<title lang="fr-FR">Cartes cadeaux</title>
         <name>giftcards</name>
         <input-field type="bool">
@@ -1675,10 +1663,10 @@
        
         <input-field type="single-select">
             <name>giftcardsEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -1707,10 +1695,10 @@
 
         <input-field type="multi-select">
             <name>allowedgiftcards</name>
-            <label lang="en-GB">Allowed Giftcards:</label>
+            <label lang="en-GB">Allowed gift cards</label>
             <label lang="nl-NL">Toegestane cadeaubonnen</label>
             <label lang="de-DE">Zulässige Geschenkkarten</label>
-			<label lang="fr-FR">Cartes-cadeaux autorisées:</label>
+			<label lang="fr-FR">Cartes-cadeaux autorisées</label>
             <options>
                 <option>
                     <id>customgiftcard</id>
@@ -2072,10 +2060,10 @@
         </input-field>
         <input-field type="multi-select">
             <name>giftcardsPaymentmethods</name>
-            <label lang="en-GB">Allowed payment methods:</label>
-            <label lang="de-DE">Allowed payment methods:</label>
-            <label lang="nl-NL">Allowed payment methods:</label>
-			<label lang="fr-FR">Allowed payment methods:</label>
+            <label lang="en-GB">Allowed payment methods</label>
+            <label lang="de-DE">Allowed payment methods</label>
+            <label lang="nl-NL">Allowed payment methods</label>
+			<label lang="fr-FR">Allowed payment methods</label>
             <options>
                 <option>
                     <id>applepay</id>
@@ -2119,7 +2107,7 @@
                 </option>
                 <option>
                     <id>mastercard</id>
-                    <name>MasterCard</name>
+                    <name>Mastercard</name>
                 </option>
                 <option>
                     <id>visa</id>
@@ -2177,8 +2165,8 @@
 
         <input-field type="bool">
             <name>capayableFinancialwarning</name>
-            <label lang="en-GB">Consumer Financial Warning</label>
-            <label lang="nl-NL">Financiële Waarschuwing</label>
+            <label lang="en-GB">Consumer financial warning</label>
+            <label lang="nl-NL">Financiële waarschuwing</label>
             <helpText lang="en-GB">Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.</helpText>
 			<helpText lang="nl-NL">Vanwege de voorschriften voor achteraf betaalmethoden in Nederland dien je klanten te waarschuwen voor het gebruik van een achteraf betaalmethode omdat het gemakkelijk kan leiden tot schulden. Wanneer deze functie is ingeschakeld, wordt er een waarschuwing weergegeven tijdens het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland.</helpText>
             <defaultValue>1</defaultValue>
@@ -2186,10 +2174,10 @@
        
         <input-field type="single-select">
             <name>capayableEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2220,10 +2208,10 @@
             <name>capayableFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
 
@@ -2240,10 +2228,10 @@
        
         <input-field type="single-select">
             <name>epsEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2274,10 +2262,10 @@
             <name>epsFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
 
@@ -2294,10 +2282,10 @@
        
         <input-field type="single-select">
             <name>mbwayEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2328,10 +2316,10 @@
             <name>mbwayFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
 
@@ -2348,10 +2336,10 @@
        
         <input-field type="single-select">
             <name>multibancoEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2382,10 +2370,10 @@
             <name>multibancoFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
     
@@ -2402,10 +2390,10 @@
        
         <input-field type="single-select">
             <name>Przelewy24Environment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2436,10 +2424,10 @@
             <name>Przelewy24Fee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
 
@@ -2456,10 +2444,10 @@
        
         <input-field type="single-select">
             <name>AlipayEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2490,10 +2478,10 @@
             <name>AlipayFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
 
@@ -2510,10 +2498,10 @@
        
         <input-field type="single-select">
             <name>WeChatPayEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2544,10 +2532,10 @@
             <name>WeChatPayFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
     
@@ -2564,10 +2552,10 @@
        
         <input-field type="single-select">
             <name>TrustlyEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2598,10 +2586,10 @@
             <name>TrustlyFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
     
@@ -2618,10 +2606,10 @@
        
         <input-field type="single-select">
             <name>swishEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2652,10 +2640,10 @@
             <name>swishFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
     
@@ -2672,10 +2660,10 @@
        
         <input-field type="single-select">
             <name>bizumEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2706,10 +2694,10 @@
             <name>bizumFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
 
@@ -2738,10 +2726,10 @@
 
         <input-field type="single-select">
             <name>klarnaEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-            <label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+            <label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2772,10 +2760,10 @@
             <name>klarnaFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-            <label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+            <label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
 
@@ -2805,10 +2793,10 @@
        
         <input-field type="single-select">
             <name>klarnakpEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2839,10 +2827,10 @@
             <name>klarnakpFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
 
     </card>
@@ -2860,8 +2848,8 @@
 
         <input-field type="bool">
             <name>BillinkFinancialwarning</name>
-            <label lang="en-GB">Consumer Financial Warning</label>
-            <label lang="nl-NL">Financiële Waarschuwing</label>
+            <label lang="en-GB">Consumer financial warning</label>
+            <label lang="nl-NL">Financiële waarschuwing</label>
             <helpText lang="en-GB">Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.</helpText>
 			<helpText lang="nl-NL">Vanwege de voorschriften voor achteraf betaalmethoden in Nederland dien je klanten te waarschuwen voor het gebruik van een achteraf betaalmethode omdat het gemakkelijk kan leiden tot schulden. Wanneer deze functie is ingeschakeld, wordt er een waarschuwing weergegeven tijdens het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland.</helpText>
             <defaultValue>1</defaultValue>
@@ -2869,10 +2857,10 @@
         
         <input-field type="single-select">
             <name>BillinkEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2910,10 +2898,10 @@
             <name>BillinkFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
 
@@ -2930,10 +2918,10 @@
 
         <input-field type="single-select">
             <name>twintEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-            <label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+            <label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -2964,10 +2952,10 @@
             <name>twintFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-            <label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+            <label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
     
@@ -2984,10 +2972,10 @@
 
         <input-field type="single-select">
             <name>weroEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-            <label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+            <label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -3016,7 +3004,7 @@
 
         <input-field type="bool">
             <name>weroAuthorize</name>
-            <label lang="en-GB">Enable Authorize-Capture flow</label>
+            <label lang="en-GB">Enable authorize-capture flow</label>
             <label lang="nl-NL">Ingeschakeld Authorize-Capture flow</label>
             <label lang="de-DE">Aktiviert Authorize-Capture flow</label>
             <label lang="fr-FR">Activé Authorize-Capture flow</label>
@@ -3026,10 +3014,10 @@
             <name>weroFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-            <label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+            <label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
     
@@ -3046,10 +3034,10 @@
 
         <input-field type="single-select">
             <name>belfiusEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -3080,10 +3068,10 @@
             <name>belfiusFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
     </card>
 
@@ -3100,10 +3088,10 @@
 
         <input-field type="single-select">
             <name>payperemailEnvironment</name>
-            <label lang="en-GB">Test or Live:</label>
-            <label lang="de-DE">Test oder Live:</label>
-            <label lang="nl-NL">Test of Live:</label>
-			<label lang="fr-FR">Tester ou Vivre:</label>
+            <label lang="en-GB">Test or Live</label>
+            <label lang="de-DE">Test oder Live</label>
+            <label lang="nl-NL">Test of Live</label>
+			<label lang="fr-FR">Tester ou Vivre</label>
             <defaultValue>test</defaultValue>
             <options>
                 <option>
@@ -3134,10 +3122,10 @@
             <name>payperemailFee</name>
             <copyable>true</copyable>
             <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo Fee</label>
+            <label lang="en-GB">Buckaroo fee</label>
             <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo Gebühr</label>
-			<label lang="fr-FR">Frais de buckaroo</label>
+            <label lang="de-DE">Buckaroo-Gebühr</label>
+			<label lang="fr-FR">Frais Buckaroo</label>
         </input-field>
 
         <input-field>
@@ -3150,10 +3138,10 @@
 
         <input-field type="bool">
             <name>paylinkEnabled</name>
-            <label lang="en-GB">Paylink Enabled</label>
-            <label lang="nl-NL">Paylink Ingeschakeld</label>
-            <label lang="de-DE">Paylink Aktiviert</label>
-			<label lang="fr-FR">Paylink Activé</label>
+            <label lang="en-GB">Paylink enabled</label>
+            <label lang="nl-NL">Paylink ingeschakeld</label>
+            <label lang="de-DE">Paylink aktiviert</label>
+			<label lang="fr-FR">Paylink activé</label>
         </input-field>
 
         <input-field type="multi-select">
@@ -3161,7 +3149,7 @@
             <label lang="en-GB">PayPerEmail payment methods</label>
             <label lang="nl-NL">PayPerEmail-betaalmethoden</label>
             <label lang="de-DE">PayPerEmail-Zahlungsmethoden</label>
-			<label lang="fr-FR">PayPerEmail méthodes de payement:</label>
+			<label lang="fr-FR">Méthodes de paiement PayPerEmail</label>
             <options>
                 <option>
                     <id>amex</id>
@@ -3173,7 +3161,7 @@
                 </option>
                 <option>
                     <id>transfer</id>
-                    <name>Bank Transfer</name>
+                    <name>Bank transfer</name>
                 </option>
                 <option>
                     <id>cartebancaire</id>
@@ -3193,7 +3181,7 @@
                 </option>
                 <option>
                     <id>giftcard</id>
-                    <name>Giftcards</name>
+                    <name>Gift cards</name>
                 </option>
                 <option>
                     <id>ideal</id>
@@ -3241,7 +3229,7 @@
                 </option>
                 <option>
                     <id>p24</id>
-                    <name>P24</name>
+                    <name>Przelewy24</name>
                 </option>
                 <option>
                     <id>trustly</id>

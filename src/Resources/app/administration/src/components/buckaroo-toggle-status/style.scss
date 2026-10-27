@@ -1,36 +1,111 @@
-.bk-toogle-wrap {
-    display: flex;
-    border-radius: 0.25rem;
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
-    padding:0.125rem;
-    background-color: #fff;
-    button {
-        outline: none;
-        margin:0.125rem;
-        padding:0.25rem;
-        background-color: rgb(229 231 235);
-        border-radius: 0.125rem;
-        text-transform: uppercase;
-        border:0;
-        color: #9ca3af;
-        cursor: pointer;
-        flex-grow: 1;
-    }
-    button.test:hover,  button.test.active {
-        background-color: #eab308;
-        color:#fff;
-    }
-    button.live:hover, button.live.active {
-        background-color: #22c55e;
-        color:#fff;
-    }
-    button.disabled:hover, button.disabled.active {
-        background-color: #000;
-        color:#fff;
-    }
-    .bk-edit-link {
+// Meteor design tokens (Shopware 6.6+) with fallbacks for older admins
+$bk-border: var(--color-border-primary-default, #cdced4);
+$bk-surface: var(--color-elevation-surface-raised, #ffffff);
+$bk-text: var(--color-text-primary-default, #1e1e24);
+$bk-text-secondary: var(--color-text-secondary-default, #696a6e);
+$bk-focus: var(--color-border-brand-selected, #0870ff);
+
+$bk-live-bg: var(--color-background-positive-default, #e1ffe0);
+$bk-live-text: var(--color-text-positive-default, #00470a);
+$bk-live-accent: var(--color-border-positive-default, #36d046);
+
+$bk-test-bg: var(--color-background-attention-default, #fff3e3);
+$bk-test-text: var(--color-text-attention-default, #533600);
+$bk-test-accent: var(--color-border-attention-default, #fbaf18);
+
+$bk-off-bg: var(--color-background-tertiary-default, #f2f3f8);
+$bk-off-accent: var(--color-border-primary-default, #cdced4);
+
+// Button-group style: every option has its own border, neighbours overlap by 1px,
+// and the selected option's border takes the status colour on top of its neighbours.
+.bk-toggle-status {
+    display: inline-flex;
+
+    &__option-wrap {
+        position: relative;
         display: flex;
-        align-items: center;
-        margin:0 0.125rem
+
+        & + & {
+            margin-left: -1px;
+        }
+
+        &:first-child .bk-toggle-status__option {
+            border-radius: 6px 0 0 6px;
+        }
+
+        &:last-child .bk-toggle-status__option {
+            border-radius: 0 6px 6px 0;
+        }
+    }
+
+    &__option {
+        position: relative;
+        padding: 3px 10px;
+        background: $bk-surface;
+        border: 1px solid $bk-border;
+        border-radius: 0;
+        color: $bk-text-secondary;
+        font-size: 12px;
+        line-height: 18px;
+        cursor: pointer;
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+        // Each option label carries its status colour, selected or not
+        &.is--live {
+            color: $bk-live-text;
+        }
+
+        &.is--test {
+            color: $bk-test-text;
+        }
+
+        &:hover:not(:disabled):not(.is--selected) {
+            &.is--live {
+                background: $bk-live-bg;
+            }
+
+            &.is--test {
+                background: $bk-test-bg;
+            }
+
+            &.is--off {
+                background: $bk-off-bg;
+            }
+        }
+
+        &:focus-visible {
+            z-index: 2;
+            outline: 2px solid $bk-focus;
+            outline-offset: -2px;
+        }
+
+        &:disabled {
+            color: $bk-text-secondary;
+            cursor: not-allowed;
+            opacity: 0.45;
+        }
+
+        // Selected: status background and status-coloured border, drawn over its neighbours
+        &.is--selected {
+            z-index: 1;
+            font-weight: 600;
+            cursor: default;
+        }
+
+        &.is--live.is--selected {
+            background: $bk-live-bg;
+            border-color: $bk-live-accent;
+        }
+
+        &.is--test.is--selected {
+            background: $bk-test-bg;
+            border-color: $bk-test-accent;
+        }
+
+        &.is--off.is--selected {
+            background: $bk-off-bg;
+            border-color: $bk-off-accent;
+            color: $bk-text;
+        }
     }
 }

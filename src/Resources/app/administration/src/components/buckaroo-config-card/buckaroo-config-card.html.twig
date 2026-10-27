@@ -4,6 +4,28 @@
             {{ getInlineSnippet(card.title) || 'Configuration' }}
         </template>
 
+        <sw-inherit-wrapper
+            v-if="statusPaymentCode"
+            class="bk-config-card__status"
+            :value="statusOwnValue"
+            :inherited-value="statusInheritedValue"
+            :has-parent="isNotDefaultSalesChannel"
+            :label="$tc('buckaroo-payment.paymentSettings.statusLabel')"
+            :help-text="statusHelpText"
+            @update:value="onStatusChange"
+            @input="onStatusChange"
+        >
+            <template #content="props">
+                <sw-single-select
+                    :options="statusOptions"
+                    :value="props.currentValue"
+                    :disabled="props.isInherited"
+                    @update:value="props.updateCurrentValue"
+                    @change="props.updateCurrentValue"
+                />
+            </template>
+        </sw-inherit-wrapper>
+
         <div v-for="element in (card.elements || [])" :key="element.name">
             <div v-if="canShow(element)">
                 <slot name="card-element" v-bind="{ element: getElementBind(element), config: value, card }">

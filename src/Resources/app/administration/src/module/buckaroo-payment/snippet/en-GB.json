@@ -120,6 +120,28 @@
         "in3LogoLabel":"Payment Logo:",
         "configure-payment": "Configure payment",
         "configure-link": "Configure",
-        "payment-methods": "Payment methods"
+        "payment-methods": "Payment methods",
+        "paymentList": {
+            "summary": "{active} of {total} payment methods active",
+            "live": "Live",
+            "test": "Test",
+            "off": "Off",
+            "toggleLabel": "Status of {name}",
+            "testUnavailable": "Test mode follows the {parent} setting.",
+            "availability": {
+                "title": "Not shown at checkout",
+                "inactive": "This payment method is deactivated in Shopware's payment settings. Shopware won't show it at checkout, even when it's active in Buckaroo.",
+                "notInSalesChannel": "This payment method isn't added to the selected sales channel in Shopware yet. Shopware only shows payment methods that are added to the sales channel. This is separate from the Buckaroo setting.",
+                "noSalesChannel": "This payment method isn't added to any sales channel in Shopware yet. Shopware only shows payment methods that are added to a sales channel. This is separate from the Buckaroo setting.",
+                "assign": "Assign sales channels",
+                "openSettings": "Open payment settings",
+                "modalTitle": "Sales channels for {name}",
+                "modalDescription": "Choose in which sales channels Shopware offers this payment method. Customers only see it at checkout in the selected sales channels, regardless of the Buckaroo setting."
+            }
+        },
+        "paymentSettings": {
+            "statusLabel": "Status",
+            "statusHelp": "Live accepts real payments. Test uses the Buckaroo test environment, so no real money is charged. Off hides this payment method at checkout."
+        }
     }
 }

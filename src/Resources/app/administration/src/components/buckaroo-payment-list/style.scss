@@ -1,51 +1,138 @@
-.bk-payment-wrap {
+// Meteor design tokens (Shopware 6.6+) with fallbacks for older admins
+$bk-border: var(--color-border-secondary-default, #e2e3e9);
+$bk-border-hover: var(--color-border-primary-default, #cdced4);
+$bk-surface: var(--color-elevation-surface-raised, #ffffff);
+$bk-footer: var(--color-background-secondary-default, #fafbfe);
+$bk-text: var(--color-text-primary-default, #1e1e24);
+$bk-text-secondary: var(--color-text-secondary-default, #696a6e);
+$bk-link: var(--color-interaction-primary-default, #0870ff);
+$bk-critical-bg: var(--color-background-critical-default, #fff2f0);
+$bk-critical-text: var(--color-text-critical-default, #e2262a);
+
+.bk-payment-list {
+    &__summary {
+        margin: 0 0 16px;
+        color: $bk-text-secondary;
+        font-size: 14px;
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 16px;
+    }
+}
+
+.bk-payment-tile {
     display: flex;
-    flex-wrap: wrap;
-    .bk-payment {
-        .bk-payment-inner {
-            display: flex;
-            width: 170px;
-            flex-direction: column;
-            align-items: center;
-            margin: 0.25rem 0.125rem;
-            padding: 0.5rem;
-            background-color: #fafafa;
-            border-radius: 0.5rem;
-            a {
-                text-decoration: none;
-            }
-            .bk-payment-name {
-                text-align: center;
-                text-decoration: none;
-                padding: 0.25rem 0 0.5rem;;
-                color: #555555;
-                font-weight: bold;
-                font-size: 16px;
-            }
+    flex-direction: column;
+    overflow: hidden;
+    background: $bk-surface;
+    border: 1px solid $bk-border;
+    border-radius: 8px;
+    transition: border-color 0.15s ease;
+
+    &:hover {
+        border-color: $bk-border-hover;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    &__body {
+        display: flex;
+        flex-grow: 1;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 16px 16px;
+        text-align: center;
+
+        &:hover .bk-payment-tile__name {
+            color: $bk-link;
         }
-        flex: 0 20%;
+    }
+
+    &__logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 79px;
+        height: 48px;
+        margin-bottom: 12px;
+
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    }
+
+    &__name {
+        color: $bk-text;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.4;
+        transition: color 0.15s ease;
+    }
+
+    // Shown when an active method can't appear at checkout
+    &__warning {
         display: flex;
         flex-direction: column;
         align-items: center;
-        
-        .bk-payment-img {
-            height: 60px;
-            width: auto;
-            padding: 10px;
-            display: flex;
-            img {
-                width: 100%;
-                height: auto;
-            }
-        }
-        
-    }
-    .bk-link {
-        padding: 0.25rem 0 0.125rem;
-        color: #555555;
+        gap: 2px;
+        padding: 8px 12px;
+        background: $bk-critical-bg;
+        border-top: 1px solid $bk-border;
+        text-align: center;
     }
 
-    .bk-link:hover {
-       font-weight: bold;
+    &__warning-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: $bk-critical-text;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: help;
+    }
+
+    &__warning-action {
+        padding: 0;
+        background: none;
+        border: 0;
+        color: $bk-link;
+        font-size: 12px;
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        background: $bk-footer;
+        border-top: 1px solid $bk-border;
+    }
+
+    &__configure {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        color: $bk-text-secondary;
+        transition: background-color 0.15s ease, color 0.15s ease;
+
+        &:hover {
+            background: $bk-border;
+            color: $bk-text;
+        }
     }
 }
