@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\DependencyInjection\Container;
@@ -500,7 +501,8 @@ class PushControllerSignatureValidationTest extends TestCase
             $idealQrRepository,
             $orderService,
             $customerService,
-            $processedPushService
+            $processedPushService,
+            $this->untouchable(SalesChannelContextServiceInterface::class)
         );
 
         $translator = $this->createMock(TranslatorInterface::class);
