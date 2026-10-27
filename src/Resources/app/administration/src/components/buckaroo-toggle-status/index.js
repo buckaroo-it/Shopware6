@@ -1,7 +1,7 @@
 const { Component, Mixin } = Shopware;
 import template from "./buckaroo-toggle-status.html.twig";
 import './style.scss'
-import { isPaymentEnabled, getPaymentMode, SHARED_ENVIRONMENT_METHODS } from '../../utils/payment-status';
+import { isPaymentEnabled, getPaymentMode, withConfigValues, SHARED_ENVIRONMENT_METHODS } from '../../utils/payment-status';
 
 Component.register("buckaroo-toggle-status", {
     template,
@@ -94,7 +94,7 @@ Component.register("buckaroo-toggle-status", {
             }
 
             this.status = status;
-            this.$emit('input', this.withValues(this.value, data));
+            this.$emit('input', withConfigValues(this.value, data));
 
             this.isLoading = true;
             try {
@@ -113,18 +113,6 @@ Component.register("buckaroo-toggle-status", {
             } finally {
                 this.isLoading = false;
             }
-        },
-
-        // The settings form keeps both full ("BuckarooPayments.config.x") and short ("x") keys; update both
-        withValues(value, data) {
-            const updated = { ...value };
-
-            Object.entries(data).forEach(([key, fieldValue]) => {
-                updated[key] = fieldValue;
-                updated[key.replace('BuckarooPayments.config.', '')] = fieldValue;
-            });
-
-            return updated;
         }
     }
 })

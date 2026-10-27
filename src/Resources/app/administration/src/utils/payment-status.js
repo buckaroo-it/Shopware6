@@ -1,6 +1,10 @@
 /**
  * Reads payment method settings from the system config value object and
  * resolves the status the storefront will actually use.
+ *
+ * These rules repeat SettingsService (getEnabled, isTestEnvironment and
+ * SHARED_ENVIRONMENT_METHODS). Keep both in sync: if they differ, the admin shows
+ * another mode than the shop uses. AdminPaymentStatusSyncTest checks the shared list.
  */
 
 // Methods without their own environment fall back to another method's (mirrors SettingsService::SHARED_ENVIRONMENT_METHODS)
@@ -8,6 +12,25 @@ export const SHARED_ENVIRONMENT_METHODS = {
     idealqr: 'ideal',
     klarnain: 'klarna',
 };
+
+const CONFIG_PREFIX = 'BuckarooPayments.config.';
+
+/**
+ * Returns a copy of the settings value with the given fields set. The settings form keeps
+ * both full ("BuckarooPayments.config.x") and short ("x") keys, so both are updated.
+ * Field names may be given in either form.
+ */
+export function withConfigValues(value, fields) {
+    const updated = { ...value };
+
+    Object.entries(fields).forEach(([name, fieldValue]) => {
+        const shortName = name.replace(CONFIG_PREFIX, '');
+        updated[shortName] = fieldValue;
+        updated[`${CONFIG_PREFIX}${shortName}`] = fieldValue;
+    });
+
+    return updated;
+}
 
 export function getConfigValue(value, name) {
     if (!value || typeof value !== 'object') {

@@ -1,5 +1,5 @@
 import template from './buckaroo-config-card.html.twig';
-import { SHARED_ENVIRONMENT_METHODS, isPaymentEnabled, getPaymentMode } from '../../utils/payment-status';
+import { SHARED_ENVIRONMENT_METHODS, isPaymentEnabled, getPaymentMode, withConfigValues } from '../../utils/payment-status';
 
 const { Component } = Shopware;
 
@@ -254,23 +254,15 @@ Component.register('buckaroo-config-card', {
             }
 
             const code = this.statusPaymentCode;
-            const updatedValue = { ...this.value };
-            const setField = (name, fieldValue) => {
-                updatedValue[name] = fieldValue;
-                updatedValue[`BuckarooPayments.config.${name}`] = fieldValue;
-            };
+            const fields = status === null
+                ? { [`${code}Enabled`]: null, [`${code}Environment`]: null }
+                : { [`${code}Enabled`]: status !== 'off' };
 
-            if (status === null) {
-                setField(`${code}Enabled`, null);
-                setField(`${code}Environment`, null);
-            } else {
-                setField(`${code}Enabled`, status !== 'off');
-                if (status !== 'off') {
-                    setField(`${code}Environment`, status);
-                }
+            if (status !== null && status !== 'off') {
+                fields[`${code}Environment`] = status;
             }
 
-            this.$emit('input', updatedValue);
+            this.$emit('input', withConfigValues(this.value, fields));
         },
 
         fetchShopwareVersion() {

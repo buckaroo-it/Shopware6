@@ -1,6 +1,6 @@
 <div
     class="bk-toggle-status"
-    role="radiogroup"
+    role="group"
     :aria-label="$t('buckaroo-payment.paymentList.toggleLabel', { name: label })"
 >
     <span
@@ -14,10 +14,9 @@
     >
         <button
             type="button"
-            role="radio"
             class="bk-toggle-status__option"
             :class="[`is--${option}`, { 'is--selected': status === option }]"
-            :aria-checked="status === option"
+            :aria-pressed="status === option ? 'true' : 'false'"
             :disabled="isOptionDisabled(option)"
             @click="setStatus(option)"
         >

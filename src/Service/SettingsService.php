@@ -14,6 +14,10 @@ class SettingsService
      * environment they use. An explicit `live` on the method's own key, as written
      * by the admin Live/Off toggle, still makes the method live.
      *
+     * Keep in sync with the administration copy in
+     * src/Resources/app/administration/src/utils/payment-status.js
+     * (guarded by AdminPaymentStatusSyncTest).
+     *
      * @var array<string, string>
      */
     public const SHARED_ENVIRONMENT_METHODS = [
@@ -146,6 +150,9 @@ class SettingsService
      * is live. Methods without an environment field of their own use the
      * environment of the method they belong to, unless their own key is `live`.
      *
+     * Mirrored by getPaymentMode() in the administration (utils/payment-status.js);
+     * keep both in sync.
+     *
      * @param string $method
      * @param string|null $salesChannelId
      *
@@ -234,6 +241,7 @@ class SettingsService
         return $this->getBuckarooFee($buckarooKey, $salesChannelId);
     }
 
+    // Mirrored by isPaymentEnabled() in the administration (utils/payment-status.js); keep both in sync
     public function getEnabled(string $method = '', ?string $salesChannelId = null): bool
     {
         return $this->getSetting($method . 'Enabled', $salesChannelId) != 0;

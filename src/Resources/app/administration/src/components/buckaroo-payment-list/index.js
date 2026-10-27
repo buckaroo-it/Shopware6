@@ -24,7 +24,7 @@ Component.register("buckaroo-payment-list", {
 
     emits: ['input'],
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {
@@ -195,8 +195,9 @@ Component.register("buckaroo-payment-list", {
             const { Criteria } = Shopware.Data;
             const context = Shopware.Context.api;
 
+            // Buckaroo payment methods carry their plugin code in this custom field (set by the installer)
             const paymentCriteria = new Criteria(1, 100);
-            paymentCriteria.addFilter(Criteria.contains('handlerIdentifier', 'Buckaroo'));
+            paymentCriteria.addFilter(Criteria.not('AND', [Criteria.equals('customFields.buckaroo_key', null)]));
             paymentCriteria.addAssociation('salesChannels');
 
             const salesChannelCriteria = new Criteria(1, 100);
@@ -230,8 +231,12 @@ Component.register("buckaroo-payment-list", {
                     name: salesChannel.translated?.name || salesChannel.name
                 }));
             } catch (error) {
-                // Without read access to payment methods or sales channels we simply don't show the warning
                 this.paymentMethodsByCode = {};
+
+                // Without read access to payment methods or sales channels the warning is simply not shown
+                if (error?.response?.status !== 403) {
+                    Shopware.Utils.debug.warn('buckaroo-payment-list', 'Could not load checkout availability', error);
+                }
             }
         },
 
@@ -247,11 +252,24 @@ Component.register("buckaroo-payment-list", {
             if (!paymentMethod.active) {
                 return 'inactive';
             }
+
+            // Only storefront and headless channels have a checkout, and only those can be assigned in the dialog
+            const checkoutChannelIds = this.salesChannels.map(salesChannel => salesChannel.id);
+
             if (this.currentSalesChannelId) {
+                if (!checkoutChannelIds.includes(this.currentSalesChannelId)) {
+                    return null;
+                }
+
                 return paymentMethod.salesChannelIds.includes(this.currentSalesChannelId) ? null : 'notInSalesChannel';
             }
 
-            return paymentMethod.salesChannelIds.length ? null : 'noSalesChannel';
+            return paymentMethod.salesChannelIds.some(id => checkoutChannelIds.includes(id)) ? null : 'noSalesChannel';
+        },
+
+        // Assigning sales channels writes sales channel data, so it needs the matching permission
+        canAssignSalesChannels() {
+            return this.acl?.can('sales_channel.editor') ?? false;
         },
 
         paymentSettingsRoute(code) {
