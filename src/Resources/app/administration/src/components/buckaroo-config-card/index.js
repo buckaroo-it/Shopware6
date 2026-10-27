@@ -615,13 +615,9 @@ Component.register('buckaroo-config-card', {
                 return Boolean(this.getValueForName('idealShowissuers'));
             }
 
-            const idealFastCheckoutFields = [
-                'idealFastCheckoutEnabled',
-                'idealFastCheckoutVisibility',
-                'idealFastCheckoutLogoScheme'
-            ];
-            if (idealFastCheckoutFields.includes(name)) {
-                return Boolean(this.getValueForName('idealFastCheckout'));
+            // Fast checkout options only matter when the fast checkout button is enabled
+            if (['idealFastCheckoutVisibility', 'idealFastCheckoutLogoScheme'].includes(name)) {
+                return Boolean(this.getValueForName('idealFastCheckoutEnabled'));
             }
 
             if (name === 'afterpayPaymentstatus') {
