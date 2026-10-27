@@ -9,6 +9,9 @@ services:
     Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderDefinition:
         tags:
             - shopware.entity.definition: { entity: buckaroo_ideal_qr_order }
+    Buckaroo\Shopware6\Entity\ProcessedPush\ProcessedPushDefinition:
+        tags:
+            - shopware.entity.definition: { entity: buckaroo_processed_push }
     Buckaroo\Shopware6\Entity\IdealQrOrder\OrderIdealQrOrderExtension:
         tags:
             - shopware.entity.extension

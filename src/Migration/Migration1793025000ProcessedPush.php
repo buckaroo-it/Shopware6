@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Migration;
 
+use Buckaroo\Shopware6\Entity\ProcessedPush\ProcessedPushDefinition;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -15,7 +16,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  */
 class Migration1793025000ProcessedPush extends MigrationStep
 {
-    public const TABLE = 'buckaroo_processed_push';
+    public const TABLE = ProcessedPushDefinition::ENTITY_NAME;
 
     public function getCreationTimestamp(): int
     {

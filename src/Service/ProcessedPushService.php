@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Buckaroo\Shopware6\Entity\ProcessedPush\ProcessedPushDefinition;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Defaults;
@@ -15,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class ProcessedPushService
 {
-    public const TABLE = 'buckaroo_processed_push';
+    public const TABLE = ProcessedPushDefinition::ENTITY_NAME;
 
     private Connection $connection;
 
