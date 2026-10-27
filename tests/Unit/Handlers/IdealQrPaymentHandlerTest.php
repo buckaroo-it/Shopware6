@@ -13,6 +13,10 @@ use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Buckaroo\Shopware6\Service\SettingsService;
+use Buckaroo\Shopware6\Service\TransactionService;
+use Buckaroo\Shopware6\Service\UrlService;
+use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
@@ -113,6 +117,58 @@ class IdealQrPaymentHandlerTest extends TestCase
         $this->expectExceptionMessage('Cannot create iDEAL QR order');
 
         $handler->getMethodPayload($this->order(), new RequestDataBag(), $this->salesChannelContext(), 'idealqr');
+    }
+
+    /**
+     * The QR page shows the image stored on the order transaction, so the handler must
+     * store it there and must not pass it through the page URL, where anyone could put
+     * an image of their own.
+     */
+    public function testTheQrImageIsStoredOnTheTransactionAndKeptOutOfThePageUrl(): void
+    {
+        $transactionService = $this->createMock(TransactionService::class);
+        $transactionService->expects($this->once())
+            ->method('saveTransactionData')
+            ->with(
+                self::TRANSACTION_ID,
+                $this->isInstanceOf(Context::class),
+                [IdealQrPaymentHandler::QR_IMAGE_URL_FIELD => 'https://qr.example/ideal-qr/image.png']
+            );
+
+        $urlService = $this->createMock(UrlService::class);
+        $urlService->expects($this->once())
+            ->method('forwardToRoute')
+            ->with('frontend.action.buckaroo.ideal.qr', ['orderId' => 'order-id'])
+            ->willReturn('https://shop.test/buckaroo/ideal/qr?orderId=order-id');
+
+        $asyncPaymentService = $this->asyncPaymentService($this->createMock(SettingsService::class));
+        $asyncPaymentService->transactionService = $transactionService;
+        $asyncPaymentService->urlService = $urlService;
+
+        $response = $this->createMock(ClientResponseInterface::class);
+        $response->method('isSuccess')->willReturn(true);
+        $response->method('hasRedirect')->willReturn(false);
+        $response->method('getServiceParameters')
+            ->willReturn(['qrimageurl' => 'https://qr.example/ideal-qr/image.png']);
+
+        $orderTransaction = new OrderTransactionEntity();
+        $orderTransaction->setId(self::TRANSACTION_ID);
+
+        $handler = new IdealQrPaymentHandler($asyncPaymentService, $this->createMock(IdealQrOrderRepository::class));
+        $method = new \ReflectionMethod($handler, 'handleResponse');
+        $method->setAccessible(true);
+        $redirect = $method->invoke(
+            $handler,
+            $response,
+            $orderTransaction,
+            $this->order(),
+            new RequestDataBag(),
+            $this->salesChannelContext(),
+            'idealqr'
+        );
+
+        $this->assertInstanceOf(RedirectResponse::class, $redirect);
+        $this->assertSame('https://shop.test/buckaroo/ideal/qr?orderId=order-id', $redirect->getTargetUrl());
     }
 
     private function runPrePayHook(IdealQrPaymentHandler $handler): void

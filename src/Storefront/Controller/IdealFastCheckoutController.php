@@ -112,7 +112,8 @@ class IdealFastCheckoutController extends AbstractPaymentController
             return $response;
         } catch (\Throwable $e) {
             $this->logger->error($e->getMessage(), ['exception' => $e]);
-            return $this->response(['message' => $e->getMessage()], true);
+            // The cause is in the log; the shopper gets the generic message, not internals.
+            return $this->response(['message' => $this->trans('buckaroo.button_payment.unknown_error')], true);
         }
     }
 

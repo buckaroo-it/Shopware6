@@ -604,4 +604,31 @@ class SignatureValidationServiceTest extends TestCase
         // Assert
         $this->assertTrue($result);
     }
+
+    /**
+     * Test: the signed return data comes from the same source as the return signature
+     * check - the body when it carries the signature, otherwise the query string - with
+     * the values as Buckaroo signed them.
+     */
+    public function testGetSignedReturnDataReadsTheSourceOfTheSignature(): void
+    {
+        $fromQuery = $this->signatureValidationService->getSignedReturnData(
+            new Request(['brq_statusmessage' => 'a+b%2Bc', 'brq_signature' => 'query-signature'])
+        );
+        $fromBody = $this->signatureValidationService->getSignedReturnData(
+            new Request(
+                ['brq_statuscode' => '890', 'brq_signature' => 'query-signature'],
+                ['brq_statuscode' => '190', 'brq_signature' => 'body-signature']
+            )
+        );
+
+        $this->assertSame(
+            ['brq_statusmessage' => 'a b+c', 'brq_signature' => 'query-signature'],
+            $fromQuery
+        );
+        $this->assertSame(
+            ['brq_statuscode' => '190', 'brq_signature' => 'body-signature'],
+            $fromBody
+        );
+    }
 }

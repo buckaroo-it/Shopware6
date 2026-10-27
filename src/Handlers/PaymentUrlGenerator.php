@@ -24,15 +24,26 @@ class PaymentUrlGenerator
     ): string {
         if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
             $finishUrl = (string)$dataBag->get('finishUrl');
-            if (strpos($finishUrl, 'http://') === 0 || strpos($finishUrl, 'https://') === 0) {
-                return $finishUrl;
+            if (self::isShopPath($finishUrl)) {
+                return rtrim(
+                    $this->asyncPaymentService->urlService->forwardToRoute('frontend.home.page', []),
+                    "/"
+                ) . $finishUrl;
             }
-            return rtrim(
-                $this->asyncPaymentService->urlService->forwardToRoute('frontend.home.page', []),
-                "/"
-            ) . (string)$finishUrl;
         }
         return $this->getDefaultReturnUrl($orderTransaction, $order);
+    }
+
+    /**
+     * A finishUrl from the checkout request is only used as a path on the shop's own
+     * host. An absolute URL would send the shopper, and Buckaroo's return, to a foreign
+     * host and skip Shopware's token protected finalize route, so it is ignored.
+     */
+    public static function isShopPath(string $finishUrl): bool
+    {
+        return str_starts_with($finishUrl, '/')
+            && !str_starts_with($finishUrl, '//')
+            && !str_starts_with($finishUrl, '/\\');
     }
 
     public function getDefaultReturnUrl(

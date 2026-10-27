@@ -511,4 +511,5 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-1857 Fixed the dal:validate crash and the iDEAL QR order definition errors.
 - BTI-1858 Fixed missing labels and debug warnings on the Buckaroo admin settings page.
 - BTI-1871 Pushes now require the push fields and are recorded atomically, and the processed push table has a DAL entity definition.
+- BTI-1936 The pay-per-email return page requires a signed Buckaroo return for the order, the iDEAL QR page shows the stored QR image for the shopper's own order only, an absolute finishUrl is no longer used as return URL, and sensitive values are kept out of logs and responses.
 - Removed the inline style from the iDEAL fast checkout button to clear the Shopware Store code review warning.

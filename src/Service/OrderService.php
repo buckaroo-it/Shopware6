@@ -127,7 +127,6 @@ class OrderService
                 'serviceClass'           => $paymentServiceClass,
                 'hasPay'                 => $hasPay,
                 'hasHandlePaymentByOrder' => $hasHandlePaymentByOrder,
-                'contextToken'           => $this->salesChannelContext->getToken(),
             ]);
 
             // Include the sales-channel context token so that PaymentHandlerSimple

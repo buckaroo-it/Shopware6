@@ -30,12 +30,6 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
         string $paymentCode
     ): array {
         $applePayInfo = $dataBag->get('applePayInfo');
-        // TEMP DIAGNOSTIC: does the Apple Pay token reach the handler?
-        $this->asyncPaymentService->logger->info('[ApplePay][getMethodPayload]', [
-            'dataBagKeys'          => array_keys($dataBag->all()),
-            'applePayInfoIsString' => is_string($applePayInfo),
-            'applePayInfoLength'   => is_string($applePayInfo) ? strlen($applePayInfo) : 0,
-        ]);
 
         if (!is_string($applePayInfo)) {
             return [];

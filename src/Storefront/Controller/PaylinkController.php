@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Buckaroo\Shopware6\Service\SignatureValidationService;
+use Shopware\Core\Checkout\Order\OrderEntity;
 
 /**
  */
@@ -26,14 +28,18 @@ class PaylinkController extends StorefrontController
 
     protected LoggerInterface $logger;
 
+    protected SignatureValidationService $signatureValidationService;
+
     public function __construct(
         PayLinkService $payLinkService,
         OrderService $orderService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        SignatureValidationService $signatureValidationService
     ) {
         $this->payLinkService = $payLinkService;
         $this->orderService = $orderService;
         $this->logger = $logger;
+        $this->signatureValidationService = $signatureValidationService;
     }
 
     /**
@@ -97,9 +103,14 @@ class PaylinkController extends StorefrontController
     }
 
     /**
-     * Handle POST return from Buckaroo for PayPerEmail
-     * Buckaroo sends POST data when customer pays via email link
-     * Shows a thank you page accessible without login
+     * Handle the return from Buckaroo for PayPerEmail. Buckaroo sends the shopper back
+     * (POST or GET) with signed brq_ fields after paying via the e-mail link, and a thank
+     * you page is shown without a login.
+     *
+     * The page names the order and links to it through its deep link code, so it is only
+     * shown for a return Buckaroo signed for that very order. Without that, anyone who
+     * knew an order id could read the deep link code, or show a shop-branded "payment
+     * received" page for an unpaid order.
      *
      * @param Request $request
      * @param SalesChannelContext $salesChannelContext
@@ -122,9 +133,16 @@ class PaylinkController extends StorefrontController
 
         // Get orderId from request (either query param or POST data)
         $orderId = $request->get('orderId');
-        
+
         if (empty($orderId) || !is_string($orderId)) {
             $this->logger->error('PayPerEmail return: Missing orderId');
+            return $this->redirectToRoute('frontend.home.page');
+        }
+
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
+
+        if (!$this->signatureValidationService->validateReturnSignature($request, $salesChannelId)) {
+            $this->logger->warning('PayPerEmail return: No valid Buckaroo signature', ['orderId' => $orderId]);
             return $this->redirectToRoute('frontend.home.page');
         }
 
@@ -140,10 +158,26 @@ class PaylinkController extends StorefrontController
             return $this->redirectToRoute('frontend.home.page');
         }
 
+        if ($order->getSalesChannelId() !== $salesChannelId) {
+            $this->logger->warning('PayPerEmail return: Order belongs to another sales channel', [
+                'orderId' => $orderId,
+            ]);
+            return $this->redirectToRoute('frontend.home.page');
+        }
+
+        $signedData = $this->signatureValidationService->getSignedReturnData($request);
+
+        if (!$this->isReturnForOrder($signedData, $order)) {
+            $this->logger->warning('PayPerEmail return: Signed return is for another order', [
+                'orderId' => $orderId,
+            ]);
+            return $this->redirectToRoute('frontend.home.page');
+        }
+
         // Check if payment was cancelled
-        $statusCode = $request->get('brq_statuscode');
+        $statusCode = $this->getSignedValue($signedData, 'brq_statuscode');
         $cancel = $request->query->get('cancel');
-        
+
         if ($cancel === '1' || $statusCode === '890') {
             $this->logger->info('PayPerEmail return: Payment cancelled', ['orderId' => $orderId]);
             
@@ -163,5 +197,44 @@ class PaylinkController extends StorefrontController
             'orderNumber' => $order->getOrderNumber(),
             'orderDeepLink' => $order->getDeepLinkCode(),
         ]);
+    }
+
+    /**
+     * The signed return must name the order of the request: by the order id Buckaroo
+     * echoes from the additional parameters, or by the order number it was invoiced with.
+     * Otherwise a return signed for one order could show the page of any other order.
+     *
+     * @param array<mixed> $signedData
+     */
+    private function isReturnForOrder(array $signedData, OrderEntity $order): bool
+    {
+        foreach (['ADD_orderId', 'brq_AdditionalParameters_orderId'] as $field) {
+            $signedOrderId = $this->getSignedValue($signedData, $field);
+            if ($signedOrderId !== '' && strcasecmp($signedOrderId, $order->getId()) === 0) {
+                return true;
+            }
+        }
+
+        $orderNumber = (string)$order->getOrderNumber();
+        $signedOrderNumber = $this->getSignedValue($signedData, 'brq_invoicenumber');
+
+        return $orderNumber !== '' && $signedOrderNumber === $orderNumber;
+    }
+
+    /**
+     * Buckaroo does not keep the casing of the field names it echoes back, so the
+     * signed data is looked up case-insensitively.
+     *
+     * @param array<mixed> $signedData
+     */
+    private function getSignedValue(array $signedData, string $field): string
+    {
+        foreach ($signedData as $key => $value) {
+            if (strcasecmp((string)$key, $field) === 0) {
+                return is_string($value) ? trim($value) : '';
+            }
+        }
+
+        return '';
     }
 }

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler;
 use Buckaroo\Shopware6\Service\OrderService;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,6 +24,11 @@ class IdealQrController extends StorefrontController
         $this->orderService = $orderService;
     }
 
+    /**
+     * Show the QR code of the shopper's own order. The image URL is the one Buckaroo
+     * returned, stored on the order transaction by the payment handler; it is never
+     * taken from the request, so nobody can show a QR of their own on a page of the shop.
+     */
     #[Route(
         path: "/buckaroo/ideal/qr",
         defaults: ['_routeScope' => ['storefront']],
@@ -29,24 +36,24 @@ class IdealQrController extends StorefrontController
         options: ["seo" => false],
         methods: ["GET"]
     )]
-    public function displayPage(Request $request): Response
+    public function displayPage(Request $request, SalesChannelContext $salesChannelContext): Response
     {
-        if (!$request->query->has('qrImage') || !is_string($request->get('qrImage'))) {
+        $orderId = $request->query->get('orderId');
+        if (!is_string($orderId) || $orderId === '') {
             return $this->redirectToRoute('frontend.checkout.cart.page');
         }
 
-        if (!$request->query->has('transactionKey') || !is_string($request->get('transactionKey'))) {
-            return $this->redirectToRoute('frontend.checkout.cart.page');
-        }
+        $order = $this->getOrderOfShopper($orderId, $salesChannelContext, ['orderCustomer', 'transactions']);
+        $qrImage = $order !== null ? $this->getQrImageUrl($order) : null;
 
-        if (!$request->query->has('orderId') || !is_string($request->get('orderId'))) {
+        if ($order === null || $qrImage === null) {
             return $this->redirectToRoute('frontend.checkout.cart.page');
         }
 
         return $this->renderStorefront('@BuckarooPayments/storefront/buckaroo/ideal-qr.html.twig', [
-            'qrImage' => urldecode($request->get('qrImage')),
-            'orderId' => $request->get('orderId'),
-            'cancelUrl' => $this->getCancelUrl($request->get('orderId')),
+            'qrImage' => $qrImage,
+            'orderId' => $order->getId(),
+            'cancelUrl' => $this->getCancelUrl($order->getId()),
             'pullUrl' => $this->generateUrl('frontend.action.buckaroo.ideal.qr.status', [], 0)
         ]);
     }
@@ -76,17 +83,19 @@ class IdealQrController extends StorefrontController
     )]
     public function pullStatus(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
-        if (!$request->request->has('orderId') || !is_string($request->get('orderId'))) {
+        $orderId = $request->request->get('orderId');
+        if (!is_string($orderId) || $orderId === '') {
             return new JsonResponse(["error" => true, "message" => "Invalid order id."]);
         }
 
-        $order = $this->orderService->getOrderById(
-            $request->get('orderId'),
+        $order = $this->getOrderOfShopper(
+            $orderId,
+            $salesChannelContext,
             [
+                'orderCustomer',
                 'transactions',
                 'transactions.stateMachineState',
-            ],
-            $salesChannelContext->getContext()
+            ]
         );
         if ($order === null) {
             return new JsonResponse(["error" => true, "message" => "Cannot find order"]);
@@ -136,5 +145,46 @@ class IdealQrController extends StorefrontController
             return new JsonResponse(["redirectUrl" => $this->getCancelUrl($order->getId())]);
         }
         return new JsonResponse(["state" => $state]);
+    }
+
+    /**
+     * The order of the request, when it was placed by the customer of the current session
+     * in the current sales channel. Any order id can be typed in, so without this check
+     * the page and the status poll would serve the order of any other shopper.
+     *
+     * @param array<int, string> $associations
+     */
+    private function getOrderOfShopper(
+        string $orderId,
+        SalesChannelContext $salesChannelContext,
+        array $associations
+    ): ?OrderEntity {
+        $customerId = $salesChannelContext->getCustomer()?->getId();
+        if ($customerId === null) {
+            return null;
+        }
+
+        $order = $this->orderService->getOrderById($orderId, $associations, $salesChannelContext->getContext());
+        if ($order === null) {
+            return null;
+        }
+
+        if ($order->getSalesChannelId() !== $salesChannelContext->getSalesChannelId()) {
+            return null;
+        }
+
+        if ($order->getOrderCustomer()?->getCustomerId() !== $customerId) {
+            return null;
+        }
+
+        return $order;
+    }
+
+    private function getQrImageUrl(OrderEntity $order): ?string
+    {
+        $customFields = $order->getTransactions()?->last()?->getCustomFields() ?? [];
+        $qrImage = $customFields[IdealQrPaymentHandler::QR_IMAGE_URL_FIELD] ?? null;
+
+        return is_string($qrImage) && $qrImage !== '' ? $qrImage : null;
     }
 }
