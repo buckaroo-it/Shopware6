@@ -11,6 +11,7 @@ use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\Service\InvoiceService;
 use Buckaroo\Shopware6\Service\OrderService;
+use Buckaroo\Shopware6\Service\ProcessedPushService;
 use Buckaroo\Shopware6\Service\SignatureValidationService;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Service\TransactionService;
@@ -28,19 +29,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * A push is recorded on its order transaction by its Buckaroo transaction key and status
- * before anything acts on it, and a push that was already processed is not processed again.
+ * A push is claimed by its Buckaroo transaction key, status, transaction type and mutation
+ * type before anything acts on it, and a push that was already claimed is not processed
+ * again.
  */
 class PushControllerReplayTest extends TestCase
 {
     private const TRANSACTION_ID = 'order-transaction-id';
 
+    private const PUSH_KEY = 'KEY-123|190|C021|PROCESSING';
+
     public function testReplayedAuthorizePushDoesNotAuthorizeAgain(): void
     {
-        $postData = $this->pushData(['brq_transaction_type' => 'I872']);
-
-        $response = $this->handlePush($postData, [
-            'transactionService' => $this->transactionServiceWithClaims([$this->claimOf($postData)]),
+        $response = $this->handlePush($this->pushData(['brq_transaction_type' => 'I872']), [
+            'processedPushService' => $this->processedPushService(false, 'KEY-123|190|I872|PROCESSING'),
         ]);
 
         $this->assertAlreadyProcessed($response);
@@ -48,38 +50,148 @@ class PushControllerReplayTest extends TestCase
 
     public function testReplayedFastCheckoutPushDoesNotUpdateTheCustomer(): void
     {
-        $postData = $this->pushData(['brq_SERVICE_ideal_TransactionFlow' => 'Fast_Checkout']);
-
-        $response = $this->handlePush($postData, [
-            'transactionService' => $this->transactionServiceWithClaims([$this->claimOf($postData)]),
+        $response = $this->handlePush($this->pushData(['brq_SERVICE_ideal_TransactionFlow' => 'Fast_Checkout']), [
+            'processedPushService' => $this->processedPushService(claimed: false),
         ]);
 
         $this->assertAlreadyProcessed($response);
     }
 
     /**
-     * An earlier pending status, or an informational push, of the same transaction does
-     * not block it: only an identical push counts as already processed.
+     * Of two concurrent copies of the same push only the one that wins the claim is
+     * processed; the other is answered as already processed.
+     */
+    public function testSecondCopyOfAPushIsNotProcessed(): void
+    {
+        $processedPushService = $this->createMock(ProcessedPushService::class);
+        $processedPushService->expects($this->exactly(2))
+            ->method('claim')
+            ->with(self::PUSH_KEY, self::TRANSACTION_ID)
+            ->willReturnOnConsecutiveCalls(true, false);
+
+        $checkoutHelper = $this->createMock(CheckoutHelper::class);
+        $checkoutHelper->method('getOrderById')->willReturnOnConsecutiveCalls($this->order(), null, $this->order());
+
+        $services = [
+            'processedPushService' => $processedPushService,
+            'checkoutHelper' => $checkoutHelper,
+            'eventDispatcher' => $this->createMock(EventDispatcherInterface::class),
+        ];
+
+        $this->assertSame(
+            ['status' => false, 'message' => 'buckaroo.messages.paymentError'],
+            $this->decode($this->handlePush($this->pushData(), $services)),
+            'the first copy is processed (and ends here because the order is no longer found)'
+        );
+        $this->assertAlreadyProcessed($this->handlePush($this->pushData(), $services));
+    }
+
+    /**
+     * Earlier plugin versions recorded processed pushes on the order transaction. Those
+     * pushes must not be processed again after an update.
+     */
+    public function testPushRecordedByAnEarlierPluginVersionIsNotProcessedAgain(): void
+    {
+        $response = $this->handlePush($this->pushData(), [
+            'checkoutHelper' => $this->checkoutHelperFindingOnlyTheOrder([self::PUSH_KEY]),
+        ]);
+
+        $this->assertAlreadyProcessed($response);
+    }
+
+    /**
+     * The claim is keyed on the values as they were signed: an encoded variant of a signed
+     * value is the same push.
+     */
+    public function testClaimIsKeyedOnTheSignedValues(): void
+    {
+        $postData = $this->pushData(['brq_transactions' => '%6Bey-123', 'brq_mutationtype' => '%50rocessing']);
+
+        $response = $this->handlePush($postData, [
+            'processedPushService' => $this->processedPushService(claimed: false),
+            'signedPushData' => $this->pushData(),
+        ]);
+
+        $this->assertAlreadyProcessed($response);
+    }
+
+    /**
+     * A data request push (Klarna MoR reserve) carries its data request key instead of a
+     * transaction key, and is claimed by it.
+     */
+    public function testDataRequestPushIsClaimedByItsDataRequestKey(): void
+    {
+        $postData = $this->pushData(['brq_datarequest' => 'drk-456', 'brq_mutationtype' => 'Informational']);
+        unset($postData['brq_transactions'], $postData['brq_transaction_type']);
+
+        $processedPushService = $this->createMock(ProcessedPushService::class);
+        $processedPushService->expects($this->once())
+            ->method('claim')
+            ->with('DRK-456|190||INFORMATIONAL', self::TRANSACTION_ID)
+            ->willReturn(false);
+
+        $this->assertAlreadyProcessed($this->handlePush($postData, ['processedPushService' => $processedPushService]));
+    }
+
+    /**
+     * A push that cannot be identified cannot be claimed, so it is rejected before
+     * anything is looked up or changed.
+     *
+     * @dataProvider unidentifiablePushProvider
+     *
+     * @param array<int, string> $missingFields
+     */
+    public function testPushWithoutTransactionKeyOrStatusIsRejected(array $missingFields): void
+    {
+        $postData = $this->pushData();
+        foreach ($missingFields as $field) {
+            unset($postData[$field]);
+        }
+
+        $response = $this->handlePush($postData, [
+            'checkoutHelper' => $this->untouchable(CheckoutHelper::class),
+        ]);
+
+        $this->assertSame(
+            ['status' => false, 'message' => 'buckaroo.messages.paymentError'],
+            $this->decode($response)
+        );
+    }
+
+    /**
+     * @return array<string, array{array<int, string>}>
+     */
+    public static function unidentifiablePushProvider(): array
+    {
+        return [
+            'no transaction key' => [['brq_transactions']],
+            'no status code' => [['brq_statuscode']],
+        ];
+    }
+
+    /**
+     * An earlier status, or an informational push, of the same transaction does not block
+     * it: only an identical push counts as already processed.
      */
     public function testNewPushOfAKnownTransactionIsClaimedAndProcessed(): void
     {
-        $earlierClaims = ['KEY-123|791|I872|PROCESSING', 'KEY-123|190|I872|INFORMATIONAL'];
-
-        $transactionService = $this->transactionServiceWithClaims($earlierClaims);
-        $transactionService->expects($this->once())
-            ->method('updateTransactionCustomFields')
-            ->with(self::TRANSACTION_ID, [
-                PushController::PROCESSED_PUSHES_FIELD => [...$earlierClaims, 'KEY-123|190|I872|PROCESSING'],
-            ]);
+        $processedPushService = $this->createMock(ProcessedPushService::class);
+        $processedPushService->expects($this->once())
+            ->method('claim')
+            ->with('KEY-123|190|I872|PROCESSING', self::TRANSACTION_ID)
+            ->willReturn(true);
 
         $stateTransitionService = $this->createMock(StateTransitionService::class);
         $stateTransitionService->expects($this->once())->method('isTransitionPaymentState')->willReturn(true);
 
         $checkoutHelper = $this->createMock(CheckoutHelper::class);
-        $checkoutHelper->method('getOrderById')->willReturnOnConsecutiveCalls($this->order(), null);
+        $checkoutHelper->method('getOrderById')->willReturnOnConsecutiveCalls(
+            $this->order(['KEY-123|791|I872|PROCESSING', 'KEY-123|190|I872|INFORMATIONAL']),
+            null
+        );
 
         $response = $this->handlePush($this->pushData(['brq_transaction_type' => 'I872']), [
-            'transactionService' => $transactionService,
+            'processedPushService' => $processedPushService,
             'stateTransitionService' => $stateTransitionService,
             'checkoutHelper' => $checkoutHelper,
             'eventDispatcher' => $this->createMock(EventDispatcherInterface::class),
@@ -97,15 +209,8 @@ class PushControllerReplayTest extends TestCase
      */
     public function testClaimIsReleasedWhenProcessingThrows(): void
     {
-        $transactionService = $this->transactionServiceWithClaims(['KEY-OTHER|190|C021|PROCESSING']);
-        $transactionService->expects($this->once())->method('updateTransactionCustomFields');
-        $transactionService->expects($this->once())
-            ->method('saveTransactionData')
-            ->with(
-                self::TRANSACTION_ID,
-                $this->isInstanceOf(Context::class),
-                [PushController::PROCESSED_PUSHES_FIELD => ['KEY-OTHER|190|C021|PROCESSING']]
-            );
+        $processedPushService = $this->processedPushService(claimed: true);
+        $processedPushService->expects($this->once())->method('release')->with(self::PUSH_KEY);
 
         $checkoutHelper = $this->createMock(CheckoutHelper::class);
         $checkoutHelper->method('getOrderById')->willReturnOnConsecutiveCalls(
@@ -117,7 +222,7 @@ class PushControllerReplayTest extends TestCase
         $this->expectExceptionMessage('database gone');
 
         $this->handlePush($this->pushData(), [
-            'transactionService' => $transactionService,
+            'processedPushService' => $processedPushService,
             'checkoutHelper' => $checkoutHelper,
             'eventDispatcher' => $this->createMock(EventDispatcherInterface::class),
         ]);
@@ -129,14 +234,8 @@ class PushControllerReplayTest extends TestCase
      */
     public function testClaimIsReleasedWhenAPushProcessingSubscriberInterruptsThePush(): void
     {
-        $transactionService = $this->transactionServiceWithClaims([]);
-        $transactionService->expects($this->once())
-            ->method('saveTransactionData')
-            ->with(
-                self::TRANSACTION_ID,
-                $this->isInstanceOf(Context::class),
-                [PushController::PROCESSED_PUSHES_FIELD => []]
-            );
+        $processedPushService = $this->processedPushService(claimed: true);
+        $processedPushService->expects($this->once())->method('release')->with(self::PUSH_KEY);
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->method('dispatch')->willReturnCallback(
@@ -144,7 +243,7 @@ class PushControllerReplayTest extends TestCase
         );
 
         $response = $this->handlePush($this->pushData(), [
-            'transactionService' => $transactionService,
+            'processedPushService' => $processedPushService,
             'eventDispatcher' => $eventDispatcher,
         ]);
 
@@ -164,33 +263,17 @@ class PushControllerReplayTest extends TestCase
     }
 
     /**
-     * @param array<int, string> $claims
-     *
-     * @return TransactionService&\PHPUnit\Framework\MockObject\MockObject
+     * @return ProcessedPushService&\PHPUnit\Framework\MockObject\MockObject
      */
-    private function transactionServiceWithClaims(array $claims)
+    private function processedPushService(bool $claimed, string $pushKey = self::PUSH_KEY)
     {
-        $orderTransaction = new OrderTransactionEntity();
-        $orderTransaction->setId(self::TRANSACTION_ID);
-        $orderTransaction->setCustomFields([PushController::PROCESSED_PUSHES_FIELD => $claims]);
+        $processedPushService = $this->createMock(ProcessedPushService::class);
+        $processedPushService->expects($this->once())
+            ->method('claim')
+            ->with($pushKey, self::TRANSACTION_ID)
+            ->willReturn($claimed);
 
-        $transactionService = $this->createMock(TransactionService::class);
-        $transactionService->method('getOrderTransactionById')->willReturn($orderTransaction);
-
-        return $transactionService;
-    }
-
-    /**
-     * @param array<string, string> $postData
-     */
-    private function claimOf(array $postData): string
-    {
-        return strtoupper(implode('|', [
-            $postData['brq_transactions'],
-            $postData['brq_statuscode'],
-            $postData['brq_transaction_type'] ?? '',
-            $postData['brq_mutationtype'] ?? '',
-        ]));
+        return $processedPushService;
     }
 
     /**
@@ -218,15 +301,16 @@ class PushControllerReplayTest extends TestCase
      * the test as soon as it is called.
      *
      * @param array<string, string> $postData
-     * @param array<string, object> $services
+     * @param array<string, mixed> $services 'signedPushData' overrides the values the
+     *                                       signature was validated over
      */
     private function handlePush(array $postData, array $services = []): JsonResponse
     {
         $signatureValidationService = $this->createMock(SignatureValidationService::class);
         $signatureValidationService->method('validateSignature')->willReturn(true);
+        $signatureValidationService->method('getSignedPushData')
+            ->willReturn($services['signedPushData'] ?? $postData);
 
-        /** @var TransactionService $transactionService */
-        $transactionService = $services['transactionService'] ?? $this->untouchable(TransactionService::class);
         /** @var StateTransitionService $stateTransitionService */
         $stateTransitionService = $services['stateTransitionService']
             ?? $this->untouchable(StateTransitionService::class);
@@ -234,10 +318,13 @@ class PushControllerReplayTest extends TestCase
         $checkoutHelper = $services['checkoutHelper'] ?? $this->checkoutHelperFindingOnlyTheOrder();
         /** @var EventDispatcherInterface $eventDispatcher */
         $eventDispatcher = $services['eventDispatcher'] ?? $this->untouchable(EventDispatcherInterface::class);
+        /** @var ProcessedPushService $processedPushService */
+        $processedPushService = $services['processedPushService']
+            ?? $this->untouchable(ProcessedPushService::class);
 
         $controller = new PushController(
             $signatureValidationService,
-            $transactionService,
+            $this->untouchable(TransactionService::class),
             $stateTransitionService,
             $this->untouchable(InvoiceService::class),
             $checkoutHelper,
@@ -245,7 +332,8 @@ class PushControllerReplayTest extends TestCase
             $eventDispatcher,
             $this->untouchable(IdealQrOrderRepository::class),
             $this->untouchable(OrderService::class),
-            $this->untouchable(CustomerService::class)
+            $this->untouchable(CustomerService::class),
+            $processedPushService
         );
 
         $translator = $this->createMock(TranslatorInterface::class);
@@ -265,22 +353,28 @@ class PushControllerReplayTest extends TestCase
     /**
      * The push is bound to its order before it is claimed; nothing else may be called.
      *
+     * @param array<int, string> $legacyClaims
+     *
      * @return CheckoutHelper&\PHPUnit\Framework\MockObject\MockObject
      */
-    private function checkoutHelperFindingOnlyTheOrder()
+    private function checkoutHelperFindingOnlyTheOrder(array $legacyClaims = [])
     {
         $checkoutHelper = $this->createMock(CheckoutHelper::class);
-        $checkoutHelper->method('getOrderById')->willReturn($this->order());
+        $checkoutHelper->method('getOrderById')->willReturn($this->order($legacyClaims));
         $checkoutHelper->expects($this->never())
             ->method($this->logicalNot($this->equalTo('getOrderById')));
 
         return $checkoutHelper;
     }
 
-    private function order(): OrderEntity
+    /**
+     * @param array<int, string> $legacyClaims pushes recorded by an earlier plugin version
+     */
+    private function order(array $legacyClaims = []): OrderEntity
     {
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId(self::TRANSACTION_ID);
+        $orderTransaction->setCustomFields([PushController::PROCESSED_PUSHES_FIELD => $legacyClaims]);
 
         $order = new OrderEntity();
         $order->setId('order-id');

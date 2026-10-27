@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 
@@ -55,8 +56,10 @@ class IdealQrOrderDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
             (new IntField('invoice', 'invoice'))->addFlags(new WriteProtected(), new ApiAware()),
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new Required(), new ApiAware()),
+            (new ReferenceVersionField(OrderDefinition::class))->addFlags(new Required(), new ApiAware()),
             (new FkField('order_transaction_id', 'orderTransactionId', OrderTransactionDefinition::class))
                 ->addFlags(new Required(), new ApiAware()),
+            (new ReferenceVersionField(OrderTransactionDefinition::class))->addFlags(new Required(), new ApiAware()),
             new OneToOneAssociationField('order', 'order_id', 'id', OrderDefinition::class, false),
             new OneToOneAssociationField(
                 'orderTransaction',

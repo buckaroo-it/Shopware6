@@ -11,6 +11,7 @@ use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\Service\InvoiceService;
 use Buckaroo\Shopware6\Service\OrderService;
+use Buckaroo\Shopware6\Service\ProcessedPushService;
 use Buckaroo\Shopware6\Service\SignatureValidationService;
 use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Service\TransactionService;
@@ -45,7 +46,7 @@ class PushControllerEnvironmentTest extends TestCase
         $response = $this->handlePush(
             $this->pushData(['brq_test' => 'true']),
             $this->checkoutHelper(testEnvironment: false),
-            $this->untouchable(TransactionService::class)
+            $this->untouchable(ProcessedPushService::class)
         );
 
         $this->assertRejected($response);
@@ -62,7 +63,7 @@ class PushControllerEnvironmentTest extends TestCase
         $response = $this->handlePush(
             $this->pushData(['brq_test' => $testFlag]),
             $this->checkoutHelper(testEnvironment: false),
-            $this->untouchable(TransactionService::class)
+            $this->untouchable(ProcessedPushService::class)
         );
 
         $this->assertRejected($response);
@@ -85,7 +86,7 @@ class PushControllerEnvironmentTest extends TestCase
         $response = $this->handlePush(
             $this->pushData(['brq_test' => 'true']),
             $this->checkoutHelper(testEnvironment: true, handlerIdentifier: 'Some\\Other\\Handler'),
-            $this->untouchable(TransactionService::class)
+            $this->untouchable(ProcessedPushService::class)
         );
 
         $this->assertRejected($response);
@@ -98,7 +99,7 @@ class PushControllerEnvironmentTest extends TestCase
         $response = $this->handlePush(
             $postData,
             $this->checkoutHelper(testEnvironment: true),
-            $this->transactionServiceWithClaimOf($postData)
+            $this->processedPushServiceWithClaimOf($postData)
         );
 
         $this->assertPassedTheBinding($response);
@@ -111,7 +112,7 @@ class PushControllerEnvironmentTest extends TestCase
         $checkoutHelper = $this->checkoutHelper(testEnvironment: false);
         $checkoutHelper->expects($this->never())->method('isTestEnvironment');
 
-        $response = $this->handlePush($postData, $checkoutHelper, $this->transactionServiceWithClaimOf($postData));
+        $response = $this->handlePush($postData, $checkoutHelper, $this->processedPushServiceWithClaimOf($postData));
 
         $this->assertPassedTheBinding($response);
     }
@@ -121,7 +122,7 @@ class PushControllerEnvironmentTest extends TestCase
         $response = $this->handlePush(
             $this->pushData(['brq_websitekey' => 'OtherWebsiteKey']),
             $this->checkoutHelper(testEnvironment: false),
-            $this->untouchable(TransactionService::class)
+            $this->untouchable(ProcessedPushService::class)
         );
 
         $this->assertRejected($response);
@@ -134,7 +135,7 @@ class PushControllerEnvironmentTest extends TestCase
         $response = $this->handlePush(
             $postData,
             $this->checkoutHelper(testEnvironment: false),
-            $this->transactionServiceWithClaimOf($postData)
+            $this->processedPushServiceWithClaimOf($postData)
         );
 
         $this->assertPassedTheBinding($response);
@@ -150,7 +151,7 @@ class PushControllerEnvironmentTest extends TestCase
 
     /**
      * The push got past the order binding: it reached the replay check, which stops it
-     * because the test records it as already processed.
+     * because the test reports it as already claimed.
      */
     private function assertPassedTheBinding(JsonResponse $response): void
     {
@@ -193,23 +194,22 @@ class PushControllerEnvironmentTest extends TestCase
     /**
      * @param array<string, string> $postData
      *
-     * @return TransactionService&\PHPUnit\Framework\MockObject\MockObject
+     * @return ProcessedPushService&\PHPUnit\Framework\MockObject\MockObject
      */
-    private function transactionServiceWithClaimOf(array $postData)
+    private function processedPushServiceWithClaimOf(array $postData)
     {
-        $orderTransaction = new OrderTransactionEntity();
-        $orderTransaction->setId(self::TRANSACTION_ID);
-        $orderTransaction->setCustomFields([PushController::PROCESSED_PUSHES_FIELD => [strtoupper(implode('|', [
-            $postData['brq_transactions'],
-            $postData['brq_statuscode'],
-            $postData['brq_transaction_type'],
-            $postData['brq_mutationtype'],
-        ]))]]);
+        $processedPushService = $this->createMock(ProcessedPushService::class);
+        $processedPushService->expects($this->once())
+            ->method('claim')
+            ->with(strtoupper(implode('|', [
+                $postData['brq_transactions'],
+                $postData['brq_statuscode'],
+                $postData['brq_transaction_type'],
+                $postData['brq_mutationtype'],
+            ])), self::TRANSACTION_ID)
+            ->willReturn(false);
 
-        $transactionService = $this->createMock(TransactionService::class);
-        $transactionService->method('getOrderTransactionById')->willReturn($orderTransaction);
-
-        return $transactionService;
+        return $processedPushService;
     }
 
     /**
@@ -240,10 +240,14 @@ class PushControllerEnvironmentTest extends TestCase
     private function handlePush(
         array $postData,
         CheckoutHelper $checkoutHelper,
-        TransactionService $transactionService
+        ProcessedPushService $processedPushService
     ): JsonResponse {
         $signatureValidationService = $this->createMock(SignatureValidationService::class);
         $signatureValidationService->method('validateSignature')->willReturn(true);
+        $signatureValidationService->method('getSignedPushData')->willReturn($postData);
+
+        /** @var TransactionService $transactionService */
+        $transactionService = $this->untouchable(TransactionService::class);
 
         /** @var StateTransitionService $stateTransitionService */
         $stateTransitionService = $this->untouchable(StateTransitionService::class);
@@ -268,7 +272,8 @@ class PushControllerEnvironmentTest extends TestCase
             $eventDispatcher,
             $idealQrRepository,
             $orderService,
-            $customerService
+            $customerService,
+            $processedPushService
         );
 
         $translator = $this->createMock(TranslatorInterface::class);

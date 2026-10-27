@@ -20,6 +20,11 @@ class IdealQrPaymentHandler extends PaymentHandlerSimple
 {
     public const IDEAL_QR_INVOICE_PREFIX = 'iQR';
 
+    /**
+     * Order transaction custom field holding the URL of the QR image Buckaroo generated.
+     */
+    public const QR_IMAGE_URL_FIELD = 'buckarooIdealQrImageUrl';
+
     public string $paymentClass = IdealQr::class;
 
     protected ?int $invoice = null;
@@ -147,25 +152,49 @@ class IdealQrPaymentHandler extends PaymentHandlerSimple
             isset($serviceParameters['qrimageurl']) &&
             is_string($serviceParameters['qrimageurl'])
         ) {
-            return new RedirectResponse(
-                $this->getReturnPageUrl(
-                    $serviceParameters['qrimageurl'],
-                    $response->getTransactionKey(),
-                    $order->getId()
-                )
+            // The QR page reads the image from the order transaction, never from its URL,
+            // so nobody can show a QR of their own on a page of the shop.
+            $this->storeQrImageUrl(
+                $orderTransaction,
+                $serviceParameters['qrimageurl'],
+                $salesChannelContext->getContext()
             );
+
+            return new RedirectResponse($this->getReturnPageUrl($order->getId()));
         }
 
         return $redirect;
     }
 
-    private function getReturnPageUrl(string $qrImage, string $transactionKey, string $orderId): string
+    /**
+     * @param mixed $orderTransaction
+     */
+    private function storeQrImageUrl($orderTransaction, string $qrImageUrl, Context $context): void
+    {
+        $orderTransactionId = null;
+        if ($orderTransaction instanceof OrderTransactionEntity) {
+            $orderTransactionId = $orderTransaction->getId();
+        } elseif (is_object($orderTransaction) && method_exists($orderTransaction, 'getOrderTransaction')) {
+            $entity = $orderTransaction->getOrderTransaction();
+            $orderTransactionId = $entity instanceof OrderTransactionEntity ? $entity->getId() : null;
+        }
+
+        if ($orderTransactionId === null) {
+            throw new \RuntimeException('Cannot store the iDEAL QR image without an order transaction');
+        }
+
+        $this->asyncPaymentService->transactionService->saveTransactionData(
+            $orderTransactionId,
+            $context,
+            [self::QR_IMAGE_URL_FIELD => $qrImageUrl]
+        );
+    }
+
+    private function getReturnPageUrl(string $orderId): string
     {
         return  $this->asyncPaymentService
             ->urlService
             ->forwardToRoute('frontend.action.buckaroo.ideal.qr', [
-                'qrImage' => $qrImage,
-                'transactionKey' => $transactionKey,
                 'orderId' => $orderId
             ]);
     }
