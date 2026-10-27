@@ -321,7 +321,7 @@ services:
 
     Buckaroo\Shopware6\Storefront\Controller\PaylinkController:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\PayLinkService', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Helpers\Logger']
+        arguments: ['@Buckaroo\Shopware6\Service\PayLinkService', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Helpers\Logger', '@Buckaroo\Shopware6\Service\SignatureValidationService']
         calls:
             - [setContainer, ['@service_container']]
 

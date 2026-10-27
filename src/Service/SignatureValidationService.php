@@ -42,11 +42,28 @@ class SignatureValidationService
      */
     public function validateReturnSignature(Request $request, ?string $salesChannelId = null): bool
     {
-        $data = $request->request->has('brq_signature')
+        return $this->validateData($this->getReturnData($request), $salesChannelId);
+    }
+
+    /**
+     * The return fields with the values the signature was validated over, read from the
+     * same source (body or query string) as validateReturnSignature().
+     *
+     * @return array<mixed>
+     */
+    public function getSignedReturnData(Request $request): array
+    {
+        return $this->normalizeSignedData($this->getReturnData($request));
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function getReturnData(Request $request): array
+    {
+        return $request->request->has('brq_signature')
             ? $request->request->all()
             : $request->query->all();
-
-        return $this->validateData($data, $salesChannelId);
     }
 
     /**

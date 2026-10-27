@@ -133,8 +133,6 @@ class GooglePayController extends AbstractPaymentController
     {
         $this->logger->info('[GooglePay] createGoogleOrder — START', [
             'page'        => $request->request->get('page'),
-            'cartToken'   => $request->request->get('cartToken'),
-            'contextToken' => $salesChannelContext->getToken(),
             'customerId'  => $salesChannelContext->getCustomer()?->getId() ?? 'guest/null',
             'paymentHasInfo' => !empty($request->request->get('payment')),
         ]);

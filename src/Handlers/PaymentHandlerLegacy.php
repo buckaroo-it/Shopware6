@@ -491,19 +491,15 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
     {
         if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
             $finishUrl = (string)$dataBag->get('finishUrl');
-            if (
-                strpos($finishUrl, 'http://') === 0 ||
-                strpos($finishUrl, 'https://') === 0
-            ) {
-                return $finishUrl;
+            // Only a path on the shop's own host is used, see PaymentUrlGenerator::isShopPath()
+            if (PaymentUrlGenerator::isShopPath($finishUrl)) {
+                return rtrim(
+                    $this->asyncPaymentService
+                        ->urlService
+                        ->forwardToRoute('frontend.home.page', []),
+                    "/"
+                ) . $finishUrl;
             }
-
-            return rtrim(
-                $this->asyncPaymentService
-                    ->urlService
-                    ->forwardToRoute('frontend.home.page', []),
-                "/"
-            ) . (string)$finishUrl;
         }
 
         return $transaction->getReturnUrl();
