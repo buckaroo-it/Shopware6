@@ -554,9 +554,7 @@ class PushController extends StorefrontController
                 return $this->response('buckaroo.messages.skippedPush');
             }
 
-            $paymentSuccesStatus = $this->getCancelOpenOrderSetting($salesChannelId);
-            
-            if ($paymentSuccesStatus === 'enabled') {
+            if ($this->isCancelOrderOnFailedPaymentEnabled($salesChannelId)) {
                 $this->stateTransitionService->changeOrderStatus($order, $context, 'cancel');
                 $this->stateTransitionService->changeDeliveryStatus($order, $context, 'cancel');
             }
@@ -675,14 +673,15 @@ class PushController extends StorefrontController
         return "completed";
     }
     
-    private function getCancelOpenOrderSetting(string $salesChannelId): string
+    /**
+     * "Cancel order when payment fails". Stored as a boolean since it became a switch;
+     * the former select stored "enabled"/"disabled", which is still accepted.
+     */
+    private function isCancelOrderOnFailedPaymentEnabled(string $salesChannelId): bool
     {
-        $status = $this->checkoutHelper->getSettingsValue('automaticallyCloseOpenOrders', $salesChannelId);
-        if ($status !== null && is_string($status)) {
-            return $status;
-        }
+        $value = $this->checkoutHelper->getSettingsValue('automaticallyCloseOpenOrders', $salesChannelId);
 
-        return "disabled";
+        return in_array($value, [true, 1, '1', 'true', 'enabled'], true);
     }
 
     private function response(

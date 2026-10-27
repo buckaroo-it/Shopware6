@@ -66,73 +66,6 @@
 			<helpText lang="fr-FR">Affichée sur le relevé bancaire du client lors des remboursements et dans Buckaroo Plaza. Vous pouvez utiliser {order_number}, {shop_name} et {product_name} (premier produit de la commande). Laissez vide pour utiliser le nom de la boutique. 244 caractères maximum.</helpText>
         </input-field>
 
-        <input-field type="bool">
-            <name>advancedConfiguration</name>
-            <label lang="en-GB">Advanced configuration</label>
-            <label lang="de-DE">Erweiterte Konfiguration</label>
-            <label lang="nl-NL">Geavanceerde configuratie</label>
-			<label lang="fr-FR">Configuration avancée</label>
-        </input-field>
-
-        <input-field type="bool">
-            <name>sendInvoiceEmail</name>
-            <label lang="en-GB">Send transactional invoice email</label>
-            <label lang="de-DE">Transaktionsrechnungs-E-Mail senden</label>
-            <label lang="nl-NL">Verzend transactionele factuur-e-mail</label>
-			<label lang="fr-FR">Envoyer un e-mail de facture transactionnelle</label>
-        </input-field>
-
-        <input-field type="single-select">
-            <name>paymentSuccesStatus</name>
-            <label lang="en-GB">Payment success status</label>
-            <label lang="de-DE">Status des Zahlungserfolgs</label>
-            <label lang="nl-NL">Successtatus van betaling</label>
-			<label lang="fr-FR">État de réussite du paiement</label>
-            <helpText lang="en-GB">This status will be given to orders that are paid.</helpText>
-            <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde bestellingen.</helpText>
-            <helpText lang="de-DE">Dieser Status wird für bezahlte Bestellungen vergeben.</helpText>
-			<helpText lang="fr-FR">Ce statut sera attribué aux commandes payées.</helpText>
-            <defaultValue>paid</defaultValue>
-            <options>
-                <option>
-                    <id>paid</id>
-                    <name lang="en-GB">Paid</name>
-                    <name lang="nl-NL">Betaald</name>
-                    <name lang="de-DE">Bezahlt</name>
-                    <name lang="fr-FR">Payé</name>
-                </option>
-            </options>
-        </input-field>
-
-        <input-field type="single-select">
-            <name>automaticallyCloseOpenOrders</name>
-            <label lang="en-GB">Automatically close open orders</label>
-            <label lang="de-DE">Offene Bestellungen automatisch schließen</label>
-            <label lang="nl-NL">Openstaande bestellingen automatisch annuleren</label>
-			<label lang="fr-FR">Fermer automatiquement les commandes ouvertes</label>
-            <helpText lang="en-GB">If a payment transaction fails, the order and delivery statuses will automatically be updated to 'Cancelled' to ensure that the stock is properly restored.</helpText>
-            <helpText lang="nl-NL">Als een betalingstransactie mislukt, worden de bestel- en leveringsstatus automatisch bijgewerkt naar 'Geannuleerd' om ervoor te zorgen dat de voorraad correct wordt hersteld.</helpText>
-            <helpText lang="de-DE">Wenn eine Zahlungstransaktion fehlschlägt, werden der Bestell- und Lieferstatus automatisch auf „Storniert“ gesetzt, um sicherzustellen, dass der Lagerbestand korrekt zurückgesetzt wird.</helpText>
-			<helpText lang="fr-FR">En cas d’échec de la transaction de paiement, le statut de la commande et de la livraison sera automatiquement mis à jour sur « Annulé » afin de garantir la remise en stock correcte.</helpText>
-            <defaultValue>Disabled</defaultValue>
-            <options>
-                <option>
-                    <id>disabled</id>
-                    <name lang="en-GB">Disabled</name>
-                    <name lang="nl-NL">Uitgeschakeld</name>
-                    <name lang="de-DE">Deaktiviert</name>
-                    <name lang="fr-FR">Désactivé</name>
-                </option>
-                <option>
-                    <id>enabled</id>
-                    <name lang="en-GB">Enabled</name>
-                    <name lang="nl-NL">Ingeschakeld</name>
-                    <name lang="de-DE">Aktiviert</name>
-                    <name lang="fr-FR">Activé</name>
-                </option>
-            </options>
-        </input-field>
-
         <input-field type="single-select">
             <name>orderStatus</name>
             <label lang="en-GB">Order status</label>
@@ -248,6 +181,23 @@
                     <name lang="es-ES">Español</name>
                 </option>
             </options>
+        </input-field>
+
+        <input-field type="bool">
+            <name>sendInvoiceEmail</name>
+            <label lang="en-GB">Send transactional invoice email</label>
+            <label lang="de-DE">Transaktionsrechnungs-E-Mail senden</label>
+            <label lang="nl-NL">Verzend transactionele factuur-e-mail</label>
+			<label lang="fr-FR">Envoyer un e-mail de facture transactionnelle</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>automaticallyCloseOpenOrders</name>
+            <label lang="en-GB">Cancel order when payment fails</label>
+            <label lang="de-DE">Bestellung bei fehlgeschlagener Zahlung stornieren</label>
+            <label lang="nl-NL">Bestelling annuleren als de betaling mislukt</label>
+            <label lang="fr-FR">Annuler la commande en cas d'échec du paiement</label>
+            <defaultValue>false</defaultValue>
         </input-field>
     </card>
     

@@ -1,5 +1,5 @@
 {% block buckaroo_config_card %}
-    <sw-card position-identifier="xxsw-system-config-content" v-if="card">
+    <sw-card class="bk-config-card" position-identifier="xxsw-system-config-content" v-if="card">
         <template #title>
             {{ getInlineSnippet(card.title) || 'Configuration' }}
         </template>

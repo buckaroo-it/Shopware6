@@ -1,4 +1,5 @@
 import template from './buckaroo-config-card.html.twig';
+import './style.scss';
 import { SHARED_ENVIRONMENT_METHODS, isPaymentEnabled, getPaymentMode, withConfigValues } from '../../utils/payment-status';
 
 const { Component } = Shopware;
@@ -605,17 +606,6 @@ Component.register('buckaroo-config-card', {
             // Replaced by the Live / Test / Off control at the top of the card
             if (this.statusPaymentCode && [`${this.statusPaymentCode}Enabled`, `${this.statusPaymentCode}Environment`].includes(name)) {
                 return false;
-            }
-
-            const advancedToggleFields = [
-                'orderStatus',
-                'paymentSuccesStatus',
-                'automaticallyCloseOpenOrders',
-                'sendInvoiceEmail'
-            ];
-            if (advancedToggleFields.includes(name)) {
-                const advancedConfig = this.getValueForName('advancedConfiguration');
-                return Boolean(advancedConfig);
             }
 
             if (name === 'idealprocessingRenderMode') {
