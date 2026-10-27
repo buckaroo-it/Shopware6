@@ -42,6 +42,13 @@ $bk-ideal-lockup-ratio: 7.294 !default;
 $bk-ideal-lockup-scale: 0.76 !default;
 $bk-ideal-lockup-inset: 24px !default;
 
+// Base URL of the "asset" package, the same one asset() resolves bundles/
+// paths against, so the lockup follows the shop's base path and any CDN.
+// The theme compiler injects it; the !default only covers compiling this
+// file on its own.
+$sw-asset-asset-url: "" !default;
+$bk-ideal-lockup-path: "#{$sw-asset-asset-url}/bundles/buckaroopayments/storefront/buckaroo/ideal" !default;
+
 // PayPal smart button height tiers by container width
 $bk-express-height-xl: 55px !default; // container >= 500px
 $bk-express-height-lg: 45px !default; // 300 - 499px (default)
@@ -114,8 +121,8 @@ $bk-express-height-sm: 25px !default; // < 200px
     // button follows the same height tiers as the buttons above instead of
     // an aspect ratio of its own. Only the lockup is an image, sized off the
     // button height so it keeps iDEAL's proportions; the second min() term
-    // stops it outgrowing a narrow button. The artwork URL is set by the
-    // template — see
+    // stops it outgrowing a narrow button. The template sets data-variant
+    // from the idealLogo option — see
     // views/storefront/buckaroo/express-checkout-buttons.html.twig.
     #fast-checkout-ideal-btn,
     .bk-ideal-fast-checkout {
@@ -125,7 +132,7 @@ $bk-express-height-sm: 25px !default; // < 200px
         border: 1px solid $bk-ideal-magenta;
         border-radius: $bk-ideal-button-radius;
         background-color: $bk-ideal-surface;
-        background-image: var(--bk-ideal-btn-lockup);
+        background-image: url("#{$bk-ideal-lockup-path}/ideal-snel-bestellen.svg");
         background-repeat: no-repeat;
         background-position: center;
         background-size: min(
@@ -147,6 +154,7 @@ $bk-express-height-sm: 25px !default; // < 200px
 
         &[data-variant="dark"] {
             background-color: $bk-ideal-magenta;
+            background-image: url("#{$bk-ideal-lockup-path}/ideal-snel-bestellen-inverted.svg");
 
             &:hover,
             &:active {
