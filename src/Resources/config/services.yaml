@@ -57,6 +57,8 @@ services:
         arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Service\RiveryProductImageUrlService']
     Buckaroo\Shopware6\Service\SignatureValidationService:
         arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Helpers\Logger']
+    Buckaroo\Shopware6\Service\ProcessedPushService:
+        arguments: ['@Doctrine\DBAL\Connection']
     Buckaroo\Shopware6\Service\PayPalExpressCredentialsService:
         arguments: ['@Buckaroo\Shopware6\Service\SettingsService']
     Buckaroo\Shopware6\Service\TestCredentialsService:
@@ -292,7 +294,7 @@ services:
 
     Buckaroo\Shopware6\Storefront\Controller\PushController:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\SignatureValidationService', '@Buckaroo\Shopware6\Service\TransactionService', '@Buckaroo\Shopware6\Service\StateTransitionService', '@Buckaroo\Shopware6\Service\InvoiceService', '@Buckaroo\Shopware6\Helpers\CheckoutHelper', '@Buckaroo\Shopware6\Helpers\Logger', '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface', '@Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Service\CustomerService']
+        arguments: ['@Buckaroo\Shopware6\Service\SignatureValidationService', '@Buckaroo\Shopware6\Service\TransactionService', '@Buckaroo\Shopware6\Service\StateTransitionService', '@Buckaroo\Shopware6\Service\InvoiceService', '@Buckaroo\Shopware6\Helpers\CheckoutHelper', '@Buckaroo\Shopware6\Helpers\Logger', '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface', '@Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Service\CustomerService', '@Buckaroo\Shopware6\Service\ProcessedPushService']
         calls:
             - [setContainer, ['@service_container']]
 

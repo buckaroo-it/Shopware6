@@ -10,6 +10,7 @@ use Buckaroo\Shopware6\Helpers\CheckoutHelper;
 use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\Service\InvoiceService;
 use Buckaroo\Shopware6\Service\OrderService;
+use Buckaroo\Shopware6\Service\ProcessedPushService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\SignatureValidationService;
 use Buckaroo\Shopware6\Service\StateTransitionService;
@@ -139,6 +140,7 @@ class PushControllerSignatureValidationTest extends TestCase
                 'customerService' => $customerService,
                 'checkoutHelper' => $this->checkoutHelperWithoutOrder(),
                 'eventDispatcher' => $this->createMock(EventDispatcherInterface::class),
+                'processedPushService' => $this->claimingProcessedPushService(),
             ]
         );
     }
@@ -156,6 +158,7 @@ class PushControllerSignatureValidationTest extends TestCase
             [
                 'checkoutHelper' => $this->checkoutHelperWithoutOrder(),
                 'eventDispatcher' => $this->createMock(EventDispatcherInterface::class),
+                'processedPushService' => $this->claimingProcessedPushService(),
             ]
         );
 
@@ -237,6 +240,7 @@ class PushControllerSignatureValidationTest extends TestCase
                 'stateTransitionService' => $stateTransitionService,
                 'checkoutHelper' => $this->checkoutHelperWithoutOrder(),
                 'eventDispatcher' => $this->createMock(EventDispatcherInterface::class),
+                'processedPushService' => $this->claimingProcessedPushService('KEY-123|190|I872|PROCESSING'),
             ]
         );
 
@@ -266,6 +270,89 @@ class PushControllerSignatureValidationTest extends TestCase
             ['status' => false, 'message' => 'buckaroo.messages.paymentError'],
             $this->decode($response)
         );
+    }
+
+    /**
+     * A return (the reply Buckaroo sends back through the shopper's browser) is signed with
+     * the same secret as a push. Posted to the push route it must be rejected before it can
+     * touch the order: it carries no push mutation type or transaction type.
+     *
+     * @dataProvider notAPushProvider
+     *
+     * @param array<string, string> $overrides
+     * @param array<int, string> $removedFields
+     */
+    public function testSignedBodyThatIsNotAPushIsRejected(array $overrides, array $removedFields): void
+    {
+        $postData = $overrides + $this->regularPushData();
+        foreach ($removedFields as $field) {
+            unset($postData[$field]);
+        }
+
+        $response = $this->handlePush($this->signed($postData));
+
+        $this->assertSame(
+            ['status' => false, 'message' => 'buckaroo.messages.paymentError'],
+            $this->decode($response)
+        );
+    }
+
+    /**
+     * @return array<string, array{array<string, string>, array<int, string>}>
+     */
+    public static function notAPushProvider(): array
+    {
+        return [
+            'return' => [
+                ['brq_payment_method' => 'ideal', 'brq_test' => 'false', 'brq_timestamp' => '2026-10-26 10:00:00'],
+                ['brq_mutationtype', 'brq_transaction_type', 'brq_transaction_method'],
+            ],
+            'no mutation type' => [[], ['brq_mutationtype']],
+            'unknown mutation type' => [['brq_mutationtype' => 'Return'], []],
+            'no transaction type' => [[], ['brq_transaction_type']],
+            'malformed transaction type' => [['brq_transaction_type' => 'C02'], []],
+        ];
+    }
+
+    /**
+     * Buckaroo signs the decoded values, so an encoded variant of a signed push is the same
+     * push and is claimed under the same key.
+     */
+    public function testEncodedVariantOfASignedPushIsClaimedUnderTheSameKey(): void
+    {
+        $postData = $this->signed($this->regularPushData());
+        $postData['brq_transactions'] = '%6Bey-123';
+        $postData['brq_mutationtype'] = '%50rocessing';
+
+        $processedPushService = $this->createMock(ProcessedPushService::class);
+        $processedPushService->expects($this->once())
+            ->method('claim')
+            ->with('KEY-123|190|C021|PROCESSING', 'order-transaction-id')
+            ->willReturn(false);
+
+        $response = $this->handlePush($postData, [
+            'checkoutHelper' => $this->checkoutHelperFindingOnly(self::boundOrder()),
+            'processedPushService' => $processedPushService,
+        ]);
+
+        $this->assertSame(
+            ['status' => false, 'message' => 'buckaroo.messages.pushAlreadySend'],
+            $this->decode($response)
+        );
+    }
+
+    /**
+     * @return ProcessedPushService&\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function claimingProcessedPushService(string $pushKey = 'KEY-123|190|C021|PROCESSING')
+    {
+        $processedPushService = $this->createMock(ProcessedPushService::class);
+        $processedPushService->expects($this->once())
+            ->method('claim')
+            ->with($pushKey, 'order-transaction-id')
+            ->willReturn(true);
+
+        return $processedPushService;
     }
 
     private function assertSignatureRejected(JsonResponse $response): void
@@ -316,6 +403,9 @@ class PushControllerSignatureValidationTest extends TestCase
             'brq_amount' => '10.00',
             'brq_invoicenumber' => 'INV-001',
             'brq_transaction_method' => 'ideal',
+            'brq_transaction_type' => 'C021',
+            'brq_mutationtype' => 'Processing',
+            'brq_transactions' => 'key-123',
             'ADD_orderId' => 'order-id',
             'ADD_orderTransactionId' => 'order-transaction-id',
         ];
@@ -395,6 +485,9 @@ class PushControllerSignatureValidationTest extends TestCase
         $orderService = $services['orderService'] ?? $this->untouchable(OrderService::class);
         /** @var CustomerService $customerService */
         $customerService = $services['customerService'] ?? $this->untouchable(CustomerService::class);
+        /** @var ProcessedPushService $processedPushService */
+        $processedPushService = $services['processedPushService']
+            ?? $this->untouchable(ProcessedPushService::class);
 
         $controller = new PushController(
             $this->signatureValidationService($secretKey),
@@ -406,7 +499,8 @@ class PushControllerSignatureValidationTest extends TestCase
             $eventDispatcher,
             $idealQrRepository,
             $orderService,
-            $customerService
+            $customerService,
+            $processedPushService
         );
 
         $translator = $this->createMock(TranslatorInterface::class);
