@@ -17,12 +17,12 @@
             "menuButton": "Version & Support",
             "title": "Versie & Support",
             "support": {
-                "description": "Zorg ervoor dat u uw website key bij de hand heeft voordat u contact opneemt met Buckaroo technical support",
+                "description": "Zorg dat je je store key bij de hand hebt voordat je contact opneemt met de technische support van Buckaroo",
                 "label1": "Buckaroo Plaza:",
                 "label2": "Telefoonnummer:",
                 "label3": "E-mail:",
                 "label4": "Website:",
-                "your_version": "Uw PHP versie:",
+                "your_version": "Je PHP-versie:",
                 "version": "Versie compatibiliteit",
                 "information": "Informatie"
             }
@@ -32,7 +32,7 @@
             "overview": "Overzicht"
         },
         "paymentDetail": {
-            "yourLink": "Uw Paylink",
+            "yourLink": "Je Paylink",
             "paylinkButton": "Creëer Paylink",
             "paylinkDescription": "Creëer Paylink voor order",
             "paylinkTitle": "Paylink",
@@ -111,12 +111,12 @@
         },
         "paylink": {
             "invalid_amount": "Het bedrag is niet geldig",
-            "pay_link": "Uw Paylink:"
+            "pay_link": "Je Paylink:"
 
         },
         "missing_order_id": "Ontbrekende bestelling orderId",
         "missing_transaction": "Order transactie niet gevonden",
-        "general_request_error": "Helaas is er een fout opgetreden tijdens het verwerken van uw aanvraag. Probeer het opnieuw.",
+        "general_request_error": "Er is helaas een fout opgetreden bij het verwerken van je aanvraag. Probeer het opnieuw.",
         "in3LogoLabel":"Betaalmethode Logo:",
         "configure-payment": "Betaalmethode configureren",
         "configure-link": "Configureren",
