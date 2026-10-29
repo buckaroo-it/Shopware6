@@ -42,22 +42,14 @@ class CheckoutHelper
     }
 
     /**
-     * Get the current session with proper null safety
+     * Get the current session
      *
      * @return SessionInterface
-     * @throws \RuntimeException When no session is active
+     * @throws SessionNotFoundException When no session is active
      */
     public function getSession(): SessionInterface
     {
-        $session = $this->requestStack->getSession();
-        
-        if (!($session instanceof SessionInterface)) {
-            throw new \RuntimeException(
-                'No active session found. Session is required for payment processing.'
-            );
-        }
-        
-        return $session;
+        return $this->requestStack->getSession();
     }
 
     /**
@@ -108,9 +100,6 @@ class CheckoutHelper
         }
 
         $price = $order->getPrice();
-        if (!($price instanceof CartPrice)) {
-            throw new \Exception("Order price information is missing", 1);
-        }
 
         $savedCustomFields = $order->getCustomFields() ?? [];
         $buckarooFee = $fee;

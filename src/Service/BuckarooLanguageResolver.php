@@ -186,7 +186,7 @@ class BuckarooLanguageResolver
     private function getLanguageFromSalesChannel(SalesChannelContext $context): ?string
     {
         $languageId = $context->getSalesChannel()->getLanguageId();
-        if (!is_string($languageId) || $languageId === '') {
+        if ($languageId === '') {
             $languageId = $context->getContext()->getLanguageId();
         }
 

@@ -55,9 +55,6 @@ class BuckarooTwigExtension extends AbstractExtension
             }
             
             $translated = $paymentMethod->getTranslated();
-            if (!is_array($translated)) {
-                continue;
-            }
             
             $customFields = $translated['customFields'] ?? null;
             if (!is_array($customFields)) {

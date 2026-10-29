@@ -96,7 +96,7 @@ class UrlService
 
         $orderLanguageId = $order->getLanguageId();
         foreach ($domains as $domain) {
-            if ($orderLanguageId !== null && $domain->getLanguageId() === $orderLanguageId) {
+            if ($domain->getLanguageId() === $orderLanguageId) {
                 return rtrim($domain->getUrl(), '/') . '/buckaroo/push';
             }
         }
@@ -197,7 +197,7 @@ class UrlService
 
         $orderLanguageId = $order->getLanguageId();
         foreach ($domains as $domain) {
-            if ($orderLanguageId !== null && $domain->getLanguageId() === $orderLanguageId) {
+            if ($domain->getLanguageId() === $orderLanguageId) {
                 return rtrim($domain->getUrl(), '/') . '/buckaroo/cancel';
             }
         }
