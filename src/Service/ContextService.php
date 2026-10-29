@@ -36,7 +36,7 @@ class ContextService
      */
     public function getCountryCode(SalesChannelContext $salesChannelContext): ?string
     {
-        /** @var \Shopware\Core\System\Country\CountryEntity */
+        /** @var \Shopware\Core\System\Country\CountryEntity|null */
         $country = $this->countryRepository->search(
             new Criteria([$salesChannelContext->getSalesChannel()->getCountryId()]),
             $salesChannelContext->getContext()

@@ -164,7 +164,7 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
     {
         $customer = $this->asyncPaymentService->getCustomer($order);
         $vatIds = $customer->getVatIds();
-        if (!empty($vatIds) && is_array($vatIds)) {
+        if (!empty($vatIds)) {
             $first = reset($vatIds);
             if (is_string($first) && !empty(trim($first))) {
                 return ['vATNumber' => trim($first)];
@@ -304,19 +304,16 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
      */
     private function resolveOrderVatRate(OrderEntity $order, array $lines): float
     {
-        $price = $order->getPrice();
-        if ($price !== null) {
-            $taxes = $price->getCalculatedTaxes();
-            if ($taxes !== null && $taxes->count() > 0) {
-                $dominant = null;
-                foreach ($taxes as $tax) {
-                    if ($dominant === null || $tax->getTax() > $dominant->getTax()) {
-                        $dominant = $tax;
-                    }
+        $taxes = $order->getPrice()->getCalculatedTaxes();
+        if ($taxes->count() > 0) {
+            $dominant = null;
+            foreach ($taxes as $tax) {
+                if ($dominant === null || $tax->getTax() > $dominant->getTax()) {
+                    $dominant = $tax;
                 }
-                if ($dominant !== null && $dominant->getTaxRate() > 0) {
-                    return (float)$dominant->getTaxRate();
-                }
+            }
+            if ($dominant !== null && $dominant->getTaxRate() > 0) {
+                return (float)$dominant->getTaxRate();
             }
         }
 

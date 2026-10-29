@@ -42,10 +42,7 @@ class CustomerService
      */
     protected $orderCustomerRepository;
 
-    /**
-     * @var SalesChannelContext
-     */
-    protected $salesChannelContext;
+    protected SalesChannelContext $salesChannelContext;
 
     /**
      * @var \Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer
@@ -180,9 +177,7 @@ class CustomerService
             [$customer],
             $this->salesChannelContext->getContext()
         );
-        if ($customerId !== null) {
-            $customer = $this->getCustomerById($customerId);
-        }
+        $customer = $this->getCustomerById($customerId);
         $this->loginCreatedCustomer($customer);
         return $customer;
     }
@@ -328,7 +323,7 @@ class CustomerService
      */
     private function validateSaleChannelContext(): void
     {
-        if (!$this->salesChannelContext instanceof SalesChannelContext) {
+        if (!isset($this->salesChannelContext)) {
             throw new CreateCartException('SaleChannelContext is required');
         }
     }
