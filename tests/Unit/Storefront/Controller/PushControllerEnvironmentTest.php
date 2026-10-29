@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -273,7 +274,8 @@ class PushControllerEnvironmentTest extends TestCase
             $idealQrRepository,
             $orderService,
             $customerService,
-            $processedPushService
+            $processedPushService,
+            $this->createMock(SalesChannelContextServiceInterface::class)
         );
 
         $translator = $this->createMock(TranslatorInterface::class);

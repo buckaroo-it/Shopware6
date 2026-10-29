@@ -16,6 +16,7 @@ use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Service\TransactionService;
 use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
 use Buckaroo\Shopware6\Storefront\Controller\PushController;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -74,7 +75,8 @@ class PushControllerLoggingTest extends TestCase
             $this->createMock(IdealQrOrderRepository::class),
             $this->createMock(OrderService::class),
             $this->createMock(CustomerService::class),
-            $this->createMock(ProcessedPushService::class)
+            $this->createMock(ProcessedPushService::class),
+            $this->createMock(SalesChannelContextServiceInterface::class)
         );
 
         $translator = $this->createMock(TranslatorInterface::class);

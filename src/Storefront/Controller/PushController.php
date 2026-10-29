@@ -33,6 +33,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Buckaroo\Shopware6\Service\OrderService;
 use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\Service\ProcessedPushService;
+use Buckaroo\Shopware6\Service\UrlService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 
 class PushController extends StorefrontController
 {
@@ -133,6 +136,8 @@ class PushController extends StorefrontController
 
     protected ProcessedPushService $processedPushService;
 
+    private SalesChannelContextServiceInterface $salesChannelContextService;
+
     public function __construct(
         SignatureValidationService $signatureValidationService,
         TransactionService $transactionService,
@@ -145,6 +150,7 @@ class PushController extends StorefrontController
         OrderService $orderService,
         CustomerService $customerService,
         ProcessedPushService $processedPushService,
+        SalesChannelContextServiceInterface $salesChannelContextService,
     ) {
         $this->signatureValidationService = $signatureValidationService;
         $this->transactionService         = $transactionService;
@@ -157,6 +163,53 @@ class PushController extends StorefrontController
         $this->orderService = $orderService;
         $this->customerService = $customerService;
         $this->processedPushService = $processedPushService;
+        $this->salesChannelContextService = $salesChannelContextService;
+    }
+
+    /**
+     * Push endpoint for orders of API/headless sales channels.
+     *
+     * The storefront push route can only be reached through a storefront sales channel
+     * domain: Shopware maps every non-API request to a storefront domain and answers with
+     * "Domain Mapping Misconfiguration" when none matches, and it never maps the domains of
+     * an API sales channel. This route lives under /api, which Shopware excludes from domain
+     * mapping, and takes the sales channel of the order from the URL the plugin generated
+     * for it (UrlService::getApiPushUrl()) instead of from the request's domain.
+     *
+     * Authentication is the Buckaroo push signature, exactly as on the storefront route: it
+     * is verified against the secret key of the sales channel named in the URL before any
+     * push parameter is acted on, and the order named in the push must belong to that sales
+     * channel. Naming another sales channel in the URL therefore gains nothing without that
+     * sales channel's secret key. No admin API authentication is required, which is the same
+     * trust model Shopware uses for its own unauthenticated /api endpoints.
+     */
+    #[Route(path: UrlService::API_PUSH_PATH . "/{salesChannelId}", defaults: ['_routeScope' => ['api'], 'auth_required' => false], requirements: ['salesChannelId' => '[0-9a-fA-F]{32}'], name: "api.buckaroo.push", methods: ["POST"])]
+    public function pushBuckarooApi(string $salesChannelId, Request $request, Context $context): JsonResponse
+    {
+        return $this->pushBuckaroo(
+            $request,
+            $this->createPushSalesChannelContext(strtolower($salesChannelId), $context)
+        );
+    }
+
+    /**
+     * Builds the sales channel context the push is processed in, for the sales channel
+     * named in the API push URL. Nothing from the push body is used here. An unknown sales
+     * channel id surfaces as a Shopware API error response (not a 200), so Buckaroo retries
+     * the push instead of marking it delivered.
+     */
+    private function createPushSalesChannelContext(string $salesChannelId, Context $context): SalesChannelContext
+    {
+        return $this->salesChannelContextService->get(
+            new SalesChannelContextServiceParameters(
+                $salesChannelId,
+                'buckaroo-push-' . bin2hex(random_bytes(16)),
+                null,
+                null,
+                null,
+                $context
+            )
+        );
     }
 
     /**

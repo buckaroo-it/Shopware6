@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -333,7 +334,8 @@ class PushControllerReplayTest extends TestCase
             $this->untouchable(IdealQrOrderRepository::class),
             $this->untouchable(OrderService::class),
             $this->untouchable(CustomerService::class),
-            $processedPushService
+            $processedPushService,
+            $this->untouchable(SalesChannelContextServiceInterface::class)
         );
 
         $translator = $this->createMock(TranslatorInterface::class);

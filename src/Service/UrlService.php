@@ -7,6 +7,7 @@ namespace Buckaroo\Shopware6\Service;
 use Buckaroo\Shopware6\Helpers\UrlHelper;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,6 +20,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class UrlService
 {
+    /**
+     * Path of the sales-channel-independent push endpoint (see PushController::pushBuckarooApi()).
+     * The sales channel id of the order is appended as the last path segment.
+     */
+    public const API_PUSH_PATH = '/api/buckaroo/push';
+
     protected SettingsService $settingsService;
 
     protected UrlGeneratorInterface $router;
@@ -27,16 +34,20 @@ class UrlService
 
     private EntityRepository $salesChannelRepository;
 
+    private string $appUrl;
+
     public function __construct(
         SettingsService $settingsService,
         UrlGeneratorInterface $router,
         TokenFactoryInterfaceV2 $tokenFactory,
-        EntityRepository $salesChannelRepository
+        EntityRepository $salesChannelRepository,
+        string $appUrl = ''
     ) {
         $this->settingsService = $settingsService;
         $this->router = $router;
         $this->tokenFactory = $tokenFactory;
         $this->salesChannelRepository = $salesChannelRepository;
+        $this->appUrl = $appUrl;
     }
 
     /**
@@ -50,6 +61,12 @@ class UrlService
      *
      * The sales channel lookup runs on the caller's $context, so the sales channel, language and
      * permission scope of the request are preserved in multi-sales-channel installations.
+     *
+     * Orders of a non-storefront sales channel (API/headless) get the sales-channel-independent
+     * API push URL instead: Shopware only maps storefront-type domains to a request, so the
+     * storefront push route can never be reached for such an order, and the domains of a
+     * headless sales channel usually point at an external frontend that does not serve the
+     * push route at all.
      */
     public function getPushUrlForOrder(OrderEntity $order, Context $context, ?string $baseUrl = null): string
     {
@@ -59,6 +76,10 @@ class UrlService
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->first();
         if (!$salesChannel instanceof SalesChannelEntity) {
             return $this->getReturnUrl('buckaroo.payment.push');
+        }
+
+        if ($salesChannel->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
+            return $this->getApiPushUrl($order->getSalesChannelId());
         }
 
         $domains = $salesChannel->getDomains();
@@ -86,6 +107,57 @@ class UrlService
         }
 
         return rtrim($firstDomain->getUrl(), '/') . '/buckaroo/push';
+    }
+
+    /**
+     * Returns the push URL of the API push endpoint for the given sales channel.
+     *
+     * The URL is built on APP_URL, the backend URL Shopware itself uses for server-to-server
+     * callbacks (app registration, webhooks): it is correct in every context the push URL is
+     * generated in - storefront or Store API request, admin request, message queue worker or
+     * scheduled task - whereas the router only knows the host of the current HTTP request and
+     * falls back to "localhost" when there is none. APP_URL already contains any sub-directory
+     * Shopware is installed in, so the route path is appended as-is.
+     *
+     * When APP_URL is not set, the router is used as a last resort.
+     */
+    public function getApiPushUrl(string $salesChannelId): string
+    {
+        $appBaseUrl = $this->getAppBaseUrl();
+        if ($appBaseUrl !== null) {
+            return $appBaseUrl . self::API_PUSH_PATH . '/' . $salesChannelId;
+        }
+
+        return $this->router->generate(
+            'api.buckaroo.push',
+            ['salesChannelId' => $salesChannelId],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+    }
+
+    /**
+     * APP_URL without a trailing slash, or null when it is not set or is not an absolute
+     * http(s) URL (so a malformed value can never end up in a push URL).
+     */
+    private function getAppBaseUrl(): ?string
+    {
+        $appUrl = rtrim(trim($this->appUrl), '/');
+        if ($appUrl === '' || filter_var($appUrl, FILTER_VALIDATE_URL) === false) {
+            return null;
+        }
+
+        $parts = parse_url($appUrl);
+        if (
+            !is_array($parts)
+            || !isset($parts['scheme'], $parts['host'])
+            || !in_array(strtolower($parts['scheme']), ['http', 'https'], true)
+            || isset($parts['query'])
+            || isset($parts['fragment'])
+        ) {
+            return null;
+        }
+
+        return $appUrl;
     }
 
     /**
