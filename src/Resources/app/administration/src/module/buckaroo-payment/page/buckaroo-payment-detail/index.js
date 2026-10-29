@@ -7,6 +7,10 @@ const Criteria = Shopware.Data.Criteria;
 Component.register('buckaroo-payment-detail', {
     template,
 
+    mixins: [
+        Shopware.Mixin.getByName('notification')
+    ],
+
     inject: [
         'acl',
         'repositoryFactory',
@@ -273,14 +277,12 @@ Component.register('buckaroo-payment-detail', {
                 .then((response) => {
                     for (const key in response) {
                         if (response[key].status) {
-                            this.$store.dispatch('notification/createNotification', {
-                                variant: 'success',
+                            this.createNotificationSuccess({
                                 title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
                                 message: this.$tc(response[key].message) + response[key].amount
                             });
                         } else {
-                            this.$store.dispatch('notification/createNotification', {
-                                variant: 'error',
+                            this.createNotificationError({
                                 title: this.$tc('buckaroo-payment.settingsForm.titleError'),
                                 message: this.$tc(response[key].message)
                             });
@@ -290,10 +292,11 @@ Component.register('buckaroo-payment-detail', {
                     this.createdComponent();
                 })
                 .catch((errorResponse) => {
-                    this.$store.dispatch('notification/createNotification', {
-                        variant: 'error',
+                    this.createNotificationError({
                         title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                        message: errorResponse.response.data.message
+                        message: errorResponse.response && errorResponse.response.data
+                            ? errorResponse.response.data.message
+                            : 'An error occurred'
                     });
                     this.isRefundPossible = true;
                 });
@@ -306,14 +309,12 @@ Component.register('buckaroo-payment-detail', {
                     if (response.status) {
                         this.paylinkMessage = this.$tc(response.message) + response.paylinkhref;
                         this.paylink = response.paylink;
-                        this.$store.dispatch('notification/createNotification', {
-                            variant: 'success',
+                        this.createNotificationSuccess({
                             title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
                             message: this.paylinkMessage
                         });
                     } else {
-                        this.$store.dispatch('notification/createNotification', {
-                            variant: 'error',
+                        this.createNotificationError({
                             title: this.$tc('buckaroo-payment.settingsForm.titleError'),
                             message: this.$tc(response.message)
                         });
@@ -321,10 +322,11 @@ Component.register('buckaroo-payment-detail', {
                     this.isPaylinkAvailable = true;
                 })
                 .catch((errorResponse) => {
-                    this.$store.dispatch('notification/createNotification', {
-                        variant: 'error',
+                    this.createNotificationError({
                         title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                        message: errorResponse.response.data.message
+                        message: errorResponse.response && errorResponse.response.data
+                            ? errorResponse.response.data.message
+                            : 'An error occurred'
                     });
                     this.isPaylinkAvailable = true;
                 });
@@ -336,30 +338,32 @@ Component.register('buckaroo-payment-detail', {
 
         captureOrder(transaction) {
             this.isCapturePossible = false;
+            this.isLoading = true;
             this.BuckarooPaymentService.captureOrder(transaction, this.transactionsToRefund, this.orderItems)
                 .then((response) => {
-                    if (response.status) {
-                        this.$store.dispatch('notification/createNotification', {
-                            variant: 'success',
+                    if (response && response.status) {
+                        this.createNotificationSuccess({
                             title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
                             message: response.message
                         });
                     } else {
-                        this.$store.dispatch('notification/createNotification', {
-                            variant: 'error',
+                        this.createNotificationError({
                             title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                            message: response.message
+                            message: response && response.message ? response.message : 'An error occurred'
                         });
                     }
+                    this.isLoading = false;
                     this.isCapturePossible = true;
                     this.createdComponent();
                 })
                 .catch((errorResponse) => {
-                    this.$store.dispatch('notification/createNotification', {
-                        variant: 'error',
+                    this.createNotificationError({
                         title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                        message: this.$tc(errorResponse.response.data.message)
+                        message: errorResponse.response && errorResponse.response.data
+                            ? errorResponse.response.data.message
+                            : 'An error occurred'
                     });
+                    this.isLoading = false;
                     this.isCapturePossible = true;
                 });
         },
@@ -369,14 +373,12 @@ Component.register('buckaroo-payment-detail', {
             this.BuckarooPaymentService.klarnaMor(this.orderId, action)
                 .then((response) => {
                     if (response.status) {
-                        this.$store.dispatch('notification/createNotification', {
-                            variant: 'success',
+                        this.createNotificationSuccess({
                             title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
                             message: response.message
                         });
                     } else {
-                        this.$store.dispatch('notification/createNotification', {
-                            variant: 'error',
+                        this.createNotificationError({
                             title: this.$tc('buckaroo-payment.settingsForm.titleError'),
                             message: response.message
                         });
@@ -385,8 +387,7 @@ Component.register('buckaroo-payment-detail', {
                     this.createdComponent();
                 })
                 .catch((errorResponse) => {
-                    this.$store.dispatch('notification/createNotification', {
-                        variant: 'error',
+                    this.createNotificationError({
                         title: this.$tc('buckaroo-payment.settingsForm.titleError'),
                         message: errorResponse.response && errorResponse.response.data
                             ? errorResponse.response.data.message
