@@ -369,6 +369,38 @@
             </options>
         </input-field>
 
+        <input-field type="password">
+            <name>clientId</name>
+            <label lang="en-GB">Hosted Fields client ID</label>
+            <label lang="de-DE">Hosted Fields Client ID</label>
+            <label lang="nl-NL">Hosted Fields client ID</label>
+            <label lang="fr-FR">Client ID Hosted Fields</label>
+            <placeholder lang="en-GB">Enter your Buckaroo client ID.</placeholder>
+            <placeholder lang="de-DE">Buckaroo-Client-ID eingeben.</placeholder>
+            <placeholder lang="nl-NL">Vul je Buckaroo client ID in.</placeholder>
+            <placeholder lang="fr-FR">Entrez votre ID client Buckaroo.</placeholder>
+            <helpText lang="en-GB"><![CDATA[Needed for Cards (Hosted Fields). Create or look it up in Buckaroo Plaza under Settings > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token registration</a>.]]></helpText>
+            <helpText lang="de-DE"><![CDATA[Erforderlich für Karten (Hosted Fields). Erstellen oder finden Sie sie im Buckaroo Plaza unter Einstellungen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token-Registrierung</a>.]]></helpText>
+            <helpText lang="nl-NL"><![CDATA[Nodig voor Kaarten (Hosted Fields). Maak of vind deze in Buckaroo Plaza onder Instellingen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Tokenregistratie</a>.]]></helpText>
+            <helpText lang="fr-FR"><![CDATA[Nécessaire pour les cartes (Hosted Fields). Créez-le ou retrouvez-le dans Buckaroo Plaza sous Paramètres > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Enregistrement des tokens</a>.]]></helpText>
+        </input-field>
+
+        <input-field type="password">
+            <name>clientSecret</name>
+            <label lang="en-GB">Hosted Fields client secret</label>
+            <label lang="de-DE">Hosted Fields Client Secret</label>
+            <label lang="nl-NL">Hosted Fields client secret</label>
+            <label lang="fr-FR">Client secret Hosted Fields</label>
+            <placeholder lang="en-GB">Enter your Buckaroo client secret.</placeholder>
+            <placeholder lang="de-DE">Buckaroo-Client-Secret eingeben.</placeholder>
+            <placeholder lang="nl-NL">Vul je Buckaroo client secret in.</placeholder>
+            <placeholder lang="fr-FR">Entrez votre secret client Buckaroo.</placeholder>
+            <helpText lang="en-GB"><![CDATA[Needed for Cards (Hosted Fields). Create or look it up in Buckaroo Plaza under Settings > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token registration</a>. Keep it private.]]></helpText>
+            <helpText lang="de-DE"><![CDATA[Erforderlich für Karten (Hosted Fields). Erstellen oder finden Sie es im Buckaroo Plaza unter Einstellungen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token-Registrierung</a>. Halten Sie es geheim.]]></helpText>
+            <helpText lang="nl-NL"><![CDATA[Nodig voor Kaarten (Hosted Fields). Maak of vind deze in Buckaroo Plaza onder Instellingen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Tokenregistratie</a>. Houd deze geheim.]]></helpText>
+            <helpText lang="fr-FR"><![CDATA[Nécessaire pour les cartes (Hosted Fields). Créez-le ou retrouvez-le dans Buckaroo Plaza sous Paramètres > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Enregistrement des tokens</a>. Gardez-le confidentiel.]]></helpText>
+        </input-field>
+
         <input-field>
             <name>creditcardsLabel</name>
             <label lang="en-GB">Title</label>
@@ -389,10 +421,10 @@
             <label lang="nl-NL">Toegestane creditcards en debetkaarten</label>
             <label lang="de-DE">Erlaubte Karten</label>
 			<label lang="fr-FR">Cartes de crédit et de débit autorisées</label>
-            <helpText lang="en-GB">Card brands accepted in the card fields at checkout. Select at least one; without a selection, the card fields are not shown.</helpText>
-            <helpText lang="nl-NL">Kaartmerken die worden geaccepteerd in de kaartvelden bij het afrekenen. Selecteer er minstens één; zonder selectie worden de kaartvelden niet getoond.</helpText>
-            <helpText lang="de-DE">Kartenmarken, die in den Kartenfeldern im Checkout akzeptiert werden. Wählen Sie mindestens eine aus; ohne Auswahl werden die Kartenfelder nicht angezeigt.</helpText>
-            <helpText lang="fr-FR">Marques de cartes acceptées dans les champs de carte lors du paiement. Sélectionnez-en au moins une ; sans sélection, les champs de carte ne sont pas affichés.</helpText>
+            <helpText lang="en-GB">Card brands accepted in the card fields at checkout. The card brand is recognized automatically from the card number. Select at least one: without a selection, no card fields are shown at checkout.</helpText>
+            <helpText lang="nl-NL">Kaartmerken die worden geaccepteerd in de kaartvelden bij het afrekenen. Het kaartmerk wordt automatisch herkend aan het kaartnummer. Selecteer er minstens één: zonder selectie worden er geen kaartvelden getoond bij het afrekenen.</helpText>
+            <helpText lang="de-DE">Kartenmarken, die in den Kartenfeldern im Checkout akzeptiert werden. Die Kartenmarke wird automatisch anhand der Kartennummer erkannt. Wählen Sie mindestens eine aus: Ohne Auswahl werden im Checkout keine Kartenfelder angezeigt.</helpText>
+            <helpText lang="fr-FR">Marques de cartes acceptées dans les champs de carte lors du paiement. La marque de la carte est reconnue automatiquement à partir du numéro de carte. Sélectionnez-en au moins une : sans sélection, aucun champ de carte n'est affiché lors du paiement.</helpText>
             <options>
                 <option>
                     <id>MasterCard</id>
@@ -411,36 +443,6 @@
                     <name>Maestro</name>
                 </option>
             </options>
-        </input-field>
-        <input-field type="password">
-            <name>clientId</name>
-            <label lang="en-GB">Hosted Fields client ID</label>
-            <label lang="de-DE">Hosted Fields Client ID</label>
-            <label lang="nl-NL">Hosted Fields client ID</label>
-            <label lang="fr-FR">Client ID Hosted Fields</label>
-            <placeholder lang="en-GB">Enter your Buckaroo client ID.</placeholder>
-            <placeholder lang="de-DE">Buckaroo-Client-ID eingeben.</placeholder>
-            <placeholder lang="nl-NL">Vul je Buckaroo client ID in.</placeholder>
-            <placeholder lang="fr-FR">Entrez votre ID client Buckaroo.</placeholder>
-            <helpText lang="en-GB"><![CDATA[Needed for Cards (Hosted Fields). Create or look it up in Buckaroo Plaza under Settings > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token registration</a>.]]></helpText>
-            <helpText lang="de-DE"><![CDATA[Erforderlich für Karten (Hosted Fields). Erstellen oder finden Sie sie im Buckaroo Plaza unter Einstellungen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token-Registrierung</a>.]]></helpText>
-            <helpText lang="nl-NL"><![CDATA[Nodig voor Kaarten (Hosted Fields). Maak of vind deze in Buckaroo Plaza onder Instellingen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Tokenregistratie</a>.]]></helpText>
-            <helpText lang="fr-FR"><![CDATA[Nécessaire pour les cartes (Hosted Fields). Créez-le ou retrouvez-le dans Buckaroo Plaza sous Paramètres > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Enregistrement des tokens</a>.]]></helpText>
-        </input-field>
-        <input-field type="password">
-            <name>clientSecret</name>
-            <label lang="en-GB">Hosted Fields client secret</label>
-            <label lang="de-DE">Hosted Fields Client Secret</label>
-            <label lang="nl-NL">Hosted Fields client secret</label>
-            <label lang="fr-FR">Client secret Hosted Fields</label>
-            <placeholder lang="en-GB">Enter your Buckaroo client secret.</placeholder>
-            <placeholder lang="de-DE">Buckaroo-Client-Secret eingeben.</placeholder>
-            <placeholder lang="nl-NL">Vul je Buckaroo client secret in.</placeholder>
-            <placeholder lang="fr-FR">Entrez votre secret client Buckaroo.</placeholder>
-            <helpText lang="en-GB"><![CDATA[Needed for Cards (Hosted Fields). Create or look it up in Buckaroo Plaza under Settings > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token registration</a>. Keep it private.]]></helpText>
-            <helpText lang="de-DE"><![CDATA[Erforderlich für Karten (Hosted Fields). Erstellen oder finden Sie es im Buckaroo Plaza unter Einstellungen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token-Registrierung</a>. Halten Sie es geheim.]]></helpText>
-            <helpText lang="nl-NL"><![CDATA[Nodig voor Kaarten (Hosted Fields). Maak of vind deze in Buckaroo Plaza onder Instellingen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Tokenregistratie</a>. Houd deze geheim.]]></helpText>
-            <helpText lang="fr-FR"><![CDATA[Nécessaire pour les cartes (Hosted Fields). Créez-le ou retrouvez-le dans Buckaroo Plaza sous Paramètres > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Enregistrement des tokens</a>. Gardez-le confidentiel.]]></helpText>
         </input-field>
         <input-field type="text">
             <name>creditcardsFee</name>
@@ -899,6 +901,19 @@
             </options>
         </input-field>
 
+        <input-field>
+            <name>afterpayLabel</name>
+            <label lang="en-GB">Title</label>
+            <label lang="nl-NL">Titel</label>
+            <label lang="de-DE">Titel</label>
+            <label lang="fr-FR">Titre</label>
+            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
+            <defaultValue>Riverty</defaultValue>
+        </input-field>
+
         <input-field type="bool">
             <name>afterpayAuthorize</name>
             <label lang="en-GB">Authorize and capture separately</label>
@@ -967,19 +982,6 @@
         <component name="buckaroo-afterpay-old-tax">
             <name>afterpayOldtax</name>
         </component>
-
-        <input-field>
-            <name>afterpayLabel</name>
-            <label lang="en-GB">Title</label>
-            <label lang="nl-NL">Titel</label>
-            <label lang="de-DE">Titel</label>
-            <label lang="fr-FR">Titre</label>
-            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
-            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
-            <defaultValue>Riverty</defaultValue>
-        </input-field>
 
 
         <input-field type="single-select">
@@ -1757,71 +1759,11 @@
             <label lang="nl-NL">Toegestane cadeaubonnen</label>
             <label lang="de-DE">Zulässige Geschenkkarten</label>
 			<label lang="fr-FR">Cartes-cadeaux autorisées</label>
-            <helpText lang="en-GB">Gift cards customers can pay with. Customers choose their gift card on the Buckaroo payment page.</helpText>
-            <helpText lang="nl-NL">Cadeaukaarten waarmee klanten kunnen betalen. Klanten kiezen hun cadeaukaart op de betaalpagina van Buckaroo.</helpText>
-            <helpText lang="de-DE">Geschenkkarten, mit denen Kunden bezahlen können. Kunden wählen ihre Geschenkkarte auf der Zahlungsseite von Buckaroo.</helpText>
-            <helpText lang="fr-FR">Cartes cadeaux avec lesquelles les clients peuvent payer. Les clients choisissent leur carte cadeau sur la page de paiement Buckaroo.</helpText>
+            <helpText lang="en-GB">Gift cards customers can pay with on the Buckaroo payment page. Select at least one: without a selection, no gift cards are offered.</helpText>
+            <helpText lang="nl-NL">Cadeaukaarten waarmee klanten kunnen betalen op de betaalpagina van Buckaroo. Selecteer er minstens één: zonder selectie worden er geen cadeaukaarten aangeboden.</helpText>
+            <helpText lang="de-DE">Geschenkkarten, mit denen Kunden auf der Zahlungsseite von Buckaroo bezahlen können. Wählen Sie mindestens eine aus: Ohne Auswahl werden keine Geschenkkarten angeboten.</helpText>
+            <helpText lang="fr-FR">Cartes cadeaux avec lesquelles les clients peuvent payer sur la page de paiement Buckaroo. Sélectionnez-en au moins une : sans sélection, aucune carte cadeau n'est proposée.</helpText>
             <options>
-                <option>
-                    <id>customgiftcard</id>
-                    <name>Custom giftcard</name>
-                </option>
-                <option>
-                    <id>customgiftcard2</id>
-                    <name>Custom giftcard 2</name>
-                </option>
-                <option>
-                    <id>customgiftcard3</id>
-                    <name>Custom giftcard 3</name>
-                </option>
-                <option>
-                    <id>boekenbon</id>
-                    <name>Boekenbon</name>
-                </option>
-                <option>
-                    <id>boekencadeau</id>
-                    <name>Boekencadeau</name>
-                </option>
-                <option>
-                    <id>cadeaukaartgiftcard</id>
-                    <name>Cadeaukaart / Giftcard</name>
-                </option>
-                <option>
-                    <id>nationalekadobon</id>
-                    <name>De nationale kadobon</name>
-                </option>
-                <option>
-                    <id>fashionucadeaukaart</id>
-                    <name>Fashion Giftcard</name>
-                </option>
-                <option>
-                    <id>fietsbon</id>
-                    <name>Fietsbon</name>
-                </option>
-                <option>
-                    <id>fijncadeau</id>
-                    <name>Fijn Cadeau</name>
-                </option>
-                <option>
-                    <id>gezondheidsbon</id>
-                    <name>Gezondheidsbon</name>
-                </option>
-                <option>
-                    <id>golfbon</id>
-                    <name>Golfbon</name>
-                </option>
-                <option>
-                    <id>nationaletuinbon</id>
-                    <name>Nationale Tuinbon</name>
-                </option>
-                <option>
-                    <id>vvvgiftcard</id>
-                    <name>VVV Giftcard</name>
-                </option>
-                <option>
-                    <id>webshopgiftcard</id>
-                    <name>Webshop Giftcard</name>
-                </option>
                 <option>
                     <id>ajaxgiftcard</id>
                     <name>Ajax Giftcard</name>
@@ -1843,12 +1785,24 @@
                     <name>Beauty Wellness</name>
                 </option>
                 <option>
+                    <id>boekenvoordeel</id>
+                    <name>Boeken Voordeel</name>
+                </option>
+                <option>
+                    <id>boekenbon</id>
+                    <name>Boekenbon</name>
+                </option>
+                <option>
+                    <id>boekencadeau</id>
+                    <name>Boekencadeau</name>
+                </option>
+                <option>
                     <id>boekencadeauretail</id>
                     <name>Boekencadeau Retail</name>
                 </option>
                 <option>
-                    <id>boekenvoordeel</id>
-                    <name>Boeken Voordeel</name>
+                    <id>cadeaukaartgiftcard</id>
+                    <name>Cadeaukaart / Giftcard</name>
                 </option>
                 <option>
                     <id>campinglifekaart</id>
@@ -1863,12 +1817,32 @@
                     <name>Coccinelle Giftcard</name>
                 </option>
                 <option>
+                    <id>customgiftcard</id>
+                    <name>Custom giftcard</name>
+                </option>
+                <option>
+                    <id>customgiftcard2</id>
+                    <name>Custom giftcard 2</name>
+                </option>
+                <option>
+                    <id>customgiftcard3</id>
+                    <name>Custom giftcard 3</name>
+                </option>
+                <option>
+                    <id>diocadeaucard</id>
+                    <name>D.I.O. Cadeaucard</name>
+                </option>
+                <option>
                     <id>dancard</id>
                     <name>Dan card</name>
                 </option>
                 <option>
                     <id>deberencadeaukaart</id>
                     <name>De Beren Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>nationalekadobon</id>
+                    <name>De nationale kadobon</name>
                 </option>
                 <option>
                     <id>deencadeau</id>
@@ -1879,16 +1853,8 @@
                     <name>Designshops Giftcard</name>
                 </option>
                 <option>
-                    <id>digitalebioscoopbon</id>
-                    <name>Nationale Bioscoopbon</name>
-                </option>
-                <option>
                     <id>dinnerjaarkaart</id>
                     <name>Dinner Jaarkaart</name>
-                </option>
-                <option>
-                    <id>diocadeaucard</id>
-                    <name>D.I.O. Cadeaucard</name>
                 </option>
                 <option>
                     <id>doecadeaukaart</id>
@@ -1905,6 +1871,22 @@
                 <option>
                     <id>fashioncheque</id>
                     <name>Fashion cheque</name>
+                </option>
+                <option>
+                    <id>fashionucadeaukaart</id>
+                    <name>Fashion Giftcard</name>
+                </option>
+                <option>
+                    <id>fietsbon</id>
+                    <name>Fietsbon</name>
+                </option>
+                <option>
+                    <id>fijncadeau</id>
+                    <name>Fijn Cadeau</name>
+                </option>
+                <option>
+                    <id>gezondheidsbon</id>
+                    <name>Gezondheidsbon</name>
                 </option>
                 <option>
                     <id>giravgiftcard</id>
@@ -1951,12 +1933,12 @@
                     <name>Kook Cadeau</name>
                 </option>
                 <option>
-                    <id>kunstcultuurkaart</id>
-                    <name>Nationale Kunst &amp; Cultuur cadeaukaart</name>
-                </option>
-                <option>
                     <id>lottocadeaukaart</id>
                     <name>Lotto Cadeaukaart</name>
+                </option>
+                <option>
+                    <id>digitalebioscoopbon</id>
+                    <name>Nationale Bioscoopbon</name>
                 </option>
                 <option>
                     <id>nationaleentertainmentcard</id>
@@ -1971,16 +1953,24 @@
                     <name>Nationale Juweliers Cadeaukaart</name>
                 </option>
                 <option>
+                    <id>kunstcultuurkaart</id>
+                    <name>Nationale Kunst &amp; Cultuur cadeaukaart</name>
+                </option>
+                <option>
+                    <id>nationaletuinbon</id>
+                    <name>Nationale Tuinbon</name>
+                </option>
+                <option>
+                    <id>natverwencadeaubon</id>
+                    <name>Nationale Verwen Cadeaubon</name>
+                </option>
+                <option>
                     <id>naturesgift</id>
                     <name>Natures Gift</name>
                 </option>
                 <option>
                     <id>naturesgiftvoucher</id>
                     <name>Natures Gift Voucher</name>
-                </option>
-                <option>
-                    <id>natverwencadeaubon</id>
-                    <name>Nationale Verwen Cadeaubon</name>
                 </option>
                 <option>
                     <id>nlziet</id>
@@ -2071,12 +2061,12 @@
                     <name>VDC Giftcard</name>
                 </option>
                 <option>
-                    <id>videolandcard</id>
-                    <name>Videoland Card</name>
-                </option>
-                <option>
                     <id>videolandkaart</id>
                     <name>Videoland cadeaukaart</name>
+                </option>
+                <option>
+                    <id>videolandcard</id>
+                    <name>Videoland Card</name>
                 </option>
                 <option>
                     <id>vitaminboost</id>
@@ -2089,6 +2079,14 @@
                 <option>
                     <id>voetbalshopcadeau</id>
                     <name>Voetbalshop.nl CadeauCard</name>
+                </option>
+                <option>
+                    <id>vvvgiftcard</id>
+                    <name>VVV Giftcard</name>
+                </option>
+                <option>
+                    <id>webshopgiftcard</id>
+                    <name>Webshop Giftcard</name>
                 </option>
                 <option>
                     <id>wijncadeau</id>
@@ -2122,10 +2120,10 @@
         </input-field>
         <input-field type="multi-select">
             <name>giftcardsPaymentmethods</name>
-            <label lang="en-GB">Allowed payment methods</label>
-            <label lang="de-DE">Zulässige Zahlungsarten</label>
-            <label lang="nl-NL">Toegestane betaalmethoden</label>
-			<label lang="fr-FR">Moyens de paiement autorisés</label>
+            <label lang="en-GB">Payment methods for the remaining amount</label>
+            <label lang="de-DE">Zahlungsarten für den Restbetrag</label>
+            <label lang="nl-NL">Betaalmethoden voor het restbedrag</label>
+			<label lang="fr-FR">Moyens de paiement pour le montant restant</label>
             <helpText lang="en-GB">Payment methods customers can use on the Buckaroo payment page to pay the rest when their gift card doesn't cover the full amount. If none are selected, iDEAL is offered.</helpText>
             <helpText lang="nl-NL">Betaalmethoden waarmee klanten op de betaalpagina van Buckaroo het restbedrag betalen als hun cadeaukaart niet het volledige bedrag dekt. Als er geen zijn geselecteerd, wordt iDEAL aangeboden.</helpText>
             <helpText lang="de-DE">Zahlungsarten, mit denen Kunden auf der Zahlungsseite von Buckaroo den Restbetrag zahlen, wenn ihre Geschenkkarte nicht den vollen Betrag abdeckt. Ist keine ausgewählt, wird iDEAL angeboten.</helpText>
@@ -2210,10 +2208,6 @@
                 <option>
                     <id>nexi</id>
                     <name>Nexi</name>
-                </option>
-                <option>
-                    <id>postepay</id>
-                    <name>PostePay</name>
                 </option>
             </options>
         </input-field>
@@ -2809,18 +2803,6 @@
             <label lang="fr-FR">Klarna (MoR) activé</label>
         </input-field>
 
-        <input-field type="bool">
-            <name>klarnaCaptureonshipment</name>
-            <label lang="en-GB">Capture on shipment</label>
-            <label lang="nl-NL">Vastleggen bij verzending</label>
-            <label lang="de-DE">Erfassung bei Versand</label>
-            <label lang="fr-FR">Capturer à l'expédition</label>
-            <helpText lang="en-GB">When enabled, the Klarna transaction is automatically captured when the order is marked as "Shipped". When disabled, you must manually capture the transaction via the Buckaroo tab in the order, which contains a "Capture" button.</helpText>
-            <helpText lang="nl-NL">Indien ingeschakeld, wordt de Klarna-transactie automatisch vastgelegd zodra de bestelling als "Verzonden" wordt gemarkeerd. Indien uitgeschakeld, leg je de transactie handmatig vast via het Buckaroo-tabblad in de bestelling, met de knop "Vastleggen".</helpText>
-            <helpText lang="de-DE">Wenn aktiviert, wird die Klarna-Transaktion automatisch erfasst, wenn die Bestellung als "Versendet" markiert wird. Wenn deaktiviert, müssen Sie die Transaktion manuell über den Buckaroo-Tab in der Bestellung erfassen, der eine "Erfassen"-Schaltfläche enthält.</helpText>
-            <helpText lang="fr-FR">Lorsqu'activé, la transaction Klarna est automatiquement capturée lorsque la commande est marquée comme "Expédiée". Lorsque désactivé, vous devez capturer manuellement la transaction via l'onglet Buckaroo dans la commande, qui contient un bouton "Capturer".</helpText>
-        </input-field>
-
         <input-field type="single-select">
             <name>klarnaEnvironment</name>
             <label lang="en-GB">Test or Live</label>
@@ -2853,6 +2835,18 @@
             <defaultValue>Klarna</defaultValue>
         </input-field>
 
+        <input-field type="bool">
+            <name>klarnaCaptureonshipment</name>
+            <label lang="en-GB">Capture on shipment</label>
+            <label lang="nl-NL">Vastleggen bij verzending</label>
+            <label lang="de-DE">Erfassung bei Versand</label>
+            <label lang="fr-FR">Capturer à l'expédition</label>
+            <helpText lang="en-GB">When enabled, the Klarna transaction is automatically captured when the order is marked as "Shipped". When disabled, you must manually capture the transaction via the Buckaroo tab in the order, which contains a "Capture" button.</helpText>
+            <helpText lang="nl-NL">Indien ingeschakeld, wordt de Klarna-transactie automatisch vastgelegd zodra de bestelling als "Verzonden" wordt gemarkeerd. Indien uitgeschakeld, leg je de transactie handmatig vast via het Buckaroo-tabblad in de bestelling, met de knop "Vastleggen".</helpText>
+            <helpText lang="de-DE">Wenn aktiviert, wird die Klarna-Transaktion automatisch erfasst, wenn die Bestellung als "Versendet" markiert wird. Wenn deaktiviert, müssen Sie die Transaktion manuell über den Buckaroo-Tab in der Bestellung erfassen, der eine "Erfassen"-Schaltfläche enthält.</helpText>
+            <helpText lang="fr-FR">Lorsqu'activé, la transaction Klarna est automatiquement capturée lorsque la commande est marquée comme "Expédiée". Lorsque désactivé, vous devez capturer manuellement la transaction via l'onglet Buckaroo dans la commande, qui contient un bouton "Capturer".</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>klarnaFee</name>
             <copyable>true</copyable>
@@ -2877,18 +2871,6 @@
             <label lang="nl-NL">Ingeschakeld Klarna Pay later (authorize/capture)</label>
             <label lang="de-DE">Aktiviert Klarna Pay later (authorize/capture)</label>
 			<label lang="fr-FR">Klarna Pay Later activé (autorisation/capture)</label>
-        </input-field>
-
-        <input-field type="bool">
-            <name>klarnakpCaptureonshipment</name>
-            <label lang="en-GB">Capture on shipment</label>
-            <label lang="nl-NL">Vastleggen bij verzending</label>
-            <label lang="de-DE">Erfassung bei Versand</label>
-            <label lang="fr-FR">Capturer à l'expédition</label>
-            <helpText lang="en-GB">When enabled, the Klarna transaction is automatically captured when the order is marked as "Shipped". When disabled, you must manually capture the transaction via the Buckaroo tab in the order, which contains a "Capture" button.</helpText>
-            <helpText lang="nl-NL">Indien ingeschakeld, wordt de Klarna-transactie automatisch vastgelegd zodra de bestelling als "Verzonden" wordt gemarkeerd. Indien uitgeschakeld, leg je de transactie handmatig vast via het Buckaroo-tabblad in de bestelling, met de knop "Vastleggen".</helpText>
-            <helpText lang="de-DE">Wenn aktiviert, wird die Klarna-Transaktion automatisch erfasst, wenn die Bestellung als "Versendet" markiert wird. Wenn deaktiviert, müssen Sie die Transaktion manuell über den Buckaroo-Tab in der Bestellung erfassen, der eine "Erfassen"-Schaltfläche enthält.</helpText>
-            <helpText lang="fr-FR">Lorsqu'activé, la transaction Klarna est automatiquement capturée lorsque la commande est marquée comme "Expédiée". Lorsque du00E9sactivé, vous devez capturer manuellement la transaction via l'onglet Buckaroo dans la commande, qui contient un bouton "Capturer".</helpText>
         </input-field>
 
        
@@ -2922,6 +2904,18 @@
 			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
 			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Klarna</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>klarnakpCaptureonshipment</name>
+            <label lang="en-GB">Capture on shipment</label>
+            <label lang="nl-NL">Vastleggen bij verzending</label>
+            <label lang="de-DE">Erfassung bei Versand</label>
+            <label lang="fr-FR">Capturer à l'expédition</label>
+            <helpText lang="en-GB">When enabled, the Klarna transaction is automatically captured when the order is marked as "Shipped". When disabled, you must manually capture the transaction via the Buckaroo tab in the order, which contains a "Capture" button.</helpText>
+            <helpText lang="nl-NL">Indien ingeschakeld, wordt de Klarna-transactie automatisch vastgelegd zodra de bestelling als "Verzonden" wordt gemarkeerd. Indien uitgeschakeld, leg je de transactie handmatig vast via het Buckaroo-tabblad in de bestelling, met de knop "Vastleggen".</helpText>
+            <helpText lang="de-DE">Wenn aktiviert, wird die Klarna-Transaktion automatisch erfasst, wenn die Bestellung als "Versendet" markiert wird. Wenn deaktiviert, müssen Sie die Transaktion manuell über den Buckaroo-Tab in der Bestellung erfassen, der eine "Erfassen"-Schaltfläche enthält.</helpText>
+            <helpText lang="fr-FR">Lorsqu'activé, la transaction Klarna est automatiquement capturée lorsque la commande est marquée comme "Expédiée". Lorsque du00E9sactivé, vous devez capturer manuellement la transaction via l'onglet Buckaroo dans la commande, qui contient un bouton "Capturer".</helpText>
         </input-field>
 
 
@@ -2970,14 +2964,6 @@
             </options>
         </input-field>
 
-        <input-field type="bool">
-            <name>BillinkCreateInvoiceAfterShipment</name>
-            <label lang="en-GB">Create invoice after shipment</label>
-            <label lang="de-DE">Rechnung nach Versand erstellen</label>
-            <label lang="nl-NL">Factuur maken na verzending</label>
-            <label lang="fr-FR">Créer la facture après l'expédition</label>
-        </input-field>
-
         <input-field>
             <name>BillinkLabel</name>
             <label lang="en-GB">Title</label>
@@ -2989,6 +2975,14 @@
 			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
 			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Billink</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>BillinkCreateInvoiceAfterShipment</name>
+            <label lang="en-GB">Create invoice after shipment</label>
+            <label lang="de-DE">Rechnung nach Versand erstellen</label>
+            <label lang="nl-NL">Factuur maken na verzending</label>
+            <label lang="fr-FR">Créer la facture après l'expédition</label>
         </input-field>
 
         <input-field type="text">
