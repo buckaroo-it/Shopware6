@@ -10,18 +10,19 @@ use DOMXPath;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Guards the "Show Google Pay button on checkout page" setting.
+ * Guards the "Display Google Pay button" setting, which includes the checkout page.
  *
  * The Google Pay express button on the checkout confirm page is driven purely by
  * configuration and template wiring, so this test pins down that contract: the
- * setting must mirror the Apple Pay equivalent, must stay disabled by default
- * (existing merchants may not get the button switched on by an update) and must
- * reach the shared express button container.
+ * setting must mirror the Apple Pay and PayPal Express equivalents, must stay
+ * hidden by default (existing merchants may not get the button switched on by an
+ * update) and must reach the shared express button container.
  */
 class GooglePayExpressCheckoutConfigTest extends TestCase
 {
-    private const GOOGLEPAY_CHECKOUT = 'googlepayShowCheckout';
-    private const APPLEPAY_CHECKOUT = 'applepayShowCheckout';
+    private const GOOGLEPAY_CHECKOUT = 'googlepayExpresslocation';
+    private const APPLEPAY_CHECKOUT = 'applepayExpresslocation';
+    private const PAYPAL_EXPRESS = 'paypalExpresslocation';
 
     private DOMXPath $xpath;
 
@@ -46,31 +47,31 @@ class GooglePayExpressCheckoutConfigTest extends TestCase
         $field = $this->findInputField(self::GOOGLEPAY_CHECKOUT);
 
         $this->assertNotNull($field);
-        $this->assertSame('0', $this->childValue($field, 'defaultValue'));
+        $this->assertSame('multi-select', $field->getAttribute('type'), 'The setting is a list of pages');
+        $this->assertSame('["none"]', $this->childValue($field, 'defaultValue'));
+        $this->assertContains('checkout', $this->optionIds($field));
     }
 
-    public function testCheckoutSettingUsesSameControlAsApplePay(): void
+    public function testCheckoutSettingUsesSameControlAsApplePayAndPayPal(): void
     {
         $googlePay = $this->findInputField(self::GOOGLEPAY_CHECKOUT);
-        $applePay = $this->findInputField(self::APPLEPAY_CHECKOUT);
-
         $this->assertNotNull($googlePay);
-        $this->assertNotNull($applePay);
 
-        $this->assertSame(
-            $applePay->getAttribute('type'),
-            $googlePay->getAttribute('type'),
-            'Google Pay checkout setting must use the same control type as Apple Pay'
-        );
-        $this->assertSame(
-            $this->optionIds($applePay),
-            $this->optionIds($googlePay),
-            'Google Pay checkout setting must use the same Yes/No options as Apple Pay'
-        );
-        $this->assertSame(
-            $this->childValue($applePay, 'defaultValue'),
-            $this->childValue($googlePay, 'defaultValue')
-        );
+        foreach ([self::APPLEPAY_CHECKOUT, self::PAYPAL_EXPRESS] as $reference) {
+            $field = $this->findInputField($reference);
+            $this->assertNotNull($field, $reference);
+
+            $this->assertSame(
+                $field->getAttribute('type'),
+                $googlePay->getAttribute('type'),
+                "Google Pay must use the same control type as $reference"
+            );
+            $this->assertSame(
+                $this->childValue($field, 'defaultValue'),
+                $this->childValue($googlePay, 'defaultValue')
+            );
+            $this->assertSame($this->optionIds($field), $this->optionIds($googlePay));
+        }
     }
 
     public function testCheckoutSettingIsTranslated(): void
@@ -85,22 +86,23 @@ class GooglePayExpressCheckoutConfigTest extends TestCase
             $this->assertNotSame('', trim($labels[$locale]));
         }
 
-        $this->assertSame('Show Google Pay button on checkout page', $labels['en-GB']);
+        $this->assertSame('Display Google Pay button', $labels['en-GB']);
     }
 
     /**
      * The Apple Pay checkout setting is the reference implementation — the
-     * Google Pay one is expected to sit in the same place in its own card.
+     * Google Pay one is expected to sit in the same place in its own card:
+     * last, only followed by the payment fee that closes every card.
      */
     public function testCheckoutSettingIsLastFieldOfGooglePayCard(): void
     {
         $this->assertSame(
-            self::GOOGLEPAY_CHECKOUT,
-            $this->lastInputFieldNameOfCard('googlepay')
+            [self::GOOGLEPAY_CHECKOUT, 'googlepayFee'],
+            array_slice($this->inputFieldNamesOfCard('googlepay'), -2)
         );
         $this->assertSame(
-            self::APPLEPAY_CHECKOUT,
-            $this->lastInputFieldNameOfCard('applepay')
+            [self::APPLEPAY_CHECKOUT, 'applepayFee'],
+            array_slice($this->inputFieldNamesOfCard('applepay'), -2)
         );
     }
 
@@ -173,8 +175,8 @@ class GooglePayExpressCheckoutConfigTest extends TestCase
             "/'showGooglePay'\s*=>\s*\\\$this->showGooglePayExpress\(\\\$salesChannelId,\s*'checkout'\)/",
             $subscriber
         );
-        $this->assertMatchesRegularExpression(
-            "/'checkout'\s*=>\s*'" . self::GOOGLEPAY_CHECKOUT . "'/",
+        $this->assertStringContainsString(
+            "getSetting('" . self::GOOGLEPAY_CHECKOUT . "', \$salesChannelId)",
             $subscriber
         );
     }
@@ -216,13 +218,10 @@ class GooglePayExpressCheckoutConfigTest extends TestCase
     private function optionIds(DOMElement $field): array
     {
         $ids = [];
+        $nodes = $this->xpath->query('.//*[local-name()="option"]/*[local-name()="id"]', $field);
 
-        foreach ($field->getElementsByTagName('option') as $option) {
-            foreach ($option->childNodes as $child) {
-                if ($child instanceof DOMElement && $child->localName === 'id') {
-                    $ids[] = $child->textContent;
-                }
-            }
+        foreach ($nodes ?: [] as $node) {
+            $ids[] = $node->textContent;
         }
 
         return $ids;
@@ -244,28 +243,31 @@ class GooglePayExpressCheckoutConfigTest extends TestCase
         return $labels;
     }
 
-    private function lastInputFieldNameOfCard(string $cardName): ?string
+    /**
+     * @return array<int, string|null>
+     */
+    private function inputFieldNamesOfCard(string $cardName): array
     {
         $cards = $this->xpath->query(
             '//*[local-name()="card"]/*[local-name()="name"][text()="' . $cardName . '"]/..'
         );
 
         if ($cards === false || $cards->length !== 1) {
-            return null;
+            return [];
         }
 
         $card = $cards->item(0);
         if (!$card instanceof DOMElement) {
-            return null;
+            return [];
         }
 
-        $name = null;
+        $names = [];
         foreach ($card->childNodes as $child) {
             if ($child instanceof DOMElement && $child->localName === 'input-field') {
-                $name = $this->childValue($child, 'name');
+                $names[] = $this->childValue($child, 'name');
             }
         }
 
-        return $name;
+        return $names;
     }
 }

@@ -1,8 +1,8 @@
 // Meteor design tokens (Shopware 6.6+) with fallbacks for older admins
 $bk-border: var(--color-border-secondary-default, #e2e3e9);
 $bk-border-hover: var(--color-border-primary-default, #cdced4);
-$bk-surface: var(--color-elevation-surface-raised, #ffffff);
-$bk-footer: var(--color-background-secondary-default, #fafbfe);
+// Same background as the Shopware admin page (.sw-desktop)
+$bk-surface: var(--color-elevation-surface-sunken, #fafbfe);
 $bk-text: var(--color-text-primary-default, #1e1e24);
 $bk-text-secondary: var(--color-text-secondary-default, #696a6e);
 $bk-link: var(--color-interaction-primary-default, #0870ff);
@@ -116,7 +116,6 @@ $bk-critical-text: var(--color-text-critical-default, #e2262a);
         align-items: center;
         justify-content: space-between;
         padding: 10px 16px;
-        background: $bk-footer;
         border-top: 1px solid $bk-border;
     }
 

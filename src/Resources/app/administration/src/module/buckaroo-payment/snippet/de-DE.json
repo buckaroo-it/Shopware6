@@ -140,7 +140,7 @@
             }
         },
         "paymentSettings": {
-            "statusLabel": "Status",
+            "statusLabel": "{method} aktivieren",
             "statusHelp": "Live nimmt echte Zahlungen an. Test nutzt die Buckaroo-Testumgebung, es wird kein echtes Geld abgebucht. Aus blendet diese Zahlungsart im Checkout aus."
         }
     }

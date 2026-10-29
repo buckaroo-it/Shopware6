@@ -41,12 +41,8 @@ class CheckoutConfirmTemplateSubscriberExpressButtonsTest extends TestCase
         $this->settingsService->method('getSetting')->willReturnMap([
             ['paypalExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
             ['applepayGuid', self::SALES_CHANNEL_ID, 'apple-merchant-id'],
-            ['applepayShowProduct', self::SALES_CHANNEL_ID, true],
-            ['applepayShowCart', self::SALES_CHANNEL_ID, true],
-            ['applepayShowCheckout', self::SALES_CHANNEL_ID, true],
-            ['googlepayShowProduct', self::SALES_CHANNEL_ID, true],
-            ['googlepayShowCart', self::SALES_CHANNEL_ID, true],
-            ['googlepayShowCheckout', self::SALES_CHANNEL_ID, true],
+            ['applepayExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
+            ['googlepayExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
         ]);
 
         $this->subscriber = new CheckoutConfirmTemplateSubscriber(
@@ -103,6 +99,39 @@ class CheckoutConfirmTemplateSubscriberExpressButtonsTest extends TestCase
             ->willReturn(true);
 
         $this->assertTrue($this->callShow($method, $page));
+    }
+
+    /**
+     * Apple Pay and Google Pay use the same "Display ... button" list as PayPal:
+     * only the selected pages show the button, "None" shows it nowhere.
+     */
+    public function testWalletButtonsOnlyShowOnSelectedPages(): void
+    {
+        $settingsService = $this->createMock(SettingsService::class);
+        $settingsService->method('getEnabled')->willReturn(true);
+        $settingsService->method('getSetting')->willReturnMap([
+            ['applepayGuid', self::SALES_CHANNEL_ID, 'apple-merchant-id'],
+            ['applepayExpresslocation', self::SALES_CHANNEL_ID, ['cart']],
+            ['googlepayExpresslocation', self::SALES_CHANNEL_ID, ['none']],
+        ]);
+        $this->subscriber = new CheckoutConfirmTemplateSubscriber(
+            $this->createMock(SalesChannelRepository::class),
+            $settingsService,
+            $this->createMock(UrlService::class),
+            $this->createMock(TranslatorInterface::class),
+            $this->createMock(PayByBankService::class),
+            $this->createMock(In3LogoService::class),
+            $this->createMock(IdealIssuerService::class),
+            $this->paypalExpressCredentials
+        );
+
+        $this->assertTrue($this->callShow('showApplePayExpress', 'cart'));
+        $this->assertFalse($this->callShow('showApplePayExpress', 'product'));
+        $this->assertFalse($this->callShow('showApplePayExpress', 'checkout'));
+
+        foreach (['product', 'cart', 'checkout'] as $page) {
+            $this->assertFalse($this->callShow('showGooglePayExpress', $page), "Google Pay on $page");
+        }
     }
 
     private function callShow(string $method, string $page): bool

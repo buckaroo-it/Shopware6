@@ -592,7 +592,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     /**
      * Whether the Apple Pay express button may be rendered on a given storefront
      * location. Requires the Apple Pay payment method to be enabled, a configured
-     * merchant id (guid) and the per-location visibility setting to be enabled.
+     * merchant id (guid) and the page to be selected in "Display Apple Pay button".
      */
     protected function showApplePayExpress(string $salesChannelId, string $page = 'product'): bool
     {
@@ -605,23 +605,14 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             return false;
         }
 
-        $settings = [
-            'product'  => 'applepayShowProduct',
-            'cart'     => 'applepayShowCart',
-            'checkout' => 'applepayShowCheckout',
-        ];
-
-        if (!isset($settings[$page])) {
-            return false;
-        }
-
-        return $this->getSettingAsBool($settings[$page], $salesChannelId);
+        $locations = $this->settingsService->getSetting('applepayExpresslocation', $salesChannelId);
+        return is_array($locations) && in_array($page, $locations, true);
     }
 
     /**
      * Whether the Google Pay express button may be rendered on a given storefront
-     * location. Requires the Google Pay payment method to be enabled and the
-     * per-location visibility setting to be enabled.
+     * location. Requires the Google Pay payment method to be enabled and the page
+     * to be selected in "Display Google Pay button".
      */
     protected function showGooglePayExpress(string $salesChannelId, string $page = 'product'): bool
     {
@@ -629,17 +620,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             return false;
         }
 
-        $settings = [
-            'product'  => 'googlepayShowProduct',
-            'cart'     => 'googlepayShowCart',
-            'checkout' => 'googlepayShowCheckout',
-        ];
-
-        if (!isset($settings[$page])) {
-            return false;
-        }
-
-        return $this->getSettingAsBool($settings[$page], $salesChannelId);
+        $locations = $this->settingsService->getSetting('googlepayExpresslocation', $salesChannelId);
+        return is_array($locations) && in_array($page, $locations, true);
     }
 
     protected function getAppleMerchantId(string $salesChannelId): ?string

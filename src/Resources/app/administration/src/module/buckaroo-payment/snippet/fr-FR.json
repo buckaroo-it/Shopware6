@@ -140,7 +140,7 @@
             }
         },
         "paymentSettings": {
-            "statusLabel": "Statut",
+            "statusLabel": "Activer {method}",
             "statusHelp": "Live accepte de vrais paiements. Test utilise l'environnement de test Buckaroo, aucun argent réel n'est débité. Désactivé masque ce moyen de paiement au paiement."
         }
     }

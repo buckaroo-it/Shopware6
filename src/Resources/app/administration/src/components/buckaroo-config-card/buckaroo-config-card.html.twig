@@ -10,7 +10,7 @@
             :value="statusOwnValue"
             :inherited-value="statusInheritedValue"
             :has-parent="isNotDefaultSalesChannel"
-            :label="$tc('buckaroo-payment.paymentSettings.statusLabel')"
+            :label="$t('buckaroo-payment.paymentSettings.statusLabel', { method: getInlineSnippet(card.title) })"
             :help-text="statusHelpText"
             @update:value="onStatusChange"
             @input="onStatusChange"

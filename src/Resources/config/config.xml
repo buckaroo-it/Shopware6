@@ -20,10 +20,10 @@
             <placeholder lang="de-DE">Buckaroo-Store-Key eingeben.</placeholder>
             <placeholder lang="nl-NL">Vul je Buckaroo store key in.</placeholder>
             <placeholder lang="fr-FR">Entrez votre clé de boutique Buckaroo.</placeholder>
-            <helpText lang="en-GB">Identifies your store at Buckaroo. You can find it in Buckaroo Plaza under Settings > API Keys.</helpText>
-            <helpText lang="de-DE">Identifiziert Ihren Shop bei Buckaroo. Sie finden ihn im Buckaroo Plaza unter Einstellungen > API Keys.</helpText>
-            <helpText lang="nl-NL">Identificeert je winkel bij Buckaroo. Je vindt deze in Buckaroo Plaza onder Instellingen > API Keys.</helpText>
-			<helpText lang="fr-FR">Identifie votre boutique auprès de Buckaroo. Vous la trouverez dans Buckaroo Plaza sous Paramètres > API Keys.</helpText>
+            <helpText lang="en-GB"><![CDATA[Identifies your store at Buckaroo. You can find it in Buckaroo Plaza under Settings > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>.]]></helpText>
+            <helpText lang="de-DE"><![CDATA[Identifiziert Ihren Shop bei Buckaroo. Sie finden ihn im Buckaroo Plaza unter Einstellungen > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>.]]></helpText>
+            <helpText lang="nl-NL"><![CDATA[Identificeert je winkel bij Buckaroo. Je vindt deze in Buckaroo Plaza onder Instellingen > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>.]]></helpText>
+			<helpText lang="fr-FR"><![CDATA[Identifie votre boutique auprès de Buckaroo. Vous la trouverez dans Buckaroo Plaza sous Paramètres > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>.]]></helpText>
         </input-field>
 
         <input-field type="password">
@@ -36,10 +36,10 @@
             <placeholder lang="de-DE">Geheimen Buckaroo-Schlüssel eingeben.</placeholder>
             <placeholder lang="nl-NL">Vul je Buckaroo secret key in.</placeholder>
             <placeholder lang="fr-FR">Entrez votre clé secrète Buckaroo.</placeholder>
-            <helpText lang="en-GB">Secures the communication between your store and Buckaroo. You can find it in Buckaroo Plaza under Settings > API Keys. Keep it private.</helpText>
-            <helpText lang="nl-NL">Beveiligt de communicatie tussen je winkel en Buckaroo. Je vindt deze in Buckaroo Plaza onder Instellingen > API Keys. Houd deze geheim.</helpText>
-            <helpText lang="de-DE">Sichert die Kommunikation zwischen Ihrem Shop und Buckaroo. Sie finden ihn im Buckaroo Plaza unter Einstellungen > API Keys. Halten Sie ihn geheim.</helpText>
-			<helpText lang="fr-FR">Sécurise la communication entre votre boutique et Buckaroo. Vous la trouverez dans Buckaroo Plaza sous Paramètres > API Keys. Gardez-la confidentielle.</helpText>
+            <helpText lang="en-GB"><![CDATA[Secures the communication between your store and Buckaroo. You can find it in Buckaroo Plaza under Settings > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>. Keep it private.]]></helpText>
+            <helpText lang="nl-NL"><![CDATA[Beveiligt de communicatie tussen je winkel en Buckaroo. Je vindt deze in Buckaroo Plaza onder Instellingen > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>. Houd deze geheim.]]></helpText>
+            <helpText lang="de-DE"><![CDATA[Sichert die Kommunikation zwischen Ihrem Shop und Buckaroo. Sie finden ihn im Buckaroo Plaza unter Einstellungen > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>. Halten Sie ihn geheim.]]></helpText>
+			<helpText lang="fr-FR"><![CDATA[Sécurise la communication entre votre boutique et Buckaroo. Vous la trouverez dans Buckaroo Plaza sous Paramètres > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>. Gardez-la confidentielle.]]></helpText>
         </input-field>
 
         <input-field>
@@ -52,6 +52,7 @@
             <helpText lang="de-DE">Wird auf dem Kontoauszug des Kunden und im Buckaroo Plaza angezeigt. Sie können {order_number}, {shop_name} und {product_name} (erstes Produkt der Bestellung) verwenden. Leer lassen, um den Shopnamen zu verwenden. Maximal 244 Zeichen.</helpText>
             <helpText lang="nl-NL">Wordt getoond op het bankafschrift van de klant en in Buckaroo Plaza. Je kunt {order_number}, {shop_name} en {product_name} (eerste product van de bestelling) gebruiken. Laat leeg om de winkelnaam te gebruiken. Maximaal 244 tekens.</helpText>
 			<helpText lang="fr-FR">Affichée sur le relevé bancaire du client et dans Buckaroo Plaza. Vous pouvez utiliser {order_number}, {shop_name} et {product_name} (premier produit de la commande). Laissez vide pour utiliser le nom de la boutique. 244 caractères maximum.</helpText>
+            <defaultValue>{order_number}</defaultValue>
         </input-field>
 
         <input-field>
@@ -64,14 +65,15 @@
             <helpText lang="de-DE">Wird bei Rückerstattungen auf dem Kontoauszug des Kunden und im Buckaroo Plaza angezeigt. Sie können {order_number}, {shop_name} und {product_name} (erstes Produkt der Bestellung) verwenden. Leer lassen, um den Shopnamen zu verwenden. Maximal 244 Zeichen.</helpText>
             <helpText lang="nl-NL">Wordt bij terugbetalingen getoond op het bankafschrift van de klant en in Buckaroo Plaza. Je kunt {order_number}, {shop_name} en {product_name} (eerste product van de bestelling) gebruiken. Laat leeg om de winkelnaam te gebruiken. Maximaal 244 tekens.</helpText>
 			<helpText lang="fr-FR">Affichée sur le relevé bancaire du client lors des remboursements et dans Buckaroo Plaza. Vous pouvez utiliser {order_number}, {shop_name} et {product_name} (premier produit de la commande). Laissez vide pour utiliser le nom de la boutique. 244 caractères maximum.</helpText>
+            <defaultValue>{order_number}</defaultValue>
         </input-field>
 
         <input-field type="single-select">
             <name>orderStatus</name>
-            <label lang="en-GB">Order status</label>
-            <label lang="de-DE">Bestellstatus</label>
-            <label lang="nl-NL">Order status</label>
-			<label lang="fr-FR">Statut de la commande</label>
+            <label lang="en-GB">Order status after payment</label>
+            <label lang="de-DE">Bestellstatus nach Zahlung</label>
+            <label lang="nl-NL">Orderstatus na betaling</label>
+			<label lang="fr-FR">Statut de la commande après paiement</label>
             <helpText lang="en-GB">This status will be given to paid orders.</helpText>
             <helpText lang="de-DE">Dieser Status wird für bezahlte Bestellungen vergeben.</helpText>
             <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde orders.</helpText>
@@ -104,11 +106,11 @@
 
         <input-field type="single-select">
             <name>language</name>
-            <label lang="en-GB">Language</label>
-            <label lang="de-DE">Sprache</label>
-            <label lang="nl-NL">Taal</label>
-            <label lang="fr-FR">Langue</label>
-            <label lang="es-ES">Idioma</label>
+            <label lang="en-GB">Payment page language</label>
+            <label lang="de-DE">Sprache der Zahlungsseite</label>
+            <label lang="nl-NL">Taal betaalpagina</label>
+            <label lang="fr-FR">Langue de la page de paiement</label>
+            <label lang="es-ES">Idioma de la página de pago</label>
             <helpText lang="en-GB">Select the language used for the Buckaroo payment gateway and payment instructions. Choose a dynamic option, use the default Shopware sales channel language, or select a fixed language.</helpText>
             <helpText lang="de-DE">Wählen Sie die Sprache aus, die für das Buckaroo Payment Gateway und die Zahlungsanweisungen verwendet wird. Wählen Sie eine dynamische Option, verwenden Sie die Standardsprache des Shopware-Verkaufskanals oder wählen Sie eine feste Sprache aus.</helpText>
             <helpText lang="nl-NL">Selecteer de taal die wordt gebruikt voor de Buckaroo payment gateway en betaalinstructies. Kies een dynamische optie, gebruik de standaardtaal van het Shopware-verkoopkanaal of selecteer een vaste taal.</helpText>
@@ -185,10 +187,14 @@
 
         <input-field type="bool">
             <name>sendInvoiceEmail</name>
-            <label lang="en-GB">Send transactional invoice email</label>
-            <label lang="de-DE">Transaktionsrechnungs-E-Mail senden</label>
-            <label lang="nl-NL">Verzend transactionele factuur-e-mail</label>
-			<label lang="fr-FR">Envoyer un e-mail de facture transactionnelle</label>
+            <label lang="en-GB">Email invoice to customer after payment</label>
+            <label lang="de-DE">Rechnung nach Zahlung per E-Mail an den Kunden senden</label>
+            <label lang="nl-NL">Factuur na betaling naar klant e-mailen</label>
+            <label lang="fr-FR">Envoyer la facture au client par e-mail après le paiement</label>
+            <helpText lang="en-GB">Sends the invoice to the customer by email once the order is fully paid. The invoice is created either way.</helpText>
+            <helpText lang="de-DE">Sendet die Rechnung per E-Mail an den Kunden, sobald die Bestellung vollständig bezahlt ist. Die Rechnung wird in jedem Fall erstellt.</helpText>
+            <helpText lang="nl-NL">Stuurt de factuur per e-mail naar de klant zodra de bestelling volledig is betaald. De factuur wordt in beide gevallen aangemaakt.</helpText>
+            <helpText lang="fr-FR">Envoie la facture au client par e-mail dès que la commande est entièrement payée. La facture est créée dans tous les cas.</helpText>
         </input-field>
 
         <input-field type="bool">
@@ -197,6 +203,10 @@
             <label lang="de-DE">Bestellung bei fehlgeschlagener Zahlung stornieren</label>
             <label lang="nl-NL">Bestelling annuleren als de betaling mislukt</label>
             <label lang="fr-FR">Annuler la commande en cas d'échec du paiement</label>
+            <helpText lang="en-GB">Cancels the order when Buckaroo reports the payment as failed, rejected or cancelled. When off, only the payment status changes and the order stays open.</helpText>
+            <helpText lang="de-DE">Storniert die Bestellung, wenn Buckaroo die Zahlung als fehlgeschlagen, abgelehnt oder abgebrochen meldet. Wenn deaktiviert, ändert sich nur der Zahlungsstatus und die Bestellung bleibt offen.</helpText>
+            <helpText lang="nl-NL">Annuleert de bestelling als Buckaroo de betaling als mislukt, geweigerd of geannuleerd meldt. Staat dit uit, dan verandert alleen de betaalstatus en blijft de bestelling open.</helpText>
+            <helpText lang="fr-FR">Annule la commande lorsque Buckaroo signale le paiement comme échoué, refusé ou annulé. Si désactivé, seul le statut du paiement change et la commande reste ouverte.</helpText>
             <defaultValue>false</defaultValue>
         </input-field>
     </card>
@@ -237,30 +247,17 @@
 
         <input-field>
             <name>creditcardLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Libellé frontal</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Buckaroo Creditcard and Debit Card</defaultValue>
         </input-field>
 
-        <input-field type="text">
-            <name>creditcardFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-        </input-field>
 
         <input-field type="multi-select">
             <name>allowedcreditcard</name>
@@ -319,6 +316,19 @@
                 </option>
             </options>
         </input-field>
+        <input-field type="text">
+            <name>creditcardFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
+        </input-field>
     </card>
 
     <card>
@@ -361,30 +371,17 @@
 
         <input-field>
             <name>creditcardsLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Libellé frontal</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Buckaroo Creditcards</defaultValue>
         </input-field>
 
-        <input-field type="text">
-            <name>creditcardsFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
-        </input-field>
 
         <input-field type="multi-select">
             <name>allowedcreditcards</name>
@@ -417,33 +414,46 @@
         </input-field>
         <input-field type="password">
             <name>clientId</name>
-            <label lang="en-GB">Client ID</label>
-            <label lang="de-DE">Client ID</label>
-            <label lang="nl-NL">Client ID</label>
-            <label lang="fr-FR">Client ID</label>
+            <label lang="en-GB">Hosted Fields client ID</label>
+            <label lang="de-DE">Hosted Fields Client ID</label>
+            <label lang="nl-NL">Hosted Fields client ID</label>
+            <label lang="fr-FR">Client ID Hosted Fields</label>
             <placeholder lang="en-GB">Enter your Buckaroo client ID.</placeholder>
             <placeholder lang="de-DE">Buckaroo-Client-ID eingeben.</placeholder>
             <placeholder lang="nl-NL">Vul je Buckaroo client ID in.</placeholder>
             <placeholder lang="fr-FR">Entrez votre ID client Buckaroo.</placeholder>
-            <helpText lang="en-GB">Needed for Cards (Hosted Fields). Create or look it up in Buckaroo Plaza under Settings > Token registration.</helpText>
-            <helpText lang="de-DE">Erforderlich für Karten (Hosted Fields). Erstellen oder finden Sie sie im Buckaroo Plaza unter Einstellungen > Token-Registrierung.</helpText>
-            <helpText lang="nl-NL">Nodig voor Kaarten (Hosted Fields). Maak of vind deze in Buckaroo Plaza onder Instellingen > Tokenregistratie.</helpText>
-            <helpText lang="fr-FR">Nécessaire pour les cartes (Hosted Fields). Créez-le ou retrouvez-le dans Buckaroo Plaza sous Paramètres > Enregistrement des tokens.</helpText>
+            <helpText lang="en-GB"><![CDATA[Needed for Cards (Hosted Fields). Create or look it up in Buckaroo Plaza under Settings > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token registration</a>.]]></helpText>
+            <helpText lang="de-DE"><![CDATA[Erforderlich für Karten (Hosted Fields). Erstellen oder finden Sie sie im Buckaroo Plaza unter Einstellungen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token-Registrierung</a>.]]></helpText>
+            <helpText lang="nl-NL"><![CDATA[Nodig voor Kaarten (Hosted Fields). Maak of vind deze in Buckaroo Plaza onder Instellingen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Tokenregistratie</a>.]]></helpText>
+            <helpText lang="fr-FR"><![CDATA[Nécessaire pour les cartes (Hosted Fields). Créez-le ou retrouvez-le dans Buckaroo Plaza sous Paramètres > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Enregistrement des tokens</a>.]]></helpText>
         </input-field>
         <input-field type="password">
             <name>clientSecret</name>
-            <label lang="en-GB">Client secret</label>
-            <label lang="de-DE">Client Secret</label>
-            <label lang="nl-NL">Client secret</label>
-            <label lang="fr-FR">Client secret</label>
+            <label lang="en-GB">Hosted Fields client secret</label>
+            <label lang="de-DE">Hosted Fields Client Secret</label>
+            <label lang="nl-NL">Hosted Fields client secret</label>
+            <label lang="fr-FR">Client secret Hosted Fields</label>
             <placeholder lang="en-GB">Enter your Buckaroo client secret.</placeholder>
             <placeholder lang="de-DE">Buckaroo-Client-Secret eingeben.</placeholder>
             <placeholder lang="nl-NL">Vul je Buckaroo client secret in.</placeholder>
             <placeholder lang="fr-FR">Entrez votre secret client Buckaroo.</placeholder>
-            <helpText lang="en-GB">Needed for Cards (Hosted Fields). Create or look it up in Buckaroo Plaza under Settings > Token registration. Keep it private.</helpText>
-            <helpText lang="de-DE">Erforderlich für Karten (Hosted Fields). Erstellen oder finden Sie es im Buckaroo Plaza unter Einstellungen > Token-Registrierung. Halten Sie es geheim.</helpText>
-            <helpText lang="nl-NL">Nodig voor Kaarten (Hosted Fields). Maak of vind deze in Buckaroo Plaza onder Instellingen > Tokenregistratie. Houd deze geheim.</helpText>
-            <helpText lang="fr-FR">Nécessaire pour les cartes (Hosted Fields). Créez-le ou retrouvez-le dans Buckaroo Plaza sous Paramètres > Enregistrement des tokens. Gardez-le confidentiel.</helpText>
+            <helpText lang="en-GB"><![CDATA[Needed for Cards (Hosted Fields). Create or look it up in Buckaroo Plaza under Settings > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token registration</a>. Keep it private.]]></helpText>
+            <helpText lang="de-DE"><![CDATA[Erforderlich für Karten (Hosted Fields). Erstellen oder finden Sie es im Buckaroo Plaza unter Einstellungen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token-Registrierung</a>. Halten Sie es geheim.]]></helpText>
+            <helpText lang="nl-NL"><![CDATA[Nodig voor Kaarten (Hosted Fields). Maak of vind deze in Buckaroo Plaza onder Instellingen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Tokenregistratie</a>. Houd deze geheim.]]></helpText>
+            <helpText lang="fr-FR"><![CDATA[Nécessaire pour les cartes (Hosted Fields). Créez-le ou retrouvez-le dans Buckaroo Plaza sous Paramètres > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Enregistrement des tokens</a>. Gardez-le confidentiel.]]></helpText>
+        </input-field>
+        <input-field type="text">
+            <name>creditcardsFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -460,16 +470,17 @@
 
         <input-field>
             <name>idealqrLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>			
+			<label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>			
             <defaultValue>iDEAL QR</defaultValue>
         </input-field>
+
 
         <input-field type="text">
             <name>idealqrFee</name>
@@ -479,12 +490,11 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
-
     </card>
 
     <card>
@@ -549,50 +559,37 @@
 
         <input-field>
             <name>idealLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>			
+			<label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>			
             <defaultValue>iDEAL | Wero</defaultValue>
         </input-field>
 
-        <input-field type="text">
-            <name>idealFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-        </input-field>
 
 
         <input-field type="bool">
             <name>idealFastCheckoutEnabled</name>
-            <label lang="en-GB">Fast checkout enabled</label>
-            <label lang="nl-NL">Fast checkout ingeschakeld</label>
-            <label lang="de-DE">Fast Checkout aktiviert</label>
-            <label lang="fr-FR">Fast checkout activé</label>
-            <helpText lang="en-GB">Shows an iDEAL | Wero Fast Checkout button, so customers can pay without going through the regular checkout. Choose the pages under logo visibility.</helpText>
-            <helpText lang="nl-NL">Toont een iDEAL | Wero Fast Checkout-knop, zodat klanten kunnen betalen zonder de gewone checkout te doorlopen. Kies de pagina's bij de zichtbaarheid van het logo.</helpText>
-            <helpText lang="de-DE">Zeigt eine iDEAL | Wero Fast-Checkout-Schaltfläche, damit Kunden ohne den regulären Checkout bezahlen können. Wählen Sie die Seiten unter der Sichtbarkeit des Logos.</helpText>
-            <helpText lang="fr-FR">Affiche un bouton iDEAL | Wero Fast Checkout pour que les clients puissent payer sans passer par le paiement habituel. Choisissez les pages sous la visibilité du logo.</helpText>
+            <label lang="en-GB">iDEAL | Wero Fast Checkout</label>
+            <label lang="nl-NL">iDEAL | Wero Fast Checkout</label>
+            <label lang="de-DE">iDEAL | Wero Fast Checkout</label>
+            <label lang="fr-FR">iDEAL | Wero Fast Checkout</label>
+            <helpText lang="en-GB">Shows an iDEAL | Wero Fast Checkout button, so customers can pay without going through the regular checkout. Choose the pages under Fast Checkout button location.</helpText>
+            <helpText lang="nl-NL">Toont een iDEAL | Wero Fast Checkout-knop, zodat klanten kunnen betalen zonder de gewone checkout te doorlopen. Kies de pagina's bij Locatie Fast Checkout-knop.</helpText>
+            <helpText lang="de-DE">Zeigt eine iDEAL | Wero Fast-Checkout-Schaltfläche, damit Kunden ohne den regulären Checkout bezahlen können. Wählen Sie die Seiten unter Position der Fast-Checkout-Schaltfläche.</helpText>
+            <helpText lang="fr-FR">Affiche un bouton iDEAL | Wero Fast Checkout pour que les clients puissent payer sans passer par le paiement habituel. Choisissez les pages sous Emplacement du bouton Fast Checkout.</helpText>
         </input-field>
 
         <input-field type="multi-select">
             <name>idealFastCheckoutVisibility</name>
-            <label lang="en-GB">iDEAL | Wero fast checkout logo visibility</label>
-            <label lang="nl-NL">Zichtbaarheid logo iDEAL | Wero snel afrekenen</label>
-            <label lang="de-DE">Sichtbarkeit des iDEAL | Wero Fast-Checkout-Logos</label>
-            <label lang="fr-FR">Visibilité du logo iDEAL | Wero paiement rapide</label>
+            <label lang="en-GB">Fast Checkout button location</label>
+            <label lang="nl-NL">Locatie Fast Checkout-knop</label>
+            <label lang="de-DE">Position der Fast-Checkout-Schaltfläche</label>
+            <label lang="fr-FR">Emplacement du bouton Fast Checkout</label>
             <helpText lang="en-GB">Pages where the fast checkout button is shown: the product page, the cart, or both. Choose None to hide it.</helpText>
             <helpText lang="nl-NL">Pagina's waarop de knop voor snel afrekenen wordt getoond: de productpagina, de winkelwagen of beide. Kies Geen om de knop te verbergen.</helpText>
             <helpText lang="de-DE">Seiten, auf denen die Fast-Checkout-Schaltfläche angezeigt wird: die Produktseite, der Warenkorb oder beide. Wählen Sie Keine, um sie auszublenden.</helpText>
@@ -625,10 +622,10 @@
 
         <input-field type="single-select">
             <name>idealFastCheckoutLogoScheme</name>
-            <label lang="en-GB">iDEAL fast checkout button style</label>
-            <label lang="de-DE">Stil der iDEAL Fast-Checkout-Schaltfläche</label>
-            <label lang="nl-NL">Stijl knop iDEAL snel afrekenen</label>
-            <label lang="fr-FR">Style du bouton iDEAL paiement rapide</label>
+            <label lang="en-GB">Fast Checkout button color</label>
+            <label lang="de-DE">Farbe der Fast-Checkout-Schaltfläche</label>
+            <label lang="nl-NL">Kleur Fast Checkout-knop</label>
+            <label lang="fr-FR">Couleur du bouton Fast Checkout</label>
             <helpText lang="en-GB">Light shows a white button with a magenta outline, Dark a solid magenta button. Choose the one that stands out best on your store's background.</helpText>
             <helpText lang="nl-NL">Licht toont een witte knop met een magenta rand, Donker een volledig magenta knop. Kies de stijl die het best opvalt op de achtergrond van je winkel.</helpText>
             <helpText lang="de-DE">Hell zeigt eine weiße Schaltfläche mit magentafarbenem Rand, Dunkel eine vollständig magentafarbene Schaltfläche. Wählen Sie die Variante, die sich am besten vom Hintergrund Ihres Shops abhebt.</helpText>
@@ -650,6 +647,19 @@
                     <name lang="fr-FR">Foncé - bouton entièrement magenta</name>
                 </option>
             </options>
+        </input-field>
+        <input-field type="text">
+            <name>idealFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
         </input-field>
     </card>
 
@@ -686,14 +696,14 @@
 
         <input-field>
             <name>paybybankLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>			
+			<label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>			
             <defaultValue>PayByBank</defaultValue>
         </input-field>
 
@@ -759,30 +769,17 @@
 
         <input-field>
             <name>bancontactmrcashLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <label lang="de-DE">Frontend-Label</label>
-            <label lang="nl-NL">Frontend label</label>
-            <label lang="fr-FR">Étiquette frontale</label>
-            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+            <label lang="de-DE">Titel</label>
+            <label lang="nl-NL">Titel</label>
+            <label lang="fr-FR">Titre</label>
+            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Bancontact</defaultValue>
         </input-field>
 
-        <input-field type="text">
-            <name>bancontactmrcashFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-            <label lang="fr-FR">Frais Buckaroo</label>
-        </input-field>
 
         <input-field type="single-select">
             <name>redirectBancontact</name>
@@ -813,6 +810,19 @@
             </options>
         </input-field>
 
+        <input-field type="text">
+            <name>bancontactmrcashFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+            <label lang="fr-FR">Frais de paiement</label>
+        </input-field>
     </card>
 
     <card>
@@ -847,16 +857,18 @@
 
         <input-field>
             <name>blikLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <label lang="de-DE">Frontend-Label</label>
-            <label lang="nl-NL">Frontend label</label>
-            <label lang="fr-FR">Étiquette frontale</label>
-            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+            <label lang="de-DE">Titel</label>
+            <label lang="nl-NL">Titel</label>
+            <label lang="fr-FR">Titre</label>
+            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Blik</defaultValue>
         </input-field>
+
+
 
         <input-field type="text">
             <name>blikFee</name>
@@ -866,13 +878,11 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
-
-
     </card>
 
     <card>
@@ -973,10 +983,10 @@
         
         <input-field type="bool">
             <name>afterpayEnabledold</name>
-            <label lang="en-GB">Enabled Riverty Old</label>
-            <label lang="nl-NL">Ingeschakeld Riverty Old</label>
-            <label lang="de-DE">Aktiviert Riverty Old</label>
-            <label lang="fr-FR">Riverty Old activé</label>
+            <label lang="en-GB">Riverty legacy gateway</label>
+            <label lang="nl-NL">Riverty legacy-koppeling</label>
+            <label lang="de-DE">Riverty Legacy-Integration</label>
+            <label lang="fr-FR">Intégration legacy Riverty</label>
             <helpText lang="en-GB">Uses Riverty's older (legacy) integration. Only enable this if Buckaroo has set up your account for it.</helpText>
             <helpText lang="nl-NL">Gebruikt de oudere (legacy) koppeling van Riverty. Schakel dit alleen in als Buckaroo je account daarvoor heeft ingericht.</helpText>
             <helpText lang="de-DE">Verwendet die ältere (Legacy-)Integration von Riverty. Aktivieren Sie dies nur, wenn Buckaroo Ihr Konto dafür eingerichtet hat.</helpText>
@@ -989,30 +999,17 @@
 
         <input-field>
             <name>afterpayLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <label lang="nl-NL">Frontend label</label>
-            <label lang="de-DE">Frontend-Label</label>
-            <label lang="fr-FR">Étiquette frontale</label>
-            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+            <label lang="nl-NL">Titel</label>
+            <label lang="de-DE">Titel</label>
+            <label lang="fr-FR">Titre</label>
+            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Riverty</defaultValue>
         </input-field>
 
-        <input-field type="text">
-            <name>afterpayFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
-        </input-field>
 
         <input-field type="single-select">
             <name>afterpayCustomerType</name>
@@ -1049,6 +1046,19 @@
                 </option>
             </options>
         </input-field>
+        <input-field type="text">
+            <name>afterpayFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
+        </input-field>
     </card>
 
 
@@ -1084,30 +1094,17 @@
 
         <input-field>
             <name>paypalLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>	
+			<label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>	
             <defaultValue>PayPal</defaultValue>
         </input-field>
 
-        <input-field type="text">
-            <name>paypalFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
-        </input-field>
 
         <input-field type="bool">
             <name>paypalSellerprotection</name>
@@ -1121,6 +1118,28 @@
             <helpText lang="fr-FR">Envoie le nom, l'adresse et le numéro de téléphone du client à PayPal, nécessaires pour la protection des vendeurs. Elle peut nécessiter une configuration supplémentaire ; contactez Buckaroo pour plus de détails.</helpText>
         </input-field>
 
+         <input-field>
+            <name>paypalExpressmerchantid</name>
+            <label lang="en-GB">PayPal Express merchant ID</label>
+            <label lang="nl-NL">PayPal Express merchant ID</label>
+            <label lang="de-DE">PayPal Express Merchant-ID</label>
+            <label lang="fr-FR">ID marchand PayPal Express</label>
+            <helpText lang="en-GB">Your PayPal merchant ID, used for PayPal Express when PayPal is set to Live.</helpText>
+            <helpText lang="nl-NL">Je PayPal merchant ID, gebruikt voor PayPal Express als PayPal op Live staat.</helpText>
+            <helpText lang="de-DE">Ihre PayPal-Händler-ID, verwendet für PayPal Express, wenn PayPal auf Live steht.</helpText>
+            <helpText lang="fr-FR">Votre ID marchand PayPal, utilisé pour PayPal Express lorsque PayPal est en Live.</helpText>
+        </input-field>
+        <input-field>
+            <name>paypalExpressSandboxMerchantId</name>
+            <label lang="en-GB">PayPal Express sandbox merchant ID</label>
+            <label lang="nl-NL">PayPal Express sandbox merchant ID</label>
+            <label lang="de-DE">PayPal Express Sandbox-Merchant-ID</label>
+            <label lang="fr-FR">ID marchand sandbox PayPal Express</label>
+            <helpText lang="en-GB">Your PayPal sandbox merchant ID, used for PayPal Express when PayPal is set to Test.</helpText>
+            <helpText lang="nl-NL">Je PayPal sandbox merchant ID, gebruikt voor PayPal Express als PayPal op Test staat.</helpText>
+            <helpText lang="de-DE">Ihre PayPal-Sandbox-Händler-ID, verwendet für PayPal Express, wenn PayPal auf Test steht.</helpText>
+            <helpText lang="fr-FR">Votre ID marchand sandbox PayPal, utilisé pour PayPal Express lorsque PayPal est en Test.</helpText>
+        </input-field>
         <input-field type="multi-select">
             <name>paypalExpresslocation</name>
             <label lang="en-GB">Display PayPal Express button</label>
@@ -1163,27 +1182,18 @@
                 </option>
             </options>
         </input-field>
-         <input-field>
-            <name>paypalExpressmerchantid</name>
-            <label lang="en-GB">PayPal Express merchant ID</label>
-            <label lang="nl-NL">PayPal Express merchant ID</label>
-            <label lang="de-DE">PayPal Express Merchant-ID</label>
-            <label lang="fr-FR">ID marchand PayPal Express</label>
-            <helpText lang="en-GB">Your PayPal merchant ID, used for PayPal Express when PayPal is set to Live.</helpText>
-            <helpText lang="nl-NL">Je PayPal merchant ID, gebruikt voor PayPal Express als PayPal op Live staat.</helpText>
-            <helpText lang="de-DE">Ihre PayPal-Händler-ID, verwendet für PayPal Express, wenn PayPal auf Live steht.</helpText>
-            <helpText lang="fr-FR">Votre ID marchand PayPal, utilisé pour PayPal Express lorsque PayPal est en Live.</helpText>
-        </input-field>
-        <input-field>
-            <name>paypalExpressSandboxMerchantId</name>
-            <label lang="en-GB">PayPal Express sandbox merchant ID</label>
-            <label lang="nl-NL">PayPal Express sandbox merchant ID</label>
-            <label lang="de-DE">PayPal Express Sandbox-Merchant-ID</label>
-            <label lang="fr-FR">ID marchand sandbox PayPal Express</label>
-            <helpText lang="en-GB">Your PayPal sandbox merchant ID, used for PayPal Express when PayPal is set to Test.</helpText>
-            <helpText lang="nl-NL">Je PayPal sandbox merchant ID, gebruikt voor PayPal Express als PayPal op Test staat.</helpText>
-            <helpText lang="de-DE">Ihre PayPal-Sandbox-Händler-ID, verwendet für PayPal Express, wenn PayPal auf Test steht.</helpText>
-            <helpText lang="fr-FR">Votre ID marchand sandbox PayPal, utilisé pour PayPal Express lorsque PayPal est en Test.</helpText>
+        <input-field type="text">
+            <name>paypalFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -1219,30 +1229,17 @@
 
         <input-field>
             <name>transferLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>	
+			<label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>	
             <defaultValue>Bank Transfer</defaultValue>
         </input-field>
 
-        <input-field type="text">
-            <name>transferFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
-        </input-field>
 
         <input-field type="single-select">
             <name>transferSendEmail</name>
@@ -1285,6 +1282,19 @@
             <helpText lang="de-DE">Anzahl der Tage nach dem Bestelldatum, die Buckaroo in der Überweisungs-E-Mail als Fälligkeitsdatum anzeigt. Dies dient nur als Referenz: Später eingehende Zahlungen werden weiterhin akzeptiert.</helpText>
 			<helpText lang="fr-FR">Nombre de jours après la date de commande que Buckaroo affiche comme date d'échéance dans l'e-mail de virement. Il s'agit d'une simple référence : les paiements reçus plus tard sont toujours acceptés.</helpText>
         </input-field>
+        <input-field type="text">
+            <name>transferFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
+        </input-field>
     </card>
 
     <card>
@@ -1319,14 +1329,14 @@
 
         <input-field>
             <name>KBCPaymentButtonLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+			<label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>KBC</defaultValue>
         </input-field>
 
@@ -1338,10 +1348,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -1377,14 +1387,14 @@
 
         <input-field>
             <name>sepadirectdebitLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+			<label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Sepa Direct Debit</defaultValue>
         </input-field>
 
@@ -1396,10 +1406,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -1435,14 +1445,14 @@
 
         <input-field>
             <name>payconiqLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+			<label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Payconiq</defaultValue>
         </input-field>
 
@@ -1454,10 +1464,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -1492,33 +1502,6 @@
         </input-field>
 
         <input-field>
-            <name>applepayLabel</name>
-			<label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
-            <defaultValue>Apple Pay</defaultValue>
-        </input-field>
-
-        <input-field type="text">
-            <name>applepayFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
-        </input-field>
-
-        <input-field>
             <name>applepayGuid</name>
             <label lang="en-GB">GUID</label>
             <label lang="de-DE">GUID</label>
@@ -1533,93 +1516,76 @@
             <helpText lang="nl-NL">Je Buckaroo GUID, nodig voor Apple Pay. Je vindt deze in Buckaroo Plaza onder Mijn Buckaroo > Algemeen.</helpText>
             <helpText lang="fr-FR">Votre GUID Buckaroo, nécessaire pour Apple Pay. Vous le trouverez dans Buckaroo Plaza sous Mon Buckaroo > Général.</helpText>
         </input-field>
+        <input-field>
+            <name>applepayLabel</name>
+			<label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
+            <defaultValue>Apple Pay</defaultValue>
+        </input-field>
+
+
     
 
-        <input-field type="single-select">
-            <name>applepayShowProduct</name>
-            <label lang="en-GB">Show Apple Pay button on product page</label>
-            <label lang="de-DE">Apple Pay-Schaltfläche auf der Produktseite anzeigen</label>
-            <label lang="nl-NL">Toon Apple Pay-knop op productpagina</label>
-			<label lang="fr-FR">Afficher le bouton Apple Pay sur la page du produit</label>
-            <helpText lang="en-GB">Shows the Apple Pay express button on product pages, so customers can pay without going through checkout. Requires the GUID.</helpText>
-            <helpText lang="nl-NL">Toont de Apple Pay-expressknop op productpagina's, zodat klanten kunnen betalen zonder de checkout te doorlopen. Vereist de GUID.</helpText>
-            <helpText lang="de-DE">Zeigt die Apple Pay-Express-Schaltfläche auf Produktseiten, damit Kunden ohne Checkout bezahlen können. Erfordert die GUID.</helpText>
-            <helpText lang="fr-FR">Affiche le bouton express Apple Pay sur les pages produit, pour que les clients puissent payer sans passer par le paiement. Nécessite le GUID.</helpText>
-            <defaultValue>0</defaultValue>
+        <input-field type="multi-select">
+            <name>applepayExpresslocation</name>
+            <label lang="en-GB">Display Apple Pay button</label>
+            <label lang="nl-NL">Apple Pay-knop weergeven</label>
+            <label lang="de-DE">Apple Pay-Schaltfläche anzeigen</label>
+            <label lang="fr-FR">Afficher le bouton Apple Pay</label>
+            <helpText lang="en-GB">Pages where the Apple Pay express button is shown, so customers can pay without going through checkout. Requires the GUID. Choose None to hide it.</helpText>
+            <helpText lang="nl-NL">Pagina's waarop de Apple Pay-expressknop wordt getoond, zodat klanten kunnen betalen zonder de checkout te doorlopen. Vereist de GUID. Kies Geen om de knop te verbergen.</helpText>
+            <helpText lang="de-DE">Seiten, auf denen die Apple Pay-Express-Schaltfläche angezeigt wird, damit Kunden ohne Checkout bezahlen können. Erfordert die GUID. Wählen Sie Keine, um sie auszublenden.</helpText>
+            <helpText lang="fr-FR">Pages où le bouton express Apple Pay est affiché, pour que les clients puissent payer sans passer par le paiement. Nécessite le GUID. Choisissez Aucune pour le masquer.</helpText>
+            <defaultValue>["none"]</defaultValue>
             <options>
                 <option>
-                    <id>1</id>
-                    <name lang="en-GB">Yes</name>
-                    <name lang="nl-NL">Ja</name>
-                    <name lang="de-DE">Ja</name>
-                    <name lang="fr-FR">Oui</name>
+                    <id>none</id>
+                    <name lang="en-GB">None</name>
+                    <name lang="nl-NL">Geen</name>
+                    <name lang="de-DE">Keine</name>
+                    <name lang="fr-FR">Aucune</name>
                 </option>
                 <option>
-                    <id>0</id>
-                    <name lang="en-GB">No</name>
-                    <name lang="nl-NL">Nee</name>
-                    <name lang="de-DE">Nein</name>
-                    <name lang="fr-FR">Non</name>
+                    <id>product</id>
+                    <name lang="en-GB">Product page</name>
+                    <name lang="nl-NL">Productpagina</name>
+                    <name lang="de-DE">Produktseite</name>
+                    <name lang="fr-FR">Page produit</name>
+                </option>
+                <option>
+                    <id>cart</id>
+                    <name lang="en-GB">Cart page</name>
+                    <name lang="nl-NL">Winkelwagen</name>
+                    <name lang="de-DE">Warenkorb</name>
+                    <name lang="fr-FR">Panier</name>
+                </option>
+                <option>
+                    <id>checkout</id>
+                    <name lang="en-GB">Checkout page</name>
+                    <name lang="nl-NL">Afrekenpagina</name>
+                    <name lang="de-DE">Checkout-Seite</name>
+                    <name lang="fr-FR">Page de paiement</name>
                 </option>
             </options>
         </input-field>
-
-        <input-field type="single-select">
-            <name>applepayShowCart</name>
-            <label lang="en-GB">Show Apple Pay button in the cart</label>
-            <label lang="de-DE">Apple Pay-Schaltfläche im Warenkorb anzeigen</label>
-            <label lang="nl-NL">Toon Apple Pay-knop in de winkelwagen</label>
-			<label lang="fr-FR">Afficher le bouton Apple Pay sur la page du panier</label>
-            <helpText lang="en-GB">Shows the Apple Pay express button in the cart, so customers can pay without going through checkout. Requires the GUID.</helpText>
-            <helpText lang="nl-NL">Toont de Apple Pay-expressknop in de winkelwagen, zodat klanten kunnen betalen zonder de checkout te doorlopen. Vereist de GUID.</helpText>
-            <helpText lang="de-DE">Zeigt die Apple Pay-Express-Schaltfläche im Warenkorb, damit Kunden ohne Checkout bezahlen können. Erfordert die GUID.</helpText>
-            <helpText lang="fr-FR">Affiche le bouton express Apple Pay dans le panier, pour que les clients puissent payer sans passer par le paiement. Nécessite le GUID.</helpText>
-            <defaultValue>0</defaultValue>
-            <options>
-                <option>
-                    <id>1</id>
-                    <name lang="en-GB">Yes</name>
-                    <name lang="nl-NL">Ja</name>
-                    <name lang="de-DE">Ja</name>
-                    <name lang="fr-FR">Oui</name>
-                </option>
-                <option>
-                    <id>0</id>
-                    <name lang="en-GB">No</name>
-                    <name lang="nl-NL">Nee</name>
-                    <name lang="de-DE">Nein</name>
-                    <name lang="fr-FR">Non</name>
-                </option>
-            </options>
-        </input-field>
-
-        <input-field type="single-select">
-            <name>applepayShowCheckout</name>
-            <label lang="en-GB">Show Apple Pay button on checkout page</label>
-            <label lang="de-DE">Apple Pay-Schaltfläche auf der Checkout-Seite anzeigen</label>
-            <label lang="nl-NL">Toon Apple Pay-knop op de checkoutpagina</label>
-			<label lang="fr-FR">Afficher le bouton Apple Pay sur la page de paiement</label>
-            <helpText lang="en-GB">Shows the Apple Pay express button above the payment methods on the checkout confirm page. This is independent of the standard Apple Pay payment method.</helpText>
-            <helpText lang="de-DE">Zeigt die Apple Pay Express-Schaltfläche oberhalb der Zahlungsarten auf der Checkout-Bestätigungsseite an. Dies ist unabhängig von der Standard-Zahlungsart Apple Pay.</helpText>
-            <helpText lang="nl-NL">Toont de Apple Pay express-knop boven de betaalmethoden op de checkoutpagina. Dit staat los van de standaard Apple Pay-betaalmethode.</helpText>
-            <helpText lang="fr-FR">Affiche le bouton express Apple Pay au-dessus des modes de paiement sur la page de paiement. Ceci est indépendant du mode de paiement Apple Pay standard.</helpText>
-            <defaultValue>0</defaultValue>
-            <options>
-                <option>
-                    <id>1</id>
-                    <name lang="en-GB">Yes</name>
-                    <name lang="nl-NL">Ja</name>
-                    <name lang="de-DE">Ja</name>
-                    <name lang="fr-FR">Oui</name>
-                </option>
-                <option>
-                    <id>0</id>
-                    <name lang="en-GB">No</name>
-                    <name lang="nl-NL">Nee</name>
-                    <name lang="de-DE">Nein</name>
-                    <name lang="fr-FR">Non</name>
-                </option>
-            </options>
+        <input-field type="text">
+            <name>applepayFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -1653,33 +1619,6 @@
             </options>
         </input-field>
 
-        <input-field>
-            <name>googlepayLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <label lang="de-DE">Frontend-Label</label>
-            <label lang="nl-NL">Frontend label</label>
-            <label lang="fr-FR">Étiquette frontale</label>
-            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
-            <defaultValue>Google Pay</defaultValue>
-        </input-field>
-
-        <input-field type="text">
-            <name>googlepayFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-            <label lang="fr-FR">Frais Buckaroo</label>
-        </input-field>
-
         <input-field type="text">
             <name>googlepayMerchantId</name>
             <label lang="en-GB">Google Merchant ID</label>
@@ -1691,18 +1630,32 @@
             <helpText lang="nl-NL">Je unieke Google Merchant-ID na registratie in de Google Pay &amp; Wallet Console (12–18 tekens).</helpText>
             <helpText lang="fr-FR">Votre identifiant marchand Google unique délivré après inscription à la Google Pay &amp; Wallet Console (12 à 18 caractères).</helpText>
         </input-field>
-
         <input-field type="text">
             <name>googlepayGatewayMerchantId</name>
-            <label lang="en-GB">Buckaroo gateway merchant ID</label>
-            <label lang="de-DE">Buckaroo Gateway-Merchant-ID</label>
-            <label lang="nl-NL">Buckaroo Gateway Merchant-ID</label>
-            <label lang="fr-FR">ID marchand passerelle Buckaroo</label>
-            <helpText lang="en-GB">Your unique GatewayMerchantID provided by Buckaroo after completing Google Pay onboarding in Buckaroo Plaza. If left empty, the store key is used as fallback.</helpText>
-            <helpText lang="de-DE">Ihre eindeutige GatewayMerchantID von Buckaroo nach dem Google Pay Onboarding in der Buckaroo Plaza. Wenn leer, wird der Store Key als Fallback verwendet.</helpText>
-            <helpText lang="nl-NL">Je unieke GatewayMerchantID van Buckaroo na de Google Pay-onboarding in Buckaroo Plaza. Als dit leeg is, wordt de store key als fallback gebruikt.</helpText>
-            <helpText lang="fr-FR">Votre GatewayMerchantID unique fourni par Buckaroo après l'intégration Google Pay dans Buckaroo Plaza. Si vide, la clé de boutique est utilisée comme solution de repli.</helpText>
+            <label lang="en-GB">Gateway merchant ID</label>
+            <label lang="de-DE">Gateway-Merchant-ID</label>
+            <label lang="nl-NL">Gateway Merchant-ID</label>
+            <label lang="fr-FR">ID marchand passerelle</label>
+            <helpText lang="en-GB"><![CDATA[Your unique GatewayMerchantID provided by Buckaroo after completing <a href="https://plaza.buckaroo.nl/Configuration/GooglePay" target="_blank" rel="noopener">Google Pay onboarding</a> in Buckaroo Plaza. If left empty, the store key is used as fallback.]]></helpText>
+            <helpText lang="de-DE"><![CDATA[Ihre eindeutige GatewayMerchantID von Buckaroo nach dem <a href="https://plaza.buckaroo.nl/Configuration/GooglePay" target="_blank" rel="noopener">Google Pay Onboarding</a> in der Buckaroo Plaza. Wenn leer, wird der Store Key als Fallback verwendet.]]></helpText>
+            <helpText lang="nl-NL"><![CDATA[Je unieke GatewayMerchantID van Buckaroo na de <a href="https://plaza.buckaroo.nl/Configuration/GooglePay" target="_blank" rel="noopener">Google Pay-onboarding</a> in Buckaroo Plaza. Als dit leeg is, wordt de store key als fallback gebruikt.]]></helpText>
+            <helpText lang="fr-FR"><![CDATA[Votre GatewayMerchantID unique fourni par Buckaroo après l'<a href="https://plaza.buckaroo.nl/Configuration/GooglePay" target="_blank" rel="noopener">intégration Google Pay</a> dans Buckaroo Plaza. Si vide, la clé de boutique est utilisée comme solution de repli.]]></helpText>
         </input-field>
+        <input-field>
+            <name>googlepayLabel</name>
+            <label lang="en-GB">Title</label>
+            <label lang="de-DE">Titel</label>
+            <label lang="nl-NL">Titel</label>
+            <label lang="fr-FR">Titre</label>
+            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
+            <defaultValue>Google Pay</defaultValue>
+        </input-field>
+
+
+
 
         <input-field type="single-select">
             <name>googlepayButtonStyle</name>
@@ -1740,91 +1693,60 @@
             </options>
         </input-field>
 
-        <input-field type="single-select">
-            <name>googlepayShowProduct</name>
-            <label lang="en-GB">Show Google Pay button on product page</label>
-            <label lang="de-DE">Google Pay-Schaltfläche auf der Produktseite anzeigen</label>
-            <label lang="nl-NL">Toon Google Pay-knop op productpagina</label>
-            <label lang="fr-FR">Afficher le bouton Google Pay sur la page du produit</label>
-            <helpText lang="en-GB">Shows the Google Pay express button on product pages, so customers can pay without going through checkout.</helpText>
-            <helpText lang="nl-NL">Toont de Google Pay-expressknop op productpagina's, zodat klanten kunnen betalen zonder de checkout te doorlopen.</helpText>
-            <helpText lang="de-DE">Zeigt die Google Pay-Express-Schaltfläche auf Produktseiten, damit Kunden ohne Checkout bezahlen können.</helpText>
-            <helpText lang="fr-FR">Affiche le bouton express Google Pay sur les pages produit, pour que les clients puissent payer sans passer par le paiement.</helpText>
-            <defaultValue>0</defaultValue>
+        <input-field type="multi-select">
+            <name>googlepayExpresslocation</name>
+            <label lang="en-GB">Display Google Pay button</label>
+            <label lang="nl-NL">Google Pay-knop weergeven</label>
+            <label lang="de-DE">Google Pay-Schaltfläche anzeigen</label>
+            <label lang="fr-FR">Afficher le bouton Google Pay</label>
+            <helpText lang="en-GB">Pages where the Google Pay express button is shown, so customers can pay without going through checkout. Choose None to hide it.</helpText>
+            <helpText lang="nl-NL">Pagina's waarop de Google Pay-expressknop wordt getoond, zodat klanten kunnen betalen zonder de checkout te doorlopen. Kies Geen om de knop te verbergen.</helpText>
+            <helpText lang="de-DE">Seiten, auf denen die Google Pay-Express-Schaltfläche angezeigt wird, damit Kunden ohne Checkout bezahlen können. Wählen Sie Keine, um sie auszublenden.</helpText>
+            <helpText lang="fr-FR">Pages où le bouton express Google Pay est affiché, pour que les clients puissent payer sans passer par le paiement. Choisissez Aucune pour le masquer.</helpText>
+            <defaultValue>["none"]</defaultValue>
             <options>
                 <option>
-                    <id>1</id>
-                    <name lang="en-GB">Yes</name>
-                    <name lang="nl-NL">Ja</name>
-                    <name lang="de-DE">Ja</name>
-                    <name lang="fr-FR">Oui</name>
+                    <id>none</id>
+                    <name lang="en-GB">None</name>
+                    <name lang="nl-NL">Geen</name>
+                    <name lang="de-DE">Keine</name>
+                    <name lang="fr-FR">Aucune</name>
                 </option>
                 <option>
-                    <id>0</id>
-                    <name lang="en-GB">No</name>
-                    <name lang="nl-NL">Nee</name>
-                    <name lang="de-DE">Nein</name>
-                    <name lang="fr-FR">Non</name>
+                    <id>product</id>
+                    <name lang="en-GB">Product page</name>
+                    <name lang="nl-NL">Productpagina</name>
+                    <name lang="de-DE">Produktseite</name>
+                    <name lang="fr-FR">Page produit</name>
+                </option>
+                <option>
+                    <id>cart</id>
+                    <name lang="en-GB">Cart page</name>
+                    <name lang="nl-NL">Winkelwagen</name>
+                    <name lang="de-DE">Warenkorb</name>
+                    <name lang="fr-FR">Panier</name>
+                </option>
+                <option>
+                    <id>checkout</id>
+                    <name lang="en-GB">Checkout page</name>
+                    <name lang="nl-NL">Afrekenpagina</name>
+                    <name lang="de-DE">Checkout-Seite</name>
+                    <name lang="fr-FR">Page de paiement</name>
                 </option>
             </options>
         </input-field>
-
-        <input-field type="single-select">
-            <name>googlepayShowCart</name>
-            <label lang="en-GB">Show Google Pay button in the cart</label>
-            <label lang="de-DE">Google Pay-Schaltfläche im Warenkorb anzeigen</label>
-            <label lang="nl-NL">Toon Google Pay-knop in de winkelwagen</label>
-            <label lang="fr-FR">Afficher le bouton Google Pay sur la page du panier</label>
-            <helpText lang="en-GB">Shows the Google Pay express button in the cart, so customers can pay without going through checkout.</helpText>
-            <helpText lang="nl-NL">Toont de Google Pay-expressknop in de winkelwagen, zodat klanten kunnen betalen zonder de checkout te doorlopen.</helpText>
-            <helpText lang="de-DE">Zeigt die Google Pay-Express-Schaltfläche im Warenkorb, damit Kunden ohne Checkout bezahlen können.</helpText>
-            <helpText lang="fr-FR">Affiche le bouton express Google Pay dans le panier, pour que les clients puissent payer sans passer par le paiement.</helpText>
-            <defaultValue>0</defaultValue>
-            <options>
-                <option>
-                    <id>1</id>
-                    <name lang="en-GB">Yes</name>
-                    <name lang="nl-NL">Ja</name>
-                    <name lang="de-DE">Ja</name>
-                    <name lang="fr-FR">Oui</name>
-                </option>
-                <option>
-                    <id>0</id>
-                    <name lang="en-GB">No</name>
-                    <name lang="nl-NL">Nee</name>
-                    <name lang="de-DE">Nein</name>
-                    <name lang="fr-FR">Non</name>
-                </option>
-            </options>
-        </input-field>
-
-        <input-field type="single-select">
-            <name>googlepayShowCheckout</name>
-            <label lang="en-GB">Show Google Pay button on checkout page</label>
-            <label lang="de-DE">Google Pay-Schaltfläche auf der Checkout-Seite anzeigen</label>
-            <label lang="nl-NL">Toon Google Pay-knop op de checkoutpagina</label>
-            <label lang="fr-FR">Afficher le bouton Google Pay sur la page de paiement</label>
-            <helpText lang="en-GB">Shows the Google Pay express button above the payment methods on the checkout confirm page. This is independent of the standard Google Pay payment method.</helpText>
-            <helpText lang="de-DE">Zeigt die Google Pay Express-Schaltfläche oberhalb der Zahlungsarten auf der Checkout-Bestätigungsseite an. Dies ist unabhängig von der Standard-Zahlungsart Google Pay.</helpText>
-            <helpText lang="nl-NL">Toont de Google Pay express-knop boven de betaalmethoden op de checkoutpagina. Dit staat los van de standaard Google Pay-betaalmethode.</helpText>
-            <helpText lang="fr-FR">Affiche le bouton express Google Pay au-dessus des modes de paiement sur la page de paiement. Ceci est indépendant du mode de paiement Google Pay standard.</helpText>
-            <defaultValue>0</defaultValue>
-            <options>
-                <option>
-                    <id>1</id>
-                    <name lang="en-GB">Yes</name>
-                    <name lang="nl-NL">Ja</name>
-                    <name lang="de-DE">Ja</name>
-                    <name lang="fr-FR">Oui</name>
-                </option>
-                <option>
-                    <id>0</id>
-                    <name lang="en-GB">No</name>
-                    <name lang="nl-NL">Nee</name>
-                    <name lang="de-DE">Nein</name>
-                    <name lang="fr-FR">Non</name>
-                </option>
-            </options>
+        <input-field type="text">
+            <name>googlepayFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+            <label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -1863,14 +1785,14 @@
 
         <input-field>
             <name>giftcardsLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Buckaroo Giftcards</defaultValue>
         </input-field>
 
@@ -2386,14 +2308,14 @@
 
         <input-field>
             <name>capayableLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>In3</defaultValue>
         </input-field>
 
@@ -2405,10 +2327,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -2444,14 +2366,14 @@
 
         <input-field>
             <name>epsLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>EPS</defaultValue>
         </input-field>
 
@@ -2463,10 +2385,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -2502,14 +2424,14 @@
 
         <input-field>
             <name>mbwayLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>MWPay</defaultValue>
         </input-field>
 
@@ -2521,10 +2443,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -2560,14 +2482,14 @@
 
         <input-field>
             <name>multibancoLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Multibanco</defaultValue>
         </input-field>
 
@@ -2579,10 +2501,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
     
@@ -2618,14 +2540,14 @@
 
         <input-field>
             <name>Przelewy24Label</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Przelewy24</defaultValue>
         </input-field>
 
@@ -2637,10 +2559,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -2676,14 +2598,14 @@
 
         <input-field>
             <name>AlipayLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Alipay</defaultValue>
         </input-field>
 
@@ -2695,10 +2617,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -2734,14 +2656,14 @@
 
         <input-field>
             <name>WeChatPayLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>WeChatPay</defaultValue>
         </input-field>
 
@@ -2753,10 +2675,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
     
@@ -2792,14 +2714,14 @@
 
         <input-field>
             <name>TrustlyLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Trustly</defaultValue>
         </input-field>
 
@@ -2811,10 +2733,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
     
@@ -2850,14 +2772,14 @@
 
         <input-field>
             <name>swishLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Swish</defaultValue>
         </input-field>
 
@@ -2869,10 +2791,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
     
@@ -2908,14 +2830,14 @@
 
         <input-field>
             <name>bizumLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Bizum</defaultValue>
         </input-field>
 
@@ -2927,10 +2849,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -2978,14 +2900,14 @@
 
         <input-field>
             <name>klarnaLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <label lang="de-DE">Frontend-Label</label>
-            <label lang="nl-NL">Frontend label</label>
-            <label lang="fr-FR">Étiquette frontale</label>
-            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+            <label lang="de-DE">Titel</label>
+            <label lang="nl-NL">Titel</label>
+            <label lang="fr-FR">Titre</label>
+            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Klarna</defaultValue>
         </input-field>
 
@@ -2997,10 +2919,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-            <label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+            <label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -3049,16 +2971,17 @@
 
         <input-field>
             <name>klarnakpLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Klarna</defaultValue>
         </input-field>
+
 
         <input-field type="text">
             <name>klarnakpFee</name>
@@ -3068,12 +2991,11 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
-
     </card>
 
     <card>
@@ -3129,14 +3051,14 @@
 
         <input-field>
             <name>BillinkLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Billink</defaultValue>
         </input-field>
 
@@ -3148,10 +3070,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -3187,14 +3109,14 @@
 
         <input-field>
             <name>twintLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <label lang="de-DE">Frontend-Label</label>
-            <label lang="nl-NL">Frontend label</label>
-            <label lang="fr-FR">Étiquette frontale</label>
-            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+            <label lang="de-DE">Titel</label>
+            <label lang="nl-NL">Titel</label>
+            <label lang="fr-FR">Titre</label>
+            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>TWINT</defaultValue>
         </input-field>
 
@@ -3206,10 +3128,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-            <label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+            <label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
     
@@ -3245,14 +3167,14 @@
 
         <input-field>
             <name>weroLabel</name>
-            <label lang="en-GB">Frontend label</label>
-            <label lang="de-DE">Frontend-Label</label>
-            <label lang="nl-NL">Frontend label</label>
-            <label lang="fr-FR">Étiquette frontale</label>
-            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+            <label lang="de-DE">Titel</label>
+            <label lang="nl-NL">Titel</label>
+            <label lang="fr-FR">Titre</label>
+            <helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+            <helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+            <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+            <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Wero</defaultValue>
         </input-field>
 
@@ -3276,10 +3198,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-            <label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+            <label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
     
@@ -3315,14 +3237,14 @@
 
         <input-field>
             <name>belfiusLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Belfius</defaultValue>
         </input-field>
 
@@ -3334,10 +3256,10 @@
             <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
             <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
             <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -3373,37 +3295,24 @@
 
         <input-field>
             <name>payperemailLabel</name>
-            <label lang="en-GB">Frontend label</label>
-			<label lang="de-DE">Frontend-Label</label>
-			<label lang="nl-NL">Frontend label</label>
-			<label lang="fr-FR">Étiquette frontale</label>
-			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a Buckaroo fee is set, it is shown after the name.</helpText>
-			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Buckaroo-Gebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
-			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een Buckaroo-toeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
-			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais Buckaroo sont définis, ils s'affichent après le nom.</helpText>
+            <label lang="en-GB">Title</label>
+			<label lang="de-DE">Titel</label>
+			<label lang="nl-NL">Titel</label>
+			<label lang="fr-FR">Titre</label>
+			<helpText lang="en-GB">Name of this payment method that customers see at checkout. If a payment fee is set, it is shown after the name.</helpText>
+			<helpText lang="de-DE">Name dieser Zahlungsart, den Kunden im Checkout sehen. Ist eine Zahlungsgebühr eingestellt, wird sie hinter dem Namen angezeigt.</helpText>
+			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
+			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Belfius</defaultValue>
         </input-field>
 
-        <input-field type="text">
-            <name>payperemailFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Buckaroo fee</label>
-            <label lang="nl-NL">Buckaroo betaaltoeslag</label>
-            <label lang="de-DE">Buckaroo-Gebühr</label>
-			<label lang="fr-FR">Frais Buckaroo</label>
-        </input-field>
 
         <input-field>
             <name>payperemailExpireDays</name>
-            <label lang="en-GB">Expire days</label>
-            <label lang="nl-NL">Verlopen dagen</label>
-            <label lang="de-DE">Ablauftage</label>
-			<label lang="fr-FR">Jours d'expiration</label>
+            <label lang="en-GB">Due date (in days)</label>
+            <label lang="nl-NL">Vervaldatum (in dagen)</label>
+            <label lang="de-DE">Fälligkeitsdatum (in Tagen)</label>
+			<label lang="fr-FR">Date d'échéance (en jours)</label>
             <helpText lang="en-GB">Number of days the payment link in PayPerEmail and Paylink stays valid.</helpText>
             <helpText lang="nl-NL">Aantal dagen dat de betaallink van PayPerEmail en Paylink geldig blijft.</helpText>
             <helpText lang="de-DE">Anzahl der Tage, die der Zahlungslink von PayPerEmail und Paylink gültig bleibt.</helpText>
@@ -3412,10 +3321,10 @@
 
         <input-field type="bool">
             <name>paylinkEnabled</name>
-            <label lang="en-GB">Paylink enabled</label>
-            <label lang="nl-NL">Paylink ingeschakeld</label>
-            <label lang="de-DE">Paylink aktiviert</label>
-			<label lang="fr-FR">Paylink activé</label>
+            <label lang="en-GB">Show Paylink button</label>
+            <label lang="nl-NL">Paylink-knop tonen</label>
+            <label lang="de-DE">Paylink-Schaltfläche anzeigen</label>
+			<label lang="fr-FR">Afficher le bouton Paylink</label>
             <helpText lang="en-GB">Shows a Paylink button in the Buckaroo tab of open orders. It creates a payment link that you can share with the customer yourself.</helpText>
             <helpText lang="nl-NL">Toont een Paylink-knop in het Buckaroo-tabblad van openstaande bestellingen. Hiermee maak je een betaallink die je zelf met de klant kunt delen.</helpText>
             <helpText lang="de-DE">Zeigt eine Paylink-Schaltfläche im Buckaroo-Tab offener Bestellungen. Damit erstellen Sie einen Zahlungslink, den Sie selbst mit dem Kunden teilen können.</helpText>
@@ -3546,6 +3455,19 @@
             <helpText lang="de-DE">Bietet PayPerEmail als Zahlungsart im Checkout an: Der Kunde erhält eine E-Mail mit einem Zahlungslink. Paylink in der Bestellung funktioniert unabhängig von dieser Einstellung.</helpText>
             <helpText lang="fr-FR">Propose PayPerEmail comme moyen de paiement lors du paiement : le client reçoit un e-mail avec un lien de paiement. Paylink dans la commande fonctionne indépendamment de ce paramètre.</helpText>
             <defaultValue>1</defaultValue>
+        </input-field>
+        <input-field type="text">
+            <name>payperemailFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 

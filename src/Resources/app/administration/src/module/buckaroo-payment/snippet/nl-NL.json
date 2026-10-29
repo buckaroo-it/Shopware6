@@ -140,7 +140,7 @@
             }
         },
         "paymentSettings": {
-            "statusLabel": "Status",
+            "statusLabel": "{method} inschakelen",
             "statusHelp": "Live accepteert echte betalingen. Test gebruikt de testomgeving van Buckaroo, er wordt geen echt geld afgeschreven. Uit verbergt deze betaalmethode bij het afrekenen."
         }
     }
