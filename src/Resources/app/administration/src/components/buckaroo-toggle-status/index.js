@@ -4,6 +4,9 @@ import './style.scss'
 
 Component.register("buckaroo-toggle-status", {
     template,
+    mixins: [
+        Shopware.Mixin.getByName('notification')
+    ],
     props: {
         method: {
             type: String,
@@ -148,15 +151,13 @@ Component.register("buckaroo-toggle-status", {
            
         },
         renderSuccess() {
-            this.$store.dispatch('notification/createNotification', {
-                variant: 'success',
+            this.createNotificationSuccess({
                 message: this.$tc('sw-extension-store.component.sw-extension-config.messageSaveSuccess'),
             });
         },
 
         renderError(err) {
-            this.$store.dispatch('notification/createNotification', {
-                variant: 'error',
+            this.createNotificationError({
                 message: err,
             });
         }
