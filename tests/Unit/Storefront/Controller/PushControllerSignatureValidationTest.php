@@ -316,6 +316,50 @@ class PushControllerSignatureValidationTest extends TestCase
     }
 
     /**
+     * Buckaroo sends the Klarna MoR reserve (data request) push without a mutation type or
+     * transaction type. It must still be accepted and claimed by its data request key,
+     * otherwise the order is never authorized and the data request key needed for the
+     * capture is never stored.
+     *
+     * The fields are those of a real reserve push, without brq_test and brq_websitekey:
+     * the environment and website checks are covered by their own tests.
+     */
+    public function testKlarnaMorReservePushWithoutMutationTypeIsClaimed(): void
+    {
+        $postData = $this->signed([
+            'ADD_orderId' => 'order-id',
+            'ADD_orderTransactionId' => 'order-transaction-id',
+            'brq_actioncode' => 'Reserve',
+            'brq_datarequest' => 'C2E8AB257C79412AA50B7119A2836114',
+            'brq_datarequest_' => 'C2E8AB257C79412AA50B7119A2836114',
+            'brq_invoicenumber' => '11351',
+            'brq_primary_service' => 'klarna',
+            'brq_SERVICE_klarna_Country' => 'NL',
+            'brq_SERVICE_klarna_PaymentMethod' => 'INVOICE',
+            'brq_statuscode' => '190',
+            'brq_statuscode_detail' => 'S990',
+            'brq_statusmessage' => 'The request was successful.',
+            'brq_timestamp' => '2026-10-29 12:38:33',
+        ]);
+
+        $processedPushService = $this->createMock(ProcessedPushService::class);
+        $processedPushService->expects($this->once())
+            ->method('claim')
+            ->with('C2E8AB257C79412AA50B7119A2836114|190||', 'order-transaction-id')
+            ->willReturn(false);
+
+        $response = $this->handlePush($postData, [
+            'checkoutHelper' => $this->checkoutHelperFindingOnly(self::boundOrder()),
+            'processedPushService' => $processedPushService,
+        ]);
+
+        $this->assertSame(
+            ['status' => false, 'message' => 'buckaroo.messages.pushAlreadySend'],
+            $this->decode($response)
+        );
+    }
+
+    /**
      * Buckaroo signs the decoded values, so an encoded variant of a signed push is the same
      * push and is claimed under the same key.
      */

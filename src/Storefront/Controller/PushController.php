@@ -936,13 +936,18 @@ class PushController extends StorefrontController
 
     /**
      * A push carries a Buckaroo mutation type, and either a transaction type or, for a
-     * data request (Klarna MoR reserve), the data request key.
+     * data request (Klarna MoR reserve), the data request key. Buckaroo sends the data
+     * request push without a mutation type, so a data request key is enough there.
      *
      * @param array<mixed> $pushData
      */
     private function isPushMessage(array $pushData): bool
     {
         $mutationType = strtolower(trim($this->getPushValue($pushData, 'brq_mutationtype')));
+        if ($mutationType === '') {
+            return $this->getDataRequestKey($pushData) !== '';
+        }
+
         if (!in_array($mutationType, self::PUSH_MUTATION_TYPES, true)) {
             return false;
         }
@@ -980,15 +985,11 @@ class PushController extends StorefrontController
     }
 
     /**
-     * A Klarna MoR reserve push carries its data request key in any of these fields
-     * (see the Klarna MoR handling in handlePush). The first two come first so the key
-     * of a push already claimed under them does not change.
-     *
      * @param array<mixed> $pushData
      */
     private function getDataRequestKey(array $pushData): string
     {
-        foreach (['brq_datarequest', 'brq_DataRequest', 'brq_datarequest_', 'brq_SERVICE_klarna_DataRequestKey'] as $field) {
+        foreach (['brq_datarequest', 'brq_DataRequest'] as $field) {
             $dataRequestKey = trim($this->getPushValue($pushData, $field));
             if ($dataRequestKey !== '') {
                 return $dataRequestKey;
