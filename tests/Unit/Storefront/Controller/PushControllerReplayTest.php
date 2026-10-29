@@ -135,6 +135,42 @@ class PushControllerReplayTest extends TestCase
     }
 
     /**
+     * A Klarna MoR reserve push may carry its data request key only in the Klarna service
+     * field or in brq_datarequest_. It must still be accepted, otherwise the key is never
+     * stored and the capture fails with "Parameter 'DataRequestKey' is empty".
+     *
+     * @dataProvider klarnaDataRequestKeyFieldProvider
+     */
+    public function testKlarnaReservePushIsClaimedByItsDataRequestKeyField(string $field): void
+    {
+        $postData = $this->pushData([
+            $field => 'drk-789',
+            'brq_primary_service' => 'klarna',
+            'brq_mutationtype' => 'Processing',
+        ]);
+        unset($postData['brq_transactions'], $postData['brq_transaction_type']);
+
+        $processedPushService = $this->createMock(ProcessedPushService::class);
+        $processedPushService->expects($this->once())
+            ->method('claim')
+            ->with('DRK-789|190||PROCESSING', self::TRANSACTION_ID)
+            ->willReturn(false);
+
+        $this->assertAlreadyProcessed($this->handlePush($postData, ['processedPushService' => $processedPushService]));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function klarnaDataRequestKeyFieldProvider(): array
+    {
+        return [
+            'klarna service data request key' => ['brq_SERVICE_klarna_DataRequestKey'],
+            'data request key with trailing underscore' => ['brq_datarequest_'],
+        ];
+    }
+
+    /**
      * A push that cannot be identified cannot be claimed, so it is rejected before
      * anything is looked up or changed.
      *

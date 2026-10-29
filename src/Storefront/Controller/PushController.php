@@ -980,11 +980,15 @@ class PushController extends StorefrontController
     }
 
     /**
+     * A Klarna MoR reserve push carries its data request key in any of these fields
+     * (see the Klarna MoR handling in handlePush). The first two come first so the key
+     * of a push already claimed under them does not change.
+     *
      * @param array<mixed> $pushData
      */
     private function getDataRequestKey(array $pushData): string
     {
-        foreach (['brq_datarequest', 'brq_DataRequest'] as $field) {
+        foreach (['brq_datarequest', 'brq_DataRequest', 'brq_datarequest_', 'brq_SERVICE_klarna_DataRequestKey'] as $field) {
             $dataRequestKey = trim($this->getPushValue($pushData, $field));
             if ($dataRequestKey !== '') {
                 return $dataRequestKey;
