@@ -330,19 +330,28 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'googlepayEnvironment'     => $this->getGooglepayEnvironment($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'canShowPhone'          => $this->canShowPhone($customer),
-            'methodsWithFinancialWarning' => $this->getMethodsWithFinancialWarning($salesChannelId),
             'countryBillingIso'     => $this->getCountryBillingIso($customer),
             'countryShippingIso'    => $this->getCountryShippingIso($customer),
             'validHouseNumbers'     => $this->areValidHouseNumbers($event),
             'afterpayOld' => $this->getSettingAsBool('afterpayEnabledold', $salesChannelId),
             'afterpay_billing_coc' => $this->getAfterpayBillingCoc($customer),
-            'redirectBancontact' =>
-                $this->settingsService->getSetting('redirectBancontact', $salesChannelId) === 'enabledRedirect']);
+            'redirectBancontact' => $this->isBancontactClientSideEncryptionEnabled($salesChannelId)]);
 
         $event->getPage()->addExtension(
             BuckarooStruct::EXTENSION_NAME,
             $struct
         );
+    }
+
+    /**
+     * "Client-side encryption" for Bancontact. Stored as a boolean since it became a switch;
+     * the former select stored "enabledRedirect"/"disabledRedirect", which is still accepted.
+     */
+    private function isBancontactClientSideEncryptionEnabled(string $salesChannelId): bool
+    {
+        $value = $this->settingsService->getSetting('redirectBancontact', $salesChannelId);
+
+        return in_array($value, [true, 1, '1', 'true', 'enabledRedirect'], true);
     }
 
     private function getIdealProcessingRenderMode(string $salesChannelId): int
@@ -403,28 +412,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     private function canShowIssuers(string $salesChannelId, string $key): bool
     {
         return $this->settingsService->getSetting($key . "Showissuers", $salesChannelId) !== false;
-    }
-
-    private function getMethodsWithFinancialWarning(string $salesChannelId): array
-    {
-        $methods = [
-            'Billink',
-            'capayable',
-            'afterpay'
-        ];
-
-        $withFinancialWarning = [];
-        foreach ($methods as $method) {
-            if (
-                $this->settingsService->getSetting(
-                    $method . "Financialwarning",
-                    $salesChannelId
-                ) !== false
-            ) {
-                $withFinancialWarning[] = $method;
-            }
-        }
-        return $withFinancialWarning;
     }
 
     private function getBillinkPaymentType(CustomerEntity $customer): string

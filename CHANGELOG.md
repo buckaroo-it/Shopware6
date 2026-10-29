@@ -507,6 +507,9 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-1592 Express checkout buttons are hidden and express orders are blocked when the payment method is disabled.
 - BTI-1627 The full push body is no longer logged at info level.
 - BTI-1699 Fixed PHP 8.4 implicit nullable deprecations.
+- BTI-1837 Redesigned the Buckaroo settings: a payment method overview with a Live / Test / Off control per method, labels and help texts aligned with the Magento 2 and WooCommerce plugins, on/off settings shown as switches, and settings without effect removed (Advanced configuration, Payment success status, Consumer financial warning). The Apple Pay and Google Pay express buttons now use one page list like PayPal Express; existing settings are converted. Transaction and refund descriptions default to {order_number} when they were never saved.
+- BTI-1909 Hosted Fields credentials and allowed cards, the iDEAL payment type and the Riverty legacy settings are now read for the order's sales channel.
+- BTI-1938 PayPerEmail no longer expires the same day when "Due date (in days)" is empty or 0.
 - BTI-1856 Fixed PHP 8.2 dynamic property deprecations on BuckarooStruct.
 - BTI-1857 Fixed the dal:validate crash and the iDEAL QR order definition errors.
 - BTI-1858 Fixed missing labels and debug warnings on the Buckaroo admin settings page.

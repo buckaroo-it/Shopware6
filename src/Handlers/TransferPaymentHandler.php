@@ -57,8 +57,12 @@ class TransferPaymentHandler extends PaymentHandlerSimple
         return $now->format('Y-m-d');
     }
 
+    /**
+     * "Send payment instruction email". Stored as a boolean since it became a switch;
+     * the former select stored 0/1, which is still accepted.
+     */
     protected function canSendEmail(string $salesChannelId): bool
     {
-        return $this->getSetting('transferSendEmail', $salesChannelId) == 1;
+        return in_array($this->getSetting('transferSendEmail', $salesChannelId), [true, 1, '1'], true);
     }
 }

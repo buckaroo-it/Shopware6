@@ -103,7 +103,7 @@ class ClientService
 
         if (
             $configCode === 'ideal' &&
-            $this->settingsService->getSetting("paymentHandler") === IdealPaymentHandler::IDEAL_PROCESSING
+            $this->settingsService->getSetting("paymentHandler", $salesChannelId) === IdealPaymentHandler::IDEAL_PROCESSING
         ) {
             return 'idealprocessing';
         }

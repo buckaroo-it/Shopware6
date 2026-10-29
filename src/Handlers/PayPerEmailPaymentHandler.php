@@ -99,7 +99,8 @@ class PayPerEmailPaymentHandler extends PaymentHandlerSimple
             $salesChannelContextId
         );
 
-        if (!is_scalar($payperemailExpireDays)) {
+        // Empty or 0 sends no expiry date, so Buckaroo's default applies (same as Paylink)
+        if (!is_scalar($payperemailExpireDays) || (int)$payperemailExpireDays <= 0) {
             return '';
         }
 

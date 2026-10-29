@@ -6,6 +6,7 @@ namespace Buckaroo\Shopware6\Tests\Unit\Service;
 
 use Buckaroo\Config\Config;
 use Buckaroo\Shopware6\Buckaroo\Client;
+use Buckaroo\Shopware6\Handlers\IdealPaymentHandler;
 use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use PHPUnit\Framework\TestCase;
@@ -96,6 +97,28 @@ class ClientServiceTest extends TestCase
 
         $this->assertSame(Config::LIVE_MODE, $this->modeOf($live));
         $this->assertSame(Config::TEST_MODE, $this->modeOf($test));
+    }
+
+    /**
+     * iDEAL "Select payment type" can be set per sales channel, so it must be read
+     * for the sales channel of the payment, not only from "All Sales Channels".
+     */
+    public function testIdealPaymentTypeIsReadForTheSalesChannel(): void
+    {
+        $settingsService = $this->createMock(SettingsService::class);
+        $settingsService->method('getSetting')->willReturnCallback(
+            static fn (string $key, ?string $salesChannelId) => $key === 'paymentHandler' && $salesChannelId === self::SALES_CHANNEL_ID
+                ? IdealPaymentHandler::IDEAL_PROCESSING
+                : null
+        );
+
+        $method = new \ReflectionMethod(ClientService::class, 'getPaymentCode');
+        $method->setAccessible(true);
+
+        $this->assertSame(
+            'idealprocessing',
+            $method->invoke(new ClientService($settingsService, '6.7.0.0'), 'ideal', self::SALES_CHANNEL_ID)
+        );
     }
 
     /**

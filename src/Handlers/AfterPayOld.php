@@ -48,7 +48,7 @@ class AfterPayOld
             ],
             $this->getBillingData($order, $dataBag),
             $this->getShippingData($order, $dataBag),
-            $this->getArticles($order, $paymentCode)
+            $this->getArticles($order, $paymentCode, $order->getSalesChannelId())
         );
     }
 
@@ -180,7 +180,7 @@ class AfterPayOld
      *
      * @return array<mixed>
      */
-    private function getArticles(OrderEntity $order, string $paymentCode): array
+    private function getArticles(OrderEntity $order, string $paymentCode, string $salesChannelId): array
     {
         $lines = $this->formatRequestParamService->getOrderLinesArray($order, $paymentCode);
 
@@ -192,7 +192,7 @@ class AfterPayOld
                 'description'       => $item['name'],
                 'quantity'          => $item['quantity'],
                 'price'             => $item['unitPrice']['value'],
-                'vatCategory'       => $this->getItemVatCategory($item),
+                'vatCategory'       => $this->getItemVatCategory($item, $salesChannelId),
             ];
         }
         return [
@@ -238,10 +238,11 @@ class AfterPayOld
      * Get vat category
      *
      * @param array<mixed> $item
+     * @param string $salesChannelId
      *
      * @return int
      */
-    private function getItemVatCategory(array $item): int
+    private function getItemVatCategory(array $item, string $salesChannelId): int
     {
         $vatRate = null;
         if (isset($item['vatRate']) && is_numeric($item['vatRate'])) {
@@ -250,7 +251,7 @@ class AfterPayOld
 
         if (isset($item['taxId']) && is_string($item['taxId'])) {
             $taxId = $item['taxId'];
-            $taxAssociation = $this->settingsService->getSetting('afterpayOldtax');
+            $taxAssociation = $this->settingsService->getSetting('afterpayOldtax', $salesChannelId);
 
             if (is_array($taxAssociation) && isset($taxAssociation[$taxId])) {
                 $mappedCategory = (int)$taxAssociation[$taxId];

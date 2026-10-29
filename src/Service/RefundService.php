@@ -172,7 +172,8 @@ class RefundService
                     $this->getMethodPayload(
                         $amount,
                         $configCode,
-                        $transaction
+                        $transaction,
+                        $order->getSalesChannelId()
                     )
                 )
             );
@@ -388,17 +389,19 @@ class RefundService
      * @param float $amount
      * @param string $configCode
      * @param array $transaction
+     * @param string $salesChannelId
      *
      * @return array<mixed>
      */
     private function getMethodPayload(
         float $amount,
         string $configCode,
-        array $transaction
+        array $transaction,
+        string $salesChannelId
     ): array {
         if (
             $configCode === "afterpay" &&
-            $this->settingsService->getSetting('afterpayEnabledold') === true
+            $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true
         ) {
             return $this->getRefundRequestArticlesForAfterpayOld($amount);
         }

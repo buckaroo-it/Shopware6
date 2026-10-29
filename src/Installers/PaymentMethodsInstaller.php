@@ -376,9 +376,6 @@ class PaymentMethodsInstaller implements InstallerInterface
             ['transferSendEmail' => 1],
             ['transferDateDue' => 7],
             ['payperemailEnabledfrontend' => true],
-            ['BillinkFinancialwarning' => true],
-            ['capayableFinancialwarning' => true],
-            ['afterpayFinancialwarning' => true],
             ['idealShowissuers' => true],
             ['idealprocessingShowissuers' => true],
         ] as $key => $value) {
