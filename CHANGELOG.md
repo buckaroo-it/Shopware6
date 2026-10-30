@@ -502,16 +502,22 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 # 3.8.0
 
-- BTI-1453 Moved the installer file writes to the system temp directory.
-- BTI-1455 Lifted the repository call out of the media installer loop.
-- BTI-1592 Express checkout buttons are hidden and express orders are blocked when the payment method is disabled.
-- BTI-1627 The full push body is no longer logged at info level.
-- BTI-1699 Fixed PHP 8.4 implicit nullable deprecations.
-- BTI-1856 Fixed PHP 8.2 dynamic property deprecations on BuckarooStruct.
-- BTI-1857 Fixed the dal:validate crash and the iDEAL QR order definition errors.
-- BTI-1858 Fixed missing labels and debug warnings on the Buckaroo admin settings page.
-- BTI-1871 Pushes now require the push fields and are recorded atomically, and the processed push table has a DAL entity definition.
-- BTI-1936 The pay-per-email return page requires a signed Buckaroo return for the order, the iDEAL QR page shows the stored QR image for the shopper's own order only, an absolute finishUrl is no longer used as return URL, and sensitive values are kept out of logs and responses.
-- Removed the inline style from the iDEAL fast checkout button to clear the Shopware Store code review warning.
-- BTI-1934 Fixed pushes for orders of API (headless) sales channels: their push URL now targets the new sales-channel-independent endpoint /api/buckaroo/push/{salesChannelId} on APP_URL instead of a sales channel domain, so headless installations no longer leave paid orders open.
-- BTI-1953 Fixed the Klarna (MoR) capture failing with "Parameter 'DataRequestKey' is empty": the reserve push, which Buckaroo sends without a mutation type, is now accepted so the data request key is stored, and the admin order actions show a loader and result notifications.
+## Added / Improved
+
+- BTI-1453 Installer file operations now use the system temp directory, for better support of clustered and read-only environments.
+- BTI-1455 Faster plugin installation and updates by loading payment method icons in a single query.
+- BTI-1627 Improved logging of push messages.
+- BTI-1881 Improved processing of push messages.
+- BTI-1883 Improved handling of duplicate push messages.
+- BTI-1936 General security improvements.
+- BTI-1955 Code quality improvements.
+
+## Fixed
+
+- BTI-1592 Fixed Apple Pay, Google Pay and PayPal express checkout buttons being shown when the payment method itself is disabled.
+- BTI-1699 Fixed PHP 8.4 deprecation notices and a PHPStan error.
+- BTI-1856 Fixed PHP 8.2+ deprecation notices on the product, cart and checkout pages.
+- BTI-1857 Fixed bin/console dal:validate failing on the Buckaroo transaction entity definition.
+- BTI-1858 Fixed the Advanced Configuration and Language fields showing no label in the plugin settings in the Administration.
+- BTI-1934 Fixed push messages not reaching Shopware in headless setups (sales channels of type API).
+- BTI-1953 Fixed Klarna (MoR) capture failing.
