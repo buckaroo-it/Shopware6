@@ -9,7 +9,8 @@ Component.register('buckaroo-config-card', {
 
     data() {
         return {
-            shopwareVersion: null
+            // Available synchronously, so labels are resolved on the first render
+            shopwareVersion: Shopware.Context?.app?.config?.version || null
         };
     },
 
@@ -106,6 +107,9 @@ Component.register('buckaroo-config-card', {
 
     methods: {
         fetchShopwareVersion() {
+            if (this.shopwareVersion) {
+                return;
+            }
             const service = this.BuckarooPaymentSettingsService;
             if (service && typeof service.getSupportVersion === 'function') {
                 service.getSupportVersion().then((data) => {
@@ -313,11 +317,6 @@ Component.register('buckaroo-config-card', {
                 if (useEnhancedLabels && (!binding.label || (typeof binding.label === 'string' && binding.label.trim().length === 0))) {
                     binding.label = binding.config?.label || element.name.replace('BuckarooPayments.config.', '').replace(/([A-Z])/g, ' $1').trim();
                 }
-            }
-            
-            // Debug: Log if label is missing for bool/select fields
-            if ((element.type === 'bool' || element.type === 'single-select' || element.type === 'multi-select') && (!binding.label || (typeof binding.label === 'string' && binding.label.trim().length === 0))) {
-                console.warn('Missing label for field:', element.name, 'Type:', element.type, 'Element label:', element.label, 'Extracted:', finalLabel, 'BaseBinding label:', baseBinding.label, 'Final binding label:', binding.label);
             }
             
             return binding;

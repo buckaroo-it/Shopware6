@@ -44,19 +44,19 @@ class GooglePayPaymentHandler extends PaymentHandlerSimple
 
         $data = json_decode($googlePayInfo);
         if ($data === false || !is_object($data)) {
+            // The payload is not logged: it carries the wallet token and the payer's details.
             $logger->error(
-                'GooglePayPaymentHandler: failed to decode googlePayInfo JSON. Value (truncated): '
-                . substr($googlePayInfo, 0, 200)
+                'GooglePayPaymentHandler: failed to decode googlePayInfo JSON. Length: '
+                . strlen($googlePayInfo) . ', error: ' . json_last_error_msg()
             );
             return [];
         }
 
         $paymentData = $this->getPaymentData($data);
         if ($paymentData === '') {
-            $encodedData = json_encode($data);
             $logger->error(
-                'GooglePayPaymentHandler: getPaymentData returned empty string. Decoded data: '
-                . substr(is_string($encodedData) ? $encodedData : '', 0, 300)
+                'GooglePayPaymentHandler: getPaymentData returned empty string. Keys: '
+                . implode(', ', array_keys(get_object_vars($data)))
             );
         }
 

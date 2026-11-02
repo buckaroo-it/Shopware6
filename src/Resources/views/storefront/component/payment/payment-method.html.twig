@@ -55,13 +55,13 @@
                                         <div class="payment-method-description">
                                             <strong>{{ page.extensions.buckaroo.payment_labels[payment.translated.customFields.buckaroo_key]?:payment.translated.name }}</strong>
                                             {% if payment.translated.description %}
-                                                {% set paymentDescription = payment.translated.description|raw %}
+                                                {% set paymentDescription = payment.translated.description %}
 
                                                 {% if not payment.id is same as(selectedPaymentMethodId) %}
                                                     {% set paymentDescription = (paymentDescription|length > 75 ? paymentDescription[:75] ~ ' ...' : paymentDescription) %}
                                                 {% endif %}
 
-                                                <p title="{{ payment.translated.description|raw }}">{{ paymentDescription }}</p>
+                                                <p title="{{ payment.translated.description }}">{{ paymentDescription }}</p>
                                             {% endif %}
                                         </div>
                                     {% endblock %}

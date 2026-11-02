@@ -91,7 +91,7 @@ class ClientService
      *
      * @return string
      */
-    protected function getPaymentCode(string $configCode, string $salesChannelId = null): string
+    protected function getPaymentCode(string $configCode, ?string $salesChannelId = null): string
     {
         if (
             $configCode === 'afterpay' &&

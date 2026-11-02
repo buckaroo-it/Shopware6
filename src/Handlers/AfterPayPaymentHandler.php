@@ -446,7 +446,7 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
         return @date("d-m-Y", $date);
     }
 
-    public function isCustomerB2B(string $salesChannelId = null): bool
+    public function isCustomerB2B(?string $salesChannelId = null): bool
     {
         return $this->getSetting('afterpayCustomerType', $salesChannelId) !== self::CUSTOMER_TYPE_B2C;
     }
@@ -458,7 +458,7 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
      *
      * @return boolean
      */
-    public function isCompanyEmpty(string $company = null): bool
+    public function isCompanyEmpty(?string $company = null): bool
     {
         return null === $company || strlen(trim($company)) === 0;
     }

@@ -127,7 +127,6 @@ class OrderService
                 'serviceClass'           => $paymentServiceClass,
                 'hasPay'                 => $hasPay,
                 'hasHandlePaymentByOrder' => $hasHandlePaymentByOrder,
-                'contextToken'           => $this->salesChannelContext->getToken(),
             ]);
 
             // Include the sales-channel context token so that PaymentHandlerSimple
@@ -250,7 +249,7 @@ class OrderService
 
     private function validateSaleChannelContext(): void
     {
-        if (!$this->salesChannelContext instanceof SalesChannelContext) {
+        if (!isset($this->salesChannelContext)) {
             throw new CreateCartException('SaleChannelContext is required');
         }
     }

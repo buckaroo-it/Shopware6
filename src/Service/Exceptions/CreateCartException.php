@@ -11,7 +11,7 @@ class CreateCartException extends \Exception
      * @param int $code
      * @param \Throwable|null $previous
      */
-    public function __construct(string $message = "Failed to create cart", int $code = 0, \Throwable $previous = null)
+    public function __construct(string $message = "Failed to create cart", int $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
@@ -22,7 +22,7 @@ class CreateCartException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function missingSalesChannelContext(\Throwable $previous = null): self
+    public static function missingSalesChannelContext(?\Throwable $previous = null): self
     {
         return new self("SalesChannelContext is required", 0, $previous);
     }
@@ -33,7 +33,7 @@ class CreateCartException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function emptyCart(\Throwable $previous = null): self
+    public static function emptyCart(?\Throwable $previous = null): self
     {
         return new self("Cannot create cart, at least one item is required", 0, $previous);
     }
@@ -45,7 +45,7 @@ class CreateCartException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function itemAdditionFailed(string $itemId, \Throwable $previous = null): self
+    public static function itemAdditionFailed(string $itemId, ?\Throwable $previous = null): self
     {
         return new self("Cannot add item '{$itemId}' to cart", 0, $previous);
     }
@@ -57,7 +57,7 @@ class CreateCartException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function invalidCustomer(string $customerId, \Throwable $previous = null): self
+    public static function invalidCustomer(string $customerId, ?\Throwable $previous = null): self
     {
         return new self("Invalid customer '{$customerId}' for cart creation", 0, $previous);
     }

@@ -196,13 +196,127 @@ class UrlServiceTest extends TestCase
     }
 
     /**
+     * An order of an API (headless) sales channel gets the sales-channel-independent API push
+     * URL on APP_URL, whatever domains the sales channel has: Shopware never maps the domains
+     * of an API sales channel to a request, and they normally point at an external frontend.
+     * The base URL (the return URL of the payment) is ignored for the same reason.
+     */
+    public function testGetPushUrlForOrderOfAnApiSalesChannelTargetsTheApiPushEndpoint(): void
+    {
+        $this->stubSalesChannelWithDomains(
+            [['https://frontend.example', self::EN_LANGUAGE_ID]],
+            Defaults::SALES_CHANNEL_TYPE_API
+        );
+        $this->router->expects($this->never())->method('generate');
+
+        $pushUrl = $this->urlServiceWithAppUrl('https://backend.example')->getPushUrlForOrder(
+            $this->createOrder(self::EN_LANGUAGE_ID),
+            $this->createContext([self::EN_LANGUAGE_ID]),
+            'https://frontend.example/checkout/finish?orderId=1'
+        );
+
+        $this->assertSame(
+            'https://backend.example/api/buckaroo/push/' . self::SALES_CHANNEL_ID,
+            $pushUrl
+        );
+    }
+
+    /**
+     * APP_URL already carries the sub-directory Shopware is installed in; a trailing slash
+     * must not double up.
+     */
+    public function testGetApiPushUrlKeepsTheSubDirectoryOfAppUrl(): void
+    {
+        $pushUrl = $this->urlServiceWithAppUrl('https://backend.example/shop/')
+            ->getApiPushUrl(self::SALES_CHANNEL_ID);
+
+        $this->assertSame(
+            'https://backend.example/shop/api/buckaroo/push/' . self::SALES_CHANNEL_ID,
+            $pushUrl
+        );
+    }
+
+    /**
+     * Without a usable APP_URL the router is the last resort. Anything that is not an
+     * absolute http(s) URL is treated as not set rather than ending up in the push URL.
+     *
+     * @dataProvider unusableAppUrlProvider
+     */
+    public function testGetApiPushUrlFallsBackToTheRouterWithoutAUsableAppUrl(string $appUrl): void
+    {
+        $this->router
+            ->expects($this->once())
+            ->method('generate')
+            ->with(
+                'api.buckaroo.push',
+                ['salesChannelId' => self::SALES_CHANNEL_ID],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            )
+            ->willReturn('https://backend.example/api/buckaroo/push/' . self::SALES_CHANNEL_ID);
+
+        $pushUrl = $this->urlServiceWithAppUrl($appUrl)->getApiPushUrl(self::SALES_CHANNEL_ID);
+
+        $this->assertSame('https://backend.example/api/buckaroo/push/' . self::SALES_CHANNEL_ID, $pushUrl);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function unusableAppUrlProvider(): array
+    {
+        return [
+            'not set' => [''],
+            'blank' => ['   '],
+            'no scheme' => ['backend.example'],
+            'unsupported scheme' => ['ftp://backend.example'],
+            'with query string' => ['https://backend.example/?x=1'],
+            'with fragment' => ['https://backend.example/#x'],
+            'garbage' => ['https://'],
+        ];
+    }
+
+    /**
+     * A storefront sales channel is not affected by APP_URL: its domain still decides the push
+     * URL, so multi-domain storefronts keep their behaviour.
+     */
+    public function testGetPushUrlForOrderOfAStorefrontSalesChannelIgnoresAppUrl(): void
+    {
+        $this->stubSalesChannelWithDomains([
+            ['https://www.shop.com', self::EN_LANGUAGE_ID],
+            ['https://kiosk.shop.com', self::EN_LANGUAGE_ID],
+        ]);
+
+        $pushUrl = $this->urlServiceWithAppUrl('https://backend.example')->getPushUrlForOrder(
+            $this->createOrder(self::EN_LANGUAGE_ID),
+            $this->createContext([self::EN_LANGUAGE_ID]),
+            'https://kiosk.shop.com/checkout/finish?orderId=1'
+        );
+
+        $this->assertSame('https://kiosk.shop.com/buckaroo/push', $pushUrl);
+    }
+
+    private function urlServiceWithAppUrl(string $appUrl): UrlService
+    {
+        return new UrlService(
+            $this->settingsService,
+            $this->router,
+            $this->tokenFactory,
+            $this->salesChannelRepository,
+            $appUrl
+        );
+    }
+
+    /**
      * @param array<int, array{0: string, 1: string}> $domains url + language id
      */
-    private function stubSalesChannelWithDomains(array $domains): void
-    {
+    private function stubSalesChannelWithDomains(
+        array $domains,
+        string $typeId = Defaults::SALES_CHANNEL_TYPE_STOREFRONT
+    ): void {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(self::SALES_CHANNEL_ID);
         $salesChannel->setUniqueIdentifier(self::SALES_CHANNEL_ID);
+        $salesChannel->setTypeId($typeId);
 
         $domainEntities = [];
         foreach ($domains as $index => $domainData) {

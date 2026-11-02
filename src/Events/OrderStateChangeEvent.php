@@ -523,7 +523,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             $message = $result['message'];
         }
 
-        if (is_object($this->notificationService) && method_exists($this->notificationService, 'createNotification')) {
+        if (method_exists($this->notificationService, 'createNotification')) {
             $this->notificationService->createNotification(
                 [
                 'id' => Uuid::randomHex(),

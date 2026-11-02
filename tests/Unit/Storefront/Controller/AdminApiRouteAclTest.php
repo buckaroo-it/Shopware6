@@ -39,6 +39,18 @@ class AdminApiRouteAclTest extends TestCase
         'api.action.buckaroo.in3.logos' => ['payment_method:read'],
     ];
 
+    /**
+     * /api routes that deliberately skip Admin API authentication (`auth_required` false).
+     * ACL cannot apply to them, so each one must authenticate its caller itself; adding a
+     * route here is a conscious decision, not a side effect of forgetting `_acl`.
+     *
+     * - api.buckaroo.push: the Buckaroo push for API/headless sales channels, authenticated
+     *   by the Buckaroo push signature (see PushControllerApiRouteTest).
+     */
+    private const UNAUTHENTICATED_ROUTES = [
+        'api.buckaroo.push',
+    ];
+
     public function testEveryAdminApiRouteDeclaresAcl(): void
     {
         $routes = $this->adminApiRoutes();
@@ -64,6 +76,24 @@ class AdminApiRouteAclTest extends TestCase
         ksort($expected);
 
         $this->assertSame($expected, $actual);
+    }
+
+    /**
+     * Only the listed routes may skip Admin API authentication, and each of them must say so
+     * explicitly on the route.
+     */
+    public function testOnlyKnownRoutesSkipAdminApiAuthentication(): void
+    {
+        $unauthenticated = array_keys(array_filter(
+            $this->apiRoutes(),
+            static fn (array $defaults): bool => ($defaults['auth_required'] ?? true) === false
+        ));
+        sort($unauthenticated);
+
+        $expected = self::UNAUTHENTICATED_ROUTES;
+        sort($expected);
+
+        $this->assertSame($expected, $unauthenticated);
     }
 
     /**
@@ -125,11 +155,25 @@ class AdminApiRouteAclTest extends TestCase
     }
 
     /**
-     * Route defaults of every Admin API route declared by the plugin's controllers, by route name.
+     * Route defaults of every Admin API route declared by the plugin's controllers, by route
+     * name: the /api routes that require Admin API authentication and therefore ACL.
      *
      * @return array<string, array<string, mixed>>
      */
     private function adminApiRoutes(): array
+    {
+        return array_filter(
+            $this->apiRoutes(),
+            static fn (array $defaults): bool => ($defaults['auth_required'] ?? true) !== false
+        );
+    }
+
+    /**
+     * Route defaults of every /api route declared by the plugin's controllers, by route name.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function apiRoutes(): array
     {
         $routes = [];
         foreach (glob(__DIR__ . '/../../../../src/Storefront/Controller/*Controller.php') ?: [] as $file) {

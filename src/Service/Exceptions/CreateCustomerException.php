@@ -14,7 +14,7 @@ class CreateCustomerException extends \Exception
     public function __construct(
         string $message = "Failed to create customer",
         int $code = 0,
-        \Throwable $previous = null
+        ?\Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
     }
@@ -25,7 +25,7 @@ class CreateCustomerException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function missingSalesChannelContext(\Throwable $previous = null): self
+    public static function missingSalesChannelContext(?\Throwable $previous = null): self
     {
         return new self("SalesChannelContext is required", 0, $previous);
     }
@@ -37,7 +37,7 @@ class CreateCustomerException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function invalidEmail(string $email, \Throwable $previous = null): self
+    public static function invalidEmail(string $email, ?\Throwable $previous = null): self
     {
         return new self("Invalid email address: {$email}", 0, $previous);
     }
@@ -49,7 +49,7 @@ class CreateCustomerException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function duplicateCustomer(string $email, \Throwable $previous = null): self
+    public static function duplicateCustomer(string $email, ?\Throwable $previous = null): self
     {
         return new self("Customer with email '{$email}' already exists", 0, $previous);
     }
@@ -61,7 +61,7 @@ class CreateCustomerException extends \Exception
      * @param \Throwable|null $previous
      * @return self
      */
-    public static function missingRequiredFields(array $missingFields, \Throwable $previous = null): self
+    public static function missingRequiredFields(array $missingFields, ?\Throwable $previous = null): self
     {
         $fields = implode(', ', $missingFields);
         return new self("Missing required customer fields: {$fields}", 0, $previous);

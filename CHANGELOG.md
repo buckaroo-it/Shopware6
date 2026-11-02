@@ -499,3 +499,25 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-1670 Payment methods without a configured environment are no longer processed, and test pushes are rejected for live payment methods.
 - BTI-1671 Added ACL privileges to the Buckaroo admin API routes.
 - BTI-1675 Fixed Riverty orders not being captured on shipment.
+
+# 3.8.0
+
+## Added / Improved
+
+- BTI-1453 Installer file operations now use the system temp directory, for better support of clustered and read-only environments.
+- BTI-1455 Faster plugin installation and updates by loading payment method icons in a single query.
+- BTI-1627 Improved logging of push messages.
+- BTI-1881 Improved processing of push messages.
+- BTI-1883 Improved handling of duplicate push messages.
+- BTI-1936 General security improvements.
+- BTI-1955 Code quality improvements.
+
+## Fixed
+
+- BTI-1592 Fixed Apple Pay, Google Pay and PayPal express checkout buttons being shown when the payment method itself is disabled.
+- BTI-1699 Fixed PHP 8.4 deprecation notices and a PHPStan error.
+- BTI-1856 Fixed PHP 8.2+ deprecation notices on the product, cart and checkout pages.
+- BTI-1857 Fixed bin/console dal:validate failing on the Buckaroo transaction entity definition.
+- BTI-1858 Fixed the Advanced Configuration and Language fields showing no label in the plugin settings in the Administration.
+- BTI-1934 Fixed push messages not reaching Shopware in headless setups (sales channels of type API).
+- BTI-1953 Fixed Klarna (MoR) capture failing.

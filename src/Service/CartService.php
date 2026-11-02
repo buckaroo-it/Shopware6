@@ -110,7 +110,7 @@ class CartService
      */
     private function validateSaleChannelContext(): void
     {
-        if (!$this->salesChannelContext instanceof SalesChannelContext) {
+        if (!isset($this->salesChannelContext)) {
             throw new CreateCartException('SaleChannelContext is required');
         }
     }

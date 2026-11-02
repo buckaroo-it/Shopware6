@@ -42,11 +42,39 @@ class SignatureValidationService
      */
     public function validateReturnSignature(Request $request, ?string $salesChannelId = null): bool
     {
-        $data = $request->request->has('brq_signature')
+        return $this->validateData($this->getReturnData($request), $salesChannelId);
+    }
+
+    /**
+     * The return fields with the values the signature was validated over, read from the
+     * same source (body or query string) as validateReturnSignature().
+     *
+     * @return array<mixed>
+     */
+    public function getSignedReturnData(Request $request): array
+    {
+        return $this->normalizeSignedData($this->getReturnData($request));
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function getReturnData(Request $request): array
+    {
+        return $request->request->has('brq_signature')
             ? $request->request->all()
             : $request->query->all();
+    }
 
-        return $this->validateData($data, $salesChannelId);
+    /**
+     * The push fields with the values the signature was validated over. Values are decoded
+     * the way Buckaroo signed them, so two encodings of the same signed value are equal.
+     *
+     * @return array<mixed>
+     */
+    public function getSignedPushData(Request $request): array
+    {
+        return $this->normalizeSignedData($request->request->all());
     }
 
     /**
@@ -127,31 +155,6 @@ class SignatureValidationService
     }
 
     /**
-     * @param array<mixed> $postData
-     *
-     * @return string
-     */
-    public function calculatePushHash(array $postData): string
-    {
-        $copyData = $postData;
-        unset($copyData['brq_signature']);
-        unset($copyData['brq_timestamp']);
-        unset($copyData['brq_customer_name']);
-
-        $sortableArray = $this->buckarooArraySort($copyData);
-
-        $calculatedString = Date("YmdHi");
-        foreach ($sortableArray as $brq_key => $value) {
-            if (is_scalar($value)) {
-                $value = $this->decodePushValue($brq_key, (string)$value);
-                $calculatedString .= $brq_key . '=' . $value;
-            }
-        }
-
-        return SHA1($calculatedString);
-    }
-
-    /**
      * @param string $brq_key
      * @param string $brq_value
      *
@@ -202,33 +205,5 @@ class SignatureValidationService
         }
 
         return $decodedValue;
-    }
-    /**
-     * Sort the array so that the signature can be calculated identical to the way buckaroo does.
-     *
-     * @param array<mixed> $arrayToUse
-     *
-     * @return array<mixed> $sortableArray
-     */
-    protected function buckarooArraySort(array $arrayToUse): array
-    {
-        $arrayToSort   = [];
-        $originalArray = [];
-
-        foreach ($arrayToUse as $key => $value) {
-            $arrayToSort[strtolower($key)]   = $value;
-            $originalArray[strtolower($key)] = $key;
-        }
-
-        ksort($arrayToSort);
-
-        $sortableArray = [];
-
-        foreach ($arrayToSort as $key => $value) {
-            $key                 = $originalArray[$key];
-            $sortableArray[$key] = $value;
-        }
-
-        return $sortableArray;
     }
 }

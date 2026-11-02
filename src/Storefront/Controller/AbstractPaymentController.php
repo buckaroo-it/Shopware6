@@ -363,7 +363,8 @@ abstract class AbstractPaymentController extends StorefrontController
     }
 
     /**
-     * Get paypal payment method
+     * Get the payment method for the handler, or null when it is not available
+     * or disabled in the Buckaroo plugin settings of this sales channel
      *
      * @param SalesChannelContext $salesChannelContext
      * @param string $handler
@@ -377,11 +378,26 @@ abstract class AbstractPaymentController extends StorefrontController
             ->addFilter(new EqualsFilter('handlerIdentifier', "Buckaroo\Shopware6\Handlers\\" . $handler));
 
         /** @var \Shopware\Core\Checkout\Payment\PaymentMethodEntity|null */
-        return $this->paymentMethodRepository->search(
+        $paymentMethod = $this->paymentMethodRepository->search(
             $criteria,
             $salesChannelContext
         )
             ->getEntities()
             ->first();
+
+        if ($paymentMethod === null) {
+            return null;
+        }
+
+        $customFields = $paymentMethod->getTranslated()['customFields'] ?? null;
+        $buckarooKey = is_array($customFields) ? ($customFields['buckaroo_key'] ?? null) : null;
+        if (
+            !is_string($buckarooKey) ||
+            !$this->settingsService->getEnabled($buckarooKey, $salesChannelContext->getSalesChannelId())
+        ) {
+            return null;
+        }
+
+        return $paymentMethod;
     }
 }

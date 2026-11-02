@@ -92,7 +92,7 @@ class In3LogoService
      *
      * @return array
      */
-    private function getFormatedMedia(MediaEntity $media, string $code = null): array
+    private function getFormatedMedia(MediaEntity $media, ?string $code = null): array
     {
         if ($code === null) {
             $code = $media->getId();

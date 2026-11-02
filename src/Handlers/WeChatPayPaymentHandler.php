@@ -39,7 +39,7 @@ class WeChatPayPaymentHandler extends PaymentHandlerSimple
     }
 
 
-    private function getLocaleCode(string $country = null): string
+    private function getLocaleCode(?string $country = null): string
     {
         if ($country == 'CN') {
             return 'zh-CN';
