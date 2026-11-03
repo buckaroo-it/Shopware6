@@ -88,6 +88,11 @@
         "selectYear": "Wählen Sie ein Jahr",
         "securityCode": "CVC/VV"
       },
+      "bancontactmrcash": {
+        "cardholder": "Name auf der Karte",
+        "cardNumber": "Kartennummer",
+        "expiration": "Ablaufdatum"
+      },
       "Coc": "Handelsregisternummer:",
       "CocPlaceholder": "Handelsregisternummer",
       "buckarooMobileCocError": "Handelsregisternummer ist erforderlich",

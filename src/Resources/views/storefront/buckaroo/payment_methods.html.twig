@@ -29,7 +29,7 @@
                     {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/paybybank.html.twig' %}
                 {% elseif buckarooKey == 'creditcard' %}
                     {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/creditcard.html.twig' %}
-                {% elseif buckarooKey == 'bancontactmrcash' and page.extensions.buckaroo.redirectBancontact %}
+                {% elseif buckarooKey == 'bancontactmrcash' and page.extensions.buckaroo.bancontactHostedFields %}
                     {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/bancontactmrcash.html.twig' %}
                 {% elseif buckarooKey == 'creditcards' %}
                     {% sw_include '@BuckarooPayments/storefront/buckaroo/payment-methods/creditcards.html.twig' %}
