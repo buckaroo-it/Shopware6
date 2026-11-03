@@ -24,9 +24,9 @@
 }
 
 // Validation messages rendered hidden and revealed by the storefront JS.
-// Deliberately without !important: buckaroo-payment.helper.js and
-// buckaroo-payment.bancontact.js toggle these with element.style.display, and an
-// inline style only wins over a class rule that is not marked important.
+// Deliberately without !important: buckaroo-payment.helper.js toggles these
+// with element.style.display, and an inline style only wins over a class rule
+// that is not marked important.
 // Bootstrap's .d-none would break every one of these messages for that reason.
 .bk-field-error {
     display: none;
@@ -54,9 +54,6 @@
     margin-top: 15px;
 }
 
-.bk-bancontactmrcash {
-    margin-top: 15px;
-}
 .payment .custom-control-label::before {
     border-radius: 3px;
 }

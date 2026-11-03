@@ -130,6 +130,8 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
                     )
                 );
 
+            $this->configureLegacyClient($client, $paymentCode, $salesChannelContext);
+
             $this->asyncPaymentService->dispatchEvent(
                 new BeforePaymentRequestEvent($transaction, $dataBag, $salesChannelContext, $client)
             );
@@ -163,6 +165,17 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
     protected function beforePayLegacy(
         AsyncPaymentTransactionStruct $transaction,
         RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext
+    ): void {
+        // Default no-op
+    }
+
+    /**
+     * Hook for specific handlers to adjust the Buckaroo client before the legacy request is sent.
+     */
+    protected function configureLegacyClient(
+        Client $client,
+        string $paymentCode,
         SalesChannelContext $salesChannelContext
     ): void {
         // Default no-op

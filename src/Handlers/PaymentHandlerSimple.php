@@ -6,6 +6,7 @@ namespace Buckaroo\Shopware6\Handlers;
 
 // phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
 
+use Buckaroo\Shopware6\Buckaroo\Client;
 use Buckaroo\Shopware6\Events\AfterPaymentRequestEvent;
 use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
@@ -109,6 +110,14 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 ): void {
                     $this->parent->runBeforePayLegacy($transaction, $dataBag, $salesChannelContext);
                 }
+
+                protected function configureLegacyClient(
+                    Client $client,
+                    string $paymentCode,
+                    SalesChannelContext $salesChannelContext
+                ): void {
+                    $this->parent->runConfigureLegacyClient($client, $paymentCode, $salesChannelContext);
+                }
             };
 
             return $legacyHandler->pay($transaction, $dataBag, $salesChannelContext);
@@ -125,6 +134,31 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             SalesChannelContext $salesChannelContext
         ): void {
             $this->beforePayLegacy($transaction, $dataBag, $salesChannelContext);
+        }
+
+        /**
+         * Lets the delegated legacy handler run this handler's configureLegacyClient() hook.
+         *
+         * @internal
+         */
+        public function runConfigureLegacyClient(
+            Client $client,
+            string $paymentCode,
+            SalesChannelContext $salesChannelContext
+        ): void {
+            $this->configureLegacyClient($client, $paymentCode, $salesChannelContext);
+        }
+
+        /**
+         * Hook for specific handlers to adjust the Buckaroo client before the legacy request
+         * is sent. Kept apart from configureClient(), which only runs on the 6.7 pay flow.
+         */
+        protected function configureLegacyClient(
+            Client $client,
+            string $paymentCode,
+            SalesChannelContext $salesChannelContext
+        ): void {
+            // Default no-op
         }
 
         /**

@@ -12,6 +12,11 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class BuckarooTokenController extends AbstractPaymentController
 {
+    /**
+     * Hosted Fields SDK service for Bancontact, it cannot be combined with card issuers
+     */
+    public const BANCONTACT_SERVICE = 'BancontactMrCash';
+
     private HttpClientInterface $client;
     private LoggerInterface $logger;
     private SystemConfigService $systemConfigService;
@@ -44,7 +49,9 @@ class BuckarooTokenController extends AbstractPaymentController
 
         $clientId = $this->systemConfigService->get('BuckarooPayments.config.clientId');
         $clientSecret = $this->systemConfigService->get('BuckarooPayments.config.clientSecret');
-        $issuers = $this->systemConfigService->get('BuckarooPayments.config.allowedcreditcards');
+        $issuers = $request->query->get('paymentMethod') === 'bancontactmrcash'
+            ? [self::BANCONTACT_SERVICE]
+            : $this->systemConfigService->get('BuckarooPayments.config.allowedcreditcards');
 
         if (empty($clientId) || empty($clientSecret)) {
             return new JsonResponse([
