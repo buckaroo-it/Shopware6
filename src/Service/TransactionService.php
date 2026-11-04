@@ -6,6 +6,7 @@ namespace Buckaroo\Shopware6\Service;
 
 use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\BuckarooPayments;
+use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -174,23 +175,13 @@ class TransactionService
                 
                 // Check if class is instantiable (not abstract/interface)
                 if ($reflection->isInstantiable()) {
-                    /** @var \Buckaroo\Shopware6\PaymentMethods\AbstractPayment */
                     $paymentMethod = new $method_path();
-                    
-                    // Verify it has the expected methods before calling them
-                    if (method_exists($paymentMethod, 'canRefund')) {
+
+                    // Verify it is a payment method before calling its methods
+                    if ($paymentMethod instanceof PaymentMethodInterface) {
                         $customField['canRefund'] = $paymentMethod->canRefund() ? 1 : 0;
-                    }
-                    
-                    if (method_exists($paymentMethod, 'canCapture')) {
                         $customField['canCapture'] = $paymentMethod->canCapture() ? 1 : 0;
-                    }
-                    
-                    if (method_exists($paymentMethod, 'getBuckarooKey')) {
                         $customField['serviceName'] = $paymentMethod->getBuckarooKey();
-                    }
-                    
-                    if (method_exists($paymentMethod, 'getVersion')) {
                         $customField['version'] = $paymentMethod->getVersion();
                     }
                 } else {

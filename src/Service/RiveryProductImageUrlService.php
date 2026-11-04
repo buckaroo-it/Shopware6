@@ -65,7 +65,6 @@ class RiveryProductImageUrlService
 
         if (
             $this->legacyGenerator !== null &&
-            \is_object($this->legacyGenerator) &&
             \method_exists($this->legacyGenerator, 'getAbsoluteThumbnailUrl')
         ) {
             return $this->legacyGenerator->getAbsoluteThumbnailUrl($media, $thumbnail);
@@ -78,7 +77,7 @@ class RiveryProductImageUrlService
         $criteria = (new Criteria([$productId]))
             ->addAssociations(['cover', 'cover.thumbnails']);
 
-        /** @var \Shopware\Core\Content\Product\ProductEntity */
+        /** @var \Shopware\Core\Content\Product\ProductEntity|null */
         $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
         if ($product) {
             return $product->getCover()

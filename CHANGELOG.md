@@ -502,19 +502,26 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 # 3.8.0
 
-- BTI-1453 Moved the installer file writes to the system temp directory.
-- BTI-1455 Lifted the repository call out of the media installer loop.
-- BTI-1592 Express checkout buttons are hidden and express orders are blocked when the payment method is disabled.
-- BTI-1627 The full push body is no longer logged at info level.
-- BTI-1699 Fixed PHP 8.4 implicit nullable deprecations.
-- BTI-1837 Redesigned the Buckaroo settings: a payment method overview with a Live / Test / Off control per method, labels and help texts aligned with the Magento 2 and WooCommerce plugins, on/off settings shown as switches, and settings without effect removed (Advanced configuration, Payment success status, Consumer financial warning). The Apple Pay and Google Pay express buttons now use one page list like PayPal Express; existing settings are converted. PayPal Express, Apple Pay, Google Pay and iDEAL | Wero Fast Checkout each have an on/off switch below the payment fee that shows their button settings only when on, replacing the "None" page option; existing shops keep the buttons on the same pages. Per sales channel, the overview and the settings now show the values inherited from All Sales Channels, and "Restore inheritance" works on every field, including the payment method status in the overview. Transaction and refund descriptions default to {order_number} when they were never saved.
-- "Order status after payment" set to Done now completes a fully paid order instead of leaving it In progress; an order that is only authorized or partially paid still goes to In progress.
-- The installer no longer stores its defaults under numbered settings keys.
-- BTI-1909 Hosted Fields credentials and allowed cards, the iDEAL payment type and the Riverty legacy settings are now read for the order's sales channel.
-- BTI-1938 PayPerEmail no longer expires the same day when "Due date (in days)" is empty or 0.
-- BTI-1856 Fixed PHP 8.2 dynamic property deprecations on BuckarooStruct.
-- BTI-1857 Fixed the dal:validate crash and the iDEAL QR order definition errors.
-- BTI-1858 Fixed missing labels and debug warnings on the Buckaroo admin settings page.
-- BTI-1871 Pushes now require the push fields and are recorded atomically, and the processed push table has a DAL entity definition.
-- BTI-1936 The pay-per-email return page requires a signed Buckaroo return for the order, the iDEAL QR page shows the stored QR image for the shopper's own order only, an absolute finishUrl is no longer used as return URL, and sensitive values are kept out of logs and responses.
-- Removed the inline style from the iDEAL fast checkout button to clear the Shopware Store code review warning.
+## Added / Improved
+
+- BTI-1453 Installer file operations now use the system temp directory, for better support of clustered and read-only environments.
+- BTI-1455 Faster plugin installation and updates by loading payment method icons in a single query.
+- BTI-1627 Improved logging of push messages.
+- BTI-1837 Redesigned the plugin settings: a payment method overview with a Live / Test / Off control per method, labels and help texts in line with the Magento 2 and WooCommerce plugins, switches for on/off settings, an on/off switch for every express checkout button, and settings without effect removed. Per sales channel, the settings show and can restore the values inherited from All Sales Channels. Existing settings are converted.
+- BTI-1881 Improved processing of push messages.
+- BTI-1883 Improved handling of duplicate push messages.
+- BTI-1936 General security improvements.
+- BTI-1955 Code quality improvements.
+
+## Fixed
+
+- BTI-1592 Fixed Apple Pay, Google Pay and PayPal express checkout buttons being shown when the payment method itself is disabled.
+- BTI-1699 Fixed PHP 8.4 deprecation notices and a PHPStan error.
+- BTI-1837 Fixed "Order status after payment" set to Done leaving paid orders In progress.
+- BTI-1856 Fixed PHP 8.2+ deprecation notices on the product, cart and checkout pages.
+- BTI-1857 Fixed bin/console dal:validate failing on the Buckaroo transaction entity definition.
+- BTI-1858 Fixed the Advanced Configuration and Language fields showing no label in the plugin settings in the Administration.
+- BTI-1909 Fixed Hosted Fields, iDEAL and Riverty settings of a sales channel not being used for its orders.
+- BTI-1934 Fixed push messages not reaching Shopware in headless setups (sales channels of type API).
+- BTI-1938 Fixed PayPerEmail payment links expiring the same day when "Due date (in days)" is empty or 0.
+- BTI-1953 Fixed Klarna (MoR) capture failing.

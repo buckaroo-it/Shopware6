@@ -39,7 +39,7 @@ services:
     Buckaroo\Shopware6\Service\In3LogoService:
         arguments: ['@payment_method.repository']
     Buckaroo\Shopware6\Service\UrlService:
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Symfony\Component\Routing\Generator\UrlGeneratorInterface', '@Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2', '@sales_channel.repository']
+        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Symfony\Component\Routing\Generator\UrlGeneratorInterface', '@Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2', '@sales_channel.repository', '%env(APP_URL)%']
     Buckaroo\Shopware6\Service\StateTransitionService:
         arguments: ['@Buckaroo\Shopware6\Service\TransactionService', '@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler', '@state_machine_state.repository', '@Shopware\Core\System\StateMachine\StateMachineRegistry', '@Buckaroo\Shopware6\Helpers\Logger']
     Buckaroo\Shopware6\Service\RefundService:
@@ -297,7 +297,7 @@ services:
 
     Buckaroo\Shopware6\Storefront\Controller\PushController:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\SignatureValidationService', '@Buckaroo\Shopware6\Service\TransactionService', '@Buckaroo\Shopware6\Service\StateTransitionService', '@Buckaroo\Shopware6\Service\InvoiceService', '@Buckaroo\Shopware6\Helpers\CheckoutHelper', '@Buckaroo\Shopware6\Helpers\Logger', '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface', '@Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Service\CustomerService', '@Buckaroo\Shopware6\Service\ProcessedPushService']
+        arguments: ['@Buckaroo\Shopware6\Service\SignatureValidationService', '@Buckaroo\Shopware6\Service\TransactionService', '@Buckaroo\Shopware6\Service\StateTransitionService', '@Buckaroo\Shopware6\Service\InvoiceService', '@Buckaroo\Shopware6\Helpers\CheckoutHelper', '@Buckaroo\Shopware6\Helpers\Logger', '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface', '@Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Service\CustomerService', '@Buckaroo\Shopware6\Service\ProcessedPushService', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextService']
         calls:
             - [setContainer, ['@service_container']]
 

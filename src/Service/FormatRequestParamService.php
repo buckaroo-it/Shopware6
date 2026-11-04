@@ -51,10 +51,7 @@ class FormatRequestParamService
             $itemTax = null;
 
             /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity $item */
-            if (
-                $item->getPrice() !== null &&
-                $item->getPrice()->getCalculatedTaxes() !== null
-            ) {
+            if ($item->getPrice() !== null) {
                 $itemTax = $this->getLineItemTax($item->getPrice()->getCalculatedTaxes());
             }
 
@@ -252,11 +249,7 @@ class FormatRequestParamService
         $currencyCode = $currency !== null ? $currency->getIsoCode() : 'EUR';
 
         // Get shipping tax
-        $shippingTax = null;
-
-        if ($shipping->getCalculatedTaxes() !== null) {
-            $shippingTax = $this->getLineItemTax($shipping->getCalculatedTaxes());
-        }
+        $shippingTax = $this->getLineItemTax($shipping->getCalculatedTaxes());
 
         // Get VAT rate and amount
         $vatRate   = $shippingTax !== null ? $shippingTax->getTaxRate() : 0.0;
@@ -417,10 +410,7 @@ class FormatRequestParamService
     ): float {
         if ($paymentCode !== null) {
             $salesChannelId = $order->getSalesChannelId();
-            if (
-                $salesChannelId !== null
-                && $this->settingsService->isBuckarooFeePercentage($paymentCode, $salesChannelId)
-            ) {
+            if ($this->settingsService->isBuckarooFeePercentage($paymentCode, $salesChannelId)) {
                 $rawPercentage = $this->settingsService->getBuckarooFeeRaw($paymentCode, $salesChannelId);
                 if (!empty($rawPercentage)) {
                     $percentageValue = (float)str_replace(['%', ',', ' '], ['', '.', ''], $rawPercentage);
@@ -442,9 +432,6 @@ class FormatRequestParamService
     private function getOrderTotalExcludingFee(OrderEntity $order, float $buckarooFee): float
     {
         $orderTotal = $order->getAmountTotal();
-        if (!is_float($orderTotal) && !is_int($orderTotal)) {
-            return 0.0;
-        }
 
         $baseAmount = (float)$orderTotal - $buckarooFee;
         if ($baseAmount <= 0.0) {

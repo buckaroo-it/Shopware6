@@ -159,7 +159,8 @@ class BuckarooTransactionService
             }
         }
 
-        if (empty($items['transactions']) && !empty($orderTransactionKey) && $lastOrderTransaction !== null) {
+        // $orderTransactionKey is only set when there is a last order transaction.
+        if (empty($items['transactions']) && !empty($orderTransactionKey)) {
             $paymentMethod = $lastOrderTransaction->getPaymentMethod();
             $transactionMethod = 'payperemail';
             if ($paymentMethod !== null && $paymentMethod->getCustomFields() !== null) {

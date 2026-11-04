@@ -525,7 +525,7 @@ class RefundService
         ) {
             $amount = (float)$customRefundAmount;
         } else {
-            if (!empty($orderItems) && is_array($orderItems)) {
+            if (!empty($orderItems)) {
                 foreach ($orderItems as $orderItem) {
                     if (isset($orderItem['totalAmount'])) {
                         $amount = $amount + $orderItem['totalAmount'];

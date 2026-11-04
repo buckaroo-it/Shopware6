@@ -430,7 +430,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     private function getAfterpayBillingCoc(CustomerEntity $customer): string
     {
         $vatIds = $customer->getVatIds();
-        if (!empty($vatIds) && is_array($vatIds)) {
+        if (!empty($vatIds)) {
             $first = reset($vatIds);
             if (is_string($first) && strlen(trim($first)) > 0) {
                 return trim($first);
@@ -716,25 +716,11 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         // For AccountEditOrderPageLoadedEvent, we have an order
         if ($event instanceof AccountEditOrderPageLoadedEvent) {
-            $order = $event->getPage()->getOrder();
-            if ($order !== null) {
-                return $this->getOrderAmountExcludingExistingFee($order);
-            }
+            return $this->getOrderAmountExcludingExistingFee($event->getPage()->getOrder());
         }
-        
+
         // For CheckoutConfirmPageLoadedEvent, we have a cart
-        if ($event instanceof CheckoutConfirmPageLoadedEvent) {
-            $page = $event->getPage();
-            if (method_exists($page, 'getCart')) {
-                $cart = $page->getCart();
-                if ($cart !== null) {
-                    return $cart->getPrice()->getTotalPrice();
-                }
-            }
-        }
-        
-        // Fallback: return 0 if we can't determine the total
-        return 0.0;
+        return $event->getPage()->getCart()->getPrice()->getTotalPrice();
     }
 
     /**
@@ -844,7 +830,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             }
 
             if ($order->getDeliveries() !== null) {
-                /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
                 $shippingAddress = null;
                 $firstDelivery = $order->getDeliveries()->first();
                 if ($firstDelivery !== null) {
@@ -869,7 +854,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
                 $billingCompany = $billingAddress->getCompany();
             }
 
-            /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity */
             $shippingAddress = $customer->getDefaultShippingAddress();
             if ($shippingAddress !== null) {
                 $shippingCompany = $shippingAddress->getCompany();

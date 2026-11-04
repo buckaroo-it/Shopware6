@@ -18,6 +18,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -102,7 +103,8 @@ class PushControllerOrderStatusTest extends TestCase
             $this->createMock(IdealQrOrderRepository::class),
             $this->createMock(OrderService::class),
             $this->createMock(CustomerService::class),
-            $this->createMock(ProcessedPushService::class)
+            $this->createMock(ProcessedPushService::class),
+            $this->createMock(SalesChannelContextServiceInterface::class)
         );
 
         $method = new \ReflectionMethod($controller, 'applyOrderStatusAfterPayment');
