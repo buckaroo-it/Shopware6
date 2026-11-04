@@ -74,10 +74,10 @@
             <label lang="de-DE">Bestellstatus nach Zahlung</label>
             <label lang="nl-NL">Orderstatus na betaling</label>
 			<label lang="fr-FR">Statut de la commande après paiement</label>
-            <helpText lang="en-GB">This status will be given to paid orders.</helpText>
-            <helpText lang="de-DE">Dieser Status wird für bezahlte Bestellungen vergeben.</helpText>
-            <helpText lang="nl-NL">Deze status wordt gegeven aan betaalde orders.</helpText>
-			<helpText lang="fr-FR">Ce statut est attribué aux commandes payées.</helpText>
+            <helpText lang="en-GB">Status the order gets in Shopware once Buckaroo confirms the payment. This is the order status, not the payment status: the payment status is updated separately.</helpText>
+            <helpText lang="de-DE">Status, den die Bestellung in Shopware erhält, sobald Buckaroo die Zahlung bestätigt. Dies ist der Bestellstatus, nicht der Zahlungsstatus: Der Zahlungsstatus wird separat aktualisiert.</helpText>
+            <helpText lang="nl-NL">Status die de order in Shopware krijgt zodra Buckaroo de betaling bevestigt. Dit is de orderstatus, niet de betaalstatus: de betaalstatus wordt apart bijgewerkt.</helpText>
+			<helpText lang="fr-FR">Statut attribué à la commande dans Shopware dès que Buckaroo confirme le paiement. Il s'agit du statut de la commande, pas du statut du paiement : le statut du paiement est mis à jour séparément.</helpText>
             <defaultValue>open</defaultValue>
             <options>
                 <option>
@@ -1091,7 +1091,33 @@
             <helpText lang="fr-FR">Envoie le nom, l'adresse et le numéro de téléphone du client à PayPal, nécessaires pour la protection des vendeurs. Elle peut nécessiter une configuration supplémentaire ; contactez Buckaroo pour plus de détails.</helpText>
         </input-field>
 
-         <input-field>
+        <input-field type="text">
+            <name>paypalFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>paypalExpressEnabled</name>
+            <label lang="en-GB">Enable PayPal Express</label>
+            <label lang="nl-NL">PayPal Express inschakelen</label>
+            <label lang="de-DE">PayPal Express aktivieren</label>
+            <label lang="fr-FR">Activer PayPal Express</label>
+            <helpText lang="en-GB">Shows a PayPal Express button so customers can pay directly with PayPal. When on, enter the merchant ID and choose the pages where the button appears.</helpText>
+            <helpText lang="nl-NL">Toont een PayPal Express-knop, zodat klanten direct met PayPal kunnen betalen. Vul daarna het merchant ID in en kies de pagina's waarop de knop verschijnt.</helpText>
+            <helpText lang="de-DE">Zeigt eine PayPal Express-Schaltfläche, damit Kunden direkt mit PayPal bezahlen können. Geben Sie danach die Merchant-ID ein und wählen Sie die Seiten, auf denen die Schaltfläche erscheint.</helpText>
+            <helpText lang="fr-FR">Affiche un bouton PayPal Express pour que les clients puissent payer directement avec PayPal. Saisissez ensuite l'ID marchand et choisissez les pages où le bouton apparaît.</helpText>
+        </input-field>
+
+        <input-field>
             <name>paypalExpressmerchantid</name>
             <label lang="en-GB">PayPal Express merchant ID</label>
             <label lang="nl-NL">PayPal Express merchant ID</label>
@@ -1102,6 +1128,7 @@
             <helpText lang="de-DE">Ihre PayPal-Händler-ID, verwendet für PayPal Express, wenn PayPal auf Live steht.</helpText>
             <helpText lang="fr-FR">Votre ID marchand PayPal, utilisé pour PayPal Express lorsque PayPal est en Live.</helpText>
         </input-field>
+
         <input-field>
             <name>paypalExpressSandboxMerchantId</name>
             <label lang="en-GB">PayPal Express sandbox merchant ID</label>
@@ -1113,25 +1140,18 @@
             <helpText lang="de-DE">Ihre PayPal-Sandbox-Händler-ID, verwendet für PayPal Express, wenn PayPal auf Test steht.</helpText>
             <helpText lang="fr-FR">Votre ID marchand sandbox PayPal, utilisé pour PayPal Express lorsque PayPal est en Test.</helpText>
         </input-field>
+
         <input-field type="multi-select">
             <name>paypalExpresslocation</name>
             <label lang="en-GB">Display PayPal Express button</label>
             <label lang="nl-NL">PayPal Express-knop weergeven</label>
             <label lang="de-DE">PayPal Express-Schaltfläche anzeigen</label>
             <label lang="fr-FR">Afficher le bouton PayPal Express</label>
-            <helpText lang="en-GB">Pages where the PayPal Express button is shown, so customers can pay directly with PayPal. Requires a PayPal Express merchant ID. To hide it for a single sales channel, choose None: an empty selection uses the setting of All Sales Channels.</helpText>
-            <helpText lang="nl-NL">Pagina's waarop de PayPal Express-knop wordt getoond, zodat klanten direct met PayPal kunnen betalen. Vereist een PayPal Express merchant ID. Wil je de knop voor één verkoopkanaal verbergen, kies dan Geen: een lege selectie neemt de instelling van Alle verkoopkanalen over.</helpText>
-            <helpText lang="de-DE">Seiten, auf denen die PayPal Express-Schaltfläche angezeigt wird, damit Kunden direkt mit PayPal bezahlen können. Erfordert eine PayPal Express Merchant-ID. Um sie für einen einzelnen Verkaufskanal auszublenden, wählen Sie Keine: Eine leere Auswahl übernimmt die Einstellung von Alle Verkaufskanäle.</helpText>
-            <helpText lang="fr-FR">Pages où le bouton PayPal Express est affiché, pour que les clients puissent payer directement avec PayPal. Nécessite un ID marchand PayPal Express. Pour le masquer pour un seul canal de vente, choisissez Aucune : une sélection vide reprend le réglage de Tous les canaux de vente.</helpText>
-            <defaultValue>["none"]</defaultValue>
+            <helpText lang="en-GB">Pages where the PayPal Express button is shown. Requires a PayPal Express merchant ID.</helpText>
+            <helpText lang="nl-NL">Pagina's waarop de PayPal Express-knop wordt getoond. Vereist een PayPal Express merchant ID.</helpText>
+            <helpText lang="de-DE">Seiten, auf denen die PayPal Express-Schaltfläche angezeigt wird. Erfordert eine PayPal Express Merchant-ID.</helpText>
+            <helpText lang="fr-FR">Pages où le bouton PayPal Express est affiché. Nécessite un ID marchand PayPal Express.</helpText>
             <options>
-                <option>
-                    <id>none</id>
-                    <name lang="en-GB">None</name>
-                    <name lang="nl-NL">Geen</name>
-                    <name lang="de-DE">Keine</name>
-                    <name lang="fr-FR">Aucune</name>
-                </option>
                 <option>
                     <id>product</id>
                     <name lang="en-GB">Product page</name>
@@ -1154,19 +1174,6 @@
                     <name lang="fr-FR">Page de paiement</name>
                 </option>
             </options>
-        </input-field>
-        <input-field type="text">
-            <name>paypalFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Payment fee</label>
-            <label lang="nl-NL">Betaaltoeslag</label>
-            <label lang="de-DE">Zahlungsgebühr</label>
-			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -2120,14 +2127,14 @@
         </input-field>
         <input-field type="multi-select">
             <name>giftcardsPaymentmethods</name>
-            <label lang="en-GB">Payment methods for the remaining amount</label>
-            <label lang="de-DE">Zahlungsarten für den Restbetrag</label>
-            <label lang="nl-NL">Betaalmethoden voor het restbedrag</label>
-			<label lang="fr-FR">Moyens de paiement pour le montant restant</label>
-            <helpText lang="en-GB">Payment methods customers can use on the Buckaroo payment page to pay the rest when their gift card doesn't cover the full amount. If none are selected, iDEAL is offered.</helpText>
-            <helpText lang="nl-NL">Betaalmethoden waarmee klanten op de betaalpagina van Buckaroo het restbedrag betalen als hun cadeaukaart niet het volledige bedrag dekt. Als er geen zijn geselecteerd, wordt iDEAL aangeboden.</helpText>
-            <helpText lang="de-DE">Zahlungsarten, mit denen Kunden auf der Zahlungsseite von Buckaroo den Restbetrag zahlen, wenn ihre Geschenkkarte nicht den vollen Betrag abdeckt. Ist keine ausgewählt, wird iDEAL angeboten.</helpText>
-            <helpText lang="fr-FR">Moyens de paiement que les clients peuvent utiliser sur la page de paiement Buckaroo pour régler le reste lorsque leur carte cadeau ne couvre pas le montant total. Si aucun n'est sélectionné, iDEAL est proposé.</helpText>
+            <label lang="en-GB">Allowed payment methods for the amount not covered by the gift card</label>
+            <label lang="de-DE">Zulässige Zahlungsarten für den Betrag, den die Geschenkkarte nicht abdeckt</label>
+            <label lang="nl-NL">Toegestane betaalmethoden voor het bedrag dat de cadeaukaart niet dekt</label>
+			<label lang="fr-FR">Moyens de paiement autorisés pour le montant non couvert par la carte cadeau</label>
+            <helpText lang="en-GB">Select one or more payment methods. When a gift card doesn't cover the full order amount, the customer chooses one of them on the Buckaroo payment page to pay the rest. If none are selected, only iDEAL is offered.</helpText>
+            <helpText lang="nl-NL">Selecteer een of meer betaalmethoden. Dekt een cadeaukaart niet het volledige orderbedrag, dan kiest de klant op de betaalpagina van Buckaroo een van deze methoden om de rest te betalen. Als er geen zijn geselecteerd, wordt alleen iDEAL aangeboden.</helpText>
+            <helpText lang="de-DE">Wählen Sie eine oder mehrere Zahlungsarten aus. Deckt eine Geschenkkarte nicht den vollen Bestellbetrag ab, wählt der Kunde auf der Zahlungsseite von Buckaroo eine davon, um den Rest zu bezahlen. Ist keine ausgewählt, wird nur iDEAL angeboten.</helpText>
+            <helpText lang="fr-FR">Sélectionnez un ou plusieurs moyens de paiement. Si une carte cadeau ne couvre pas le montant total de la commande, le client en choisit un sur la page de paiement Buckaroo pour régler le reste. Si aucun n'est sélectionné, seul iDEAL est proposé.</helpText>
             <options>
                 <option>
                     <id>applepay</id>
@@ -3236,6 +3243,7 @@
             <label lang="nl-NL">Vervaldatum (in dagen)</label>
             <label lang="de-DE">Fälligkeitsdatum (in Tagen)</label>
 			<label lang="fr-FR">Date d'échéance (en jours)</label>
+            <defaultValue>7</defaultValue>
             <helpText lang="en-GB">Number of days the payment link in PayPerEmail and Paylink stays valid.</helpText>
             <helpText lang="nl-NL">Aantal dagen dat de betaallink van PayPerEmail en Paylink geldig blijft.</helpText>
             <helpText lang="de-DE">Anzahl der Tage, die der Zahlungslink von PayPerEmail und Paylink gültig bleibt.</helpText>
@@ -3244,10 +3252,10 @@
 
         <input-field type="bool">
             <name>paylinkEnabled</name>
-            <label lang="en-GB">Show Paylink button</label>
-            <label lang="nl-NL">Paylink-knop tonen</label>
-            <label lang="de-DE">Paylink-Schaltfläche anzeigen</label>
-			<label lang="fr-FR">Afficher le bouton Paylink</label>
+            <label lang="en-GB">Show Paylink button for open orders</label>
+            <label lang="nl-NL">Paylink-knop tonen bij openstaande bestellingen</label>
+            <label lang="de-DE">Paylink-Schaltfläche bei offenen Bestellungen anzeigen</label>
+			<label lang="fr-FR">Afficher le bouton Paylink pour les commandes ouvertes</label>
             <helpText lang="en-GB">Shows a Paylink button in the Buckaroo tab of open orders. It creates a payment link that you can share with the customer yourself.</helpText>
             <helpText lang="nl-NL">Toont een Paylink-knop in het Buckaroo-tabblad van openstaande bestellingen. Hiermee maak je een betaallink die je zelf met de klant kunt delen.</helpText>
             <helpText lang="de-DE">Zeigt eine Paylink-Schaltfläche im Buckaroo-Tab offener Bestellungen. Damit erstellen Sie einen Zahlungslink, den Sie selbst mit dem Kunden teilen können.</helpText>

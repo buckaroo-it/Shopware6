@@ -115,6 +115,8 @@ class PaymentMethodsInstaller implements InstallerInterface
             $this->addPaymentMethod(new $gateway(), $context->getContext());
         }
         $this->setDefaultValues();
+        // New installs only: not in config.xml or setDefaultValues(), so updates don't switch it on for existing shops
+        $this->setBuckarooPaymentSettingsValue('paypalSellerprotection', true);
         $this->copyAppleDomainAssociationFile();
     }
 

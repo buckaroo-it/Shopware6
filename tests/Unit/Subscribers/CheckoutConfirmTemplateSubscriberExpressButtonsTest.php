@@ -39,6 +39,7 @@ class CheckoutConfirmTemplateSubscriberExpressButtonsTest extends TestCase
         $this->paypalExpressCredentials->method('getMerchantId')->willReturn('paypal-merchant-id');
 
         $this->settingsService->method('getSetting')->willReturnMap([
+            ['paypalExpressEnabled', self::SALES_CHANNEL_ID, true],
             ['paypalExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
             ['applepayGuid', self::SALES_CHANNEL_ID, 'apple-merchant-id'],
             ['applepayExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
@@ -131,6 +132,33 @@ class CheckoutConfirmTemplateSubscriberExpressButtonsTest extends TestCase
 
         foreach (['product', 'cart', 'checkout'] as $page) {
             $this->assertFalse($this->callShow('showGooglePayExpress', $page), "Google Pay on $page");
+        }
+    }
+
+    /**
+     * "Enable PayPal Express" off hides the button, also when pages are selected
+     */
+    public function testPaypalExpressIsHiddenWhenSwitchIsOff(): void
+    {
+        $settingsService = $this->createMock(SettingsService::class);
+        $settingsService->method('getEnabled')->willReturn(true);
+        $settingsService->method('getSetting')->willReturnMap([
+            ['paypalExpressEnabled', self::SALES_CHANNEL_ID, false],
+            ['paypalExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
+        ]);
+        $this->subscriber = new CheckoutConfirmTemplateSubscriber(
+            $this->createMock(SalesChannelRepository::class),
+            $settingsService,
+            $this->createMock(UrlService::class),
+            $this->createMock(TranslatorInterface::class),
+            $this->createMock(PayByBankService::class),
+            $this->createMock(In3LogoService::class),
+            $this->createMock(IdealIssuerService::class),
+            $this->paypalExpressCredentials
+        );
+
+        foreach (['product', 'cart', 'checkout'] as $page) {
+            $this->assertFalse($this->callShow('showPaypalExpress', $page), "PayPal Express on $page");
         }
     }
 

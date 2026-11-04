@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
  *
  * The Google Pay express button on the checkout confirm page is driven purely by
  * configuration and template wiring, so this test pins down that contract: the
- * setting must mirror the Apple Pay and PayPal Express equivalents, must stay
+ * setting must mirror the Apple Pay equivalent, must stay
  * hidden by default (existing merchants may not get the button switched on by an
  * update) and must reach the shared express button container.
  */
@@ -52,12 +52,21 @@ class GooglePayExpressCheckoutConfigTest extends TestCase
         $this->assertContains('checkout', $this->optionIds($field));
     }
 
+    /**
+     * PayPal Express has its own "Enable PayPal Express" switch instead of "None", so only the pages match
+     */
     public function testCheckoutSettingUsesSameControlAsApplePayAndPayPal(): void
     {
         $googlePay = $this->findInputField(self::GOOGLEPAY_CHECKOUT);
         $this->assertNotNull($googlePay);
 
-        foreach ([self::APPLEPAY_CHECKOUT, self::PAYPAL_EXPRESS] as $reference) {
+        $paypal = $this->findInputField(self::PAYPAL_EXPRESS);
+        $this->assertNotNull($paypal);
+        $this->assertSame($paypal->getAttribute('type'), $googlePay->getAttribute('type'));
+        $this->assertSame(['product', 'cart', 'checkout'], $this->optionIds($paypal));
+        $this->assertSame(['none', 'product', 'cart', 'checkout'], $this->optionIds($googlePay));
+
+        foreach ([self::APPLEPAY_CHECKOUT] as $reference) {
             $field = $this->findInputField($reference);
             $this->assertNotNull($field, $reference);
 

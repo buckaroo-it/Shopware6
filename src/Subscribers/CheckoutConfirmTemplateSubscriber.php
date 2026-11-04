@@ -533,7 +533,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
     protected function showPaypalExpress(string $salesChannelId, string $page = 'product'): bool
     {
-        if (!$this->settingsService->getEnabled('paypal', $salesChannelId)) {
+        if (
+            !$this->settingsService->getEnabled('paypal', $salesChannelId) ||
+            !$this->getSettingAsBool('paypalExpressEnabled', $salesChannelId)
+        ) {
             return false;
         }
 

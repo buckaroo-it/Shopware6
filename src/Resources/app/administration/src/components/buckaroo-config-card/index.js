@@ -595,6 +595,19 @@ Component.register('buckaroo-config-card', {
             return val;
         },
 
+        /**
+         * Switch value of the selected sales channel, or the "All Sales Channels" value it inherits
+         */
+        isSwitchOn(name) {
+            const ownValue = this.getValueForName(name);
+
+            if (ownValue !== null && ownValue !== undefined) {
+                return Boolean(ownValue);
+            }
+
+            return Boolean(this.getInheritedValue({ name: `BuckarooPayments.config.${name}`, type: 'bool', config: {} }));
+        },
+
         canShow(element) {
             if (!element || !element.name) {
                 return false;
@@ -618,6 +631,11 @@ Component.register('buckaroo-config-card', {
             // Fast checkout options only matter when the fast checkout button is enabled
             if (['idealFastCheckoutVisibility', 'idealFastCheckoutLogoScheme'].includes(name)) {
                 return Boolean(this.getValueForName('idealFastCheckoutEnabled'));
+            }
+
+            // PayPal Express settings only matter when PayPal Express is enabled
+            if (['paypalExpressmerchantid', 'paypalExpressSandboxMerchantId', 'paypalExpresslocation'].includes(name)) {
+                return this.isSwitchOn('paypalExpressEnabled');
             }
 
             if (name === 'afterpayPaymentstatus') {
