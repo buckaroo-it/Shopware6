@@ -10,30 +10,73 @@ use PHPUnit\Framework\TestCase;
 
 class Migration1793232000ConvertSelectSettingsToSwitchesTest extends TestCase
 {
+    private const CHANNEL = 'sales-channel-bytes';
+
     /**
      * Existing shops keep their choice: the former select values become booleans,
      * values that are already booleans are left alone.
      */
     public function testConvertsFormerSelectValuesToBooleans(): void
     {
-        $written = $this->runMigration([
+        $result = $this->runMigration([
+            'BuckarooPayments.config.automaticallyCloseOpenOrders' => [
+                $this->row('f', 'enabled'),
+                $this->row('g', 'Disabled'),
+                $this->row('h', 'Enabled'),
+                $this->row('i', false),
+            ],
             'BuckarooPayments.config.transferSendEmail' => [
-                ['id' => 'a', 'configuration_value' => json_encode(['_value' => 1])],
-                ['id' => 'b', 'configuration_value' => json_encode(['_value' => '0'])],
-                ['id' => 'c', 'configuration_value' => json_encode(['_value' => true])],
+                $this->row('a', 1),
+                $this->row('b', '0'),
+                $this->row('c', true),
             ],
             'BuckarooPayments.config.redirectBancontact' => [
-                ['id' => 'd', 'configuration_value' => json_encode(['_value' => 'enabledRedirect'])],
-                ['id' => 'e', 'configuration_value' => json_encode(['_value' => 'disabledRedirect'])],
+                $this->row('d', 'enabledRedirect'),
+                $this->row('e', 'disabledRedirect'),
             ],
         ]);
 
-        $this->assertSame(['a' => true, 'b' => false, 'd' => true, 'e' => false], $written);
+        $this->assertSame(
+            ['f' => true, 'g' => false, 'h' => true, 'a' => true, 'b' => false, 'd' => true, 'e' => false],
+            $result['written']
+        );
+        $this->assertSame([], $result['deleted']);
     }
 
     /**
-     * @param array<string, array<int, array<string, string|false>>> $rowsPerKey
-     * @return array<string, bool> row id => written value
+     * Shopware ignored an empty value of a sales channel and used "All Sales Channels": that
+     * row is removed so the channel keeps inheriting, instead of becoming an overriding false
+     */
+    public function testEmptySalesChannelValuesKeepInheriting(): void
+    {
+        $result = $this->runMigration([
+            'BuckarooPayments.config.transferSendEmail' => [
+                $this->row('global', 1),
+                $this->row('channel-zero', '0', self::CHANNEL),
+                $this->row('channel-int-zero', 0, self::CHANNEL),
+                $this->row('channel-one', '1', self::CHANNEL),
+            ],
+        ]);
+
+        $this->assertSame(['global' => true, 'channel-one' => true], $result['written']);
+        $this->assertSame(['channel-zero', 'channel-int-zero'], $result['deleted']);
+    }
+
+    /**
+     * @return array{id: string, configuration_value: string, sales_channel_id: string|null}
+     */
+    private function row(string $id, mixed $value, ?string $salesChannelId = null): array
+    {
+        return [
+            'id' => $id,
+            'configuration_value' => (string) json_encode(['_value' => $value]),
+            'sales_channel_id' => $salesChannelId,
+        ];
+    }
+
+    /**
+     * @param array<string, array<int, array<string, string|null>>> $rowsPerKey
+     * @return array{written: array<string, bool>, deleted: array<int, string>}
      */
     private function runMigration(array $rowsPerKey): array
     {
@@ -42,16 +85,20 @@ class Migration1793232000ConvertSelectSettingsToSwitchesTest extends TestCase
             static fn (string $sql, array $params): array => $rowsPerKey[$params['key']] ?? []
         );
 
-        $written = [];
+        $result = ['written' => [], 'deleted' => []];
         $connection->method('executeStatement')->willReturnCallback(
-            static function (string $sql, array $params) use (&$written): int {
-                $written[$params['id']] = json_decode($params['value'], true)['_value'];
+            static function (string $sql, array $params) use (&$result): int {
+                if (str_starts_with($sql, 'DELETE')) {
+                    $result['deleted'][] = $params['id'];
+                } else {
+                    $result['written'][$params['id']] = json_decode($params['value'], true)['_value'];
+                }
                 return 1;
             }
         );
 
         (new Migration1793232000ConvertSelectSettingsToSwitches())->update($connection);
 
-        return $written;
+        return $result;
     }
 }

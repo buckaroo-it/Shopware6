@@ -371,18 +371,7 @@ class PaymentMethodsInstaller implements InstallerInterface
             );
         }
 
-        foreach ([
-            ['paymentSuccesStatus' => 'paid'],
-            ['orderStatus' => 'open'],
-            ['klarnaBusiness' => 'B2C'],
-            ['transferSendEmail' => 1],
-            ['transferDateDue' => 7],
-            ['payperemailEnabledfrontend' => true],
-            ['idealShowissuers' => true],
-            ['idealprocessingShowissuers' => true],
-        ] as $key => $value) {
-            $this->setBuckarooPaymentSettingsValue((string)$key, $value);
-        }
+        // Other defaults are the <defaultValue> elements in config.xml
     }
 
     /**

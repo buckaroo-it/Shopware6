@@ -20,6 +20,12 @@ $bk-off-accent: var(--color-border-primary-default, #cdced4);
 // and the selected option's border takes the status colour on top of its neighbours.
 .bk-toggle-status {
     display: inline-flex;
+    align-items: center;
+
+    // Sales channel only: the link icon in front of the options
+    &__inheritance {
+        margin-right: 8px;
+    }
 
     &__option-wrap {
         position: relative;
@@ -29,13 +35,19 @@ $bk-off-accent: var(--color-border-primary-default, #cdced4);
             margin-left: -1px;
         }
 
-        &:first-child .bk-toggle-status__option {
+        // of-type: the inheritance icon (a div) can precede the option spans
+        &:first-of-type .bk-toggle-status__option {
             border-radius: 6px 0 0 6px;
         }
 
-        &:last-child .bk-toggle-status__option {
+        &:last-of-type .bk-toggle-status__option {
             border-radius: 0 6px 6px 0;
         }
+    }
+
+    // Status from "All Sales Channels": shown, but quieter than a sales channel's own status
+    &.is--inherited .bk-toggle-status__option.is--selected {
+        opacity: 0.7;
     }
 
     &__option {

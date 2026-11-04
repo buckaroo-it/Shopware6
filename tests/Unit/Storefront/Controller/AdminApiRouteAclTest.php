@@ -69,6 +69,7 @@ class AdminApiRouteAclTest extends TestCase
     /**
      * @dataProvider routeProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('routeProvider')]
     public function testIntegrationWithoutPrivilegeIsRejected(string $routeName): void
     {
         $source = new AdminApiSource(null, 'integration-id');
@@ -85,6 +86,7 @@ class AdminApiRouteAclTest extends TestCase
     /**
      * @dataProvider routeProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('routeProvider')]
     public function testIntegrationWithPrivilegeIsAllowed(string $routeName): void
     {
         $source = new AdminApiSource(null, 'integration-id');

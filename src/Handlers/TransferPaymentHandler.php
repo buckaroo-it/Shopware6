@@ -58,8 +58,7 @@ class TransferPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
-     * "Send payment instruction email". Stored as a boolean since it became a switch;
-     * the former select stored 0/1, which is still accepted.
+     * "Send payment instruction email". Also accepts the former select value 1.
      */
     protected function canSendEmail(string $salesChannelId): bool
     {

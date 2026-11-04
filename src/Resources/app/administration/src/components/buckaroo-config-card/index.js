@@ -1,8 +1,28 @@
 import template from './buckaroo-config-card.html.twig';
 import './style.scss';
-import { SHARED_ENVIRONMENT_METHODS, isPaymentEnabled, getPaymentMode, withConfigValues } from '../../utils/payment-status';
+import {
+    SHARED_ENVIRONMENT_METHODS,
+    isPaymentEnabled,
+    isSwitchValueOn,
+    getPaymentMode,
+    overridesInheritedValue,
+    withConfigValues
+} from '../../utils/payment-status';
 
 const { Component } = Shopware;
+
+// Fields that only matter when a switch is on: field => switch (both without the config prefix)
+const SWITCH_DEPENDENT_FIELDS = {
+    idealFastCheckoutVisibility: 'idealFastCheckoutEnabled',
+    idealFastCheckoutLogoScheme: 'idealFastCheckoutEnabled',
+    paypalExpressmerchantid: 'paypalExpressEnabled',
+    paypalExpressSandboxMerchantId: 'paypalExpressEnabled',
+    paypalExpresslocation: 'paypalExpressEnabled',
+    applepayExpresslocation: 'applepayExpressEnabled',
+    googlepayExpresslocation: 'googlepayExpressEnabled',
+    afterpayPaymentstatus: 'afterpayCaptureonshippent',
+    afterpayOldtax: 'afterpayEnabledold',
+};
 
 Component.register('buckaroo-config-card', {
     template,
@@ -119,14 +139,14 @@ Component.register('buckaroo-config-card', {
             }
 
             const ownEnabled = this.getValueForName(`${code}Enabled`);
-            if (this.isNotDefaultSalesChannel && (ownEnabled === null || ownEnabled === undefined)) {
+            if (this.isNotDefaultSalesChannel && !overridesInheritedValue(ownEnabled)) {
                 return null;
             }
 
             const merged = { ...this.statusInheritedValues };
             this.statusFieldNames.forEach((name) => {
                 const ownValue = this.getValueForName(name);
-                if (ownValue !== null && ownValue !== undefined && ownValue !== '') {
+                if (overridesInheritedValue(ownValue)) {
                     merged[`BuckarooPayments.config.${name}`] = ownValue;
                 }
             });
@@ -601,11 +621,11 @@ Component.register('buckaroo-config-card', {
         isSwitchOn(name) {
             const ownValue = this.getValueForName(name);
 
-            if (ownValue !== null && ownValue !== undefined) {
-                return Boolean(ownValue);
+            if (!this.isNotDefaultSalesChannel || overridesInheritedValue(ownValue)) {
+                return isSwitchValueOn(ownValue);
             }
 
-            return Boolean(this.getInheritedValue({ name: `BuckarooPayments.config.${name}`, type: 'bool', config: {} }));
+            return isSwitchValueOn(this.getInheritedValue({ name: `BuckarooPayments.config.${name}`, type: 'bool', config: {} }));
         },
 
         canShow(element) {
@@ -620,30 +640,8 @@ Component.register('buckaroo-config-card', {
                 return false;
             }
 
-            if (name === 'idealprocessingRenderMode') {
-                return Boolean(this.getValueForName('idealprocessingShowissuers'));
-            }
-
-            if (name === 'idealRenderMode') {
-                return Boolean(this.getValueForName('idealShowissuers'));
-            }
-
-            // Fast checkout options only matter when the fast checkout button is enabled
-            if (['idealFastCheckoutVisibility', 'idealFastCheckoutLogoScheme'].includes(name)) {
-                return Boolean(this.getValueForName('idealFastCheckoutEnabled'));
-            }
-
-            // PayPal Express settings only matter when PayPal Express is enabled
-            if (['paypalExpressmerchantid', 'paypalExpressSandboxMerchantId', 'paypalExpresslocation'].includes(name)) {
-                return this.isSwitchOn('paypalExpressEnabled');
-            }
-
-            if (name === 'afterpayPaymentstatus') {
-                return Boolean(this.getValueForName('afterpayCaptureonshippent'));
-            }
-
-            if (name === 'afterpayOldtax') {
-                return Boolean(this.getValueForName('afterpayEnabledold'));
+            if (SWITCH_DEPENDENT_FIELDS[name]) {
+                return this.isSwitchOn(SWITCH_DEPENDENT_FIELDS[name]);
             }
 
             return true;
@@ -652,6 +650,22 @@ Component.register('buckaroo-config-card', {
         onInput(value) {
             this.$emit('input', value);
         },
+
+        /**
+         * Every change of a field arrives here once, through its inherit wrapper, which emits
+         * "update:value" (6.6+) or "input" (6.5). Null means "Restore inheritance": store null so
+         * the sales channel uses "All Sales Channels" again, instead of the empty value
+         * onFieldInput would make of it.
+         */
+        onInheritWrapperChange(fieldName, value) {
+            if (value !== null) {
+                this.onFieldInput(fieldName, value);
+                return;
+            }
+
+            this.$emit('input', withConfigValues(this.value, { [fieldName]: null }));
+        },
+
         onFieldInput(fieldName, eventOrValue) {
 
             try {

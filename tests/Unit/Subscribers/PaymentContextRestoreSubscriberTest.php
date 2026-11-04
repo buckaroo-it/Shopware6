@@ -29,6 +29,7 @@ class PaymentContextRestoreSubscriberTest extends TestCase
     /**
      * @dataProvider restoreRouteProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('restoreRouteProvider')]
     public function testItRestoresTheTokenFromTheCookieOnPaymentReturnRoutes(string $route): void
     {
         $request = $this->createRequest($route, self::TOKEN);

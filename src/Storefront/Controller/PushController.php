@@ -8,6 +8,7 @@ use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderEntity;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
@@ -517,13 +518,12 @@ class PushController extends StorefrontController
                     $data
                 );
 
-                $orderStatus = $this->checkoutHelper->getSettingsValue('orderStatus', $salesChannelId);
-                if (is_string($orderStatus)) {
-                    if ($orderStatus === 'complete') {
-                        $orderStatus = 'process';
-                    }
-                    $this->stateTransitionService->changeOrderStatus($order, $context, $orderStatus);
-                }
+                $this->applyOrderStatusAfterPayment(
+                    $order,
+                    $context,
+                    $salesChannelId,
+                    $paymentState === $paymentSuccesStatus
+                );
 
                 $this->logger->info(__METHOD__ . "|50.1|");
                 if (
@@ -710,14 +710,50 @@ class PushController extends StorefrontController
     }
     
     /**
-     * "Cancel order when payment fails". Stored as a boolean since it became a switch;
-     * the former select stored "enabled"/"disabled", which is still accepted.
+     * "Cancel order when payment fails". Also accepts the former select value "enabled".
      */
     private function isCancelOrderOnFailedPaymentEnabled(string $salesChannelId): bool
     {
         $value = $this->checkoutHelper->getSettingsValue('automaticallyCloseOpenOrders', $salesChannelId);
 
         return in_array($value, [true, 1, '1', 'true', 'enabled'], true);
+    }
+
+    /**
+     * "Order status after payment": open (leave as is), process (In progress) or complete (Done).
+     * Shopware only allows In progress from Open and Done from In progress, so an open order is
+     * moved through In progress, and an order that is already further along is left alone.
+     * An order that is only authorized or partially paid goes no further than In progress.
+     */
+    private function applyOrderStatusAfterPayment(
+        OrderEntity $order,
+        Context $context,
+        string $salesChannelId,
+        bool $isFullyPaid
+    ): void {
+        $orderStatus = $this->checkoutHelper->getSettingsValue('orderStatus', $salesChannelId);
+        $currentState = $order->getStateMachineState()?->getTechnicalName();
+
+        if ($orderStatus === 'complete' && !$isFullyPaid) {
+            $orderStatus = 'process';
+        }
+
+        // Transitions per current order state that lead to the selected status
+        $transitions = [
+            'process'  => [OrderStates::STATE_OPEN => ['process']],
+            'complete' => [
+                OrderStates::STATE_OPEN        => ['process', 'complete'],
+                OrderStates::STATE_IN_PROGRESS => ['complete'],
+            ],
+        ];
+
+        if (!is_string($orderStatus) || !is_string($currentState)) {
+            return;
+        }
+
+        foreach ($transitions[$orderStatus][$currentState] ?? [] as $transition) {
+            $this->stateTransitionService->changeOrderStatus($order, $context, $transition);
+        }
     }
 
     private function response(

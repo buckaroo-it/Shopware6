@@ -574,12 +574,26 @@
 
 
 
+        <input-field type="text">
+            <name>idealFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
+        </input-field>
+
         <input-field type="bool">
             <name>idealFastCheckoutEnabled</name>
-            <label lang="en-GB">iDEAL | Wero Fast Checkout</label>
-            <label lang="nl-NL">iDEAL | Wero Fast Checkout</label>
-            <label lang="de-DE">iDEAL | Wero Fast Checkout</label>
-            <label lang="fr-FR">iDEAL | Wero Fast Checkout</label>
+            <label lang="en-GB">Enable iDEAL | Wero Fast Checkout</label>
+            <label lang="nl-NL">iDEAL | Wero Fast Checkout inschakelen</label>
+            <label lang="de-DE">iDEAL | Wero Fast Checkout aktivieren</label>
+            <label lang="fr-FR">Activer iDEAL | Wero Fast Checkout</label>
             <helpText lang="en-GB">Shows an iDEAL | Wero Fast Checkout button, so customers can pay without going through the regular checkout. Choose the pages under Fast Checkout button location.</helpText>
             <helpText lang="nl-NL">Toont een iDEAL | Wero Fast Checkout-knop, zodat klanten kunnen betalen zonder de gewone checkout te doorlopen. Kies de pagina's bij Locatie Fast Checkout-knop.</helpText>
             <helpText lang="de-DE">Zeigt eine iDEAL | Wero Fast-Checkout-Schaltfläche, damit Kunden ohne den regulären Checkout bezahlen können. Wählen Sie die Seiten unter Position der Fast-Checkout-Schaltfläche.</helpText>
@@ -592,19 +606,11 @@
             <label lang="nl-NL">Locatie Fast Checkout-knop</label>
             <label lang="de-DE">Position der Fast-Checkout-Schaltfläche</label>
             <label lang="fr-FR">Emplacement du bouton Fast Checkout</label>
-            <helpText lang="en-GB">Pages where the fast checkout button is shown: the product page, the cart, or both. To hide it for a single sales channel, choose None: an empty selection uses the setting of All Sales Channels.</helpText>
-            <helpText lang="nl-NL">Pagina's waarop de knop voor snel afrekenen wordt getoond: de productpagina, de winkelwagen of beide. Wil je de knop voor één verkoopkanaal verbergen, kies dan Geen: een lege selectie neemt de instelling van Alle verkoopkanalen over.</helpText>
-            <helpText lang="de-DE">Seiten, auf denen die Fast-Checkout-Schaltfläche angezeigt wird: die Produktseite, der Warenkorb oder beide. Um sie für einen einzelnen Verkaufskanal auszublenden, wählen Sie Keine: Eine leere Auswahl übernimmt die Einstellung von Alle Verkaufskanäle.</helpText>
-            <helpText lang="fr-FR">Pages où le bouton de paiement rapide est affiché : la page produit, le panier ou les deux. Pour le masquer pour un seul canal de vente, choisissez Aucune : une sélection vide reprend le réglage de Tous les canaux de vente.</helpText>
-            <defaultValue>["none"]</defaultValue>
+            <helpText lang="en-GB">Pages where the fast checkout button is shown: the product page, the cart, or both.</helpText>
+            <helpText lang="nl-NL">Pagina's waarop de knop voor snel afrekenen wordt getoond: de productpagina, de winkelwagen of beide.</helpText>
+            <helpText lang="de-DE">Seiten, auf denen die Fast-Checkout-Schaltfläche angezeigt wird: die Produktseite, der Warenkorb oder beide.</helpText>
+            <helpText lang="fr-FR">Pages où le bouton de paiement rapide est affiché : la page produit, le panier ou les deux.</helpText>
             <options>
-                <option>
-                    <id>none</id>
-                    <name lang="en-GB">None</name>
-                    <name lang="nl-NL">Geen</name>
-                    <name lang="de-DE">Keine</name>
-                    <name lang="fr-FR">Aucune</name>
-                </option>
                 <option>
                     <id>product</id>
                     <name lang="en-GB">Product page</name>
@@ -649,19 +655,6 @@
                     <name lang="fr-FR">Foncé - bouton entièrement magenta</name>
                 </option>
             </options>
-        </input-field>
-        <input-field type="text">
-            <name>idealFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <label lang="en-GB">Payment fee</label>
-            <label lang="nl-NL">Betaaltoeslag</label>
-            <label lang="de-DE">Zahlungsgebühr</label>
-			<label lang="fr-FR">Frais de paiement</label>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
         </input-field>
     </card>
 
@@ -1496,25 +1489,43 @@
 
     
 
+        <input-field type="text">
+            <name>applepayFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+			<label lang="fr-FR">Frais de paiement</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>applepayExpressEnabled</name>
+            <label lang="en-GB">Enable Apple Pay express button</label>
+            <label lang="nl-NL">Apple Pay-expressknop inschakelen</label>
+            <label lang="de-DE">Apple Pay-Express-Schaltfläche aktivieren</label>
+            <label lang="fr-FR">Activer le bouton express Apple Pay</label>
+            <helpText lang="en-GB">Shows an Apple Pay express button so customers can pay without going through checkout. When on, choose the pages where the button appears.</helpText>
+            <helpText lang="nl-NL">Toont een Apple Pay-expressknop, zodat klanten kunnen betalen zonder de checkout te doorlopen. Kies daarna de pagina's waarop de knop verschijnt.</helpText>
+            <helpText lang="de-DE">Zeigt eine Apple Pay-Express-Schaltfläche, damit Kunden ohne Checkout bezahlen können. Wählen Sie danach die Seiten, auf denen die Schaltfläche erscheint.</helpText>
+            <helpText lang="fr-FR">Affiche un bouton express Apple Pay pour que les clients puissent payer sans passer par le paiement. Choisissez ensuite les pages où le bouton apparaît.</helpText>
+        </input-field>
+
         <input-field type="multi-select">
             <name>applepayExpresslocation</name>
             <label lang="en-GB">Display Apple Pay button</label>
             <label lang="nl-NL">Apple Pay-knop weergeven</label>
             <label lang="de-DE">Apple Pay-Schaltfläche anzeigen</label>
             <label lang="fr-FR">Afficher le bouton Apple Pay</label>
-            <helpText lang="en-GB">Pages where the Apple Pay express button is shown, so customers can pay without going through checkout. Requires the GUID. To hide it for a single sales channel, choose None: an empty selection uses the setting of All Sales Channels.</helpText>
-            <helpText lang="nl-NL">Pagina's waarop de Apple Pay-expressknop wordt getoond, zodat klanten kunnen betalen zonder de checkout te doorlopen. Vereist de GUID. Wil je de knop voor één verkoopkanaal verbergen, kies dan Geen: een lege selectie neemt de instelling van Alle verkoopkanalen over.</helpText>
-            <helpText lang="de-DE">Seiten, auf denen die Apple Pay-Express-Schaltfläche angezeigt wird, damit Kunden ohne Checkout bezahlen können. Erfordert die GUID. Um sie für einen einzelnen Verkaufskanal auszublenden, wählen Sie Keine: Eine leere Auswahl übernimmt die Einstellung von Alle Verkaufskanäle.</helpText>
-            <helpText lang="fr-FR">Pages où le bouton express Apple Pay est affiché, pour que les clients puissent payer sans passer par le paiement. Nécessite le GUID. Pour le masquer pour un seul canal de vente, choisissez Aucune : une sélection vide reprend le réglage de Tous les canaux de vente.</helpText>
-            <defaultValue>["none"]</defaultValue>
+            <helpText lang="en-GB">Pages where the Apple Pay express button is shown, so customers can pay without going through checkout. Requires the GUID.</helpText>
+            <helpText lang="nl-NL">Pagina's waarop de Apple Pay-expressknop wordt getoond, zodat klanten kunnen betalen zonder de checkout te doorlopen. Vereist de GUID.</helpText>
+            <helpText lang="de-DE">Seiten, auf denen die Apple Pay-Express-Schaltfläche angezeigt wird, damit Kunden ohne Checkout bezahlen können. Erfordert die GUID.</helpText>
+            <helpText lang="fr-FR">Pages où le bouton express Apple Pay est affiché, pour que les clients puissent payer sans passer par le paiement. Nécessite le GUID.</helpText>
             <options>
-                <option>
-                    <id>none</id>
-                    <name lang="en-GB">None</name>
-                    <name lang="nl-NL">Geen</name>
-                    <name lang="de-DE">Keine</name>
-                    <name lang="fr-FR">Aucune</name>
-                </option>
                 <option>
                     <id>product</id>
                     <name lang="en-GB">Product page</name>
@@ -1537,19 +1548,6 @@
                     <name lang="fr-FR">Page de paiement</name>
                 </option>
             </options>
-        </input-field>
-        <input-field type="text">
-            <name>applepayFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Payment fee</label>
-            <label lang="nl-NL">Betaaltoeslag</label>
-            <label lang="de-DE">Zahlungsgebühr</label>
-			<label lang="fr-FR">Frais de paiement</label>
         </input-field>
     </card>
 
@@ -1657,25 +1655,43 @@
             </options>
         </input-field>
 
+        <input-field type="text">
+            <name>googlepayFee</name>
+            <copyable>true</copyable>
+            <placeholder>0.00</placeholder>
+            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
+            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
+            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
+            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
+            <label lang="en-GB">Payment fee</label>
+            <label lang="nl-NL">Betaaltoeslag</label>
+            <label lang="de-DE">Zahlungsgebühr</label>
+            <label lang="fr-FR">Frais de paiement</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>googlepayExpressEnabled</name>
+            <label lang="en-GB">Enable Google Pay express button</label>
+            <label lang="nl-NL">Google Pay-expressknop inschakelen</label>
+            <label lang="de-DE">Google Pay-Express-Schaltfläche aktivieren</label>
+            <label lang="fr-FR">Activer le bouton express Google Pay</label>
+            <helpText lang="en-GB">Shows a Google Pay express button so customers can pay without going through checkout. When on, choose the pages where the button appears.</helpText>
+            <helpText lang="nl-NL">Toont een Google Pay-expressknop, zodat klanten kunnen betalen zonder de checkout te doorlopen. Kies daarna de pagina's waarop de knop verschijnt.</helpText>
+            <helpText lang="de-DE">Zeigt eine Google Pay-Express-Schaltfläche, damit Kunden ohne Checkout bezahlen können. Wählen Sie danach die Seiten, auf denen die Schaltfläche erscheint.</helpText>
+            <helpText lang="fr-FR">Affiche un bouton express Google Pay pour que les clients puissent payer sans passer par le paiement. Choisissez ensuite les pages où le bouton apparaît.</helpText>
+        </input-field>
+
         <input-field type="multi-select">
             <name>googlepayExpresslocation</name>
             <label lang="en-GB">Display Google Pay button</label>
             <label lang="nl-NL">Google Pay-knop weergeven</label>
             <label lang="de-DE">Google Pay-Schaltfläche anzeigen</label>
             <label lang="fr-FR">Afficher le bouton Google Pay</label>
-            <helpText lang="en-GB">Pages where the Google Pay express button is shown, so customers can pay without going through checkout. To hide it for a single sales channel, choose None: an empty selection uses the setting of All Sales Channels.</helpText>
-            <helpText lang="nl-NL">Pagina's waarop de Google Pay-expressknop wordt getoond, zodat klanten kunnen betalen zonder de checkout te doorlopen. Wil je de knop voor één verkoopkanaal verbergen, kies dan Geen: een lege selectie neemt de instelling van Alle verkoopkanalen over.</helpText>
-            <helpText lang="de-DE">Seiten, auf denen die Google Pay-Express-Schaltfläche angezeigt wird, damit Kunden ohne Checkout bezahlen können. Um sie für einen einzelnen Verkaufskanal auszublenden, wählen Sie Keine: Eine leere Auswahl übernimmt die Einstellung von Alle Verkaufskanäle.</helpText>
-            <helpText lang="fr-FR">Pages où le bouton express Google Pay est affiché, pour que les clients puissent payer sans passer par le paiement. Pour le masquer pour un seul canal de vente, choisissez Aucune : une sélection vide reprend le réglage de Tous les canaux de vente.</helpText>
-            <defaultValue>["none"]</defaultValue>
+            <helpText lang="en-GB">Pages where the Google Pay express button is shown, so customers can pay without going through checkout.</helpText>
+            <helpText lang="nl-NL">Pagina's waarop de Google Pay-expressknop wordt getoond, zodat klanten kunnen betalen zonder de checkout te doorlopen.</helpText>
+            <helpText lang="de-DE">Seiten, auf denen die Google Pay-Express-Schaltfläche angezeigt wird, damit Kunden ohne Checkout bezahlen können.</helpText>
+            <helpText lang="fr-FR">Pages où le bouton express Google Pay est affiché, pour que les clients puissent payer sans passer par le paiement.</helpText>
             <options>
-                <option>
-                    <id>none</id>
-                    <name lang="en-GB">None</name>
-                    <name lang="nl-NL">Geen</name>
-                    <name lang="de-DE">Keine</name>
-                    <name lang="fr-FR">Aucune</name>
-                </option>
                 <option>
                     <id>product</id>
                     <name lang="en-GB">Product page</name>
@@ -1699,24 +1715,11 @@
                 </option>
             </options>
         </input-field>
-        <input-field type="text">
-            <name>googlepayFee</name>
-            <copyable>true</copyable>
-            <placeholder>0.00</placeholder>
-            <helpText lang="en-GB">Extra fee customers pay for this payment method. Enter a fixed amount (e.g. 2.50) or a percentage of the order total (e.g. 3%). Leave empty for no fee. The fee is shown at checkout and on the invoice.</helpText>
-            <helpText lang="nl-NL">Extra kosten die klanten betalen voor deze betaalmethode. Vul een vast bedrag in (bijv. 2,50) of een percentage van het orderbedrag (bijv. 3%). Laat leeg voor geen toeslag. De toeslag wordt getoond bij het afrekenen en op de factuur.</helpText>
-            <helpText lang="de-DE">Zusätzliche Gebühr, die Kunden für diese Zahlungsart zahlen. Geben Sie einen festen Betrag (z. B. 2,50) oder einen Prozentsatz des Bestellwerts (z. B. 3 %) ein. Leer lassen für keine Gebühr. Die Gebühr wird im Checkout und auf der Rechnung angezeigt.</helpText>
-            <helpText lang="fr-FR">Frais supplémentaires payés par le client pour ce moyen de paiement. Saisissez un montant fixe (par ex. 2,50) ou un pourcentage du montant de la commande (par ex. 3 %). Laissez vide pour aucun frais. Les frais sont affichés lors du paiement et sur la facture.</helpText>
-            <label lang="en-GB">Payment fee</label>
-            <label lang="nl-NL">Betaaltoeslag</label>
-            <label lang="de-DE">Zahlungsgebühr</label>
-            <label lang="fr-FR">Frais de paiement</label>
-        </input-field>
     </card>
 
     <card>
         <title>Gift cards</title>
-        <title lang="nl-NL">Cadeaubonnen</title>
+        <title lang="nl-NL">Cadeaukaarten</title>
         <title lang="de-DE">Geschenkkarten</title>
 		<title lang="fr-FR">Cartes cadeaux</title>
         <name>giftcards</name>
@@ -1763,9 +1766,9 @@
         <input-field type="multi-select">
             <name>allowedgiftcards</name>
             <label lang="en-GB">Allowed gift cards</label>
-            <label lang="nl-NL">Toegestane cadeaubonnen</label>
+            <label lang="nl-NL">Toegestane cadeaukaarten</label>
             <label lang="de-DE">Zulässige Geschenkkarten</label>
-			<label lang="fr-FR">Cartes-cadeaux autorisées</label>
+			<label lang="fr-FR">Cartes cadeaux autorisées</label>
             <helpText lang="en-GB">Gift cards customers can pay with on the Buckaroo payment page. Select at least one: without a selection, no gift cards are offered.</helpText>
             <helpText lang="nl-NL">Cadeaukaarten waarmee klanten kunnen betalen op de betaalpagina van Buckaroo. Selecteer er minstens één: zonder selectie worden er geen cadeaukaarten aangeboden.</helpText>
             <helpText lang="de-DE">Geschenkkarten, mit denen Kunden auf der Zahlungsseite von Buckaroo bezahlen können. Wählen Sie mindestens eine aus: Ohne Auswahl werden keine Geschenkkarten angeboten.</helpText>

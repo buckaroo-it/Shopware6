@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
  *
  * The Google Pay express button on the checkout confirm page is driven purely by
  * configuration and template wiring, so this test pins down that contract: the
- * setting must mirror the Apple Pay equivalent, must stay
+ * setting must mirror the Apple Pay and PayPal Express equivalents, must stay
  * hidden by default (existing merchants may not get the button switched on by an
  * update) and must reach the shared express button container.
  */
@@ -23,6 +23,7 @@ class GooglePayExpressCheckoutConfigTest extends TestCase
     private const GOOGLEPAY_CHECKOUT = 'googlepayExpresslocation';
     private const APPLEPAY_CHECKOUT = 'applepayExpresslocation';
     private const PAYPAL_EXPRESS = 'paypalExpresslocation';
+    private const GOOGLEPAY_SWITCH = 'googlepayExpressEnabled';
 
     private DOMXPath $xpath;
 
@@ -42,31 +43,32 @@ class GooglePayExpressCheckoutConfigTest extends TestCase
         );
     }
 
+    /**
+     * The button is off unless "Enable Google Pay express button" is switched on, so the
+     * page list has no default: an update may not switch the button on for existing merchants
+     */
     public function testCheckoutSettingIsDisabledByDefault(): void
     {
         $field = $this->findInputField(self::GOOGLEPAY_CHECKOUT);
+        $switch = $this->findInputField(self::GOOGLEPAY_SWITCH);
 
         $this->assertNotNull($field);
         $this->assertSame('multi-select', $field->getAttribute('type'), 'The setting is a list of pages');
-        $this->assertSame('["none"]', $this->childValue($field, 'defaultValue'));
+        $this->assertNull($this->childValue($field, 'defaultValue'));
         $this->assertContains('checkout', $this->optionIds($field));
+
+        $this->assertNotNull($switch, 'Expected a ' . self::GOOGLEPAY_SWITCH . ' input field in config.xml');
+        $this->assertSame('bool', $switch->getAttribute('type'));
+        $this->assertNull($this->childValue($switch, 'defaultValue'));
     }
 
-    /**
-     * PayPal Express has its own "Enable PayPal Express" switch instead of "None", so only the pages match
-     */
     public function testCheckoutSettingUsesSameControlAsApplePayAndPayPal(): void
     {
         $googlePay = $this->findInputField(self::GOOGLEPAY_CHECKOUT);
         $this->assertNotNull($googlePay);
+        $this->assertSame(['product', 'cart', 'checkout'], $this->optionIds($googlePay));
 
-        $paypal = $this->findInputField(self::PAYPAL_EXPRESS);
-        $this->assertNotNull($paypal);
-        $this->assertSame($paypal->getAttribute('type'), $googlePay->getAttribute('type'));
-        $this->assertSame(['product', 'cart', 'checkout'], $this->optionIds($paypal));
-        $this->assertSame(['none', 'product', 'cart', 'checkout'], $this->optionIds($googlePay));
-
-        foreach ([self::APPLEPAY_CHECKOUT] as $reference) {
+        foreach ([self::APPLEPAY_CHECKOUT, self::PAYPAL_EXPRESS] as $reference) {
             $field = $this->findInputField($reference);
             $this->assertNotNull($field, $reference);
 
@@ -99,20 +101,19 @@ class GooglePayExpressCheckoutConfigTest extends TestCase
     }
 
     /**
-     * The Apple Pay checkout setting is the reference implementation — the
-     * Google Pay one is expected to sit in the same place in its own card:
-     * last, only followed by the payment fee that closes every card.
+     * Every express button sits in the same place in its card, like PayPal Express:
+     * after the payment fee, its switch followed by the pages it is shown on.
      */
-    public function testCheckoutSettingIsLastFieldOfGooglePayCard(): void
+    public function testExpressSettingsFollowThePaymentFee(): void
     {
-        $this->assertSame(
-            [self::GOOGLEPAY_CHECKOUT, 'googlepayFee'],
-            array_slice($this->inputFieldNamesOfCard('googlepay'), -2)
-        );
-        $this->assertSame(
-            [self::APPLEPAY_CHECKOUT, 'applepayFee'],
-            array_slice($this->inputFieldNamesOfCard('applepay'), -2)
-        );
+        foreach (['googlepay', 'applepay', 'paypal'] as $method) {
+            $names = $this->inputFieldNamesOfCard($method);
+            $feeIndex = array_search("{$method}Fee", $names, true);
+
+            $this->assertIsInt($feeIndex, "$method has a payment fee");
+            $this->assertSame("{$method}ExpressEnabled", $names[$feeIndex + 1] ?? null, "$method: switch follows the fee");
+            $this->assertSame("{$method}Expresslocation", end($names), "$method: pages close the card");
+        }
     }
 
     /**

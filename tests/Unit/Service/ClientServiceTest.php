@@ -39,6 +39,7 @@ class ClientServiceTest extends TestCase
     /**
      * @dataProvider notTestEnvironments
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('notTestEnvironments')]
     public function testMissingEmptyOrUnknownEnvironmentDoesNotGiveTestMode(mixed $environment): void
     {
         $client = $this->clientFor('ideal', ['idealEnvironment' => $environment]);

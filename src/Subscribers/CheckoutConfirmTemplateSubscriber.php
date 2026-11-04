@@ -344,8 +344,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * "Client-side encryption" for Bancontact. Stored as a boolean since it became a switch;
-     * the former select stored "enabledRedirect"/"disabledRedirect", which is still accepted.
+     * "Client-side encryption" for Bancontact. Also accepts the former select value "enabledRedirect".
      */
     private function isBancontactClientSideEncryptionEnabled(string $salesChannelId): bool
     {
@@ -581,12 +580,15 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
     /**
      * Whether the Apple Pay express button may be rendered on a given storefront
-     * location. Requires the Apple Pay payment method to be enabled, a configured
-     * merchant id (guid) and the page to be selected in "Display Apple Pay button".
+     * location. Requires the Apple Pay payment method and its express button to be enabled,
+     * a configured merchant id (guid) and the page to be selected in "Display Apple Pay button".
      */
     protected function showApplePayExpress(string $salesChannelId, string $page = 'product'): bool
     {
-        if (!$this->settingsService->getEnabled('applepay', $salesChannelId)) {
+        if (
+            !$this->settingsService->getEnabled('applepay', $salesChannelId) ||
+            !$this->getSettingAsBool('applepayExpressEnabled', $salesChannelId)
+        ) {
             return false;
         }
 
@@ -601,12 +603,15 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
     /**
      * Whether the Google Pay express button may be rendered on a given storefront
-     * location. Requires the Google Pay payment method to be enabled and the page
-     * to be selected in "Display Google Pay button".
+     * location. Requires the Google Pay payment method and its express button to be
+     * enabled and the page to be selected in "Display Google Pay button".
      */
     protected function showGooglePayExpress(string $salesChannelId, string $page = 'product'): bool
     {
-        if (!$this->settingsService->getEnabled('googlepay', $salesChannelId)) {
+        if (
+            !$this->settingsService->getEnabled('googlepay', $salesChannelId) ||
+            !$this->getSettingAsBool('googlepayExpressEnabled', $salesChannelId)
+        ) {
             return false;
         }
 

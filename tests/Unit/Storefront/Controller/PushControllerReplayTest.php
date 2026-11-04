@@ -141,6 +141,7 @@ class PushControllerReplayTest extends TestCase
      *
      * @param array<int, string> $missingFields
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('unidentifiablePushProvider')]
     public function testPushWithoutTransactionKeyOrStatusIsRejected(array $missingFields): void
     {
         $postData = $this->pushData();

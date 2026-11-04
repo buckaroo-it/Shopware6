@@ -1,8 +1,18 @@
 <div
     class="bk-toggle-status"
+    :class="{ 'is--inherited': isInherited }"
     role="group"
     :aria-label="$t('buckaroo-payment.paymentList.toggleLabel', { name: label })"
 >
+    <sw-inheritance-switch
+        v-if="canInherit"
+        class="bk-toggle-status__inheritance"
+        :is-inherited="isInherited"
+        :disabled="isLoading"
+        @inheritance-restore="restoreInheritance"
+        @inheritance-remove="removeInheritance"
+    />
+
     <span
         v-for="option in options"
         :key="option"

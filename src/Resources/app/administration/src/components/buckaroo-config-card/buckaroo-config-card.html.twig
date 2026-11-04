@@ -35,7 +35,8 @@
                             :has-parent="isNotDefaultSalesChannel"
                             :inherited-value="getInheritedValue(element)"
                             :class="'sw-system-config--field-' + kebabCase(getElementBind(element).name)"
-                            @input="onFieldInput(element.name, $event)"
+                            @input="onInheritWrapperChange(element.name, $event)"
+                            @update:value="onInheritWrapperChange(element.name, $event)"
                     >
                         <template #content="props">
                             {# Special handling for fields that must be true multi-selects #}
@@ -59,8 +60,8 @@
                                     labelProperty="label"
                                     valueProperty="value"
                                     :error="getFieldError(element.name)"
-                                    @change="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
-                                    @update:value="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
+                                    @change="props.updateCurrentValue"
+                                    @update:value="props.updateCurrentValue"
                                 />
                             </template>
                             <template v-else>
@@ -70,9 +71,9 @@
                                         :disabled="props.isInherited"
                                         :value="element.type === 'bool' ? Boolean(props.currentValue) : props.currentValue"
                                         :error="getFieldError(element.name)"
-                                        @input="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
-                                        @change="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
-                                        @update:value="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
+                                        @input="props.updateCurrentValue"
+                                        @change="props.updateCurrentValue"
+                                        @update:value="props.updateCurrentValue"
                                 />
                             </template>
                         </template>

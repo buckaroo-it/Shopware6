@@ -1,7 +1,7 @@
 const { Component, Filter } = Shopware;
 import template from "./buckaroo-payment-list.html.twig";
 import "./style.scss";
-import { isPaymentEnabled, SHARED_ENVIRONMENT_METHODS } from '../../utils/payment-status';
+import { isPaymentEnabled, withInheritedValues, SHARED_ENVIRONMENT_METHODS } from '../../utils/payment-status';
 
 Component.register("buckaroo-payment-list", {
     template,
@@ -15,6 +15,12 @@ Component.register("buckaroo-payment-list", {
             type: Object,
             required: false,
             default: () => ({})
+        },
+        // "All Sales Channels" values when a sales channel is selected, else null
+        inheritedValue: {
+            type: Object,
+            required: false,
+            default: null
         },
         currentSalesChannelId: {
             type: String,
@@ -179,6 +185,11 @@ Component.register("buckaroo-payment-list", {
 
         activeCount() {
             return this.payments.filter(payment => this.isActive(payment.code)).length;
+        },
+
+        // Settings as the storefront uses them for the selected sales channel
+        resolvedValue() {
+            return withInheritedValues(this.value, this.inheritedValue);
         }
     },
 
@@ -293,7 +304,7 @@ Component.register("buckaroo-payment-list", {
         },
 
         isActive(code) {
-            return isPaymentEnabled(this.value, code);
+            return isPaymentEnabled(this.resolvedValue, code);
         },
 
         getSharedEnvironmentTitle(code) {

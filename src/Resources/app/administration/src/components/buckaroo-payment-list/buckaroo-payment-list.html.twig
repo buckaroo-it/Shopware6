@@ -71,6 +71,7 @@
                     :label="payment.title"
                     :sharedEnvironmentLabel="getSharedEnvironmentTitle(payment.code)"
                     :value="value"
+                    :inheritedValue="inheritedValue"
                     @input="$emit('input', $event)"
                 />
 

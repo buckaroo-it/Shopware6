@@ -41,8 +41,10 @@ class CheckoutConfirmTemplateSubscriberExpressButtonsTest extends TestCase
         $this->settingsService->method('getSetting')->willReturnMap([
             ['paypalExpressEnabled', self::SALES_CHANNEL_ID, true],
             ['paypalExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
+            ['applepayExpressEnabled', self::SALES_CHANNEL_ID, true],
             ['applepayGuid', self::SALES_CHANNEL_ID, 'apple-merchant-id'],
             ['applepayExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
+            ['googlepayExpressEnabled', self::SALES_CHANNEL_ID, true],
             ['googlepayExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
         ]);
 
@@ -75,6 +77,7 @@ class CheckoutConfirmTemplateSubscriberExpressButtonsTest extends TestCase
     /**
      * @dataProvider expressButtonProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('expressButtonProvider')]
     public function testExpressButtonIsHiddenWhenPaymentMethodIsDisabled(
         string $method,
         string $buckarooKey,
@@ -90,6 +93,7 @@ class CheckoutConfirmTemplateSubscriberExpressButtonsTest extends TestCase
     /**
      * @dataProvider expressButtonProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('expressButtonProvider')]
     public function testExpressButtonIsShownWhenPaymentMethodIsEnabled(
         string $method,
         string $buckarooKey,
@@ -103,17 +107,19 @@ class CheckoutConfirmTemplateSubscriberExpressButtonsTest extends TestCase
     }
 
     /**
-     * Apple Pay and Google Pay use the same "Display ... button" list as PayPal:
-     * only the selected pages show the button, "None" shows it nowhere.
+     * Apple Pay and Google Pay work like PayPal Express: only the selected pages show the
+     * button, and the "Enable ... express button" switch off hides it everywhere.
      */
     public function testWalletButtonsOnlyShowOnSelectedPages(): void
     {
         $settingsService = $this->createMock(SettingsService::class);
         $settingsService->method('getEnabled')->willReturn(true);
         $settingsService->method('getSetting')->willReturnMap([
+            ['applepayExpressEnabled', self::SALES_CHANNEL_ID, true],
             ['applepayGuid', self::SALES_CHANNEL_ID, 'apple-merchant-id'],
             ['applepayExpresslocation', self::SALES_CHANNEL_ID, ['cart']],
-            ['googlepayExpresslocation', self::SALES_CHANNEL_ID, ['none']],
+            ['googlepayExpressEnabled', self::SALES_CHANNEL_ID, false],
+            ['googlepayExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
         ]);
         $this->subscriber = new CheckoutConfirmTemplateSubscriber(
             $this->createMock(SalesChannelRepository::class),
