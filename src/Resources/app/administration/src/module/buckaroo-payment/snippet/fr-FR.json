@@ -136,7 +136,9 @@
                 "assign": "Attribuer des canaux de vente",
                 "openSettings": "Ouvrir les paramètres de paiement",
                 "modalTitle": "Canaux de vente pour {name}",
-                "modalDescription": "Choisissez dans quels canaux de vente Shopware propose ce moyen de paiement. Les clients ne le voient au paiement que dans les canaux de vente sélectionnés, indépendamment du paramètre Buckaroo."
+                "modalDescription": "Choisissez dans quels canaux de vente Shopware propose ce moyen de paiement. Les clients ne le voient au paiement que dans les canaux de vente sélectionnés, indépendamment du paramètre Buckaroo.",
+                "defaultPaymentMethodLabel": "{name} (moyen de paiement par défaut)",
+                "defaultPaymentMethodHint": "Ce moyen de paiement reste sélectionné dans les canaux de vente où il est le moyen de paiement par défaut. Pour l'y retirer, choisissez d'abord un autre moyen de paiement par défaut dans les paramètres du canal de vente."
             }
         },
         "paymentSettings": {

@@ -136,7 +136,9 @@
                 "assign": "Verkaufskanäle zuweisen",
                 "openSettings": "Zahlungseinstellungen öffnen",
                 "modalTitle": "Verkaufskanäle für {name}",
-                "modalDescription": "Wählen Sie, in welchen Verkaufskanälen Shopware diese Zahlungsart anbietet. Kunden sehen sie im Checkout nur in den ausgewählten Verkaufskanälen, unabhängig von der Buckaroo-Einstellung."
+                "modalDescription": "Wählen Sie, in welchen Verkaufskanälen Shopware diese Zahlungsart anbietet. Kunden sehen sie im Checkout nur in den ausgewählten Verkaufskanälen, unabhängig von der Buckaroo-Einstellung.",
+                "defaultPaymentMethodLabel": "{name} (Standard-Zahlungsart)",
+                "defaultPaymentMethodHint": "Diese Zahlungsart bleibt in den Verkaufskanälen ausgewählt, in denen sie die Standard-Zahlungsart ist. Um sie dort zu entfernen, wählen Sie zuerst in den Einstellungen des Verkaufskanals eine andere Standard-Zahlungsart."
             }
         },
         "paymentSettings": {

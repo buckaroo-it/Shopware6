@@ -136,7 +136,9 @@
                 "assign": "Verkoopkanalen koppelen",
                 "openSettings": "Betaalinstellingen openen",
                 "modalTitle": "Verkoopkanalen voor {name}",
-                "modalDescription": "Kies in welke verkoopkanalen Shopware deze betaalmethode aanbiedt. Klanten zien hem bij het afrekenen alleen in de geselecteerde verkoopkanalen, ongeacht de Buckaroo-instelling."
+                "modalDescription": "Kies in welke verkoopkanalen Shopware deze betaalmethode aanbiedt. Klanten zien hem bij het afrekenen alleen in de geselecteerde verkoopkanalen, ongeacht de Buckaroo-instelling.",
+                "defaultPaymentMethodLabel": "{name} (standaardbetaalmethode)",
+                "defaultPaymentMethodHint": "Deze betaalmethode blijft geselecteerd in de verkoopkanalen waar hij de standaardbetaalmethode is. Wil je hem daar verwijderen, kies dan eerst een andere standaardbetaalmethode in de instellingen van het verkoopkanaal."
             }
         },
         "paymentSettings": {

@@ -36,7 +36,7 @@ Component.register("buckaroo-payment-list", {
         return {
             // Shopware payment method per Buckaroo code: { id, active, salesChannelIds }
             paymentMethodsByCode: {},
-            // Storefront and headless sales channels: [{ id, name }]
+            // Storefront and headless sales channels: [{ id, name, defaultPaymentMethodId }]
             salesChannels: [],
             assignModalPayment: null,
             payments: [
@@ -239,7 +239,8 @@ Component.register("buckaroo-payment-list", {
                 this.paymentMethodsByCode = byCode;
                 this.salesChannels = salesChannels.map(salesChannel => ({
                     id: salesChannel.id,
-                    name: salesChannel.translated?.name || salesChannel.name
+                    name: salesChannel.translated?.name || salesChannel.name,
+                    defaultPaymentMethodId: salesChannel.paymentMethodId
                 }));
             } catch (error) {
                 this.paymentMethodsByCode = {};
