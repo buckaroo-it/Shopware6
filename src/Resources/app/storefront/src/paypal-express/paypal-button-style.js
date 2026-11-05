@@ -55,7 +55,7 @@ function wrapPaypalButtons(namespace, style) {
         patched.buckarooStylePatched = true;
 
         namespace.Buttons = patched;
-    } catch (e) {
+    } catch {
         // PayPal keeps its default style.
     }
 }

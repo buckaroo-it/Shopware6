@@ -116,7 +116,7 @@ export default {
         if (instance && typeof instance.close === 'function') {
             try {
                 instance.close();
-            } catch (e) {
+            } catch {
                 // Already gone
             }
         }
