@@ -30,6 +30,7 @@ export default class PaypalExpressPlugin extends Plugin {
         buckarooWebsiteKey: this.options.websiteKey,
         paypalMerchantId: this.options.merchantId,
         isTestMode: this.options.isTestMode === true,
+        // Not used by the SDK yet (v1.8.2); initiateWithButtonStyle() applies it
         style: this.options.style,
         currency: "EUR",
         amount: 0.1,

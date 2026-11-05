@@ -19,6 +19,9 @@ const LOAD_TIMEOUT = 15000;
 
 let loading = null;
 
+// PayPal's script as added by the preview; kept while it may still load
+let script = null;
+
 function isLoaded() {
     return !!(window.paypal && typeof window.paypal.Buttons === 'function');
 }
@@ -58,26 +61,48 @@ export default {
             return loading;
         }
 
-        loading = new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            const timeout = window.setTimeout(() => reject(new Error('PayPal script timed out')), LOAD_TIMEOUT);
-
+        // A script that timed out may still load, so a retry waits for the same script
+        // instead of adding PayPal a second time
+        if (!script) {
+            script = document.createElement('script');
             script.src = sdkUrl();
             script.async = true;
-            script.addEventListener('load', () => {
-                window.clearTimeout(timeout);
-                if (isLoaded()) {
-                    resolve();
-                } else {
-                    reject(new Error('PayPal script loaded without paypal.Buttons'));
-                }
-            });
-            script.addEventListener('error', () => {
-                window.clearTimeout(timeout);
-                reject(new Error('PayPal script failed to load'));
-            });
-
             document.head.appendChild(script);
+        }
+
+        const pending = script;
+
+        loading = new Promise((resolve, reject) => {
+            const onLoad = () => {
+                if (isLoaded()) {
+                    done();
+                } else {
+                    done(new Error('PayPal script loaded without paypal.Buttons'), true);
+                }
+            };
+            const onError = () => done(new Error('PayPal script failed to load'), true);
+            const timeout = window.setTimeout(() => done(new Error('PayPal script timed out'), false), LOAD_TIMEOUT);
+
+            function done(error, failed) {
+                window.clearTimeout(timeout);
+                pending.removeEventListener('load', onLoad);
+                pending.removeEventListener('error', onError);
+
+                // The next render adds a new script
+                if (failed) {
+                    pending.remove();
+                    script = null;
+                }
+
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve();
+                }
+            }
+
+            pending.addEventListener('load', onLoad);
+            pending.addEventListener('error', onError);
         }).catch((error) => {
             // Try again on the next render
             loading = null;

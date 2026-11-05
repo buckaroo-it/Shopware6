@@ -589,6 +589,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         return is_string($value) && in_array($value, $options, true) ? $value : $options[0];
     }
+
     protected function showIdealFastCheckout(string $salesChannelId, string $page = 'product'): bool
     {
         if (

@@ -112,7 +112,11 @@ Component.register('buckaroo-express-button-preview', {
                 return;
             }
 
+            // Show the container again after an error: PayPal sizes the button from it
+            this.hasError = false;
+
             renderer.load()
+                .then(() => this.$nextTick())
                 .then(() => {
                     if (!isCurrent()) {
                         return null;
@@ -123,11 +127,6 @@ Component.register('buckaroo-express-button-preview', {
                     this.button = renderer.draw(this.$refs.container, this.buttonStyle);
 
                     return this.button.rendered;
-                })
-                .then(() => {
-                    if (isCurrent()) {
-                        this.hasError = false;
-                    }
                 })
                 .catch((error) => {
                     if (isCurrent()) {

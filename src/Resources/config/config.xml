@@ -1298,7 +1298,7 @@
             <label lang="nl-NL">Knopvoorbeeld</label>
             <label lang="de-DE">Schaltflächenvorschau</label>
             <label lang="fr-FR">Aperçu du bouton</label>
-            <helpText lang="en-GB">The PayPal Express button with the settings above, already before you save. The button cannot be clicked here.</helpText>
+            <helpText lang="en-GB">The PayPal Express button with the settings above, before you save. The button cannot be clicked here.</helpText>
             <helpText lang="nl-NL">De PayPal Express-knop met de instellingen hierboven, al voordat je opslaat. Je kunt hier niet op de knop klikken.</helpText>
             <helpText lang="de-DE">Die PayPal Express-Schaltfläche mit den obigen Einstellungen, schon bevor Sie speichern. Die Schaltfläche kann hier nicht angeklickt werden.</helpText>
             <helpText lang="fr-FR">Le bouton PayPal Express avec les réglages ci-dessus, avant même l'enregistrement. Le bouton n'est pas cliquable ici.</helpText>

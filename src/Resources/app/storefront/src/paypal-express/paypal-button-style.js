@@ -4,6 +4,10 @@
  * The Buckaroo SDK builds the paypal.Buttons() options itself and forwards no
  * style, so the style is merged into paypal.Buttons() instead. The same is done
  * in the Buckaroo WooCommerce plugin.
+ *
+ * Checked against Buckaroo Client SDK v1.8.2. This relies on how the SDK loads
+ * PayPal (see initiateWithButtonStyle); once the SDK forwards options.style
+ * itself, this wrapper can go.
  */
 
 const STYLE_KEYS = ['color', 'shape', 'label'];
@@ -42,7 +46,8 @@ function wrapPaypalButtons(namespace, style) {
         }
 
         const patched = function (options) {
-            return original(
+            return original.call(
+                this,
                 Object.assign({}, options, {
                     style: Object.assign({}, options && options.style, style),
                 })
@@ -70,7 +75,8 @@ function wrapPaypalButtons(namespace, style) {
  * part of initiate(), which puts a load listener on the script before the SDK's
  * own, so it runs first.
  *
- * Without a style, or on any failure, PayPal keeps its default style.
+ * Without a style, or on any failure, PayPal keeps its default style. When the
+ * SDK no longer loads PayPal's script this way, a console warning says so.
  *
  * @param {Function} initiate calls BuckarooSdk.PayPal.initiate()
  * @param {Object|null} style {color, shape, label}
@@ -84,12 +90,14 @@ export default function initiateWithButtonStyle(initiate, style) {
     }
 
     const createElement = document.createElement;
+    let scriptCreated = false;
 
     try {
         document.createElement = function (tagName) {
             const element = createElement.apply(document, arguments);
 
             if (String(tagName).toLowerCase() === 'script') {
+                scriptCreated = true;
                 element.addEventListener('load', () => {
                     if (window.paypal) {
                         wrapPaypalButtons(window.paypal, buttonStyle);
@@ -103,5 +111,9 @@ export default function initiateWithButtonStyle(initiate, style) {
         initiate();
     } finally {
         document.createElement = createElement;
+    }
+
+    if (!scriptCreated) {
+        console.warn('Buckaroo PayPal Express: the button style could not be applied, PayPal shows its default style.');
     }
 }

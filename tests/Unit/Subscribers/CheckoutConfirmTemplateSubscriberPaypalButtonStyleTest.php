@@ -12,14 +12,22 @@ use Buckaroo\Shopware6\Service\In3LogoService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\PayByBankService;
 use Buckaroo\Shopware6\Service\IdealIssuerService;
+use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
 use Buckaroo\Shopware6\Service\PayPalExpressCredentialsService;
 use Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage;
+use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
+use Shopware\Storefront\Page\Page;
+use Shopware\Storefront\Page\Product\ProductPage;
+use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * The PayPal Express button style reaches the storefront as PayPal's style option
- * ({color, shape, label}), read per sales channel.
+ * ({color, shape, label}), read per sales channel, on the product, cart and checkout page.
  */
 class CheckoutConfirmTemplateSubscriberPaypalButtonStyleTest extends TestCase
 {
@@ -30,6 +38,8 @@ class CheckoutConfirmTemplateSubscriberPaypalButtonStyleTest extends TestCase
         'shape' => 'paypalExpressButtonShape',
         'label' => 'paypalExpressButtonType',
     ];
+
+    private const SUBSCRIBER = 'src/Subscribers/CheckoutConfirmTemplateSubscriber.php';
 
     /**
      * Nothing saved yet (e.g. right after an update): PayPal's default look
@@ -78,7 +88,7 @@ class CheckoutConfirmTemplateSubscriberPaypalButtonStyleTest extends TestCase
     public function testEveryConfigOptionIsPassedOn(): void
     {
         $document = new DOMDocument();
-        $document->load(__DIR__ . '/../../../src/Resources/config/config.xml');
+        $document->load($this->pluginPath('src/Resources/config/config.xml'));
         $xpath = new DOMXPath($document);
 
         foreach (self::SETTINGS as $styleKey => $setting) {
@@ -96,6 +106,64 @@ class CheckoutConfirmTemplateSubscriberPaypalButtonStyleTest extends TestCase
         }
     }
 
+    public function testProductPageGetsTheStyle(): void
+    {
+        $page = new ProductPage();
+
+        $this->createSubscriber($this->settingsReturning($this->blueRoundedCheckout()))
+            ->addBuckarooToProductPage(new ProductPageLoadedEvent($page, $this->salesChannelContext(), new Request()));
+
+        $this->assertSame(
+            ['color' => 'blue', 'shape' => 'pill', 'label' => 'checkout'],
+            $this->extensionValue($page, 'paypalButtonStyle')
+        );
+    }
+
+    public function testCartPageGetsTheStyle(): void
+    {
+        $page = new CheckoutCartPage();
+
+        $this->createSubscriber($this->settingsReturning($this->blueRoundedCheckout()))
+            ->addBuckarooToCart(new CheckoutCartPageLoadedEvent($page, $this->salesChannelContext(), new Request()));
+
+        $this->assertSame(
+            ['color' => 'blue', 'shape' => 'pill', 'label' => 'checkout'],
+            $this->extensionValue($page, 'paypalButtonStyle')
+        );
+    }
+
+    /**
+     * The checkout (and edit order) page handler needs a customer, cart and payment methods,
+     * so its extension is checked in the source, as GooglePayExpressCheckoutConfigTest does
+     */
+    public function testCheckoutPageGetsTheStyle(): void
+    {
+        $source = (string)file_get_contents($this->pluginPath(self::SUBSCRIBER));
+
+        $found = preg_match(
+            '/public function addBuckarooExtension\(.*?\n    (?:public|protected|private) function /s',
+            $source,
+            $match
+        );
+        $this->assertSame(1, $found, 'addBuckarooExtension() not found in ' . self::SUBSCRIBER);
+        $this->assertMatchesRegularExpression(
+            "/'paypalButtonStyle'\s*=>\s*\\\$this->getPaypalButtonStyle\(\\\$salesChannelId\)/",
+            $match[0]
+        );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function blueRoundedCheckout(): array
+    {
+        return [
+            'paypalExpressButtonStyle' => 'blue',
+            'paypalExpressButtonShape' => 'pill',
+            'paypalExpressButtonType' => 'checkout',
+        ];
+    }
+
     /**
      * @param array<string, mixed> $settings
      *
@@ -103,12 +171,20 @@ class CheckoutConfirmTemplateSubscriberPaypalButtonStyleTest extends TestCase
      */
     private function getStyle(array $settings): array
     {
+        return $this->invokeGetStyle($this->settingsReturning($settings));
+    }
+
+    /**
+     * @param array<string, mixed> $settings
+     */
+    private function settingsReturning(array $settings): SettingsService
+    {
         $settingsService = $this->createMock(SettingsService::class);
         $settingsService->method('getSetting')->willReturnCallback(
             static fn (string $key) => $settings[$key] ?? null
         );
 
-        return $this->invokeGetStyle($settingsService);
+        return $settingsService;
     }
 
     /**
@@ -116,7 +192,20 @@ class CheckoutConfirmTemplateSubscriberPaypalButtonStyleTest extends TestCase
      */
     private function invokeGetStyle(SettingsService $settingsService): array
     {
-        $subscriber = new CheckoutConfirmTemplateSubscriber(
+        $subscriber = $this->createSubscriber($settingsService);
+
+        $method = new \ReflectionMethod($subscriber, 'getPaypalButtonStyle');
+        $method->setAccessible(true);
+
+        /** @var array<string, string> $style */
+        $style = $method->invoke($subscriber, self::SALES_CHANNEL_ID);
+
+        return $style;
+    }
+
+    private function createSubscriber(SettingsService $settingsService): CheckoutConfirmTemplateSubscriber
+    {
+        return new CheckoutConfirmTemplateSubscriber(
             $this->createMock(SalesChannelRepository::class),
             $settingsService,
             $this->createMock(UrlService::class),
@@ -126,13 +215,26 @@ class CheckoutConfirmTemplateSubscriberPaypalButtonStyleTest extends TestCase
             $this->createMock(IdealIssuerService::class),
             $this->createMock(PayPalExpressCredentialsService::class)
         );
+    }
 
-        $method = new \ReflectionMethod($subscriber, 'getPaypalButtonStyle');
-        $method->setAccessible(true);
+    private function salesChannelContext(): SalesChannelContext
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getSalesChannelId')->willReturn(self::SALES_CHANNEL_ID);
 
-        /** @var array<string, string> $style */
-        $style = $method->invoke($subscriber, self::SALES_CHANNEL_ID);
+        return $context;
+    }
 
-        return $style;
+    private function extensionValue(Page $page, string $key): mixed
+    {
+        $extension = $page->getExtension(BuckarooStruct::EXTENSION_NAME);
+        $this->assertInstanceOf(BuckarooStruct::class, $extension);
+
+        return $extension->get($key);
+    }
+
+    private function pluginPath(string $relativePath): string
+    {
+        return __DIR__ . '/../../../' . $relativePath;
     }
 }
