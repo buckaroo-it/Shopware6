@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class BuckarooTokenController extends AbstractPaymentController
@@ -32,7 +33,7 @@ class BuckarooTokenController extends AbstractPaymentController
         methods: ['GET'],
         defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']]
     )]
-    public function getOAuthToken(Request $request): JsonResponse
+    public function getOAuthToken(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $requestOrigin = $request->headers->get('X-Requested-From');
         if ($requestOrigin !== 'ShopwareFrontend') {
@@ -42,9 +43,11 @@ class BuckarooTokenController extends AbstractPaymentController
             ], Response::HTTP_FORBIDDEN);
         }
 
-        $clientId = $this->systemConfigService->get('BuckarooPayments.config.clientId');
-        $clientSecret = $this->systemConfigService->get('BuckarooPayments.config.clientSecret');
-        $issuers = $this->systemConfigService->get('BuckarooPayments.config.allowedcreditcards');
+        // Settings of the current sales channel, falling back to "All Sales Channels"
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
+        $clientId = $this->systemConfigService->get('BuckarooPayments.config.clientId', $salesChannelId);
+        $clientSecret = $this->systemConfigService->get('BuckarooPayments.config.clientSecret', $salesChannelId);
+        $issuers = $this->systemConfigService->get('BuckarooPayments.config.allowedcreditcards', $salesChannelId);
 
         if (empty($clientId) || empty($clientSecret)) {
             return new JsonResponse([

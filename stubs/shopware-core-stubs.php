@@ -38,9 +38,9 @@ namespace Shopware\Core\Checkout\Payment\Cart
                 return '';
             }
 
-            public function getReturnUrl(): string
+            public function getReturnUrl(): ?string
             {
-                return '';
+                return null;
             }
         }
     }

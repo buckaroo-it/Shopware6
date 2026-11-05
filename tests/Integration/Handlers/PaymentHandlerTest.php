@@ -22,6 +22,7 @@ class PaymentHandlerTest extends TestCase
     /**
      * @dataProvider paymentHandlerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentHandlerProvider')]
     public function testPaymentHandlerClassExists(string $className): void
     {
         $this->assertTrue(
@@ -33,6 +34,7 @@ class PaymentHandlerTest extends TestCase
     /**
      * @dataProvider paymentHandlerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentHandlerProvider')]
     public function testPaymentHandlerImplementsPaymentHandlerInterface(string $className): void
     {
         // Payment handlers extend PaymentHandlerSimple or similar base classes
@@ -48,6 +50,7 @@ class PaymentHandlerTest extends TestCase
     /**
      * @dataProvider simpleHandlerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('simpleHandlerProvider')]
     public function testPaymentHandlerExtendsPaymentHandlerSimple(string $className): void
     {
         $this->assertTrue(
@@ -59,6 +62,7 @@ class PaymentHandlerTest extends TestCase
     /**
      * @dataProvider simpleHandlerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('simpleHandlerProvider')]
     public function testPaymentHandlerHasPaymentClass(string $className): void
     {
         $reflection = new \ReflectionClass($className);
@@ -81,6 +85,7 @@ class PaymentHandlerTest extends TestCase
     /**
      * @dataProvider simpleHandlerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('simpleHandlerProvider')]
     public function testPaymentHandlerPaymentClassExists(string $className): void
     {
         $reflection = new \ReflectionClass($className);

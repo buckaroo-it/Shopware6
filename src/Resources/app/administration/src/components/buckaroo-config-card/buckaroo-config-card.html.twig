@@ -1,8 +1,30 @@
 {% block buckaroo_config_card %}
-    <sw-card position-identifier="xxsw-system-config-content" v-if="card">
+    <sw-card class="bk-config-card" position-identifier="xxsw-system-config-content" v-if="card">
         <template #title>
             {{ getInlineSnippet(card.title) || 'Configuration' }}
         </template>
+
+        <sw-inherit-wrapper
+            v-if="statusPaymentCode"
+            class="bk-config-card__status"
+            :value="statusOwnValue"
+            :inherited-value="statusInheritedValue"
+            :has-parent="isNotDefaultSalesChannel"
+            :label="$t('buckaroo-payment.paymentSettings.statusLabel', { method: getInlineSnippet(card.title) })"
+            :help-text="statusHelpText"
+            @update:value="onStatusChange"
+            @input="onStatusChange"
+        >
+            <template #content="props">
+                <sw-single-select
+                    :options="statusOptions"
+                    :value="props.currentValue"
+                    :disabled="props.isInherited"
+                    @update:value="props.updateCurrentValue"
+                    @change="props.updateCurrentValue"
+                />
+            </template>
+        </sw-inherit-wrapper>
 
         <div v-for="element in (card.elements || [])" :key="element.name">
             <div v-if="canShow(element)">
@@ -13,7 +35,8 @@
                             :has-parent="isNotDefaultSalesChannel"
                             :inherited-value="getInheritedValue(element)"
                             :class="'sw-system-config--field-' + kebabCase(getElementBind(element).name)"
-                            @input="onFieldInput(element.name, $event)"
+                            @input="onInheritWrapperChange(element.name, $event)"
+                            @update:value="onInheritWrapperChange(element.name, $event)"
                     >
                         <template #content="props">
                             {# Special handling for fields that must be true multi-selects #}
@@ -37,8 +60,8 @@
                                     labelProperty="label"
                                     valueProperty="value"
                                     :error="getFieldError(element.name)"
-                                    @change="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
-                                    @update:value="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
+                                    @change="props.updateCurrentValue"
+                                    @update:value="props.updateCurrentValue"
                                 />
                             </template>
                             <template v-else>
@@ -48,9 +71,9 @@
                                         :disabled="props.isInherited"
                                         :value="element.type === 'bool' ? Boolean(props.currentValue) : props.currentValue"
                                         :error="getFieldError(element.name)"
-                                        @input="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
-                                        @change="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
-                                        @update:value="(value) => { props.updateCurrentValue(value); onFieldInput(element.name, value); }"
+                                        @input="props.updateCurrentValue"
+                                        @change="props.updateCurrentValue"
+                                        @update:value="props.updateCurrentValue"
                                 />
                             </template>
                         </template>

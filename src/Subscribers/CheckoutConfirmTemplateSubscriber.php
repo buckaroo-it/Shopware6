@@ -330,19 +330,27 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'googlepayEnvironment'     => $this->getGooglepayEnvironment($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'canShowPhone'          => $this->canShowPhone($customer),
-            'methodsWithFinancialWarning' => $this->getMethodsWithFinancialWarning($salesChannelId),
             'countryBillingIso'     => $this->getCountryBillingIso($customer),
             'countryShippingIso'    => $this->getCountryShippingIso($customer),
             'validHouseNumbers'     => $this->areValidHouseNumbers($event),
             'afterpayOld' => $this->getSettingAsBool('afterpayEnabledold', $salesChannelId),
             'afterpay_billing_coc' => $this->getAfterpayBillingCoc($customer),
-            'redirectBancontact' =>
-                $this->settingsService->getSetting('redirectBancontact', $salesChannelId) === 'enabledRedirect']);
+            'redirectBancontact' => $this->isBancontactClientSideEncryptionEnabled($salesChannelId)]);
 
         $event->getPage()->addExtension(
             BuckarooStruct::EXTENSION_NAME,
             $struct
         );
+    }
+
+    /**
+     * "Client-side encryption" for Bancontact. Also accepts the former select value "enabledRedirect".
+     */
+    private function isBancontactClientSideEncryptionEnabled(string $salesChannelId): bool
+    {
+        $value = $this->settingsService->getSetting('redirectBancontact', $salesChannelId);
+
+        return in_array($value, [true, 1, '1', 'true', 'enabledRedirect'], true);
     }
 
     private function getIdealProcessingRenderMode(string $salesChannelId): int
@@ -403,28 +411,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     private function canShowIssuers(string $salesChannelId, string $key): bool
     {
         return $this->settingsService->getSetting($key . "Showissuers", $salesChannelId) !== false;
-    }
-
-    private function getMethodsWithFinancialWarning(string $salesChannelId): array
-    {
-        $methods = [
-            'Billink',
-            'capayable',
-            'afterpay'
-        ];
-
-        $withFinancialWarning = [];
-        foreach ($methods as $method) {
-            if (
-                $this->settingsService->getSetting(
-                    $method . "Financialwarning",
-                    $salesChannelId
-                ) !== false
-            ) {
-                $withFinancialWarning[] = $method;
-            }
-        }
-        return $withFinancialWarning;
     }
 
     private function getBillinkPaymentType(CustomerEntity $customer): string
@@ -546,7 +532,10 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
     protected function showPaypalExpress(string $salesChannelId, string $page = 'product'): bool
     {
-        if (!$this->settingsService->getEnabled('paypal', $salesChannelId)) {
+        if (
+            !$this->settingsService->getEnabled('paypal', $salesChannelId) ||
+            !$this->getSettingAsBool('paypalExpressEnabled', $salesChannelId)
+        ) {
             return false;
         }
 
@@ -591,12 +580,15 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
     /**
      * Whether the Apple Pay express button may be rendered on a given storefront
-     * location. Requires the Apple Pay payment method to be enabled, a configured
-     * merchant id (guid) and the per-location visibility setting to be enabled.
+     * location. Requires the Apple Pay payment method and its express button to be enabled,
+     * a configured merchant id (guid) and the page to be selected in "Display Apple Pay button".
      */
     protected function showApplePayExpress(string $salesChannelId, string $page = 'product'): bool
     {
-        if (!$this->settingsService->getEnabled('applepay', $salesChannelId)) {
+        if (
+            !$this->settingsService->getEnabled('applepay', $salesChannelId) ||
+            !$this->getSettingAsBool('applepayExpressEnabled', $salesChannelId)
+        ) {
             return false;
         }
 
@@ -605,41 +597,26 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             return false;
         }
 
-        $settings = [
-            'product'  => 'applepayShowProduct',
-            'cart'     => 'applepayShowCart',
-            'checkout' => 'applepayShowCheckout',
-        ];
-
-        if (!isset($settings[$page])) {
-            return false;
-        }
-
-        return $this->getSettingAsBool($settings[$page], $salesChannelId);
+        $locations = $this->settingsService->getSetting('applepayExpresslocation', $salesChannelId);
+        return is_array($locations) && in_array($page, $locations, true);
     }
 
     /**
      * Whether the Google Pay express button may be rendered on a given storefront
-     * location. Requires the Google Pay payment method to be enabled and the
-     * per-location visibility setting to be enabled.
+     * location. Requires the Google Pay payment method and its express button to be
+     * enabled and the page to be selected in "Display Google Pay button".
      */
     protected function showGooglePayExpress(string $salesChannelId, string $page = 'product'): bool
     {
-        if (!$this->settingsService->getEnabled('googlepay', $salesChannelId)) {
+        if (
+            !$this->settingsService->getEnabled('googlepay', $salesChannelId) ||
+            !$this->getSettingAsBool('googlepayExpressEnabled', $salesChannelId)
+        ) {
             return false;
         }
 
-        $settings = [
-            'product'  => 'googlepayShowProduct',
-            'cart'     => 'googlepayShowCart',
-            'checkout' => 'googlepayShowCheckout',
-        ];
-
-        if (!isset($settings[$page])) {
-            return false;
-        }
-
-        return $this->getSettingAsBool($settings[$page], $salesChannelId);
+        $locations = $this->settingsService->getSetting('googlepayExpresslocation', $salesChannelId);
+        return is_array($locations) && in_array($page, $locations, true);
     }
 
     protected function getAppleMerchantId(string $salesChannelId): ?string

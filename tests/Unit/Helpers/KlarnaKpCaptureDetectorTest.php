@@ -18,6 +18,7 @@ class KlarnaKpCaptureDetectorTest extends TestCase
      * @param array<string, string> $post
      * @dataProvider pushProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('pushProvider')]
     public function testIsEngineCapture(bool $expected, array $post, string $case): void
     {
         $this->assertSame(

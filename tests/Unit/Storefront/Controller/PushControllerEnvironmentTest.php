@@ -59,6 +59,7 @@ class PushControllerEnvironmentTest extends TestCase
      *
      * @dataProvider encodedTestFlags
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('encodedTestFlags')]
     public function testEncodedTestFlagForALiveMethodIsRejected(string $testFlag): void
     {
         $response = $this->handlePush(

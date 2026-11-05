@@ -138,6 +138,7 @@ class SignatureValidationServiceTest extends TestCase
      *
      * @dataProvider missingSecretKeyProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('missingSecretKeyProvider')]
     public function testValidateSignatureRejectsPushWhenSecretKeyIsMissing(mixed $secretKey): void
     {
         $postData = ['brq_amount' => '50.00'];

@@ -174,6 +174,7 @@ class PushControllerSignatureValidationTest extends TestCase
      *
      * @dataProvider missingSecretKeyProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('missingSecretKeyProvider')]
     public function testPushToSalesChannelWithoutSecretKeyIsRejected(?string $secretKey): void
     {
         $this->assertSignatureRejected(
@@ -200,6 +201,7 @@ class PushControllerSignatureValidationTest extends TestCase
      *
      * @param array<string, string> $overrides
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('unboundOrderProvider')]
     public function testSignedPushNotBoundToItsOrderIsRejected(OrderEntity $order, array $overrides): void
     {
         $response = $this->handlePush(
@@ -283,6 +285,7 @@ class PushControllerSignatureValidationTest extends TestCase
      * @param array<string, string> $overrides
      * @param array<int, string> $removedFields
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('notAPushProvider')]
     public function testSignedBodyThatIsNotAPushIsRejected(array $overrides, array $removedFields): void
     {
         $postData = $overrides + $this->regularPushData();

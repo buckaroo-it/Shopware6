@@ -74,6 +74,7 @@ class PaymentStateReturnSignatureTest extends TestCase
     /**
      * @dataProvider statusCodeProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('statusCodeProvider')]
     public function testUnsignedReturnDoesNotChangeThePaymentState(string $statusCode): void
     {
         $this->transactionStateHandler->expects($this->never())->method('process');
@@ -84,6 +85,7 @@ class PaymentStateReturnSignatureTest extends TestCase
     /**
      * @dataProvider statusCodeProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('statusCodeProvider')]
     public function testReturnWithInvalidSignatureDoesNotChangeThePaymentState(string $statusCode): void
     {
         $this->transactionStateHandler->expects($this->never())->method('process');

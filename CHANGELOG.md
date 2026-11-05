@@ -507,6 +507,7 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-1453 Installer file operations now use the system temp directory, for better support of clustered and read-only environments.
 - BTI-1455 Faster plugin installation and updates by loading payment method icons in a single query.
 - BTI-1627 Improved logging of push messages.
+- BTI-1837 Redesigned the plugin settings: a payment method overview with a Live / Test / Off control per method, labels and help texts in line with the Magento 2 and WooCommerce plugins, switches for on/off settings, an on/off switch for every express checkout button, and settings without effect removed. Per sales channel, the settings show and can restore the values inherited from All Sales Channels. Existing settings are converted.
 - BTI-1881 Improved processing of push messages.
 - BTI-1883 Improved handling of duplicate push messages.
 - BTI-1936 General security improvements.
@@ -516,8 +517,11 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 - BTI-1592 Fixed Apple Pay, Google Pay and PayPal express checkout buttons being shown when the payment method itself is disabled.
 - BTI-1699 Fixed PHP 8.4 deprecation notices and a PHPStan error.
+- BTI-1837 Fixed "Order status after payment" set to Done leaving paid orders In progress.
 - BTI-1856 Fixed PHP 8.2+ deprecation notices on the product, cart and checkout pages.
 - BTI-1857 Fixed bin/console dal:validate failing on the Buckaroo transaction entity definition.
 - BTI-1858 Fixed the Advanced Configuration and Language fields showing no label in the plugin settings in the Administration.
+- BTI-1909 Fixed Hosted Fields, iDEAL and Riverty settings of a sales channel not being used for its orders.
 - BTI-1934 Fixed push messages not reaching Shopware in headless setups (sales channels of type API).
+- BTI-1938 Fixed PayPerEmail payment links expiring the same day when "Due date (in days)" is empty or 0.
 - BTI-1953 Fixed Klarna (MoR) capture failing.

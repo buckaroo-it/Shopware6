@@ -39,14 +39,13 @@ class CheckoutConfirmTemplateSubscriberExpressButtonsTest extends TestCase
         $this->paypalExpressCredentials->method('getMerchantId')->willReturn('paypal-merchant-id');
 
         $this->settingsService->method('getSetting')->willReturnMap([
+            ['paypalExpressEnabled', self::SALES_CHANNEL_ID, true],
             ['paypalExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
+            ['applepayExpressEnabled', self::SALES_CHANNEL_ID, true],
             ['applepayGuid', self::SALES_CHANNEL_ID, 'apple-merchant-id'],
-            ['applepayShowProduct', self::SALES_CHANNEL_ID, true],
-            ['applepayShowCart', self::SALES_CHANNEL_ID, true],
-            ['applepayShowCheckout', self::SALES_CHANNEL_ID, true],
-            ['googlepayShowProduct', self::SALES_CHANNEL_ID, true],
-            ['googlepayShowCart', self::SALES_CHANNEL_ID, true],
-            ['googlepayShowCheckout', self::SALES_CHANNEL_ID, true],
+            ['applepayExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
+            ['googlepayExpressEnabled', self::SALES_CHANNEL_ID, true],
+            ['googlepayExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
         ]);
 
         $this->subscriber = new CheckoutConfirmTemplateSubscriber(
@@ -78,6 +77,7 @@ class CheckoutConfirmTemplateSubscriberExpressButtonsTest extends TestCase
     /**
      * @dataProvider expressButtonProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('expressButtonProvider')]
     public function testExpressButtonIsHiddenWhenPaymentMethodIsDisabled(
         string $method,
         string $buckarooKey,
@@ -93,6 +93,7 @@ class CheckoutConfirmTemplateSubscriberExpressButtonsTest extends TestCase
     /**
      * @dataProvider expressButtonProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('expressButtonProvider')]
     public function testExpressButtonIsShownWhenPaymentMethodIsEnabled(
         string $method,
         string $buckarooKey,
@@ -103,6 +104,68 @@ class CheckoutConfirmTemplateSubscriberExpressButtonsTest extends TestCase
             ->willReturn(true);
 
         $this->assertTrue($this->callShow($method, $page));
+    }
+
+    /**
+     * Apple Pay and Google Pay work like PayPal Express: only the selected pages show the
+     * button, and the "Enable ... express button" switch off hides it everywhere.
+     */
+    public function testWalletButtonsOnlyShowOnSelectedPages(): void
+    {
+        $settingsService = $this->createMock(SettingsService::class);
+        $settingsService->method('getEnabled')->willReturn(true);
+        $settingsService->method('getSetting')->willReturnMap([
+            ['applepayExpressEnabled', self::SALES_CHANNEL_ID, true],
+            ['applepayGuid', self::SALES_CHANNEL_ID, 'apple-merchant-id'],
+            ['applepayExpresslocation', self::SALES_CHANNEL_ID, ['cart']],
+            ['googlepayExpressEnabled', self::SALES_CHANNEL_ID, false],
+            ['googlepayExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
+        ]);
+        $this->subscriber = new CheckoutConfirmTemplateSubscriber(
+            $this->createMock(SalesChannelRepository::class),
+            $settingsService,
+            $this->createMock(UrlService::class),
+            $this->createMock(TranslatorInterface::class),
+            $this->createMock(PayByBankService::class),
+            $this->createMock(In3LogoService::class),
+            $this->createMock(IdealIssuerService::class),
+            $this->paypalExpressCredentials
+        );
+
+        $this->assertTrue($this->callShow('showApplePayExpress', 'cart'));
+        $this->assertFalse($this->callShow('showApplePayExpress', 'product'));
+        $this->assertFalse($this->callShow('showApplePayExpress', 'checkout'));
+
+        foreach (['product', 'cart', 'checkout'] as $page) {
+            $this->assertFalse($this->callShow('showGooglePayExpress', $page), "Google Pay on $page");
+        }
+    }
+
+    /**
+     * "Enable PayPal Express" off hides the button, also when pages are selected
+     */
+    public function testPaypalExpressIsHiddenWhenSwitchIsOff(): void
+    {
+        $settingsService = $this->createMock(SettingsService::class);
+        $settingsService->method('getEnabled')->willReturn(true);
+        $settingsService->method('getSetting')->willReturnMap([
+            ['paypalExpressEnabled', self::SALES_CHANNEL_ID, false],
+            ['paypalExpresslocation', self::SALES_CHANNEL_ID, ['product', 'cart', 'checkout']],
+        ]);
+        $this->subscriber = new CheckoutConfirmTemplateSubscriber(
+            $this->createMock(SalesChannelRepository::class),
+            $settingsService,
+            $this->createMock(UrlService::class),
+            $this->createMock(TranslatorInterface::class),
+            $this->createMock(PayByBankService::class),
+            $this->createMock(In3LogoService::class),
+            $this->createMock(IdealIssuerService::class),
+            $this->paypalExpressCredentials
+        );
+
+        foreach (['product', 'cart', 'checkout'] as $page) {
+            $this->assertFalse($this->callShow('showPaypalExpress', $page), "PayPal Express on $page");
+        }
     }
 
     private function callShow(string $method, string $page): bool

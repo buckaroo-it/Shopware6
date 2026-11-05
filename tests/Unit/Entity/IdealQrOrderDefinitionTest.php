@@ -71,6 +71,7 @@ class IdealQrOrderDefinitionTest extends TestCase
     /**
      * @dataProvider extensionProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('extensionProvider')]
     public function testExtensionAddsReverseOneToOneAssociation(
         EntityExtension $extension,
         string $entityName,

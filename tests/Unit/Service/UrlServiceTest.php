@@ -242,6 +242,7 @@ class UrlServiceTest extends TestCase
      *
      * @dataProvider unusableAppUrlProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('unusableAppUrlProvider')]
     public function testGetApiPushUrlFallsBackToTheRouterWithoutAUsableAppUrl(string $appUrl): void
     {
         $this->router
