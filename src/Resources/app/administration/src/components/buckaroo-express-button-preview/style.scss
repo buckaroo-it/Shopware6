@@ -1,0 +1,26 @@
+.bk-express-button-preview {
+    margin-bottom: 22px;
+
+    &__label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 16px;
+        color: #52667a;
+    }
+
+    // 400px wide gets PayPal's 45px button, the height it has in a 300-499px storefront column
+    &__button {
+        max-width: 400px;
+        min-height: 45px;
+    }
+
+    &__error {
+        margin: 0;
+        font-size: 14px;
+        color: #52667a;
+    }
+}

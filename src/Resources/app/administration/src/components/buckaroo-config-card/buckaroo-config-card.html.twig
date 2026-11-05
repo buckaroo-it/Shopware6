@@ -28,7 +28,12 @@
 
         <div v-for="element in (card.elements || [])" :key="element.name">
             <div v-if="canShow(element)">
-                <slot name="card-element" v-bind="{ element: getElementBind(element), config: value, card }">
+                {# A preview, not a setting: no inheritance and nothing to save #}
+                <buckaroo-express-button-preview
+                    v-if="isButtonPreview(element)"
+                    v-bind="getButtonPreviewBind(element)"
+                />
+                <slot v-else name="card-element" v-bind="{ element: getElementBind(element), config: value, card }">
                     <sw-inherit-wrapper
                             :value="getValueForName(element.name.replace('BuckarooPayments.config.', ''))"
                             v-bind="getInheritWrapperBind(element)"

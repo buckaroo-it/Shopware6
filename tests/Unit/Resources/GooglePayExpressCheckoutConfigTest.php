@@ -103,16 +103,28 @@ class GooglePayExpressCheckoutConfigTest extends TestCase
     /**
      * Every express button sits in the same place in its card, like PayPal Express:
      * after the payment fee, its switch followed by the pages it is shown on.
+     * PayPal's button style settings follow its pages (see PaypalExpressButtonStyleConfigTest).
      */
     public function testExpressSettingsFollowThePaymentFee(): void
     {
-        foreach (['googlepay', 'applepay', 'paypal'] as $method) {
+        $closingFields = [
+            'googlepay' => 'googlepayExpresslocation',
+            'applepay'  => 'applepayExpresslocation',
+            'paypal'    => 'paypalExpressButtonType',
+        ];
+
+        foreach ($closingFields as $method => $closingField) {
             $names = $this->inputFieldNamesOfCard($method);
             $feeIndex = array_search("{$method}Fee", $names, true);
 
             $this->assertIsInt($feeIndex, "$method has a payment fee");
-            $this->assertSame("{$method}ExpressEnabled", $names[$feeIndex + 1] ?? null, "$method: switch follows the fee");
-            $this->assertSame("{$method}Expresslocation", end($names), "$method: pages close the card");
+            $this->assertSame(
+                "{$method}ExpressEnabled",
+                $names[$feeIndex + 1] ?? null,
+                "$method: switch follows the fee"
+            );
+            $this->assertContains("{$method}Expresslocation", $names, "$method: has pages");
+            $this->assertSame($closingField, end($names), "$method: $closingField closes the card");
         }
     }
 

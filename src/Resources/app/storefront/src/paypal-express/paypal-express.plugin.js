@@ -1,4 +1,5 @@
 import { post } from '../helper/buckaroo-http';
+import initiateWithButtonStyle from './paypal-button-style';
 const Plugin = window.PluginBaseClass;
 
 export default class PaypalExpressPlugin extends Plugin {
@@ -6,7 +7,11 @@ export default class PaypalExpressPlugin extends Plugin {
     static options = {
         page: 'unknown',
         merchantId: null,
-        isTestMode: false
+        isTestMode: false,
+        /**
+         * PayPal button style from the plugin settings: {color, shape, label}
+         */
+        style: null
     }
 
 
@@ -25,6 +30,7 @@ export default class PaypalExpressPlugin extends Plugin {
         buckarooWebsiteKey: this.options.websiteKey,
         paypalMerchantId: this.options.merchantId,
         isTestMode: this.options.isTestMode === true,
+        style: this.options.style,
         currency: "EUR",
         amount: 0.1,
         createPaymentHandler: this.createPaymentHandler.bind(this),
@@ -46,7 +52,7 @@ export default class PaypalExpressPlugin extends Plugin {
         document.$emitter.subscribe('buckaroo_scripts_loaded', () => {
             this.sdk = BuckarooSdk.PayPal;
             this.setSdkTestMode();
-            this.sdk.initiate(this.sdkOptions);
+            initiateWithButtonStyle(() => this.sdk.initiate(this.sdkOptions), this.options.style);
         })
     }
 

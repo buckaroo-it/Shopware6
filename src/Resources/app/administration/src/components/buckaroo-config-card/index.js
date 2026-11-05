@@ -18,6 +18,10 @@ const SWITCH_DEPENDENT_FIELDS = {
     paypalExpressmerchantid: 'paypalExpressEnabled',
     paypalExpressSandboxMerchantId: 'paypalExpressEnabled',
     paypalExpresslocation: 'paypalExpressEnabled',
+    paypalExpressButtonStyle: 'paypalExpressEnabled',
+    paypalExpressButtonShape: 'paypalExpressEnabled',
+    paypalExpressButtonType: 'paypalExpressEnabled',
+    paypalExpressButtonPreview: 'paypalExpressEnabled',
     applepayExpresslocation: 'applepayExpressEnabled',
     googlepayExpresslocation: 'googlepayExpressEnabled',
     afterpayPaymentstatus: 'afterpayCaptureonshippent',
@@ -626,6 +630,42 @@ Component.register('buckaroo-config-card', {
             }
 
             return isSwitchValueOn(this.getInheritedValue({ name: `BuckarooPayments.config.${name}`, type: 'bool', config: {} }));
+        },
+
+        isButtonPreview(element) {
+            return element?.config?.componentName === 'buckaroo-express-button-preview';
+        },
+
+        getButtonPreviewBind(element) {
+            const config = element.config || {};
+
+            return {
+                method: config.method || '',
+                label: config.label ? this.getInlineSnippet(config.label) : '',
+                helpText: config.helpText ? this.getInlineSnippet(config.helpText) : '',
+                values: this.getEffectiveValues()
+            };
+        },
+
+        /**
+         * Settings of this card as the selected sales channel uses them, without the config prefix:
+         * its own value, or the "All Sales Channels" value it inherits
+         */
+        getEffectiveValues() {
+            return (this.card?.elements || []).reduce((values, element) => {
+                if (!element?.name || element.config?.componentName) {
+                    return values;
+                }
+
+                const name = element.name.replace('BuckarooPayments.config.', '');
+                const ownValue = this.getValueForName(name);
+
+                values[name] = !this.isNotDefaultSalesChannel || overridesInheritedValue(ownValue)
+                    ? ownValue
+                    : this.getInheritedValue(element);
+
+                return values;
+            }, {});
         },
 
         canShow(element) {

@@ -36,6 +36,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 {
+    /**
+     * PayPal Express button options as PayPal's style option names them; the first is PayPal's default
+     */
+    private const PAYPAL_BUTTON_COLORS = ['gold', 'blue', 'silver', 'white', 'black'];
+    private const PAYPAL_BUTTON_SHAPES = ['rect', 'pill'];
+    private const PAYPAL_BUTTON_LABELS = ['paypal', 'checkout', 'buynow', 'pay'];
+
     /** @var CheckoutHelper $checkoutHelper */
     public CheckoutHelper $checkoutHelper;
 
@@ -320,6 +327,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'checkout'),
             'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
             'paypalIsTestMode'         => $this->paypalExpressCredentials->isTestMode($salesChannelId),
+            'paypalButtonStyle'        => $this->getPaypalButtonStyle($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
             'showApplePay'             => $this->showApplePayExpress($salesChannelId, 'checkout'),
             'isAppleDevice'            => $this->isAppleDevice($request),
@@ -450,6 +458,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showIdealFastCheckout'     => $this->showIdealFastCheckout($salesChannelId, 'cart'),
             'paypalMerchantId'          => $this->getPaypalExpressMerchantId($salesChannelId),
             'paypalIsTestMode'          => $this->paypalExpressCredentials->isTestMode($salesChannelId),
+            'paypalButtonStyle'         => $this->getPaypalButtonStyle($salesChannelId),
             'applePayMerchantId'        => $this->getAppleMerchantId($salesChannelId),
             'isAppleDevice'             => $this->isAppleDevice($request),
             'websiteKey'                => $this->settingsService->getSetting('websiteKey', $salesChannelId),
@@ -514,6 +523,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
             'paypalIsTestMode' => $this->paypalExpressCredentials->isTestMode($salesChannelId),
+            'paypalButtonStyle' => $this->getPaypalButtonStyle($salesChannelId),
             'applePayMerchantId' => $this->getAppleMerchantId($salesChannelId),
             'isAppleDevice' => $this->isAppleDevice($request),
             'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId),
@@ -551,6 +561,33 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected function getPaypalExpressMerchantId(string $salesChannelId): ?string
     {
         return $this->paypalExpressCredentials->getMerchantId($salesChannelId);
+    }
+
+    /**
+     * PayPal Express button style of the sales channel, in the form of PayPal's style option.
+     * Missing or unknown values fall back to PayPal's default look (gold, rectangular, plain).
+     *
+     * @return array{color: string, shape: string, label: string}
+     */
+    protected function getPaypalButtonStyle(string $salesChannelId): array
+    {
+        return [
+            'color' => $this->getSettingOption('paypalExpressButtonStyle', self::PAYPAL_BUTTON_COLORS, $salesChannelId),
+            'shape' => $this->getSettingOption('paypalExpressButtonShape', self::PAYPAL_BUTTON_SHAPES, $salesChannelId),
+            'label' => $this->getSettingOption('paypalExpressButtonType', self::PAYPAL_BUTTON_LABELS, $salesChannelId),
+        ];
+    }
+
+    /**
+     * The setting when it is one of the options, otherwise the first option
+     *
+     * @param non-empty-list<string> $options
+     */
+    private function getSettingOption(string $key, array $options, string $salesChannelId): string
+    {
+        $value = $this->settingsService->getSetting($key, $salesChannelId);
+
+        return is_string($value) && in_array($value, $options, true) ? $value : $options[0];
     }
     protected function showIdealFastCheckout(string $salesChannelId, string $page = 'product'): bool
     {
