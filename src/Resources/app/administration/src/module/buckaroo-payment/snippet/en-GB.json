@@ -136,7 +136,9 @@
                 "assign": "Assign sales channels",
                 "openSettings": "Open payment settings",
                 "modalTitle": "Sales channels for {name}",
-                "modalDescription": "Choose in which sales channels Shopware offers this payment method. Customers only see it at checkout in the selected sales channels, regardless of the Buckaroo setting."
+                "modalDescription": "Choose in which sales channels Shopware offers this payment method. Customers only see it at checkout in the selected sales channels, regardless of the Buckaroo setting.",
+                "defaultPaymentMethodLabel": "{name} (default payment method)",
+                "defaultPaymentMethodHint": "This payment method stays selected in the sales channels where it is the default payment method. To remove it there, first choose another default payment method in the sales channel settings."
             }
         },
         "paymentSettings": {

@@ -8,15 +8,22 @@
         {{ $tc('buckaroo-payment.paymentList.availability.modalDescription') }}
     </p>
 
+    <p
+        v-if="hasLockedSalesChannel"
+        class="bk-sales-channel-modal__description"
+    >
+        {{ $tc('buckaroo-payment.paymentList.availability.defaultPaymentMethodHint') }}
+    </p>
+
     <sw-checkbox-field
         v-for="salesChannel in salesChannels"
         :key="salesChannel.id"
         class="bk-sales-channel-modal__option"
-        :label="salesChannel.name"
+        :label="getLabel(salesChannel)"
         :value="isSelected(salesChannel.id)"
-        :disabled="isSaving"
-        @update:value="onToggle(salesChannel.id, $event)"
-        @change="onToggle(salesChannel.id, $event)"
+        :disabled="isSaving || isLocked(salesChannel)"
+        @update:value="onToggle(salesChannel, $event)"
+        @change="onToggle(salesChannel, $event)"
     />
 
     <template #modal-footer>

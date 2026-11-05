@@ -53,6 +53,10 @@ Component.register('buckaroo-sales-channel-modal', {
 
         hasChanges() {
             return this.toAdd.length > 0 || this.toRemove.length > 0;
+        },
+
+        hasLockedSalesChannel() {
+            return this.salesChannels.some(salesChannel => this.isLocked(salesChannel));
         }
     },
 
@@ -61,9 +65,25 @@ Component.register('buckaroo-sales-channel-modal', {
             return this.selectedIds.includes(id);
         },
 
-        onToggle(id, checked) {
+        /**
+         * A sales channel's default payment method must stay assigned to it; Shopware does not
+         * check this, so removing it here would leave the sales channel with an unavailable default
+         */
+        isLocked(salesChannel) {
+            return salesChannel.defaultPaymentMethodId === this.paymentMethodId && this.isSelected(salesChannel.id);
+        },
+
+        getLabel(salesChannel) {
+            return salesChannel.defaultPaymentMethodId === this.paymentMethodId
+                ? this.$t('buckaroo-payment.paymentList.availability.defaultPaymentMethodLabel', { name: salesChannel.name })
+                : salesChannel.name;
+        },
+
+        onToggle(salesChannel, checked) {
+            const id = salesChannel.id;
+
             // sw-checkbox-field emits "update:value" (6.6+) or "change" (6.5)
-            if (typeof checked !== 'boolean' || checked === this.isSelected(id)) {
+            if (typeof checked !== 'boolean' || checked === this.isSelected(id) || this.isLocked(salesChannel)) {
                 return;
             }
 

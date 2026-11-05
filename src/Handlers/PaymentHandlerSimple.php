@@ -324,7 +324,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
 
                 // Handle zero amount payments
                 if ($order->getAmountTotal() <= 0) {
-                    return new RedirectResponse($transaction->getReturnUrl());
+                    return $this->redirectToReturnUrl($transaction);
                 }
 
                 $urlGenerator = new PaymentUrlGenerator($this->asyncPaymentService);
@@ -437,8 +437,8 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 if ($response->hasRedirect()) {
                     return new RedirectResponse($response->getRedirectUrl());
                 }
-                
-                return new RedirectResponse($transaction->getReturnUrl());
+
+                return $this->redirectToReturnUrl($transaction);
             } catch (\Shopware\Core\Checkout\Payment\PaymentException $e) {
                 // Re-throw payment exceptions so they trigger error redirect
                 throw $e;
@@ -570,6 +570,17 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 return '';
             }
             return $contextToken;
+        }
+
+        /**
+         * On Shopware 6.7 a transaction can come without a return URL; then there is nothing
+         * to redirect to, and returning null lets Shopware continue the checkout.
+         */
+        private function redirectToReturnUrl(PaymentTransactionStruct $transaction): ?RedirectResponse
+        {
+            $returnUrl = $transaction->getReturnUrl();
+
+            return $returnUrl ? new RedirectResponse($returnUrl) : null;
         }
 
         /**
