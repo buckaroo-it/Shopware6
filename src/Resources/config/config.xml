@@ -1271,15 +1271,15 @@
                     <id>checkout</id>
                     <name lang="en-GB">Checkout</name>
                     <name lang="nl-NL">Betalen</name>
-                    <name lang="de-DE">Zur Kasse</name>
-                    <name lang="fr-FR">Paiement</name>
+                    <name lang="de-DE">Direkt zu PayPal</name>
+                    <name lang="fr-FR">Payer</name>
                 </option>
                 <option>
                     <id>buynow</id>
                     <name lang="en-GB">Buy now</name>
                     <name lang="nl-NL">Nu kopen</name>
                     <name lang="de-DE">Jetzt kaufen</name>
-                    <name lang="fr-FR">Acheter maintenant</name>
+                    <name lang="fr-FR">Acheter</name>
                 </option>
                 <option>
                     <id>pay</id>
