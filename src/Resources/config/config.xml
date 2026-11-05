@@ -1270,7 +1270,7 @@
                 <option>
                     <id>checkout</id>
                     <name lang="en-GB">Checkout</name>
-                    <name lang="nl-NL">Afrekenen</name>
+                    <name lang="nl-NL">Betalen</name>
                     <name lang="de-DE">Zur Kasse</name>
                     <name lang="fr-FR">Paiement</name>
                 </option>

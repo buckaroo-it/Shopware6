@@ -1,15 +1,18 @@
 .bk-express-button-preview {
     margin-bottom: 22px;
 
+    // Same as the other field labels: help text at the right edge
     &__label {
         display: flex;
         align-items: center;
-        gap: 4px;
         margin-bottom: 8px;
         font-size: 14px;
-        font-weight: 600;
         line-height: 16px;
-        color: #52667a;
+        color: var(--color-text-primary-default, #52667a);
+    }
+
+    &__label-text {
+        flex-grow: 1;
     }
 
     // 400px wide gets PayPal's 45px button, the height it has in a 300-499px storefront column
@@ -21,6 +24,6 @@
     &__error {
         margin: 0;
         font-size: 14px;
-        color: #52667a;
+        color: var(--color-text-secondary-default, #52667a);
     }
 }
