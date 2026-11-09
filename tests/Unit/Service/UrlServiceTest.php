@@ -222,6 +222,96 @@ class UrlServiceTest extends TestCase
     }
 
     /**
+     * An order of an API (headless) sales channel gets its return URL (Shopware's
+     * finalize-transaction URL) with cancel=1 as cancel URL: the storefront cancel route is not
+     * reachable for that sales channel, and its domain need not be a URL at all.
+     */
+    public function testGetCancelUrlForOrderOfAnApiSalesChannelUsesTheReturnUrl(): void
+    {
+        $this->stubSalesChannelWithDomains(
+            [['default.headless0', self::EN_LANGUAGE_ID]],
+            Defaults::SALES_CHANNEL_TYPE_API
+        );
+        $this->router->expects($this->never())->method('generate');
+
+        $cancelUrl = $this->urlService->getCancelUrlForOrder(
+            $this->createOrder(self::EN_LANGUAGE_ID),
+            $this->createContext([self::EN_LANGUAGE_ID]),
+            'https://backend.example/payment/finalize-transaction?_sw_payment_token=abc'
+        );
+
+        $this->assertSame(
+            'https://backend.example/payment/finalize-transaction?_sw_payment_token=abc&cancel=1',
+            $cancelUrl
+        );
+    }
+
+    public function testGetCancelUrlForOrderOfAnApiSalesChannelAddsAQueryWhenTheReturnUrlHasNone(): void
+    {
+        $this->stubSalesChannelWithDomains([], Defaults::SALES_CHANNEL_TYPE_API);
+
+        $cancelUrl = $this->urlService->getCancelUrlForOrder(
+            $this->createOrder(self::EN_LANGUAGE_ID),
+            $this->createContext([self::EN_LANGUAGE_ID]),
+            'https://backend.example/return'
+        );
+
+        $this->assertSame('https://backend.example/return?cancel=1', $cancelUrl);
+    }
+
+    /**
+     * Without a usable absolute http(s) return URL the API sales channel keeps the previous
+     * domain-based behaviour.
+     *
+     * @dataProvider unusableReturnUrlProvider
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('unusableReturnUrlProvider')]
+    public function testGetCancelUrlForOrderOfAnApiSalesChannelFallsBackWithoutAUsableReturnUrl(
+        ?string $returnUrl
+    ): void {
+        $this->stubSalesChannelWithDomains(
+            [['https://frontend.example', self::EN_LANGUAGE_ID]],
+            Defaults::SALES_CHANNEL_TYPE_API
+        );
+
+        $cancelUrl = $this->urlService->getCancelUrlForOrder(
+            $this->createOrder(self::EN_LANGUAGE_ID),
+            $this->createContext([self::EN_LANGUAGE_ID]),
+            $returnUrl
+        );
+
+        $this->assertSame('https://frontend.example/buckaroo/cancel', $cancelUrl);
+    }
+
+    /**
+     * @return array<string, array{?string}>
+     */
+    public static function unusableReturnUrlProvider(): array
+    {
+        return [
+            'not set' => [null],
+            'relative' => ['/payment/finalize-transaction?_sw_payment_token=abc'],
+            'unsupported scheme' => ['ftp://backend.example/return'],
+        ];
+    }
+
+    /**
+     * A storefront sales channel keeps its storefront cancel route, even with a return URL.
+     */
+    public function testGetCancelUrlForOrderOfAStorefrontSalesChannelKeepsTheCancelRoute(): void
+    {
+        $this->stubSalesChannelWithDomains([['https://www.shop.com', self::EN_LANGUAGE_ID]]);
+
+        $cancelUrl = $this->urlService->getCancelUrlForOrder(
+            $this->createOrder(self::EN_LANGUAGE_ID),
+            $this->createContext([self::EN_LANGUAGE_ID]),
+            'https://www.shop.com/payment/finalize-transaction?_sw_payment_token=abc'
+        );
+
+        $this->assertSame('https://www.shop.com/buckaroo/cancel', $cancelUrl);
+    }
+
+    /**
      * APP_URL already carries the sub-directory Shopware is installed in; a trailing slash
      * must not double up.
      */
