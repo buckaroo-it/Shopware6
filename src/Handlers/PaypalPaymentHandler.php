@@ -58,7 +58,7 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
         // transaction and answers with a RequiredAction redirect, which parks the
         // shopper on redirect.ashx ("Redirecting, please wait...") instead of
         // returning to the finish page.
-        if ($dataBag->has('orderId') && is_scalar($dataBag->get('orderId'))) {
+        if ($this->isPaypalExpress($dataBag)) {
             $payload['payPalOrderId'] = (string)$dataBag->get('orderId');
         }
 
@@ -85,7 +85,7 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
     ): string {
         $needsExtraInfo = $salesChannelContext !== null
             && $this->isSellerProtection($salesChannelContext)
-            && !$dataBag->has('orderId');
+            && !$this->isPaypalExpress($dataBag);
         if ($needsExtraInfo) {
             return 'extraInfo';
         }
@@ -168,6 +168,20 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
                 'mobile' =>  (string)$address->getPhoneNumber(),
             ]
         ];
+    }
+
+    /**
+     * Only the PayPal Express flow (PaypalExpressController::pay) carries a PayPal order id.
+     * It marks its data bag with "paypalExpressInfo". A plain "orderId" is not enough:
+     * the Store API route /store-api/handle-payment requires "orderId" (the Shopware
+     * order id), and Shopware passes that request body on as the data bag. Sending it to
+     * Buckaroo as payPalOrderId makes Buckaroo capture a PayPal order that does not
+     * exist, which fails with "can't be captured in current state".
+     */
+    private function isPaypalExpress(RequestDataBag $dataBag): bool
+    {
+        return $dataBag->getBoolean('paypalExpressInfo')
+            && is_scalar($dataBag->get('orderId'));
     }
 
     /**
