@@ -28,7 +28,7 @@ const init = () => {
     PluginManager.register('BuckarooIdealQrPlugin', IdealQrPlugin, '[data-ideal-qr]');
     PluginManager.register('BuckarooApplePayPlugin', ApplePayPlugin, '[data-bk-applepay]');
     PluginManager.register('BuckarooLoadScripts', BuckarooLoadScripts);
-    PluginManager.register('BuckarooBanContact', BuckarooBanContact);
+    PluginManager.register('BuckarooBanContact', BuckarooBanContact, '#bk-hosted-fields-bancontactmrcash');
     PluginManager.register('BuckarooPayByBankSelect', BuckarooPayByBankSelect, '[data-bk-select]');
     PluginManager.register('BuckarooPayByBankLogo', BuckarooPayByBankLogo, '[data-bk-paybybank-logo]');
     PluginManager.register('IdealFastCheckoutPlugin', IdealFastCheckoutPlugin, '[data-bk-ideal-fast-checkout]');

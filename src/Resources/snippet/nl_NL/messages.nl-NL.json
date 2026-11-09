@@ -90,6 +90,11 @@
         "selectYear": "Selecteer een Jaar",
         "securityCode": "CVC/VV"
       },
+      "bancontactmrcash": {
+        "cardholder": "Naam op kaart",
+        "cardNumber": "Kaartnummer",
+        "expiration": "Vervaldatum"
+      },
       "Coc": "KvK-nummer:",
       "CocPlaceholder": "KvK-nummer",
       "buckarooMobileCocError": "KvK-nummer is verplicht",

@@ -87,6 +87,11 @@
         "selectYear": "Sélectionnez une année",
         "securityCode": "CVC/VV"
       },
+      "bancontactmrcash": {
+        "cardholder": "Nom sur la carte",
+        "cardNumber": "Numéro de carte",
+        "expiration": "Date d'expiration"
+      },
       "Coc": "Numéro de CCI:",
       "CocPlaceholder": "Numéro de CCI",
       "buckarooMobileCocError": "Le numéro de CCI est requis",

@@ -335,22 +335,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'validHouseNumbers'     => $this->areValidHouseNumbers($event),
             'afterpayOld' => $this->getSettingAsBool('afterpayEnabledold', $salesChannelId),
             'afterpay_billing_coc' => $this->getAfterpayBillingCoc($customer),
-            'redirectBancontact' => $this->isBancontactClientSideEncryptionEnabled($salesChannelId)]);
+            'bancontactHostedFields' => $this->canShowBancontactHostedFields($salesChannelId)]);
 
         $event->getPage()->addExtension(
             BuckarooStruct::EXTENSION_NAME,
             $struct
         );
-    }
-
-    /**
-     * "Client-side encryption" for Bancontact. Also accepts the former select value "enabledRedirect".
-     */
-    private function isBancontactClientSideEncryptionEnabled(string $salesChannelId): bool
-    {
-        $value = $this->settingsService->getSetting('redirectBancontact', $salesChannelId);
-
-        return in_array($value, [true, 1, '1', 'true', 'enabledRedirect'], true);
     }
 
     private function getIdealProcessingRenderMode(string $salesChannelId): int
@@ -958,6 +948,17 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
         
         return $country->getIso();
+    }
+
+    /**
+     * Bancontact Hosted Fields need the Hosted Fields Client ID and Secret to get a
+     * token, without them the fields cannot load, so Bancontact keeps the redirect.
+     */
+    private function canShowBancontactHostedFields(string $salesChannelId): bool
+    {
+        return $this->getSettingAsBool('bancontactmrcashHostedFields', $salesChannelId) &&
+            $this->settingsService->getSettingAsString('clientId', $salesChannelId) !== '' &&
+            $this->settingsService->getSettingAsString('clientSecret', $salesChannelId) !== '';
     }
 
     /**

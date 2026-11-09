@@ -777,16 +777,15 @@
 
 
         <input-field type="bool">
-            <name>redirectBancontact</name>
-            <label lang="en-GB">Client-side encryption</label>
-            <label lang="nl-NL">Client-side encryption</label>
-            <label lang="de-DE">Clientseitige Verschlüsselung</label>
-            <label lang="fr-FR">Cryptage côté client</label>
-            <helpText lang="en-GB">When on, customers enter their Bancontact card details directly in your checkout; the details are encrypted in the browser. When off, customers are redirected to the Buckaroo payment page.</helpText>
-            <helpText lang="nl-NL">Staat dit aan, dan vullen klanten hun Bancontact-kaartgegevens direct in je checkout in; de gegevens worden in de browser versleuteld. Staat dit uit, dan worden klanten doorgestuurd naar de betaalpagina van Buckaroo.</helpText>
-            <helpText lang="de-DE">Wenn aktiviert, geben Kunden ihre Bancontact-Kartendaten direkt in Ihrem Checkout ein; die Daten werden im Browser verschlüsselt. Wenn deaktiviert, werden Kunden zur Zahlungsseite von Buckaroo weitergeleitet.</helpText>
-            <helpText lang="fr-FR">Si activé, les clients saisissent leurs données de carte Bancontact directement dans votre page de paiement ; elles sont chiffrées dans le navigateur. Si désactivé, les clients sont redirigés vers la page de paiement Buckaroo.</helpText>
-            <defaultValue>true</defaultValue>
+            <name>bancontactmrcashHostedFields</name>
+            <label lang="en-GB">Hosted Fields</label>
+            <label lang="nl-NL">Hosted Fields</label>
+            <label lang="de-DE">Hosted Fields</label>
+            <label lang="fr-FR">Hosted Fields</label>
+            <helpText lang="en-GB">Let customers enter their Bancontact card details in the checkout. Uses the Client ID and Client Secret of "Cards (Hosted Fields)". When disabled, customers are redirected to Buckaroo.</helpText>
+            <helpText lang="nl-NL">Laat klanten hun Bancontact-kaartgegevens in de checkout invoeren. Gebruikt de Client ID en Client Secret van "Creditcard en debetkaart (Hosted Fields)". Indien uitgeschakeld, worden klanten doorgestuurd naar Buckaroo.</helpText>
+            <helpText lang="de-DE">Kunden geben ihre Bancontact-Kartendaten direkt im Checkout ein. Verwendet die Client ID und das Client Secret von "Kartenzahlung (Hosted Fields)". Wenn deaktiviert, werden Kunden zu Buckaroo weitergeleitet.</helpText>
+            <helpText lang="fr-FR">Permet aux clients de saisir les données de leur carte Bancontact lors du paiement. Utilise le Client ID et le Client Secret de "Cartes de crédit et de débit (Hosted Fields)". Si désactivé, les clients sont redirigés vers Buckaroo.</helpText>
         </input-field>
 
         <input-field type="text">

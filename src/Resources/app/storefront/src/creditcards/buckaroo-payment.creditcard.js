@@ -3,22 +3,12 @@ const Plugin = window.PluginBaseClass;
 const SDK_SCRIPT_ID = 'buckaroo-sdk';
 const SDK_SCRIPT_URL = 'https://hostedfields-externalapi.prod-pci.buckaroo.io/v1/sdk';
 
-/**
- * The SDK reports every event against one of these target types. `Global`
- * carries the detected card scheme rather than a field, so it has no markup.
- */
-const FIELD_WRAPPER_IDS = {
-    CardHolderName: 'cc-name-wrapper',
-    CardNumber: 'cc-number-wrapper',
-    ExpiryDate: 'cc-expiry-wrapper',
-    Cvc: 'cc-cvc-wrapper',
-};
-
-const FIELD_ERROR_IDS = {
-    CardHolderName: 'cc-name-error',
-    CardNumber: 'cc-number-error',
-    ExpiryDate: 'cc-expiry-error',
-    Cvc: 'cc-cvc-error',
+/** SDK mount method for each field target type. */
+const FIELD_MOUNT_METHODS = {
+    CardHolderName: 'mountCardHolderName',
+    CardNumber: 'mountCardNumber',
+    Cvc: 'mountCvc',
+    ExpiryDate: 'mountExpiryDate',
 };
 
 /** Wrapper class mirroring the focus state of the input inside the iframe. */
@@ -37,10 +27,52 @@ const TRANSPARENT_BACKGROUND = /^(transparent|rgba\(0,\s*0,\s*0,\s*0\))$/;
  * shipping updates and AJAX section refreshes. Every replacement creates a new
  * plugin instance (see lifecycle note on the class below). Keeping the token
  * at module scope prevents a new token request on every checkout re-render.
+ * Keyed by payment method, as each one is granted its own supported services.
  */
-let tokenCache = null;
+const tokenCache = {};
 
 export default class BuckarooCreditCards extends Plugin {
+    static options = {
+        /** Payment method the OAuth token endpoint resolves the supported services for. */
+        paymentMethod: 'creditcards',
+
+        /**
+         * The fields to mount, in mount order, keyed by the target type the SDK
+         * reports every event against. `Global` carries the detected card scheme
+         * rather than a field, so it has no markup.
+         */
+        fields: {
+            CardHolderName: {
+                id: 'ccname',
+                wrapperId: 'cc-name-wrapper',
+                labelId: 'cc-name-label',
+                errorId: 'cc-name-error',
+                placeHolder: 'John Doe',
+            },
+            CardNumber: {
+                id: 'cc',
+                wrapperId: 'cc-number-wrapper',
+                labelId: 'cc-number-label',
+                errorId: 'cc-number-error',
+                placeHolder: '555x xxxx xxxx xxxx',
+            },
+            Cvc: {
+                id: 'cvc',
+                wrapperId: 'cc-cvc-wrapper',
+                labelId: 'cc-cvc-label',
+                errorId: 'cc-cvc-error',
+                placeHolder: '1234',
+            },
+            ExpiryDate: {
+                id: 'expiry',
+                wrapperId: 'cc-expiry-wrapper',
+                labelId: 'cc-expiry-label',
+                errorId: 'cc-expiry-error',
+                placeHolder: 'MM / YY',
+            },
+        },
+    };
+
     init() {
         /**
          * Extra safety guard against manual `init()` re-invocations
@@ -127,7 +159,7 @@ export default class BuckarooCreditCards extends Plugin {
     }
 
     async _initializeHostedFields() {
-        const requiredWrappers = Object.values(FIELD_WRAPPER_IDS).map((id) => `#${id}`);
+        const requiredWrappers = Object.values(this.options.fields).map((field) => `#${field.wrapperId}`);
         if (!requiredWrappers.every((selector) => this.el.querySelector(selector))) {
             console.error('Buckaroo Hosted Fields wrappers are missing from the checkout DOM.');
             return;
@@ -156,34 +188,20 @@ export default class BuckarooCreditCards extends Plugin {
 
         const { baseStyling: styling, cardLogoStyling } = this._buildFieldStyling();
 
-        await this.sdkClient.mountCardHolderName('#cc-name-wrapper', {
-            id: 'ccname',
-            placeHolder: 'John Doe',
-            labelSelector: '#cc-name-label',
-            baseStyling: styling,
-        });
+        for (const [targetType, field] of Object.entries(this.options.fields)) {
+            const config = {
+                id: field.id,
+                placeHolder: field.placeHolder,
+                labelSelector: `#${field.labelId}`,
+                baseStyling: styling,
+            };
 
-        await this.sdkClient.mountCardNumber('#cc-number-wrapper', {
-            id: 'cc',
-            placeHolder: '555x xxxx xxxx xxxx',
-            labelSelector: '#cc-number-label',
-            baseStyling: styling,
-            cardLogoStyling,
-        });
+            if (targetType === 'CardNumber') {
+                config.cardLogoStyling = cardLogoStyling;
+            }
 
-        await this.sdkClient.mountCvc('#cc-cvc-wrapper', {
-            id: 'cvc',
-            placeHolder: '1234',
-            labelSelector: '#cc-cvc-label',
-            baseStyling: styling,
-        });
-
-        await this.sdkClient.mountExpiryDate('#cc-expiry-wrapper', {
-            id: 'expiry',
-            placeHolder: 'MM / YY',
-            labelSelector: '#cc-expiry-label',
-            baseStyling: styling,
-        });
+            await this.sdkClient[FIELD_MOUNT_METHODS[targetType]](`#${field.wrapperId}`, config);
+        }
     }
 
     /**
@@ -200,7 +218,7 @@ export default class BuckarooCreditCards extends Plugin {
      * told to render nothing but text.
      */
     _buildFieldStyling() {
-        const reference = this.el.querySelector(`#${FIELD_WRAPPER_IDS.CardHolderName}`);
+        const reference = this.el.querySelector(`#${this.options.fields.CardHolderName.wrapperId}`);
         const computed = window.getComputedStyle(reference);
 
         // Placeholders cannot be reached with CSS either, so the theme colour
@@ -282,15 +300,17 @@ export default class BuckarooCreditCards extends Plugin {
         }
     }
 
-    /** The error element id for a field, or null while it is untouched. */
+    /** The error element id for a field, or null while it is untouched or not mounted. */
     _visibleErrorId(targetType) {
-        return this._touchedFields.has(targetType) ? FIELD_ERROR_IDS[targetType] : null;
+        const field = this.options.fields[targetType];
+
+        return field && this._touchedFields.has(targetType) ? field.errorId : null;
     }
 
     _getFieldWrapper(targetType) {
-        const wrapperId = FIELD_WRAPPER_IDS[targetType];
+        const field = this.options.fields[targetType];
 
-        return wrapperId ? this.el.querySelector(`#${wrapperId}`) : null;
+        return field ? this.el.querySelector(`#${field.wrapperId}`) : null;
     }
 
     /**
@@ -299,10 +319,12 @@ export default class BuckarooCreditCards extends Plugin {
      * sibling `.invalid-feedback` and colour the border.
      */
     _syncFieldValidity(targetType, wrapper) {
-        const errorId = FIELD_ERROR_IDS[targetType];
-        if (!wrapper || !errorId) {
+        const field = this.options.fields[targetType];
+        if (!wrapper || !field) {
             return;
         }
+
+        const errorId = field.errorId;
 
         const errorElement = document.getElementById(errorId);
         const hasError = Boolean(errorElement && errorElement.innerText.trim());
@@ -396,17 +418,20 @@ export default class BuckarooCreditCards extends Plugin {
 
     async _getOrRefreshToken() {
         const now = Date.now();
+        const paymentMethod = this.options.paymentMethod;
+        const cached = tokenCache[paymentMethod];
 
-        if (tokenCache && now < tokenCache.expiresAt && tokenCache.accessToken) {
+        if (cached && now < cached.expiresAt && cached.accessToken) {
             return {
-                access_token: tokenCache.accessToken,
-                issuers: tokenCache.issuers,
+                access_token: cached.accessToken,
+                issuers: cached.issuers,
             };
         }
 
         try {
             const baseUrl = this._getStorefrontBaseUrl();
-            const response = await fetch(`${baseUrl}/buckaroo/get-oauth-token`, {
+            const query = new URLSearchParams({ paymentMethod });
+            const response = await fetch(`${baseUrl}/buckaroo/get-oauth-token?${query}`, {
                 method: 'GET',
                 headers: {
                     'X-Requested-From': 'ShopwareFrontend',
@@ -418,15 +443,15 @@ export default class BuckarooCreditCards extends Plugin {
                 throw new Error('No access token in response');
             }
 
-            tokenCache = {
+            tokenCache[paymentMethod] = {
                 accessToken: data.data.access_token,
                 issuers: data.data.issuers,
                 expiresAt: now + (10 * 60 * 1000),
             };
 
             return {
-                access_token: tokenCache.accessToken,
-                issuers: tokenCache.issuers,
+                access_token: data.data.access_token,
+                issuers: data.data.issuers,
             };
         } catch (error) {
             console.error('Token refresh failed:', error);
