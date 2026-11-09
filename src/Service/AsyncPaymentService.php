@@ -266,10 +266,10 @@ class AsyncPaymentService
         $criteria->addAssociation('order.orderCustomer.salutation');
         $criteria->addAssociation('order.billingAddress');
         $criteria->addAssociation('order.deliveries');
-        $criteria->addAssociation('order.deliveries.shippingAddress');
+        $criteria->addAssociation('order.deliveries.shippingOrderAddress');
         $criteria->addAssociation('order.transactions');
         $criteria->addAssociation('order.lineItems');
-        $criteria->addAssociation('order.deliveries.shippingAddress.country');
+        $criteria->addAssociation('order.deliveries.shippingOrderAddress.country');
         $criteria->addAssociation('order.billingAddress.country');
         $criteria->addAssociation('order.orderCustomer');
 
