@@ -15,6 +15,12 @@ Component.register("buckaroo-main-config", {
             required: false,
             default: () => ({})
         },
+        // "All Sales Channels" values when a sales channel is selected, else null
+        inheritedValue: {
+            type: Object,
+            required: false,
+            default: null
+        },
         elementMethods: {
             type: Object,
             required: false,

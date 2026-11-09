@@ -53,6 +53,7 @@ class PaymentHandlerContextTokenTest extends TestCase
     /**
      * @dataProvider handlerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('handlerProvider')]
     public function testTokenIsReadFromTheHeader(string $handlerClass): void
     {
         $request = new Request();
@@ -64,6 +65,7 @@ class PaymentHandlerContextTokenTest extends TestCase
     /**
      * @dataProvider handlerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('handlerProvider')]
     public function testTokenIsReadFromRequestParametersWhenTheHeaderIsMissing(string $handlerClass): void
     {
         $request = new Request(['sw-context-token' => self::TOKEN]);
@@ -78,6 +80,7 @@ class PaymentHandlerContextTokenTest extends TestCase
      *
      * @dataProvider handlerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('handlerProvider')]
     public function testTokenFallsBackToTheResolvedSalesChannelContext(string $handlerClass): void
     {
         $request = new Request();
@@ -92,6 +95,7 @@ class PaymentHandlerContextTokenTest extends TestCase
     /**
      * @dataProvider handlerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('handlerProvider')]
     public function testTheHeaderWinsOverTheResolvedSalesChannelContext(string $handlerClass): void
     {
         $request = new Request();
@@ -111,6 +115,7 @@ class PaymentHandlerContextTokenTest extends TestCase
      *
      * @dataProvider handlerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('handlerProvider')]
     public function testASessionlessRequestResolvesToAnEmptyToken(string $handlerClass): void
     {
         $request = new Request();
@@ -125,6 +130,7 @@ class PaymentHandlerContextTokenTest extends TestCase
      *
      * @dataProvider handlerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('handlerProvider')]
     public function testATokenStoredInTheSessionIsIgnored(string $handlerClass): void
     {
         $session = new Session(new MockArraySessionStorage());

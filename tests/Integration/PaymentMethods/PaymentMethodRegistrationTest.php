@@ -26,6 +26,7 @@ class PaymentMethodRegistrationTest extends TestCase
     /**
      * @dataProvider paymentMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentMethodProvider')]
     public function testPaymentMethodCanBeInstantiated(string $className): void
     {
         $paymentMethod = new $className();
@@ -36,6 +37,7 @@ class PaymentMethodRegistrationTest extends TestCase
     /**
      * @dataProvider paymentMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentMethodProvider')]
     public function testPaymentMethodHasBuckarooKey(string $className): void
     {
         $paymentMethod = new $className();
@@ -49,6 +51,7 @@ class PaymentMethodRegistrationTest extends TestCase
     /**
      * @dataProvider paymentMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentMethodProvider')]
     public function testPaymentMethodHasVersion(string $className): void
     {
         $paymentMethod = new $className();
@@ -62,6 +65,7 @@ class PaymentMethodRegistrationTest extends TestCase
     /**
      * @dataProvider paymentMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentMethodProvider')]
     public function testPaymentMethodHasName(string $className): void
     {
         $paymentMethod = new $className();
@@ -75,6 +79,7 @@ class PaymentMethodRegistrationTest extends TestCase
     /**
      * @dataProvider paymentMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentMethodProvider')]
     public function testPaymentMethodHasDescription(string $className): void
     {
         $paymentMethod = new $className();
@@ -88,6 +93,7 @@ class PaymentMethodRegistrationTest extends TestCase
     /**
      * @dataProvider paymentMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentMethodProvider')]
     public function testPaymentMethodHasPaymentHandler(string $className): void
     {
         $paymentMethod = new $className();
@@ -104,6 +110,7 @@ class PaymentMethodRegistrationTest extends TestCase
     /**
      * @dataProvider paymentMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentMethodProvider')]
     public function testPaymentMethodHasMedia(string $className): void
     {
         $paymentMethod = new $className();
@@ -117,6 +124,7 @@ class PaymentMethodRegistrationTest extends TestCase
     /**
      * @dataProvider paymentMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentMethodProvider')]
     public function testPaymentMethodHasTranslations(string $className): void
     {
         $paymentMethod = new $className();
@@ -131,6 +139,7 @@ class PaymentMethodRegistrationTest extends TestCase
     /**
      * @dataProvider paymentMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentMethodProvider')]
     public function testPaymentMethodHasType(string $className): void
     {
         $paymentMethod = new $className();
@@ -144,6 +153,7 @@ class PaymentMethodRegistrationTest extends TestCase
     /**
      * @dataProvider paymentMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentMethodProvider')]
     public function testPaymentMethodHasRefundCapability(string $className): void
     {
         $paymentMethod = new $className();
@@ -156,6 +166,7 @@ class PaymentMethodRegistrationTest extends TestCase
     /**
      * @dataProvider paymentMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentMethodProvider')]
     public function testPaymentMethodHasCaptureCapability(string $className): void
     {
         $paymentMethod = new $className();
@@ -168,6 +179,7 @@ class PaymentMethodRegistrationTest extends TestCase
     /**
      * @dataProvider paymentMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentMethodProvider')]
     public function testPaymentMethodHasTechnicalName(string $className): void
     {
         $paymentMethod = new $className();
@@ -181,6 +193,7 @@ class PaymentMethodRegistrationTest extends TestCase
     /**
      * @dataProvider paymentMethodProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentMethodProvider')]
     public function testPaymentMethodTemplateIsNullable(string $className): void
     {
         $paymentMethod = new $className();

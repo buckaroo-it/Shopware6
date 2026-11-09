@@ -1,29 +1,36 @@
-<div class="bk-toogle-wrap">
-    <button
-            type="button"
-            :disabled="isLoading"
-            :class="`live ${getClass('live')}`"
-            @click="setStatus('live')"
-    >
-        Live
-    </button>
+<div
+    class="bk-toggle-status"
+    :class="{ 'is--inherited': isInherited }"
+    role="group"
+    :aria-label="$t('buckaroo-payment.paymentList.toggleLabel', { name: label })"
+>
+    <sw-inheritance-switch
+        v-if="canInherit"
+        class="bk-toggle-status__inheritance"
+        :is-inherited="isInherited"
+        :disabled="isLoading"
+        @inheritance-restore="restoreInheritance"
+        @inheritance-remove="removeInheritance"
+    />
 
-    <button
-            v-if="method !== 'idealqr'"
-            type="button"
-            :disabled="isLoading"
-            :class="`test ${getClass('test')}`"
-            @click="setStatus('test')"
+    <span
+        v-for="option in options"
+        :key="option"
+        class="bk-toggle-status__option-wrap"
+        v-tooltip="{
+            message: $t('buckaroo-payment.paymentList.testUnavailable', { parent: sharedEnvironmentLabel }),
+            disabled: !(option === 'test' && isTestUnavailable)
+        }"
     >
-        Test
-    </button>
-
-    <button
+        <button
             type="button"
-            :disabled="isLoading"
-            :class="`disabled ${getClass('disabled')}`"
-            @click="setStatus('disabled')"
-    >
-        Off
-    </button>
+            class="bk-toggle-status__option"
+            :class="[`is--${option}`, { 'is--selected': status === option }]"
+            :aria-pressed="status === option ? 'true' : 'false'"
+            :disabled="isOptionDisabled(option)"
+            @click="setStatus(option)"
+        >
+            {{ $tc(`buckaroo-payment.paymentList.${option}`) }}
+        </button>
+    </span>
 </div>

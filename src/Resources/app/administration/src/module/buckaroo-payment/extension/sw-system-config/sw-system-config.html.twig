@@ -5,6 +5,7 @@
     <template v-else>
        <buckaroo-main-config
             :value="actualConfigData[currentSalesChannelId]"
+            :inheritedValue="isNotDefaultSalesChannel ? actualConfigData.null : null"
             :configSettings="config"
             :isNotDefaultSalesChannel="isNotDefaultSalesChannel"
             :currentSalesChannelId="currentSalesChannelId"

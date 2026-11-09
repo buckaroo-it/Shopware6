@@ -1,0 +1,12 @@
+// Shopware spaces its field types differently (dropdown 22px below, text field 32px below,
+// bordered switch 24px above + 22px below). Use one consistent 22px gap between all fields.
+.bk-config-card {
+    .sw-block-field {
+        margin-bottom: 22px;
+    }
+
+    .sw-field--switch {
+        margin-top: 0;
+        margin-bottom: 22px;
+    }
+}

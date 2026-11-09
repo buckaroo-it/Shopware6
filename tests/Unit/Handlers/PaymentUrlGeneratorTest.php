@@ -27,6 +27,7 @@ class PaymentUrlGeneratorTest extends TestCase
     /**
      * @dataProvider foreignFinishUrlProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('foreignFinishUrlProvider')]
     public function testAFinishUrlOffTheShopHostIsIgnored(string $finishUrl): void
     {
         $url = $this->generator()->getReturnUrl(

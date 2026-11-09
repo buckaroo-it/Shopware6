@@ -1,6 +1,7 @@
 const { Component, Filter } = Shopware;
 import template from "./buckaroo-payment-list.html.twig";
 import "./style.scss";
+import { isPaymentEnabled, withInheritedValues, SHARED_ENVIRONMENT_METHODS } from '../../utils/payment-status';
 
 Component.register("buckaroo-payment-list", {
     template,
@@ -15,6 +16,12 @@ Component.register("buckaroo-payment-list", {
             required: false,
             default: () => ({})
         },
+        // "All Sales Channels" values when a sales channel is selected, else null
+        inheritedValue: {
+            type: Object,
+            required: false,
+            default: null
+        },
         currentSalesChannelId: {
             type: String,
             required: true
@@ -23,8 +30,15 @@ Component.register("buckaroo-payment-list", {
 
     emits: ['input'],
 
+    inject: ['repositoryFactory', 'acl'],
+
     data() {
         return {
+            // Shopware payment method per Buckaroo code: { id, active, salesChannelIds }
+            paymentMethodsByCode: {},
+            // Storefront and headless sales channels: [{ id, name, defaultPaymentMethodId }]
+            salesChannels: [],
+            assignModalPayment: null,
             payments: [
                 {
                     code: "Alipay",
@@ -161,7 +175,151 @@ Component.register("buckaroo-payment-list", {
             ]
         };
     },
+    computed: {
+        // Alphabetical by the title shown to the merchant, not by internal code
+        sortedPayments() {
+            return this.payments
+                .map(payment => ({ ...payment, title: this.getPaymentTitle(payment.code) }))
+                .sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }));
+        },
+
+        activeCount() {
+            return this.payments.filter(payment => this.isActive(payment.code)).length;
+        },
+
+        // Settings as the storefront uses them for the selected sales channel
+        resolvedValue() {
+            return withInheritedValues(this.value, this.inheritedValue);
+        }
+    },
+
+    created() {
+        this.loadAvailability();
+    },
+
     methods: {
+        /**
+         * The plugin setting only hides a method; customers see it only when the Shopware payment
+         * method is also active and assigned to the sales channel. Load that state to warn about it.
+         */
+        async loadAvailability() {
+            const { Criteria } = Shopware.Data;
+            const context = Shopware.Context.api;
+
+            // Buckaroo payment methods carry their plugin code in this custom field (set by the installer)
+            const paymentCriteria = new Criteria(1, 100);
+            paymentCriteria.addFilter(Criteria.not('AND', [Criteria.equals('customFields.buckaroo_key', null)]));
+            paymentCriteria.addAssociation('salesChannels');
+
+            const salesChannelCriteria = new Criteria(1, 100);
+            salesChannelCriteria.addFilter(Criteria.equalsAny('typeId', [
+                Shopware.Defaults?.storefrontSalesChannelTypeId || '8a243080f92e4c719546314b577cf82b',
+                Shopware.Defaults?.apiSalesChannelTypeId || 'f183ee5650cf4bdb8a774337575067a6'
+            ]));
+            salesChannelCriteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            try {
+                const [paymentMethods, salesChannels] = await Promise.all([
+                    this.repositoryFactory.create('payment_method').search(paymentCriteria, context),
+                    this.repositoryFactory.create('sales_channel').search(salesChannelCriteria, context)
+                ]);
+
+                const byCode = {};
+                paymentMethods.forEach(paymentMethod => {
+                    const code = paymentMethod.customFields?.buckaroo_key;
+                    if (code) {
+                        byCode[code] = {
+                            id: paymentMethod.id,
+                            active: paymentMethod.active,
+                            salesChannelIds: paymentMethod.salesChannels.map(salesChannel => salesChannel.id)
+                        };
+                    }
+                });
+
+                this.paymentMethodsByCode = byCode;
+                this.salesChannels = salesChannels.map(salesChannel => ({
+                    id: salesChannel.id,
+                    name: salesChannel.translated?.name || salesChannel.name,
+                    defaultPaymentMethodId: salesChannel.paymentMethodId
+                }));
+            } catch (error) {
+                this.paymentMethodsByCode = {};
+
+                // Without read access to payment methods or sales channels the warning is simply not shown
+                if (error?.response?.status !== 403) {
+                    Shopware.Utils.debug.warn('buckaroo-payment-list', 'Could not load checkout availability', error);
+                }
+            }
+        },
+
+        /**
+         * @returns {null|'inactive'|'notInSalesChannel'|'noSalesChannel'}
+         */
+        getAvailabilityIssue(code) {
+            const paymentMethod = this.paymentMethodsByCode[code];
+
+            if (!paymentMethod || !this.isActive(code)) {
+                return null;
+            }
+            if (!paymentMethod.active) {
+                return 'inactive';
+            }
+
+            // Only storefront and headless channels have a checkout, and only those can be assigned in the dialog
+            const checkoutChannelIds = this.salesChannels.map(salesChannel => salesChannel.id);
+
+            if (this.currentSalesChannelId) {
+                if (!checkoutChannelIds.includes(this.currentSalesChannelId)) {
+                    return null;
+                }
+
+                return paymentMethod.salesChannelIds.includes(this.currentSalesChannelId) ? null : 'notInSalesChannel';
+            }
+
+            return paymentMethod.salesChannelIds.some(id => checkoutChannelIds.includes(id)) ? null : 'noSalesChannel';
+        },
+
+        // Assigning sales channels writes sales channel data, so it needs the matching permission
+        canAssignSalesChannels() {
+            return this.acl?.can('sales_channel.editor') ?? false;
+        },
+
+        paymentSettingsRoute(code) {
+            return {
+                name: 'sw.settings.payment.detail',
+                params: { id: this.paymentMethodsByCode[code]?.id }
+            };
+        },
+
+        openAssignModal(payment) {
+            this.assignModalPayment = payment;
+        },
+
+        closeAssignModal() {
+            this.assignModalPayment = null;
+        },
+
+        onAssignSaved() {
+            this.closeAssignModal();
+            this.loadAvailability();
+        },
+
+        isActive(code) {
+            return isPaymentEnabled(this.resolvedValue, code);
+        },
+
+        getSharedEnvironmentTitle(code) {
+            const parent = SHARED_ENVIRONMENT_METHODS[code];
+            return parent ? this.getPaymentTitle(parent) : '';
+        },
+
+        configRoute(code) {
+            return {
+                name: 'buckaroo.payment.config',
+                params: { namespace: 'BuckarooPayments', paymentCode: code }
+            };
+        },
+
         getPaymentTitle(code) {
             if (this.configSettings && Array.isArray(this.configSettings)) {
                 const card = this.configSettings.find((card) => card.name === code);

@@ -21,6 +21,7 @@ class ControllerTest extends TestCase
     /**
      * @dataProvider controllerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('controllerProvider')]
     public function testControllerClassExists(string $className): void
     {
         $this->assertTrue(
@@ -32,6 +33,7 @@ class ControllerTest extends TestCase
     /**
      * @dataProvider controllerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('controllerProvider')]
     public function testControllerExtendsStorefrontController(string $className): void
     {
         $this->assertTrue(
@@ -43,6 +45,7 @@ class ControllerTest extends TestCase
     /**
      * @dataProvider controllerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('controllerProvider')]
     public function testControllerHasConstructor(string $className): void
     {
         $reflection = new \ReflectionClass($className);
@@ -56,6 +59,7 @@ class ControllerTest extends TestCase
     /**
      * @dataProvider controllerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('controllerProvider')]
     public function testControllerConstructorIsPublic(string $className): void
     {
         $reflection = new \ReflectionClass($className);
@@ -74,6 +78,7 @@ class ControllerTest extends TestCase
     /**
      * @dataProvider controllerProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('controllerProvider')]
     public function testControllerHasMethods(string $className): void
     {
         $reflection = new \ReflectionClass($className);

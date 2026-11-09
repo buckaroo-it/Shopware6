@@ -115,6 +115,8 @@ class PaymentMethodsInstaller implements InstallerInterface
             $this->addPaymentMethod(new $gateway(), $context->getContext());
         }
         $this->setDefaultValues();
+        // New installs only: not in config.xml or setDefaultValues(), so updates don't switch it on for existing shops
+        $this->setBuckarooPaymentSettingsValue('paypalSellerprotection', true);
         $this->copyAppleDomainAssociationFile();
     }
 
@@ -369,21 +371,7 @@ class PaymentMethodsInstaller implements InstallerInterface
             );
         }
 
-        foreach ([
-            ['paymentSuccesStatus' => 'paid'],
-            ['orderStatus' => 'open'],
-            ['klarnaBusiness' => 'B2C'],
-            ['transferSendEmail' => 1],
-            ['transferDateDue' => 7],
-            ['payperemailEnabledfrontend' => true],
-            ['BillinkFinancialwarning' => true],
-            ['capayableFinancialwarning' => true],
-            ['afterpayFinancialwarning' => true],
-            ['idealShowissuers' => true],
-            ['idealprocessingShowissuers' => true],
-        ] as $key => $value) {
-            $this->setBuckarooPaymentSettingsValue((string)$key, $value);
-        }
+        // Other defaults are the <defaultValue> elements in config.xml
     }
 
     /**
