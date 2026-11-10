@@ -172,6 +172,9 @@ class UrlService
      *
      * The sales channel lookup runs on the caller's $context, so the sales channel, language and
      * permission scope of the request are preserved in multi-sales-channel installations.
+     *
+     * Orders of a non-storefront sales channel (API/headless) get their return URL with
+     * "cancel=1" instead, see getApiCancelUrl().
      */
     public function getCancelUrlForOrder(OrderEntity $order, Context $context, ?string $baseUrl = null): string
     {
@@ -181,6 +184,13 @@ class UrlService
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->first();
         if (!$salesChannel instanceof SalesChannelEntity) {
             return $this->generateAbsoluteUrl('frontend.action.buckaroo.cancel');
+        }
+
+        if ($salesChannel->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
+            $apiCancelUrl = $this->getApiCancelUrl($baseUrl);
+            if ($apiCancelUrl !== null) {
+                return $apiCancelUrl;
+            }
         }
 
         $domains = $salesChannel->getDomains();
@@ -208,6 +218,33 @@ class UrlService
         }
 
         return rtrim($firstDomain->getUrl(), '/') . '/buckaroo/cancel';
+    }
+
+    /**
+     * Cancel URL for an order of a non-storefront (API/headless) sales channel: the return URL of
+     * the payment (Shopware's finalize-transaction URL) with "cancel=1".
+     *
+     * The storefront cancel route cannot be used there: Shopware only maps storefront-type domains
+     * to a request, and the domains of a headless sales channel usually point at an external
+     * frontend (or are not a URL at all), which Buckaroo rejects with "returncancel does not
+     * contain a valid value". PaymentStateService treats "cancel=1" as a cancellation by the
+     * customer, so Shopware cancels the payment and redirects to the errorUrl the headless
+     * frontend passed to the payment request.
+     *
+     * Returns null when there is no absolute http(s) return URL to build on.
+     */
+    private function getApiCancelUrl(?string $returnUrl): ?string
+    {
+        if ($returnUrl === null || $this->extractOrigin($returnUrl) === null) {
+            return null;
+        }
+
+        $scheme = strtolower((string) parse_url($returnUrl, PHP_URL_SCHEME));
+        if (!in_array($scheme, ['http', 'https'], true)) {
+            return null;
+        }
+
+        return $returnUrl . (str_contains($returnUrl, '?') ? '&' : '?') . 'cancel=1';
     }
 
     /**
