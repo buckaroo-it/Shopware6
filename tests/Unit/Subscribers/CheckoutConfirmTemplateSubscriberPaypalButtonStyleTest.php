@@ -195,7 +195,6 @@ class CheckoutConfirmTemplateSubscriberPaypalButtonStyleTest extends TestCase
         $subscriber = $this->createSubscriber($settingsService);
 
         $method = new \ReflectionMethod($subscriber, 'getPaypalButtonStyle');
-        $method->setAccessible(true);
 
         /** @var array<string, string> $style */
         $style = $method->invoke($subscriber, self::SALES_CHANNEL_ID);

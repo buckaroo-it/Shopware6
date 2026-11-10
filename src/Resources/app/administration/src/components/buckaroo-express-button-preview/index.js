@@ -6,8 +6,7 @@ const { Component } = Shopware;
 
 /**
  * Renderers per express method. Each one names the settings its button style comes from,
- * their defaults, and how to load and draw the button. Apple Pay and Google Pay can be
- * added here and used from config.xml with <method>applepay</method> or <method>googlepay</method>.
+ * their defaults, and how to load and draw the button.
  */
 const RENDERERS = {
     paypal,
@@ -25,7 +24,7 @@ Component.register('buckaroo-express-button-preview', {
             type: String,
             required: true,
         },
-        // Settings of the card as the sales channel uses them (own or inherited value), without the config prefix
+        // Card settings by name, as the sales channel uses them
         values: {
             type: Object,
             required: false,

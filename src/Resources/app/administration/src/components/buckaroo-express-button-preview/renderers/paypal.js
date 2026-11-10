@@ -133,9 +133,6 @@ export default {
         };
     },
 
-    /**
-     * @param {Object} instance
-     */
     destroy(instance) {
         // Rendering into a container that still holds a live button fails, so close it first
         if (instance && typeof instance.close === 'function') {

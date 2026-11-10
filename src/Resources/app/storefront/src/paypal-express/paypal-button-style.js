@@ -75,9 +75,6 @@ function wrapPaypalButtons(namespace, style) {
  * part of initiate(), which puts a load listener on the script before the SDK's
  * own, so it runs first.
  *
- * Without a style, or on any failure, PayPal keeps its default style. When the
- * SDK no longer loads PayPal's script this way, a console warning says so.
- *
  * @param {Function} initiate calls BuckarooSdk.PayPal.initiate()
  * @param {Object|null} style {color, shape, label}
  */
