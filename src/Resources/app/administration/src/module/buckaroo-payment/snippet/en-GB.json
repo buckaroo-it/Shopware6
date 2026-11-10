@@ -144,6 +144,9 @@
         "paymentSettings": {
             "statusLabel": "Enable {method}",
             "statusHelp": "Live accepts real payments. Test uses the Buckaroo test environment, so no real money is charged. Off hides this payment method at checkout."
+        },
+        "expressButtonPreview": {
+            "unavailable": "The preview could not be loaded."
         }
     }
 }

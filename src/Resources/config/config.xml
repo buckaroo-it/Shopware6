@@ -1167,6 +1167,141 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field type="single-select">
+            <name>paypalExpressButtonStyle</name>
+            <label lang="en-GB">Button style</label>
+            <label lang="nl-NL">Knopstijl</label>
+            <label lang="de-DE">Schaltflächenstil</label>
+            <label lang="fr-FR">Style du bouton</label>
+            <helpText lang="en-GB">Colour of the PayPal Express button as customers see it. Gold is PayPal's standard style.</helpText>
+            <helpText lang="nl-NL">Kleur van de PayPal Express-knop zoals klanten die zien. Goud is de standaardstijl van PayPal.</helpText>
+            <helpText lang="de-DE">Farbe der PayPal Express-Schaltfläche, wie Kunden sie sehen. Gold ist der Standardstil von PayPal.</helpText>
+            <helpText lang="fr-FR">Couleur du bouton PayPal Express telle que les clients la voient. Or est le style standard de PayPal.</helpText>
+            <defaultValue>gold</defaultValue>
+            <options>
+                <option>
+                    <id>gold</id>
+                    <name lang="en-GB">Gold (standard)</name>
+                    <name lang="nl-NL">Goud (standaard)</name>
+                    <name lang="de-DE">Gold (Standard)</name>
+                    <name lang="fr-FR">Or (standard)</name>
+                </option>
+                <option>
+                    <id>blue</id>
+                    <name lang="en-GB">Blue</name>
+                    <name lang="nl-NL">Blauw</name>
+                    <name lang="de-DE">Blau</name>
+                    <name lang="fr-FR">Bleu</name>
+                </option>
+                <option>
+                    <id>silver</id>
+                    <name lang="en-GB">Silver</name>
+                    <name lang="nl-NL">Zilver</name>
+                    <name lang="de-DE">Silber</name>
+                    <name lang="fr-FR">Argent</name>
+                </option>
+                <option>
+                    <id>white</id>
+                    <name lang="en-GB">White</name>
+                    <name lang="nl-NL">Wit</name>
+                    <name lang="de-DE">Weiß</name>
+                    <name lang="fr-FR">Blanc</name>
+                </option>
+                <option>
+                    <id>black</id>
+                    <name lang="en-GB">Black</name>
+                    <name lang="nl-NL">Zwart</name>
+                    <name lang="de-DE">Schwarz</name>
+                    <name lang="fr-FR">Noir</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>paypalExpressButtonShape</name>
+            <label lang="en-GB">Button shape</label>
+            <label lang="nl-NL">Knopvorm</label>
+            <label lang="de-DE">Schaltflächenform</label>
+            <label lang="fr-FR">Forme du bouton</label>
+            <helpText lang="en-GB">Corners of the PayPal Express button: rectangular with slightly rounded corners, or fully rounded.</helpText>
+            <helpText lang="nl-NL">Hoeken van de PayPal Express-knop: rechthoekig met licht afgeronde hoeken, of volledig afgerond.</helpText>
+            <helpText lang="de-DE">Ecken der PayPal Express-Schaltfläche: rechteckig mit leicht abgerundeten Ecken oder vollständig abgerundet.</helpText>
+            <helpText lang="fr-FR">Coins du bouton PayPal Express : rectangulaire aux coins légèrement arrondis, ou entièrement arrondi.</helpText>
+            <defaultValue>rect</defaultValue>
+            <options>
+                <option>
+                    <id>rect</id>
+                    <name lang="en-GB">Rectangular</name>
+                    <name lang="nl-NL">Rechthoekig</name>
+                    <name lang="de-DE">Rechteckig</name>
+                    <name lang="fr-FR">Rectangulaire</name>
+                </option>
+                <option>
+                    <id>pill</id>
+                    <name lang="en-GB">Rounded</name>
+                    <name lang="nl-NL">Afgerond</name>
+                    <name lang="de-DE">Abgerundet</name>
+                    <name lang="fr-FR">Arrondi</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>paypalExpressButtonType</name>
+            <label lang="en-GB">Button type</label>
+            <label lang="nl-NL">Knoptype</label>
+            <label lang="de-DE">Schaltflächentyp</label>
+            <label lang="fr-FR">Type de bouton</label>
+            <helpText lang="en-GB">Wording PayPal shows on the button, next to the PayPal logo. Plain shows only the logo.</helpText>
+            <helpText lang="nl-NL">Tekst die PayPal op de knop toont, naast het PayPal-logo. Eenvoudig toont alleen het logo.</helpText>
+            <helpText lang="de-DE">Text, den PayPal neben dem PayPal-Logo auf der Schaltfläche anzeigt. Einfach zeigt nur das Logo.</helpText>
+            <helpText lang="fr-FR">Texte affiché par PayPal sur le bouton, à côté du logo PayPal. Simple n'affiche que le logo.</helpText>
+            <defaultValue>paypal</defaultValue>
+            <options>
+                <option>
+                    <id>paypal</id>
+                    <name lang="en-GB">Plain</name>
+                    <name lang="nl-NL">Eenvoudig</name>
+                    <name lang="de-DE">Einfach</name>
+                    <name lang="fr-FR">Simple</name>
+                </option>
+                <option>
+                    <id>checkout</id>
+                    <name lang="en-GB">Checkout</name>
+                    <name lang="nl-NL">Betalen</name>
+                    <name lang="de-DE">Direkt zu PayPal</name>
+                    <name lang="fr-FR">Payer</name>
+                </option>
+                <option>
+                    <id>buynow</id>
+                    <name lang="en-GB">Buy now</name>
+                    <name lang="nl-NL">Nu kopen</name>
+                    <name lang="de-DE">Jetzt kaufen</name>
+                    <name lang="fr-FR">Acheter</name>
+                </option>
+                <option>
+                    <id>pay</id>
+                    <name lang="en-GB">Pay with</name>
+                    <name lang="nl-NL">Betalen met</name>
+                    <name lang="de-DE">Zahlen mit</name>
+                    <name lang="fr-FR">Payer avec</name>
+                </option>
+            </options>
+        </input-field>
+
+        <component name="buckaroo-express-button-preview">
+            <name>paypalExpressButtonPreview</name>
+            <method>paypal</method>
+            <label lang="en-GB">Button preview</label>
+            <label lang="nl-NL">Knopvoorbeeld</label>
+            <label lang="de-DE">Schaltflächenvorschau</label>
+            <label lang="fr-FR">Aperçu du bouton</label>
+            <helpText lang="en-GB">The PayPal Express button with the settings above, before you save. The button cannot be clicked here.</helpText>
+            <helpText lang="nl-NL">De PayPal Express-knop met de instellingen hierboven, al voordat je opslaat. Je kunt hier niet op de knop klikken.</helpText>
+            <helpText lang="de-DE">Die PayPal Express-Schaltfläche mit den obigen Einstellungen, schon bevor Sie speichern. Die Schaltfläche kann hier nicht angeklickt werden.</helpText>
+            <helpText lang="fr-FR">Le bouton PayPal Express avec les réglages ci-dessus, avant même l'enregistrement. Le bouton n'est pas cliquable ici.</helpText>
+        </component>
     </card>
 
     <card>

@@ -1,0 +1,15 @@
+{% block buckaroo_express_button_preview %}
+    <div class="bk-express-button-preview">
+        <div class="bk-express-button-preview__label">
+            <span class="bk-express-button-preview__label-text">{{ label }}</span>
+            <sw-help-text v-if="helpText" :text="helpText" />
+        </div>
+
+        {# Filled by the payment provider's script, so Vue renders no children here #}
+        <div v-show="!hasError" ref="container" class="bk-express-button-preview__button"></div>
+
+        <p v-if="hasError" class="bk-express-button-preview__error">
+            {{ $tc('buckaroo-payment.expressButtonPreview.unavailable') }}
+        </p>
+    </div>
+{% endblock %}

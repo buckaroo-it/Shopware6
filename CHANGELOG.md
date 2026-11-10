@@ -525,3 +525,9 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-1934 Fixed push messages not reaching Shopware in headless setups (sales channels of type API).
 - BTI-1938 Fixed PayPerEmail payment links expiring the same day when "Due date (in days)" is empty or 0.
 - BTI-1953 Fixed Klarna (MoR) capture failing.
+
+# 3.9.0
+
+## Added / Improved
+
+- BTI-1990 PayPal Express button settings: choose the colour, shape and text of the button, with a live preview in the plugin settings.
