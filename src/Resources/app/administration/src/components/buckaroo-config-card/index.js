@@ -24,6 +24,9 @@ const SWITCH_DEPENDENT_FIELDS = {
     paypalExpressButtonPreview: 'paypalExpressEnabled',
     applepayExpresslocation: 'applepayExpressEnabled',
     googlepayExpresslocation: 'googlepayExpressEnabled',
+    googlepayButtonStyle: 'googlepayExpressEnabled',
+    googlepayButtonType: 'googlepayExpressEnabled',
+    googlepayButtonPreview: 'googlepayExpressEnabled',
     afterpayPaymentstatus: 'afterpayCaptureonshippent',
     afterpayOldtax: 'afterpayEnabledold',
 };
@@ -643,7 +646,8 @@ Component.register('buckaroo-config-card', {
                 method: config.method || '',
                 label: config.label ? this.getInlineSnippet(config.label) : '',
                 helpText: config.helpText ? this.getInlineSnippet(config.helpText) : '',
-                values: this.getEffectiveValues()
+                values: this.getEffectiveValues(),
+                salesChannelId: this.isNotDefaultSalesChannel ? this.currentSalesChannelId : null
             };
         },
 

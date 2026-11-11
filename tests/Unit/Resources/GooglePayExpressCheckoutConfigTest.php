@@ -103,12 +103,13 @@ class GooglePayExpressCheckoutConfigTest extends TestCase
     /**
      * Every express button sits in the same place in its card, like PayPal Express:
      * after the payment fee, its switch followed by the pages it is shown on.
-     * PayPal's button style settings follow its pages (see PaypalExpressButtonStyleConfigTest).
+     * The button style settings of PayPal and Google Pay follow their pages (see
+     * PaypalExpressButtonStyleConfigTest and GooglePayButtonStyleConfigTest).
      */
     public function testExpressSettingsFollowThePaymentFee(): void
     {
         $closingFields = [
-            'googlepay' => 'googlepayExpresslocation',
+            'googlepay' => 'googlepayButtonType',
             'applepay'  => 'applepayExpresslocation',
             'paypal'    => 'paypalExpressButtonType',
         ];

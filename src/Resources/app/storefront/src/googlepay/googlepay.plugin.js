@@ -1,6 +1,10 @@
 import { post } from "../helper/buckaroo-http";
 import FormSerializeUtil from "src/utility/form/form-serialize.util";
+import googlePayButtonLocale from "./button-locale";
 const Plugin = window.PluginBaseClass;
+
+// Button types of Google's createButton(); the first is the default
+const BUTTON_TYPES = ["buy", "plain", "pay", "checkout", "order", "book", "subscribe"];
 
 export default class GooglePayPlugin extends Plugin {
   static options = {
@@ -9,7 +13,8 @@ export default class GooglePayPlugin extends Plugin {
     merchantId: null,
     gatewayMerchantId: null,
     merchantName: "",
-    buttonColor: "default",
+    buttonColor: "black",
+    buttonType: "buy",
     environment: "TEST",
   };
 
@@ -223,9 +228,15 @@ export default class GooglePayPlugin extends Plugin {
     const paymentsClient = new window.google.payments.api.PaymentsClient({ environment: env });
 
     const buttonColor = this.options.buttonColor === "white" ? "white" : "black";
+    const buttonType = BUTTON_TYPES.includes(this.options.buttonType) ? this.options.buttonType : BUTTON_TYPES[0];
+
+    // The language of the storefront (Shopware sets it on <html lang>), not of the browser
+    const buttonLocale = googlePayButtonLocale(document.documentElement.lang);
+
     const button = paymentsClient.createButton({
       buttonColor,
-      buttonType: "buy",
+      buttonType,
+      ...(buttonLocale ? { buttonLocale } : {}),
       buttonSizeMode: "fill",
       onClick: () => this._openPaymentSheet(cartData),
     });

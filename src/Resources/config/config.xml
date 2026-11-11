@@ -1750,45 +1750,6 @@
             <defaultValue>Google Pay</defaultValue>
         </input-field>
 
-
-
-
-        <input-field type="single-select">
-            <name>googlepayButtonStyle</name>
-            <label lang="en-GB">Button style</label>
-            <label lang="de-DE">Schaltflächenstil</label>
-            <label lang="nl-NL">Knopstijl</label>
-            <label lang="fr-FR">Style du bouton</label>
-            <helpText lang="en-GB">Colour of the Google Pay button as customers see it. Default follows Google's standard style.</helpText>
-            <helpText lang="nl-NL">Kleur van de Google Pay-knop zoals klanten die zien. Standaard volgt de standaardstijl van Google.</helpText>
-            <helpText lang="de-DE">Farbe der Google Pay-Schaltfläche, wie Kunden sie sehen. Standard folgt dem Standardstil von Google.</helpText>
-            <helpText lang="fr-FR">Couleur du bouton Google Pay telle que les clients la voient. Par défaut suit le style standard de Google.</helpText>
-            <defaultValue>default</defaultValue>
-            <options>
-                <option>
-                    <id>default</id>
-                    <name lang="en-GB">Default</name>
-                    <name lang="nl-NL">Standaard</name>
-                    <name lang="de-DE">Standard</name>
-                    <name lang="fr-FR">Par défaut</name>
-                </option>
-                <option>
-                    <id>black</id>
-                    <name lang="en-GB">Black</name>
-                    <name lang="nl-NL">Zwart</name>
-                    <name lang="de-DE">Schwarz</name>
-                    <name lang="fr-FR">Noir</name>
-                </option>
-                <option>
-                    <id>white</id>
-                    <name lang="en-GB">White</name>
-                    <name lang="nl-NL">Wit</name>
-                    <name lang="de-DE">Weiß</name>
-                    <name lang="fr-FR">Blanc</name>
-                </option>
-            </options>
-        </input-field>
-
         <input-field type="text">
             <name>googlepayFee</name>
             <copyable>true</copyable>
@@ -1849,6 +1810,112 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field type="single-select">
+            <name>googlepayButtonStyle</name>
+            <label lang="en-GB">Button style</label>
+            <label lang="nl-NL">Knopstijl</label>
+            <label lang="de-DE">Schaltflächenstil</label>
+            <label lang="fr-FR">Style du bouton</label>
+            <helpText lang="en-GB">Colour of the Google Pay express button as customers see it. Black is Google's standard style; use White on dark backgrounds.</helpText>
+            <helpText lang="nl-NL">Kleur van de Google Pay-expressknop zoals klanten die zien. Zwart is de standaardstijl van Google; gebruik Wit op een donkere achtergrond.</helpText>
+            <helpText lang="de-DE">Farbe der Google Pay-Express-Schaltfläche, wie Kunden sie sehen. Schwarz ist der Standardstil von Google; verwenden Sie Weiß auf dunklem Hintergrund.</helpText>
+            <helpText lang="fr-FR">Couleur du bouton express Google Pay telle que les clients la voient. Noir est le style standard de Google ; utilisez Blanc sur un fond sombre.</helpText>
+            <defaultValue>black</defaultValue>
+            <options>
+                <option>
+                    <id>black</id>
+                    <name lang="en-GB">Black</name>
+                    <name lang="nl-NL">Zwart</name>
+                    <name lang="de-DE">Schwarz</name>
+                    <name lang="fr-FR">Noir</name>
+                </option>
+                <option>
+                    <id>white</id>
+                    <name lang="en-GB">White</name>
+                    <name lang="nl-NL">Wit</name>
+                    <name lang="de-DE">Weiß</name>
+                    <name lang="fr-FR">Blanc</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>googlepayButtonType</name>
+            <label lang="en-GB">Button type</label>
+            <label lang="nl-NL">Knoptype</label>
+            <label lang="de-DE">Schaltflächentyp</label>
+            <label lang="fr-FR">Type de bouton</label>
+            <helpText lang="en-GB">Wording Google shows on the button, next to the Google Pay logo, in the language of the storefront. Plain shows only the logo.</helpText>
+            <helpText lang="nl-NL">Tekst die Google op de knop toont, naast het Google Pay-logo, in de taal van de winkel. Eenvoudig toont alleen het logo.</helpText>
+            <helpText lang="de-DE">Text, den Google neben dem Google Pay-Logo auf der Schaltfläche anzeigt, in der Sprache des Shops. Einfach zeigt nur das Logo.</helpText>
+            <helpText lang="fr-FR">Texte affiché par Google sur le bouton, à côté du logo Google Pay, dans la langue de la boutique. Simple n'affiche que le logo.</helpText>
+            <defaultValue>buy</defaultValue>
+            <options>
+                <option>
+                    <id>plain</id>
+                    <name lang="en-GB">Plain</name>
+                    <name lang="nl-NL">Eenvoudig</name>
+                    <name lang="de-DE">Einfach</name>
+                    <name lang="fr-FR">Simple</name>
+                </option>
+                <option>
+                    <id>pay</id>
+                    <name lang="en-GB">Pay with</name>
+                    <name lang="nl-NL">Betalen met</name>
+                    <name lang="de-DE">Bezahlen mit</name>
+                    <name lang="fr-FR">Payer avec</name>
+                </option>
+                <option>
+                    <id>buy</id>
+                    <name lang="en-GB">Buy with</name>
+                    <name lang="nl-NL">Kopen met</name>
+                    <name lang="de-DE">Kaufen mit</name>
+                    <name lang="fr-FR">Acheter avec</name>
+                </option>
+                <option>
+                    <id>checkout</id>
+                    <name lang="en-GB">Checkout with</name>
+                    <name lang="nl-NL">Afrekenen met</name>
+                    <name lang="de-DE">Zur Kasse mit</name>
+                    <name lang="fr-FR">Finaliser avec</name>
+                </option>
+                <option>
+                    <id>order</id>
+                    <name lang="en-GB">Order with</name>
+                    <name lang="nl-NL">Bestellen met</name>
+                    <name lang="de-DE">Bestellen mit</name>
+                    <name lang="fr-FR">Commander avec</name>
+                </option>
+                <option>
+                    <id>book</id>
+                    <name lang="en-GB">Book with</name>
+                    <name lang="nl-NL">Boeken met</name>
+                    <name lang="de-DE">Buchen mit</name>
+                    <name lang="fr-FR">Réserver avec</name>
+                </option>
+                <option>
+                    <id>subscribe</id>
+                    <name lang="en-GB">Subscribe with</name>
+                    <name lang="nl-NL">Abonneren met</name>
+                    <name lang="de-DE">Abonnieren mit</name>
+                    <name lang="fr-FR">S'abonner avec</name>
+                </option>
+            </options>
+        </input-field>
+
+        <component name="buckaroo-express-button-preview">
+            <name>googlepayButtonPreview</name>
+            <method>googlepay</method>
+            <label lang="en-GB">Button preview</label>
+            <label lang="nl-NL">Knopvoorbeeld</label>
+            <label lang="de-DE">Schaltflächenvorschau</label>
+            <label lang="fr-FR">Aperçu du bouton</label>
+            <helpText lang="en-GB">The Google Pay express button with the settings above, before you save. The button cannot be clicked here.</helpText>
+            <helpText lang="nl-NL">De Google Pay-expressknop met de instellingen hierboven, al voordat je opslaat. Je kunt hier niet op de knop klikken.</helpText>
+            <helpText lang="de-DE">Die Google Pay-Express-Schaltfläche mit den obigen Einstellungen, schon bevor Sie speichern. Die Schaltfläche kann hier nicht angeklickt werden.</helpText>
+            <helpText lang="fr-FR">Le bouton express Google Pay avec les réglages ci-dessus, avant même l'enregistrement. Le bouton n'est pas cliquable ici.</helpText>
+        </component>
     </card>
 
     <card>

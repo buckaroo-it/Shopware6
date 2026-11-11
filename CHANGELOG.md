@@ -530,4 +530,5 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 ## Added / Improved
 
+- BTI-1989 Google Pay express button settings: choose the colour (Black or White) and text of the button, with a live preview in the plugin settings. The button text is shown in the language of the storefront, also in the preview. The defaults keep the button as it was (Black, "Buy with"); the former "Default" colour is converted to Black, which looks the same.
 - BTI-1990 PayPal Express button settings: choose the colour, shape and text of the button, with a live preview in the plugin settings.
