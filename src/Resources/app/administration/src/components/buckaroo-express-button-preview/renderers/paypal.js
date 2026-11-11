@@ -6,8 +6,9 @@
  */
 import createScriptLoader from './load-script';
 
-// Buckaroo's PayPal client id, as in the Buckaroo SDK; PayPal's script does not load without one
-const CLIENT_ID = 'ATv1oKfBmc76Zzl8rAMai_OwpXIp9CsDTMzEceayY7X2Sy8t6bQT2rm7DIC7LYbfkch9m9S3R3amkeyU';
+// Buckaroo's PayPal sandbox client id, as in the Buckaroo test SDK (testcheckout.buckaroo.nl):
+// PayPal's script does not load without one, and the sandbox keeps the preview off the live app
+const CLIENT_ID = 'Ab8jz-WnSLFLHjn-i_Bs0k_eWmRThzLHKpWnFwtwuPlQigUZsZWzgDF1AXQG3dHKPgW2YWKkGtJIjFty';
 
 const SDK_PARAMS = {
     'client-id': CLIENT_ID,
