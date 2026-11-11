@@ -125,6 +125,8 @@ class PaymentContextRestoreSubscriberTest extends TestCase
         $this->dispatch($request);
 
         $this->assertSame(self::SALES_CHANNEL_ID, $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+        // Shopware 6.7.8+ reads the token per sales channel when customers are bound to one
+        $this->assertSame(self::TOKEN, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . self::SALES_CHANNEL_ID));
     }
 
     public function testItTakesTheSalesChannelFromThePersistedContextOnFinalize(): void
@@ -144,6 +146,7 @@ class PaymentContextRestoreSubscriberTest extends TestCase
 
         $this->assertSame(self::TOKEN, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         $this->assertSame(self::SALES_CHANNEL_ID, $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+        $this->assertSame(self::TOKEN, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . self::SALES_CHANNEL_ID));
     }
 
     public function testItLeavesTheSalesChannelUnsetWhenItCannotBeResolved(): void
