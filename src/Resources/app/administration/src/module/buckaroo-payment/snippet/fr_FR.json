@@ -13,6 +13,16 @@
             "titleSuccess": "Succès",
             "titleError": "Erreur"
         },
+        "errorReporting": {
+            "title": "Partager les rapports d'erreurs avec Buckaroo ?",
+            "question": "Souhaitez-vous partager automatiquement les rapports d'erreurs du plugin Buckaroo avec Buckaroo ? Cela aide Buckaroo à détecter et corriger les problèmes plus rapidement.",
+            "whatIsSent": "Seules les erreurs du plugin Buckaroo sont envoyées : la classe d'exception, le message, le fichier et la ligne, la trace de pile sans arguments, les versions du plugin, de Shopware et de PHP, l'URL de votre boutique, votre clé de site web Buckaroo et le mode utilisé (test ou live).",
+            "whatIsNotSent": "Aucune donnée personnelle de client ni donnée de carte n'est envoyée.",
+            "changeLater": "Vous pouvez modifier ce choix à tout moment dans les paramètres Buckaroo sous « Partager les rapports d'erreurs avec Buckaroo ».",
+            "accept": "Oui, partager les rapports d'erreurs",
+            "decline": "Non, merci",
+            "saveError": "Votre choix n'a pas pu être enregistré. Veuillez réessayer."
+        },
         "supportModal": {
             "menuButton": "Version et support",
             "title": "Version et support",

@@ -3,6 +3,9 @@
         {% parent() %}
     </template>
     <template v-else>
+       <buckaroo-error-reporting-consent
+            @answered="onErrorReportingConsentAnswered"
+       ></buckaroo-error-reporting-consent>
        <buckaroo-main-config
             :value="actualConfigData[currentSalesChannelId]"
             :configSettings="config"

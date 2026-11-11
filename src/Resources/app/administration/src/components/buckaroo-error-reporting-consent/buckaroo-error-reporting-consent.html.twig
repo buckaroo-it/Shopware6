@@ -1,0 +1,23 @@
+{% block buckaroo_error_reporting_consent %}
+    <sw-modal
+        v-if="showModal"
+        class="buckaroo-error-reporting-consent"
+        :title="$tc('buckaroo-payment.errorReporting.title')"
+        variant="small"
+        :closable="false"
+    >
+        <p>{{ $tc('buckaroo-payment.errorReporting.question') }}</p>
+        <p style="margin-top: 12px;">{{ $tc('buckaroo-payment.errorReporting.whatIsSent') }}</p>
+        <p style="margin-top: 12px;">{{ $tc('buckaroo-payment.errorReporting.whatIsNotSent') }}</p>
+        <p style="margin-top: 12px;">{{ $tc('buckaroo-payment.errorReporting.changeLater') }}</p>
+
+        <template #modal-footer>
+            <sw-button :disabled="isSaving" @click="answer('no')">
+                {{ $tc('buckaroo-payment.errorReporting.decline') }}
+            </sw-button>
+            <sw-button variant="primary" :isLoading="isSaving" :disabled="isSaving" @click="answer('yes')">
+                {{ $tc('buckaroo-payment.errorReporting.accept') }}
+            </sw-button>
+        </template>
+    </sw-modal>
+{% endblock %}

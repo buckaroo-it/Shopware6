@@ -13,6 +13,16 @@
             "titleSuccess": "Erfolg",
             "titleError": "Fehler"
         },
+        "errorReporting": {
+            "title": "Fehlerberichte mit Buckaroo teilen?",
+            "question": "Möchten Sie Fehlerberichte des Buckaroo-Plugins automatisch mit Buckaroo teilen? So kann Buckaroo Probleme schneller erkennen und beheben.",
+            "whatIsSent": "Es werden nur Fehler des Buckaroo-Plugins gesendet: Exception-Klasse, Meldung, Datei und Zeile, der Stacktrace ohne Argumente, die Plugin-, Shopware- und PHP-Versionen, Ihre Shop-URL, Ihr Buckaroo-Website-Schlüssel und ob Sie den Test- oder Live-Modus verwenden.",
+            "whatIsNotSent": "Es werden keine personenbezogenen Kundendaten oder Kartendaten gesendet.",
+            "changeLater": "Sie können dies jederzeit in den Buckaroo-Einstellungen unter \"Fehlerberichte mit Buckaroo teilen\" ändern.",
+            "accept": "Ja, Fehlerberichte teilen",
+            "decline": "Nein, danke",
+            "saveError": "Ihre Auswahl konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+        },
         "supportModal": {
             "menuButton": "Version & Unterstützung",
             "title": "Version & Unterstützung",

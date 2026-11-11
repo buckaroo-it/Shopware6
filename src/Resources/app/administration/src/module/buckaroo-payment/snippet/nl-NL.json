@@ -13,6 +13,16 @@
             "titleSuccess": "Succes",
             "titleError": "Foutmelding"
         },
+        "errorReporting": {
+            "title": "Foutrapporten delen met Buckaroo?",
+            "question": "Wilt u foutrapporten van de Buckaroo-plugin automatisch met Buckaroo delen? Zo kan Buckaroo problemen sneller opsporen en oplossen.",
+            "whatIsSent": "Alleen fouten van de Buckaroo-plugin worden verzonden: de exceptieklasse, melding, bestand en regel, de stacktrace zonder argumenten, de plugin-, Shopware- en PHP-versies, uw winkel-URL, uw Buckaroo website key en of u de test- of livemodus gebruikt.",
+            "whatIsNotSent": "Er worden geen persoonsgegevens van klanten of kaartgegevens verzonden.",
+            "changeLater": "U kunt dit op elk moment wijzigen in de Buckaroo-instellingen onder \"Foutrapporten delen met Buckaroo\".",
+            "accept": "Ja, foutrapporten delen",
+            "decline": "Nee, bedankt",
+            "saveError": "Uw keuze kon niet worden opgeslagen. Probeer het opnieuw."
+        },
         "supportModal": {
             "menuButton": "Version & Support",
             "title": "Versie & Support",

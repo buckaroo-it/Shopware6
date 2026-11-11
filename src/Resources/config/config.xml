@@ -248,6 +248,42 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field type="single-select">
+            <name>errorReportingConsent</name>
+            <label lang="en-GB">Share error reports with Buckaroo</label>
+            <label lang="de-DE">Fehlerberichte mit Buckaroo teilen</label>
+            <label lang="nl-NL">Foutrapporten delen met Buckaroo</label>
+            <label lang="fr-FR">Partager les rapports d'erreurs avec Buckaroo</label>
+            <helpText lang="en-GB">Only errors raised by the Buckaroo plugin are sent: exception class, message, file and line, stack trace without arguments, plugin/Shopware/PHP versions, shop URL, Buckaroo website key and test/live mode. No customer personal data or card data is sent. Applies to all sales channels.</helpText>
+            <helpText lang="de-DE">Es werden nur Fehler des Buckaroo-Plugins gesendet: Exception-Klasse, Meldung, Datei und Zeile, Stacktrace ohne Argumente, Plugin-/Shopware-/PHP-Versionen, Shop-URL, Buckaroo-Website-Schlüssel und Test-/Live-Modus. Es werden keine personenbezogenen Kundendaten oder Kartendaten gesendet. Gilt für alle Verkaufskanäle.</helpText>
+            <helpText lang="nl-NL">Alleen fouten van de Buckaroo-plugin worden verzonden: exceptieklasse, melding, bestand en regel, stacktrace zonder argumenten, plugin-/Shopware-/PHP-versies, winkel-URL, Buckaroo website key en test-/livemodus. Er worden geen persoonsgegevens van klanten of kaartgegevens verzonden. Geldt voor alle verkoopkanalen.</helpText>
+            <helpText lang="fr-FR">Seules les erreurs du plugin Buckaroo sont envoyées : classe d'exception, message, fichier et ligne, trace de pile sans arguments, versions du plugin/de Shopware/de PHP, URL de la boutique, clé du site web Buckaroo et mode test/live. Aucune donnée personnelle de client ni donnée de carte n'est envoyée. S'applique à tous les canaux de vente.</helpText>
+            <defaultValue>not_asked</defaultValue>
+            <options>
+                <option>
+                    <id>not_asked</id>
+                    <name lang="en-GB">Not decided yet (nothing is sent)</name>
+                    <name lang="de-DE">Noch nicht entschieden (es wird nichts gesendet)</name>
+                    <name lang="nl-NL">Nog niet gekozen (er wordt niets verzonden)</name>
+                    <name lang="fr-FR">Pas encore décidé (rien n'est envoyé)</name>
+                </option>
+                <option>
+                    <id>yes</id>
+                    <name lang="en-GB">Yes, share error reports</name>
+                    <name lang="de-DE">Ja, Fehlerberichte teilen</name>
+                    <name lang="nl-NL">Ja, foutrapporten delen</name>
+                    <name lang="fr-FR">Oui, partager les rapports d'erreurs</name>
+                </option>
+                <option>
+                    <id>no</id>
+                    <name lang="en-GB">No, do not share</name>
+                    <name lang="de-DE">Nein, nicht teilen</name>
+                    <name lang="nl-NL">Nee, niet delen</name>
+                    <name lang="fr-FR">Non, ne pas partager</name>
+                </option>
+            </options>
+        </input-field>
     </card>
     
     <card>

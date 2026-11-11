@@ -80,6 +80,19 @@ Component.override('sw-system-config', {
             });
         },
 
+        onErrorReportingConsentAnswered(value) {
+            // The consent is global: reflect the answer in the "All Sales Channels" form.
+            const globalValues = this.actualConfigData[null];
+            if (!globalValues) {
+                return;
+            }
+            globalValues['BuckarooPayments.config.errorReportingConsent'] = value;
+            globalValues.errorReportingConsent = value;
+            this.$nextTick(() => {
+                this.$forceUpdate();
+            });
+        },
+
         saveAll() {
             if (this.domain !== 'BuckarooPayments.config') {
                 return this.$super('saveAll');

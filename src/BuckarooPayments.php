@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6;
 
+use Buckaroo\Shopware6\Installers\ErrorReportingInstaller;
 use Buckaroo\Shopware6\Installers\MediaInstaller;
 use Buckaroo\Shopware6\Installers\PaymentMethodsInstaller;
 use Shopware\Core\Framework\Plugin;
@@ -65,6 +66,7 @@ class BuckarooPayments extends Plugin
     {
         (new MediaInstaller($this->container))->install($installContext);
         (new PaymentMethodsInstaller($this->container))->install($installContext);
+        (new ErrorReportingInstaller($this->container))->install($installContext);
         parent::install($installContext);
     }
 
@@ -107,6 +109,7 @@ class BuckarooPayments extends Plugin
     {
         (new PaymentMethodsInstaller($this->container))->update($updateContext);
         (new MediaInstaller($this->container))->update($updateContext);
+        (new ErrorReportingInstaller($this->container))->update($updateContext);
         parent::update($updateContext);
     }
 

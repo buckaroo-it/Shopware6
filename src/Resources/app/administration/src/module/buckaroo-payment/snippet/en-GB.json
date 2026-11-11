@@ -13,6 +13,16 @@
             "titleSuccess": "Success",
             "titleError": "Error"
         },
+        "errorReporting": {
+            "title": "Share error reports with Buckaroo?",
+            "question": "Would you like to automatically share error reports of the Buckaroo plugin with Buckaroo? This helps Buckaroo detect and fix problems faster.",
+            "whatIsSent": "Only errors raised by the Buckaroo plugin are sent: the exception class, message, file and line, the stack trace without arguments, the plugin, Shopware and PHP versions, your shop URL, your Buckaroo website key and whether you use test or live mode.",
+            "whatIsNotSent": "No customer personal data or card data is sent.",
+            "changeLater": "You can change this at any time in the Buckaroo settings under \"Share error reports with Buckaroo\".",
+            "accept": "Yes, share error reports",
+            "decline": "No, thanks",
+            "saveError": "Your choice could not be saved. Please try again."
+        },
         "supportModal": {
             "menuButton": "Version & Support",
             "title": "Version & Support",

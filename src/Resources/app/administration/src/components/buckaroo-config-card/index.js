@@ -452,6 +452,11 @@ Component.register('buckaroo-config-card', {
                 return Boolean(advancedConfig);
             }
 
+            // The error reporting consent is global, so only set it for all sales channels.
+            if (name === 'errorReportingConsent') {
+                return !this.isNotDefaultSalesChannel;
+            }
+
             if (name === 'idealprocessingRenderMode') {
                 return Boolean(this.getValueForName('idealprocessingShowissuers'));
             }
