@@ -43,6 +43,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     private const PAYPAL_BUTTON_SHAPES = ['rect', 'pill'];
     private const PAYPAL_BUTTON_LABELS = ['paypal', 'checkout', 'buynow', 'pay'];
 
+    /**
+     * Google Pay button options as Google's createButton() names them; the first is the default
+     */
+    private const GOOGLEPAY_BUTTON_COLORS = ['black', 'white'];
+    private const GOOGLEPAY_BUTTON_TYPES = ['buy', 'plain', 'pay', 'checkout', 'order', 'book', 'subscribe'];
+
     /** @var CheckoutHelper $checkoutHelper */
     public CheckoutHelper $checkoutHelper;
 
@@ -335,6 +341,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'googlepayMerchantId'      => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
             'googlepayButtonStyle'     => $this->getGooglepayButtonStyle($salesChannelId),
+            'googlepayButtonType'      => $this->getGooglepayButtonType($salesChannelId),
             'googlepayEnvironment'     => $this->getGooglepayEnvironment($salesChannelId),
             'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'canShowPhone'          => $this->canShowPhone($customer),
@@ -457,6 +464,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'googlepayMerchantId'       => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
             'googlepayButtonStyle'      => $this->getGooglepayButtonStyle($salesChannelId),
+            'googlepayButtonType'       => $this->getGooglepayButtonType($salesChannelId),
             'googlepayEnvironment'      => $this->getGooglepayEnvironment($salesChannelId),
             'idealFastCheckoutLogo'     => $this->getIdealFastCheckoutLogo($salesChannelId)
         ]);
@@ -521,6 +529,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'googlepayMerchantId'       => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
             'googlepayButtonStyle'      => $this->getGooglepayButtonStyle($salesChannelId),
+            'googlepayButtonType'       => $this->getGooglepayButtonType($salesChannelId),
             'googlepayEnvironment'      => $this->getGooglepayEnvironment($salesChannelId),
             'idealFastCheckoutLogo' => $this->getIdealFastCheckoutLogo($salesChannelId)
         ]);
@@ -679,13 +688,21 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         return null;
     }
 
+    /**
+     * Google Pay button colour of the sales channel: black (also for a missing or unknown value) or white
+     */
     protected function getGooglepayButtonStyle(string $salesChannelId): string
     {
-        $style = $this->settingsService->getSetting('googlepayButtonStyle', $salesChannelId);
-        if (is_string($style) && in_array($style, ['default', 'black', 'white'], true)) {
-            return $style;
-        }
-        return 'default';
+        return $this->getSettingOption('googlepayButtonStyle', self::GOOGLEPAY_BUTTON_COLORS, $salesChannelId);
+    }
+
+    /**
+     * Google Pay button type of the sales channel: the wording next to the logo.
+     * "buy" (the former fixed text) when missing or unknown.
+     */
+    protected function getGooglepayButtonType(string $salesChannelId): string
+    {
+        return $this->getSettingOption('googlepayButtonType', self::GOOGLEPAY_BUTTON_TYPES, $salesChannelId);
     }
 
     protected function getGooglepayEnvironment(string $salesChannelId): string
