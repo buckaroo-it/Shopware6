@@ -20,7 +20,7 @@ export default {
         buttonType: 'googlepayButtonType',
     },
 
-    // The defaults of the settings, also used by the storefront when a setting is empty
+    // The defaults of the settings, the same as in config.xml and the storefront
     defaults: {
         buttonColor: 'black',
         buttonType: 'buy',

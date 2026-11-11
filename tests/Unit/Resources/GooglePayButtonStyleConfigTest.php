@@ -12,9 +12,9 @@ use PHPUnit\Framework\TestCase;
 /**
  * Guards the Google Pay express button style settings and their preview.
  *
- * The settings follow "Display Google Pay button", only show while "Enable Google Pay express
- * button" is on and have the same options as the WooCommerce plugin. Their defaults keep the
- * button as it was before the settings existed (Black, "Buy with"), so an update changes nothing.
+ * The settings follow "Display Google Pay button" and only show while "Enable Google Pay express
+ * button" is on. Their defaults keep the button as it was before the settings existed
+ * (Black, "Buy with"), so an update changes nothing.
  * They reach the storefront button on the product, cart and checkout page. The admin preview and
  * the storefront plugin keep their own copy of the options and defaults, which must match config.xml.
  */
@@ -83,7 +83,7 @@ class GooglePayButtonStyleConfigTest extends TestCase
     }
 
     /**
-     * The option ids are the values of Google's createButton(), as in the WooCommerce plugin.
+     * The option ids are the values of Google's createButton().
      * "Default" is gone: the migration turns it into Black.
      *
      * @dataProvider styleFieldProvider
