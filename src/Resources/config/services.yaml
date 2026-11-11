@@ -84,6 +84,7 @@ services:
             - kernel.event_subscriber
         arguments: ['@order_transaction.repository', '@Symfony\Component\Routing\Generator\UrlGeneratorInterface', '@Psr\Log\LoggerInterface']
     Buckaroo\Shopware6\Subscribers\PaymentContextRestoreSubscriber:
+        arguments: ['@Doctrine\DBAL\Connection']
         tags:
             - kernel.event_subscriber
     Buckaroo\Shopware6\Subscribers\PaymentContextCookieSubscriber:

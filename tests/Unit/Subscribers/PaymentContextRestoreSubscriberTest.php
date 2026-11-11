@@ -6,6 +6,7 @@ namespace Buckaroo\Shopware6\Tests\Unit\Subscribers;
 
 use Buckaroo\Shopware6\Subscribers\PaymentContextCookieSubscriber;
 use Buckaroo\Shopware6\Subscribers\PaymentContextRestoreSubscriber;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +19,7 @@ class PaymentContextRestoreSubscriberTest extends TestCase
 {
     private const TOKEN = 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6';
     private const OTHER_TOKEN = 'ffffffffffffffffffffffffffffffff';
+    private const SALES_CHANNEL_ID = '57480b67bf5949bb9c333671b2c0e51b';
 
     private PaymentContextRestoreSubscriber $subscriber;
 
@@ -107,6 +109,59 @@ class PaymentContextRestoreSubscriberTest extends TestCase
 
         $this->assertSame(self::TOKEN, $request->attributes->get('sw-context-token'));
         $this->assertSame(self::TOKEN, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    /**
+     * With isCustomerBoundToSalesChannel enabled, Shopware renews a session token whose session has
+     * no (or another) sales channel, which logged the customer out on /checkout/finish.
+     */
+    public function testItStoresTheSalesChannelOfTheRequestInTheSession(): void
+    {
+        $request = $this->createRequest('frontend.checkout.finish.page', self::TOKEN);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, self::SALES_CHANNEL_ID);
+        $session = $this->attachSession($request, false);
+
+        $this->dispatch($request);
+
+        $this->assertSame(self::SALES_CHANNEL_ID, $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+        // Shopware 6.7.8+ reads the token per sales channel when customers are bound to one
+        $this->assertSame(self::TOKEN, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . self::SALES_CHANNEL_ID));
+    }
+
+    public function testItTakesTheSalesChannelFromThePersistedContextOnFinalize(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchOne')
+            ->with($this->stringContains('sales_channel_api_context'), ['token' => self::TOKEN])
+            ->willReturn(self::SALES_CHANNEL_ID);
+
+        $this->subscriber = new PaymentContextRestoreSubscriber($connection);
+
+        $request = $this->createRequest('payment.finalize.transaction', self::TOKEN);
+        $session = $this->attachSession($request, false);
+
+        $this->dispatch($request);
+
+        $this->assertSame(self::TOKEN, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $this->assertSame(self::SALES_CHANNEL_ID, $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+        $this->assertSame(self::TOKEN, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . self::SALES_CHANNEL_ID));
+    }
+
+    public function testItLeavesTheSalesChannelUnsetWhenItCannotBeResolved(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn(false);
+
+        $this->subscriber = new PaymentContextRestoreSubscriber($connection);
+
+        $request = $this->createRequest('payment.finalize.transaction', self::TOKEN);
+        $session = $this->attachSession($request, false);
+
+        $this->dispatch($request);
+
+        $this->assertSame(self::TOKEN, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $this->assertFalse($session->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
     }
 
     public function testItDoesNothingWithoutTheCookie(): void

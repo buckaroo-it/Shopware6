@@ -521,3 +521,9 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-1858 Fixed the Advanced Configuration and Language fields showing no label in the plugin settings in the Administration.
 - BTI-1934 Fixed push messages not reaching Shopware in headless setups (sales channels of type API).
 - BTI-1953 Fixed Klarna (MoR) capture failing.
+
+# 3.8.1
+
+## Fixed
+
+- BTI-2060 Fixed customers being logged out with an empty cart after returning from the payment page when customers are bound to a sales channel.

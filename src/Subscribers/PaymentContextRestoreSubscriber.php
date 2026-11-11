@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +26,10 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
         'frontend.checkout.finish.page',
         'frontend.action.buckaroo.cancel',
     ];
+
+    public function __construct(private readonly ?Connection $connection = null)
+    {
+    }
 
     public static function getSubscribedEvents(): array
     {
@@ -67,8 +73,49 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
         // Request::getSession() throws in that case. The attribute and header set above
         // are what the context resolution actually relies on, so skipping is safe.
         if ($request->hasSession()) {
-            $request->getSession()->set('sw-context-token', $contextToken);
+            $session = $request->getSession();
+            $session->set('sw-context-token', $contextToken);
+
+            // With core.systemWideLoginRegistration.isCustomerBoundToSalesChannel enabled,
+            // StorefrontSubscriber::startSession() renews the token of a session that is not tied to
+            // the request's sales channel. The session started on the cross-site return carries no
+            // sales channel yet, so without this the next storefront request (/checkout/finish)
+            // would swap the restored token for an anonymous one and log the customer out.
+            // Up to Shopware 6.7.7 it compares the session's sales channel id; from 6.7.8 it keeps
+            // the token per sales channel under "sw-context-token-<salesChannelId>". Set both.
+            $salesChannelId = $this->getSalesChannelId($request, $contextToken);
+            if ($salesChannelId !== null) {
+                $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
+                $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId, $contextToken);
+            }
         }
+    }
+
+    /**
+     * The sales channel the restored context belongs to. /payment/finalize-transaction is not a
+     * storefront request, so the request carries none there; the persisted context does.
+     */
+    private function getSalesChannelId(Request $request, string $contextToken): ?string
+    {
+        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        if (is_string($salesChannelId) && Uuid::isValid($salesChannelId)) {
+            return $salesChannelId;
+        }
+
+        if ($this->connection === null) {
+            return null;
+        }
+
+        try {
+            $salesChannelId = $this->connection->fetchOne(
+                'SELECT LOWER(HEX(sales_channel_id)) FROM sales_channel_api_context WHERE token = :token',
+                ['token' => $contextToken]
+            );
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return is_string($salesChannelId) && Uuid::isValid($salesChannelId) ? $salesChannelId : null;
     }
 
     private function hasOtherLiveContext(Request $request, string $contextToken): bool
