@@ -77,13 +77,16 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
             $session->set('sw-context-token', $contextToken);
 
             // With core.systemWideLoginRegistration.isCustomerBoundToSalesChannel enabled,
-            // StorefrontSubscriber::startSession() renews the token of a session whose sales channel
-            // differs from the request's. The session started on the cross-site return carries no
+            // StorefrontSubscriber::startSession() renews the token of a session that is not tied to
+            // the request's sales channel. The session started on the cross-site return carries no
             // sales channel yet, so without this the next storefront request (/checkout/finish)
             // would swap the restored token for an anonymous one and log the customer out.
+            // Up to Shopware 6.7.7 it compares the session's sales channel id; from 6.7.8 it keeps
+            // the token per sales channel under "sw-context-token-<salesChannelId>". Set both.
             $salesChannelId = $this->getSalesChannelId($request, $contextToken);
             if ($salesChannelId !== null) {
                 $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
+                $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId, $contextToken);
             }
         }
     }
