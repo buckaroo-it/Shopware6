@@ -21,7 +21,9 @@
             applePayOptions: buckaroo.showApplePay ? {
                 page: "cart",
                 merchantId: buckaroo.applePayMerchantId,
-                cultureCode: page.header.activeLanguage.translationCode.code,
+                cultureCode: context.languageInfo.localeCode ?? page.header.activeLanguage.translationCode.code,
+                buttonStyle: buckaroo.applepayButtonStyle,
+                buttonType: buckaroo.applepayButtonType,
                 i18n: expressI18n
             } : null,
             googlePayOptions: buckaroo.showGooglePay ? {
