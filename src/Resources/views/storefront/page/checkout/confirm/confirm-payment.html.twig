@@ -7,7 +7,7 @@
         {% set applePayConfig = {
             page: "checkout",
             merchantId: page.extensions.buckaroo.applePayMerchantId,
-            cultureCode: page.header.activeLanguage.translationCode.code,
+            cultureCode: context.languageInfo.localeCode ?? page.header.activeLanguage.translationCode.code,
              i18n: {
                 cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
                 cannot_create_payment :"buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
@@ -64,7 +64,9 @@
             applePayOptions: buckaroo.showApplePay ? {
                 page: "cart",
                 merchantId: buckaroo.applePayMerchantId,
-                cultureCode: page.header.activeLanguage.translationCode.code,
+                cultureCode: context.languageInfo.localeCode ?? page.header.activeLanguage.translationCode.code,
+                buttonStyle: buckaroo.applepayButtonStyle,
+                buttonType: buckaroo.applepayButtonType,
                 i18n: expressI18n
             } : null,
             googlePayOptions: buckaroo.showGooglePay ? {

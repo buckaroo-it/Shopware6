@@ -49,6 +49,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     private const GOOGLEPAY_BUTTON_COLORS = ['black', 'white'];
     private const GOOGLEPAY_BUTTON_TYPES = ['buy', 'plain', 'pay', 'checkout', 'order', 'book', 'subscribe'];
 
+    /**
+     * Apple Pay button options as Apple's <apple-pay-button> names them; the first is the default
+     */
+    private const APPLEPAY_BUTTON_STYLES = ['black', 'white', 'white-outline'];
+    private const APPLEPAY_BUTTON_TYPES = ['plain', 'buy', 'check-out', 'order', 'book', 'subscribe'];
+
     /** @var CheckoutHelper $checkoutHelper */
     public CheckoutHelper $checkoutHelper;
 
@@ -335,6 +341,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'paypalIsTestMode'         => $this->paypalExpressCredentials->isTestMode($salesChannelId),
             'paypalButtonStyle'        => $this->getPaypalButtonStyle($salesChannelId),
             'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
+            'applepayButtonStyle'      => $this->getApplepayButtonStyle($salesChannelId),
+            'applepayButtonType'       => $this->getApplepayButtonType($salesChannelId),
             'showApplePay'             => $this->showApplePayExpress($salesChannelId, 'checkout'),
             'isAppleDevice'            => $this->isAppleDevice($request),
             'showGooglePay'            => $this->showGooglePayExpress($salesChannelId, 'checkout'),
@@ -457,6 +465,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'paypalIsTestMode'          => $this->paypalExpressCredentials->isTestMode($salesChannelId),
             'paypalButtonStyle'         => $this->getPaypalButtonStyle($salesChannelId),
             'applePayMerchantId'        => $this->getAppleMerchantId($salesChannelId),
+            'applepayButtonStyle'       => $this->getApplepayButtonStyle($salesChannelId),
+            'applepayButtonType'        => $this->getApplepayButtonType($salesChannelId),
             'isAppleDevice'             => $this->isAppleDevice($request),
             'websiteKey'                => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'showApplePay'              => $this->showApplePayExpress($salesChannelId, 'cart'),
@@ -523,6 +533,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'paypalIsTestMode' => $this->paypalExpressCredentials->isTestMode($salesChannelId),
             'paypalButtonStyle' => $this->getPaypalButtonStyle($salesChannelId),
             'applePayMerchantId' => $this->getAppleMerchantId($salesChannelId),
+            'applepayButtonStyle' => $this->getApplepayButtonStyle($salesChannelId),
+            'applepayButtonType' => $this->getApplepayButtonType($salesChannelId),
             'isAppleDevice' => $this->isAppleDevice($request),
             'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId),
             'googlepayShowProduct'      => $this->showGooglePayExpress($salesChannelId, 'product'),
@@ -663,6 +675,24 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             return (string)$merchantId;
         }
         return null;
+    }
+
+    /**
+     * Apple Pay button colour of the sales channel: black (also for a missing or unknown value),
+     * white or white-outline
+     */
+    protected function getApplepayButtonStyle(string $salesChannelId): string
+    {
+        return $this->getSettingOption('applepayButtonStyle', self::APPLEPAY_BUTTON_STYLES, $salesChannelId);
+    }
+
+    /**
+     * Apple Pay button type of the sales channel: the wording next to the Apple Pay logo.
+     * "plain" (the former fixed button, logo only) when missing or unknown.
+     */
+    protected function getApplepayButtonType(string $salesChannelId): string
+    {
+        return $this->getSettingOption('applepayButtonType', self::APPLEPAY_BUTTON_TYPES, $salesChannelId);
     }
 
     protected function getGoogleMerchantId(string $salesChannelId): ?string

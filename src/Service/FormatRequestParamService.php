@@ -447,10 +447,8 @@ class FormatRequestParamService
             return 0.0;
         }
 
+        // Above 1, as $vatPercentage is positive
         $divider = 1 + ($vatPercentage / 100);
-        if ($divider === 0.0) {
-            return 0.0;
-        }
 
         $netAmount = $grossAmount / $divider;
         return round($grossAmount - $netAmount, 2);

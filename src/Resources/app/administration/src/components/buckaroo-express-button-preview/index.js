@@ -2,6 +2,7 @@ import template from './buckaroo-express-button-preview.html.twig';
 import './style.scss';
 import paypal from './renderers/paypal';
 import googlepay from './renderers/googlepay';
+import applepay from './renderers/applepay';
 
 const { Component } = Shopware;
 
@@ -12,6 +13,7 @@ const { Component } = Shopware;
 const RENDERERS = {
     paypal,
     googlepay,
+    applepay,
 };
 
 // Locale code of a sales channel's default language, e.g. "de-DE", per sales channel id

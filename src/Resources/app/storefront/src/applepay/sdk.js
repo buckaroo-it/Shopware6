@@ -9,6 +9,9 @@
  * Copyright Buckaroo - MIT license - https://buckaroo.nl
  */
 
+// The button is shared with the button preview in the plugin settings
+import { APPLE_PAY_SDK_URL, createButton } from "./button";
+
 /**
  * Load Apple's official Apple Pay JS SDK.
  *
@@ -36,7 +39,7 @@ const loadOfficialSdk = function () {
 
         const script = document.createElement("script");
         script.id = "apple-pay-sdk";
-        script.src = "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+        script.src = APPLE_PAY_SDK_URL;
         script.crossOrigin = "anonymous";
         script.onload = function () { resolve(); };
         script.onerror = function () { resolve(); };
@@ -84,30 +87,6 @@ const checkPaySupport = async function (merchantIdentifier) {
     } catch (e) {
         return false;
     }
-};
-
-/**
- * Create Apple's official <apple-pay-button> web component.
- *
- * Attributes are set in a safe order (locale before type): the component
- * re-reads `locale` when `type` changes and throws "t.trim is not a function"
- * if locale is null, so a valid locale string must be present first.
- *
- * @param {{buttonStyle?: string, buttonType?: string, locale?: string}} options
- * @returns {HTMLElement}
- */
-const createButton = function (options) {
-    options = options || {};
-    const locale = (typeof options.locale === "string" && options.locale.trim() !== "")
-        ? options.locale
-        : ((typeof navigator !== "undefined" && navigator.language) || "en-US");
-    const button = document.createElement("apple-pay-button");
-    button.setAttribute("locale", locale);
-    button.setAttribute("buttonstyle", options.buttonStyle || "black");
-    button.setAttribute("type", options.buttonType || "plain");
-    button.style.width = "100%";
-    button.style.cursor = "pointer";
-    return button;
 };
 
 var PayPayment = function (options) {

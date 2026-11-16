@@ -8,6 +8,8 @@ export default class ApplePayPlugin extends Plugin {
     page: "unknown",
     merchantId: null,
     cultureCode: "nl-NL",
+    buttonStyle: "black",
+    buttonType: "plain",
   };
 
   url = "/buckaroo";
@@ -102,9 +104,13 @@ export default class ApplePayPlugin extends Plugin {
   renderExpressButton(cartData) {
     const container = $(".bk-apple-pay-button");
     container.empty();
+    // Style and type of the sales channel; createButton() uses the defaults for unknown values.
+    // The button text is in the language of the storefront (cultureCode, from the templates). If a
+    // theme leaves it empty, use <html lang>, which Shopware also sets to the storefront language.
     const button = ApplePay.createButton({
-      buttonStyle: "black",
-      locale: this.options.cultureCode,
+      buttonStyle: this.options.buttonStyle,
+      buttonType: this.options.buttonType,
+      locale: this.options.cultureCode || document.documentElement.lang,
     });
     button.addEventListener("click", (e) => {
       e.preventDefault();
