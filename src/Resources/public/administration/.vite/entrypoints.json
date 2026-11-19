@@ -3,11 +3,11 @@
   "entryPoints": {
     "buckaroo-payments": {
       "css": [
-        "/bundles/buckaroopayments/administration/assets/buckaroo-payments-EOvsKbco.css"
+        "/bundles/buckaroopayments/administration/assets/buckaroo-payments-I1C2GO_1.css"
       ],
       "dynamic": [],
       "js": [
-        "/bundles/buckaroopayments/administration/assets/buckaroo-payments-CVzf2eVw.js"
+        "/bundles/buckaroopayments/administration/assets/buckaroo-payments-i81_OenA.js"
       ],
       "legacy": false,
       "preload": []

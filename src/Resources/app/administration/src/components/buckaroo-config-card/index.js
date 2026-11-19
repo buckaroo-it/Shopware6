@@ -369,7 +369,10 @@ Component.register('buckaroo-config-card', {
             
             // Extract label only for Shopware >= 6.7.4.0; in older versions baseBinding/template already show the label and our enhanced logic causes duplicate labels
             let finalLabel = null;
-            const useEnhancedLabels = this.isShopware674OrNewer();
+            // Shopware shows the label of fields without built-in inheritance (selects) in sw-inherit-wrapper;
+            // adding it to the field as well would show it twice
+            const wrapperShowsLabel = !!this.getInheritWrapperBind(element)?.label;
+            const useEnhancedLabels = this.isShopware674OrNewer() && !wrapperShowsLabel;
 
             if (useEnhancedLabels) {
                 // For bool/select fields, prioritize configSettings since baseBinding.label is often undefined in SW 6.7.4+
@@ -463,6 +466,17 @@ Component.register('buckaroo-config-card', {
                 }
             }
 
+            // From Shopware 6.7.8 the wrapper shows neither label nor help text of switches and selects,
+            // and Shopware removes the help text from the field, so the field needs it back
+            const helpText = element.config?.helpText ? this.getInlineSnippet(element.config.helpText) : '';
+            const restoreHelpText = !wrapperShowsLabel && !finalConfig.helpText && !!helpText;
+            if (restoreHelpText) {
+                finalConfig = {
+                    ...finalConfig,
+                    helpText
+                };
+            }
+
             const binding = {
                 ...baseBinding,
                 config: finalConfig
@@ -500,6 +514,11 @@ Component.register('buckaroo-config-card', {
                 } else if (!binding.label || (typeof binding.label === 'string' && binding.label.trim().length === 0)) {
                     binding.label = finalLabel;
                 }
+            }
+
+            // The forced multi-selects above render sw-multi-select directly, which reads helpText from its props
+            if (restoreHelpText) {
+                binding.helpText = helpText;
             }
 
             if (element.type === 'bool') {
