@@ -367,10 +367,10 @@ Component.register('buckaroo-config-card', {
                 }
             }
             
-            // Extract label only for Shopware >= 6.7.4.0; in older versions baseBinding/template already show the label and our enhanced logic causes duplicate labels
+            // Extract label only for Shopware >= 6.7.4.0
             let finalLabel = null;
-            // Shopware shows the label of fields without built-in inheritance (selects) in sw-inherit-wrapper;
-            // adding it to the field as well would show it twice
+            // Up to Shopware 6.7.4 the wrapper shows the label of selects; adding it to the field as well
+            // would show it twice
             const wrapperShowsLabel = !!this.getInheritWrapperBind(element)?.label;
             const useEnhancedLabels = this.isShopware674OrNewer() && !wrapperShowsLabel;
 
@@ -466,7 +466,7 @@ Component.register('buckaroo-config-card', {
                 }
             }
 
-            // From Shopware 6.7.8 the wrapper shows neither label nor help text of switches and selects,
+            // From Shopware 6.7.5 (Meteor fields) the wrapper shows neither label nor help text of switches and selects,
             // and Shopware removes the help text from the field, so the field needs it back
             const helpText = element.config?.helpText ? this.getInlineSnippet(element.config.helpText) : '';
             const restoreHelpText = !wrapperShowsLabel && !finalConfig.helpText && !!helpText;
@@ -516,7 +516,7 @@ Component.register('buckaroo-config-card', {
                 }
             }
 
-            // The forced multi-selects above render sw-multi-select directly, which reads helpText from its props
+            // Fields the template renders as sw-multi-select directly read helpText from their props
             if (restoreHelpText) {
                 binding.helpText = helpText;
             }
