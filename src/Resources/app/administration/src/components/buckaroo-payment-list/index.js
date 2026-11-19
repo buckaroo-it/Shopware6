@@ -121,10 +121,6 @@ Component.register("buckaroo-payment-list", {
                     logo: "paybybank.svg"
                 },
                 {
-                    code: "payconiq",
-                    logo: "payconiq.svg"
-                },
-                {
                     code: "paypal",
                     logo: "paypal.svg"
                 },

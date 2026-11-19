@@ -537,3 +537,7 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 ## Fixed
 
 - BTI-1939 Removed the Billink setting "Create invoice after shipment", which had no effect. The invoice is still created right after a successful Billink payment.
+
+## Removed
+
+- BTI-2010 Removed the payment method Payconiq (discontinued). On update, Payconiq is deactivated and removed from all sales channels, and its settings are deleted. Existing Payconiq orders stay available in the Administration.
