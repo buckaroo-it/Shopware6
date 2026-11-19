@@ -406,7 +406,7 @@ class CaptureServiceTest extends TestCase
     }
 
     /**
-     * Test: it generates invoice when not invoiced and not set to invoice after shipment
+     * Test: it generates invoice when not invoiced
      */
     public function testCaptureGeneratesInvoiceWhenNotInvoiced(): void
     {
@@ -434,12 +434,6 @@ class CaptureServiceTest extends TestCase
             ->expects($this->once())
             ->method('isInvoiced')
             ->with($order->getId(), $this->context)
-            ->willReturn(false);
-
-        $this->invoiceService
-            ->expects($this->once())
-            ->method('isCreateInvoiceAfterShipment')
-            ->with(false, 'ideal', $order->getSalesChannelId())
             ->willReturn(false);
 
         $this->invoiceService

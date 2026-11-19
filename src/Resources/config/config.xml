@@ -3291,14 +3291,6 @@
             <defaultValue>Billink</defaultValue>
         </input-field>
 
-        <input-field type="bool">
-            <name>BillinkCreateInvoiceAfterShipment</name>
-            <label lang="en-GB">Create invoice after shipment</label>
-            <label lang="de-DE">Rechnung nach Versand erstellen</label>
-            <label lang="nl-NL">Factuur maken na verzending</label>
-            <label lang="fr-FR">Créer la facture après l'expédition</label>
-        </input-field>
-
         <input-field type="text">
             <name>BillinkFee</name>
             <copyable>true</copyable>

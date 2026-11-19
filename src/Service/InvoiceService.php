@@ -54,30 +54,6 @@ class InvoiceService
         return $this->documentRepository->search($criteria, $context)->getEntities()->first() !== null;
     }
 
-    /**
-     * @param mixed $brqTransactionType
-     * @param mixed $serviceName
-     * @param string|null $salesChannelId
-     *
-     * @return boolean
-     */
-    public function isCreateInvoiceAfterShipment(
-        $brqTransactionType = false,
-        $serviceName = false,
-        ?string $salesChannelId = null
-    ): bool {
-        // Validate input parameters to prevent type juggling attacks
-        if ($brqTransactionType !== false && !is_string($brqTransactionType)) {
-            return false;
-        }
-        
-        if ($serviceName !== false && !is_string($serviceName)) {
-            return false;
-        }
-        
-        return false;
-    }
-
     public function generateInvoice(
         OrderEntity $order,
         Context $context,
