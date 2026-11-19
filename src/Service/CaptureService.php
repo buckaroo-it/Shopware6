@@ -165,8 +165,7 @@ class CaptureService
         return $this->handleResponse(
             $response,
             $order,
-            $context,
-            $paymentCode
+            $context
         );
     }
 
@@ -177,27 +176,18 @@ class CaptureService
      * @param ClientResponseInterface $response
      * @param OrderEntity $order
      * @param Context $context
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
     private function handleResponse(
         ClientResponseInterface $response,
         OrderEntity $order,
-        Context $context,
-        string $paymentCode
+        Context $context
     ): array {
         $transactionId = $this->getLastTransactionIdOrNull($order);
 
         if ($response->isSuccess()) {
-            if (
-                !$this->invoiceService->isInvoiced($order->getId(), $context) &&
-                !$this->invoiceService->isCreateInvoiceAfterShipment(
-                    false,
-                    $paymentCode,
-                    $order->getSalesChannelId()
-                )
-            ) {
+            if (!$this->invoiceService->isInvoiced($order->getId(), $context)) {
                 $this->invoiceService->generateInvoice($order, $context);
             }
 

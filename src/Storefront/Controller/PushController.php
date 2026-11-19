@@ -579,14 +579,7 @@ class PushController extends StorefrontController
                 );
 
                 $this->logger->info(__METHOD__ . "|50.1|");
-                if (
-                    !$this->invoiceService->isInvoiced($brqOrderId, $context) &&
-                    !$this->invoiceService->isCreateInvoiceAfterShipment(
-                        $brqTransactionType,
-                        false,
-                        $salesChannelId
-                    )
-                ) {
+                if (!$this->invoiceService->isInvoiced($brqOrderId, $context)) {
                     $this->logger->info(__METHOD__ . "|50.2|");
                     if (round($brqAmount, 2) === round($totalPrice, 2)) {
                         $this->invoiceService->generateInvoice(
