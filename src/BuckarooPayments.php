@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6;
 
+use Buckaroo\Shopware6\Helpers\StaleClassMapCleaner;
 use Buckaroo\Shopware6\Installers\MediaInstaller;
 use Buckaroo\Shopware6\Installers\PaymentMethodsInstaller;
 use Shopware\Core\Framework\Plugin;
@@ -105,6 +106,13 @@ class BuckarooPayments extends Plugin
      */
     public function update(UpdateContext $updateContext): void
     {
+        // Must run before payment methods are loaded: see StaleClassMapCleaner
+        try {
+            StaleClassMapCleaner::clean();
+        } catch (\Throwable $exception) {
+            // Only a safeguard for the update; never let it stop the update itself
+        }
+
         (new PaymentMethodsInstaller($this->container))->update($updateContext);
         (new MediaInstaller($this->container))->update($updateContext);
         parent::update($updateContext);

@@ -166,13 +166,9 @@ class SignatureValidationService
             case 'brq_customer_name':
             case 'brq_service_ideal_consumername':
             case 'brq_service_transfer_consumername':
-            case 'brq_service_payconiq_payconiqandroidurl':
             case 'brq_service_paypal_payeremail':
             case 'brq_service_paypal_payerfirstname':
             case 'brq_service_paypal_payerlastname':
-            case 'brq_service_payconiq_payconiqiosurl':
-            case 'brq_service_payconiq_payconiqurl':
-            case 'brq_service_payconiq_qrurl':
             case 'brq_service_masterpass_customerphonenumber':
             case 'brq_service_masterpass_shippingrecipientphonenumber':
             case 'brq_invoicedate':

@@ -23,7 +23,6 @@ use Buckaroo\Shopware6\PaymentMethods\ApplePay;
 use Buckaroo\Shopware6\PaymentMethods\GooglePay;
 use Buckaroo\Shopware6\PaymentMethods\Klarnain;
 use Buckaroo\Shopware6\PaymentMethods\KlarnaKp;
-use Buckaroo\Shopware6\PaymentMethods\Payconiq;
 use Buckaroo\Shopware6\PaymentMethods\Transfer;
 use Buckaroo\Shopware6\PaymentMethods\Giftcards;
 use Buckaroo\Shopware6\PaymentMethods\PayByBank;
@@ -54,7 +53,6 @@ class GatewayHelper
         GooglePay::class,
         Kbc::class,
         SepaDirectDebit::class,
-        Payconiq::class,
         Giftcards::class,
         In3::class,
         Eps::class,

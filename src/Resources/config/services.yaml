@@ -177,11 +177,6 @@ services:
             - shopware.payment.method
             - shopware.payment.method.async
         arguments: ['@Buckaroo\Shopware6\Service\AsyncPaymentService']
-    Buckaroo\Shopware6\Handlers\PayconiqPaymentHandler:
-        tags:
-            - shopware.payment.method
-            - shopware.payment.method.async
-        arguments: ['@Buckaroo\Shopware6\Service\AsyncPaymentService']
     Buckaroo\Shopware6\Handlers\ApplePayPaymentHandler:
         tags:
             - shopware.payment.method
