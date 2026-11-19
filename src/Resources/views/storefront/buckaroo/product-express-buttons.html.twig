@@ -1,0 +1,49 @@
+{#
+    Express buttons on the product page, below the add to cart form. Included by
+    component/buy-widget/buy-widget-form.html.twig (product pages with a layout, Shopware 6.5 to 6.7)
+    and page/product-detail/buy-widget-form.html.twig (product pages without a layout, Shopware 6.5).
+    Only one of the two renders on a page.
+#}
+{% if page.extensions.buckaroo %}
+    {% set buckaroo = page.extensions.buckaroo %}
+    {% set expressI18n = {
+        cancel_error_message: "buckaroo.checkout.cancelOrderMessage"|trans|sw_sanitize,
+        cannot_create_payment: "buckaroo.checkout.cannotCreatePayment"|trans|sw_sanitize
+    } %}
+
+    {% sw_include '@BuckarooPayments/storefront/buckaroo/express-checkout-buttons.html.twig' with {
+        paypalOptions: buckaroo.showPaypalExpress ? {
+            page: "product",
+            merchantId: buckaroo.paypalMerchantId,
+            isTestMode: buckaroo.paypalIsTestMode,
+            style: buckaroo.paypalButtonStyle,
+            websiteKey: buckaroo.websiteKey,
+            i18n: expressI18n
+        } : null,
+        applePayOptions: buckaroo.applepayShowProduct ? {
+            page: "product",
+            productId: page.product.id,
+            merchantId: buckaroo.applePayMerchantId,
+            cultureCode: context.languageInfo.localeCode ?? page.header.activeLanguage.translationCode.code,
+            buttonStyle: buckaroo.applepayButtonStyle,
+            buttonType: buckaroo.applepayButtonType,
+            i18n: expressI18n
+        } : null,
+        googlePayOptions: buckaroo.googlepayShowProduct ? {
+            page: "product",
+            productId: page.product.id,
+            merchantId: buckaroo.googlepayMerchantId,
+            gatewayMerchantId: buckaroo.googlepayGatewayMerchantId,
+            merchantName: buckaroo.websiteKey,
+            buttonColor: buckaroo.googlepayButtonStyle,
+            buttonType: buckaroo.googlepayButtonType,
+            environment: buckaroo.googlepayEnvironment
+        } : null,
+        idealOptions: buckaroo.showIdealFastCheckout ? {
+            page: "product",
+            websiteKey: buckaroo.websiteKey,
+            i18n: expressI18n
+        } : null,
+        idealLogo: buckaroo.idealFastCheckoutLogo
+    } %}
+{% endif %}

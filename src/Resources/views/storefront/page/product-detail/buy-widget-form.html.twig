@@ -1,0 +1,7 @@
+{# Shopware 6.5 builds product pages without a layout from this template; 6.6 and 6.7 no longer load it #}
+{% sw_extends '@Storefront/storefront/page/product-detail/buy-widget-form.html.twig' %}
+
+{% block page_product_detail_buy_form_inner %}
+    {{ parent() }}
+    {% sw_include '@BuckarooPayments/storefront/buckaroo/product-express-buttons.html.twig' %}
+{% endblock %}

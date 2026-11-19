@@ -174,7 +174,7 @@ class PaypalExpressButtonStyleConfigTest extends TestCase
     public static function storefrontTemplateProvider(): array
     {
         return [
-            'product'  => ['src/Resources/views/storefront/component/buy-widget/buy-widget-form.html.twig'],
+            'product'  => ['src/Resources/views/storefront/buckaroo/product-express-buttons.html.twig'],
             'cart'     => ['src/Resources/views/storefront/page/checkout/cart/index.html.twig'],
             'checkout' => ['src/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig'],
         ];
