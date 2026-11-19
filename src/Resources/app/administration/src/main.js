@@ -6,6 +6,7 @@ import './components/buckaroo-main-config';
 import './components/buckaroo-config-card';
 import './components/buckaroo-express-button-preview';
 import './components/buckaroo-payment-list';
+import './components/buckaroo-plaza-hint';
 import './components/buckaroo-sales-channel-modal';
 import './components/buckaroo-test-credentials';
 import './components/buckaroo-toggle-status';

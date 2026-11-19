@@ -28,10 +28,14 @@
 
         <div v-for="element in (card.elements || [])" :key="element.name">
             <div v-if="canShow(element)">
-                {# A preview, not a setting: no inheritance and nothing to save #}
+                {# A preview or a hint, not a setting: no inheritance and nothing to save #}
                 <buckaroo-express-button-preview
                     v-if="isButtonPreview(element)"
                     v-bind="getButtonPreviewBind(element)"
+                />
+                <buckaroo-plaza-hint
+                    v-else-if="isPlazaHint(element)"
+                    v-bind="getPlazaHintBind(element)"
                 />
                 <slot v-else name="card-element" v-bind="{ element: getElementBind(element), config: value, card }">
                     <sw-inherit-wrapper

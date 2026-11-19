@@ -369,10 +369,10 @@ Component.register('buckaroo-config-card', {
             
             // Extract label only for Shopware >= 6.7.4.0
             let finalLabel = null;
-            // Up to Shopware 6.7.4 the wrapper shows the label of selects; adding it to the field as well
-            // would show it twice
-            const wrapperShowsLabel = !!this.getInheritWrapperBind(element)?.label;
-            const useEnhancedLabels = this.isShopware674OrNewer() && !wrapperShowsLabel;
+            // Up to Shopware 6.7.4 the wrapper shows the label and help text of selects; adding them to
+            // the field as well would show them twice
+            const wrapperBind = this.getInheritWrapperBind(element) || {};
+            const useEnhancedLabels = this.isShopware674OrNewer() && !wrapperBind.label;
 
             if (useEnhancedLabels) {
                 // For bool/select fields, prioritize configSettings since baseBinding.label is often undefined in SW 6.7.4+
@@ -469,7 +469,7 @@ Component.register('buckaroo-config-card', {
             // From Shopware 6.7.5 (Meteor fields) the wrapper shows neither label nor help text of switches and selects,
             // and Shopware removes the help text from the field, so the field needs it back
             const helpText = element.config?.helpText ? this.getInlineSnippet(element.config.helpText) : '';
-            const restoreHelpText = !wrapperShowsLabel && !finalConfig.helpText && !!helpText;
+            const restoreHelpText = !wrapperBind.helpText && !finalConfig.helpText && !!helpText;
             if (restoreHelpText) {
                 finalConfig = {
                     ...finalConfig,
@@ -661,6 +661,20 @@ Component.register('buckaroo-config-card', {
             return element?.config?.componentName === 'buckaroo-express-button-preview';
         },
 
+        isPlazaHint(element) {
+            return element?.config?.componentName === 'buckaroo-plaza-hint';
+        },
+
+        getPlazaHintBind(element) {
+            const config = element.config || {};
+
+            return {
+                text: config.label ? this.getInlineSnippet(config.label) : '',
+                url: config.url || '',
+                linkText: config.linkText || ''
+            };
+        },
+
         getButtonPreviewBind(element) {
             const config = element.config || {};
 
@@ -704,6 +718,11 @@ Component.register('buckaroo-config-card', {
             // Replaced by the Live / Test / Off control at the top of the card
             if (this.statusPaymentCode && [`${this.statusPaymentCode}Enabled`, `${this.statusPaymentCode}Environment`].includes(name)) {
                 return false;
+            }
+
+            // A hint is shown only together with the field it belongs to
+            if (this.isPlazaHint(element) && element.config.field) {
+                return this.canShow({ name: element.config.field });
             }
 
             if (SWITCH_DEPENDENT_FIELDS[name]) {
