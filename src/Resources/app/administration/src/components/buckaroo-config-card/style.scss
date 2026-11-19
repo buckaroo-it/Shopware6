@@ -1,12 +1,27 @@
 // Shopware spaces its field types differently (dropdown 22px below, text field 32px below,
 // bordered switch 24px above + 22px below). Use one consistent 22px gap between all fields.
 .bk-config-card {
-    .sw-block-field {
+    // Higher specificity than Shopware's ".sw-system-config .sw-select" (8px from 6.7.8), which would
+    // otherwise stick the status field and the card's own multi-selects to the next field
+    .sw-inherit-wrapper .sw-block-field {
+        margin-bottom: 22px;
+    }
+
+    // Meteor fields (Shopware 6.7.5+) have a larger gap, from 6.7.8 set by
+    // ".sw-system-config .sw-form-field-renderer:not(.sw-field)"; this selector is more specific
+    .sw-inherit-wrapper .sw-form-field-renderer.mt-field,
+    .sw-inherit-wrapper .sw-form-field-renderer.mt-switch {
         margin-bottom: 22px;
     }
 
     .sw-field--switch {
         margin-top: 0;
         margin-bottom: 22px;
+    }
+
+    // Shopware 6.7.5+ (Meteor) puts a switch's help text right after its label;
+    // align it right, like the help text of the other fields
+    .mt-switch__help-text {
+        margin-left: auto;
     }
 }

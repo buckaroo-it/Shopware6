@@ -20,11 +20,22 @@
             <placeholder lang="de-DE">Buckaroo-Store-Key eingeben.</placeholder>
             <placeholder lang="nl-NL">Vul je Buckaroo store key in.</placeholder>
             <placeholder lang="fr-FR">Entrez votre clé de boutique Buckaroo.</placeholder>
-            <helpText lang="en-GB"><![CDATA[Identifies your store at Buckaroo. You can find it in Buckaroo Plaza under Settings > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>.]]></helpText>
-            <helpText lang="de-DE"><![CDATA[Identifiziert Ihren Shop bei Buckaroo. Sie finden ihn im Buckaroo Plaza unter Einstellungen > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>.]]></helpText>
-            <helpText lang="nl-NL"><![CDATA[Identificeert je winkel bij Buckaroo. Je vindt deze in Buckaroo Plaza onder Instellingen > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>.]]></helpText>
-			<helpText lang="fr-FR"><![CDATA[Identifie votre boutique auprès de Buckaroo. Vous la trouverez dans Buckaroo Plaza sous Paramètres > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>.]]></helpText>
+            <helpText lang="en-GB">Identifies your store at Buckaroo.</helpText>
+            <helpText lang="de-DE">Identifiziert Ihren Shop bei Buckaroo.</helpText>
+            <helpText lang="nl-NL">Identificeert je winkel bij Buckaroo.</helpText>
+			<helpText lang="fr-FR">Identifie votre boutique auprès de Buckaroo.</helpText>
         </input-field>
+
+        <component name="buckaroo-plaza-hint">
+            <name>storeKeyHint</name>
+            <field>websiteKey</field>
+            <url>https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys</url>
+            <linkText>API Keys</linkText>
+            <label lang="en-GB">You can find your store key in Buckaroo Plaza under Settings > {link}.</label>
+            <label lang="nl-NL">Je vindt je store key in Buckaroo Plaza onder Instellingen > {link}.</label>
+            <label lang="de-DE">Sie finden Ihren Store Key im Buckaroo Plaza unter Einstellungen > {link}.</label>
+            <label lang="fr-FR">Vous trouverez votre clé de boutique dans Buckaroo Plaza sous Paramètres > {link}.</label>
+        </component>
 
         <input-field type="password">
             <name>secretKey</name>
@@ -36,11 +47,22 @@
             <placeholder lang="de-DE">Geheimen Buckaroo-Schlüssel eingeben.</placeholder>
             <placeholder lang="nl-NL">Vul je Buckaroo secret key in.</placeholder>
             <placeholder lang="fr-FR">Entrez votre clé secrète Buckaroo.</placeholder>
-            <helpText lang="en-GB"><![CDATA[Secures the communication between your store and Buckaroo. You can find it in Buckaroo Plaza under Settings > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>. Keep it private.]]></helpText>
-            <helpText lang="nl-NL"><![CDATA[Beveiligt de communicatie tussen je winkel en Buckaroo. Je vindt deze in Buckaroo Plaza onder Instellingen > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>. Houd deze geheim.]]></helpText>
-            <helpText lang="de-DE"><![CDATA[Sichert die Kommunikation zwischen Ihrem Shop und Buckaroo. Sie finden ihn im Buckaroo Plaza unter Einstellungen > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>. Halten Sie ihn geheim.]]></helpText>
-			<helpText lang="fr-FR"><![CDATA[Sécurise la communication entre votre boutique et Buckaroo. Vous la trouverez dans Buckaroo Plaza sous Paramètres > <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">API Keys</a>. Gardez-la confidentielle.]]></helpText>
+            <helpText lang="en-GB">Secures the communication between your store and Buckaroo. Keep it private.</helpText>
+            <helpText lang="nl-NL">Beveiligt de communicatie tussen je winkel en Buckaroo. Houd deze geheim.</helpText>
+            <helpText lang="de-DE">Sichert die Kommunikation zwischen Ihrem Shop und Buckaroo. Halten Sie ihn geheim.</helpText>
+			<helpText lang="fr-FR">Sécurise la communication entre votre boutique et Buckaroo. Gardez-la confidentielle.</helpText>
         </input-field>
+
+        <component name="buckaroo-plaza-hint">
+            <name>secretKeyHint</name>
+            <field>secretKey</field>
+            <url>https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys</url>
+            <linkText>API Keys</linkText>
+            <label lang="en-GB">You can find your secret key in Buckaroo Plaza under Settings > {link}.</label>
+            <label lang="nl-NL">Je vindt je secret key in Buckaroo Plaza onder Instellingen > {link}.</label>
+            <label lang="de-DE">Sie finden Ihren geheimen Schlüssel im Buckaroo Plaza unter Einstellungen > {link}.</label>
+            <label lang="fr-FR">Vous trouverez votre clé secrète dans Buckaroo Plaza sous Paramètres > {link}.</label>
+        </component>
 
         <input-field>
             <name>transactionLabel</name>
@@ -379,11 +401,21 @@
             <placeholder lang="de-DE">Buckaroo-Client-ID eingeben.</placeholder>
             <placeholder lang="nl-NL">Vul je Buckaroo client ID in.</placeholder>
             <placeholder lang="fr-FR">Entrez votre ID client Buckaroo.</placeholder>
-            <helpText lang="en-GB"><![CDATA[Needed for Cards (Hosted Fields). Create or look it up in Buckaroo Plaza under Settings > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token registration</a>.]]></helpText>
-            <helpText lang="de-DE"><![CDATA[Erforderlich für Karten (Hosted Fields). Erstellen oder finden Sie sie im Buckaroo Plaza unter Einstellungen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token-Registrierung</a>.]]></helpText>
-            <helpText lang="nl-NL"><![CDATA[Nodig voor Kaarten (Hosted Fields). Maak of vind deze in Buckaroo Plaza onder Instellingen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Tokenregistratie</a>.]]></helpText>
-            <helpText lang="fr-FR"><![CDATA[Nécessaire pour les cartes (Hosted Fields). Créez-le ou retrouvez-le dans Buckaroo Plaza sous Paramètres > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Enregistrement des tokens</a>.]]></helpText>
+            <helpText lang="en-GB">Needed for Cards (Hosted Fields).</helpText>
+            <helpText lang="de-DE">Erforderlich für Karten (Hosted Fields).</helpText>
+            <helpText lang="nl-NL">Nodig voor Kaarten (Hosted Fields).</helpText>
+            <helpText lang="fr-FR">Nécessaire pour les cartes (Hosted Fields).</helpText>
         </input-field>
+
+        <component name="buckaroo-plaza-hint">
+            <name>clientIdHint</name>
+            <field>clientId</field>
+            <url>https://plaza.buckaroo.nl/Configuration/TokenApi/Applications</url>
+            <label lang="en-GB">You can create or find your client ID in Buckaroo Plaza under Settings > {link:Token registration}.</label>
+            <label lang="nl-NL">Je maakt of vindt je client ID in Buckaroo Plaza onder Instellingen > {link:Tokenregistratie}.</label>
+            <label lang="de-DE">Sie erstellen oder finden Ihre Client ID im Buckaroo Plaza unter Einstellungen > {link:Token-Registrierung}.</label>
+            <label lang="fr-FR">Vous pouvez créer ou retrouver votre ID client dans Buckaroo Plaza sous Paramètres > {link:Enregistrement des tokens}.</label>
+        </component>
 
         <input-field type="password">
             <name>clientSecret</name>
@@ -395,11 +427,21 @@
             <placeholder lang="de-DE">Buckaroo-Client-Secret eingeben.</placeholder>
             <placeholder lang="nl-NL">Vul je Buckaroo client secret in.</placeholder>
             <placeholder lang="fr-FR">Entrez votre secret client Buckaroo.</placeholder>
-            <helpText lang="en-GB"><![CDATA[Needed for Cards (Hosted Fields). Create or look it up in Buckaroo Plaza under Settings > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token registration</a>. Keep it private.]]></helpText>
-            <helpText lang="de-DE"><![CDATA[Erforderlich für Karten (Hosted Fields). Erstellen oder finden Sie es im Buckaroo Plaza unter Einstellungen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Token-Registrierung</a>. Halten Sie es geheim.]]></helpText>
-            <helpText lang="nl-NL"><![CDATA[Nodig voor Kaarten (Hosted Fields). Maak of vind deze in Buckaroo Plaza onder Instellingen > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Tokenregistratie</a>. Houd deze geheim.]]></helpText>
-            <helpText lang="fr-FR"><![CDATA[Nécessaire pour les cartes (Hosted Fields). Créez-le ou retrouvez-le dans Buckaroo Plaza sous Paramètres > <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank" rel="noopener">Enregistrement des tokens</a>. Gardez-le confidentiel.]]></helpText>
+            <helpText lang="en-GB">Needed for Cards (Hosted Fields). Keep it private.</helpText>
+            <helpText lang="de-DE">Erforderlich für Karten (Hosted Fields). Halten Sie es geheim.</helpText>
+            <helpText lang="nl-NL">Nodig voor Kaarten (Hosted Fields). Houd deze geheim.</helpText>
+            <helpText lang="fr-FR">Nécessaire pour les cartes (Hosted Fields). Gardez-le confidentiel.</helpText>
         </input-field>
+
+        <component name="buckaroo-plaza-hint">
+            <name>clientSecretHint</name>
+            <field>clientSecret</field>
+            <url>https://plaza.buckaroo.nl/Configuration/TokenApi/Applications</url>
+            <label lang="en-GB">You can create or find your client secret in Buckaroo Plaza under Settings > {link:Token registration}.</label>
+            <label lang="nl-NL">Je maakt of vindt je client secret in Buckaroo Plaza onder Instellingen > {link:Tokenregistratie}.</label>
+            <label lang="de-DE">Sie erstellen oder finden Ihr Client Secret im Buckaroo Plaza unter Einstellungen > {link:Token-Registrierung}.</label>
+            <label lang="fr-FR">Vous pouvez créer ou retrouver votre secret client dans Buckaroo Plaza sous Paramètres > {link:Enregistrement des tokens}.</label>
+        </component>
 
         <input-field>
             <name>creditcardsLabel</name>
@@ -1835,11 +1877,21 @@
             <label lang="de-DE">Gateway-Merchant-ID</label>
             <label lang="nl-NL">Gateway Merchant-ID</label>
             <label lang="fr-FR">ID marchand passerelle</label>
-            <helpText lang="en-GB"><![CDATA[Your unique GatewayMerchantID provided by Buckaroo after completing <a href="https://plaza.buckaroo.nl/Configuration/GooglePay" target="_blank" rel="noopener">Google Pay onboarding</a> in Buckaroo Plaza. If left empty, the store key is used as fallback.]]></helpText>
-            <helpText lang="de-DE"><![CDATA[Ihre eindeutige GatewayMerchantID von Buckaroo nach dem <a href="https://plaza.buckaroo.nl/Configuration/GooglePay" target="_blank" rel="noopener">Google Pay Onboarding</a> in der Buckaroo Plaza. Wenn leer, wird der Store Key als Fallback verwendet.]]></helpText>
-            <helpText lang="nl-NL"><![CDATA[Je unieke GatewayMerchantID van Buckaroo na de <a href="https://plaza.buckaroo.nl/Configuration/GooglePay" target="_blank" rel="noopener">Google Pay-onboarding</a> in Buckaroo Plaza. Als dit leeg is, wordt de store key als fallback gebruikt.]]></helpText>
-            <helpText lang="fr-FR"><![CDATA[Votre GatewayMerchantID unique fourni par Buckaroo après l'<a href="https://plaza.buckaroo.nl/Configuration/GooglePay" target="_blank" rel="noopener">intégration Google Pay</a> dans Buckaroo Plaza. Si vide, la clé de boutique est utilisée comme solution de repli.]]></helpText>
+            <helpText lang="en-GB">Your unique GatewayMerchantID provided by Buckaroo after completing Google Pay onboarding in Buckaroo Plaza. If left empty, the store key is used as fallback.</helpText>
+            <helpText lang="de-DE">Ihre eindeutige GatewayMerchantID von Buckaroo nach dem Google Pay Onboarding in der Buckaroo Plaza. Wenn leer, wird der Store Key als Fallback verwendet.</helpText>
+            <helpText lang="nl-NL">Je unieke GatewayMerchantID van Buckaroo na de Google Pay-onboarding in Buckaroo Plaza. Als dit leeg is, wordt de store key als fallback gebruikt.</helpText>
+            <helpText lang="fr-FR">Votre GatewayMerchantID unique fourni par Buckaroo après l'intégration Google Pay dans Buckaroo Plaza. Si vide, la clé de boutique est utilisée comme solution de repli.</helpText>
         </input-field>
+
+        <component name="buckaroo-plaza-hint">
+            <name>googlepayGatewayMerchantIdHint</name>
+            <field>googlepayGatewayMerchantId</field>
+            <url>https://plaza.buckaroo.nl/Configuration/GooglePay</url>
+            <label lang="en-GB">Complete the {link:Google Pay onboarding} in Buckaroo Plaza to get your gateway merchant ID.</label>
+            <label lang="nl-NL">Rond de {link:Google Pay-onboarding} in Buckaroo Plaza af om je Gateway Merchant-ID te krijgen.</label>
+            <label lang="de-DE">Schließen Sie das {link:Google Pay Onboarding} in der Buckaroo Plaza ab, um Ihre Gateway-Merchant-ID zu erhalten.</label>
+            <label lang="fr-FR">Terminez l'{link:intégration Google Pay} dans Buckaroo Plaza pour obtenir votre ID marchand passerelle.</label>
+        </component>
         <input-field>
             <name>googlepayLabel</name>
             <label lang="en-GB">Title</label>
