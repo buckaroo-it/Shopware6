@@ -89,12 +89,12 @@ class PaylinkController extends StorefrontController
             return new JsonResponse(
                 $this->payLinkService->create($request, $order, $context)
             );
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->debug((string)$exception);
             return new JsonResponse(
                 [
                     'status'  => false,
-                    'message' => $exception->getMessage(),
+                    'message' => $this->trans("buckaroo-payment.general_request_error"),
                     'code'    => 0,
                 ],
                 Response::HTTP_BAD_REQUEST

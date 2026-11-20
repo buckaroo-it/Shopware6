@@ -98,12 +98,12 @@ class RefundController extends StorefrontController
                 ['status' => false, 'message' => $this->trans("buckaroo-payment.refund.already_refunded")],
                 Response::HTTP_BAD_REQUEST
             );
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->debug((string)$exception);
             return new JsonResponse(
                 [
                     'status'  => false,
-                    'message' => $exception->getMessage(),
+                    'message' => $this->trans("buckaroo-payment.general_request_error"),
                     'code'    => 0,
                 ],
                 Response::HTTP_BAD_REQUEST

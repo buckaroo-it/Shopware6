@@ -86,7 +86,7 @@ class TestCredentialsService
                 'status' => 'success',
                 'message' => $this->translator->trans("buckaroo-payment.test_api.connection_ready"),
             ];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return [
                 'status' => 'error',
                 'message' => $this->translator->trans("buckaroo-payment.test_api.connection_failed"),

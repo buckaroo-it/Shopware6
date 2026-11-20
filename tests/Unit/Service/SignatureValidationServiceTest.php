@@ -9,7 +9,10 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Buckaroo\Shopware6\Service\SignatureValidationService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Api\EventListener\JsonRequestTransformerListener;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class SignatureValidationServiceTest extends TestCase
 {
@@ -437,15 +440,16 @@ class SignatureValidationServiceTest extends TestCase
     }
 
     /**
-     * Test: it handles numeric values correctly
+     * Test: signed values must be strings; numeric values are not accepted, even when
+     * the signature matches their string form.
      */
-    public function testCalculateSignatureHandlesNumericValues(): void
+    public function testValidateSignatureRejectsNumericSignedValues(): void
     {
         // Arrange
         $secretKey = 'test-key';
         $postData = [
-            'brq_amount' => 100.50, // Numeric, not string
-            'brq_statuscode' => 190, // Integer
+            'brq_amount' => 100.50,
+            'brq_statuscode' => 190,
         ];
 
         $signatureString = 'brq_amount=100.5brq_statuscode=190' . $secretKey;
@@ -462,7 +466,7 @@ class SignatureValidationServiceTest extends TestCase
         $result = $this->signatureValidationService->validateSignature($request);
 
         // Assert
-        $this->assertTrue($result);
+        $this->assertFalse($result);
     }
 
     /**
@@ -631,5 +635,208 @@ class SignatureValidationServiceTest extends TestCase
             ['brq_statuscode' => '190', 'brq_signature' => 'body-signature'],
             $fromBody
         );
+    }
+
+    /**
+     * Test: a push with a JSON body whose signed field is null is rejected, without
+     * raising a PHP warning or deprecation.
+     */
+    public function testPushWithJsonNullSignedValueIsRejectedWithoutPhpNotice(): void
+    {
+        $request = $this->createJsonRequest($this->createSignedBody(['brq_statusmessage' => null]));
+
+        $this->expectNoSignatureCheck();
+
+        $this->assertFalse($this->callWithoutPhpNotices(
+            fn () => $this->signatureValidationService->validateSignature($request)
+        ));
+    }
+
+    /**
+     * Test: a return with a JSON body whose signed field is null is rejected, without
+     * raising a PHP warning or deprecation.
+     */
+    public function testReturnWithJsonNullSignedValueIsRejectedWithoutPhpNotice(): void
+    {
+        $request = $this->createJsonRequest($this->createSignedBody(['brq_statusmessage' => null]));
+
+        $this->expectNoSignatureCheck();
+
+        $this->assertFalse($this->callWithoutPhpNotices(
+            fn () => $this->signatureValidationService->validateReturnSignature($request)
+        ));
+    }
+
+    /**
+     * Test: every signed prefix only accepts string values, on the push and the return path.
+     *
+     * @dataProvider nonStringSignedValueProvider
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('nonStringSignedValueProvider')]
+    public function testNonStringSignedValueIsRejected(string $field, mixed $value): void
+    {
+        $request = new Request([], $this->createSignedBody([$field => $value]));
+
+        $this->expectNoSignatureCheck();
+
+        $this->callWithoutPhpNotices(function () use ($request): void {
+            $this->assertFalse($this->signatureValidationService->validateSignature($request));
+            $this->assertFalse($this->signatureValidationService->validateReturnSignature($request));
+        });
+    }
+
+    /**
+     * @return array<string, array{string, mixed}>
+     */
+    public static function nonStringSignedValueProvider(): array
+    {
+        $cases = [];
+        $values = [
+            'null' => null,
+            'true' => true,
+            'false' => false,
+            'integer' => 190,
+            'float' => 10.5,
+            'array' => ['a', 'b'],
+            'object' => new \stdClass(),
+        ];
+
+        foreach (['brq_statusmessage', 'BRQ_StatusMessage', 'add_orderid', 'cust_note', 'wc_order'] as $field) {
+            foreach ($values as $type => $value) {
+                $cases[$field . ' ' . $type] = [$field, $value];
+            }
+        }
+
+        return $cases;
+    }
+
+    /**
+     * Test: JSON values of every non-string type are rejected on both paths.
+     *
+     * @dataProvider jsonNonStringValueProvider
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('jsonNonStringValueProvider')]
+    public function testJsonNonStringSignedValueIsRejected(mixed $value): void
+    {
+        $request = $this->createJsonRequest($this->createSignedBody(['brq_statusmessage' => $value]));
+
+        $this->expectNoSignatureCheck();
+
+        $this->callWithoutPhpNotices(function () use ($request): void {
+            $this->assertFalse($this->signatureValidationService->validateSignature($request));
+            $this->assertFalse($this->signatureValidationService->validateReturnSignature($request));
+        });
+    }
+
+    /**
+     * @return array<string, array{mixed}>
+     */
+    public static function jsonNonStringValueProvider(): array
+    {
+        return [
+            'null' => [null],
+            'true' => [true],
+            'false' => [false],
+            'integer' => [190],
+            'float' => [10.5],
+            'list' => [['a', 'b']],
+            'object' => [['nested' => 'value']],
+        ];
+    }
+
+    /**
+     * Test: a correctly signed JSON body with string values still validates on both paths,
+     * including empty strings, unsigned non-string fields and HTML entity decoding.
+     */
+    public function testJsonStringSignedValuesAreAccepted(): void
+    {
+        $secretKey = 'test-key';
+        $body = [
+            'brq_amount' => '100.00',
+            'add_note' => '',
+            'brq_description' => 'Fish &amp; Chips',
+            'wc_order' => '1001',
+            'orderId' => null,
+        ];
+        $body['brq_signature'] = sha1(
+            'add_note=brq_amount=100.00brq_description=Fish & Chips' . $secretKey
+        );
+        $request = $this->createJsonRequest($body);
+
+        $this->settingsService->method('getSetting')->willReturn($secretKey);
+        $this->logger->expects($this->never())->method('error');
+
+        $this->callWithoutPhpNotices(function () use ($request): void {
+            $this->assertTrue($this->signatureValidationService->validateSignature($request));
+            $this->assertTrue($this->signatureValidationService->validateReturnSignature($request));
+        });
+    }
+
+    /**
+     * @param array<string, mixed> $fields
+     *
+     * @return array<string, mixed>
+     */
+    private function createSignedBody(array $fields): array
+    {
+        return ['brq_amount' => '100.00'] + $fields + ['brq_signature' => sha1('brq_amount=100.00test-key')];
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     */
+    private function createJsonRequest(array $body): Request
+    {
+        $request = new Request(
+            [],
+            [],
+            [],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($body, \JSON_THROW_ON_ERROR)
+        );
+
+        (new JsonRequestTransformerListener())->onRequest(
+            new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST)
+        );
+
+        return $request;
+    }
+
+    /**
+     * The request is rejected before the secret key is read and before the SDK runs.
+     */
+    private function expectNoSignatureCheck(): void
+    {
+        $this->settingsService->expects($this->never())->method('getSetting');
+        $this->logger->expects($this->never())->method('error');
+    }
+
+    /**
+     * Run the callback with an error handler that records every PHP warning, notice and
+     * deprecation, and fail when any was raised. Errors are recorded rather than only thrown,
+     * as the service catches exceptions raised during validation.
+     */
+    private function callWithoutPhpNotices(callable $callback): mixed
+    {
+        $errors = [];
+        set_error_handler(
+            static function (int $errno, string $errstr, string $errfile, int $errline) use (&$errors): bool {
+                $errors[] = sprintf('%s in %s:%d', $errstr, $errfile, $errline);
+
+                throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+            }
+        );
+
+        try {
+            $result = $callback();
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame([], $errors);
+
+        return $result;
     }
 }

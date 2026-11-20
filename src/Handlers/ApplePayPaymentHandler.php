@@ -82,11 +82,9 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
     {
         if (is_object($data)) {
             foreach (['billingContact', 'shippingContact'] as $contactKey) {
-                if (!empty($data->{$contactKey}) &&
-                    !empty($data->{$contactKey}->givenName) &&
-                    !empty($data->{$contactKey}->familyName)
-                ) {
-                    return $data->{$contactKey}->givenName . ' ' . $data->{$contactKey}->familyName;
+                $contactName = $this->getContactName($data->{$contactKey} ?? null);
+                if ($contactName !== null) {
+                    return $contactName;
                 }
             }
         }
@@ -97,5 +95,25 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
         }
 
         return '';
+    }
+
+    /**
+     * @param mixed $contact
+     * @return string|null
+     */
+    private function getContactName($contact): ?string
+    {
+        if (!is_object($contact)) {
+            return null;
+        }
+
+        $givenName = $contact->givenName ?? null;
+        $familyName = $contact->familyName ?? null;
+
+        if (!is_string($givenName) || !is_string($familyName) || empty($givenName) || empty($familyName)) {
+            return null;
+        }
+
+        return $givenName . ' ' . $familyName;
     }
 }
