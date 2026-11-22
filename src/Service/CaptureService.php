@@ -92,18 +92,17 @@ class CaptureService
         $paymentCode = $this->getValidCustomField($customFields, 'serviceName');
         $validationErrors = $this->validate($order, $customFields, $paymentCode);
 
+        if ($validationErrors !== null) {
+            return $validationErrors;
+        }
 
         if (in_array($paymentCode, ['klarnakp', 'klarna'])) {
             $action = 'pay';
             $originalTransactionKey = 'false';
         } else {
             $action = 'capture';
-            $originalTransactionKey = is_scalar($customFields['originalTransactionKey'])
-                ? (string)$customFields['originalTransactionKey']
-                : '';
-        }
-        if ($validationErrors !== null) {
-            return $validationErrors;
+            $transactionKey = $customFields['originalTransactionKey'] ?? '';
+            $originalTransactionKey = is_scalar($transactionKey) ? (string)$transactionKey : '';
         }
 
         // In-memory guard: the ship action fires both order_delivery.written and
@@ -343,7 +342,7 @@ class CaptureService
             $data = array_merge($data, $this->getArticles($order, $paymentCode));
         }
         if ($paymentCode === 'klarnakp') {
-            $data = array_merge($data, ['reservationNumber' => $customFields['reservationNumber']]);
+            $data = array_merge($data, ['reservationNumber' => $customFields['reservationNumber'] ?? '']);
         }
         if ($paymentCode === 'klarna') {
             $data = array_merge($data, ['dataRequestKey' => $customFields['dataRequestKey'] ?? '']);
@@ -408,7 +407,27 @@ class CaptureService
                 'message' => $this->translator->trans("buckaroo.capture.capture_in_progress")
             ];
         }
+
+        if (
+            !in_array($paymentCode, ['klarnakp', 'klarna']) &&
+            !$this->hasOriginalTransactionKey($customFields)
+        ) {
+            return [
+                'status' => false,
+                'message' => $this->translator->trans("buckaroo-payment.general_error")
+            ];
+        }
         return null;
+    }
+
+    /**
+     * @param array<mixed> $customFields
+     */
+    private function hasOriginalTransactionKey(array $customFields): bool
+    {
+        $originalTransactionKey = $customFields['originalTransactionKey'] ?? null;
+
+        return is_scalar($originalTransactionKey) && (string)$originalTransactionKey !== '';
     }
 
     /**

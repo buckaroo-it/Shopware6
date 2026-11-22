@@ -22,9 +22,12 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Buckaroo\Shopware6\Tests\Unit\TestHelper\ContextStub;
+use Buckaroo\Shopware6\Tests\Unit\TestHelper\PhpNoticeGuard;
 
 class RefundServiceTest extends TestCase
 {
+    use PhpNoticeGuard;
+
     private RefundService $refundService;
 
     /** @var BuckarooTransactionEntityRepository&MockObject */
@@ -689,7 +692,229 @@ class RefundServiceTest extends TestCase
         $this->assertTrue($result[0]['status']);
     }
 
+    /**
+     * @dataProvider invalidOrderItemProvider
+     */
+    public function testRefundAllRejectsOrderItemWithInvalidTotalAmount(mixed $orderItem): void
+    {
+        $request = new Request([], ['orderItems' => [
+            ['id' => 'item-1', 'quantity' => 1, 'totalAmount' => '10.00'],
+            $orderItem,
+        ]]);
+        $order = $this->createOrder(100.00);
+        $this->mockRefundableOrder('ideal');
+        $this->translator->method('trans')->willReturnArgument(0);
+
+        $this->clientService->expects($this->never())->method('get');
+        $this->stateTransitionService->expects($this->never())->method('transitionPaymentState');
+
+        $result = $this->withoutPhpNotices(
+            fn () => $this->refundService->refundAll($request, $order, $this->context, [
+                ['id' => 'trx-1', 'amount' => 100.00, 'transactions' => 'TRX123'],
+            ])
+        );
+
+        $this->assertSame([[
+            'status' => false,
+            'message' => 'buckaroo-payment.paylink.invalid_amount',
+        ]], $result);
+    }
+
+    /**
+     * @return array<string, array{mixed}>
+     */
+    public static function invalidOrderItemProvider(): array
+    {
+        return [
+            'non-numeric string' => [['id' => 'item-2', 'quantity' => 1, 'totalAmount' => 'abc']],
+            'negative number' => [['id' => 'item-2', 'quantity' => 1, 'totalAmount' => -5]],
+            'negative numeric string' => [['id' => 'item-2', 'quantity' => 1, 'totalAmount' => '-5.00']],
+            'null' => [['id' => 'item-2', 'quantity' => 1, 'totalAmount' => null]],
+            'array' => [['id' => 'item-2', 'quantity' => 1, 'totalAmount' => ['10.00']]],
+            'object' => [['id' => 'item-2', 'quantity' => 1, 'totalAmount' => new \stdClass()]],
+            'missing' => [['id' => 'item-2', 'quantity' => 1]],
+            'item is not an array' => ['item-2'],
+        ];
+    }
+
+    /**
+     * @dataProvider validTotalAmountProvider
+     */
+    public function testRefundAllUsesNumericOrderItemTotals(mixed $totalAmount, float $expectedAmount): void
+    {
+        $request = new Request([], ['orderItems' => [
+            ['id' => 'item-1', 'quantity' => 1, 'totalAmount' => '10.10'],
+            ['id' => 'item-2', 'quantity' => 1, 'totalAmount' => $totalAmount],
+        ]]);
+        $order = $this->createOrder(100.00);
+        $this->mockRefundableOrder('ideal');
+
+        $payloads = [];
+        $client = $this->mockClient(true);
+        $client->method('setPayload')->willReturnCallback(
+            function (array $payload) use (&$payloads, $client) {
+                $payloads[] = $payload;
+                return $client;
+            }
+        );
+        $this->clientService->expects($this->once())->method('get')->willReturn($client);
+        $this->translator->method('trans')->willReturnArgument(0);
+
+        $result = $this->withoutPhpNotices(
+            fn () => $this->refundService->refundAll($request, $order, $this->context, [
+                ['id' => 'trx-1', 'amount' => 100.00, 'transactions' => 'TRX123'],
+            ])
+        );
+
+        $this->assertCount(1, $result);
+        $this->assertTrue($result[0]['status']);
+        $this->assertCount(1, $payloads);
+        $this->assertEqualsWithDelta($expectedAmount, $payloads[0]['amountCredit'], 0.00001);
+    }
+
+    /**
+     * @return array<string, array{mixed, float}>
+     */
+    public static function validTotalAmountProvider(): array
+    {
+        return [
+            'numeric string' => ['5.25', 15.35],
+            'integer' => [5, 15.10],
+            'float' => [5.25, 15.35],
+            'zero' => ['0.00', 10.10],
+        ];
+    }
+
+    public function testGetMaxAmountIgnoresNonNumericTotals(): void
+    {
+        $result = $this->withoutPhpNotices(
+            fn () => $this->refundService->getMaxAmount(
+                [['totalAmount' => 'abc'], ['totalAmount' => ['1']], 'item', ['totalAmount' => '5.50']],
+                null
+            )
+        );
+
+        $this->assertSame(5.5, $result);
+    }
+
+    /**
+     * @dataProvider incompleteTransactionProvider
+     *
+     * @param array<string, mixed> $transaction
+     */
+    public function testRefundAllReturnsErrorForIncompleteTransaction(string $serviceName, array $transaction): void
+    {
+        $request = new Request([], ['orderItems' => [], 'customRefundAmount' => 50.00]);
+        $order = $this->createOrder(100.00);
+        $this->mockRefundableOrder($serviceName);
+        $this->translator->method('trans')->willReturnArgument(0);
+
+        $this->clientService->expects($this->never())->method('get');
+        $this->stateTransitionService->expects($this->never())->method('transitionPaymentState');
+
+        $result = $this->withoutPhpNotices(
+            fn () => $this->refundService->refundAll($request, $order, $this->context, [$transaction])
+        );
+
+        $this->assertSame([[
+            'status' => false,
+            'message' => 'buckaroo-payment.missing_transaction',
+        ]], $result);
+    }
+
+    /**
+     * @return array<string, array{string, array<string, mixed>}>
+     */
+    public static function incompleteTransactionProvider(): array
+    {
+        return [
+            'missing transactions' => ['ideal', ['id' => 'trx-1', 'amount' => 50.00]],
+            'empty transactions' => ['ideal', ['id' => 'trx-1', 'amount' => 50.00, 'transactions' => '']],
+            'array transactions' => ['ideal', ['id' => 'trx-1', 'amount' => 50.00, 'transactions' => ['TRX123']]],
+            'missing id' => ['ideal', ['amount' => 50.00, 'transactions' => 'TRX123']],
+            'missing transactions and method' => ['paybybank', ['id' => 'trx-1', 'amount' => 50.00]],
+        ];
+    }
+
+    public function testPayByBankRefundWithoutTransactionMethodKeepsPayByBank(): void
+    {
+        $request = new Request([], ['orderItems' => [], 'customRefundAmount' => 50.00]);
+        $order = $this->createOrder(100.00);
+        $this->mockRefundableOrder('paybybank');
+
+        $client = $this->mockClient(true);
+        $client->method('setPayload')->willReturnSelf();
+        $client->expects($this->never())->method('setPaymentCode');
+        $this->clientService->expects($this->once())->method('get')->with('paybybank')->willReturn($client);
+        $this->translator->method('trans')->willReturnArgument(0);
+
+        $result = $this->withoutPhpNotices(
+            fn () => $this->refundService->refundAll($request, $order, $this->context, [
+                ['id' => 'trx-1', 'amount' => 50.00, 'transactions' => 'TRX123'],
+            ])
+        );
+
+        $this->assertCount(1, $result);
+        $this->assertTrue($result[0]['status']);
+    }
+
+    public function testPayByBankRefundOfIdealTransactionUsesIdeal(): void
+    {
+        $request = new Request([], ['orderItems' => [], 'customRefundAmount' => 50.00]);
+        $order = $this->createOrder(100.00);
+        $this->mockRefundableOrder('paybybank');
+
+        $client = $this->mockClient(true);
+        $client->method('setPayload')->willReturnSelf();
+        $client->expects($this->once())->method('setPaymentCode')->with('ideal')->willReturnSelf();
+        $this->clientService->method('get')->willReturn($client);
+        $this->translator->method('trans')->willReturnArgument(0);
+
+        $result = $this->withoutPhpNotices(
+            fn () => $this->refundService->refundAll($request, $order, $this->context, [
+                ['id' => 'trx-1', 'amount' => 50.00, 'transactions' => 'TRX123', 'transaction_method' => 'ideal'],
+            ])
+        );
+
+        $this->assertTrue($result[0]['status']);
+    }
+
+    public function testGetConfigCodeThrowsExceptionWhenServiceNameMissing(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Service name is not a string');
+
+        $this->withoutPhpNotices(fn () => $this->refundService->getConfigCode([]));
+    }
+
     // Helper methods
+
+    private function mockRefundableOrder(string $serviceName): void
+    {
+        $this->transactionService->method('isBuckarooPaymentMethod')->willReturn(true);
+        $this->transactionService->method('getCustomFields')->willReturn([
+            'serviceName' => $serviceName,
+            'canRefund' => 1,
+            'refunded' => 0,
+            'originalTransactionKey' => 'abc123',
+        ]);
+        $this->settingsService->method('getParsedLabel')->willReturn('Refund');
+    }
+
+    /**
+     * @return Client&MockObject
+     */
+    private function mockClient(bool $success): Client
+    {
+        $client = $this->createMock(Client::class);
+        $client->method('setAction')->willReturnSelf();
+
+        $response = $this->createMock(ClientResponseInterface::class);
+        $response->method('isSuccess')->willReturn($success);
+        $client->method('execute')->willReturn($response);
+
+        return $client;
+    }
 
     private function createOrder(float $amount): OrderEntity
     {

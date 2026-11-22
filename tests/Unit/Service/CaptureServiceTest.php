@@ -21,9 +21,12 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Buckaroo\Shopware6\Tests\Unit\TestHelper\ContextStub;
+use Buckaroo\Shopware6\Tests\Unit\TestHelper\PhpNoticeGuard;
 
 class CaptureServiceTest extends TestCase
 {
+    use PhpNoticeGuard;
+
     private CaptureService $captureService;
 
     /** @var TransactionService&MockObject */
@@ -989,6 +992,135 @@ class CaptureServiceTest extends TestCase
 
         // Act
         $this->captureService->capture($request, $order, $this->context);
+    }
+
+    /**
+     * @dataProvider missingOriginalTransactionKeyProvider
+     *
+     * @param array<string, mixed> $customFields
+     */
+    public function testCaptureWithoutOriginalTransactionKeyReturnsValidationError(array $customFields): void
+    {
+        $order = $this->createOrder(100.00);
+        $order->setCustomFields([CaptureService::ORDER_IS_AUTHORIZED => true]);
+
+        $this->transactionService->method('isBuckarooPaymentMethod')->willReturn(true);
+        $this->transactionService->method('getCustomFields')->willReturn($customFields);
+        $this->translator->method('trans')->willReturnArgument(0);
+
+        $this->clientService->expects($this->never())->method('get');
+        $this->transactionService->expects($this->never())->method('saveTransactionData');
+
+        $result = $this->withoutPhpNotices(
+            fn () => $this->captureService->capture(new Request(), $order, $this->context)
+        );
+
+        $this->assertSame([
+            'status' => false,
+            'message' => 'buckaroo-payment.general_error',
+        ], $result);
+    }
+
+    /**
+     * @return array<string, array{array<string, mixed>}>
+     */
+    public static function missingOriginalTransactionKeyProvider(): array
+    {
+        $customFields = ['serviceName' => 'afterpay', 'canCapture' => 1, 'captured' => 0];
+
+        return [
+            'missing' => [$customFields],
+            'null' => [$customFields + ['originalTransactionKey' => null]],
+            'empty' => [$customFields + ['originalTransactionKey' => '']],
+            'array' => [$customFields + ['originalTransactionKey' => ['abc123']]],
+        ];
+    }
+
+    public function testValidationErrorIsReturnedBeforeTransactionKeyIsRead(): void
+    {
+        $order = $this->createOrder(0.00);
+
+        $this->transactionService->method('isBuckarooPaymentMethod')->willReturn(true);
+        $this->transactionService->method('getCustomFields')->willReturn([
+            'serviceName' => 'afterpay',
+            'canCapture' => 1,
+        ]);
+        $this->translator->method('trans')->willReturnArgument(0);
+
+        $this->clientService->expects($this->never())->method('get');
+
+        $result = $this->withoutPhpNotices(
+            fn () => $this->captureService->capture(new Request(), $order, $this->context)
+        );
+
+        $this->assertFalse($result['status']);
+        $this->assertSame('buckaroo.capture.invalid_amount', $result['message']);
+    }
+
+    public function testKlarnaCaptureDoesNotRequireOriginalTransactionKey(): void
+    {
+        $order = $this->createOrder(100.00);
+        $order->setCustomFields([CaptureService::ORDER_IS_AUTHORIZED => true]);
+
+        $this->transactionService->method('isBuckarooPaymentMethod')->willReturn(true);
+        $this->transactionService->method('getCustomFields')->willReturn([
+            'serviceName' => 'klarnakp',
+            'canCapture' => 1,
+            'captured' => 0,
+        ]);
+        $this->formatRequestParamService->method('getOrderLinesArray')->willReturn([]);
+
+        $payloads = [];
+        $client = $this->createMock(Client::class);
+        $client->expects($this->once())->method('setAction')->with('pay')->willReturnSelf();
+        $client->method('setPayload')->willReturnCallback(
+            function (array $payload) use (&$payloads, $client) {
+                $payloads[] = $payload;
+                return $client;
+            }
+        );
+        $this->setupSuccessfulCapture($client, $order);
+
+        $result = $this->withoutPhpNotices(
+            fn () => $this->captureService->capture(new Request(), $order, $this->context)
+        );
+
+        $this->assertTrue($result['status']);
+        $this->assertCount(1, $payloads);
+        $this->assertArrayNotHasKey('originalTransactionKey', $payloads[0]);
+        $this->assertSame('', $payloads[0]['reservationNumber']);
+    }
+
+    public function testCaptureSendsOriginalTransactionKey(): void
+    {
+        $order = $this->createOrder(100.00);
+        $order->setCustomFields([CaptureService::ORDER_IS_AUTHORIZED => true]);
+
+        $this->transactionService->method('isBuckarooPaymentMethod')->willReturn(true);
+        $this->transactionService->method('getCustomFields')->willReturn([
+            'serviceName' => 'afterpay',
+            'canCapture' => 1,
+            'captured' => 0,
+            'originalTransactionKey' => 'TRX12345',
+        ]);
+
+        $payloads = [];
+        $client = $this->createMock(Client::class);
+        $client->expects($this->once())->method('setAction')->with('capture')->willReturnSelf();
+        $client->method('setPayload')->willReturnCallback(
+            function (array $payload) use (&$payloads, $client) {
+                $payloads[] = $payload;
+                return $client;
+            }
+        );
+        $this->setupSuccessfulCapture($client, $order);
+
+        $result = $this->withoutPhpNotices(
+            fn () => $this->captureService->capture(new Request(), $order, $this->context)
+        );
+
+        $this->assertTrue($result['status']);
+        $this->assertSame('TRX12345', $payloads[0]['originalTransactionKey']);
     }
 
     // Helper methods
