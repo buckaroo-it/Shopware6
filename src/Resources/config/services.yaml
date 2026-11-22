@@ -372,7 +372,7 @@ services:
     Buckaroo\Shopware6\Service\PaymentServiceFactory:
         arguments: ['@?Shopware\Core\Checkout\Payment\PaymentProcessor', '@?Shopware\Core\Checkout\Payment\PaymentService']
     Buckaroo\Shopware6\Service\OrderService:
-        arguments: ['@Shopware\Core\Checkout\Cart\Order\OrderPersister', '@order.repository', '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface', '@Buckaroo\Shopware6\Service\PaymentServiceFactory', '@order_address.repository', '@Buckaroo\Shopware6\Helpers\Logger']
+        arguments: ['@Shopware\Core\Checkout\Cart\Order\OrderPersister', '@order.repository', '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface', '@Buckaroo\Shopware6\Service\PaymentServiceFactory', '@order_address.repository', '@Buckaroo\Shopware6\Helpers\Logger', '@Shopware\Core\Checkout\Cart\CartCalculator', '@Shopware\Core\Checkout\Cart\CartPersister', '@lock.factory']
     Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber:
         tags:
             - kernel.event_subscriber
