@@ -143,7 +143,10 @@
         },
         "paymentSettings": {
             "statusLabel": "{method} aktivieren",
-            "statusHelp": "Live nimmt echte Zahlungen an. Test nutzt die Buckaroo-Testumgebung, es wird kein echtes Geld abgebucht. Aus blendet diese Zahlungsart im Checkout aus."
+            "statusHelp": "Live nimmt echte Zahlungen an. Test nutzt die Buckaroo-Testumgebung, es wird kein echtes Geld abgebucht. Aus blendet diese Zahlungsart im Checkout aus.",
+            "orderAmountLimitInvalid": "Der Mindest- und der Höchstbestellwert müssen leer oder ein positiver Betrag sein.",
+            "orderAmountLimitRange": "Der Mindestbestellwert muss niedriger als der Höchstbestellwert sein.",
+            "orderAmountLimitRangeSalesChannel": "Der Mindestbestellwert muss niedriger als der Höchstbestellwert sein. Durch diese Änderung wird der Bereich für einen Verkaufskanal ungültig, der einen dieser Beträge überschreibt."
         },
         "expressButtonPreview": {
             "unavailable": "Die Vorschau konnte nicht geladen werden."

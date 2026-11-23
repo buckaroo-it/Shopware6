@@ -10,6 +10,7 @@ use Buckaroo\Shopware6\Service\In3LogoService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\PayByBankService;
 use Buckaroo\Shopware6\Service\PayPalExpressCredentialsService;
+use Buckaroo\Shopware6\Service\PaymentAmountLimitService;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Buckaroo\Shopware6\Service\IdealIssuerService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -89,6 +90,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected PayByBankService $payByBankService;
     protected In3LogoService $in3LogoService;
     protected PayPalExpressCredentialsService $paypalExpressCredentials;
+    protected ?PaymentAmountLimitService $paymentAmountLimitService;
 
     public function __construct(
         SalesChannelRepository $paymentMethodRepository,
@@ -98,7 +100,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         PayByBankService $payByBankService,
         In3LogoService $in3LogoService,
         IdealIssuerService $idealIssuerService,
-        PayPalExpressCredentialsService $paypalExpressCredentials
+        PayPalExpressCredentialsService $paypalExpressCredentials,
+        ?PaymentAmountLimitService $paymentAmountLimitService = null
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->settingsService = $settingsService;
@@ -108,6 +111,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $this->in3LogoService = $in3LogoService;
         $this->idealIssuerService = $idealIssuerService;
         $this->paypalExpressCredentials = $paypalExpressCredentials;
+        $this->paymentAmountLimitService = $paymentAmountLimitService;
     }
 
     /**
@@ -177,8 +181,47 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             if ($buckarooKey === 'swish' && $currency->getIsoCode() !== 'SEK') {
                 $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
             }
+
+            if (!$this->isWithinOrderAmountLimits($event, $buckarooKey)) {
+                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
+            }
         }
         $event->getPage()->setPaymentMethods($paymentMethods);
+    }
+
+    /**
+     * Minimum / maximum order amount of the payment method, checked against the cart
+     * total on the confirm page and against the order total when the payment method
+     * of an existing order is changed.
+     *
+     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
+     */
+    private function isWithinOrderAmountLimits($event, string $buckarooKey): bool
+    {
+        $limits = $this->paymentAmountLimitService;
+        $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
+
+        if ($limits === null || !$limits->hasLimits($buckarooKey, $salesChannelId)) {
+            return true;
+        }
+
+        if ($event instanceof AccountEditOrderPageLoadedEvent) {
+            $order = $event->getPage()->getOrder();
+
+            return $limits->isAmountAllowed(
+                $buckarooKey,
+                $limits->getOrderAmount($order),
+                $salesChannelId,
+                $order->getTotalRounding()?->getDecimals() ?? 2
+            );
+        }
+
+        return $limits->isAmountAllowed(
+            $buckarooKey,
+            $event->getPage()->getCart()->getPrice()->getTotalPrice(),
+            $salesChannelId,
+            $event->getSalesChannelContext()->getTotalRounding()->getDecimals()
+        );
     }
 
     public function isPayPermMailDisabledInFrontend(?string $salesChannelId = null): bool

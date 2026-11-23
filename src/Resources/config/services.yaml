@@ -376,7 +376,7 @@ services:
     Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber:
         tags:
             - kernel.event_subscriber
-        arguments: ['@sales_channel.payment_method.repository', '@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Service\UrlService', '@translator', '@Buckaroo\Shopware6\Service\PayByBankService', '@Buckaroo\Shopware6\Service\In3LogoService', '@Buckaroo\Shopware6\Service\IdealIssuerService', '@Buckaroo\Shopware6\Service\PayPalExpressCredentialsService']
+        arguments: ['@sales_channel.payment_method.repository', '@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Service\UrlService', '@translator', '@Buckaroo\Shopware6\Service\PayByBankService', '@Buckaroo\Shopware6\Service\In3LogoService', '@Buckaroo\Shopware6\Service\IdealIssuerService', '@Buckaroo\Shopware6\Service\PayPalExpressCredentialsService', '@Buckaroo\Shopware6\Service\PaymentAmountLimitService']
     Buckaroo\Shopware6\Storefront\Controller\BuckarooTokenController:
         public: true
         arguments: ['@http_client', '@logger', '@Shopware\Core\System\SystemConfig\SystemConfigService']
@@ -395,6 +395,26 @@ services:
     Buckaroo\Shopware6\Resources\snippet\fr_FR\FrenchTranslations:
         tags:
             - shopware.snippet.file
+    Buckaroo\Shopware6\Service\PaymentAmountLimitService:
+        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Helpers\Logger']
+    Buckaroo\Shopware6\Service\PaymentAmountLimitCartValidator:
+        arguments: ['@Buckaroo\Shopware6\Service\PaymentAmountLimitService']
+        tags:
+            - shopware.cart.validator
+    # Outside Shopware's CachedPaymentMethodRoute (-1000, Shopware 6.5 / 6.6): the result depends on the cart
+    Buckaroo\Shopware6\Service\PaymentMethodRouteDecorator:
+        arguments: ['@Buckaroo\Shopware6\Service\PaymentMethodRouteDecorator.inner', '@Buckaroo\Shopware6\Service\PaymentAmountLimitService', '@Shopware\Core\Checkout\Cart\SalesChannel\CartService', '@request_stack']
+        decorates: Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute
+        decoration_priority: -1500
+    Buckaroo\Shopware6\Service\SetPaymentOrderRouteDecorator:
+        arguments: ['@Buckaroo\Shopware6\Service\SetPaymentOrderRouteDecorator.inner', '@Buckaroo\Shopware6\Service\PaymentAmountLimitService', '@order.repository', '@payment_method.repository']
+        decorates: Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute
+    Buckaroo\Shopware6\Service\PaymentAmountLimitConfigValidator:
+        arguments: ['@system_config.repository']
+    Buckaroo\Shopware6\Subscribers\PaymentAmountLimitConfigSubscriber:
+        arguments: ['@Buckaroo\Shopware6\Service\PaymentAmountLimitConfigValidator']
+        tags:
+            - kernel.event_subscriber
     Buckaroo\Shopware6\Service\SalesChannelContextServiceDecorator:
         arguments: ['@Buckaroo\Shopware6\Service\SalesChannelContextServiceDecorator.inner', '@request_stack']
         decorates: Shopware\Core\System\SalesChannel\Context\SalesChannelContextService
