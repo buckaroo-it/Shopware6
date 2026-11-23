@@ -91,9 +91,31 @@ Component.override('sw-system-config', {
             this.isLoading = true;
             return this.systemConfigApiService
                 .batchSave(this.getSelectedValues())
+                .catch((error) => {
+                    throw this.getBuckarooSaveError(error);
+                })
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        // Order amount limits are checked when they are saved; show that check's message
+        // translated in the save error notification. Other errors are passed on as they are.
+        getBuckarooSaveError(error) {
+            const apiError = error?.response?.data?.errors?.[0];
+            const salesChannelId = apiError?.meta?.parameters?.salesChannelId ?? null;
+
+            if (apiError?.code === 'BUCKAROO__ORDER_AMOUNT_LIMIT_INVALID') {
+                return this.$tc('buckaroo-payment.paymentSettings.orderAmountLimitInvalid');
+            }
+
+            if (apiError?.code === 'BUCKAROO__ORDER_AMOUNT_LIMIT_RANGE') {
+                return salesChannelId && salesChannelId !== this.currentSalesChannelId
+                    ? this.$tc('buckaroo-payment.paymentSettings.orderAmountLimitRangeSalesChannel')
+                    : this.$tc('buckaroo-payment.paymentSettings.orderAmountLimitRange');
+            }
+
+            return error;
         },
         
         getCurrentConfigCard() {

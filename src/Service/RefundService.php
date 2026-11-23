@@ -77,6 +77,13 @@ class RefundService
             return [$validationErrors];
         }
 
+        if (!$this->hasValidItemAmounts($orderItems)) {
+            return [[
+                'status' => false,
+                'message' => $this->translator->trans("buckaroo-payment.paylink.invalid_amount")
+            ]];
+        }
+
         $amountRemaining = $this->getMaxAmount(
             $orderItems,
             $request->get('customRefundAmount'),
@@ -155,6 +162,19 @@ class RefundService
         string $configCode,
         array $orderItems
     ): ?array {
+        $transactionKey = $transaction['transactions'] ?? null;
+        $transactionId = $transaction['id'] ?? null;
+
+        if (
+            !is_scalar($transactionKey) || (string)$transactionKey === '' ||
+            !is_scalar($transactionId) || (string)$transactionId === ''
+        ) {
+            return [
+                'status' => false,
+                'message' => $this->translator->trans("buckaroo-payment.missing_transaction")
+            ];
+        }
+
         $client = $this->getClient(
             $configCode,
             $order->getSalesChannelId()
@@ -166,7 +186,7 @@ class RefundService
                         $request,
                         $order,
                         $context,
-                        $transaction['transactions'],
+                        $transactionKey,
                         $amount
                     ),
                     $this->getMethodPayload(
@@ -187,8 +207,8 @@ class RefundService
         }
 
         //Override payByBank if transaction was made with ideal
-        if ($configCode === 'paybybank' && $transaction['transaction_method'] === 'ideal') {
-            $client->setPaymentCode($transaction['transaction_method']);
+        if ($configCode === 'paybybank' && ($transaction['transaction_method'] ?? null) === 'ideal') {
+            $client->setPaymentCode('ideal');
         }
 
 
@@ -197,7 +217,7 @@ class RefundService
             $order,
             $context,
             $orderItems,
-            $transaction['id'],
+            $transactionId,
             $amount
         );
     }
@@ -527,13 +547,39 @@ class RefundService
         } else {
             if (!empty($orderItems)) {
                 foreach ($orderItems as $orderItem) {
-                    if (isset($orderItem['totalAmount'])) {
-                        $amount = $amount + $orderItem['totalAmount'];
+                    if (
+                        is_array($orderItem) &&
+                        isset($orderItem['totalAmount']) &&
+                        is_numeric($orderItem['totalAmount'])
+                    ) {
+                        $amount = $amount + (float)$orderItem['totalAmount'];
                     }
                 }
             }
         }
         return $amount;
+    }
+
+    /**
+     * Every order item must carry a numeric, non-negative total amount
+     *
+     * @param array<mixed> $orderItems
+     *
+     * @return bool
+     */
+    private function hasValidItemAmounts(array $orderItems): bool
+    {
+        foreach ($orderItems as $orderItem) {
+            if (
+                !is_array($orderItem) ||
+                !isset($orderItem['totalAmount']) ||
+                !is_numeric($orderItem['totalAmount']) ||
+                (float)$orderItem['totalAmount'] < 0
+            ) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -545,10 +591,11 @@ class RefundService
     public function getConfigCode(
         array $customFields
     ): string {
-        if (!is_string($customFields['serviceName'])) {
+        $serviceName = $customFields['serviceName'] ?? null;
+        if (!is_string($serviceName)) {
             throw new \InvalidArgumentException('Service name is not a string');
         }
-        return $customFields['serviceName'];
+        return $serviceName;
     }
 
     /**

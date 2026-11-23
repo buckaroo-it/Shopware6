@@ -130,6 +130,19 @@ class TestCredentialsServiceTest extends TestCase
         $this->assertSame('error', $result['status']);
     }
 
+    public function testClientErrorReportsFailure(): void
+    {
+        $this->client->method('execute')->willThrowException(new \TypeError('internal detail'));
+        $this->clientService->method('getWithCredentials')->willReturn($this->client);
+
+        $result = $this->service->execute($this->createRequest());
+
+        $this->assertSame([
+            'status' => 'error',
+            'message' => 'buckaroo-payment.test_api.connection_failed',
+        ], $result);
+    }
+
     public function testInvalidSalesChannelIdIsRejected(): void
     {
         $this->settingsService->expects($this->never())->method('setSetting');
