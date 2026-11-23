@@ -72,6 +72,7 @@ class SetPaymentOrderRouteDecorator extends AbstractSetPaymentOrderRoute
 
         $paymentMethod = $this->paymentMethodRepository
             ->search(new Criteria([$paymentMethodId]), $context->getContext())
+            ->getEntities()
             ->first();
 
         if (
@@ -98,7 +99,7 @@ class SetPaymentOrderRouteDecorator extends AbstractSetPaymentOrderRoute
         $criteria = new Criteria([$orderId]);
         $criteria->addFilter(new EqualsFilter('orderCustomer.customerId', $customer->getId()));
 
-        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
 
         return $order instanceof OrderEntity ? $order : null;
     }

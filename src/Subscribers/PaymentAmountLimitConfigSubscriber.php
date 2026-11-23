@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Subscribers;
 
 use Buckaroo\Shopware6\Service\PaymentAmountLimitConfigValidator;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -51,7 +52,7 @@ class PaymentAmountLimitConfigSubscriber implements EventSubscriberInterface
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
         if (!$context instanceof Context) {
-            $context = Context::createDefaultContext();
+            $context = new Context(new SystemSource());
         }
 
         $values = $request->request->all();

@@ -131,8 +131,10 @@ class PaymentAmountLimitConfigValidator
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('configurationKey', $keys));
 
+        $entries = $this->systemConfigRepository->search($criteria, $context)->getEntities();
+
         $stored = [];
-        foreach ($this->systemConfigRepository->search($criteria, $context)->getEntities() as $entry) {
+        foreach ($entries as $entry) {
             if (!$entry instanceof SystemConfigEntity) {
                 continue;
             }
