@@ -143,7 +143,10 @@
         },
         "paymentSettings": {
             "statusLabel": "{method} inschakelen",
-            "statusHelp": "Live accepteert echte betalingen. Test gebruikt de testomgeving van Buckaroo, er wordt geen echt geld afgeschreven. Uit verbergt deze betaalmethode bij het afrekenen."
+            "statusHelp": "Live accepteert echte betalingen. Test gebruikt de testomgeving van Buckaroo, er wordt geen echt geld afgeschreven. Uit verbergt deze betaalmethode bij het afrekenen.",
+            "orderAmountLimitInvalid": "Het minimale en maximale orderbedrag moeten leeg zijn of een positief bedrag.",
+            "orderAmountLimitRange": "Het minimale orderbedrag moet lager zijn dan het maximale orderbedrag.",
+            "orderAmountLimitRangeSalesChannel": "Het minimale orderbedrag moet lager zijn dan het maximale orderbedrag. Door deze wijziging wordt het bereik ongeldig voor een verkoopkanaal dat een van deze bedragen overschrijft."
         },
         "expressButtonPreview": {
             "unavailable": "Het voorbeeld kon niet worden geladen."

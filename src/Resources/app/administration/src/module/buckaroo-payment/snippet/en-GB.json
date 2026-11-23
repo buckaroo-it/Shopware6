@@ -143,7 +143,10 @@
         },
         "paymentSettings": {
             "statusLabel": "Enable {method}",
-            "statusHelp": "Live accepts real payments. Test uses the Buckaroo test environment, so no real money is charged. Off hides this payment method at checkout."
+            "statusHelp": "Live accepts real payments. Test uses the Buckaroo test environment, so no real money is charged. Off hides this payment method at checkout.",
+            "orderAmountLimitInvalid": "The minimum and maximum order amount must be empty or a positive amount.",
+            "orderAmountLimitRange": "The minimum order amount must be lower than the maximum order amount.",
+            "orderAmountLimitRangeSalesChannel": "The minimum order amount must be lower than the maximum order amount. This change would make the range invalid for a sales channel that overrides one of these amounts."
         },
         "expressButtonPreview": {
             "unavailable": "The preview could not be loaded."
