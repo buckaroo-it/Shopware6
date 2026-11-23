@@ -50,12 +50,22 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext
     ): RedirectResponse {
-        $dataBag = $this->getRequestBag($dataBag);
-        $this->beforePayLegacy($transaction, $dataBag, $salesChannelContext);
         $transactionId = $transaction->getOrderTransaction()->getId();
         $paymentClass = $this->getPayment($transactionId);
-        $salesChannelId  = $salesChannelContext->getSalesChannelId();
         $paymentCode = $paymentClass->getBuckarooKey();
+
+        // Checked before anything else, so a restricted payment method never reaches Buckaroo
+        if ($this->asyncPaymentService->getPaymentMethodRuleService()->getOrderRestriction(
+            $paymentCode,
+            $transaction->getOrder(),
+            $salesChannelContext->getContext()
+        ) !== null) {
+            throw PaymentException::asyncProcessInterrupted($transactionId, 'Payment method not available');
+        }
+
+        $dataBag = $this->getRequestBag($dataBag);
+        $this->beforePayLegacy($transaction, $dataBag, $salesChannelContext);
+        $salesChannelId  = $salesChannelContext->getSalesChannelId();
         // Legacy path skips modern cancelPreviousPayments signature (phpstan CI compatibility)
 
         try {
@@ -213,16 +223,6 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): void {
-        $this->asyncPaymentService
-            ->checkoutHelper
-            ->appendCustomFields(
-                $transaction->getOrder()->getId(),
-                [
-                    'buckaroo_payment_in_test_mode' => $response->isTestMode(),
-                ],
-                $salesChannelContext->getContext()
-            );
-
         $this->asyncPaymentService->transactionService
             ->updateTransactionCustomFields($transaction->getOrderTransaction()->getId(), [
                 'originalTransactionKey' => $response->getTransactionKey()
