@@ -11,11 +11,11 @@ use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\PayByBankService;
 use Buckaroo\Shopware6\Service\PayPalExpressCredentialsService;
 use Buckaroo\Shopware6\Service\PaymentAmountLimitService;
+use Buckaroo\Shopware6\Service\PaymentMethodRuleService;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Buckaroo\Shopware6\Service\IdealIssuerService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Buckaroo\Shopware6\Handlers\AfterPayPaymentHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
 use Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler;
@@ -91,6 +91,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected In3LogoService $in3LogoService;
     protected PayPalExpressCredentialsService $paypalExpressCredentials;
     protected ?PaymentAmountLimitService $paymentAmountLimitService;
+    protected PaymentMethodRuleService $paymentMethodRuleService;
 
     public function __construct(
         SalesChannelRepository $paymentMethodRepository,
@@ -101,7 +102,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         In3LogoService $in3LogoService,
         IdealIssuerService $idealIssuerService,
         PayPalExpressCredentialsService $paypalExpressCredentials,
-        ?PaymentAmountLimitService $paymentAmountLimitService = null
+        ?PaymentAmountLimitService $paymentAmountLimitService = null,
+        ?PaymentMethodRuleService $paymentMethodRuleService = null
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->settingsService = $settingsService;
@@ -112,6 +114,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $this->idealIssuerService = $idealIssuerService;
         $this->paypalExpressCredentials = $paypalExpressCredentials;
         $this->paymentAmountLimitService = $paymentAmountLimitService;
+        $this->paymentMethodRuleService = $paymentMethodRuleService ?? new PaymentMethodRuleService($settingsService);
     }
 
     /**
@@ -151,34 +154,23 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $paymentMethods = $event->getPage()->getPaymentMethods();
         $currency = $this->getCurrency($event);
 
+        $hasCompany = $event instanceof AccountEditOrderPageLoadedEvent
+            ? $this->paymentMethodRuleService->orderHasCompany($event->getPage()->getOrder())
+            : $this->paymentMethodRuleService->customerHasCompany($event->getSalesChannelContext()->getCustomer());
+
         foreach ($paymentMethods as $paymentMethod) {
             $buckarooKey = $this->getBuckarooKey($paymentMethod->getTranslated());
             if ($buckarooKey === null) {
                 continue;
             }
-            if (!$this->settingsService->getEnabled(
+
+            // Same rules the cart validator and the payment handlers enforce
+            if ($this->paymentMethodRuleService->getRestriction(
                 $buckarooKey,
-                $event->getSalesChannelContext()->getSalesChannelId()
-            )) {
-                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
-            }
-            if (
-                $buckarooKey === 'payperemail' &&
-                $this->isPayPermMailDisabledInFrontend(
-                    $event->getSalesChannelContext()->getSalesChannelId()
-                )
-            ) {
-                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
-            }
-
-            if ($buckarooKey === 'afterpay' && !$this->canShowAfterpay($event)) {
-                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
-            }
-
-            if ($buckarooKey === 'twint' && $currency->getIsoCode() !== 'CHF') {
-                $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
-            }
-            if ($buckarooKey === 'swish' && $currency->getIsoCode() !== 'SEK') {
+                $event->getSalesChannelContext()->getSalesChannelId(),
+                $currency->getIsoCode(),
+                $hasCompany
+            ) !== null) {
                 $paymentMethods = $this->removePaymentMethod($paymentMethods, $paymentMethod->getId());
             }
 
@@ -919,84 +911,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         ) {
             $session->getFlashBag()->add('success', $this->translator->trans('buckaroo.messages.return791'));
         }
-    }
-
-    /**
-     * Check if we can display afterpay when b2b is enabled
-     *
-     * @param AccountEditOrderPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
-     *
-     * @return boolean
-     */
-    protected function canShowAfterpay($event): bool
-    {
-        $shippingCompany = null;
-        $billingCompany = null;
-
-        $isStrictB2B = $this->settingsService->getSetting(
-            'afterpayCustomerType',
-            $event->getSalesChannelContext()->getSalesChannelId()
-        ) === AfterPayPaymentHandler::CUSTOMER_TYPE_B2B;
-
-
-        if ($event instanceof AccountEditOrderPageLoadedEvent) {
-            $order = $event->getPage()->getOrder();
-
-            $billingAddress = $order->getBillingAddress();
-            if ($billingAddress !== null) {
-                $billingCompany = $billingAddress->getCompany();
-            }
-
-            if ($order->getDeliveries() !== null) {
-                $shippingAddress = null;
-                $firstDelivery = $order->getDeliveries()->first();
-                if ($firstDelivery !== null) {
-                    $shippingAddress = $firstDelivery->getShippingOrderAddress();
-                }
-                if ($shippingAddress !== null) {
-                    $shippingCompany = $shippingAddress->getCompany();
-                }
-            }
-        }
-
-        if ($event instanceof CheckoutConfirmPageLoadedEvent) {
-            $customer = $event->getSalesChannelContext()->getCustomer();
-
-            if ($customer === null) {
-                return false;
-            }
-
-            $billingAddress = $customer->getDefaultBillingAddress();
-
-            if ($billingAddress !== null) {
-                $billingCompany = $billingAddress->getCompany();
-            }
-
-            $shippingAddress = $customer->getDefaultShippingAddress();
-            if ($shippingAddress !== null) {
-                $shippingCompany = $shippingAddress->getCompany();
-            }
-        }
-        if (
-            $isStrictB2B &&
-            $this->isCompanyEmpty($billingCompany) &&
-            $this->isCompanyEmpty($shippingCompany)
-        ) {
-            return false;
-        }
-
-        return true;
-    }
-    /**
-     * Check if company is empty
-     *
-     * @param string $company
-     *
-     * @return boolean
-     */
-    private function isCompanyEmpty(?string $company = null)
-    {
-        return null === $company || strlen(trim($company)) === 0;
     }
 
     /**
