@@ -7,6 +7,10 @@ namespace Buckaroo\Shopware6\Service;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
+use Symfony\Component\Lock\LockFactory;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +28,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 class OrderService
 {
+    /**
+     * Same key format as Shopware's own cart lock, so an express order and a
+     * regular checkout of the same cart cannot run at the same time.
+     */
+    private const CART_LOCK_PREFIX = 'cart-lock';
+
+    private const CART_LOCK_TTL = 30;
+
     protected SalesChannelContext $salesChannelContext;
 
     protected OrderPersisterInterface $orderPersister;
@@ -44,7 +56,10 @@ class OrderService
         EventDispatcherInterface $eventDispatcher,
         PaymentServiceFactory $paymentServiceFactory,
         EntityRepository $orderAddressRepository,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        private readonly CartCalculator $cartCalculator,
+        private readonly AbstractCartPersister $cartPersister,
+        private readonly LockFactory $lockFactory
     ) {
         $this->orderPersister = $orderPersister;
         $this->orderRepository = $orderRepository;
@@ -210,11 +225,83 @@ class OrderService
         }
     }
 
+    /**
+     * Convert a cart into an order for the express checkout flows.
+     *
+     * A cart loaded from storage carries no calculation errors, so the cart is
+     * always recalculated here under the current sales channel context (currency,
+     * rules, payment and shipping method) right before it is persisted, and only
+     * persisted when the recalculated cart has no blocking errors. The cart is
+     * locked while this happens and removed once the order exists, so the same
+     * cart cannot be turned into a second order.
+     */
     public function persist(Cart $cart): ?OrderEntity
     {
         $this->validateSaleChannelContext();
-        $orderId = $this->orderPersister->persist($cart, $this->salesChannelContext);
+        $context = $this->salesChannelContext;
+        $token = $cart->getToken();
+
+        $lock = $this->lockFactory->createLock(self::CART_LOCK_PREFIX . $token, self::CART_LOCK_TTL);
+        if (!$lock->acquire()) {
+            throw new CreateCartException('Cart is already being processed');
+        }
+
+        try {
+            $this->assertCartIsStored($token, $context);
+
+            $calculatedCart = $this->cartCalculator->calculate($cart, $context);
+            if ($calculatedCart->getErrors()->blockOrder()) {
+                throw CartException::invalidCart($calculatedCart->getErrors());
+            }
+
+            $this->validatePayment($calculatedCart, $context);
+
+            $orderId = $this->orderPersister->persist($calculatedCart, $context);
+
+            $this->deleteCart($token, $context);
+        } finally {
+            $lock->release();
+        }
+
         return $this->getOrderById($orderId);
+    }
+
+    /**
+     * The cart must still be stored: once it has been converted into an order
+     * it is deleted, so a repeated request for the same cart is refused.
+     */
+    private function assertCartIsStored(string $token, SalesChannelContext $context): void
+    {
+        try {
+            $this->cartPersister->load($token, $context);
+        } catch (\Throwable $th) {
+            throw new CreateCartException('Cart is no longer available', 0, $th);
+        }
+    }
+
+    /**
+     * Run the payment handler validation the way Shopware's order route does.
+     * PaymentProcessor::validate() exists from Shopware 6.6.x on; the 6.5/6.6
+     * PaymentService has no equivalent step for asynchronous handlers.
+     */
+    private function validatePayment(Cart $cart, SalesChannelContext $context): void
+    {
+        $this->ensurePaymentServiceResolved();
+        if (is_object($this->paymentService) && method_exists($this->paymentService, 'validate')) {
+            $this->paymentService->validate($cart, new RequestDataBag(), $context);
+        }
+    }
+
+    /**
+     * The order exists at this point; a failed cleanup must not fail it.
+     */
+    private function deleteCart(string $token, SalesChannelContext $context): void
+    {
+        try {
+            $this->cartPersister->delete($token, $context);
+        } catch (\Throwable $th) {
+            $this->logger->warning('[OrderService] could not delete cart after order: ' . $th->getMessage());
+        }
     }
 
     public function getOrderById(

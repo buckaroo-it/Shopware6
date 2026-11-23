@@ -89,6 +89,10 @@ class IdealFastCheckoutController extends AbstractPaymentController
                         $customer->getId()
                     )
                 );
+
+                // The reloaded context starts from the default payment method;
+                // select iDEAL again so the cart and order use it.
+                $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
             }
 
 
