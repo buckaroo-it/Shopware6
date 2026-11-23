@@ -61,14 +61,6 @@ class PaymentResponseHandler
         SalesChannelContext $salesChannelContext,
         string $paymentCode
     ): void {
-        $this->asyncPaymentService->checkoutHelper->appendCustomFields(
-            $order->getId(),
-            [
-                'buckaroo_payment_in_test_mode' => $response->isTestMode(),
-            ],
-            $salesChannelContext->getContext()
-        );
-        
         $this->asyncPaymentService->transactionService->updateTransactionCustomFields($orderTransaction->getId(), [
             'originalTransactionKey' => $response->getTransactionKey()
         ], $salesChannelContext->getContext());
