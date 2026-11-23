@@ -338,6 +338,32 @@
                 </option>
             </options>
         </input-field>
+        <input-field type="float">
+            <name>creditcardMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>creditcardMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>creditcardFee</name>
             <copyable>true</copyable>
@@ -486,6 +512,32 @@
                 </option>
             </options>
         </input-field>
+        <input-field type="float">
+            <name>creditcardsMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>creditcardsMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>creditcardsFee</name>
             <copyable>true</copyable>
@@ -525,6 +577,32 @@
             <defaultValue>iDEAL QR</defaultValue>
         </input-field>
 
+
+        <input-field type="float">
+            <name>idealqrMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>idealqrMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
 
         <input-field type="text">
             <name>idealqrFee</name>
@@ -615,6 +693,32 @@
         </input-field>
 
 
+
+        <input-field type="float">
+            <name>idealMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>idealMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
 
         <input-field type="text">
             <name>idealFee</name>
@@ -772,6 +876,32 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field type="float">
+            <name>paybybankMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>paybybankMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
     </card>
 
     <card>
@@ -828,6 +958,32 @@
             <helpText lang="nl-NL">Laat klanten hun Bancontact-kaartgegevens in de checkout invoeren. Gebruikt de Client ID en Client Secret van "Creditcard en debetkaart (Hosted Fields)". Indien uitgeschakeld, worden klanten doorgestuurd naar Buckaroo.</helpText>
             <helpText lang="de-DE">Kunden geben ihre Bancontact-Kartendaten direkt im Checkout ein. Verwendet die Client ID und das Client Secret von "Kartenzahlung (Hosted Fields)". Wenn deaktiviert, werden Kunden zu Buckaroo weitergeleitet.</helpText>
             <helpText lang="fr-FR">Permet aux clients de saisir les données de leur carte Bancontact lors du paiement. Utilise le Client ID et le Client Secret de "Cartes de crédit et de débit (Hosted Fields)". Si désactivé, les clients sont redirigés vers Buckaroo.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>bancontactmrcashMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>bancontactmrcashMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -889,6 +1045,32 @@
         </input-field>
 
 
+
+        <input-field type="float">
+            <name>blikMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>blikMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
 
         <input-field type="text">
             <name>blikFee</name>
@@ -1053,6 +1235,32 @@
                 </option>
             </options>
         </input-field>
+        <input-field type="float">
+            <name>afterpayMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>afterpayMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>afterpayFee</name>
             <copyable>true</copyable>
@@ -1123,6 +1331,32 @@
             <helpText lang="nl-NL">Stuurt de naam, het adres en het telefoonnummer van de klant naar PayPal, nodig voor verkopersbescherming. Verkopersbescherming kan extra instellingen vereisen; neem voor details contact op met Buckaroo.</helpText>
             <helpText lang="de-DE">Sendet Name, Adresse und Telefonnummer des Kunden an PayPal, was PayPal für den Verkäuferschutz benötigt. Der Verkäuferschutz kann eine zusätzliche Einrichtung erfordern; wenden Sie sich für Details an Buckaroo.</helpText>
             <helpText lang="fr-FR">Envoie le nom, l'adresse et le numéro de téléphone du client à PayPal, nécessaires pour la protection des vendeurs. Elle peut nécessiter une configuration supplémentaire ; contactez Buckaroo pour plus de détails.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>paypalMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>paypalMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -1415,6 +1649,32 @@
             <helpText lang="de-DE">Anzahl der Tage nach dem Bestelldatum, die Buckaroo in der Überweisungs-E-Mail als Fälligkeitsdatum anzeigt. Dies dient nur als Referenz: Später eingehende Zahlungen werden weiterhin akzeptiert.</helpText>
 			<helpText lang="fr-FR">Nombre de jours après la date de commande que Buckaroo affiche comme date d'échéance dans l'e-mail de virement. Il s'agit d'une simple référence : les paiements reçus plus tard sont toujours acceptés.</helpText>
         </input-field>
+        <input-field type="float">
+            <name>transferMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>transferMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>transferFee</name>
             <copyable>true</copyable>
@@ -1471,6 +1731,32 @@
 			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
 			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>KBC</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>KBCPaymentButtonMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>KBCPaymentButtonMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -1531,6 +1817,32 @@
             <defaultValue>Sepa Direct Debit</defaultValue>
         </input-field>
 
+        <input-field type="float">
+            <name>sepadirectdebitMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>sepadirectdebitMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>sepadirectdebitFee</name>
             <copyable>true</copyable>
@@ -1587,6 +1899,32 @@
 			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
 			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Payconiq</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>payconiqMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>payconiqMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -1660,6 +1998,32 @@
 			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
 			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Apple Pay</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>applepayMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>applepayMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -1903,6 +2267,32 @@
             <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
             <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Google Pay</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>googlepayMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>googlepayMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -2577,6 +2967,32 @@
                 </option>
             </options>
         </input-field>
+
+        <input-field type="float">
+            <name>giftcardsMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>giftcardsMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
     </card>
     <card>
         <title>In3</title>
@@ -2619,6 +3035,32 @@
 			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
 			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>In3</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>capayableMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>capayableMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -2679,6 +3121,32 @@
             <defaultValue>EPS</defaultValue>
         </input-field>
 
+        <input-field type="float">
+            <name>epsMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>epsMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>epsFee</name>
             <copyable>true</copyable>
@@ -2735,6 +3203,32 @@
 			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
 			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>MWPay</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>mbwayMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>mbwayMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -2795,6 +3289,32 @@
             <defaultValue>Multibanco</defaultValue>
         </input-field>
 
+        <input-field type="float">
+            <name>multibancoMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>multibancoMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>multibancoFee</name>
             <copyable>true</copyable>
@@ -2851,6 +3371,32 @@
 			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
 			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Przelewy24</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>Przelewy24MinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>Przelewy24MaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -2911,6 +3457,32 @@
             <defaultValue>Alipay</defaultValue>
         </input-field>
 
+        <input-field type="float">
+            <name>AlipayMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>AlipayMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>AlipayFee</name>
             <copyable>true</copyable>
@@ -2967,6 +3539,32 @@
 			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
 			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>WeChatPay</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>WeChatPayMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>WeChatPayMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -3027,6 +3625,32 @@
             <defaultValue>Trustly</defaultValue>
         </input-field>
 
+        <input-field type="float">
+            <name>TrustlyMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>TrustlyMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>TrustlyFee</name>
             <copyable>true</copyable>
@@ -3085,6 +3709,32 @@
             <defaultValue>Swish</defaultValue>
         </input-field>
 
+        <input-field type="float">
+            <name>swishMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>swishMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>swishFee</name>
             <copyable>true</copyable>
@@ -3141,6 +3791,32 @@
 			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
 			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Bizum</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>bizumMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>bizumMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -3211,6 +3887,32 @@
             <helpText lang="nl-NL">Indien ingeschakeld, wordt de Klarna-transactie automatisch vastgelegd zodra de bestelling als "Verzonden" wordt gemarkeerd. Indien uitgeschakeld, leg je de transactie handmatig vast via het Buckaroo-tabblad in de bestelling, met de knop "Vastleggen".</helpText>
             <helpText lang="de-DE">Wenn aktiviert, wird die Klarna-Transaktion automatisch erfasst, wenn die Bestellung als "Versendet" markiert wird. Wenn deaktiviert, müssen Sie die Transaktion manuell über den Buckaroo-Tab in der Bestellung erfassen, der eine "Erfassen"-Schaltfläche enthält.</helpText>
             <helpText lang="fr-FR">Lorsqu'activé, la transaction Klarna est automatiquement capturée lorsque la commande est marquée comme "Expédiée". Lorsque désactivé, vous devez capturer manuellement la transaction via l'onglet Buckaroo dans la commande, qui contient un bouton "Capturer".</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>klarnaMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>klarnaMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -3285,6 +3987,32 @@
         </input-field>
 
 
+        <input-field type="float">
+            <name>klarnakpMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>klarnakpMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>klarnakpFee</name>
             <copyable>true</copyable>
@@ -3343,6 +4071,32 @@
             <defaultValue>Billink</defaultValue>
         </input-field>
 
+        <input-field type="float">
+            <name>BillinkMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>BillinkMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>BillinkFee</name>
             <copyable>true</copyable>
@@ -3399,6 +4153,32 @@
             <helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
             <helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>TWINT</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>twintMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>twintMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -3471,6 +4251,32 @@
             <helpText lang="fr-FR">Activé : le paiement est seulement autorisé lors de la commande ; capturez-le plus tard avec le bouton Capturer dans l'onglet Buckaroo de la commande. Désactivé : le paiement est capturé immédiatement.</helpText>
         </input-field>
 
+        <input-field type="float">
+            <name>weroMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>weroMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>weroFee</name>
             <copyable>true</copyable>
@@ -3527,6 +4333,32 @@
 			<helpText lang="nl-NL">Naam van deze betaalmethode die klanten zien bij het afrekenen. Als er een betaaltoeslag is ingesteld, wordt deze achter de naam getoond.</helpText>
 			<helpText lang="fr-FR">Nom de ce moyen de paiement affiché aux clients lors du paiement. Si des frais de paiement sont définis, ils s'affichent après le nom.</helpText>
             <defaultValue>Belfius</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>belfiusMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>belfiusMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
         </input-field>
 
         <input-field type="text">
@@ -3738,6 +4570,32 @@
             <helpText lang="fr-FR">Propose PayPerEmail comme moyen de paiement lors du paiement : le client reçoit un e-mail avec un lien de paiement. Paylink dans la commande fonctionne indépendamment de ce paramètre.</helpText>
             <defaultValue>1</defaultValue>
         </input-field>
+        <input-field type="float">
+            <name>payperemailMinOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Minimum order amount</label>
+            <label lang="nl-NL">Minimaal orderbedrag</label>
+            <label lang="de-DE">Mindestbestellwert</label>
+            <label lang="fr-FR">Montant minimum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or greater than the minimum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of hoger dan het minimale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder größer als der Mindestbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou supérieur au montant minimum.</helpText>
+        </input-field>
+
+        <input-field type="float">
+            <name>payperemailMaxOrderAmount</name>
+            <allowEmpty>true</allowEmpty>
+            <label lang="en-GB">Maximum order amount</label>
+            <label lang="nl-NL">Maximaal orderbedrag</label>
+            <label lang="de-DE">Höchstbestellwert</label>
+            <label lang="fr-FR">Montant maximum de commande</label>
+            <helpText lang="en-GB">The payment method shows only for orders with an order amount equal to or smaller than the maximum amount.</helpText>
+            <helpText lang="nl-NL">De betaalmethode wordt alleen getoond bij bestellingen met een orderbedrag gelijk aan of lager dan het maximale bedrag.</helpText>
+            <helpText lang="de-DE">Die Zahlungsart wird nur bei Bestellungen angezeigt, deren Bestellwert gleich oder kleiner als der Höchstbetrag ist.</helpText>
+            <helpText lang="fr-FR">Le moyen de paiement s'affiche uniquement pour les commandes dont le montant est égal ou inférieur au montant maximum.</helpText>
+        </input-field>
+
         <input-field type="text">
             <name>payperemailFee</name>
             <copyable>true</copyable>

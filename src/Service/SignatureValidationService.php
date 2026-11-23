@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SignatureValidationService
 {
+    private const SIGNED_PARAMETER_PREFIXES = ['brq', 'add', 'cust', 'wc'];
+
     protected SettingsService $settingsService;
 
     protected LoggerInterface $logger;
@@ -86,6 +88,10 @@ class SignatureValidationService
             return false;
         }
 
+        if (!$this->hasStringSignedValues($postData)) {
+            return false;
+        }
+
         try {
             $secretKey = $this->settingsService->getSetting('secretKey', $salesChannelId);
 
@@ -117,6 +123,25 @@ class SignatureValidationService
 
             return false;
         }
+    }
+
+    /**
+     * Signed parameters must contain string values. The prefix is matched the way the SDK
+     * selects the signed fields: the part before the first underscore, case-insensitive.
+     *
+     * @param array<mixed> $postData
+     */
+    private function hasStringSignedValues(array $postData): bool
+    {
+        foreach ($postData as $key => $value) {
+            $prefix = strtolower(explode('_', (string)$key)[0]);
+
+            if (in_array($prefix, self::SIGNED_PARAMETER_PREFIXES, true) && !is_string($value)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
