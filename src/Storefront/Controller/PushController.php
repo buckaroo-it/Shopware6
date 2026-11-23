@@ -571,6 +571,15 @@ class PushController extends StorefrontController
                     $data
                 );
 
+                // The order shows the mode of its current payment, not of an earlier attempt.
+                if ($orderTransactionId === $lastTransactionId) {
+                    $this->checkoutHelper->setPaymentInTestMode(
+                        $order,
+                        $this->isTestPush($pushData),
+                        $context
+                    );
+                }
+
                 $this->applyOrderStatusAfterPayment(
                     $order,
                     $context,
@@ -912,6 +921,21 @@ class PushController extends StorefrontController
         $buckarooKey = $this->getBuckarooKey($orderTransaction);
 
         return $buckarooKey !== null && $this->checkoutHelper->isTestEnvironment($buckarooKey, $salesChannelId);
+    }
+
+    /**
+     * Whether the signed push comes from the Buckaroo test environment, read the same way
+     * as in isPushForEnvironment(): only an explicit live value counts as live.
+     *
+     * @param array<mixed> $pushData
+     */
+    private function isTestPush(array $pushData): bool
+    {
+        return !in_array(
+            strtolower(trim($this->getPushValue($pushData, 'brq_test'))),
+            ['', 'false', '0'],
+            true
+        );
     }
 
     private function getBuckarooKey(OrderTransactionEntity $orderTransaction): ?string

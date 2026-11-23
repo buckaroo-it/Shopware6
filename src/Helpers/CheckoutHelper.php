@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 class CheckoutHelper
 {
+    public const PAYMENT_IN_TEST_MODE = 'buckaroo_payment_in_test_mode';
 
     private SettingsService $settingsService;
 
@@ -162,6 +163,21 @@ class CheckoutHelper
             [['id' => $orderId, 'customFields' => array_merge($savedCustomFields, $customFields)]],
             $context
         );
+    }
+
+    /**
+     * Records whether the order was paid on the Buckaroo test environment; the administration
+     * shows a notice on orders where this is set. Only written when the value changes, so a
+     * live payment leaves orders without the field untouched and repeated calls do not write.
+     */
+    public function setPaymentInTestMode(OrderEntity $order, bool $isTestMode, Context $context): void
+    {
+        $customFields = $order->getCustomFields() ?? [];
+        if (($customFields[self::PAYMENT_IN_TEST_MODE] ?? false) === $isTestMode) {
+            return;
+        }
+
+        $this->appendCustomFields($order->getId(), [self::PAYMENT_IN_TEST_MODE => $isTestMode], $context);
     }
 
 
