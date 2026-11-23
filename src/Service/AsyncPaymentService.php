@@ -33,6 +33,8 @@ class AsyncPaymentService
 {
     protected ?BuckarooLanguageResolver $languageResolver = null;
 
+    protected ?PaymentMethodRuleService $paymentMethodRuleService = null;
+
     public function __construct(
         public SettingsService $settingsService,
         public UrlService $urlService,
@@ -58,6 +60,16 @@ class AsyncPaymentService
     public function getLanguageResolver(): ?BuckarooLanguageResolver
     {
         return $this->languageResolver;
+    }
+
+    public function setPaymentMethodRuleService(PaymentMethodRuleService $paymentMethodRuleService): void
+    {
+        $this->paymentMethodRuleService = $paymentMethodRuleService;
+    }
+
+    public function getPaymentMethodRuleService(): PaymentMethodRuleService
+    {
+        return $this->paymentMethodRuleService ??= new PaymentMethodRuleService($this->settingsService);
     }
 
 

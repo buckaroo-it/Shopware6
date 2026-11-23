@@ -308,6 +308,20 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     return null;
                 }
 
+                // validate() only runs when an order is placed; paying an existing order
+                // (handle-payment, changing the payment method afterwards) arrives here directly
+                $buckarooKey = $this->getBuckarooKey();
+                if (
+                    $buckarooKey !== null
+                    && $this->asyncPaymentService->getPaymentMethodRuleService()
+                        ->getOrderRestriction($buckarooKey, $order, $context) !== null
+                ) {
+                    throw \Shopware\Core\Checkout\Payment\PaymentException::asyncProcessInterrupted(
+                        $transactionId,
+                        'Payment method not available'
+                    );
+                }
+
                 $contextToken = $this->getContextTokenFromRequest($request);
                 $salesChannelContext = $this->asyncPaymentService->getSalesChannelContext(
                     $context,
@@ -487,6 +501,45 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     'Payment processing failed: ' . $e->getMessage()
                 );
             }
+        }
+
+        /**
+         * Runs before the order is persisted (storefront and Store API checkout); a
+         * payment method the merchant settings do not allow stops the order here.
+         */
+        public function validate(
+            \Shopware\Core\Checkout\Cart\Cart $cart,
+            RequestDataBag $dataBag,
+            SalesChannelContext $context
+        ): ?Struct {
+            $buckarooKey = $this->getBuckarooKey();
+            if (
+                $buckarooKey !== null
+                && $this->asyncPaymentService->getPaymentMethodRuleService()
+                    ->getCartRestriction($buckarooKey, $context) !== null
+            ) {
+                throw \Shopware\Core\Checkout\Payment\PaymentException::validatePreparedPaymentInterrupted(
+                    'Payment method not available'
+                );
+            }
+
+            return null;
+        }
+
+        /**
+         * Buckaroo key of the payment class this handler pays with.
+         */
+        private function getBuckarooKey(): ?string
+        {
+            if ($this->paymentClass === '' || !class_exists($this->paymentClass)) {
+                return null;
+            }
+
+            $paymentClass = new $this->paymentClass();
+
+            return $paymentClass instanceof \Buckaroo\Shopware6\PaymentMethods\AbstractPayment
+                ? $paymentClass->getBuckarooKey()
+                : null;
         }
 
         /**
