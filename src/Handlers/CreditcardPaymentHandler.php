@@ -4,24 +4,20 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\PaymentMethods\Creditcard;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
-use Shopware\Core\Framework\Context;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Framework\Struct\Struct;
+use Buckaroo\Shopware6\Service\CustomerService;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CreditcardPaymentHandler extends PaymentHandlerSimple
 {
-    public string $paymentClass = Creditcard::class;
-
     public const ISSUER_LABEL = 'last_used_creditcard';
+
+    public string $paymentClass = Creditcard::class;
 
     protected CustomerService $customerService;
 
@@ -33,6 +29,25 @@ class CreditcardPaymentHandler extends PaymentHandlerSimple
         $this->customerService = $customerService;
     }
 
+    /**
+     * Get parameters for specific payment method
+     *
+     * @return array<mixed>
+     */
+    public function getMethodPayload(
+        OrderEntity $order,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): array {
+        if ($dataBag->has('creditcard')) {
+            return [
+                'name' => $dataBag->get('creditcard'),
+            ];
+        }
+
+        return [];
+    }
 
     /**
      * Hook before modern pay; updates issuer in customer profile.
@@ -59,31 +74,6 @@ class CreditcardPaymentHandler extends PaymentHandlerSimple
         }
     }
 
-
-    /**
-     * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     *
-     * @return array<mixed>
-     */
-    public function getMethodPayload(
-        OrderEntity $order,
-        RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
-    ): array {
-        if ($dataBag->has('creditcard')) {
-            return [
-                'name' => $dataBag->get('creditcard'),
-            ];
-        }
-        return [];
-    }
-
     protected function updateCustomerIssuer(
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext
@@ -91,9 +81,9 @@ class CreditcardPaymentHandler extends PaymentHandlerSimple
         $customer = $salesChannelContext->getCustomer();
         $issuer = $dataBag->get('creditcard');
         if (
-            $customer !== null &&
-            $issuer !== null &&
-            $issuer !== $customer->getCustomFieldsValue(self::ISSUER_LABEL)
+            $customer !== null
+            && $issuer !== null
+            && $issuer !== $customer->getCustomFieldsValue(self::ISSUER_LABEL)
         ) {
             $this->customerService->updateCustomerData(
                 $customer,

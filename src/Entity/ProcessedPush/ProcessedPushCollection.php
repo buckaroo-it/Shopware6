@@ -9,11 +9,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 /**
  * @method void add(ProcessedPushEntity $entity)
  * @method void set(string $key, ProcessedPushEntity $entity)
- * @method ProcessedPushEntity[]     getIterator()
- * @method ProcessedPushEntity[]     getElements()
- * @method null|ProcessedPushEntity  get(string $key)
- * @method null|ProcessedPushEntity  first()
- * @method null|ProcessedPushEntity  last()
+ * @method ProcessedPushEntity[] getIterator()
+ * @method ProcessedPushEntity[] getElements()
+ * @method ProcessedPushEntity|null get(string $key)
+ * @method ProcessedPushEntity|null first()
+ * @method ProcessedPushEntity|null last()
+ *
  * @extends EntityCollection<ProcessedPushEntity>
  */
 class ProcessedPushCollection extends EntityCollection

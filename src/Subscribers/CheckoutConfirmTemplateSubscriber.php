@@ -4,36 +4,36 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
-use Buckaroo\Shopware6\Service\UrlService;
+use Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Buckaroo\Shopware6\Service\FormatRequestParamService;
+use Buckaroo\Shopware6\Service\IdealIssuerService;
 use Buckaroo\Shopware6\Service\In3LogoService;
-use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\PayByBankService;
-use Buckaroo\Shopware6\Service\PayPalExpressCredentialsService;
 use Buckaroo\Shopware6\Service\PaymentAmountLimitService;
 use Buckaroo\Shopware6\Service\PaymentMethodRuleService;
-use Shopware\Core\System\Currency\CurrencyEntity;
-use Buckaroo\Shopware6\Service\IdealIssuerService;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Buckaroo\Shopware6\Service\PayPalExpressCredentialsService;
+use Buckaroo\Shopware6\Service\SettingsService;
+use Buckaroo\Shopware6\Service\UrlService;
 use Buckaroo\Shopware6\Storefront\Struct\BuckarooStruct;
-use Buckaroo\Shopware6\Handlers\CreditcardPaymentHandler;
-use Buckaroo\Shopware6\Service\FormatRequestParamService;
-use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
+use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
+use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
+use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
-use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
-use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent;
-use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 {
@@ -56,42 +56,44 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     private const APPLEPAY_BUTTON_STYLES = ['black', 'white', 'white-outline'];
     private const APPLEPAY_BUTTON_TYPES = ['plain', 'buy', 'check-out', 'order', 'book', 'subscribe'];
 
-    /** @var CheckoutHelper $checkoutHelper */
     public CheckoutHelper $checkoutHelper;
-
-    /**
-     * @var SalesChannelRepository
-     */
-    private SalesChannelRepository $paymentMethodRepository;
-
-    private IdealIssuerService $idealIssuerService;
-
 
     /**
      * @var array<mixed>
      */
     protected array $availableCreditcards = [
-        'mastercard'     => 'MasterCard',
-        'visa'           => 'Visa',
-        'amex'           => 'American Express',
-        'vpay'           => 'VPay',
-        'maestro'        => 'Maestro',
-        'visaelectron'   => 'Visa Electron',
+        'mastercard' => 'MasterCard',
+        'visa' => 'Visa',
+        'amex' => 'American Express',
+        'vpay' => 'VPay',
+        'maestro' => 'Maestro',
+        'visaelectron' => 'Visa Electron',
         'cartebleuevisa' => 'Carte Bleue',
-        'cartebancaire'  => 'Carte Bancaire',
-        'dankort'        => 'Dankort',
-        'nexi'           => 'Nexi',
-        'postepay'       => 'PostePay',
+        'cartebancaire' => 'Carte Bancaire',
+        'dankort' => 'Dankort',
+        'nexi' => 'Nexi',
+        'postepay' => 'PostePay',
     ];
 
     protected SettingsService $settingsService;
+
     protected UrlService $urlService;
+
     protected TranslatorInterface $translator;
+
     protected PayByBankService $payByBankService;
+
     protected In3LogoService $in3LogoService;
+
     protected PayPalExpressCredentialsService $paypalExpressCredentials;
+
     protected ?PaymentAmountLimitService $paymentAmountLimitService;
+
     protected PaymentMethodRuleService $paymentMethodRuleService;
+
+    private SalesChannelRepository $paymentMethodRepository;
+
+    private IdealIssuerService $idealIssuerService;
 
     public function __construct(
         SalesChannelRepository $paymentMethodRepository,
@@ -124,28 +126,14 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         return [
             // Removed to avoid missing symbol in some Shopware versions
-            AccountEditOrderPageLoadedEvent::class     => 'addBuckarooExtension',
-            CheckoutConfirmPageLoadedEvent::class      => 'addBuckarooExtension',
-            ProductPageLoadedEvent::class              => 'addBuckarooToProductPage',
-            CheckoutCartPageLoadedEvent::class         => 'addBuckarooToCart',
-            CheckoutFinishPageLoadedEvent::class       => 'addInProgress'
+            AccountEditOrderPageLoadedEvent::class => 'addBuckarooExtension',
+            CheckoutConfirmPageLoadedEvent::class => 'addBuckarooExtension',
+            ProductPageLoadedEvent::class => 'addBuckarooToProductPage',
+            CheckoutCartPageLoadedEvent::class => 'addBuckarooToCart',
+            CheckoutFinishPageLoadedEvent::class => 'addInProgress',
         ];
     }
 
-    private function getBuckarooKey(array $translation): ?string
-    {
-        if (!isset($translation['customFields']) || !is_array($translation['customFields'])) {
-            return null;
-        }
-
-        if (
-            !isset($translation['customFields']['buckaroo_key']) ||
-            !is_string($translation['customFields']['buckaroo_key'])
-        ) {
-            return null;
-        }
-        return $translation['customFields']['buckaroo_key'];
-    }
     /**
      * @param AccountEditOrderPageLoadedEvent|CheckoutConfirmPageLoadedEvent $event
      */
@@ -181,41 +169,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $event->getPage()->setPaymentMethods($paymentMethods);
     }
 
-    /**
-     * Minimum / maximum order amount of the payment method, checked against the cart
-     * total on the confirm page and against the order total when the payment method
-     * of an existing order is changed.
-     *
-     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
-     */
-    private function isWithinOrderAmountLimits($event, string $buckarooKey): bool
-    {
-        $limits = $this->paymentAmountLimitService;
-        $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
-
-        if ($limits === null || !$limits->hasLimits($buckarooKey, $salesChannelId)) {
-            return true;
-        }
-
-        if ($event instanceof AccountEditOrderPageLoadedEvent) {
-            $order = $event->getPage()->getOrder();
-
-            return $limits->isAmountAllowed(
-                $buckarooKey,
-                $limits->getOrderAmount($order),
-                $salesChannelId,
-                $order->getTotalRounding()?->getDecimals() ?? 2
-            );
-        }
-
-        return $limits->isAmountAllowed(
-            $buckarooKey,
-            $event->getPage()->getCart()->getPrice()->getTotalPrice(),
-            $salesChannelId,
-            $event->getSalesChannelContext()->getTotalRounding()->getDecimals()
-        );
-    }
-
     public function isPayPermMailDisabledInFrontend(?string $salesChannelId = null): bool
     {
         return $this->settingsService->getSetting('payperemailEnabledfrontend', $salesChannelId) === false;
@@ -223,6 +176,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
     /**
      * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
+     *
      * @throws \Exception
      */
     public function addBuckarooExtension($event): void
@@ -231,7 +185,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         $this->hideNotEnabledPaymentMethods($event);
 
-        $request  = $event->getRequest();
+        $request = $event->getRequest();
         $customer = $event->getSalesChannelContext()->getCustomer();
 
         if ($customer === null) {
@@ -245,13 +199,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
 
         $currency = $this->getCurrency($event);
-        
+
         // Get cart or order total for fee calculation
         $cartTotal = $this->getCartOrOrderTotal($event);
 
-
-        $struct             = new BuckarooStruct();
-        $idealRenderMode    = $this->getIdealRenderMode($salesChannelId);
+        $struct = new BuckarooStruct();
+        $idealRenderMode = $this->getIdealRenderMode($salesChannelId);
         $lastUsedCreditcard = $customer->getCustomFieldsValue(CreditcardPaymentHandler::ISSUER_LABEL);
 
         if (!is_string($lastUsedCreditcard)) {
@@ -262,12 +215,12 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $allowedcreditcard = $this->settingsService->getSetting('allowedcreditcard', $salesChannelId);
         if (!empty($allowedcreditcard) && is_array($allowedcreditcard)) {
             foreach ($allowedcreditcard as $value) {
-                $label  = null;
+                $label = null;
                 if (
-                    isset($this->availableCreditcards[$value]) &&
-                    is_string($this->availableCreditcards[$value])
+                    isset($this->availableCreditcards[$value])
+                    && is_string($this->availableCreditcards[$value])
                 ) {
-                    $label = (string)$this->availableCreditcards[$value];
+                    $label = (string) $this->availableCreditcards[$value];
                 }
 
                 $creditcard[] = [
@@ -287,13 +240,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $allowedcreditcards = $this->settingsService->getSetting('allowedcreditcards', $salesChannelId);
         if (!empty($allowedcreditcards) && is_array($allowedcreditcards)) {
             foreach ($allowedcreditcards as $value) {
-                $label  = null;
+                $label = null;
 
                 if (
-                    isset($this->availableCreditcards[$value]) &&
-                    is_string($this->availableCreditcards[$value])
+                    isset($this->availableCreditcards[$value])
+                    && is_string($this->availableCreditcards[$value])
                 ) {
-                    $label = (string)$this->availableCreditcards[$value];
+                    $label = (string) $this->availableCreditcards[$value];
                 }
 
                 $creditcards[] = [
@@ -337,60 +290,60 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $backUrl = $this->urlService->getRestoreUrl();
 
         $struct->assign([
-            'currency'                 => $currency->getIsoCode(),
-            'issuers'                  => $this->idealIssuerService->get($salesChannelId),
-            'idealRenderMode'          => $idealRenderMode,
-            'idealProcessingRenderMode'=> $this->getIdealProcessingRenderMode($salesChannelId),
-            'showIssuers'         => $this->canShowIssuers($salesChannelId, $buckarooKey),
-            'payByBankMode'            => $this->settingsService->getSetting('paybybankRenderMode', $salesChannelId),
-            'payByBankIssuers'         => $this->payByBankService->getIssuers($customer),
-            'payByBankLogos'           => $this->payByBankService->getIssuerLogos($customer),
-            'payByBankActiveIssuer'    => $this->payByBankService->getActiveIssuer($customer),
-            'in3Logo'                  => null,
-            'idealFastCheckoutLogo'    => $this->getIdealFastCheckoutLogo($salesChannelId),
+            'currency' => $currency->getIsoCode(),
+            'issuers' => $this->idealIssuerService->get($salesChannelId),
+            'idealRenderMode' => $idealRenderMode,
+            'idealProcessingRenderMode' => $this->getIdealProcessingRenderMode($salesChannelId),
+            'showIssuers' => $this->canShowIssuers($salesChannelId, $buckarooKey),
+            'payByBankMode' => $this->settingsService->getSetting('paybybankRenderMode', $salesChannelId),
+            'payByBankIssuers' => $this->payByBankService->getIssuers($customer),
+            'payByBankLogos' => $this->payByBankService->getIssuerLogos($customer),
+            'payByBankActiveIssuer' => $this->payByBankService->getActiveIssuer($customer),
+            'in3Logo' => null,
+            'idealFastCheckoutLogo' => $this->getIdealFastCheckoutLogo($salesChannelId),
             'payment_method_name_card' => $this->getPaymentMethodName($creditcard, $lastUsedCreditcard, ''),
-            'creditcard'               => $creditcard,
-            'creditcards'              => $creditcards,
-            'last_used_creditcard'     => $lastUsedCreditcard,
-            'payment_labels'           => $paymentLabels,
-            'payment_media'            => $lastUsedCreditcard . '.png',
-            'buckarooFee'              => $this->settingsService->calculateBuckarooFee(
+            'creditcard' => $creditcard,
+            'creditcards' => $creditcards,
+            'last_used_creditcard' => $lastUsedCreditcard,
+            'payment_labels' => $paymentLabels,
+            'payment_media' => $lastUsedCreditcard . '.png',
+            'buckarooFee' => $this->settingsService->calculateBuckarooFee(
                 $buckarooKey,
                 $cartTotal,
                 $salesChannelId
             ),
-            'buckarooFeeRaw'           => $this->settingsService->getBuckarooFeeRaw(
+            'buckarooFeeRaw' => $this->settingsService->getBuckarooFeeRaw(
                 $buckarooKey,
                 $salesChannelId
             ),
-            'buckarooFeeIsPercentage'  => $this->settingsService->isBuckarooFeePercentage(
+            'buckarooFeeIsPercentage' => $this->settingsService->isBuckarooFeePercentage(
                 $buckarooKey,
                 $salesChannelId
             ),
-            'BillinkBusiness'          => $this->getBillinkPaymentType($customer),
-            'backLink'                 => $backUrl,
-            'afterpay_customer_type'   => $this->settingsService->getSetting('afterpayCustomerType', $salesChannelId),
-            'showPaypalExpress'        => $this->showPaypalExpress($salesChannelId, 'checkout'),
-            'showIdealFastCheckout'    => $this->showIdealFastCheckout($salesChannelId, 'checkout'),
-            'paypalMerchantId'         => $this->getPaypalExpressMerchantId($salesChannelId),
-            'paypalIsTestMode'         => $this->paypalExpressCredentials->isTestMode($salesChannelId),
-            'paypalButtonStyle'        => $this->getPaypalButtonStyle($salesChannelId),
-            'applePayMerchantId'       => $this->getAppleMerchantId($salesChannelId),
-            'applepayButtonStyle'      => $this->getApplepayButtonStyle($salesChannelId),
-            'applepayButtonType'       => $this->getApplepayButtonType($salesChannelId),
-            'showApplePay'             => $this->showApplePayExpress($salesChannelId, 'checkout'),
-            'isAppleDevice'            => $this->isAppleDevice($request),
-            'showGooglePay'            => $this->showGooglePayExpress($salesChannelId, 'checkout'),
-            'googlepayMerchantId'      => $this->getGoogleMerchantId($salesChannelId),
+            'BillinkBusiness' => $this->getBillinkPaymentType($customer),
+            'backLink' => $backUrl,
+            'afterpay_customer_type' => $this->settingsService->getSetting('afterpayCustomerType', $salesChannelId),
+            'showPaypalExpress' => $this->showPaypalExpress($salesChannelId, 'checkout'),
+            'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId, 'checkout'),
+            'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
+            'paypalIsTestMode' => $this->paypalExpressCredentials->isTestMode($salesChannelId),
+            'paypalButtonStyle' => $this->getPaypalButtonStyle($salesChannelId),
+            'applePayMerchantId' => $this->getAppleMerchantId($salesChannelId),
+            'applepayButtonStyle' => $this->getApplepayButtonStyle($salesChannelId),
+            'applepayButtonType' => $this->getApplepayButtonType($salesChannelId),
+            'showApplePay' => $this->showApplePayExpress($salesChannelId, 'checkout'),
+            'isAppleDevice' => $this->isAppleDevice($request),
+            'showGooglePay' => $this->showGooglePayExpress($salesChannelId, 'checkout'),
+            'googlepayMerchantId' => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
-            'googlepayButtonStyle'     => $this->getGooglepayButtonStyle($salesChannelId),
-            'googlepayButtonType'      => $this->getGooglepayButtonType($salesChannelId),
-            'googlepayEnvironment'     => $this->getGooglepayEnvironment($salesChannelId),
-            'websiteKey'               => $this->settingsService->getSetting('websiteKey', $salesChannelId),
-            'canShowPhone'          => $this->canShowPhone($customer),
-            'countryBillingIso'     => $this->getCountryBillingIso($customer),
-            'countryShippingIso'    => $this->getCountryShippingIso($customer),
-            'validHouseNumbers'     => $this->areValidHouseNumbers($event),
+            'googlepayButtonStyle' => $this->getGooglepayButtonStyle($salesChannelId),
+            'googlepayButtonType' => $this->getGooglepayButtonType($salesChannelId),
+            'googlepayEnvironment' => $this->getGooglepayEnvironment($salesChannelId),
+            'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId),
+            'canShowPhone' => $this->canShowPhone($customer),
+            'countryBillingIso' => $this->getCountryBillingIso($customer),
+            'countryShippingIso' => $this->getCountryShippingIso($customer),
+            'validHouseNumbers' => $this->areValidHouseNumbers($event),
             'afterpayOld' => $this->getSettingAsBool('afterpayEnabledold', $salesChannelId),
             'afterpay_billing_coc' => $this->getAfterpayBillingCoc($customer),
             'bancontactHostedFields' => $this->canShowBancontactHostedFields($salesChannelId)]);
@@ -401,117 +354,31 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function getIdealProcessingRenderMode(string $salesChannelId): int
-    {
-        $mode = $this->settingsService->getSetting('idealprocessingRenderMode', $salesChannelId);
-        if (is_scalar($mode)) {
-            return (int)$mode;
-        }
-        return 0;
-    }
-
-    /**
-     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
-     * @return array<mixed>
-     */
-    private function areValidHouseNumbers($event): array
-    {
-
-        if (method_exists($event->getPage(), "getOrder")) {
-            /** @var AccountEditOrderPageLoadedEvent $event */
-            $billingAddress = $event->getPage()->getOrder()->getBillingAddress();
-            $deliveries = $event->getPage()->getOrder()->getDeliveries();
-            $shippingAddress = null;
-            if ($deliveries !== null) {
-                $firstDelivery = $deliveries->first();
-                if ($firstDelivery !== null) {
-                    $shippingAddress = $firstDelivery->getShippingOrderAddress();
-                }
-            }
-        } else {
-            $billingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultBillingAddress();
-            $shippingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultShippingAddress();
-        }
-
-        return [
-            "billing" => $this->isHouseNumberValid($billingAddress),
-            "shipping" => $this->isHouseNumberValid($shippingAddress)
-        ];
-    }
-
-    /**
-     * Check if we have a valid house number in a address
-     *
-     * @param CustomerAddressEntity|OrderAddressEntity|null $address
-     *
-     * @return boolean
-     */
-    private function isHouseNumberValid($address): bool
-    {
-        if ($address === null) {
-            return false;
-        }
-
-        $parts = FormatRequestParamService::getAddressParts($address->getStreet());
-        return is_string($parts['house_number']) && !empty(trim($parts['house_number']));
-    }
-
-    private function canShowIssuers(string $salesChannelId, string $key): bool
-    {
-        return $this->settingsService->getSetting($key . "Showissuers", $salesChannelId) !== false;
-    }
-
-    private function getBillinkPaymentType(CustomerEntity $customer): string
-    {
-        $billingAddress = $customer->getActiveBillingAddress();
-
-        if ($billingAddress !== null && $billingAddress->getCompany() !== null) {
-            return 'B2B';
-        }
-        return 'B2C';
-    }
-
-    /**
-     * Get the COC/VAT number from the customer's VAT IDs for use with Riverty (Afterpay).
-     * Returns an empty string when no VAT ID is present.
-     */
-    private function getAfterpayBillingCoc(CustomerEntity $customer): string
-    {
-        $vatIds = $customer->getVatIds();
-        if (!empty($vatIds)) {
-            $first = reset($vatIds);
-            if (is_string($first) && strlen(trim($first)) > 0) {
-                return trim($first);
-            }
-        }
-        return '';
-    }
-
     public function addBuckarooToCart(CheckoutCartPageLoadedEvent $event): void
     {
         $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
-        $struct             = new BuckarooStruct();
+        $struct = new BuckarooStruct();
         $request = $event->getRequest();
 
         $struct->assign([
-            'showPaypalExpress'         => $this->showPaypalExpress($salesChannelId, 'cart'),
-            'showIdealFastCheckout'     => $this->showIdealFastCheckout($salesChannelId, 'cart'),
-            'paypalMerchantId'          => $this->getPaypalExpressMerchantId($salesChannelId),
-            'paypalIsTestMode'          => $this->paypalExpressCredentials->isTestMode($salesChannelId),
-            'paypalButtonStyle'         => $this->getPaypalButtonStyle($salesChannelId),
-            'applePayMerchantId'        => $this->getAppleMerchantId($salesChannelId),
-            'applepayButtonStyle'       => $this->getApplepayButtonStyle($salesChannelId),
-            'applepayButtonType'        => $this->getApplepayButtonType($salesChannelId),
-            'isAppleDevice'             => $this->isAppleDevice($request),
-            'websiteKey'                => $this->settingsService->getSetting('websiteKey', $salesChannelId),
-            'showApplePay'              => $this->showApplePayExpress($salesChannelId, 'cart'),
-            'showGooglePay'             => $this->showGooglePayExpress($salesChannelId, 'cart'),
-            'googlepayMerchantId'       => $this->getGoogleMerchantId($salesChannelId),
+            'showPaypalExpress' => $this->showPaypalExpress($salesChannelId, 'cart'),
+            'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId, 'cart'),
+            'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
+            'paypalIsTestMode' => $this->paypalExpressCredentials->isTestMode($salesChannelId),
+            'paypalButtonStyle' => $this->getPaypalButtonStyle($salesChannelId),
+            'applePayMerchantId' => $this->getAppleMerchantId($salesChannelId),
+            'applepayButtonStyle' => $this->getApplepayButtonStyle($salesChannelId),
+            'applepayButtonType' => $this->getApplepayButtonType($salesChannelId),
+            'isAppleDevice' => $this->isAppleDevice($request),
+            'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId),
+            'showApplePay' => $this->showApplePayExpress($salesChannelId, 'cart'),
+            'showGooglePay' => $this->showGooglePayExpress($salesChannelId, 'cart'),
+            'googlepayMerchantId' => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
-            'googlepayButtonStyle'      => $this->getGooglepayButtonStyle($salesChannelId),
-            'googlepayButtonType'       => $this->getGooglepayButtonType($salesChannelId),
-            'googlepayEnvironment'      => $this->getGooglepayEnvironment($salesChannelId),
-            'idealFastCheckoutLogo'     => $this->getIdealFastCheckoutLogo($salesChannelId)
+            'googlepayButtonStyle' => $this->getGooglepayButtonStyle($salesChannelId),
+            'googlepayButtonType' => $this->getGooglepayButtonType($salesChannelId),
+            'googlepayEnvironment' => $this->getGooglepayEnvironment($salesChannelId),
+            'idealFastCheckoutLogo' => $this->getIdealFastCheckoutLogo($salesChannelId),
         ]);
 
         $event->getPage()->addExtension(
@@ -520,40 +387,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         );
     }
 
-    /**
-     * @param array<mixed> $issuers
-     * @param string|null $lastUsedIssuer
-     * @param string $name
-     * @return string
-     */
-    private function getPaymentMethodName(array $issuers, ?string $lastUsedIssuer, string $name = ''): string
-    {
-        foreach ($issuers as $issuer) {
-            if (
-                is_array($issuer) &&
-                isset($issuer['code']) &&
-                isset($issuer['name']) &&
-                $issuer['code'] === $lastUsedIssuer
-            ) {
-                $issuerName = $issuer['name'];
-                if (is_string($issuerName)) {
-                    return $name == '' ? $issuerName : $name . ' (' . $issuerName . ')';
-                }
-            }
-        }
-        return $name;
-    }
-
-    private function removePaymentMethod(
-        PaymentMethodCollection $paymentMethods,
-        string $paymentMethodId
-    ): PaymentMethodCollection {
-        return $paymentMethods->filter(
-            static function (PaymentMethodEntity $paymentMethod) use ($paymentMethodId) {
-                return $paymentMethod->getId() !== $paymentMethodId;
-            }
-        );
-    }
     public function addBuckarooToProductPage(ProductPageLoadedEvent $event): void
     {
         $struct = new BuckarooStruct();
@@ -561,7 +394,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
         $request = $event->getRequest();
         $struct->assign([
-            'applepayShowProduct'       => $this->showApplePayExpress($salesChannelId, 'product'),
+            'applepayShowProduct' => $this->showApplePayExpress($salesChannelId, 'product'),
             'showPaypalExpress' => $this->showPaypalExpress($salesChannelId),
             'showIdealFastCheckout' => $this->showIdealFastCheckout($salesChannelId),
             'paypalMerchantId' => $this->getPaypalExpressMerchantId($salesChannelId),
@@ -572,13 +405,13 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             'applepayButtonType' => $this->getApplepayButtonType($salesChannelId),
             'isAppleDevice' => $this->isAppleDevice($request),
             'websiteKey' => $this->settingsService->getSetting('websiteKey', $salesChannelId),
-            'googlepayShowProduct'      => $this->showGooglePayExpress($salesChannelId, 'product'),
-            'googlepayMerchantId'       => $this->getGoogleMerchantId($salesChannelId),
+            'googlepayShowProduct' => $this->showGooglePayExpress($salesChannelId, 'product'),
+            'googlepayMerchantId' => $this->getGoogleMerchantId($salesChannelId),
             'googlepayGatewayMerchantId' => $this->getGooglepayGatewayMerchantId($salesChannelId),
-            'googlepayButtonStyle'      => $this->getGooglepayButtonStyle($salesChannelId),
-            'googlepayButtonType'       => $this->getGooglepayButtonType($salesChannelId),
-            'googlepayEnvironment'      => $this->getGooglepayEnvironment($salesChannelId),
-            'idealFastCheckoutLogo' => $this->getIdealFastCheckoutLogo($salesChannelId)
+            'googlepayButtonStyle' => $this->getGooglepayButtonStyle($salesChannelId),
+            'googlepayButtonType' => $this->getGooglepayButtonType($salesChannelId),
+            'googlepayEnvironment' => $this->getGooglepayEnvironment($salesChannelId),
+            'idealFastCheckoutLogo' => $this->getIdealFastCheckoutLogo($salesChannelId),
         ]);
 
         $event->getPage()->addExtension(
@@ -586,20 +419,76 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             $struct
         );
     }
+
+    /**
+     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
+     */
+    public function getCurrency($event): CurrencyEntity
+    {
+        if ($event instanceof AccountEditOrderPageLoadedEvent) {
+            $currency = $event->getPage()->getOrder()->getCurrency();
+            if ($currency !== null) {
+                return $currency;
+            }
+        }
+
+        return $event->getSalesChannelContext()->getCurrency();
+    }
+
+    /**
+     * Display flash message when order is in progress
+     */
+    public function addInProgress(CheckoutFinishPageLoadedEvent $event): void
+    {
+        $transactions = $transactions = $event->getPage()->getOrder()->getTransactions();
+
+        if ($transactions === null) {
+            return;
+        }
+
+        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity|null */
+        $transaction = $transactions->last();
+
+        if ($transaction === null) {
+            return;
+        }
+
+        $paymentMethod = $transaction->getPaymentMethod();
+        if ($paymentMethod === null) {
+            return;
+        }
+
+        $stateMachine = $transaction->getStateMachineState();
+        if ($stateMachine === null) {
+            return;
+        }
+        $session = $event->getRequest()->getSession();
+
+        if (
+            strpos($paymentMethod->getHandlerIdentifier(), 'Buckaroo\Shopware6\Handlers') !== false
+            && $stateMachine->getTechnicalName() === 'in_progress'
+            && method_exists($session, 'getFlashBag')
+        ) {
+            $session->getFlashBag()->add('success', $this->translator->trans('buckaroo.messages.return791'));
+        }
+    }
+
     protected function showPaypalExpress(string $salesChannelId, string $page = 'product'): bool
     {
         if (
-            !$this->settingsService->getEnabled('paypal', $salesChannelId) ||
-            !$this->getSettingAsBool('paypalExpressEnabled', $salesChannelId)
+            !$this->settingsService->getEnabled('paypal', $salesChannelId)
+            || !$this->getSettingAsBool('paypalExpressEnabled', $salesChannelId)
         ) {
             return false;
         }
 
         $locations = $this->settingsService->getSetting('paypalExpresslocation', $salesChannelId);
-        return is_array($locations) &&
-            in_array($page, $locations) &&
-            $this->getPaypalExpressMerchantId($salesChannelId) != null;
+
+        return is_array($locations)
+            && in_array($page, $locations)
+            && $this->getPaypalExpressMerchantId($salesChannelId) != null;
     }
+
     /**
      * Get the environment aware (live/sandbox) PayPal Express merchant id.
      * Credential selection is centralized in PayPalExpressCredentialsService.
@@ -624,31 +513,21 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * The setting when it is one of the options, otherwise the first option
-     *
-     * @param non-empty-list<string> $options
-     */
-    private function getSettingOption(string $key, array $options, string $salesChannelId): string
-    {
-        $value = $this->settingsService->getSetting($key, $salesChannelId);
-
-        return is_string($value) && in_array($value, $options, true) ? $value : $options[0];
-    }
-
     protected function showIdealFastCheckout(string $salesChannelId, string $page = 'product'): bool
     {
         if (
-            $this->getSettingAsBool('idealEnabled', $salesChannelId) &&
-            $this->getSettingAsBool('idealFastCheckoutEnabled', $salesChannelId)
+            $this->getSettingAsBool('idealEnabled', $salesChannelId)
+            && $this->getSettingAsBool('idealFastCheckoutEnabled', $salesChannelId)
         ) {
             $locations = $this->settingsService->getSetting('idealFastCheckoutVisibility', $salesChannelId);
-            return is_array($locations) &&
-                in_array($page, $locations);
-        } else {/**/
-            return false;
+
+            return is_array($locations)
+                && in_array($page, $locations);
         }
+
+        return false;
     }
+
     /**
      * Button style for the iDEAL fast checkout button: "light" (white button
      * with a magenta outline, iDEAL's default) or "dark" (solid magenta).
@@ -662,6 +541,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
         return $setting === 'idealFastCheckoutLogoDark' ? 'dark' : 'light';
     }
+
     /**
      * Whether the Apple Pay express button may be rendered on a given storefront
      * location. Requires the Apple Pay payment method and its express button to be enabled,
@@ -670,8 +550,8 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected function showApplePayExpress(string $salesChannelId, string $page = 'product'): bool
     {
         if (
-            !$this->settingsService->getEnabled('applepay', $salesChannelId) ||
-            !$this->getSettingAsBool('applepayExpressEnabled', $salesChannelId)
+            !$this->settingsService->getEnabled('applepay', $salesChannelId)
+            || !$this->getSettingAsBool('applepayExpressEnabled', $salesChannelId)
         ) {
             return false;
         }
@@ -682,6 +562,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         }
 
         $locations = $this->settingsService->getSetting('applepayExpresslocation', $salesChannelId);
+
         return is_array($locations) && in_array($page, $locations, true);
     }
 
@@ -693,22 +574,24 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     protected function showGooglePayExpress(string $salesChannelId, string $page = 'product'): bool
     {
         if (
-            !$this->settingsService->getEnabled('googlepay', $salesChannelId) ||
-            !$this->getSettingAsBool('googlepayExpressEnabled', $salesChannelId)
+            !$this->settingsService->getEnabled('googlepay', $salesChannelId)
+            || !$this->getSettingAsBool('googlepayExpressEnabled', $salesChannelId)
         ) {
             return false;
         }
 
         $locations = $this->settingsService->getSetting('googlepayExpresslocation', $salesChannelId);
+
         return is_array($locations) && in_array($page, $locations, true);
     }
 
     protected function getAppleMerchantId(string $salesChannelId): ?string
     {
-        $merchantId =  $this->settingsService->getSetting('applepayGuid', $salesChannelId);
+        $merchantId = $this->settingsService->getSetting('applepayGuid', $salesChannelId);
         if ($merchantId !== null && is_scalar($merchantId)) {
-            return (string)$merchantId;
+            return (string) $merchantId;
         }
+
         return null;
     }
 
@@ -734,22 +617,24 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     {
         $merchantId = $this->settingsService->getSetting('googlepayMerchantId', $salesChannelId);
         if ($merchantId !== null && is_scalar($merchantId)) {
-            return (string)$merchantId;
+            return (string) $merchantId;
         }
+
         return null;
     }
 
     protected function getGooglepayGatewayMerchantId(string $salesChannelId): ?string
     {
         $gatewayMerchantId = $this->settingsService->getSetting('googlepayGatewayMerchantId', $salesChannelId);
-        if ($gatewayMerchantId !== null && is_scalar($gatewayMerchantId) && (string)$gatewayMerchantId !== '') {
-            return (string)$gatewayMerchantId;
+        if ($gatewayMerchantId !== null && is_scalar($gatewayMerchantId) && (string) $gatewayMerchantId !== '') {
+            return (string) $gatewayMerchantId;
         }
         // Fall back to the general Buckaroo Website Key
         $websiteKey = $this->settingsService->getSetting('websiteKey', $salesChannelId);
         if ($websiteKey !== null && is_scalar($websiteKey)) {
-            return (string)$websiteKey;
+            return (string) $websiteKey;
         }
+
         return null;
     }
 
@@ -776,14 +661,16 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
         if (is_string($env) && strtolower($env) === 'live') {
             return 'PRODUCTION';
         }
+
         return 'TEST';
     }
+
     protected function getIdealRenderMode(?string $salesChannelId = null): int
     {
         $mode = $this->settingsService->getSetting('idealRenderMode', $salesChannelId);
 
         if ($mode !== null && is_scalar($mode)) {
-            return (int)$mode;
+            return (int) $mode;
         }
 
         return 0;
@@ -806,21 +693,204 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
             if ($calculatedFee > 0) {
                 $commonCurrencies = ['EUR', 'USD', 'GBP'];
                 if (in_array($currency->getIsoCode(), $commonCurrencies)) {
-                    $label .= ' + ' . $currency->getSymbol() . ' '.  number_format($calculatedFee, 2, '.', '');
+                    $label .= ' + ' . $currency->getSymbol() . ' ' . number_format($calculatedFee, 2, '.', '');
                 } else {
-                    $label .= ' + ' . $currency->getIsoCode(). ' ' . number_format($calculatedFee, 2, '.', '');
+                    $label .= ' + ' . $currency->getIsoCode() . ' ' . number_format($calculatedFee, 2, '.', '');
                 }
             }
         }
-        
+
         return $label;
+    }
+
+    private function getBuckarooKey(array $translation): ?string
+    {
+        if (!isset($translation['customFields']) || !is_array($translation['customFields'])) {
+            return null;
+        }
+
+        if (
+            !isset($translation['customFields']['buckaroo_key'])
+            || !is_string($translation['customFields']['buckaroo_key'])
+        ) {
+            return null;
+        }
+
+        return $translation['customFields']['buckaroo_key'];
+    }
+
+    /**
+     * Minimum / maximum order amount of the payment method, checked against the cart
+     * total on the confirm page and against the order total when the payment method
+     * of an existing order is changed.
+     *
+     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
+     */
+    private function isWithinOrderAmountLimits($event, string $buckarooKey): bool
+    {
+        $limits = $this->paymentAmountLimitService;
+        $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
+
+        if ($limits === null || !$limits->hasLimits($buckarooKey, $salesChannelId)) {
+            return true;
+        }
+
+        if ($event instanceof AccountEditOrderPageLoadedEvent) {
+            $order = $event->getPage()->getOrder();
+
+            return $limits->isAmountAllowed(
+                $buckarooKey,
+                $limits->getOrderAmount($order),
+                $salesChannelId,
+                $order->getTotalRounding()?->getDecimals() ?? 2
+            );
+        }
+
+        return $limits->isAmountAllowed(
+            $buckarooKey,
+            $event->getPage()->getCart()->getPrice()->getTotalPrice(),
+            $salesChannelId,
+            $event->getSalesChannelContext()->getTotalRounding()->getDecimals()
+        );
+    }
+
+    private function getIdealProcessingRenderMode(string $salesChannelId): int
+    {
+        $mode = $this->settingsService->getSetting('idealprocessingRenderMode', $salesChannelId);
+        if (is_scalar($mode)) {
+            return (int) $mode;
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
+     *
+     * @return array<mixed>
+     */
+    private function areValidHouseNumbers($event): array
+    {
+        if (method_exists($event->getPage(), 'getOrder')) {
+            /** @var AccountEditOrderPageLoadedEvent $event */
+            $billingAddress = $event->getPage()->getOrder()->getBillingAddress();
+            $deliveries = $event->getPage()->getOrder()->getDeliveries();
+            $shippingAddress = null;
+            if ($deliveries !== null) {
+                $firstDelivery = $deliveries->first();
+                if ($firstDelivery !== null) {
+                    $shippingAddress = $firstDelivery->getShippingOrderAddress();
+                }
+            }
+        } else {
+            $billingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultBillingAddress();
+            $shippingAddress = $event->getSalesChannelContext()->getCustomer()?->getDefaultShippingAddress();
+        }
+
+        return [
+            'billing' => $this->isHouseNumberValid($billingAddress),
+            'shipping' => $this->isHouseNumberValid($shippingAddress),
+        ];
+    }
+
+    /**
+     * Check if we have a valid house number in a address
+     *
+     * @param CustomerAddressEntity|OrderAddressEntity|null $address
+     */
+    private function isHouseNumberValid($address): bool
+    {
+        if ($address === null) {
+            return false;
+        }
+
+        $parts = FormatRequestParamService::getAddressParts($address->getStreet());
+
+        return is_string($parts['house_number']) && !empty(trim($parts['house_number']));
+    }
+
+    private function canShowIssuers(string $salesChannelId, string $key): bool
+    {
+        return $this->settingsService->getSetting($key . 'Showissuers', $salesChannelId) !== false;
+    }
+
+    private function getBillinkPaymentType(CustomerEntity $customer): string
+    {
+        $billingAddress = $customer->getActiveBillingAddress();
+
+        if ($billingAddress !== null && $billingAddress->getCompany() !== null) {
+            return 'B2B';
+        }
+
+        return 'B2C';
+    }
+
+    /**
+     * Get the COC/VAT number from the customer's VAT IDs for use with Riverty (Afterpay).
+     * Returns an empty string when no VAT ID is present.
+     */
+    private function getAfterpayBillingCoc(CustomerEntity $customer): string
+    {
+        $vatIds = $customer->getVatIds();
+        if (!empty($vatIds)) {
+            $first = reset($vatIds);
+            if (is_string($first) && strlen(trim($first)) > 0) {
+                return trim($first);
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @param array<mixed> $issuers
+     */
+    private function getPaymentMethodName(array $issuers, ?string $lastUsedIssuer, string $name = ''): string
+    {
+        foreach ($issuers as $issuer) {
+            if (
+                is_array($issuer)
+                && isset($issuer['code'])
+                && isset($issuer['name'])
+                && $issuer['code'] === $lastUsedIssuer
+            ) {
+                $issuerName = $issuer['name'];
+                if (is_string($issuerName)) {
+                    return $name == '' ? $issuerName : $name . ' (' . $issuerName . ')';
+                }
+            }
+        }
+
+        return $name;
+    }
+
+    private function removePaymentMethod(
+        PaymentMethodCollection $paymentMethods,
+        string $paymentMethodId
+    ): PaymentMethodCollection {
+        return $paymentMethods->filter(
+            static function (PaymentMethodEntity $paymentMethod) use ($paymentMethodId) {
+                return $paymentMethod->getId() !== $paymentMethodId;
+            }
+        );
+    }
+
+    /**
+     * The setting when it is one of the options, otherwise the first option
+     *
+     * @param non-empty-list<string> $options
+     */
+    private function getSettingOption(string $key, array $options, string $salesChannelId): string
+    {
+        $value = $this->settingsService->getSetting($key, $salesChannelId);
+
+        return is_string($value) && in_array($value, $options, true) ? $value : $options[0];
     }
 
     /**
      * Get the cart or order total from the event
      *
      * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
-     * @return float
      */
     private function getCartOrOrderTotal($event): float
     {
@@ -835,9 +905,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
     /**
      * Return the order amount excluding any previously persisted Buckaroo fee.
-     *
-     * @param OrderEntity $order
-     * @return float
      */
     private function getOrderAmountExcludingExistingFee(OrderEntity $order): float
     {
@@ -856,69 +923,7 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param CheckoutConfirmPageLoadedEvent|AccountEditOrderPageLoadedEvent $event
-     *
-     * @return CurrencyEntity
-     */
-    public function getCurrency($event): CurrencyEntity
-    {
-        if ($event instanceof AccountEditOrderPageLoadedEvent) {
-            $currency = $event->getPage()->getOrder()->getCurrency();
-            if ($currency !== null) {
-                return $currency;
-            }
-        }
-        return $event->getSalesChannelContext()->getCurrency();
-    }
-
-    /**
-     * Display flash message when order is in progress
-     *
-     * @param CheckoutFinishPageLoadedEvent $event
-     *
-     * @return void
-     */
-    public function addInProgress(CheckoutFinishPageLoadedEvent $event): void
-    {
-        $transactions =  $transactions = $event->getPage()->getOrder()->getTransactions();
-
-        if ($transactions === null) {
-            return;
-        }
-
-        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity|null */
-        $transaction = $transactions->last();
-
-        if ($transaction === null) {
-            return;
-        }
-
-        $paymentMethod = $transaction->getPaymentMethod();
-        if ($paymentMethod === null) {
-            return;
-        }
-
-        $stateMachine = $transaction->getStateMachineState();
-        if ($stateMachine === null) {
-            return;
-        }
-        $session = $event->getRequest()->getSession();
-
-        if (
-            strpos($paymentMethod->getHandlerIdentifier(), 'Buckaroo\Shopware6\Handlers') !== false &&
-            $stateMachine->getTechnicalName() === 'in_progress' &&
-            method_exists($session, 'getFlashBag')
-        ) {
-            $session->getFlashBag()->add('success', $this->translator->trans('buckaroo.messages.return791'));
-        }
-    }
-
-    /**
      * Can display phone number if required
-     *
-     * @param CustomerEntity $customer
-     *
-     * @return boolean
      */
     private function canShowPhone(CustomerEntity $customer): bool
     {
@@ -930,10 +935,6 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
     /**
      * Check if phone number is empty
-     *
-     * @param CustomerAddressEntity|null $address
-     *
-     * @return boolean
      */
     private function isPhoneEmpty(?CustomerAddressEntity $address = null): bool
     {
@@ -946,49 +947,41 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
 
     /**
      * Get billing country ISO code
-     *
-     * @param CustomerEntity $customer
-     *
-     * @return string|null
      */
     private function getCountryBillingIso(CustomerEntity $customer): ?string
     {
         $billingAddress = $customer->getActiveBillingAddress();
-        
+
         if ($billingAddress === null) {
             return null;
         }
-        
+
         $country = $billingAddress->getCountry();
-        
+
         if ($country === null) {
             return null;
         }
-        
+
         return $country->getIso();
     }
 
     /**
      * Get shipping country ISO code
-     *
-     * @param CustomerEntity $customer
-     *
-     * @return string|null
      */
     private function getCountryShippingIso(CustomerEntity $customer): ?string
     {
         $shippingAddress = $customer->getActiveShippingAddress();
-        
+
         if ($shippingAddress === null) {
             return null;
         }
-        
+
         $country = $shippingAddress->getCountry();
-        
+
         if ($country === null) {
             return null;
         }
-        
+
         return $country->getIso();
     }
 
@@ -998,9 +991,9 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
      */
     private function canShowBancontactHostedFields(string $salesChannelId): bool
     {
-        return $this->getSettingAsBool('bancontactmrcashHostedFields', $salesChannelId) &&
-            $this->settingsService->getSettingAsString('clientId', $salesChannelId) !== '' &&
-            $this->settingsService->getSettingAsString('clientSecret', $salesChannelId) !== '';
+        return $this->getSettingAsBool('bancontactmrcashHostedFields', $salesChannelId)
+            && $this->settingsService->getSettingAsString('clientId', $salesChannelId) !== ''
+            && $this->settingsService->getSettingAsString('clientSecret', $salesChannelId) !== '';
     }
 
     /**
@@ -1010,32 +1003,31 @@ class CheckoutConfirmTemplateSubscriber implements EventSubscriberInterface
     private function getSettingAsBool(string $key, string $salesChannelId, bool $default = false): bool
     {
         $value = $this->settingsService->getSetting($key, $salesChannelId);
-        
+
         if ($value === null) {
             return $default;
         }
-        
+
         // Convert various representations to boolean
         if (is_bool($value)) {
             return $value;
         }
-        
+
         if (is_int($value)) {
             return $value === 1;
         }
-        
+
         if (is_string($value)) {
             return $value === '1' || strtolower($value) === 'true';
         }
-        
+
         return $default;
     }
 
     /**
      * Check if the request is from an Apple device (iPhone, iPad, iPod, Mac)
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @return bool
+     * @param Request $request
      */
     private function isAppleDevice($request): bool
     {

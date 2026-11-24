@@ -18,11 +18,11 @@ class Migration1669042629AddOrderIdIndexOnTransaction extends MigrationStep
 
     public function update(Connection $connection): void
     {
-            $this->silentlyExecuteStatement(
-                'ALTER TABLE ' . Migration1590572335BuckarooTransaction::TABLE . ' ADD INDEX ' .
-                self::INDEX_NAME . ' (order_id)',
-                $connection
-            );
+        $this->silentlyExecuteStatement(
+            'ALTER TABLE ' . Migration1590572335BuckarooTransaction::TABLE . ' ADD INDEX ' .
+            self::INDEX_NAME . ' (order_id)',
+            $connection
+        );
     }
 
     public function updateDestructive(Connection $connection): void
@@ -38,7 +38,7 @@ class Migration1669042629AddOrderIdIndexOnTransaction extends MigrationStep
         try {
             $connection->executeStatement($sql);
         } catch (\Throwable $th) {
-            //throw $th;
+            // throw $th;
         }
     }
 }

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\PaymentMethods\In3;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class In3LogoService
@@ -24,13 +24,8 @@ class In3LogoService
         $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
-
     /**
      * Get in3 logos
-     *
-     * @param Context $context
-     *
-     * @return array
      */
     public function getLogos(Context $context): array
     {
@@ -46,11 +41,15 @@ class In3LogoService
     }
 
     /**
+     * Get active media logo
+     */
+    public function getActiveLogo(Context $context): ?MediaEntity
+    {
+        return null;
+    }
+
+    /**
      * Get formatted default logo for api
-     *
-     * @param Context $context
-     *
-     * @return array
      */
     private function getDefaultLogo(Context $context): array
     {
@@ -59,15 +58,12 @@ class In3LogoService
         if ($media === null) {
             return [];
         }
+
         return $this->getFormatedMedia($media, self::DEFAULT_PAYMENT_ICON);
     }
 
     /**
      * Get media from in3 payment method
-     *
-     * @param Context $context
-     *
-     * @return MediaEntity|null
      */
     private function getMediaFromPayment(Context $context): ?MediaEntity
     {
@@ -81,16 +77,12 @@ class In3LogoService
         if ($method === null) {
             return null;
         }
+
         return $method->getMedia();
     }
 
     /**
      * Get formated media for api
-     *
-     * @param MediaEntity $media
-     * @param string|null $code
-     *
-     * @return array
      */
     private function getFormatedMedia(MediaEntity $media, ?string $code = null): array
     {
@@ -99,21 +91,9 @@ class In3LogoService
         }
 
         return [
-            "code" => $code,
-            "name" => $media->getFileName(),
-            "src" => $media->getUrl()
+            'code' => $code,
+            'name' => $media->getFileName(),
+            'src' => $media->getUrl(),
         ];
-    }
-
-    /**
-     * Get active media logo
-     *
-     * @param Context $context
-     *
-     * @return MediaEntity|null
-     */
-    public function getActiveLogo(Context $context): ?MediaEntity
-    {
-        return null;
     }
 }

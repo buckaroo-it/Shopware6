@@ -4,31 +4,29 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Buckaroo\Shopware6\Service\CaptureService;
-use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 use Buckaroo\Resources\Constants\RecipientCategory;
+use Buckaroo\Shopware6\PaymentMethods\AfterPay;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
+use Buckaroo\Shopware6\Service\CaptureService;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class AfterPayPaymentHandler extends PaymentHandlerSimple
 {
-    public string $paymentClass = AfterPay::class;
-
     public const CUSTOMER_TYPE_B2C = 'b2c';
     public const CUSTOMER_TYPE_B2B = 'b2b';
     public const CUSTOMER_TYPE_BOTH = 'both';
 
+    public string $paymentClass = AfterPay::class;
+
     /**
-     * @var \Buckaroo\Shopware6\Handlers\AfterPayOld
+     * @var AfterPayOld
      */
     protected $afterPayOld;
 
@@ -46,6 +44,72 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
             $this->formatRequestParamService = $asyncPaymentService->formatRequestParamService;
         }
     }
+
+    /**
+     * Get parameters for specific payment method
+     *
+     * @return array<mixed>
+     */
+    public function getMethodPayload(
+        OrderEntity $order,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): array {
+        try {
+            if ($this->isAfterpayOld($salesChannelContext->getSalesChannelId())) {
+                return $this->afterPayOld->buildPayParameters(
+                    $order,
+                    $salesChannelContext,
+                    $dataBag,
+                    $paymentCode
+                );
+            }
+
+            return array_merge_recursive(
+                $this->getBillingData($order, $dataBag, $salesChannelContext->getSalesChannelId()),
+                $this->getShippingData($order, $dataBag, $salesChannelContext->getSalesChannelId()),
+                $this->getArticles($order, $paymentCode, $salesChannelContext->getContext())
+            );
+        } catch (\Throwable $e) {
+            $this->asyncPaymentService->logger->error('Riverty getMethodPayload failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'orderId' => $order->getId(),
+                'paymentCode' => $paymentCode,
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getMethodAction(
+        RequestDataBag $dataBag,
+        ?SalesChannelContext $salesChannelContext = null,
+        ?string $paymentCode = null
+    ): string {
+        if ($salesChannelContext !== null && $this->isAuthorization($salesChannelContext->getSalesChannelId())) {
+            return 'Authorize';
+        }
+
+        return parent::getMethodAction($dataBag, $salesChannelContext, $paymentCode);
+    }
+
+    public function isCustomerB2B(?string $salesChannelId = null): bool
+    {
+        return $this->getSetting('afterpayCustomerType', $salesChannelId) !== self::CUSTOMER_TYPE_B2C;
+    }
+
+    /**
+     * Check if company is empty
+     */
+    public function isCompanyEmpty(?string $company = null): bool
+    {
+        return $company === null || strlen(trim($company)) === 0;
+    }
+
     /**
      * Inject pre-pay behavior into both cores via hooks.
      */
@@ -99,70 +163,6 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
-     * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     *
-     * @return array<mixed>
-     */
-    public function getMethodPayload(
-        OrderEntity $order,
-        RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
-    ): array {
-        try {
-            if ($this->isAfterpayOld(($salesChannelContext->getSalesChannelId()))) {
-                return $this->afterPayOld->buildPayParameters(
-                    $order,
-                    $salesChannelContext,
-                    $dataBag,
-                    $paymentCode
-                );
-            }
-
-            return array_merge_recursive(
-                $this->getBillingData($order, $dataBag, $salesChannelContext->getSalesChannelId()),
-                $this->getShippingData($order, $dataBag, $salesChannelContext->getSalesChannelId()),
-                $this->getArticles($order, $paymentCode, $salesChannelContext->getContext())
-            );
-        } catch (\Throwable $e) {
-            $this->asyncPaymentService->logger->error('Riverty getMethodPayload failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'orderId' => $order->getId(),
-                'paymentCode' => $paymentCode,
-            ]);
-            throw $e;
-        }
-    }
-
-    /** @inheritDoc */
-    public function getMethodAction(
-        RequestDataBag $dataBag,
-        ?SalesChannelContext $salesChannelContext = null,
-        ?string $paymentCode = null
-    ): string {
-        if ($salesChannelContext !== null && $this->isAuthorization($salesChannelContext->getSalesChannelId())) {
-            return 'Authorize';
-        }
-        return parent::getMethodAction($dataBag, $salesChannelContext, $paymentCode);
-    }
-
-    private function isAuthorization(string $salesChannelContextId): bool
-    {
-        return $this->getSetting('afterpayAuthorize', $salesChannelContextId) === true;
-    }
-
-    /**
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param string $salesChannelContextId
-     *
      * @return array<mixed>
      */
     protected function getBillingData(
@@ -173,36 +173,37 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
         $address = $this->asyncPaymentService->getBillingAddress($order);
         $customer = $this->asyncPaymentService->getCustomer($order);
 
-        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
+        $streetParts = $this->formatRequestParamService->formatStreet($address->getStreet());
 
         $resolvedCoc = $this->resolveCoc($address, $dataBag);
 
         $data = [
             'billing' => [
                 'recipient' => [
-                    'category'              =>  $this->getCategory($address, $salesChannelContextId, $resolvedCoc),
-                    'careOf'                =>  $this->getCareOf($address),
-                    'firstName'             =>  $address->getFirstName(),
-                    'lastName'              =>  $address->getLastName(),
+                    'category' => $this->getCategory($address, $salesChannelContextId, $resolvedCoc),
+                    'careOf' => $this->getCareOf($address),
+                    'firstName' => $address->getFirstName(),
+                    'lastName' => $address->getLastName(),
                 ],
                 'address' => [
-                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
-                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'street' => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber' => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
                     'houseNumberAdditional' => $this->formatRequestParamService
                         ->getAdditionalHouseNumber(
                             $address,
                             $streetParts
                         ),
-                    'zipcode'               =>  $address->getZipcode(),
-                    'city'                  =>  $address->getCity(),
-                    'country'               =>  $this->asyncPaymentService->getCountry($address)->getIso()
+                    'zipcode' => $address->getZipcode(),
+                    'city' => $address->getCity(),
+                    'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
                 ],
                 'phone' => [
-                    'mobile'        => $this->getPhone($dataBag, $address),
+                    'mobile' => $this->getPhone($dataBag, $address),
                 ],
-                'email'         => $customer->getEmail()
-            ]
+                'email' => $customer->getEmail(),
+            ],
         ];
+
         return array_merge_recursive(
             $data,
             $this->getCompany($address, $dataBag, $salesChannelContextId),
@@ -211,10 +212,6 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param string $salesChannelContextId
-     *
      * @return array<mixed>
      */
     protected function getShippingData(
@@ -224,29 +221,30 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
     ): array {
         $address = $this->asyncPaymentService->getShippingAddress($order);
 
-        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
+        $streetParts = $this->formatRequestParamService->formatStreet($address->getStreet());
         $data = [
             'shipping' => [
                 'recipient' => [
-                    'category'              =>  $this->getCategory($address, $salesChannelContextId),
-                    'careOf'                =>  $this->getCareOf($address),
-                    'firstName'             =>  $address->getFirstName(),
-                    'lastName'              =>  $address->getLastName(),
+                    'category' => $this->getCategory($address, $salesChannelContextId),
+                    'careOf' => $this->getCareOf($address),
+                    'firstName' => $address->getFirstName(),
+                    'lastName' => $address->getLastName(),
                 ],
                 'address' => [
-                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
-                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'street' => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber' => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
                     'houseNumberAdditional' => $this->formatRequestParamService
                         ->getAdditionalHouseNumber(
                             $address,
                             $streetParts
                         ),
-                    'zipcode'               =>  $address->getZipcode(),
-                    'city'                  =>  $address->getCity(),
-                    'country'               => $this->asyncPaymentService->getCountry($address)->getIso()
+                    'zipcode' => $address->getZipcode(),
+                    'city' => $address->getCity(),
+                    'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
                 ],
             ],
         ];
+
         return array_merge_recursive(
             $data,
             $this->getCompany($address, $dataBag, $salesChannelContextId, 'shipping'),
@@ -255,9 +253,89 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
-     * @param OrderEntity $order
-     * @param string $paymentCode
+     * @return array<mixed>
+     */
+    protected function getCompany(
+        OrderAddressEntity $address,
+        RequestDataBag $dataBag,
+        string $salesChannelContextId,
+        string $type = 'billing'
+    ): array {
+        $coc = $type === 'billing'
+            ? $this->resolveCoc($address, $dataBag)
+            : ($this->asyncPaymentService->getAddressVatId($address) ?? '');
+
+        if (
+            $this->isCustomerB2B($salesChannelContextId)
+            && $this->asyncPaymentService->getCountry($address)->getIso() === 'NL'
+            && !$this->isCompanyEmpty($address->getCompany())
+            && !empty($coc)
+        ) {
+            return [
+                $type => [
+                    'recipient' => [
+                        'companyName' => $address->getCompany(),
+                        'chamberOfCommerce' => $coc,
+                    ],
+                ],
+            ];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    protected function getBirthDayData(
+        OrderAddressEntity $address,
+        RequestDataBag $dataBag,
+        string $type = 'billing'
+    ): array {
+        if (in_array($this->asyncPaymentService->getCountry($address)->getIso(), ['NL', 'BE'])) {
+            return [
+                $type => [
+                    'recipient' => [
+                        'birthDate' => $this->getBirthDate($dataBag),
+                    ],
+                ],
+            ];
+        }
+
+        return [];
+    }
+
+    /**
+     * Check if AfterPay Old version is enabled
+     */
+    protected function isAfterpayOld(string $salesChannelId): bool
+    {
+        return $this->getSetting('afterpayEnabledold', $salesChannelId) === true;
+    }
+
+    /**
+     * Configure client for AfterPay/Riverty payments
+     * Sets service version to 2 when not using the old version
      *
+     * @param \Buckaroo\Shopware6\Buckaroo\Client $client
+     * @param SalesChannelContext $salesChannelContext
+     */
+    protected function configureClient(
+        $client,
+        string $paymentCode,
+        $salesChannelContext
+    ): void {
+        if ($paymentCode === 'afterpay' && !$this->isAfterpayOld($salesChannelContext->getSalesChannelId())) {
+            $client->setServiceVersion(2);
+        }
+    }
+
+    private function isAuthorization(string $salesChannelContextId): bool
+    {
+        return $this->getSetting('afterpayAuthorize', $salesChannelContextId) === true;
+    }
+
+    /**
      * @return array<mixed>
      */
     private function getArticles(OrderEntity $order, string $paymentCode, Context $context): array
@@ -272,11 +350,11 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
             }
 
             $article = [
-                'identifier'        => $item['sku'],
-                'description'       => $item['name'],
-                'quantity'          => $item['quantity'],
-                'price'             => $item['unitPrice']['value'],
-                'vatPercentage'     => $item['vatRate'],
+                'identifier' => $item['sku'],
+                'description' => $item['name'],
+                'quantity' => $item['quantity'],
+                'price' => $item['unitPrice']['value'],
+                'vatPercentage' => $item['vatRate'],
             ];
 
             if (is_string($item['imageUrl']) && strlen($item['imageUrl'])) {
@@ -284,8 +362,9 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
             }
             $articles[] = $article;
         }
+
         return [
-            'articles' => $articles
+            'articles' => $articles,
         ];
     }
 
@@ -301,106 +380,38 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
         if (empty($coc)) {
             $coc = $this->asyncPaymentService->getAddressVatId($address) ?? '';
         }
+
         return $coc;
-    }
-
-    /**
-     * @param OrderAddressEntity $address
-     * @param RequestDataBag $dataBag
-     * @param string $salesChannelContextId
-     * @param string $type
-     *
-     * @return array<mixed>
-     */
-    protected function getCompany(
-        OrderAddressEntity $address,
-        RequestDataBag $dataBag,
-        string $salesChannelContextId,
-        string $type = 'billing'
-    ): array {
-        $coc = $type === 'billing'
-            ? $this->resolveCoc($address, $dataBag)
-            : ($this->asyncPaymentService->getAddressVatId($address) ?? '');
-
-        if (
-            $this->isCustomerB2B($salesChannelContextId) &&
-            $this->asyncPaymentService->getCountry($address)->getIso() === 'NL' &&
-            !$this->isCompanyEmpty($address->getCompany()) &&
-            !empty($coc)
-        ) {
-            return [
-                $type => [
-                    'recipient'        => [
-                        'companyName'   => $address->getCompany(),
-                        'chamberOfCommerce' => $coc,
-                    ]
-                ]
-            ];
-        }
-        return [];
-    }
-
-    /**
-     * @param OrderAddressEntity $address
-     * @param RequestDataBag $dataBag
-     * @param string $type
-     *
-     * @return array<mixed>
-     */
-    protected function getBirthDayData(
-        OrderAddressEntity $address,
-        RequestDataBag $dataBag,
-        string $type = 'billing'
-    ): array {
-        if (in_array($this->asyncPaymentService->getCountry($address)->getIso(), ['NL', 'BE'])) {
-            return [
-                $type => [
-                    'recipient' => [
-                        'birthDate' => $this->getBirthDate($dataBag),
-                    ]
-                ]
-            ];
-        }
-        return [];
     }
 
     private function getPhone(RequestDataBag $dataBag, OrderAddressEntity $address): string
     {
         $phone = $dataBag->get('buckaroo_afterpay_phone', $address->getPhoneNumber());
         if (is_scalar($phone)) {
-            return (string)$phone;
+            return (string) $phone;
         }
+
         return '';
     }
 
     /**
      * Get  careOf
-     *
-     * @param OrderAddressEntity $address
-     *
-     * @return string
      */
     private function getCareOf(OrderAddressEntity $address): string
     {
         if (
-            $address->getCompany() !== null &&
-            !empty(trim($address->getCompany()))
+            $address->getCompany() !== null
+            && !empty(trim($address->getCompany()))
         ) {
             return $address->getCompany();
         }
 
-        return $address->getFirstName() . " " . $address->getLastName();
+        return $address->getFirstName() . ' ' . $address->getLastName();
     }
 
     /**
      * Get type of request b2b or b2c.
      * Accepts an optional pre-resolved CoC so the billing form input is also considered.
-     *
-     * @param OrderAddressEntity $address
-     * @param string $salesChannelContextId
-     * @param string $resolvedCoc
-     *
-     * @return string
      */
     private function getCategory(
         OrderAddressEntity $address,
@@ -411,22 +422,21 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
             ? $resolvedCoc
             : ($this->asyncPaymentService->getAddressVatId($address) ?? '');
         if (
-            $this->isCustomerB2B($salesChannelContextId) &&
-            $this->asyncPaymentService->getCountry($address)->getIso() === 'NL' &&
-            !$this->isCompanyEmpty($address->getCompany()) &&
-            !empty($coc)
+            $this->isCustomerB2B($salesChannelContextId)
+            && $this->asyncPaymentService->getCountry($address)->getIso() === 'NL'
+            && !$this->isCompanyEmpty($address->getCompany())
+            && !empty($coc)
         ) {
             return RecipientCategory::COMPANY;
         }
+
         return RecipientCategory::PERSON;
     }
 
     /**
      * Get birth date
      *
-     * @param RequestDataBag $dataBag
-     *
-     * @return null|string
+     * @return string|null
      */
     private function getBirthDate(RequestDataBag $dataBag)
     {
@@ -438,59 +448,11 @@ class AfterPayPaymentHandler extends PaymentHandlerSimple
         if (!is_scalar($dateString)) {
             return null;
         }
-        $date = strtotime((string)$dateString);
+        $date = strtotime((string) $dateString);
         if ($date === false) {
             return null;
         }
 
-        return @date("d-m-Y", $date);
-    }
-
-    public function isCustomerB2B(?string $salesChannelId = null): bool
-    {
-        return $this->getSetting('afterpayCustomerType', $salesChannelId) !== self::CUSTOMER_TYPE_B2C;
-    }
-
-    /**
-     * Check if company is empty
-     *
-     * @param string $company
-     *
-     * @return boolean
-     */
-    public function isCompanyEmpty(?string $company = null): bool
-    {
-        return null === $company || strlen(trim($company)) === 0;
-    }
-
-    /**
-     * Check if AfterPay Old version is enabled
-     *
-     * @param string $salesChannelId
-     *
-     * @return bool
-     */
-    protected function isAfterpayOld(string $salesChannelId): bool
-    {
-        return $this->getSetting('afterpayEnabledold', $salesChannelId) === true;
-    }
-
-    /**
-     * Configure client for AfterPay/Riverty payments
-     * Sets service version to 2 when not using the old version
-     *
-     * @param \Buckaroo\Shopware6\Buckaroo\Client $client
-     * @param string $paymentCode
-     * @param \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext
-     * @return void
-     */
-    protected function configureClient(
-        $client,
-        string $paymentCode,
-        $salesChannelContext
-    ): void {
-        if ($paymentCode === 'afterpay' && !$this->isAfterpayOld($salesChannelContext->getSalesChannelId())) {
-            $client->setServiceVersion(2);
-        }
+        return @date('d-m-Y', $date);
     }
 }

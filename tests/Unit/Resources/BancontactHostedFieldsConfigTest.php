@@ -7,6 +7,7 @@ namespace Buckaroo\Shopware6\Tests\Unit\Resources;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
+use Buckaroo\Shopware6\Tests\Unit\TestHelper\JsSourceAssertions;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -20,6 +21,8 @@ use PHPUnit\Framework\TestCase;
  */
 class BancontactHostedFieldsConfigTest extends TestCase
 {
+    use JsSourceAssertions;
+
     private const HOSTED_FIELDS_SETTING = 'bancontactmrcashHostedFields';
 
     private DOMXPath $xpath;
@@ -188,12 +191,12 @@ class BancontactHostedFieldsConfigTest extends TestCase
         $plugin = $this->read('src/Resources/app/storefront/src/bancontact/buckaroo-payment.bancontact.js');
 
         $this->assertStringNotContainsString('ClientSideEncryption', $plugin);
-        $this->assertStringContainsString('extends BuckarooCreditCards', $plugin);
-        $this->assertStringContainsString("paymentMethod: 'bancontactmrcash'", $plugin);
+        $this->assertJsContains('extends BuckarooCreditCards', $plugin);
+        $this->assertJsContains("paymentMethod: 'bancontactmrcash'", $plugin);
         $this->assertStringNotContainsString('Cvc', $plugin);
 
         $main = $this->read('src/Resources/app/storefront/src/main.js');
-        $this->assertStringContainsString(
+        $this->assertJsContains(
             "PluginManager.register('BuckarooBanContact', BuckarooBanContact, '#bk-hosted-fields-bancontactmrcash');",
             $main
         );

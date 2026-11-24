@@ -8,15 +8,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * Class BuckarooTransactionEntityCollection
- * @template TElement of BuckarooTransactionEntity
- * @extends EntityCollection<TElement>
+ *
+ * @extends EntityCollection<BuckarooTransactionEntity>
  */
 class BuckarooTransactionEntityCollection extends EntityCollection
 {
     /**
-     * @inheritDoc
-     *
-     * @return string
+     * {@inheritDoc}
      */
     protected function getExpectedClass(): string
     {

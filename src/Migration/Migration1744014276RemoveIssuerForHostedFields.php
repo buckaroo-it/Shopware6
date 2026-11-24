@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  */
 class Migration1744014276RemoveIssuerForHostedFields extends MigrationStep
 {
-
     public function getCreationTimestamp(): int
     {
         return 1744014276;

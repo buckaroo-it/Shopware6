@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 class ProcessedPushEntity extends Entity
 {
     protected string $pushHash;
+
     protected string $orderTransactionId;
 
     public function getPushHash(): string

@@ -18,10 +18,6 @@ class PaymentFeeCalculator
     /**
      * Get the fee amount - returns fixed fee or 0 if percentage
      * For backward compatibility
-     *
-     * @param string $paymentCode
-     * @param string $salesChannelId
-     * @return float
      */
     public function getFee(string $paymentCode, string $salesChannelId): float
     {
@@ -31,11 +27,6 @@ class PaymentFeeCalculator
     /**
      * Calculate the actual fee based on order total
      * Handles both fixed and percentage fees
-     *
-     * @param string $paymentCode
-     * @param float $orderTotal
-     * @param string $salesChannelId
-     * @return float
      */
     public function calculateFee(string $paymentCode, float $orderTotal, string $salesChannelId): float
     {
@@ -48,11 +39,6 @@ class PaymentFeeCalculator
 
     /**
      * Calculate the fee for a persisted order, excluding any previously applied fee.
-     *
-     * @param OrderEntity $order
-     * @param string $paymentCode
-     * @param string $salesChannelId
-     * @return float
      */
     public function calculateFeeForOrder(OrderEntity $order, string $paymentCode, string $salesChannelId): float
     {
@@ -72,11 +58,6 @@ class PaymentFeeCalculator
 
     /**
      * Get the calculated fee for an order
-     *
-     * @param OrderEntity $order
-     * @param string $salesChannelId
-     * @param string $paymentCode
-     * @return float
      */
     public function getCalculatedFeeForOrder(OrderEntity $order, string $salesChannelId, string $paymentCode): float
     {
@@ -112,9 +93,6 @@ class PaymentFeeCalculator
 
     /**
      * Retrieve the existing Buckaroo fee stored on the order, if any.
-     *
-     * @param OrderEntity $order
-     * @return float
      */
     private function getExistingFee(OrderEntity $order): float
     {

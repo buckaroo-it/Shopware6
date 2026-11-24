@@ -11,27 +11,28 @@ class Migration1724075767UpdateRivertyName extends MigrationStep
     {
         return 1724075767;
     }
+
     public function update(Connection $connection): void
     {
-        $connection->executeStatement("
+        $connection->executeStatement('
             UPDATE `system_config`
             SET `configuration_value` = :newValue
             WHERE `configuration_key` = :handlerIdentifier
-        ", [
+        ', [
             'newValue' => json_encode(['_value' => 'Riverty']),
-            'handlerIdentifier' => 'BuckarooPayments.config.afterpayLabel'
+            'handlerIdentifier' => 'BuckarooPayments.config.afterpayLabel',
         ]);
     }
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeStatement("
+        $connection->executeStatement('
             UPDATE `system_config`
             SET `configuration_value` = :newValue
             WHERE `configuration_key` = :handlerIdentifier
-        ", [
+        ', [
             'newValue' => json_encode(['_value' => 'Riverty | Afterpay']),
-            'handlerIdentifier' => 'BuckarooPayments.config.afterpayLabel'
+            'handlerIdentifier' => 'BuckarooPayments.config.afterpayLabel',
         ]);
     }
 }

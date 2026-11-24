@@ -157,9 +157,9 @@ class BuckarooLanguageResolver
         if ($order !== null) {
             $billingAddress = $order->getBillingAddress();
             if (
-                $billingAddress !== null &&
-                $billingAddress->getCountry() !== null &&
-                is_string($billingAddress->getCountry()->getIso())
+                $billingAddress !== null
+                && $billingAddress->getCountry() !== null
+                && is_string($billingAddress->getCountry()->getIso())
             ) {
                 return $billingAddress->getCountry()->getIso();
             }
@@ -169,9 +169,9 @@ class BuckarooLanguageResolver
         if ($customer !== null) {
             $customerAddress = $customer->getActiveBillingAddress() ?? $customer->getDefaultBillingAddress();
             if (
-                $customerAddress !== null &&
-                $customerAddress->getCountry() !== null &&
-                is_string($customerAddress->getCountry()->getIso())
+                $customerAddress !== null
+                && $customerAddress->getCountry() !== null
+                && is_string($customerAddress->getCountry()->getIso())
             ) {
                 return $customerAddress->getCountry()->getIso();
             }

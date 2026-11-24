@@ -19,16 +19,18 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class PaymentHandler
 {
-    private PaymentHandlerContext $handlerContext;
-    private PaymentHandlerStrategyFactory $strategyFactory;
     protected string $paymentClass = '';
+
+    private PaymentHandlerContext $handlerContext;
+
+    private PaymentHandlerStrategyFactory $strategyFactory;
 
     public function __construct(AsyncPaymentService $asyncPaymentService)
     {
         $this->strategyFactory = new PaymentHandlerStrategyFactory($asyncPaymentService);
         $strategy = $this->strategyFactory->createStrategy();
         $this->handlerContext = new PaymentHandlerContext($strategy);
-        
+
         // If this instance has a payment class set, transfer it to the strategy
         if (!empty($this->paymentClass)) {
             $this->handlerContext->setPaymentClass($this->paymentClass);
@@ -94,9 +96,9 @@ class PaymentHandler
                 ? $this->strategyFactory->createStrategy()
                 : throw new \InvalidArgumentException('Modern strategy is not available'),
             'legacy' => $this->strategyFactory->createStrategy(), // Will create legacy if modern not available
-            default => throw new \InvalidArgumentException("Unknown strategy: $strategyName")
+            default => throw new \InvalidArgumentException("Unknown strategy: $strategyName"),
         };
-        
+
         $this->handlerContext->setStrategy($strategy);
     }
 }

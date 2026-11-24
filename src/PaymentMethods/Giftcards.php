@@ -16,9 +16,6 @@ class Giftcards extends AbstractPayment
         return 'giftcards';
     }
 
-    /**
-     * @return string
-     */
     public function getVersion(): string
     {
         return '2';
@@ -26,8 +23,6 @@ class Giftcards extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -36,8 +31,6 @@ class Giftcards extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -46,8 +39,6 @@ class Giftcards extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -56,12 +47,10 @@ class Giftcards extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/giftcards.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/giftcards.svg';
     }
 
     /**
@@ -73,11 +62,11 @@ class Giftcards extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit Giftcards',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
         ];
@@ -85,8 +74,6 @@ class Giftcards extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getType(): string
     {

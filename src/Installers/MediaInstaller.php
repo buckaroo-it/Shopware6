@@ -4,53 +4,57 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Installers;
 
-use Exception;
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Content\Media\MediaEntity;
 use Buckaroo\Shopware6\Helpers\GatewayHelper;
+use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
-use Shopware\Core\Framework\Plugin\Context\UpdateContext;
-use Shopware\Core\Framework\Plugin\Context\InstallContext;
-use Shopware\Core\Framework\Plugin\Context\ActivateContext;
-use Shopware\Core\Framework\Plugin\Context\UninstallContext;
-use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
-use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
-use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Plugin\Context\ActivateContext;
+use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
+use Shopware\Core\Framework\Plugin\Context\InstallContext;
+use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class MediaInstaller implements InstallerInterface
 {
-    public const BUCKAROO_FOLDER  = 'Buckaroo';
+    public const BUCKAROO_FOLDER = 'Buckaroo';
 
-    /** @var EntityRepository */
+    /**
+     * @var EntityRepository
+     */
+    public $paymentMethodRepository;
+
+    /**
+     * @var EntityRepository
+     */
     private $mediaRepository;
 
-    /** @var EntityRepository */
+    /**
+     * @var EntityRepository
+     */
     private $mediaFolderRepository;
 
     private FileSaver $fileSaver;
-
-    /** @var EntityRepository */
-    public $paymentMethodRepository;
 
     private ?LoggerInterface $logger = null;
 
     /**
      * MediaInstaller constructor.
-     * @param ContainerInterface $container
      */
     public function __construct(?ContainerInterface $container = null)
     {
         if ($container === null) {
-            throw new \Exception("Container is null", 1);
+            throw new \Exception('Container is null', 1);
         }
         /** @var EntityRepository */
         $mediaRepository = $this->getDependency($container, 'media.repository');
@@ -79,24 +83,6 @@ class MediaInstaller implements InstallerInterface
         }
     }
 
-    /**
-     * @param ContainerInterface $container
-     * @param string $name
-     * @return mixed
-     */
-    private function getDependency(ContainerInterface $container, string $name)
-    {
-        $repository =  $container->get($name);
-
-        if ($repository === null) {
-            throw new Exception("Repository {$repository} not found");
-        }
-        return $repository;
-    }
-
-    /**
-     * @param InstallContext $context
-     */
     public function install(InstallContext $context): void
     {
         // Media import must never break plugin installation (Shopware 6.7.10+
@@ -112,6 +98,7 @@ class MediaInstaller implements InstallerInterface
                 'Could not create or resolve Buckaroo media folder; skipping media import.',
                 $folderError
             );
+
             return;
         }
 
@@ -124,6 +111,7 @@ class MediaInstaller implements InstallerInterface
             );
         } catch (\Throwable $lookupError) {
             $this->logMediaWarning('Could not look up existing Buckaroo media; skipping media import.', $lookupError);
+
             return;
         }
 
@@ -145,9 +133,6 @@ class MediaInstaller implements InstallerInterface
         }
     }
 
-    /**
-     * @param UninstallContext $context
-     */
     public function uninstall(UninstallContext $context): void
     {
         $paymentMethods = $this->getPaymentMethodsWithMedia();
@@ -162,29 +147,90 @@ class MediaInstaller implements InstallerInterface
         $this->removeMediaFolderIdByName(self::BUCKAROO_FOLDER, $context->getContext());
     }
 
-    /**
-     * @param ActivateContext $context
-     */
     public function activate(ActivateContext $context): void
     {
-        return;
+    }
+
+    public function deactivate(DeactivateContext $context): void
+    {
+    }
+
+    public function update(UpdateContext $updateContext): void
+    {
+        $context = $updateContext->getContext();
+
+        try {
+            $mediaFolderId = $this->getOrCreateMediaFolder($context);
+        } catch (\Throwable $folderError) {
+            $this->logMediaWarning(
+                'Could not create or resolve Buckaroo media folder; skipping media update.',
+                $folderError
+            );
+
+            return;
+        }
+
+        $paymentMethods = $this->getPaymentMethodsWithMedia();
+
+        try {
+            $existingMediaIds = $this->getMediaIdsByName(
+                array_map([$this, 'getMediaName'], $paymentMethods),
+                $context
+            );
+            $paymentMethodIds = $this->getPaymentMethodIdsByHandler(
+                array_map(
+                    static fn (PaymentMethodInterface $paymentMethod): string => $paymentMethod->getPaymentHandler(),
+                    $paymentMethods
+                ),
+                $context
+            );
+        } catch (\Throwable $lookupError) {
+            $this->logMediaWarning('Could not look up existing Buckaroo media; skipping media update.', $lookupError);
+
+            return;
+        }
+
+        foreach ($paymentMethods as $gateway => $gatewayObject) {
+            try {
+                $this->removeMedia($gatewayObject, $existingMediaIds, $context);
+                $mediaId = $this->addMedia($gatewayObject, $mediaFolderId, $existingMediaIds, $context);
+                $this->updateMediaOnPaymentMethod($gatewayObject, $paymentMethodIds, $context, $mediaId);
+            } catch (\Throwable $mediaError) {
+                $this->logMediaWarning(
+                    sprintf('Failed to update media for gateway "%s"', $gateway),
+                    $mediaError
+                );
+            }
+        }
+
+        try {
+            $this->setupAdditionalMedia($mediaFolderId, $context);
+        } catch (\Throwable $additionalError) {
+            $this->logMediaWarning('Failed to update additional Buckaroo media', $additionalError);
+        }
     }
 
     /**
-     * @param DeactivateContext $context
+     * @return mixed
      */
-    public function deactivate(DeactivateContext $context): void
+    private function getDependency(ContainerInterface $container, string $name)
     {
-        return;
+        $repository = $container->get($name);
+
+        if ($repository === null) {
+            throw new \Exception("Repository {$repository} not found");
+        }
+
+        return $repository;
     }
 
     private function setupAdditionalMedia(string $mediaFolderId, Context $context): void
     {
         $mediaList = [
             [
-                "path" => __DIR__  . '/../Resources/views/storefront/buckaroo/payments/in3.svg',
-                "name" => 'buckaroo-in3-v2'
-            ]
+                'path' => __DIR__ . '/../Resources/views/storefront/buckaroo/payments/in3.svg',
+                'name' => 'buckaroo-in3-v2',
+            ],
         ];
 
         // Look up the existing ids in one query and delete them in one batch
@@ -239,7 +285,7 @@ class MediaInstaller implements InstallerInterface
                         'id' => $mediaId,
                         'private' => false,
                         'mediaFolderId' => $mediaFolderId,
-                    ]
+                    ],
                 ],
                 $context
             );
@@ -312,6 +358,7 @@ class MediaInstaller implements InstallerInterface
 
         if (@file_put_contents($tempPath, $sanitized) === false) {
             @unlink($tempPath);
+
             return $path;
         }
 
@@ -330,39 +377,39 @@ class MediaInstaller implements InstallerInterface
     {
         $patterns = [
             // <script>...</script> (also self-closing)
-            '#<script\b[^>]*>.*?</script\s*>#is'                         => '',
-            '#<script\b[^>]*/\s*>#i'                                     => '',
+            '#<script\b[^>]*>.*?</script\s*>#is' => '',
+            '#<script\b[^>]*/\s*>#i' => '',
             // <foreignObject>...</foreignObject> (also self-closing)
-            '#<foreignObject\b[^>]*>.*?</foreignObject\s*>#is'           => '',
-            '#<foreignObject\b[^>]*/\s*>#i'                              => '',
+            '#<foreignObject\b[^>]*>.*?</foreignObject\s*>#is' => '',
+            '#<foreignObject\b[^>]*/\s*>#i' => '',
             // on* event handler attributes (onclick, onload, onerror, ...)
-            '#\son[a-zA-Z]+\s*=\s*"[^"]*"#i'                            => '',
-            "#\\son[a-zA-Z]+\\s*=\\s*'[^']*'#i"                          => '',
+            '#\son[a-zA-Z]+\s*=\s*"[^"]*"#i' => '',
+            '#\\son[a-zA-Z]+\\s*=\\s*\'[^\']*\'#i' => '',
             // javascript: URLs inside href / xlink:href -> neutralize to #
-            '#(href\s*=\s*")\s*javascript:[^"]*(")#i'                    => '$1#$2',
-            "#(href\\s*=\\s*')\\s*javascript:[^']*(')#i"                 => '$1#$2',
+            '#(href\s*=\s*")\s*javascript:[^"]*(")#i' => '$1#$2',
+            '#(href\\s*=\\s*\')\\s*javascript:[^\']*(\')#i' => '$1#$2',
             // data: URLs (e.g. embedded base64 PNGs) in href / xlink:href
             // are flagged as "external reference" by Shopware 6.7.10+ and
             // reject the whole SVG. Drop the entire <image>/<use> element
             // that carries the data URL so the rest of the SVG still loads.
-            '#<image\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*/\s*>#is'    => '',
+            '#<image\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*/\s*>#is' => '',
             '#<image\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*>.*?</image\s*>#is' => '',
-            '#<use\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*/\s*>#is'      => '',
+            '#<use\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*/\s*>#is' => '',
             '#<use\b[^>]*\b(?:xlink:)?href\s*=\s*"\s*data:[^"]*"[^>]*>.*?</use\s*>#is' => '',
             // For any other element still carrying a data: reference,
             // strip just the offending attribute so the element survives.
-            '#\s(?:xlink:)?href\s*=\s*"\s*data:[^"]*"#i'                 => '',
-            "#\\s(?:xlink:)?href\\s*=\\s*'\\s*data:[^']*'#i"             => '',
+            '#\s(?:xlink:)?href\s*=\s*"\s*data:[^"]*"#i' => '',
+            '#\\s(?:xlink:)?href\\s*=\\s*\'\\s*data:[^\']*\'#i' => '',
             // Adobe Illustrator / Inkscape attributes not in Shopware allowlist.
-            '#\sbaseProfile\s*=\s*"[^"]*"#i'                             => '',
-            "#\\sbaseProfile\\s*=\\s*'[^']*'#i"                          => '',
-            '#\sdata-[a-zA-Z0-9_-]+\s*=\s*"[^"]*"#i'                    => '',
-            "#\\sdata-[a-zA-Z0-9_-]+\\s*=\\s*'[^']*'#i"                  => '',
+            '#\sbaseProfile\s*=\s*"[^"]*"#i' => '',
+            '#\\sbaseProfile\\s*=\\s*\'[^\']*\'#i' => '',
+            '#\sdata-[a-zA-Z0-9_-]+\s*=\s*"[^"]*"#i' => '',
+            '#\\sdata-[a-zA-Z0-9_-]+\\s*=\\s*\'[^\']*\'#i' => '',
             // Doctype + entity declarations (rejected by the new validator).
-            '#<!DOCTYPE[^>]*>#i'                                         => '',
-            '#<!ENTITY[^>]*>#i'                                          => '',
+            '#<!DOCTYPE[^>]*>#i' => '',
+            '#<!ENTITY[^>]*>#i' => '',
             // xml-stylesheet processing instruction (rejected by new validator).
-            '#<\?xml-stylesheet[^?]*\?>#i'                               => '',
+            '#<\?xml-stylesheet[^?]*\?>#i' => '',
         ];
 
         foreach ($patterns as $pattern => $replacement) {
@@ -385,12 +432,12 @@ class MediaInstaller implements InstallerInterface
         if ($this->logger !== null) {
             $context = $exception !== null ? ['exception' => $exception] : [];
             $this->logger->warning($fullMessage, $context);
+
             return;
         }
 
         @error_log($fullMessage);
     }
-
 
     private function getOrCreateMediaFolder(Context $context): string
     {
@@ -400,15 +447,15 @@ class MediaInstaller implements InstallerInterface
         }
 
         if ($mediaFolderId === null) {
-            throw new \Exception("Could not create media folder");
+            throw new \Exception('Could not create media folder');
         }
+
         return $mediaFolderId;
     }
 
     /**
-     * @param PaymentMethodInterface $paymentMethod
      * @param array<string, string> $existingMediaIds media ids keyed by media name, kept in sync
-     * @param Context $context
+     *
      * @throws \Throwable
      */
     private function addMedia(
@@ -472,10 +519,6 @@ class MediaInstaller implements InstallerInterface
         return $paymentMethods;
     }
 
-    /**
-     * @param string $filePath
-     * @return MediaFile
-     */
     private function createMediaFile(string $filePath): MediaFile
     {
         $mime = mime_content_type($filePath);
@@ -484,9 +527,9 @@ class MediaInstaller implements InstallerInterface
 
         return new MediaFile(
             $filePath,
-            (string)$mime,
+            (string) $mime,
             $path,
-            (int)filesize($filePath)
+            (int) filesize($filePath)
         );
     }
 
@@ -494,6 +537,7 @@ class MediaInstaller implements InstallerInterface
      * Resolve the ids of the already installed media in a single query.
      *
      * @param array<string> $mediaNames
+     *
      * @return array<string, string> media id keyed by media name (first match per name)
      */
     private function getMediaIdsByName(array $mediaNames, Context $context): array
@@ -524,6 +568,7 @@ class MediaInstaller implements InstallerInterface
      * Resolve the payment method ids for the given handlers in a single query.
      *
      * @param array<string> $handlerIdentifiers
+     *
      * @return array<string, string> payment method id keyed by handler identifier
      */
     private function getPaymentMethodIdsByHandler(array $handlerIdentifiers, Context $context): array
@@ -550,66 +595,9 @@ class MediaInstaller implements InstallerInterface
         return $paymentMethodIds;
     }
 
-    /**
-     * @param PaymentMethodInterface $paymentMethod
-     * @return string
-     */
     private function getMediaName(PaymentMethodInterface $paymentMethod): string
     {
         return md5($paymentMethod->getBuckarooKey());
-    }
-
-    public function update(UpdateContext $updateContext): void
-    {
-        $context = $updateContext->getContext();
-
-        try {
-            $mediaFolderId = $this->getOrCreateMediaFolder($context);
-        } catch (\Throwable $folderError) {
-            $this->logMediaWarning(
-                'Could not create or resolve Buckaroo media folder; skipping media update.',
-                $folderError
-            );
-            return;
-        }
-
-        $paymentMethods = $this->getPaymentMethodsWithMedia();
-
-        try {
-            $existingMediaIds = $this->getMediaIdsByName(
-                array_map([$this, 'getMediaName'], $paymentMethods),
-                $context
-            );
-            $paymentMethodIds = $this->getPaymentMethodIdsByHandler(
-                array_map(
-                    static fn (PaymentMethodInterface $paymentMethod): string => $paymentMethod->getPaymentHandler(),
-                    $paymentMethods
-                ),
-                $context
-            );
-        } catch (\Throwable $lookupError) {
-            $this->logMediaWarning('Could not look up existing Buckaroo media; skipping media update.', $lookupError);
-            return;
-        }
-
-        foreach ($paymentMethods as $gateway => $gatewayObject) {
-            try {
-                $this->removeMedia($gatewayObject, $existingMediaIds, $context);
-                $mediaId = $this->addMedia($gatewayObject, $mediaFolderId, $existingMediaIds, $context);
-                $this->updateMediaOnPaymentMethod($gatewayObject, $paymentMethodIds, $context, $mediaId);
-            } catch (\Throwable $mediaError) {
-                $this->logMediaWarning(
-                    sprintf('Failed to update media for gateway "%s"', $gateway),
-                    $mediaError
-                );
-            }
-        }
-
-        try {
-            $this->setupAdditionalMedia($mediaFolderId, $context);
-        } catch (\Throwable $additionalError) {
-            $this->logMediaWarning('Failed to update additional Buckaroo media', $additionalError);
-        }
     }
 
     /**
@@ -631,8 +619,8 @@ class MediaInstaller implements InstallerInterface
                 [
                     [
                         'id' => $paymentMethodHandlerId,
-                        'mediaId' => $mediaId
-                    ]
+                        'mediaId' => $mediaId,
+                    ],
                 ],
                 $context
             );
@@ -650,6 +638,7 @@ class MediaInstaller implements InstallerInterface
         if ($defaultFolder === null) {
             return null;
         }
+
         return $defaultFolder->getId();
     }
 
@@ -662,6 +651,7 @@ class MediaInstaller implements InstallerInterface
                 'configuration' => [],
             ],
         ], $context);
+
         return $this->getMediaFolderIdByName($folder, $context);
     }
 

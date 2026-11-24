@@ -12,13 +12,22 @@ Component.register('buckaroo-afterpay-old-tax', {
             taxes: [],
             showTaxes: false,
             afterpayTaxes: [
-                { name: this.$tc('buckaroo-payment.afterpay.hightTaxes'), id: 1 },
-                { name: this.$tc('buckaroo-payment.afterpay.middleTaxes'), id: 5 },
+                {
+                    name: this.$tc('buckaroo-payment.afterpay.hightTaxes'),
+                    id: 1,
+                },
+                {
+                    name: this.$tc('buckaroo-payment.afterpay.middleTaxes'),
+                    id: 5,
+                },
                 { name: this.$tc('buckaroo-payment.afterpay.lowTaxes'), id: 2 },
-                { name: this.$tc('buckaroo-payment.afterpay.zeroTaxes'), id: 3 },
+                {
+                    name: this.$tc('buckaroo-payment.afterpay.zeroTaxes'),
+                    id: 3,
+                },
                 { name: this.$tc('buckaroo-payment.afterpay.noTaxes'), id: 4 },
             ],
-            taxAssociation: {}
+            taxAssociation: {},
         };
     },
 
@@ -27,64 +36,64 @@ Component.register('buckaroo-afterpay-old-tax', {
         event: 'change',
     },
 
-    computed: {
-
-    },
+    computed: {},
     props: {
         name: {
             type: String,
             required: true,
-            default: ''
-                },
-                value: {
-                    type: Object,
-                    required: false,
-                    default() {
-                        return {}
+            default: '',
+        },
+        value: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            },
+        },
+    },
+
+    created() {
+        this.BuckarooPaymentSettingsService.getTaxes().then((result) => {
+            this.taxes = result.taxes.map((tax) => {
+                return {
+                    id: tax.id,
+                    name: tax.name,
+                };
+            });
+        });
+    },
+    methods: {
+        setTaxAssociation(taxId, eventOrValue) {
+            try {
+                let actualValue = eventOrValue;
+
+                if (eventOrValue && typeof eventOrValue === 'object') {
+                    if (eventOrValue.target) {
+                        actualValue = eventOrValue.target.value;
+                    } else if (
+                        Object.prototype.hasOwnProperty.call(
+                            eventOrValue,
+                            'value'
+                        )
+                    ) {
+                        actualValue = eventOrValue.value;
+                    } else if (
+                        Object.prototype.hasOwnProperty.call(eventOrValue, 'id')
+                    ) {
+                        actualValue = eventOrValue.id;
                     }
                 }
-                },
-
-
-                created() {
-                    this.BuckarooPaymentSettingsService.getTaxes()
-                        .then((result) => {
-                            this.taxes = result.taxes.map((tax) => {
-                                return {
-                                    id: tax.id,
-                                    name: tax.name
-                                };
-                            })
-                        });
-
-                },
-                methods: {
-                    setTaxAssociation(taxId, eventOrValue) {
-                        
-                        try {
-                            let actualValue = eventOrValue;
-                            
-                            if (eventOrValue && typeof eventOrValue === 'object') {
-                                if (eventOrValue.target) {
-                                    actualValue = eventOrValue.target.value;
-                                } else if (Object.prototype.hasOwnProperty.call(eventOrValue, 'value')) {
-                                    actualValue = eventOrValue.value;
-                                } else if (Object.prototype.hasOwnProperty.call(eventOrValue, 'id')) {
-                                    actualValue = eventOrValue.id;
-                                }
-                            }
-                            this.taxAssociation[taxId] = actualValue;
-                            this.$emit('change', {...this.value, ...this.taxAssociation});
-                            
-                        } catch (error) {
-                            console.error('Error in setTaxAssociation:', error);
-                        }
-                    },
-                    getSelectValue(taxId) {
-                        if (this.value[taxId]) {
-                            return this.value[taxId];
-                        }
-                        return;
-                    }
-                }
-                });
+                this.taxAssociation[taxId] = actualValue;
+                this.$emit('change', { ...this.value, ...this.taxAssociation });
+            } catch (error) {
+                console.error('Error in setTaxAssociation:', error);
+            }
+        },
+        getSelectValue(taxId) {
+            if (this.value[taxId]) {
+                return this.value[taxId];
+            }
+            return;
+        },
+    },
+});

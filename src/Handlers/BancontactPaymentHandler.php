@@ -26,11 +26,6 @@ class BancontactPaymentHandler extends PaymentHandlerSimple
     /**
      * Get parameters for specific payment method
      *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     *
      * @return array<mixed>
      */
     public function getMethodPayload(
@@ -41,21 +36,16 @@ class BancontactPaymentHandler extends PaymentHandlerSimple
     ): array {
         if ($this->isHostedFields($dataBag, $salesChannelContext)) {
             return [
-                'name'      => self::HOSTED_FIELDS_SERVICE,
-                'sessionId' => $this->getHostedFieldsToken($dataBag)
+                'name' => self::HOSTED_FIELDS_SERVICE,
+                'sessionId' => $this->getHostedFieldsToken($dataBag),
             ];
         }
+
         return [];
     }
 
     /**
      * Get method action for specific payment method
-     *
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     *
-     * @return string
      */
     public function getMethodAction(
         RequestDataBag $dataBag,
@@ -65,14 +55,13 @@ class BancontactPaymentHandler extends PaymentHandlerSimple
         if ($this->isHostedFields($dataBag, $salesChannelContext)) {
             return self::HOSTED_FIELDS_ACTION;
         }
+
         return parent::getMethodAction($dataBag, $salesChannelContext, $paymentCode);
     }
 
     /**
      * @param Client $client
-     * @param string $paymentCode
      * @param SalesChannelContext $salesChannelContext
-     * @return void
      */
     protected function configureClient(
         $client,

@@ -16,9 +16,6 @@ class IdealQr extends AbstractPayment
         return 'idealqr';
     }
 
-    /**
-     * @return string
-     */
     public function getVersion(): string
     {
         return '1';
@@ -26,8 +23,6 @@ class IdealQr extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -36,8 +31,6 @@ class IdealQr extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -46,8 +39,6 @@ class IdealQr extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -56,12 +47,10 @@ class IdealQr extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/ideal-qr.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/ideal-qr.svg';
     }
 
     /**
@@ -73,11 +62,11 @@ class IdealQr extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit iDEAL QR',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
         ];
@@ -85,8 +74,6 @@ class IdealQr extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getType(): string
     {

@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\In3;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Buckaroo\Shopware6\Service\AsyncPaymentService;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class In3PaymentHandler extends PaymentHandlerSimple
 {
@@ -17,11 +16,6 @@ class In3PaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
@@ -38,15 +32,8 @@ class In3PaymentHandler extends PaymentHandlerSimple
         );
     }
 
-
     /**
      * Get method action for specific payment method
-     *
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     *
-     * @return string
      */
     public function getMethodAction(
         RequestDataBag $dataBag,
@@ -63,14 +50,14 @@ class In3PaymentHandler extends PaymentHandlerSimple
         $company = $this->getCompany($dataBag, $order);
 
         $recipient = [
-            'category'      => count($company) ? 'B2B' : 'B2C',
-            'initials'      => $this->getInitials($address->getFirstName() . " " . $address->getLastName()),
-            'firstName'     => $address->getFirstName(),
-            'lastName'      => $address->getLastName(),
-            'birthDate'     => $dataBag->get('buckaroo_capayablein3_DoB'),
+            'category' => count($company) ? 'B2B' : 'B2C',
+            'initials' => $this->getInitials($address->getFirstName() . ' ' . $address->getLastName()),
+            'firstName' => $address->getFirstName(),
+            'lastName' => $address->getLastName(),
+            'birthDate' => $dataBag->get('buckaroo_capayablein3_DoB'),
             'customerNumber' => $customer->getCustomerNumber(),
-            'phone'         => $dataBag->get('buckaroo_in3_phone'),
-            'country'       => $this->asyncPaymentService->getCountry($address)->getIso()
+            'phone' => $dataBag->get('buckaroo_in3_phone'),
+            'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
         ];
 
         if (count($company)) {
@@ -84,17 +71,14 @@ class In3PaymentHandler extends PaymentHandlerSimple
                 'phone' => [
                     'phone' => $dataBag->get('buckaroo_in3_phone'),
                 ],
-                'address' => $this->getAddress($address)
-            ]
+                'address' => $this->getAddress($address),
+            ],
         ];
     }
 
     /**
      * Get company data. Falls back to billing address vatId for the CoC
      * when the form input is empty.
-     *
-     * @param RequestDataBag $dataBag
-     * @param OrderEntity $order
      *
      * @return array<mixed>
      */
@@ -117,8 +101,8 @@ class In3PaymentHandler extends PaymentHandlerSimple
             }
 
             return [
-                'companyName'       => $companyName,
-                'chamberOfCommerce' => $coc
+                'companyName' => $companyName,
+                'chamberOfCommerce' => $coc,
             ];
         }
 
@@ -128,22 +112,18 @@ class In3PaymentHandler extends PaymentHandlerSimple
     /**
      * Get customer info
      *
-     * @param RequestDataBag $dataBag
-     * @param OrderEntity $order
-     *
      * @return array<mixed>
      */
     private function getShipping(RequestDataBag $dataBag, OrderEntity $order): array
     {
-
         $address = $this->asyncPaymentService->getShippingAddress($order);
         $company = $this->getCompany($dataBag, $order);
 
         $recipient = [
-            'category'      => count($company) ? 'B2B' : 'B2C',
-            'firstName'     => $address->getFirstName(),
-            'lastName'      => $address->getLastName(),
-            'careOf'        => $address->getFirstName() . ' ' . $address->getLastName()
+            'category' => count($company) ? 'B2B' : 'B2C',
+            'firstName' => $address->getFirstName(),
+            'lastName' => $address->getLastName(),
+            'careOf' => $address->getFirstName() . ' ' . $address->getLastName(),
         ];
 
         if (count($company)) {
@@ -156,29 +136,26 @@ class In3PaymentHandler extends PaymentHandlerSimple
         return [
             'shipping' => [
                 'recipient' => $recipient,
-                'address' => $this->getAddress($address)
-            ]
+                'address' => $this->getAddress($address),
+            ],
         ];
     }
 
     /**
      * Get billing address data
      *
-     * @param OrderAddressEntity $address
-     *
      * @return array<mixed>
      */
     private function getAddress(OrderAddressEntity $address): array
     {
-
-        $streetData  = $this->formatRequestParamService->formatStreet($address->getStreet());
+        $streetData = $this->formatRequestParamService->formatStreet($address->getStreet());
 
         $data = [
-            'street'      => $streetData['street'],
+            'street' => $streetData['street'],
             'houseNumber' => $streetData['house_number'] ?? $address->getAdditionalAddressLine1(),
-            'zipcode'     => $address->getZipCode(),
-            'city'        => $address->getCity(),
-            'country'     => $this->asyncPaymentService->getCountry($address)->getIso()
+            'zipcode' => $address->getZipCode(),
+            'city' => $address->getCity(),
+            'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
         ];
 
         if (isset($streetData['number_addition']) && strlen($streetData['number_addition']) > 0) {
@@ -193,8 +170,6 @@ class In3PaymentHandler extends PaymentHandlerSimple
     /**
      * Get articles from order
      *
-     * @param OrderEntity $order
-     *
      * @return array<mixed>
      */
     private function getArticles(OrderEntity $order): array
@@ -206,22 +181,16 @@ class In3PaymentHandler extends PaymentHandlerSimple
                 function ($product, $item) {
                     return array_merge(
                         $product,
-                        ["vatPercentage" => is_scalar($item['vatRate']) ? (float)$item['vatRate'] : 0]
+                        ['vatPercentage' => is_scalar($item['vatRate']) ? (float) $item['vatRate'] : 0]
                     );
                 }
             );
 
-
         return [
-            'articles' => $articles
+            'articles' => $articles,
         ];
     }
 
-    /**
-     * @param string $name
-     *
-     * @return string
-     */
     private function getInitials(string $name): string
     {
         $initials = '';

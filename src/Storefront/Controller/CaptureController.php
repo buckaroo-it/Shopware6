@@ -4,25 +4,23 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Buckaroo\Shopware6\Service\CaptureService;
+use Buckaroo\Shopware6\Service\OrderService;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
-use Buckaroo\Shopware6\Service\OrderService;
+use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Buckaroo\Shopware6\Service\CaptureService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Shopware\Storefront\Controller\StorefrontController;
 
-/**
- */
 class CaptureController extends StorefrontController
 {
+    protected LoggerInterface $logger;
+
     private CaptureService $captureService;
 
     private OrderService $orderService;
-
-    protected LoggerInterface $logger;
 
     public function __construct(
         CaptureService $captureService,
@@ -34,21 +32,14 @@ class CaptureController extends StorefrontController
         $this->logger = $logger;
     }
 
-    /**
-     * @param Request $request
-     * @param Context $context
-     *
-     * @return JsonResponse
-     */
-    #[Route(path: "/api/_action/buckaroo/capture", defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['order.editor']], name: "api.action.buckaroo.capture", methods: ["POST"])]
+    #[Route(path: '/api/_action/buckaroo/capture', defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['order.editor']], name: 'api.action.buckaroo.capture', methods: ['POST'])]
     public function captureBuckaroo(Request $request, Context $context): JsonResponse
     {
-
         $orderId = $request->get('transaction');
 
         if (empty($orderId) || !is_string($orderId)) {
             return new JsonResponse(
-                ['status' => false, 'message' => $this->trans("buckaroo-payment.missing_order_id")],
+                ['status' => false, 'message' => $this->trans('buckaroo-payment.missing_order_id')],
                 Response::HTTP_NOT_FOUND
             );
         }
@@ -64,14 +55,14 @@ class CaptureController extends StorefrontController
                     'transactions.paymentMethod',
                     'transactions.paymentMethod.plugin',
                     'salesChannel',
-                    'currency'
+                    'currency',
                 ],
                 $context
             );
 
-        if (null === $order) {
+        if ($order === null) {
             return new JsonResponse(
-                ['status' => false, 'message' => $this->trans("buckaroo-payment.missing_transaction")],
+                ['status' => false, 'message' => $this->trans('buckaroo-payment.missing_transaction')],
                 Response::HTTP_NOT_FOUND
             );
         }
@@ -81,12 +72,13 @@ class CaptureController extends StorefrontController
                 $this->captureService->capture($request, $order, $context)
             );
         } catch (\Throwable $exception) {
-            $this->logger->debug((string)$exception);
+            $this->logger->debug((string) $exception);
+
             return new JsonResponse(
                 [
-                    'status'  => false,
-                    'message' => $this->trans("buckaroo-payment.general_request_error"),
-                    'code'    => 0,
+                    'status' => false,
+                    'message' => $this->trans('buckaroo-payment.general_request_error'),
+                    'code' => 0,
                 ],
                 Response::HTTP_BAD_REQUEST
             );

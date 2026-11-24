@@ -40,19 +40,19 @@ class Billink extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Später bezahlen',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
             'nl-NL' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Achteraf betalen',
             ],
             'fr-FR' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Payer plus tard',
             ],
         ];

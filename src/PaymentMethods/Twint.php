@@ -8,17 +8,11 @@ use Buckaroo\Shopware6\Handlers\TwintPaymentHandler;
 
 class Twint extends AbstractPayment
 {
-    /**
-     * @return string
-     */
     public function getBuckarooKey(): string
     {
         return 'twint';
     }
 
-    /**
-     * @return string
-     */
     public function getVersion(): string
     {
         return '0';
@@ -26,8 +20,6 @@ class Twint extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -36,8 +28,6 @@ class Twint extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -46,8 +36,6 @@ class Twint extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -56,8 +44,6 @@ class Twint extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
@@ -73,19 +59,19 @@ class Twint extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit TWINT',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
             'nl-NL' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Betalen met TWINT',
             ],
             'fr-FR' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Payer avec TWINT',
             ],
         ];
@@ -93,8 +79,6 @@ class Twint extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getType(): string
     {

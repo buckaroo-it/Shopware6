@@ -78,7 +78,10 @@ Component.register('buckaroo-express-button-preview', {
 
             return Object.keys(fields).reduce((style, key) => {
                 const value = this.values[fields[key]];
-                style[key] = typeof value === 'string' && value !== '' ? value : defaults[key];
+                style[key] =
+                    typeof value === 'string' && value !== ''
+                        ? value
+                        : defaults[key];
 
                 return style;
             }, {});
@@ -143,7 +146,8 @@ Component.register('buckaroo-express-button-preview', {
         render() {
             const renderCount = ++this.renderCount;
             const renderer = this.renderer;
-            const isCurrent = () => renderCount === this.renderCount && !!this.$refs.container;
+            const isCurrent = () =>
+                renderCount === this.renderCount && !!this.$refs.container;
 
             if (!renderer) {
                 this.showError(`unknown express method "${this.method}"`);
@@ -153,7 +157,8 @@ Component.register('buckaroo-express-button-preview', {
             // Show the container again after an error: the providers size the button from it
             this.hasError = false;
 
-            renderer.load()
+            renderer
+                .load()
                 .then(() => this.$nextTick())
                 .then(() => {
                     if (!isCurrent()) {
@@ -162,7 +167,11 @@ Component.register('buckaroo-express-button-preview', {
 
                     this.destroyButton();
                     this.$refs.container.innerHTML = '';
-                    this.button = renderer.draw(this.$refs.container, this.buttonStyle, { locale: this.previewLocale });
+                    this.button = renderer.draw(
+                        this.$refs.container,
+                        this.buttonStyle,
+                        { locale: this.previewLocale }
+                    );
 
                     return this.button.rendered;
                 })
@@ -202,14 +211,21 @@ Component.register('buckaroo-express-button-preview', {
                 const criteria = new Shopware.Data.Criteria(1, 1);
                 criteria.addAssociation('language.locale');
 
-                storefrontLocales.set(salesChannelId, this.repositoryFactory.create('sales_channel')
-                    .get(salesChannelId, Shopware.Context.api, criteria)
-                    .then(salesChannel => salesChannel?.language?.locale?.code || null)
-                    .catch(() => {
-                        // Read it again next time, e.g. after a network error
-                        storefrontLocales.delete(salesChannelId);
-                        return null;
-                    }));
+                storefrontLocales.set(
+                    salesChannelId,
+                    this.repositoryFactory
+                        .create('sales_channel')
+                        .get(salesChannelId, Shopware.Context.api, criteria)
+                        .then(
+                            (salesChannel) =>
+                                salesChannel?.language?.locale?.code || null
+                        )
+                        .catch(() => {
+                            // Read it again next time, e.g. after a network error
+                            storefrontLocales.delete(salesChannelId);
+                            return null;
+                        })
+                );
             }
 
             storefrontLocales.get(salesChannelId).then((locale) => {

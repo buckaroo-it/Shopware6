@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\Transfer;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class TransferPaymentHandler extends PaymentHandlerSimple
 {
@@ -15,11 +15,6 @@ class TransferPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
@@ -36,9 +31,9 @@ class TransferPaymentHandler extends PaymentHandlerSimple
         return [
             'email' => $customer->getEmail(),
             'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
-            'customer'      => [
+            'customer' => [
                 'firstName' => $address->getFirstName(),
-                'lastName' => $address->getLastName()
+                'lastName' => $address->getLastName(),
             ],
             'dateDue' => $this->getDateDue($salesChannelId),
             'sendMail' => $this->canSendEmail($salesChannelId),
@@ -50,10 +45,11 @@ class TransferPaymentHandler extends PaymentHandlerSimple
         $now = new \DateTime();
         $days = $this->getSetting('transferDateDue', $salesChannelId);
 
-        if (is_scalar($days) && (int)$days <= 0) {
+        if (is_scalar($days) && (int) $days <= 0) {
             $days = 7;
         }
         $now->modify('+' . $days . ' day');
+
         return $now->format('Y-m-d');
     }
 

@@ -49,7 +49,7 @@ final class KlarnaKpCaptureDetector
             return true;
         }
 
-        return (string)$request->request->get('brq_transaction_type')
+        return (string) $request->request->get('brq_transaction_type')
             === ResponseStatus::BUCKAROO_KLARNAKP_PAY_TYPE;
     }
 

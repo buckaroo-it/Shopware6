@@ -8,9 +8,9 @@ use Buckaroo\Shopware6\Handlers\In3PaymentHandler;
 
 class In3 extends AbstractPayment
 {
-
     public const DEFAULT_NAME = 'In3';
     public const V2_NAME = 'In3';
+
     /*
      * @return string
      */
@@ -21,18 +21,14 @@ class In3 extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
-        return  self::DEFAULT_NAME;
+        return self::DEFAULT_NAME;
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -41,8 +37,6 @@ class In3 extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -51,8 +45,6 @@ class In3 extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string|null
      */
     public function getTemplate(): ?string
     {
@@ -61,8 +53,6 @@ class In3 extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
@@ -78,19 +68,19 @@ class In3 extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'In 3 Raten bezahlen, 0 % Zinsen',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
             'nl-NL' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'In 3 delen betalen, 0% rente',
             ],
             'fr-FR' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Payer en 3 fois, 0 % d\'intérêt',
             ],
         ];

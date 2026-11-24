@@ -5,24 +5,24 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Service;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
-use Shopware\Core\System\StateMachine\Transition;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
+use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Transition;
 
 class StateTransitionService
 {
@@ -33,6 +33,7 @@ class StateTransitionService
     protected StateMachineStateEntity $stateMachineStateEntity;
 
     protected StateMachineRegistry $stateMachineRegistry;
+
     /**
      * @var LoggerInterface
      */
@@ -54,11 +55,6 @@ class StateTransitionService
         $this->logger = $logger;
     }
 
-    /**
-     * @param string $status
-     * @param string $orderTransactionId
-     * @param Context $context
-     */
     public function transitionPaymentState(string $status, string $orderTransactionId, Context $context): void
     {
         $transitionAction = $this->getCorrectTransitionAction($status);
@@ -91,18 +87,14 @@ class StateTransitionService
                     . '|Cannot reopen transaction to apply paid transition; state may already be correct',
                     [
                         'orderTransactionId' => $orderTransactionId,
-                        'originalError'      => $exception->getMessage(),
-                        'reopenError'        => $reopenException->getMessage(),
+                        'originalError' => $exception->getMessage(),
+                        'reopenError' => $reopenException->getMessage(),
                     ]
                 );
             }
         }
     }
 
-    /**
-     * @param string $status
-     * @return string|null
-     */
     public function getCorrectTransitionAction(string $status): ?string
     {
         switch ($status) {
@@ -130,15 +122,10 @@ class StateTransitionService
             case 'authorize':
                 return StateMachineTransitionActions::ACTION_AUTHORIZE;
         }
+
         return null;
     }
 
-    /**
-     * @param string $actionName
-     * @param string $orderTransactionId
-     * @param Context $context
-     * @return bool
-     */
     public function isSameState(string $actionName, string $orderTransactionId, Context $context): bool
     {
         $transaction = $this->transactionService->getOrderTransaction($orderTransactionId, $context);
@@ -149,32 +136,10 @@ class StateTransitionService
         }
 
         $stateMachine = $transaction->getStateMachineState();
+
         return $stateMachine !== null && $stateMachine->getTechnicalName() == $stateName;
     }
 
-
-    /**
-     * Convert from snake_case to CamelCase.
-     *
-     * @param string $string
-     * @return string
-     */
-    private function convertToFunctionName(string $string): string
-    {
-        $string = str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
-        $functionName = lcfirst($string);
-
-        if ($functionName === 'paidPartially') {
-            $functionName = 'payPartially';
-        }
-
-        return $functionName;
-    }
-
-    /**
-     * @param string $actionName
-     * @return string
-     */
     public function getOrderTransactionStatesNameFromAction(string $actionName): ?string
     {
         switch ($actionName) {
@@ -191,15 +156,12 @@ class StateTransitionService
             case StateMachineTransitionActions::ACTION_AUTHORIZE:
                 return OrderTransactionStates::STATE_AUTHORIZED;
         }
+
         return null;
     }
+
     /**
-     *
      * @param array<mixed> $statuses
-     * @param string $orderTransactionId
-     * @param Context $context
-     *
-     * @return boolean
      */
     public function isTransitionPaymentState(array $statuses, string $orderTransactionId, Context $context): bool
     {
@@ -220,26 +182,23 @@ class StateTransitionService
 
             $actionStatusTransition = $this->getTransitionFromActionName($transitionAction, $context);
             if (
-                $actionStatusTransition !== null &&
-                $transaction->getStateId() == $actionStatusTransition->getId()
+                $actionStatusTransition !== null
+                && $transaction->getStateId() == $actionStatusTransition->getId()
             ) {
                 return true;
             }
         }
+
         return false;
     }
-    /**
-     * @param string $actionName
-     * @param Context $context
-     * @return StateMachineStateEntity|null
-     */
+
     public function getTransitionFromActionName(string $actionName, Context $context): ?StateMachineStateEntity
     {
         $stateName = $this->getOrderTransactionStatesNameFromAction($actionName);
-        $criteria  = new Criteria();
+        $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $stateName));
 
-        /** @var \Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity|null */
+        /** @var StateMachineStateEntity|null */
         return $this->stateMachineRepository->search($criteria, $context)->getEntities()->first();
     }
 
@@ -264,8 +223,6 @@ class StateTransitionService
                 $this->logger->error($e->getMessage(), [$e]);
             }
         }
-
-        return;
     }
 
     public function changeDeliveryStatus(OrderEntity $order, Context $context, string $transitionName): void
@@ -293,15 +250,10 @@ class StateTransitionService
                 }
             }
         }
-
-        return;
     }
+
     /**
-     *
-     * @param OrderEntity $order
      * @param array<mixed> $statuses
-     *
-     * @return boolean
      */
     public function isOrderState(OrderEntity $order, array $statuses): bool
     {
@@ -315,12 +267,13 @@ class StateTransitionService
             $stateMachine = $order->getStateMachineState();
 
             if (
-                $stateMachine !== null &&
-                $stateMachine->getTechnicalName() == $stateName
+                $stateMachine !== null
+                && $stateMachine->getTechnicalName() == $stateName
             ) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -335,7 +288,6 @@ class StateTransitionService
         foreach ($transactions as $transaction) {
             $paymentState = $transaction->getStateMachineState()?->getTechnicalName();
 
-
             if (in_array($paymentState, ['paid', 'pay_partially'], true)) {
                 return true;
             }
@@ -348,8 +300,6 @@ class StateTransitionService
      * Check if a given status transition is currently allowed for the transaction.
      *
      * @param string $status One of the high-level statuses handled by getCorrectTransitionAction
-     * @param string $orderTransactionId
-     * @param Context $context
      */
     public function canTransitionStatus(string $status, string $orderTransactionId, Context $context): bool
     {
@@ -358,7 +308,23 @@ class StateTransitionService
             return false;
         }
         $available = $this->getAvailableTransitions($orderTransactionId, $context);
+
         return in_array($action, $available, true);
+    }
+
+    /**
+     * Convert from snake_case to CamelCase.
+     */
+    private function convertToFunctionName(string $string): string
+    {
+        $string = str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
+        $functionName = lcfirst($string);
+
+        if ($functionName === 'paidPartially') {
+            $functionName = 'payPartially';
+        }
+
+        return $functionName;
     }
 
     /**
@@ -381,8 +347,9 @@ class StateTransitionService
         } catch (\Throwable $e) {
             $this->logger->error('Failed to get available transitions', [
                 'transactionId' => $orderTransactionId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return [];
         }
     }

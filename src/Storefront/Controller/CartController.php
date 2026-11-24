@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
 use Shopware\Storefront\Controller\StorefrontController;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class CartController extends StorefrontController
 {
-    #[Route(path: "/buckaroo/redirect", defaults: ['_routeScope' => ['storefront']], name: "frontend.action.buckaroo.redirect", options: ["seo" => false], methods: ["GET"])]
+    #[Route(path: '/buckaroo/redirect', defaults: ['_routeScope' => ['storefront']], name: 'frontend.action.buckaroo.redirect', options: ['seo' => false], methods: ['GET'])]
     public function redirectOnBackButtonToEditOrder(Request $request): RedirectResponse
     {
         $session = $request->getSession();
@@ -23,14 +23,15 @@ class CartController extends StorefrontController
                 'frontend.checkout.cart.page',
                 [],
                 UrlGeneratorInterface::ABSOLUTE_URL
-            ) . "?error-code=CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT";
+            ) . '?error-code=CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT';
+
             return $this->redirect($url);
         }
 
         return $this->redirectToRoute('frontend.checkout.cart.page');
     }
 
-    #[Route(path: "/buckaroo/cancel", defaults: ['_routeScope' => ['storefront']], name: "frontend.action.buckaroo.cancel", options: ["seo" => false], methods: ["GET", "POST"])]
+    #[Route(path: '/buckaroo/cancel', defaults: ['_routeScope' => ['storefront']], name: 'frontend.action.buckaroo.cancel', options: ['seo' => false], methods: ['GET', 'POST'])]
     public function redirectOnCancel(Request $request): RedirectResponse
     {
         $session = $request->getSession();
@@ -49,7 +50,8 @@ class CartController extends StorefrontController
                 'frontend.account.edit-order.page',
                 ['orderId' => $orderId],
                 UrlGeneratorInterface::ABSOLUTE_URL
-            ) . "?error-code=CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT";
+            ) . '?error-code=CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT';
+
             return $this->redirect($url);
         }
 
@@ -57,7 +59,8 @@ class CartController extends StorefrontController
             'frontend.checkout.cart.page',
             [],
             UrlGeneratorInterface::ABSOLUTE_URL
-        ) . "?error-code=CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT";
+        ) . '?error-code=CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT';
+
         return $this->redirect($url);
     }
 }

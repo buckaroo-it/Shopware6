@@ -6,9 +6,6 @@ namespace Buckaroo\Shopware6\PaymentMethods;
 
 abstract class AbstractPayment implements PaymentMethodInterface
 {
-    /**
-     * @return string
-     */
     public function getVersion(): string
     {
         return '1';
@@ -16,8 +13,6 @@ abstract class AbstractPayment implements PaymentMethodInterface
 
     /**
      * {@inheritDoc}
-     *
-     * @return string|null
      */
     public function getTemplate(): ?string
     {
@@ -26,8 +21,6 @@ abstract class AbstractPayment implements PaymentMethodInterface
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getType(): string
     {
@@ -46,18 +39,16 @@ abstract class AbstractPayment implements PaymentMethodInterface
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getTechnicalName(): string
     {
         $buckarooKey = $this->getBuckarooKey();
-        
+
         // Handle special case for Bancontact
         if ($buckarooKey === 'bancontactmrcash') {
             return 'buckaroo_bancontact';
         }
-        
+
         return 'buckaroo_' . $buckarooKey;
     }
 }

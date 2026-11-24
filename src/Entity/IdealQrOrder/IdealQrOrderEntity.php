@@ -14,11 +14,17 @@ class IdealQrOrderEntity extends Entity
     use EntityIdTrait;
 
     protected string $orderId;
+
     protected string $orderVersionId;
+
     protected ?OrderEntity $order;
+
     protected string $orderTransactionId;
+
     protected string $orderTransactionVersionId;
+
     protected ?OrderTransactionEntity $orderTransaction;
+
     protected int $invoice;
 
     public function getOrder(): ?OrderEntity
@@ -55,30 +61,37 @@ class IdealQrOrderEntity extends Entity
     {
         return $this->orderTransaction;
     }
+
     public function setOrderTransaction(OrderTransactionEntity $orderTransaction): void
     {
         $this->orderTransaction = $orderTransaction;
     }
+
     public function getOrderTransactionId(): string
     {
         return $this->orderTransactionId;
     }
+
     public function setOrderTransactionId(string $orderTransactionId): void
     {
         $this->orderTransactionId = $orderTransactionId;
     }
+
     public function getOrderTransactionVersionId(): string
     {
         return $this->orderTransactionVersionId;
     }
+
     public function setOrderTransactionVersionId(string $orderTransactionVersionId): void
     {
         $this->orderTransactionVersionId = $orderTransactionVersionId;
     }
+
     public function getInvoice(): int
     {
         return $this->invoice;
     }
+
     public function setInvoice(int $invoice): void
     {
         $this->invoice = $invoice;

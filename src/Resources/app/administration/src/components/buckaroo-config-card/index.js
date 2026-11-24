@@ -6,7 +6,7 @@ import {
     isSwitchValueOn,
     getPaymentMode,
     overridesInheritedValue,
-    withConfigValues
+    withConfigValues,
 } from '../../utils/payment-status';
 
 const { Component } = Shopware;
@@ -42,7 +42,7 @@ Component.register('buckaroo-config-card', {
     data() {
         return {
             // Available synchronously, so labels are resolved on the first render
-            shopwareVersion: Shopware.Context?.app?.config?.version || null
+            shopwareVersion: Shopware.Context?.app?.config?.version || null,
         };
     },
 
@@ -60,20 +60,19 @@ Component.register('buckaroo-config-card', {
                 });
             },
             deep: true,
-            immediate: true
+            immediate: true,
         },
-        
+
         currentSalesChannelId: {
             handler(newChannelId, oldChannelId) {
                 if (newChannelId !== oldChannelId) {
-                    
                     this.$nextTick(() => {
                         this.$forceUpdate();
                     });
                 }
             },
-            immediate: false
-        }
+            immediate: false,
+        },
     },
     computed: {
         /**
@@ -87,15 +86,19 @@ Component.register('buckaroo-config-card', {
                 return null;
             }
 
-            const hasEnabledField = (this.card.elements || [])
-                .some(element => element?.name === `BuckarooPayments.config.${code}Enabled`);
+            const hasEnabledField = (this.card.elements || []).some(
+                (element) =>
+                    element?.name === `BuckarooPayments.config.${code}Enabled`
+            );
 
             return hasEnabledField ? code : null;
         },
 
         statusSharedEnvironmentTitle() {
             const parent = SHARED_ENVIRONMENT_METHODS[this.statusPaymentCode];
-            const parentCard = parent && this.configSettings.find(card => card.name === parent);
+            const parentCard =
+                parent &&
+                this.configSettings.find((card) => card.name === parent);
 
             return parentCard ? this.getInlineSnippet(parentCard.title) : '';
         },
@@ -119,7 +122,10 @@ Component.register('buckaroo-config-card', {
 
         // "All Sales Channels" values, used when the selected sales channel has none of its own
         statusInheritedValues() {
-            if (!this.isNotDefaultSalesChannel || typeof this.methods?.getInheritedValue !== 'function') {
+            if (
+                !this.isNotDefaultSalesChannel ||
+                typeof this.methods?.getInheritedValue !== 'function'
+            ) {
                 return {};
             }
 
@@ -128,7 +134,7 @@ Component.register('buckaroo-config-card', {
                 values[fullName] = this.methods.getInheritedValue({
                     name: fullName,
                     type: name.endsWith('Enabled') ? 'bool' : 'single-select',
-                    config: {}
+                    config: {},
                 });
 
                 return values;
@@ -149,7 +155,10 @@ Component.register('buckaroo-config-card', {
             }
 
             const ownEnabled = this.getValueForName(`${code}Enabled`);
-            if (this.isNotDefaultSalesChannel && !overridesInheritedValue(ownEnabled)) {
+            if (
+                this.isNotDefaultSalesChannel &&
+                !overridesInheritedValue(ownEnabled)
+            ) {
                 return null;
             }
 
@@ -168,7 +177,9 @@ Component.register('buckaroo-config-card', {
          * @returns {'live'|'test'|'off'|null}
          */
         statusInheritedValue() {
-            return this.isNotDefaultSalesChannel ? this.getStatusFromValues(this.statusInheritedValues) : null;
+            return this.isNotDefaultSalesChannel
+                ? this.getStatusFromValues(this.statusInheritedValues)
+                : null;
         },
 
         // Methods that follow another method's test mode can't be set to test themselves
@@ -177,22 +188,31 @@ Component.register('buckaroo-config-card', {
                 ? ['live', 'off']
                 : ['live', 'test', 'off'];
 
-            return options.map(option => ({
+            return options.map((option) => ({
                 value: option,
-                label: this.$tc(`buckaroo-payment.paymentList.${option}`)
+                label: this.$tc(`buckaroo-payment.paymentList.${option}`),
             }));
         },
 
         statusHelpText() {
-            const parts = [this.$tc('buckaroo-payment.paymentSettings.statusHelp')];
+            const parts = [
+                this.$tc('buckaroo-payment.paymentSettings.statusHelp'),
+            ];
 
             if (this.statusSharedEnvironmentTitle) {
-                parts.push(this.$t('buckaroo-payment.paymentList.testUnavailable', { parent: this.statusSharedEnvironmentTitle }));
+                parts.push(
+                    this.$t('buckaroo-payment.paymentList.testUnavailable', {
+                        parent: this.statusSharedEnvironmentTitle,
+                    })
+                );
             }
 
             // Keep the help text of the hidden "Enabled" field visible (e.g. the Hosted Fields warning)
-            const enabledElement = (this.card?.elements || [])
-                .find(element => element?.name === `BuckarooPayments.config.${this.statusPaymentCode}Enabled`);
+            const enabledElement = (this.card?.elements || []).find(
+                (element) =>
+                    element?.name ===
+                    `BuckarooPayments.config.${this.statusPaymentCode}Enabled`
+            );
             const enabledHelp = enabledElement?.config?.helpText
                 ? this.getInlineSnippet(enabledElement.config.helpText)
                 : '';
@@ -208,43 +228,51 @@ Component.register('buckaroo-config-card', {
             const key = this.getValueForName('websiteKey');
             const secretKey = this.getValueForName('secretKey');
             const isGeneralConfig = this.card?.name === 'general';
-            
+
             if (!isGeneralConfig) {
                 return false;
             }
 
-            const hasWebsiteKey = key !== undefined && key !== null && key !== '';
-            const hasSecretKey = secretKey !== undefined && secretKey !== null && secretKey !== '';
+            const hasWebsiteKey =
+                key !== undefined && key !== null && key !== '';
+            const hasSecretKey =
+                secretKey !== undefined &&
+                secretKey !== null &&
+                secretKey !== '';
             const canShow = hasWebsiteKey || hasSecretKey;
             return canShow;
         },
-        
+
         hasValidConfigData() {
-            return this.value && typeof this.value === 'object' && Object.keys(this.value).length > 0;
+            return (
+                this.value &&
+                typeof this.value === 'object' &&
+                Object.keys(this.value).length > 0
+            );
         },
-        
-       reactiveValue() {
+
+        reactiveValue() {
             return this.value;
-        }
+        },
     },
 
     emits: ['input'],
 
     model: {
         prop: 'value',
-        event: 'input'
+        event: 'input',
     },
 
     props: {
         card: {
             type: Object,
             required: false,
-            default: () => ({ elements: [] })
+            default: () => ({ elements: [] }),
         },
         configSettings: {
             type: Array,
             required: false,
-            default: () => []
+            default: () => [],
         },
         methods: {
             type: Object,
@@ -261,7 +289,7 @@ Component.register('buckaroo-config-card', {
         value: {
             type: Object,
             required: false,
-            default: () => ({})
+            default: () => ({}),
         },
     },
 
@@ -281,14 +309,18 @@ Component.register('buckaroo-config-card', {
          */
         onStatusChange(status) {
             // The inherit wrapper emits "update:value" (6.6+) or "input" (6.5); handle each change once
-            if ((status !== null && typeof status !== 'string') || status === this.statusOwnValue) {
+            if (
+                (status !== null && typeof status !== 'string') ||
+                status === this.statusOwnValue
+            ) {
                 return;
             }
 
             const code = this.statusPaymentCode;
-            const fields = status === null
-                ? { [`${code}Enabled`]: null, [`${code}Environment`]: null }
-                : { [`${code}Enabled`]: status !== 'off' };
+            const fields =
+                status === null
+                    ? { [`${code}Enabled`]: null, [`${code}Environment`]: null }
+                    : { [`${code}Enabled`]: status !== 'off' };
 
             if (status !== null && status !== 'off') {
                 fields[`${code}Environment`] = status;
@@ -303,11 +335,14 @@ Component.register('buckaroo-config-card', {
             }
             const service = this.BuckarooPaymentSettingsService;
             if (service && typeof service.getSupportVersion === 'function') {
-                service.getSupportVersion().then((data) => {
-                    if (data && data.shopware_version) {
-                        this.shopwareVersion = data.shopware_version;
-                    }
-                }).catch(() => {});
+                service
+                    .getSupportVersion()
+                    .then((data) => {
+                        if (data && data.shopware_version) {
+                            this.shopwareVersion = data.shopware_version;
+                        }
+                    })
+                    .catch(() => {});
             }
         },
 
@@ -316,10 +351,15 @@ Component.register('buckaroo-config-card', {
          * When version is unknown, returns false to avoid duplicate labels on older Shopware.
          */
         isShopware674OrNewer() {
-            if (!this.shopwareVersion || typeof this.shopwareVersion !== 'string') {
+            if (
+                !this.shopwareVersion ||
+                typeof this.shopwareVersion !== 'string'
+            ) {
                 return false;
             }
-            const parts = this.shopwareVersion.split('.').map((n) => parseInt(n, 10) || 0);
+            const parts = this.shopwareVersion
+                .split('.')
+                .map((n) => parseInt(n, 10) || 0);
             const major = parts[0] || 0;
             const minor = parts[1] || 0;
             const patch = parts[2] || 0;
@@ -335,75 +375,157 @@ Component.register('buckaroo-config-card', {
 
         getElementBind(element, props = {}) {
             if (!this.methods || !this.methods.getElementBind) {
-                const label = element.label ? this.getInlineSnippet(element.label) : null;
+                const label = element.label
+                    ? this.getInlineSnippet(element.label)
+                    : null;
                 return {
                     name: element.name,
                     type: element.type || 'text',
                     config: element.config || {},
                     label: label,
-                    value: this.getValueForName(element.name.replace('BuckarooPayments.config.', ''))
+                    value: this.getValueForName(
+                        element.name.replace('BuckarooPayments.config.', '')
+                    ),
                 };
             }
-            
+
             const baseBinding = this.methods.getElementBind(element, props);
-            
-            const fieldName = element.name.replace('BuckarooPayments.config.', '');
+
+            const fieldName = element.name.replace(
+                'BuckarooPayments.config.',
+                ''
+            );
             let currentValue = this.getValueForName(fieldName);
-            
+
             // Ensure config object exists
             const config = baseBinding.config || element.config || {};
-            
+
             // For bool fields, ensure we have a proper boolean value
             if (element.type === 'bool') {
                 if (currentValue === null || currentValue === undefined) {
-                    currentValue = baseBinding.value !== undefined ? baseBinding.value : false;
+                    currentValue =
+                        baseBinding.value !== undefined
+                            ? baseBinding.value
+                            : false;
                 } else {
                     // Ensure it's a proper boolean - handle string values like "0", "1", "false", "true"
                     if (typeof currentValue === 'string') {
-                        currentValue = currentValue === '1' || currentValue === 'true' || currentValue === 'on';
+                        currentValue =
+                            currentValue === '1' ||
+                            currentValue === 'true' ||
+                            currentValue === 'on';
                     } else {
                         currentValue = Boolean(currentValue);
                     }
                 }
             }
-            
+
             // Extract label only for Shopware >= 6.7.4.0; in older versions baseBinding/template already show the label and our enhanced logic causes duplicate labels
             let finalLabel = null;
             const useEnhancedLabels = this.isShopware674OrNewer();
 
             if (useEnhancedLabels) {
                 // For bool/select fields, prioritize configSettings since baseBinding.label is often undefined in SW 6.7.4+
-                if ((element.type === 'bool' || element.type === 'single-select' || element.type === 'multi-select') && this.configSettings && Array.isArray(this.configSettings)) {
+                if (
+                    (element.type === 'bool' ||
+                        element.type === 'single-select' ||
+                        element.type === 'multi-select') &&
+                    this.configSettings &&
+                    Array.isArray(this.configSettings)
+                ) {
                     for (const configCard of this.configSettings) {
-                        if (configCard.elements && Array.isArray(configCard.elements)) {
-                            const configElement = configCard.elements.find(el => el.name === element.name);
+                        if (
+                            configCard.elements &&
+                            Array.isArray(configCard.elements)
+                        ) {
+                            const configElement = configCard.elements.find(
+                                (el) => el.name === element.name
+                            );
                             if (configElement) {
                                 if (configElement.label) {
-                                    let extractedLabel = this.getInlineSnippet(configElement.label);
-                                    if (!extractedLabel || (typeof extractedLabel === 'string' && extractedLabel.trim().length === 0)) {
-                                        if (typeof configElement.label === 'object' && configElement.label !== null) {
-                                            const locale = this.$i18n?.locale || 'en-GB';
-                                            extractedLabel = configElement.label[locale] || configElement.label['en-GB'] || Object.values(configElement.label)[0] || null;
-                                        } else if (typeof configElement.label === 'string') {
-                                            extractedLabel = configElement.label;
+                                    let extractedLabel = this.getInlineSnippet(
+                                        configElement.label
+                                    );
+                                    if (
+                                        !extractedLabel ||
+                                        (typeof extractedLabel === 'string' &&
+                                            extractedLabel.trim().length === 0)
+                                    ) {
+                                        if (
+                                            typeof configElement.label ===
+                                                'object' &&
+                                            configElement.label !== null
+                                        ) {
+                                            const locale =
+                                                this.$i18n?.locale || 'en-GB';
+                                            extractedLabel =
+                                                configElement.label[locale] ||
+                                                configElement.label['en-GB'] ||
+                                                Object.values(
+                                                    configElement.label
+                                                )[0] ||
+                                                null;
+                                        } else if (
+                                            typeof configElement.label ===
+                                            'string'
+                                        ) {
+                                            extractedLabel =
+                                                configElement.label;
                                         }
                                     }
-                                    if (extractedLabel && typeof extractedLabel === 'string' && extractedLabel.trim().length > 0) {
+                                    if (
+                                        extractedLabel &&
+                                        typeof extractedLabel === 'string' &&
+                                        extractedLabel.trim().length > 0
+                                    ) {
                                         finalLabel = extractedLabel;
                                         break;
                                     }
                                 }
-                                if (!finalLabel && configElement.config && configElement.config.label) {
-                                    let extractedLabel = this.getInlineSnippet(configElement.config.label);
-                                    if (!extractedLabel || (typeof extractedLabel === 'string' && extractedLabel.trim().length === 0)) {
-                                        if (typeof configElement.config.label === 'object' && configElement.config.label !== null) {
-                                            const locale = this.$i18n?.locale || 'en-GB';
-                                            extractedLabel = configElement.config.label[locale] || configElement.config.label['en-GB'] || Object.values(configElement.config.label)[0] || null;
-                                        } else if (typeof configElement.config.label === 'string') {
-                                            extractedLabel = configElement.config.label;
+                                if (
+                                    !finalLabel &&
+                                    configElement.config &&
+                                    configElement.config.label
+                                ) {
+                                    let extractedLabel = this.getInlineSnippet(
+                                        configElement.config.label
+                                    );
+                                    if (
+                                        !extractedLabel ||
+                                        (typeof extractedLabel === 'string' &&
+                                            extractedLabel.trim().length === 0)
+                                    ) {
+                                        if (
+                                            typeof configElement.config
+                                                .label === 'object' &&
+                                            configElement.config.label !== null
+                                        ) {
+                                            const locale =
+                                                this.$i18n?.locale || 'en-GB';
+                                            extractedLabel =
+                                                configElement.config.label[
+                                                    locale
+                                                ] ||
+                                                configElement.config.label[
+                                                    'en-GB'
+                                                ] ||
+                                                Object.values(
+                                                    configElement.config.label
+                                                )[0] ||
+                                                null;
+                                        } else if (
+                                            typeof configElement.config
+                                                .label === 'string'
+                                        ) {
+                                            extractedLabel =
+                                                configElement.config.label;
                                         }
                                     }
-                                    if (extractedLabel && typeof extractedLabel === 'string' && extractedLabel.trim().length > 0) {
+                                    if (
+                                        extractedLabel &&
+                                        typeof extractedLabel === 'string' &&
+                                        extractedLabel.trim().length > 0
+                                    ) {
                                         finalLabel = extractedLabel;
                                         break;
                                     }
@@ -414,58 +536,120 @@ Component.register('buckaroo-config-card', {
                 }
 
                 if (!finalLabel) {
-                    if (baseBinding.label && typeof baseBinding.label === 'string' && baseBinding.label.trim().length > 0) {
+                    if (
+                        baseBinding.label &&
+                        typeof baseBinding.label === 'string' &&
+                        baseBinding.label.trim().length > 0
+                    ) {
                         finalLabel = baseBinding.label;
                     } else if (element.label) {
-                        let extractedLabel = this.getInlineSnippet(element.label);
-                        if (!extractedLabel || (typeof extractedLabel === 'string' && extractedLabel.trim().length === 0)) {
-                            if (typeof element.label === 'object' && element.label !== null) {
+                        let extractedLabel = this.getInlineSnippet(
+                            element.label
+                        );
+                        if (
+                            !extractedLabel ||
+                            (typeof extractedLabel === 'string' &&
+                                extractedLabel.trim().length === 0)
+                        ) {
+                            if (
+                                typeof element.label === 'object' &&
+                                element.label !== null
+                            ) {
                                 const locale = this.$i18n?.locale || 'en-GB';
-                                extractedLabel = element.label[locale] || element.label['en-GB'] || Object.values(element.label)[0] || null;
+                                extractedLabel =
+                                    element.label[locale] ||
+                                    element.label['en-GB'] ||
+                                    Object.values(element.label)[0] ||
+                                    null;
                             } else if (typeof element.label === 'string') {
                                 extractedLabel = element.label;
                             }
                         }
-                        if (extractedLabel && typeof extractedLabel === 'string' && extractedLabel.trim().length > 0) {
+                        if (
+                            extractedLabel &&
+                            typeof extractedLabel === 'string' &&
+                            extractedLabel.trim().length > 0
+                        ) {
                             finalLabel = extractedLabel;
                         }
-                    } else if (this.card && this.card.elements && Array.isArray(this.card.elements)) {
-                        const rawElement = this.card.elements.find(el => el.name === element.name);
+                    } else if (
+                        this.card &&
+                        this.card.elements &&
+                        Array.isArray(this.card.elements)
+                    ) {
+                        const rawElement = this.card.elements.find(
+                            (el) => el.name === element.name
+                        );
                         if (rawElement && rawElement.label) {
-                            let extractedLabel = this.getInlineSnippet(rawElement.label);
-                            if (!extractedLabel || (typeof extractedLabel === 'string' && extractedLabel.trim().length === 0)) {
-                                if (typeof rawElement.label === 'object' && rawElement.label !== null) {
-                                    const locale = this.$i18n?.locale || 'en-GB';
-                                    extractedLabel = rawElement.label[locale] || rawElement.label['en-GB'] || Object.values(rawElement.label)[0] || null;
-                                } else if (typeof rawElement.label === 'string') {
+                            let extractedLabel = this.getInlineSnippet(
+                                rawElement.label
+                            );
+                            if (
+                                !extractedLabel ||
+                                (typeof extractedLabel === 'string' &&
+                                    extractedLabel.trim().length === 0)
+                            ) {
+                                if (
+                                    typeof rawElement.label === 'object' &&
+                                    rawElement.label !== null
+                                ) {
+                                    const locale =
+                                        this.$i18n?.locale || 'en-GB';
+                                    extractedLabel =
+                                        rawElement.label[locale] ||
+                                        rawElement.label['en-GB'] ||
+                                        Object.values(rawElement.label)[0] ||
+                                        null;
+                                } else if (
+                                    typeof rawElement.label === 'string'
+                                ) {
                                     extractedLabel = rawElement.label;
                                 }
                             }
-                            if (extractedLabel && typeof extractedLabel === 'string' && extractedLabel.trim().length > 0) {
+                            if (
+                                extractedLabel &&
+                                typeof extractedLabel === 'string' &&
+                                extractedLabel.trim().length > 0
+                            ) {
                                 finalLabel = extractedLabel;
                             }
                         }
                     }
                 }
-                if (!finalLabel && baseBinding.config && baseBinding.config.label && typeof baseBinding.config.label === 'string' && baseBinding.config.label.trim().length > 0) {
+                if (
+                    !finalLabel &&
+                    baseBinding.config &&
+                    baseBinding.config.label &&
+                    typeof baseBinding.config.label === 'string' &&
+                    baseBinding.config.label.trim().length > 0
+                ) {
                     finalLabel = baseBinding.config.label;
                 }
             }
 
             // Only add label to config for SW >= 6.7.4.0 (avoids duplicate labels in older versions)
             let finalConfig = config;
-            if (useEnhancedLabels && finalLabel && typeof finalLabel === 'string' && finalLabel.trim().length > 0) {
-                if (element.type === 'bool' || element.type === 'single-select' || element.type === 'multi-select') {
+            if (
+                useEnhancedLabels &&
+                finalLabel &&
+                typeof finalLabel === 'string' &&
+                finalLabel.trim().length > 0
+            ) {
+                if (
+                    element.type === 'bool' ||
+                    element.type === 'single-select' ||
+                    element.type === 'multi-select'
+                ) {
                     finalConfig = {
                         ...config,
-                        label: finalLabel
+                        label: finalLabel,
                     };
                 }
             }
 
             const binding = {
                 ...baseBinding,
-                config: finalConfig
+                config: finalConfig,
             };
 
             // Ensure specific fields are treated as real multi-selects in the UI
@@ -474,7 +658,7 @@ Component.register('buckaroo-config-card', {
                 'allowedcreditcards',
                 'allowedgiftcards',
                 'giftcardsPaymentmethods',
-                'payperemailAllowed'
+                'payperemailAllowed',
             ];
 
             if (forcedMultiSelectFields.includes(fieldName)) {
@@ -486,18 +670,28 @@ Component.register('buckaroo-config-card', {
                     ...(binding.config || {}),
                     multiple: true,
                     // Prefer options coming from binding.config; fall back to element/config when needed
-                    options: (binding.config && binding.config.options)
-                        || (config && config.options)
-                        || element.options
-                        || []
+                    options:
+                        (binding.config && binding.config.options) ||
+                        (config && config.options) ||
+                        element.options ||
+                        [],
                 };
             }
-            
+
             // Only set binding.label for SW >= 6.7.4.0; older versions already show the label and would show duplicates
-            if (useEnhancedLabels && finalLabel && typeof finalLabel === 'string' && finalLabel.trim().length > 0) {
+            if (
+                useEnhancedLabels &&
+                finalLabel &&
+                typeof finalLabel === 'string' &&
+                finalLabel.trim().length > 0
+            ) {
                 if (element.type === 'bool') {
                     binding.label = finalLabel;
-                } else if (!binding.label || (typeof binding.label === 'string' && binding.label.trim().length === 0)) {
+                } else if (
+                    !binding.label ||
+                    (typeof binding.label === 'string' &&
+                        binding.label.trim().length === 0)
+                ) {
                     binding.label = finalLabel;
                 }
             }
@@ -505,30 +699,45 @@ Component.register('buckaroo-config-card', {
             if (element.type === 'bool') {
                 binding.value = currentValue;
                 // Only set fallback label for SW >= 6.7.4.0 to avoid duplicate labels in older versions
-                if (useEnhancedLabels && (!binding.label || (typeof binding.label === 'string' && binding.label.trim().length === 0))) {
-                    binding.label = binding.config?.label || element.name.replace('BuckarooPayments.config.', '').replace(/([A-Z])/g, ' $1').trim();
+                if (
+                    useEnhancedLabels &&
+                    (!binding.label ||
+                        (typeof binding.label === 'string' &&
+                            binding.label.trim().length === 0))
+                ) {
+                    binding.label =
+                        binding.config?.label ||
+                        element.name
+                            .replace('BuckarooPayments.config.', '')
+                            .replace(/([A-Z])/g, ' $1')
+                            .trim();
                 }
             }
-            
+
             return binding;
         },
 
         getInheritWrapperBind(element) {
             if (!this.methods || !this.methods.getInheritWrapperBind) {
-                const fieldName = element.name.replace('BuckarooPayments.config.', '');
+                const fieldName = element.name.replace(
+                    'BuckarooPayments.config.',
+                    ''
+                );
                 return {
                     name: element.name,
-                    currentValue: this.getValueForName(fieldName)
+                    currentValue: this.getValueForName(fieldName),
                 };
             }
-            
+
             const baseBinding = this.methods.getInheritWrapperBind(element);
-            const fieldName = element.name.replace('BuckarooPayments.config.', '');
+            const fieldName = element.name.replace(
+                'BuckarooPayments.config.',
+                ''
+            );
             const currentValue = this.getValueForName(fieldName);
 
             baseBinding.currentValue = currentValue;
 
-            
             return baseBinding;
         },
 
@@ -541,7 +750,12 @@ Component.register('buckaroo-config-card', {
 
         kebabCase(string) {
             if (!this.methods || !this.methods.kebabCase) {
-                return string ? string.toLowerCase().replace(/[A-Z]/g, '-$&').replace(/^-/, '') : '';
+                return string
+                    ? string
+                          .toLowerCase()
+                          .replace(/[A-Z]/g, '-$&')
+                          .replace(/^-/, '')
+                    : '';
             }
             return this.methods.kebabCase(string);
         },
@@ -550,11 +764,11 @@ Component.register('buckaroo-config-card', {
             try {
                 if (typeof title === 'object' && title !== null) {
                     const locale = this.$i18n?.locale || 'en-GB';
-                    
+
                     if (title[locale]) {
                         return title[locale];
                     }
-                    
+
                     if (title['en-GB']) {
                         return title['en-GB'];
                     }
@@ -562,10 +776,10 @@ Component.register('buckaroo-config-card', {
                     if (firstKey && title[firstKey]) {
                         return title[firstKey];
                     }
-                    
+
                     return JSON.stringify(title);
                 }
-                
+
                 if (typeof title === 'string') {
                     if (this.$t && typeof this.$t === 'function') {
                         return this.$t(title);
@@ -573,10 +787,11 @@ Component.register('buckaroo-config-card', {
                     return title;
                 }
                 return String(title);
-                
             } catch (error) {
                 console.warn('Translation error for:', title, error);
-                return typeof title === 'object' ? JSON.stringify(title) : String(title);
+                return typeof title === 'object'
+                    ? JSON.stringify(title)
+                    : String(title);
             }
         },
 
@@ -589,7 +804,7 @@ Component.register('buckaroo-config-card', {
 
         getValueForName(name) {
             const currentValue = this.reactiveValue;
-            
+
             if (!currentValue || typeof currentValue !== 'object') {
                 return null;
             }
@@ -600,7 +815,7 @@ Component.register('buckaroo-config-card', {
                 `BuckarooPayments.config.${name}`, // Full prefixed key
                 name.toLowerCase(),
                 name.charAt(0).toLowerCase() + name.slice(1),
-                name.charAt(0).toUpperCase() + name.slice(1)
+                name.charAt(0).toUpperCase() + name.slice(1),
             ];
 
             for (const key of keyVariations) {
@@ -610,16 +825,27 @@ Component.register('buckaroo-config-card', {
                 }
             }
 
-            if (val === undefined && currentValue['BuckarooPayments.config'] && typeof currentValue['BuckarooPayments.config'] === 'object') {
+            if (
+                val === undefined &&
+                currentValue['BuckarooPayments.config'] &&
+                typeof currentValue['BuckarooPayments.config'] === 'object'
+            ) {
                 for (const key of keyVariations) {
-                    if (currentValue['BuckarooPayments.config'][key] !== undefined) {
+                    if (
+                        currentValue['BuckarooPayments.config'][key] !==
+                        undefined
+                    ) {
                         val = currentValue['BuckarooPayments.config'][key];
                         break;
                     }
                 }
             }
 
-            if (val && typeof val === 'object' && Object.prototype.hasOwnProperty.call(val, '_value')) {
+            if (
+                val &&
+                typeof val === 'object' &&
+                Object.prototype.hasOwnProperty.call(val, '_value')
+            ) {
                 val = val._value;
             }
             return val;
@@ -631,15 +857,27 @@ Component.register('buckaroo-config-card', {
         isSwitchOn(name) {
             const ownValue = this.getValueForName(name);
 
-            if (!this.isNotDefaultSalesChannel || overridesInheritedValue(ownValue)) {
+            if (
+                !this.isNotDefaultSalesChannel ||
+                overridesInheritedValue(ownValue)
+            ) {
                 return isSwitchValueOn(ownValue);
             }
 
-            return isSwitchValueOn(this.getInheritedValue({ name: `BuckarooPayments.config.${name}`, type: 'bool', config: {} }));
+            return isSwitchValueOn(
+                this.getInheritedValue({
+                    name: `BuckarooPayments.config.${name}`,
+                    type: 'bool',
+                    config: {},
+                })
+            );
         },
 
         isButtonPreview(element) {
-            return element?.config?.componentName === 'buckaroo-express-button-preview';
+            return (
+                element?.config?.componentName ===
+                'buckaroo-express-button-preview'
+            );
         },
 
         getButtonPreviewBind(element) {
@@ -648,9 +886,13 @@ Component.register('buckaroo-config-card', {
             return {
                 method: config.method || '',
                 label: config.label ? this.getInlineSnippet(config.label) : '',
-                helpText: config.helpText ? this.getInlineSnippet(config.helpText) : '',
+                helpText: config.helpText
+                    ? this.getInlineSnippet(config.helpText)
+                    : '',
                 values: this.getEffectiveValues(),
-                salesChannelId: this.isNotDefaultSalesChannel ? this.currentSalesChannelId : null
+                salesChannelId: this.isNotDefaultSalesChannel
+                    ? this.currentSalesChannelId
+                    : null,
             };
         },
 
@@ -664,12 +906,17 @@ Component.register('buckaroo-config-card', {
                     return values;
                 }
 
-                const name = element.name.replace('BuckarooPayments.config.', '');
+                const name = element.name.replace(
+                    'BuckarooPayments.config.',
+                    ''
+                );
                 const ownValue = this.getValueForName(name);
 
-                values[name] = !this.isNotDefaultSalesChannel || overridesInheritedValue(ownValue)
-                    ? ownValue
-                    : this.getInheritedValue(element);
+                values[name] =
+                    !this.isNotDefaultSalesChannel ||
+                    overridesInheritedValue(ownValue)
+                        ? ownValue
+                        : this.getInheritedValue(element);
 
                 return values;
             }, {});
@@ -679,11 +926,17 @@ Component.register('buckaroo-config-card', {
             if (!element || !element.name) {
                 return false;
             }
-            
+
             const name = element.name.replace('BuckarooPayments.config.', '');
 
             // Replaced by the Live / Test / Off control at the top of the card
-            if (this.statusPaymentCode && [`${this.statusPaymentCode}Enabled`, `${this.statusPaymentCode}Environment`].includes(name)) {
+            if (
+                this.statusPaymentCode &&
+                [
+                    `${this.statusPaymentCode}Enabled`,
+                    `${this.statusPaymentCode}Environment`,
+                ].includes(name)
+            ) {
                 return false;
             }
 
@@ -710,80 +963,140 @@ Component.register('buckaroo-config-card', {
                 return;
             }
 
-            this.$emit('input', withConfigValues(this.value, { [fieldName]: null }));
+            this.$emit(
+                'input',
+                withConfigValues(this.value, { [fieldName]: null })
+            );
         },
 
         onFieldInput(fieldName, eventOrValue) {
-
             try {
                 let actualValue = eventOrValue;
-                
+
                 if (eventOrValue && typeof eventOrValue === 'object') {
                     if (eventOrValue.target) {
                         const target = eventOrValue.target;
 
-                        if (target.type === 'checkbox' || target.type === 'radio') {
+                        if (
+                            target.type === 'checkbox' ||
+                            target.type === 'radio'
+                        ) {
                             actualValue = target.checked;
-                        } else if (target.tagName === 'SELECT' || target.type === 'select-one' || target.type === 'select-multiple') {
+                        } else if (
+                            target.tagName === 'SELECT' ||
+                            target.type === 'select-one' ||
+                            target.type === 'select-multiple'
+                        ) {
                             if (target.multiple) {
-                                actualValue = Array.from(target.selectedOptions).map(option => option.value);
+                                actualValue = Array.from(
+                                    target.selectedOptions
+                                ).map((option) => option.value);
                             } else {
                                 actualValue = target.value;
                             }
                         } else {
                             actualValue = target.value;
                         }
-                    } else if (Object.prototype.hasOwnProperty.call(eventOrValue, 'value')) {
+                    } else if (
+                        Object.prototype.hasOwnProperty.call(
+                            eventOrValue,
+                            'value'
+                        )
+                    ) {
                         actualValue = eventOrValue.value;
-                    } else if (Object.prototype.hasOwnProperty.call(eventOrValue, 'id') && Object.prototype.hasOwnProperty.call(eventOrValue, 'name')) {
+                    } else if (
+                        Object.prototype.hasOwnProperty.call(
+                            eventOrValue,
+                            'id'
+                        ) &&
+                        Object.prototype.hasOwnProperty.call(
+                            eventOrValue,
+                            'name'
+                        )
+                    ) {
                         actualValue = eventOrValue.id;
                     } else if (Array.isArray(eventOrValue)) {
-                        const totalCharacters = eventOrValue.filter(item => typeof item === 'string' && item.length === 1).length;
-                        const hasCommas = eventOrValue.some(item => item === ',');
+                        const totalCharacters = eventOrValue.filter(
+                            (item) =>
+                                typeof item === 'string' && item.length === 1
+                        ).length;
+                        const hasCommas = eventOrValue.some(
+                            (item) => item === ','
+                        );
 
-                        const isCharacterArray = totalCharacters > 10 && hasCommas;
+                        const isCharacterArray =
+                            totalCharacters > 10 && hasCommas;
 
-                        
                         if (isCharacterArray) {
-                            const correctValues = eventOrValue.filter(item => typeof item === 'string' && item.length > 1);
-                            const characterPart = eventOrValue.filter(item => typeof item === 'string' && item.length === 1);
+                            const correctValues = eventOrValue.filter(
+                                (item) =>
+                                    typeof item === 'string' && item.length > 1
+                            );
+                            const characterPart = eventOrValue.filter(
+                                (item) =>
+                                    typeof item === 'string' &&
+                                    item.length === 1
+                            );
                             const rejoined = characterPart.join('');
-                            
+
                             let splitValues = [];
                             if (rejoined.includes(',')) {
-                                splitValues = rejoined.split(',').map(item => item.trim()).filter(item => item.length > 0);
+                                splitValues = rejoined
+                                    .split(',')
+                                    .map((item) => item.trim())
+                                    .filter((item) => item.length > 0);
                             } else if (rejoined.length > 0) {
                                 splitValues = [rejoined];
                             }
 
-                            actualValue = [...splitValues, ...correctValues].filter(item => item && item.length > 0);
+                            actualValue = [
+                                ...splitValues,
+                                ...correctValues,
+                            ].filter((item) => item && item.length > 0);
                         } else {
                             actualValue = eventOrValue
-                                .filter(item => {
-                                    if (item === null || item === undefined || item === '') {
+                                .filter((item) => {
+                                    if (
+                                        item === null ||
+                                        item === undefined ||
+                                        item === ''
+                                    ) {
                                         return false;
                                     }
 
-                                    if (typeof item === 'string' && item.length === 1) {
+                                    if (
+                                        typeof item === 'string' &&
+                                        item.length === 1
+                                    ) {
                                         return false;
                                     }
 
-                                    if (typeof item === 'string' && (item.startsWith('+') || /^\d+$/.test(item))) {
-
+                                    if (
+                                        typeof item === 'string' &&
+                                        (item.startsWith('+') ||
+                                            /^\d+$/.test(item))
+                                    ) {
                                         return false;
                                     }
-                                    
+
                                     return true;
                                 })
-                                .map(item => {
-                                    if (typeof item === 'object' && item !== null) {
-                                        let extractedValue = item.id || item.value || item.code || item.key || item;
+                                .map((item) => {
+                                    if (
+                                        typeof item === 'object' &&
+                                        item !== null
+                                    ) {
+                                        let extractedValue =
+                                            item.id ||
+                                            item.value ||
+                                            item.code ||
+                                            item.key ||
+                                            item;
                                         return extractedValue;
                                     }
                                     return item;
                                 });
                         }
-
                     } else {
                         const possibleKeys = ['id', 'value', 'key', 'code'];
                         for (const key of possibleKeys) {
@@ -795,26 +1108,34 @@ Component.register('buckaroo-config-card', {
                     }
                 } else if (typeof eventOrValue === 'boolean') {
                     actualValue = eventOrValue;
-                } else if (typeof eventOrValue === 'string' || typeof eventOrValue === 'number') {
+                } else if (
+                    typeof eventOrValue === 'string' ||
+                    typeof eventOrValue === 'number'
+                ) {
                     actualValue = eventOrValue;
                 }
 
                 // Determine the element definition once so we can branch on its type
                 const element = this.card?.elements?.find(
-                    el => el.name === fieldName
-                        || el.name.replace('BuckarooPayments.config.', '') === fieldName.replace('BuckarooPayments.config.', '')
+                    (el) =>
+                        el.name === fieldName ||
+                        el.name.replace('BuckarooPayments.config.', '') ===
+                            fieldName.replace('BuckarooPayments.config.', '')
                 );
 
-                if (actualValue === "on") {
+                if (actualValue === 'on') {
                     actualValue = true;
-                } else if (actualValue === "off") {
+                } else if (actualValue === 'off') {
                     actualValue = false;
                 }
-                
+
                 // For bool fields, ensure we always have a proper boolean
                 if (element && element.type === 'bool') {
                     if (typeof actualValue === 'string') {
-                        actualValue = actualValue === '1' || actualValue === 'true' || actualValue === 'on';
+                        actualValue =
+                            actualValue === '1' ||
+                            actualValue === 'true' ||
+                            actualValue === 'on';
                     } else {
                         actualValue = Boolean(actualValue);
                     }
@@ -827,10 +1148,21 @@ Component.register('buckaroo-config-card', {
                     if (Array.isArray(actualValue)) {
                         // Normalize array items to primitive ids / values
                         actualValue = actualValue
-                            .filter(item => item !== null && item !== undefined && item !== '')
-                            .map(item => {
+                            .filter(
+                                (item) =>
+                                    item !== null &&
+                                    item !== undefined &&
+                                    item !== ''
+                            )
+                            .map((item) => {
                                 if (typeof item === 'object' && item !== null) {
-                                    return item.id || item.value || item.code || item.key || item;
+                                    return (
+                                        item.id ||
+                                        item.value ||
+                                        item.code ||
+                                        item.key ||
+                                        item
+                                    );
                                 }
                                 return item;
                             });
@@ -838,28 +1170,33 @@ Component.register('buckaroo-config-card', {
                         // Support comma-separated string values (just in case)
                         actualValue = actualValue
                             .split(',')
-                            .map(v => v.trim())
-                            .filter(v => v.length > 0);
-                    } else if (actualValue === null || actualValue === undefined) {
+                            .map((v) => v.trim())
+                            .filter((v) => v.length > 0);
+                    } else if (
+                        actualValue === null ||
+                        actualValue === undefined
+                    ) {
                         actualValue = [];
                     } else {
                         // Fallback: wrap single primitive value into an array
                         actualValue = [actualValue];
                     }
                 }
-                
-                const cleanFieldName = fieldName.replace('BuckarooPayments.config.', '');
+
+                const cleanFieldName = fieldName.replace(
+                    'BuckarooPayments.config.',
+                    ''
+                );
                 const updatedValue = { ...this.value };
 
                 updatedValue[cleanFieldName] = actualValue;
                 updatedValue[fieldName] = actualValue;
 
                 this.$emit('input', updatedValue);
-                
             } catch (error) {
                 console.error('Error in onFieldInput:', error);
                 console.error('Error details:', error.stack);
             }
-        }
-    }
+        },
+    },
 });

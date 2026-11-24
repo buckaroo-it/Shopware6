@@ -10,7 +10,7 @@
  */
 
 // The button is shared with the button preview in the plugin settings
-import { APPLE_PAY_SDK_URL, createButton } from "./button";
+import { APPLE_PAY_SDK_URL, createButton } from './button';
 
 /**
  * Load Apple's official Apple Pay JS SDK.
@@ -24,25 +24,35 @@ import { APPLE_PAY_SDK_URL, createButton } from "./button";
  */
 const loadOfficialSdk = function () {
     return new Promise(function (resolve) {
-        if (typeof window.ApplePaySession !== "undefined" &&
-            typeof ApplePaySession.applePayCapabilities === "function") {
+        if (
+            typeof window.ApplePaySession !== 'undefined' &&
+            typeof ApplePaySession.applePayCapabilities === 'function'
+        ) {
             resolve();
             return;
         }
 
-        const existing = document.getElementById("apple-pay-sdk");
+        const existing = document.getElementById('apple-pay-sdk');
         if (existing) {
-            existing.addEventListener("load", function () { resolve(); });
-            existing.addEventListener("error", function () { resolve(); });
+            existing.addEventListener('load', function () {
+                resolve();
+            });
+            existing.addEventListener('error', function () {
+                resolve();
+            });
             return;
         }
 
-        const script = document.createElement("script");
-        script.id = "apple-pay-sdk";
+        const script = document.createElement('script');
+        script.id = 'apple-pay-sdk';
         script.src = APPLE_PAY_SDK_URL;
-        script.crossOrigin = "anonymous";
-        script.onload = function () { resolve(); };
-        script.onerror = function () { resolve(); };
+        script.crossOrigin = 'anonymous';
+        script.onload = function () {
+            resolve();
+        };
+        script.onerror = function () {
+            resolve();
+        };
         document.head.appendChild(script);
     });
 };
@@ -56,7 +66,10 @@ const loadOfficialSdk = function () {
  * @returns {Promise<boolean>}
  */
 const checkPaySupport = async function (merchantIdentifier) {
-    if (!("ApplePaySession" in window) || typeof ApplePaySession === "undefined") {
+    if (
+        !('ApplePaySession' in window) ||
+        typeof ApplePaySession === 'undefined'
+    ) {
         return false;
     }
     if (window.isSecureContext === false) {
@@ -72,10 +85,16 @@ const checkPaySupport = async function (merchantIdentifier) {
     };
 
     try {
-        if (typeof ApplePaySession.applePayCapabilities === "function") {
+        if (typeof ApplePaySession.applePayCapabilities === 'function') {
             try {
-                const caps = await ApplePaySession.applePayCapabilities(merchantIdentifier);
-                if (caps && caps.paymentCredentialStatus !== "applePayUnsupported") {
+                const caps =
+                    await ApplePaySession.applePayCapabilities(
+                        merchantIdentifier
+                    );
+                if (
+                    caps &&
+                    caps.paymentCredentialStatus !== 'applePayUnsupported'
+                ) {
                     return true;
                 }
                 return safeCanMakePayments();
@@ -131,20 +150,27 @@ var PayPayment = function (options) {
             supportedNetworks: _this.options.supportedNetworks,
             lineItems: _this.options.lineItems,
             total: _this.options.totalLineItem,
-            requiredBillingContactFields: _this.options.requiredBillingContactFields,
-            requiredShippingContactFields: _this.options.requiredShippingContactFields,
+            requiredBillingContactFields:
+                _this.options.requiredBillingContactFields,
+            requiredShippingContactFields:
+                _this.options.requiredShippingContactFields,
             shippingType: _this.options.shippingType,
             shippingMethods: _this.options.shippingMethods,
         };
-        _this.session = new ApplePaySession(_this.applePayVersion, paymentRequest);
+        _this.session = new ApplePaySession(
+            _this.applePayVersion,
+            paymentRequest
+        );
         _this.session.onvalidatemerchant = _this.onValidateMerchant;
 
         if (_this.options.shippingMethodSelectedCallback) {
-            _this.session.onshippingmethodselected = _this.onShippingMethodSelected;
+            _this.session.onshippingmethodselected =
+                _this.onShippingMethodSelected;
         }
 
         if (_this.options.shippingContactSelectedCallback) {
-            _this.session.onshippingcontactselected = _this.onShippingContactSelected;
+            _this.session.onshippingcontactselected =
+                _this.onShippingContactSelected;
         }
 
         if (_this.options.cancelCallback) {
@@ -174,20 +200,31 @@ var PayPayment = function (options) {
         fetch(_this.validationUrl, {
             method: 'POST',
             body: JSON.stringify(data),
-        }).then(function (response) {
-            if (!response.ok) {
-                throw new Error('Merchant validation failed: HTTP ' + response.status);
-            }
-            return response.json();
-        }).then(function (merchantSession) {
-            if (!merchantSession || merchantSession.statusCode >= 400 || merchantSession.error) {
-                throw new Error('Merchant validation failed: invalid merchant session');
-            }
-            _this.session.completeMerchantValidation(merchantSession);
-        }).catch(function (error) {
-            console.warn('Apple Pay merchant validation failed:', error);
-            _this.abortSession();
-        });
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error(
+                        'Merchant validation failed: HTTP ' + response.status
+                    );
+                }
+                return response.json();
+            })
+            .then(function (merchantSession) {
+                if (
+                    !merchantSession ||
+                    merchantSession.statusCode >= 400 ||
+                    merchantSession.error
+                ) {
+                    throw new Error(
+                        'Merchant validation failed: invalid merchant session'
+                    );
+                }
+                _this.session.completeMerchantValidation(merchantSession);
+            })
+            .catch(function (error) {
+                console.warn('Apple Pay merchant validation failed:', error);
+                _this.abortSession();
+            });
     };
 
     /**
@@ -196,9 +233,11 @@ var PayPayment = function (options) {
      */
     this.onPaymentAuthorized = function (event) {
         var payment = event.payment;
-        _this.options.processCallback(payment).then(function (authorizationResult) {
-            _this.session.completePayment(authorizationResult);
-        });
+        _this.options
+            .processCallback(payment)
+            .then(function (authorizationResult) {
+                _this.session.completePayment(authorizationResult);
+            });
     };
 
     /**
@@ -288,7 +327,11 @@ var PayOptions = function (
         cancelCallback = null;
     }
     if (merchantCapabilities === void 0) {
-        merchantCapabilities = ['supports3DS', 'supportsCredit', 'supportsDebit'];
+        merchantCapabilities = [
+            'supports3DS',
+            'supportsCredit',
+            'supportsDebit',
+        ];
     }
     if (supportedNetworks === void 0) {
         supportedNetworks = [
@@ -324,7 +367,7 @@ var ApplePay = {
     PayOptions,
     checkPaySupport,
     loadOfficialSdk,
-    createButton
+    createButton,
 };
 
 export default ApplePay;

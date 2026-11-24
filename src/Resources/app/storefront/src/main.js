@@ -14,25 +14,68 @@ import BuckarooBanContact from './bancontact/buckaroo-payment.bancontact';
 
 const PluginManager = window.PluginManager;
 
-
 const init = () => {
-    if('BuckarooPaymentValidateSubmit' in window.PluginManager.getPluginList()) {
+    if (
+        'BuckarooPaymentValidateSubmit' in window.PluginManager.getPluginList()
+    ) {
         return;
     }
 
-    PluginManager.register('BuckarooPaymentValidateSubmit', BuckarooPaymentValidateSubmit);
-    PluginManager.register('BuckarooPaymentCreditcards', BuckarooPaymentCreditcards);
-    PluginManager.register('BuckarooPaymentCreditcard', BuckarooPaymentCreditcard, '#bk-hosted-fields-creditcards');
+    PluginManager.register(
+        'BuckarooPaymentValidateSubmit',
+        BuckarooPaymentValidateSubmit
+    );
+    PluginManager.register(
+        'BuckarooPaymentCreditcards',
+        BuckarooPaymentCreditcards
+    );
+    PluginManager.register(
+        'BuckarooPaymentCreditcard',
+        BuckarooPaymentCreditcard,
+        '#bk-hosted-fields-creditcards'
+    );
     PluginManager.register('BuckarooPaymentHelper', BuckarooPaymentHelper);
-    PluginManager.register('PaypalExpressPlugin', PaypalExpressPlugin, '[data-paypal-express]');
-    PluginManager.register('BuckarooIdealQrPlugin', IdealQrPlugin, '[data-ideal-qr]');
-    PluginManager.register('BuckarooApplePayPlugin', ApplePayPlugin, '[data-bk-applepay]');
+    PluginManager.register(
+        'PaypalExpressPlugin',
+        PaypalExpressPlugin,
+        '[data-paypal-express]'
+    );
+    PluginManager.register(
+        'BuckarooIdealQrPlugin',
+        IdealQrPlugin,
+        '[data-ideal-qr]'
+    );
+    PluginManager.register(
+        'BuckarooApplePayPlugin',
+        ApplePayPlugin,
+        '[data-bk-applepay]'
+    );
     PluginManager.register('BuckarooLoadScripts', BuckarooLoadScripts);
-    PluginManager.register('BuckarooBanContact', BuckarooBanContact, '#bk-hosted-fields-bancontactmrcash');
-    PluginManager.register('BuckarooPayByBankSelect', BuckarooPayByBankSelect, '[data-bk-select]');
-    PluginManager.register('BuckarooPayByBankLogo', BuckarooPayByBankLogo, '[data-bk-paybybank-logo]');
-    PluginManager.register('IdealFastCheckoutPlugin', IdealFastCheckoutPlugin, '[data-bk-ideal-fast-checkout]');
-    PluginManager.register('GooglePayPlugin', GooglePayPlugin, '[data-bk-googlepay]');
-}
+    PluginManager.register(
+        'BuckarooBanContact',
+        BuckarooBanContact,
+        '#bk-hosted-fields-bancontactmrcash'
+    );
+    PluginManager.register(
+        'BuckarooPayByBankSelect',
+        BuckarooPayByBankSelect,
+        '[data-bk-select]'
+    );
+    PluginManager.register(
+        'BuckarooPayByBankLogo',
+        BuckarooPayByBankLogo,
+        '[data-bk-paybybank-logo]'
+    );
+    PluginManager.register(
+        'IdealFastCheckoutPlugin',
+        IdealFastCheckoutPlugin,
+        '[data-bk-ideal-fast-checkout]'
+    );
+    PluginManager.register(
+        'GooglePayPlugin',
+        GooglePayPlugin,
+        '[data-bk-googlepay]'
+    );
+};
 
 init();

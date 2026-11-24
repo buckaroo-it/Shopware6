@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Entity\IdealQrOrder;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class IdealQrOrderRepository
 {
@@ -30,7 +28,7 @@ class IdealQrOrderRepository
             [
                 'orderId' => $orderTransactionEntity->getOrderId(),
                 'orderTransactionId' => $orderTransactionEntity->getId(),
-            ]
+            ],
         ], $context);
 
         $createdIds = $result->getPrimaryKeys(IdealQrOrderDefinition::ENTITY_NAME);

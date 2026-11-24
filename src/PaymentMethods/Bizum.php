@@ -8,9 +8,6 @@ use Buckaroo\Shopware6\Handlers\BizumPaymentHandler;
 
 class Bizum extends AbstractPayment
 {
-    /**
-     * @return string
-     */
     public function getBuckarooKey(): string
     {
         return 'bizum';
@@ -18,8 +15,6 @@ class Bizum extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -28,8 +23,6 @@ class Bizum extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -38,8 +31,6 @@ class Bizum extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -48,8 +39,6 @@ class Bizum extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string|null
      */
     public function getTemplate(): ?string
     {
@@ -58,8 +47,6 @@ class Bizum extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
@@ -75,19 +62,19 @@ class Bizum extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit Bizum',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
             'nl-NL' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Betalen met Bizum',
             ],
             'fr-FR' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Payer avec Bizum',
             ],
         ];

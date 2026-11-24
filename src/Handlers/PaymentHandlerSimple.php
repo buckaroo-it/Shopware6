@@ -11,8 +11,8 @@ use Buckaroo\Shopware6\Events\AfterPaymentRequestEvent;
 use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -31,17 +31,18 @@ use Symfony\Component\HttpFoundation\Request;
  */
 
 // Determine base class/interface based on Shopware version
-if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface') &&
-    !class_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler')) {
+if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface')
+    && !class_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler')) {
     // Shopware 6.5: Implement AsynchronousPaymentHandlerInterface + use Strategy pattern internally
-    class PaymentHandlerSimple implements
-        \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface
+    class PaymentHandlerSimple implements \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface
     {
         use PaymentHandlerTemplateMethods;
-        
-        protected AsyncPaymentService $asyncPaymentService;
-        protected FormatRequestParamService $formatRequestParamService;
+
         public string $paymentClass = '';
+
+        protected AsyncPaymentService $asyncPaymentService;
+
+        protected FormatRequestParamService $formatRequestParamService;
 
         public function __construct(
             AsyncPaymentService $asyncPaymentService,
@@ -55,11 +56,6 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
         public function setPaymentClass(string $paymentClass): void
         {
             $this->paymentClass = $paymentClass;
-        }
-
-        protected function getPaymentClass(): string
-        {
-            return $this->paymentClass;
         }
 
         public function supports(mixed $type, string $paymentMethodId, Context $context): bool
@@ -76,7 +72,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             // Use delegation to PaymentHandlerLegacy
             $legacyHandler = new class($this->asyncPaymentService, $this) extends PaymentHandlerLegacy {
                 private PaymentHandlerSimple $parent;
-                
+
                 public function __construct(AsyncPaymentService $asyncPaymentService, PaymentHandlerSimple $parent)
                 {
                     parent::__construct($asyncPaymentService);
@@ -85,19 +81,19 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                         $this->setPaymentClass($parent->paymentClass);
                     }
                 }
-                
+
                 protected function getMethodPayload(
                     \Shopware\Core\Checkout\Order\OrderEntity $order,
-                    \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
-                    \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
+                    RequestDataBag $dataBag,
+                    SalesChannelContext $salesChannelContext,
                     string $paymentCode
                 ): array {
                     return $this->parent->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
                 }
-                
+
                 protected function getMethodAction(
-                    \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
-                    ?\Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext = null,
+                    RequestDataBag $dataBag,
+                    ?SalesChannelContext $salesChannelContext = null,
                     ?string $paymentCode = null
                 ): string {
                     return $this->parent->getMethodAction($dataBag, $salesChannelContext, $paymentCode);
@@ -149,6 +145,23 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             $this->configureLegacyClient($client, $paymentCode, $salesChannelContext);
         }
 
+        public function finalize(
+            AsyncPaymentTransactionStruct $transaction,
+            Request $request,
+            SalesChannelContext $salesChannelContext
+        ): void {
+            $this->asyncPaymentService->paymentStateService->finalizePayment(
+                $transaction,
+                $request,
+                $salesChannelContext
+            );
+        }
+
+        protected function getPaymentClass(): string
+        {
+            return $this->paymentClass;
+        }
+
         /**
          * Hook for specific handlers to adjust the Buckaroo client before the legacy request
          * is sent. Kept apart from configureClient(), which only runs on the 6.7 pay flow.
@@ -172,18 +185,6 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             // Default no-op
         }
 
-        public function finalize(
-            AsyncPaymentTransactionStruct $transaction,
-            Request $request,
-            SalesChannelContext $salesChannelContext
-        ): void {
-            $this->asyncPaymentService->paymentStateService->finalizePayment(
-                $transaction,
-                $request,
-                $salesChannelContext
-            );
-        }
-        
         /**
          * Helper accessors used by child handlers
          */
@@ -192,11 +193,13 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             return $this->asyncPaymentService->settingsService->getSetting($key, $salesChannelId);
         }
 
-        /** @return array<mixed> */
+        /**
+         * @return array<mixed>
+         */
         protected function getOrderLinesArray(
             \Shopware\Core\Checkout\Order\OrderEntity $order,
             string $paymentCode,
-            ?\Shopware\Core\Framework\Context $context = null
+            ?Context $context = null
         ): array {
             return $this->asyncPaymentService->formatRequestParamService->getOrderLinesArray(
                 $order,
@@ -212,17 +215,19 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
 
         /**
          * Legacy-compatible hook stub used by children like IdealQrPaymentHandler.
+         *
          * @return array<mixed>
          */
         /**
          * @param mixed $orderTransaction
+         *
          * @return array<mixed>
          */
         protected function getCommonRequestPayload(
             $orderTransaction,
             \Shopware\Core\Checkout\Order\OrderEntity $order,
-            \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
-            \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
+            RequestDataBag $dataBag,
+            SalesChannelContext $salesChannelContext,
             string $paymentCode,
             ?string $returnUrl
         ): array {
@@ -231,7 +236,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 'invoice' => $order->getOrderNumber(),
                 'amountDebit' => $order->getAmountTotal(),
                 'currency' => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
-                'returnURL' => $returnUrl ?? ''
+                'returnURL' => $returnUrl ?? '',
             ];
         }
 
@@ -242,26 +247,28 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             \Buckaroo\Shopware6\Buckaroo\ClientResponseInterface $response,
             $orderTransaction,
             \Shopware\Core\Checkout\Order\OrderEntity $order,
-            \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
-            \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
+            RequestDataBag $dataBag,
+            SalesChannelContext $salesChannelContext,
             string $paymentCode
         ): RedirectResponse {
             if ($response->hasRedirect()) {
                 return new RedirectResponse($response->getRedirectUrl());
             }
+
             return new RedirectResponse('/checkout/finish');
         }
     }
-
 } else {
     // Shopware 6.7+: Extend AbstractPaymentHandler + use Strategy pattern internally
     class PaymentHandlerSimple extends \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler
     {
         use PaymentHandlerTemplateMethods;
-        
-        protected AsyncPaymentService $asyncPaymentService;
-        protected FormatRequestParamService $formatRequestParamService;
+
         public string $paymentClass = '';
+
+        protected AsyncPaymentService $asyncPaymentService;
+
+        protected FormatRequestParamService $formatRequestParamService;
 
         public function __construct(
             AsyncPaymentService $asyncPaymentService,
@@ -275,11 +282,6 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
         public function setPaymentClass(string $paymentClass): void
         {
             $this->paymentClass = $paymentClass;
-        }
-
-        protected function getPaymentClass(): string
-        {
-            return $this->paymentClass;
         }
 
         public function supports(mixed $type, string $paymentMethodId, Context $context): bool
@@ -298,11 +300,11 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 // Get transaction and order
                 $transactionId = $transaction->getOrderTransactionId();
                 $orderTransaction = $this->asyncPaymentService->getTransaction($transactionId, $context);
-                
+
                 if ($orderTransaction === null) {
                     return null;
                 }
-                
+
                 $order = $orderTransaction->getOrder();
                 if ($order === null) {
                     return null;
@@ -328,7 +330,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     $order->getSalesChannelId(),
                     $contextToken
                 );
-                
+
                 // Extract request data
                 $dataBag = new RequestDataBag($request->request->all());
 
@@ -340,12 +342,12 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 if (empty($this->paymentClass)) {
                     throw new \Exception('Payment class not set.');
                 }
-                
+
                 $paymentClass = new $this->paymentClass();
                 if (!$paymentClass instanceof \Buckaroo\Shopware6\PaymentMethods\AbstractPayment) {
                     throw new \Exception('Invalid payment class.');
                 }
-                
+
                 $paymentCode = $paymentClass->getBuckarooKey();
 
                 // Apply fee to order BEFORE sending payment request
@@ -381,7 +383,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                     $urlGenerator,
                     $feeCalculator
                 );
-                
+
                 // Build common payload with all required fields
                 $commonPayload = $payloadBuilder->buildCommonPayload(
                     $orderTransaction,
@@ -395,7 +397,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 $this->asyncPaymentService->logger->info('Shopware 6.7 - Payload built', [
                     'orderId' => $order->getId(),
                     'pushURL' => $commonPayload['pushURL'] ?? '(missing)',
-                    'additionalParameters' => !empty($commonPayload['additionalParameters']) ? 'present' : 'missing'
+                    'additionalParameters' => !empty($commonPayload['additionalParameters']) ? 'present' : 'missing',
                 ]);
 
                 $methodPayload = $this->getMethodPayload($order, $dataBag, $salesChannelContext, $paymentCode);
@@ -452,7 +454,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                         'Payment was rejected: ' . $response->getSubCodeMessage()
                     );
                 }
-                
+
                 // Check for failed payments
                 if ($response->isFailed() || $response->isValidationFailure()) {
                     throw \Shopware\Core\Checkout\Payment\PaymentException::asyncProcessInterrupted(
@@ -460,7 +462,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                         'Payment failed: ' . $response->getSomeError()
                     );
                 }
-                
+
                 // Check for canceled payments
                 if ($response->isCanceled()) {
                     throw \Shopware\Core\Checkout\Payment\PaymentException::asyncProcessInterrupted(
@@ -494,7 +496,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
                 $this->asyncPaymentService->logger->error('Payment processing failed', [
                     'error' => $e->getMessage(),
                     'transactionId' => $transaction->getOrderTransactionId(),
-                    'paymentClass' => $this->paymentClass
+                    'paymentClass' => $this->paymentClass,
                 ]);
                 throw \Shopware\Core\Checkout\Payment\PaymentException::asyncProcessInterrupted(
                     $transaction->getOrderTransactionId(),
@@ -526,20 +528,21 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             return null;
         }
 
-        /**
-         * Buckaroo key of the payment class this handler pays with.
-         */
-        private function getBuckarooKey(): ?string
+        public function finalize(
+            Request $request,
+            PaymentTransactionStruct $transaction,
+            Context $context
+        ): void {
+            $this->asyncPaymentService->paymentStateService->finalizePayment(
+                $transaction,
+                $request,
+                $context
+            );
+        }
+
+        protected function getPaymentClass(): string
         {
-            if ($this->paymentClass === '' || !class_exists($this->paymentClass)) {
-                return null;
-            }
-
-            $paymentClass = new $this->paymentClass();
-
-            return $paymentClass instanceof \Buckaroo\Shopware6\PaymentMethods\AbstractPayment
-                ? $paymentClass->getBuckarooKey()
-                : null;
+            return $this->paymentClass;
         }
 
         /**
@@ -561,11 +564,13 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             return $this->asyncPaymentService->settingsService->getSetting($key, $salesChannelId);
         }
 
-        /** @return array<mixed> */
+        /**
+         * @return array<mixed>
+         */
         protected function getOrderLinesArray(
             \Shopware\Core\Checkout\Order\OrderEntity $order,
             string $paymentCode,
-            ?\Shopware\Core\Framework\Context $context = null
+            ?Context $context = null
         ): array {
             return $this->asyncPaymentService->formatRequestParamService->getOrderLinesArray(
                 $order,
@@ -589,14 +594,15 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             \Buckaroo\Shopware6\Buckaroo\ClientResponseInterface $response,
             $orderTransaction,
             \Shopware\Core\Checkout\Order\OrderEntity $order,
-            \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
-            \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
+            RequestDataBag $dataBag,
+            SalesChannelContext $salesChannelContext,
             string $paymentCode
         ): RedirectResponse {
             // Minimal default: redirect if response has redirect, otherwise finish
             if ($response->hasRedirect()) {
                 return new RedirectResponse($response->getRedirectUrl());
             }
+
             return new RedirectResponse('/checkout/finish');
         }
 
@@ -610,23 +616,43 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             \Buckaroo\Shopware6\Buckaroo\ClientResponseInterface $response,
             $orderTransaction,
             \Shopware\Core\Checkout\Order\OrderEntity $order,
-            \Shopware\Core\Framework\Validation\DataBag\RequestDataBag $dataBag,
-            \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext,
+            RequestDataBag $dataBag,
+            SalesChannelContext $salesChannelContext,
             string $paymentCode
         ): void {
             // Default implementation - do nothing
         }
 
-        public function finalize(
-            Request $request,
-            PaymentTransactionStruct $transaction,
-            Context $context
+        /**
+         * Hook for specific payment handlers to configure the client before execution.
+         * Override this method in child classes to customize client configuration.
+         *
+         * @param Client $client
+         * @param SalesChannelContext $salesChannelContext
+         */
+        protected function configureClient(
+            $client,
+            string $paymentCode,
+            $salesChannelContext
         ): void {
-            $this->asyncPaymentService->paymentStateService->finalizePayment(
-                $transaction,
-                $request,
-                $context
-            );
+            // Default implementation - do nothing
+            // Child classes can override this to configure the client
+        }
+
+        /**
+         * Buckaroo key of the payment class this handler pays with.
+         */
+        private function getBuckarooKey(): ?string
+        {
+            if ($this->paymentClass === '' || !class_exists($this->paymentClass)) {
+                return null;
+            }
+
+            $paymentClass = new $this->paymentClass();
+
+            return $paymentClass instanceof \Buckaroo\Shopware6\PaymentMethods\AbstractPayment
+                ? $paymentClass->getBuckarooKey()
+                : null;
         }
 
         /**
@@ -656,6 +682,7 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             if (empty($contextToken) || !is_string($contextToken)) {
                 return '';
             }
+
             return $contextToken;
         }
 
@@ -668,24 +695,6 @@ if (interface_exists('\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\Asynch
             $returnUrl = $transaction->getReturnUrl();
 
             return $returnUrl ? new RedirectResponse($returnUrl) : null;
-        }
-
-        /**
-         * Hook for specific payment handlers to configure the client before execution.
-         * Override this method in child classes to customize client configuration.
-         *
-         * @param \Buckaroo\Shopware6\Buckaroo\Client $client
-         * @param string $paymentCode
-         * @param \Shopware\Core\System\SalesChannel\SalesChannelContext $salesChannelContext
-         * @return void
-         */
-        protected function configureClient(
-            $client,
-            string $paymentCode,
-            $salesChannelContext
-        ): void {
-            // Default implementation - do nothing
-            // Child classes can override this to configure the client
         }
     }
 }

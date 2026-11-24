@@ -22,8 +22,6 @@ class Client
 
     /**
      * Additional services
-     *
-     * @var array
      */
     protected array $services = [];
 
@@ -58,13 +56,13 @@ class Client
     public function setServiceVersion(int $serviceVersion): self
     {
         $this->version = $serviceVersion;
+
         return $this;
     }
 
     /**
      * Execute buckaroo request
      *
-     * @return ClientResponseInterface
      * @throws \Exception
      */
     public function execute(): ClientResponseInterface
@@ -80,6 +78,7 @@ class Client
         ) {
             $request->setServiceVersion($this->version);
         }
+
         return new ClientResponse(
             $request->{$this->action}($this->payload)
         );
@@ -87,12 +86,13 @@ class Client
 
     /**
      * Add additional services to the request
+     *
      * @param mixed $service
-     * @return self
      */
     public function addService($service): self
     {
         $this->services[] = $service;
+
         return $this;
     }
 
@@ -106,9 +106,7 @@ class Client
 
     /**
      * Build a service object
-     * @param string $action
-     * @param array $payload
-     * @param string|null $method
+     *
      * @return mixed
      */
     public function build(string $action, array $payload, ?string $method = null)
@@ -122,19 +120,16 @@ class Client
 
     /**
      * Set payment code
-     *
-     * @param string $paymentCode
-     * @return self
      */
     public function setPaymentCode(string $paymentCode): self
     {
         $this->paymentCode = $paymentCode;
+
         return $this;
     }
 
     /**
      * Get main payload
-     * @return array
      */
     public function getPayload(): array
     {
@@ -143,22 +138,23 @@ class Client
 
     /**
      * Set main payload
+     *
      * @param array<mixed> $payload
-     * @return self
      */
     public function setPayload(array $payload): self
     {
         $this->payload = $payload;
+
         return $this;
     }
 
     /**
      * Set main action
-     * @return self
      */
     public function setAction(string $action): self
     {
         $this->action = $action;
+
         return $this;
     }
 
@@ -172,8 +168,6 @@ class Client
 
     /**
      * Get ideal issuers
-     *
-     * @return array
      */
     public function getIdealIssuers(): array
     {

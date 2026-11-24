@@ -6,8 +6,8 @@ namespace Buckaroo\Shopware6\Entity\IdealQrOrder;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * Reverse side of IdealQrOrderDefinition::orderTransaction, required by the DAL for
@@ -38,8 +38,6 @@ class OrderTransactionIdealQrOrderExtension extends EntityExtension
 
     /**
      * Abstract on Shopware 6.5, replaced by getEntityName() in later versions.
-     *
-     * @return string
      */
     public function getDefinitionClass(): string
     {

@@ -4,27 +4,22 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\KlarnaKp;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class KlarnaKpPaymentHandler extends PaymentHandlerSimple
 {
-    public string $paymentClass = KlarnaKp::class;
     public const ARTICLE_TYPE_GENERAL = 'General';
     public const ARTICLE_TYPE_HANDLING_FEE = 'HandlingFee';
     public const ARTICLE_TYPE_SHIPMENT_FEE = 'ShipmentFee';
 
+    public string $paymentClass = KlarnaKp::class;
 
-     /**
+    /**
      * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
@@ -36,7 +31,7 @@ class KlarnaKpPaymentHandler extends PaymentHandlerSimple
     ): array {
         return array_merge_recursive(
             [
-                'operatingCountry'  => $this->asyncPaymentService->getCountry(
+                'operatingCountry' => $this->asyncPaymentService->getCountry(
                     $this->asyncPaymentService->getBillingAddress($order)
                 )->getIso(),
             ],
@@ -48,12 +43,6 @@ class KlarnaKpPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get method action for specific payment method
-     *
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     *
-     * @return string
      */
     public function getMethodAction(
         RequestDataBag $dataBag,
@@ -66,9 +55,6 @@ class KlarnaKpPaymentHandler extends PaymentHandlerSimple
     /**
      * Get billing data
      *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     *
      * @return array<mixed>
      */
     protected function getBillingData(
@@ -78,7 +64,7 @@ class KlarnaKpPaymentHandler extends PaymentHandlerSimple
         $address = $this->asyncPaymentService->getBillingAddress($order);
         $customer = $this->asyncPaymentService->getCustomer($order);
 
-        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
+        $streetParts = $this->formatRequestParamService->formatStreet($address->getStreet());
 
         $houseAdditionalNumber = $this->formatRequestParamService
             ->getAdditionalHouseNumber(
@@ -89,29 +75,27 @@ class KlarnaKpPaymentHandler extends PaymentHandlerSimple
         return [
             'billing' => [
                 'recipient' => [
-                    'firstName'             =>  $address->getFirstName(),
-                    'lastName'              =>  $address->getLastName(),
+                    'firstName' => $address->getFirstName(),
+                    'lastName' => $address->getLastName(),
                 ],
                 'address' => [
-                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
-                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'street' => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber' => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
                     'houseNumberAdditional' => $houseAdditionalNumber,
-                    'zipcode'               =>  $address->getZipcode(),
-                    'city'                  =>  $address->getCity(),
-                    'country'               =>   $this->asyncPaymentService->getCountry($address)->getIso()
+                    'zipcode' => $address->getZipcode(),
+                    'city' => $address->getCity(),
+                    'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
                 ],
                 'phone' => [
-                    'mobile'        => $this->getPhone($dataBag, $address),
+                    'mobile' => $this->getPhone($dataBag, $address),
                 ],
-                'email'         => $customer->getEmail()
-            ]
+                'email' => $customer->getEmail(),
+            ],
         ];
     }
 
     /**
      * Get shipping data
-     *
-     * @param OrderEntity $order
      *
      * @return array<mixed>
      */
@@ -120,7 +104,7 @@ class KlarnaKpPaymentHandler extends PaymentHandlerSimple
     ): array {
         $address = $this->asyncPaymentService->getShippingAddress($order);
 
-        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
+        $streetParts = $this->formatRequestParamService->formatStreet($address->getStreet());
 
         $houseAdditionalNumber = $this->formatRequestParamService
             ->getAdditionalHouseNumber(
@@ -131,18 +115,18 @@ class KlarnaKpPaymentHandler extends PaymentHandlerSimple
         return [
             'shipping' => [
                 'recipient' => [
-                    'firstName'             =>  $address->getFirstName(),
-                    'lastName'              =>  $address->getLastName(),
+                    'firstName' => $address->getFirstName(),
+                    'lastName' => $address->getLastName(),
                 ],
                 'address' => [
-                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
-                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'street' => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber' => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
                     'houseNumberAdditional' => $houseAdditionalNumber,
-                    'zipcode'               =>  $address->getZipcode(),
-                    'city'                  =>  $address->getCity(),
-                    'country'               =>  $this->asyncPaymentService->getCountry($address)->getIso()
+                    'zipcode' => $address->getZipcode(),
+                    'city' => $address->getCity(),
+                    'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
                 ],
-                'email'         => $this->asyncPaymentService->getCustomer($order)->getEmail()
+                'email' => $this->asyncPaymentService->getCustomer($order)->getEmail(),
             ],
         ];
     }
@@ -154,14 +138,12 @@ class KlarnaKpPaymentHandler extends PaymentHandlerSimple
         if (!is_scalar($phone)) {
             return '';
         }
-        return (string)$phone;
+
+        return (string) $phone;
     }
 
     /**
      * Get article data
-     *
-     * @param OrderEntity $order
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
@@ -175,23 +157,22 @@ class KlarnaKpPaymentHandler extends PaymentHandlerSimple
                 continue;
             }
             $articles[] = [
-                'identifier'        => $item['sku'],
-                'description'       => $item['name'],
-                'quantity'          => $item['quantity'],
-                'price'             => $item['unitPrice']['value'],
-                'vatPercentage'     => $item['vatRate'],
-                'type'              => $this->getArticleType($item)
+                'identifier' => $item['sku'],
+                'description' => $item['name'],
+                'quantity' => $item['quantity'],
+                'price' => $item['unitPrice']['value'],
+                'vatPercentage' => $item['vatRate'],
+                'type' => $this->getArticleType($item),
             ];
         }
+
         return [
-            'articles' => $articles
+            'articles' => $articles,
         ];
     }
 
     /**
      * @param array<mixed> $article
-     *
-     * @return string
      */
     private function getArticleType(array $article): string
     {

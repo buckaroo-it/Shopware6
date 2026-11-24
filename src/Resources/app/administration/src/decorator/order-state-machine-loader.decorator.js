@@ -32,46 +32,51 @@ function getOrderDetailStore() {
     }
 }
 
-Application.addServiceProviderDecorator('orderStateMachineService', (orderStateMachineService) => {
-    TRANSITION_METHODS.forEach((methodName) => {
-        const original = orderStateMachineService[methodName];
+Application.addServiceProviderDecorator(
+    'orderStateMachineService',
+    (orderStateMachineService) => {
+        TRANSITION_METHODS.forEach((methodName) => {
+            const original = orderStateMachineService[methodName];
 
-        if (typeof original !== 'function') {
-            return;
-        }
-
-        orderStateMachineService[methodName] = function decoratedTransition(...args) {
-            const store = getOrderDetailStore();
-
-            if (store) {
-                store.setLoading(['order', true]);
+            if (typeof original !== 'function') {
+                return;
             }
 
-            let result;
-            try {
-                result = original.apply(this, args);
-            } catch (error) {
+            orderStateMachineService[methodName] = function decoratedTransition(
+                ...args
+            ) {
+                const store = getOrderDetailStore();
+
+                if (store) {
+                    store.setLoading(['order', true]);
+                }
+
+                let result;
+                try {
+                    result = original.apply(this, args);
+                } catch (error) {
+                    if (store) {
+                        store.setLoading(['order', false]);
+                    }
+                    throw error;
+                }
+
+                if (store && result && typeof result.finally === 'function') {
+                    // `finally` passes the value/rejection through unchanged, so the
+                    // calling component's own then/catch handling keeps working.
+                    return result.finally(() => {
+                        store.setLoading(['order', false]);
+                    });
+                }
+
                 if (store) {
                     store.setLoading(['order', false]);
                 }
-                throw error;
-            }
 
-            if (store && result && typeof result.finally === 'function') {
-                // `finally` passes the value/rejection through unchanged, so the
-                // calling component's own then/catch handling keeps working.
-                return result.finally(() => {
-                    store.setLoading(['order', false]);
-                });
-            }
+                return result;
+            };
+        });
 
-            if (store) {
-                store.setLoading(['order', false]);
-            }
-
-            return result;
-        };
-    });
-
-    return orderStateMachineService;
-});
+        return orderStateMachineService;
+    }
+);

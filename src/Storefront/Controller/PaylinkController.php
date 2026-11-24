@@ -4,22 +4,19 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Service\OrderService;
-use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\PayLinkService;
+use Buckaroo\Shopware6\Service\SignatureValidationService;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Buckaroo\Shopware6\Service\SignatureValidationService;
-use Shopware\Core\Checkout\Order\OrderEntity;
 
-/**
- */
 class PaylinkController extends StorefrontController
 {
     protected PayLinkService $payLinkService;
@@ -42,21 +39,14 @@ class PaylinkController extends StorefrontController
         $this->signatureValidationService = $signatureValidationService;
     }
 
-    /**
-     * @param Request $request
-     * @param Context $context
-     *
-     * @return JsonResponse
-     */
-    #[Route(path: "/api/_action/buckaroo/paylink", defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['order.editor']], name: "api.action.buckaroo.paylink", methods: ["POST"])]
+    #[Route(path: '/api/_action/buckaroo/paylink', defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['order.editor']], name: 'api.action.buckaroo.paylink', methods: ['POST'])]
     public function paylinkBuckaroo(Request $request, Context $context): JsonResponse
     {
-
         $orderId = $request->get('transaction');
 
         if (empty($orderId) || !is_string($orderId)) {
             return new JsonResponse(
-                ['status' => false, 'message' => $this->trans("buckaroo-payment.missing_order_id")],
+                ['status' => false, 'message' => $this->trans('buckaroo-payment.missing_order_id')],
                 Response::HTTP_NOT_FOUND
             );
         }
@@ -72,30 +62,30 @@ class PaylinkController extends StorefrontController
                     'transactions.paymentMethod',
                     'transactions.paymentMethod.plugin',
                     'salesChannel',
-                    'currency'
+                    'currency',
                 ],
                 $context
             );
 
-        if (null === $order) {
+        if ($order === null) {
             return new JsonResponse(
-                ['status' => false, 'message' => $this->trans("buckaroo-payment.missing_transaction")],
+                ['status' => false, 'message' => $this->trans('buckaroo-payment.missing_transaction')],
                 Response::HTTP_NOT_FOUND
             );
         }
-
 
         try {
             return new JsonResponse(
                 $this->payLinkService->create($request, $order, $context)
             );
         } catch (\Throwable $exception) {
-            $this->logger->debug((string)$exception);
+            $this->logger->debug((string) $exception);
+
             return new JsonResponse(
                 [
-                    'status'  => false,
-                    'message' => $this->trans("buckaroo-payment.general_request_error"),
-                    'code'    => 0,
+                    'status' => false,
+                    'message' => $this->trans('buckaroo-payment.general_request_error'),
+                    'code' => 0,
                 ],
                 Response::HTTP_BAD_REQUEST
             );
@@ -111,17 +101,13 @@ class PaylinkController extends StorefrontController
      * shown for a return Buckaroo signed for that very order. Without that, anyone who
      * knew an order id could read the deep link code, or show a shop-branded "payment
      * received" page for an unpaid order.
-     *
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     * @return Response
      */
     #[Route(
-        path: "/buckaroo/payperemail/return",
+        path: '/buckaroo/payperemail/return',
         defaults: ['_routeScope' => ['storefront']],
-        name: "buckaroo.payperemail.return",
-        options: ["seo" => false],
-        methods: ["GET", "POST"]
+        name: 'buckaroo.payperemail.return',
+        options: ['seo' => false],
+        methods: ['GET', 'POST']
     )]
     public function payPerEmailReturn(Request $request, SalesChannelContext $salesChannelContext): Response
     {
@@ -136,6 +122,7 @@ class PaylinkController extends StorefrontController
 
         if (empty($orderId) || !is_string($orderId)) {
             $this->logger->error('PayPerEmail return: Missing orderId');
+
             return $this->redirectToRoute('frontend.home.page');
         }
 
@@ -143,6 +130,7 @@ class PaylinkController extends StorefrontController
 
         if (!$this->signatureValidationService->validateReturnSignature($request, $salesChannelId)) {
             $this->logger->warning('PayPerEmail return: No valid Buckaroo signature', ['orderId' => $orderId]);
+
             return $this->redirectToRoute('frontend.home.page');
         }
 
@@ -155,6 +143,7 @@ class PaylinkController extends StorefrontController
 
         if ($order === null) {
             $this->logger->error('PayPerEmail return: Order not found', ['orderId' => $orderId]);
+
             return $this->redirectToRoute('frontend.home.page');
         }
 
@@ -162,6 +151,7 @@ class PaylinkController extends StorefrontController
             $this->logger->warning('PayPerEmail return: Order belongs to another sales channel', [
                 'orderId' => $orderId,
             ]);
+
             return $this->redirectToRoute('frontend.home.page');
         }
 
@@ -171,6 +161,7 @@ class PaylinkController extends StorefrontController
             $this->logger->warning('PayPerEmail return: Signed return is for another order', [
                 'orderId' => $orderId,
             ]);
+
             return $this->redirectToRoute('frontend.home.page');
         }
 
@@ -180,7 +171,7 @@ class PaylinkController extends StorefrontController
 
         if ($cancel === '1' || $statusCode === '890') {
             $this->logger->info('PayPerEmail return: Payment cancelled', ['orderId' => $orderId]);
-            
+
             // Show cancellation message
             return $this->renderStorefront('@BuckarooPayments/storefront/buckaroo/payperemail-cancelled.html.twig', [
                 'order' => $order,
@@ -191,7 +182,7 @@ class PaylinkController extends StorefrontController
         // Show success confirmation page
         // The actual payment status update happens via push notification
         $this->logger->info('PayPerEmail return: Showing confirmation', ['orderId' => $orderId]);
-        
+
         return $this->renderStorefront('@BuckarooPayments/storefront/buckaroo/payperemail-confirmation.html.twig', [
             'order' => $order,
             'orderNumber' => $order->getOrderNumber(),
@@ -215,7 +206,7 @@ class PaylinkController extends StorefrontController
             }
         }
 
-        $orderNumber = (string)$order->getOrderNumber();
+        $orderNumber = (string) $order->getOrderNumber();
         $signedOrderNumber = $this->getSignedValue($signedData, 'brq_invoicenumber');
 
         return $orderNumber !== '' && $signedOrderNumber === $orderNumber;
@@ -230,7 +221,7 @@ class PaylinkController extends StorefrontController
     private function getSignedValue(array $signedData, string $field): string
     {
         foreach ($signedData as $key => $value) {
-            if (strcasecmp((string)$key, $field) === 0) {
+            if (strcasecmp((string) $key, $field) === 0) {
                 return is_string($value) ? trim($value) : '';
             }
         }

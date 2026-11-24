@@ -21,7 +21,7 @@ trait ValidateOrderTrait
         if ($firstDelivery !== null) {
             $shippingAddress = $firstDelivery->getShippingOrderAddress();
         }
-        
+
         if ($shippingAddress === null) {
             $shippingAddress = $order->getBillingAddress();
         }

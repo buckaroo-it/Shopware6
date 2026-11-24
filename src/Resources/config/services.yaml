@@ -1,4 +1,3 @@
-
 # Converted from services.xml (Symfony XML service configuration is deprecated).
 # Equivalence with the previous services.xml is machine-checked: every definition's
 # class, arguments, calls, tags, decoration and public/shared flags match.
@@ -23,59 +22,191 @@ services:
     Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository:
         arguments: ['@buckaroo_transaction.repository']
     Buckaroo\Shopware6\Service\RiveryProductImageUrlService:
-        arguments: ['@product.repository', '@media_thumbnail.repository', '@?Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface']
+        arguments:
+            [
+                '@product.repository',
+                '@media_thumbnail.repository',
+                '@?Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface',
+            ]
     Buckaroo\Shopware6\Handlers\AfterPayOld:
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Service\FormatRequestParamService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Buckaroo\Shopware6\Service\FormatRequestParamService',
+            ]
     Buckaroo\Shopware6\Helpers\Logger:
         class: Monolog\Logger
         arguments: [buckaroo_payment]
         calls:
-            - [pushHandler, [!service { class: Monolog\Handler\StreamHandler, arguments: ['%kernel.logs_dir%/buckaroo_payment.log', !php/const Monolog\Logger::DEBUG] }]]
+            - [
+                  pushHandler,
+                  [
+                      !service {
+                          class: Monolog\Handler\StreamHandler,
+                          arguments:
+                              [
+                                  '%kernel.logs_dir%/buckaroo_payment.log',
+                                  !php/const Monolog\Logger::DEBUG,
+                              ],
+                      },
+                  ],
+              ]
 
     Buckaroo\Shopware6\Service\TransactionService:
         arguments: ['@order_transaction.repository']
     Buckaroo\Shopware6\Service\IdealIssuerService:
-        arguments: ['@cache.object', '@Buckaroo\Shopware6\Service\Buckaroo\ClientService']
+        arguments:
+            [
+                '@cache.object',
+                '@Buckaroo\Shopware6\Service\Buckaroo\ClientService',
+            ]
     Buckaroo\Shopware6\Service\In3LogoService:
         arguments: ['@payment_method.repository']
     Buckaroo\Shopware6\Service\UrlService:
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Symfony\Component\Routing\Generator\UrlGeneratorInterface', '@Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2', '@sales_channel.repository', '%env(APP_URL)%']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Symfony\Component\Routing\Generator\UrlGeneratorInterface',
+                '@Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2',
+                '@sales_channel.repository',
+                '%env(APP_URL)%',
+            ]
     Buckaroo\Shopware6\Service\StateTransitionService:
-        arguments: ['@Buckaroo\Shopware6\Service\TransactionService', '@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler', '@state_machine_state.repository', '@Shopware\Core\System\StateMachine\StateMachineRegistry', '@Buckaroo\Shopware6\Helpers\Logger']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\TransactionService',
+                '@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler',
+                '@state_machine_state.repository',
+                '@Shopware\Core\System\StateMachine\StateMachineRegistry',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+            ]
     Buckaroo\Shopware6\Service\RefundService:
-        arguments: ['@Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository', '@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Service\TransactionService', '@Buckaroo\Shopware6\Service\UrlService', '@Buckaroo\Shopware6\Service\StateTransitionService', '@translator', '@Buckaroo\Shopware6\Service\Buckaroo\ClientService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository',
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Buckaroo\Shopware6\Service\TransactionService',
+                '@Buckaroo\Shopware6\Service\UrlService',
+                '@Buckaroo\Shopware6\Service\StateTransitionService',
+                '@translator',
+                '@Buckaroo\Shopware6\Service\Buckaroo\ClientService',
+            ]
     Buckaroo\Shopware6\Service\CancelPaymentService:
-        arguments: ['@Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository', '@Buckaroo\Shopware6\Service\UrlService', '@Buckaroo\Shopware6\Service\Buckaroo\ClientService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository',
+                '@Buckaroo\Shopware6\Service\UrlService',
+                '@Buckaroo\Shopware6\Service\Buckaroo\ClientService',
+            ]
     Buckaroo\Shopware6\Service\CaptureService:
-        arguments: ['@Buckaroo\Shopware6\Service\TransactionService', '@Buckaroo\Shopware6\Service\UrlService', '@Buckaroo\Shopware6\Service\InvoiceService', '@Buckaroo\Shopware6\Service\FormatRequestParamService', '@translator', '@Buckaroo\Shopware6\Service\Buckaroo\ClientService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\TransactionService',
+                '@Buckaroo\Shopware6\Service\UrlService',
+                '@Buckaroo\Shopware6\Service\InvoiceService',
+                '@Buckaroo\Shopware6\Service\FormatRequestParamService',
+                '@translator',
+                '@Buckaroo\Shopware6\Service\Buckaroo\ClientService',
+            ]
     Buckaroo\Shopware6\Service\KlarnaMorService:
-        arguments: ['@Buckaroo\Shopware6\Service\TransactionService', '@Buckaroo\Shopware6\Service\UrlService', '@Buckaroo\Shopware6\Service\Buckaroo\ClientService', '@translator']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\TransactionService',
+                '@Buckaroo\Shopware6\Service\UrlService',
+                '@Buckaroo\Shopware6\Service\Buckaroo\ClientService',
+                '@translator',
+            ]
     Buckaroo\Shopware6\Service\PayLinkService:
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Service\TransactionService', '@Buckaroo\Shopware6\Service\UrlService', '@translator', '@Buckaroo\Shopware6\Service\Buckaroo\ClientService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Buckaroo\Shopware6\Service\TransactionService',
+                '@Buckaroo\Shopware6\Service\UrlService',
+                '@translator',
+                '@Buckaroo\Shopware6\Service\Buckaroo\ClientService',
+            ]
     Buckaroo\Shopware6\Service\InvoiceService:
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Shopware\Core\Checkout\Document\Service\DocumentGenerator', '@document.repository', '@Shopware\Core\Content\Mail\Service\MailService', '@mail_template.repository']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Shopware\Core\Checkout\Document\Service\DocumentGenerator',
+                '@document.repository',
+                '@Shopware\Core\Content\Mail\Service\MailService',
+                '@mail_template.repository',
+            ]
     Buckaroo\Shopware6\Service\BuckarooTransactionService:
-        arguments: ['@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Service\FormatRequestParamService', '@Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\OrderService',
+                '@Buckaroo\Shopware6\Service\FormatRequestParamService',
+                '@Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository',
+            ]
     Buckaroo\Shopware6\Service\FormatRequestParamService:
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Service\RiveryProductImageUrlService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Buckaroo\Shopware6\Service\RiveryProductImageUrlService',
+            ]
     Buckaroo\Shopware6\Service\SignatureValidationService:
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Helpers\Logger']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+            ]
     Buckaroo\Shopware6\Service\ProcessedPushService:
         arguments: ['@Doctrine\DBAL\Connection']
     Buckaroo\Shopware6\Service\PayPalExpressCredentialsService:
         arguments: ['@Buckaroo\Shopware6\Service\SettingsService']
     Buckaroo\Shopware6\Service\TestCredentialsService:
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Service\UrlService', '@Buckaroo\Shopware6\Service\Buckaroo\ClientService', '@translator']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Buckaroo\Shopware6\Service\UrlService',
+                '@Buckaroo\Shopware6\Service\Buckaroo\ClientService',
+                '@translator',
+            ]
     Buckaroo\Shopware6\Service\Buckaroo\ClientService:
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '%kernel.shopware_version%']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '%kernel.shopware_version%',
+            ]
     Buckaroo\Shopware6\Helpers\CheckoutHelper:
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@order.repository', '@Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository', '@request_stack']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@order.repository',
+                '@Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository',
+                '@request_stack',
+            ]
     Buckaroo\Shopware6\Service\AsyncPaymentService:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Service\UrlService', '@Buckaroo\Shopware6\Service\StateTransitionService', '@Buckaroo\Shopware6\Service\Buckaroo\ClientService', '@Buckaroo\Shopware6\Helpers\CheckoutHelper', '@Buckaroo\Shopware6\Service\TransactionService', '@Psr\Log\LoggerInterface', '@Buckaroo\Shopware6\Service\FormatRequestParamService', '@Buckaroo\Shopware6\Service\PaymentStateService', '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface', '@Buckaroo\Shopware6\Service\CancelPaymentService', '@order_transaction.repository', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextService', '@Buckaroo\Shopware6\Service\PaymentServiceDecorator']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Buckaroo\Shopware6\Service\UrlService',
+                '@Buckaroo\Shopware6\Service\StateTransitionService',
+                '@Buckaroo\Shopware6\Service\Buckaroo\ClientService',
+                '@Buckaroo\Shopware6\Helpers\CheckoutHelper',
+                '@Buckaroo\Shopware6\Service\TransactionService',
+                '@Psr\Log\LoggerInterface',
+                '@Buckaroo\Shopware6\Service\FormatRequestParamService',
+                '@Buckaroo\Shopware6\Service\PaymentStateService',
+                '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface',
+                '@Buckaroo\Shopware6\Service\CancelPaymentService',
+                '@order_transaction.repository',
+                '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextService',
+                '@Buckaroo\Shopware6\Service\PaymentServiceDecorator',
+            ]
         calls:
-            - [setLanguageResolver, ['@Buckaroo\Shopware6\Service\BuckarooLanguageResolver']]
-            - [setPaymentMethodRuleService, ['@Buckaroo\Shopware6\Service\PaymentMethodRuleService']]
+            - [
+                  setLanguageResolver,
+                  ['@Buckaroo\Shopware6\Service\BuckarooLanguageResolver'],
+              ]
+            - [
+                  setPaymentMethodRuleService,
+                  ['@Buckaroo\Shopware6\Service\PaymentMethodRuleService'],
+              ]
 
     # Notification Service Factory for version compatibility
     Buckaroo\Shopware6\Service\NotificationServiceFactory:
@@ -83,7 +214,12 @@ services:
     Buckaroo\Shopware6\Subscribers\PaymentTokenInvalidatedSubscriber:
         tags:
             - kernel.event_subscriber
-        arguments: ['@order_transaction.repository', '@Symfony\Component\Routing\Generator\UrlGeneratorInterface', '@Psr\Log\LoggerInterface']
+        arguments:
+            [
+                '@order_transaction.repository',
+                '@Symfony\Component\Routing\Generator\UrlGeneratorInterface',
+                '@Psr\Log\LoggerInterface',
+            ]
     Buckaroo\Shopware6\Subscribers\PaymentContextRestoreSubscriber:
         tags:
             - kernel.event_subscriber
@@ -93,21 +229,58 @@ services:
     Buckaroo\Shopware6\Events\OrderStateChangeEvent:
         tags:
             - kernel.event_subscriber
-        arguments: ['@Buckaroo\Shopware6\Service\TransactionService', '@Buckaroo\Shopware6\Service\InvoiceService', '@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Helpers\Logger', '@Buckaroo\Shopware6\Service\CaptureService', '@Buckaroo\Shopware6\Service\NotificationServiceFactory', '@Buckaroo\Shopware6\Service\KlarnaMorService', '@Buckaroo\Shopware6\Service\StateTransitionService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\TransactionService',
+                '@Buckaroo\Shopware6\Service\InvoiceService',
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Buckaroo\Shopware6\Service\OrderService',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+                '@Buckaroo\Shopware6\Service\CaptureService',
+                '@Buckaroo\Shopware6\Service\NotificationServiceFactory',
+                '@Buckaroo\Shopware6\Service\KlarnaMorService',
+                '@Buckaroo\Shopware6\Service\StateTransitionService',
+            ]
     Buckaroo\Shopware6\Subscribers\OrderDeliveryWrittenSubscriber:
         tags:
             - kernel.event_subscriber
-        arguments: ['@Buckaroo\Shopware6\Events\OrderStateChangeEvent', '@order_delivery.repository', '@state_machine_state.repository', '@Buckaroo\Shopware6\Helpers\Logger']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Events\OrderStateChangeEvent',
+                '@order_delivery.repository',
+                '@state_machine_state.repository',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+            ]
     Buckaroo\Shopware6\Service\SettingsService:
         arguments: ['@Shopware\Core\System\SystemConfig\SystemConfigService']
     Buckaroo\Shopware6\Service\BuckarooLanguageResolver:
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@request_stack', '@language.repository']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@request_stack',
+                '@language.repository',
+            ]
     Buckaroo\Shopware6\Service\PaymentServiceDecorator:
-        arguments: ['@Shopware\Core\Checkout\Cart\Order\OrderConverter', '@Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2', '@order.repository', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextService', '@request_stack']
+        arguments:
+            [
+                '@Shopware\Core\Checkout\Cart\Order\OrderConverter',
+                '@Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2',
+                '@order.repository',
+                '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextService',
+                '@request_stack',
+            ]
     Buckaroo\Shopware6\Service\PaymentStateService:
         class: Buckaroo\Shopware6\Service\PaymentStateService
         public: true
-        arguments: ['@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler', '@Shopware\Core\System\StateMachine\StateMachineRegistry', '@translator', '@Shopware\Core\Checkout\Customer\SalesChannel\AccountService', '@Psr\Log\LoggerInterface', '@Buckaroo\Shopware6\Service\SignatureValidationService']
+        arguments:
+            [
+                '@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler',
+                '@Shopware\Core\System\StateMachine\StateMachineRegistry',
+                '@translator',
+                '@Shopware\Core\Checkout\Customer\SalesChannel\AccountService',
+                '@Psr\Log\LoggerInterface',
+                '@Buckaroo\Shopware6\Service\SignatureValidationService',
+            ]
     Buckaroo\Shopware6\Handlers\PaymentHandler:
         tags:
             - shopware.payment.method
@@ -122,7 +295,11 @@ services:
         tags:
             - shopware.payment.method
             - shopware.payment.method.async
-        arguments: ['@Buckaroo\Shopware6\Service\AsyncPaymentService', '@Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\AsyncPaymentService',
+                '@Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository',
+            ]
     Buckaroo\Shopware6\Handlers\BancontactPaymentHandler:
         tags:
             - shopware.payment.method
@@ -137,7 +314,11 @@ services:
         tags:
             - shopware.payment.method
             - shopware.payment.method.async
-        arguments: ['@Buckaroo\Shopware6\Service\AsyncPaymentService', '@Buckaroo\Shopware6\Service\CustomerService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\AsyncPaymentService',
+                '@Buckaroo\Shopware6\Service\CustomerService',
+            ]
     Buckaroo\Shopware6\Handlers\CreditcardsPaymentHandler:
         tags:
             - shopware.payment.method
@@ -147,12 +328,20 @@ services:
         tags:
             - shopware.payment.method
             - shopware.payment.method.async
-        arguments: ['@Buckaroo\Shopware6\Service\AsyncPaymentService', '@Buckaroo\Shopware6\Handlers\AfterPayOld']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\AsyncPaymentService',
+                '@Buckaroo\Shopware6\Handlers\AfterPayOld',
+            ]
     Buckaroo\Shopware6\Handlers\PaypalPaymentHandler:
         tags:
             - shopware.payment.method
             - shopware.payment.method.async
-        arguments: ['@Buckaroo\Shopware6\Service\AsyncPaymentService', '@Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\AsyncPaymentService',
+                '@Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData',
+            ]
     Buckaroo\Shopware6\Handlers\TransferPaymentHandler:
         tags:
             - shopware.payment.method
@@ -267,12 +456,20 @@ services:
         tags:
             - shopware.payment.method
             - shopware.payment.method.async
-        arguments: ['@Buckaroo\Shopware6\Service\AsyncPaymentService', '@Buckaroo\Shopware6\Service\CustomerService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\AsyncPaymentService',
+                '@Buckaroo\Shopware6\Service\CustomerService',
+            ]
     Buckaroo\Shopware6\Handlers\PayPerEmailPaymentHandler:
         tags:
             - shopware.payment.method
             - shopware.payment.method.async
-        arguments: ['@Buckaroo\Shopware6\Service\AsyncPaymentService', '@Buckaroo\Shopware6\Service\PayLinkService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\AsyncPaymentService',
+                '@Buckaroo\Shopware6\Service\PayLinkService',
+            ]
     Buckaroo\Shopware6\Handlers\TwintPaymentHandler:
         tags:
             - shopware.payment.method
@@ -292,49 +489,111 @@ services:
 
     Buckaroo\Shopware6\Storefront\Controller\SupportController:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\TestCredentialsService', '@Buckaroo\Shopware6\Service\BuckarooTransactionService', '@tax.repository', '@Buckaroo\Shopware6\Service\In3LogoService', '%kernel.shopware_version%']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\TestCredentialsService',
+                '@Buckaroo\Shopware6\Service\BuckarooTransactionService',
+                '@tax.repository',
+                '@Buckaroo\Shopware6\Service\In3LogoService',
+                '%kernel.shopware_version%',
+            ]
         calls:
             - [setContainer, ['@service_container']]
 
     Buckaroo\Shopware6\Storefront\Controller\PushController:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\SignatureValidationService', '@Buckaroo\Shopware6\Service\TransactionService', '@Buckaroo\Shopware6\Service\StateTransitionService', '@Buckaroo\Shopware6\Service\InvoiceService', '@Buckaroo\Shopware6\Helpers\CheckoutHelper', '@Buckaroo\Shopware6\Helpers\Logger', '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface', '@Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Service\CustomerService', '@Buckaroo\Shopware6\Service\ProcessedPushService', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SignatureValidationService',
+                '@Buckaroo\Shopware6\Service\TransactionService',
+                '@Buckaroo\Shopware6\Service\StateTransitionService',
+                '@Buckaroo\Shopware6\Service\InvoiceService',
+                '@Buckaroo\Shopware6\Helpers\CheckoutHelper',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+                '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface',
+                '@Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository',
+                '@Buckaroo\Shopware6\Service\OrderService',
+                '@Buckaroo\Shopware6\Service\CustomerService',
+                '@Buckaroo\Shopware6\Service\ProcessedPushService',
+                '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextService',
+            ]
         calls:
             - [setContainer, ['@service_container']]
 
     Buckaroo\Shopware6\Storefront\Controller\RefundController:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\RefundService', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Helpers\Logger']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\RefundService',
+                '@Buckaroo\Shopware6\Service\OrderService',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+            ]
         calls:
             - [setContainer, ['@service_container']]
 
     Buckaroo\Shopware6\Storefront\Controller\CaptureController:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\CaptureService', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Helpers\Logger']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\CaptureService',
+                '@Buckaroo\Shopware6\Service\OrderService',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+            ]
         calls:
             - [setContainer, ['@service_container']]
 
     Buckaroo\Shopware6\Storefront\Controller\KlarnaMorController:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\KlarnaMorService', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Helpers\Logger']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\KlarnaMorService',
+                '@Buckaroo\Shopware6\Service\OrderService',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+            ]
         calls:
             - [setContainer, ['@service_container']]
 
     Buckaroo\Shopware6\Storefront\Controller\PaylinkController:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\PayLinkService', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Helpers\Logger', '@Buckaroo\Shopware6\Service\SignatureValidationService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\PayLinkService',
+                '@Buckaroo\Shopware6\Service\OrderService',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+                '@Buckaroo\Shopware6\Service\SignatureValidationService',
+            ]
         calls:
             - [setContainer, ['@service_container']]
 
     Buckaroo\Shopware6\Storefront\Controller\PaypalExpressController:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\CartService', '@Buckaroo\Shopware6\Service\CustomerService', '@Buckaroo\Shopware6\Service\OrderService', '@sales_channel.payment_method.repository', '@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Helpers\Logger']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\CartService',
+                '@Buckaroo\Shopware6\Service\CustomerService',
+                '@Buckaroo\Shopware6\Service\OrderService',
+                '@sales_channel.payment_method.repository',
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+            ]
         calls:
             - [setContainer, ['@service_container']]
 
     Buckaroo\Shopware6\Storefront\Controller\IdealFastCheckoutController:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\CartService', '@Buckaroo\Shopware6\Service\CustomerService', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Service\SettingsService', '@sales_channel.payment_method.repository', '@logger', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextService', '@Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute', '@salutation.repository']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\CartService',
+                '@Buckaroo\Shopware6\Service\CustomerService',
+                '@Buckaroo\Shopware6\Service\OrderService',
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@sales_channel.payment_method.repository',
+                '@logger',
+                '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister',
+                '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextService',
+                '@Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute',
+                '@salutation.repository',
+            ]
         calls:
             - [setContainer, ['@service_container']]
 
@@ -345,42 +604,116 @@ services:
 
     Buckaroo\Shopware6\Storefront\Controller\ApplePayController:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\CartService', '@Buckaroo\Shopware6\Service\CustomerService', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Service\ContextService', '@Buckaroo\Shopware6\Helpers\Logger', '@Buckaroo\Shopware6\Service\SettingsService', '@Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute', '@shipping_method.repository', '@sales_channel.payment_method.repository']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\CartService',
+                '@Buckaroo\Shopware6\Service\CustomerService',
+                '@Buckaroo\Shopware6\Service\OrderService',
+                '@Buckaroo\Shopware6\Service\ContextService',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute',
+                '@shipping_method.repository',
+                '@sales_channel.payment_method.repository',
+            ]
         calls:
             - [setContainer, ['@service_container']]
 
     Buckaroo\Shopware6\Storefront\Controller\GooglePayController:
         public: true
-        arguments: ['@Buckaroo\Shopware6\Service\CartService', '@Buckaroo\Shopware6\Service\CustomerService', '@Buckaroo\Shopware6\Service\OrderService', '@Buckaroo\Shopware6\Service\ContextService', '@Buckaroo\Shopware6\Helpers\Logger', '@Buckaroo\Shopware6\Service\SettingsService', '@sales_channel.payment_method.repository', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\CartService',
+                '@Buckaroo\Shopware6\Service\CustomerService',
+                '@Buckaroo\Shopware6\Service\OrderService',
+                '@Buckaroo\Shopware6\Service\ContextService',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@sales_channel.payment_method.repository',
+                '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister',
+                '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextService',
+            ]
         calls:
             - [setContainer, ['@service_container']]
 
     Buckaroo\Shopware6\Service\ContextService:
         arguments: ['@country.repository']
     Buckaroo\Shopware6\Service\CartService:
-        arguments: ['@Shopware\Core\Checkout\Cart\CartCalculator', '@Shopware\Core\Checkout\Cart\CartPersister', '@Shopware\Core\Checkout\Cart\LineItemFactoryRegistry', '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface']
+        arguments:
+            [
+                '@Shopware\Core\Checkout\Cart\CartCalculator',
+                '@Shopware\Core\Checkout\Cart\CartPersister',
+                '@Shopware\Core\Checkout\Cart\LineItemFactoryRegistry',
+                '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface',
+            ]
     Buckaroo\Shopware6\Service\PayByBankService:
         arguments: ['@assets.packages']
     Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData:
-        arguments: ['@order_address.repository', '@order_customer.repository', '@customer.repository']
+        arguments:
+            [
+                '@order_address.repository',
+                '@order_customer.repository',
+                '@customer.repository',
+            ]
     Buckaroo\Shopware6\Service\CustomerService:
-        arguments: ['@Buckaroo\Shopware6\Service\CustomerAddressService', '@customer.repository', '@salutation.repository', '@order_customer.repository', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer', '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\CustomerAddressService',
+                '@customer.repository',
+                '@salutation.repository',
+                '@order_customer.repository',
+                '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer',
+                '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface',
+                '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister',
+            ]
     Buckaroo\Shopware6\Service\CustomerAddressService:
         arguments: ['@customer_address.repository', '@country.repository']
     # Payment Service Factory for version compatibility.
     # PaymentProcessor exists on 6.7+, PaymentService on 6.5-6.6; each is optional
     # ("@?") so the one missing on the running version is passed as null.
     Buckaroo\Shopware6\Service\PaymentServiceFactory:
-        arguments: ['@?Shopware\Core\Checkout\Payment\PaymentProcessor', '@?Shopware\Core\Checkout\Payment\PaymentService']
+        arguments:
+            [
+                '@?Shopware\Core\Checkout\Payment\PaymentProcessor',
+                '@?Shopware\Core\Checkout\Payment\PaymentService',
+            ]
     Buckaroo\Shopware6\Service\OrderService:
-        arguments: ['@Shopware\Core\Checkout\Cart\Order\OrderPersister', '@order.repository', '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface', '@Buckaroo\Shopware6\Service\PaymentServiceFactory', '@order_address.repository', '@Buckaroo\Shopware6\Helpers\Logger', '@Shopware\Core\Checkout\Cart\CartCalculator', '@Shopware\Core\Checkout\Cart\CartPersister', '@lock.factory']
+        arguments:
+            [
+                '@Shopware\Core\Checkout\Cart\Order\OrderPersister',
+                '@order.repository',
+                '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface',
+                '@Buckaroo\Shopware6\Service\PaymentServiceFactory',
+                '@order_address.repository',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+                '@Shopware\Core\Checkout\Cart\CartCalculator',
+                '@Shopware\Core\Checkout\Cart\CartPersister',
+                '@lock.factory',
+            ]
     Buckaroo\Shopware6\Subscribers\CheckoutConfirmTemplateSubscriber:
         tags:
             - kernel.event_subscriber
-        arguments: ['@sales_channel.payment_method.repository', '@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Service\UrlService', '@translator', '@Buckaroo\Shopware6\Service\PayByBankService', '@Buckaroo\Shopware6\Service\In3LogoService', '@Buckaroo\Shopware6\Service\IdealIssuerService', '@Buckaroo\Shopware6\Service\PayPalExpressCredentialsService', '@Buckaroo\Shopware6\Service\PaymentAmountLimitService', '@Buckaroo\Shopware6\Service\PaymentMethodRuleService']
+        arguments:
+            [
+                '@sales_channel.payment_method.repository',
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Buckaroo\Shopware6\Service\UrlService',
+                '@translator',
+                '@Buckaroo\Shopware6\Service\PayByBankService',
+                '@Buckaroo\Shopware6\Service\In3LogoService',
+                '@Buckaroo\Shopware6\Service\IdealIssuerService',
+                '@Buckaroo\Shopware6\Service\PayPalExpressCredentialsService',
+                '@Buckaroo\Shopware6\Service\PaymentAmountLimitService',
+                '@Buckaroo\Shopware6\Service\PaymentMethodRuleService',
+            ]
     Buckaroo\Shopware6\Storefront\Controller\BuckarooTokenController:
         public: true
-        arguments: ['@http_client', '@logger', '@Shopware\Core\System\SystemConfig\SystemConfigService']
+        arguments:
+            [
+                '@http_client',
+                '@logger',
+                '@Shopware\Core\System\SystemConfig\SystemConfigService',
+            ]
         calls:
             - [setContainer, ['@service_container']]
 
@@ -397,7 +730,11 @@ services:
         tags:
             - shopware.snippet.file
     Buckaroo\Shopware6\Service\PaymentAmountLimitService:
-        arguments: ['@Buckaroo\Shopware6\Service\SettingsService', '@Buckaroo\Shopware6\Helpers\Logger']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SettingsService',
+                '@Buckaroo\Shopware6\Helpers\Logger',
+            ]
     Buckaroo\Shopware6\Service\PaymentAmountLimitCartValidator:
         arguments: ['@Buckaroo\Shopware6\Service\PaymentAmountLimitService']
         tags:
@@ -405,30 +742,58 @@ services:
     Buckaroo\Shopware6\Service\PaymentMethodRuleService:
         arguments: ['@Buckaroo\Shopware6\Service\SettingsService']
     Buckaroo\Shopware6\Service\PaymentMethodRuleCartValidator:
-        arguments: ['@Buckaroo\Shopware6\Service\PaymentMethodRuleService', '@Buckaroo\Shopware6\Service\PaymentAmountLimitService']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\PaymentMethodRuleService',
+                '@Buckaroo\Shopware6\Service\PaymentAmountLimitService',
+            ]
         tags:
             - shopware.cart.validator
     # Outside Shopware's CachedPaymentMethodRoute (-1000, Shopware 6.5 / 6.6): the result depends on the cart
     Buckaroo\Shopware6\Service\PaymentMethodRouteDecorator:
-        arguments: ['@Buckaroo\Shopware6\Service\PaymentMethodRouteDecorator.inner', '@Buckaroo\Shopware6\Service\PaymentAmountLimitService', '@Shopware\Core\Checkout\Cart\SalesChannel\CartService', '@request_stack']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\PaymentMethodRouteDecorator.inner',
+                '@Buckaroo\Shopware6\Service\PaymentAmountLimitService',
+                '@Shopware\Core\Checkout\Cart\SalesChannel\CartService',
+                '@request_stack',
+            ]
         decorates: Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute
         decoration_priority: -1500
     Buckaroo\Shopware6\Service\SetPaymentOrderRouteDecorator:
-        arguments: ['@Buckaroo\Shopware6\Service\SetPaymentOrderRouteDecorator.inner', '@Buckaroo\Shopware6\Service\PaymentAmountLimitService', '@order.repository', '@payment_method.repository']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SetPaymentOrderRouteDecorator.inner',
+                '@Buckaroo\Shopware6\Service\PaymentAmountLimitService',
+                '@order.repository',
+                '@payment_method.repository',
+            ]
         decorates: Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute
     Buckaroo\Shopware6\Service\PaymentAmountLimitConfigValidator:
         arguments: ['@system_config.repository']
     Buckaroo\Shopware6\Subscribers\PaymentAmountLimitConfigSubscriber:
-        arguments: ['@Buckaroo\Shopware6\Service\PaymentAmountLimitConfigValidator']
+        arguments:
+            ['@Buckaroo\Shopware6\Service\PaymentAmountLimitConfigValidator']
         tags:
             - kernel.event_subscriber
     Buckaroo\Shopware6\Service\SalesChannelContextServiceDecorator:
-        arguments: ['@Buckaroo\Shopware6\Service\SalesChannelContextServiceDecorator.inner', '@request_stack']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Service\SalesChannelContextServiceDecorator.inner',
+                '@request_stack',
+            ]
         decorates: Shopware\Core\System\SalesChannel\Context\SalesChannelContextService
     Buckaroo\Shopware6\Storefront\Framework\Cookie\BuckarooCookieProvider:
-        arguments: ['@Buckaroo\Shopware6\Storefront\Framework\Cookie\BuckarooCookieProvider.inner']
+        arguments:
+            [
+                '@Buckaroo\Shopware6\Storefront\Framework\Cookie\BuckarooCookieProvider.inner',
+            ]
         decorates: Shopware\Storefront\Framework\Cookie\CookieProviderInterface
     Buckaroo\Shopware6\Storefront\Framework\Twig\BuckarooTwigExtension:
         tags:
             - twig.extension
-        arguments: ['@sales_channel.payment_method.repository', '@Buckaroo\Shopware6\Service\SettingsService']
+        arguments:
+            [
+                '@sales_channel.payment_method.repository',
+                '@Buckaroo\Shopware6\Service\SettingsService',
+            ]

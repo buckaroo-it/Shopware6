@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Events;
 
 use Shopware\Core\Framework\Context;
-use Symfony\Component\HttpFoundation\Request;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class PushProcessingEvent implements ShopwareSalesChannelEvent
 {
-
     protected SalesChannelContext $salesChannelContext;
 
     protected Request $request;
@@ -51,6 +50,7 @@ class PushProcessingEvent implements ShopwareSalesChannelEvent
     public function setCanContinue(bool $canContinue): self
     {
         $this->canContinue = $canContinue;
+
         return $this;
     }
 }

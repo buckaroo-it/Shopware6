@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Buckaroo;
 
-use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Psr\Http\Message\ResponseInterface;
 
@@ -17,86 +16,56 @@ class ClientResponse implements ClientResponseInterface
         $this->response = $response;
     }
 
-    /**
-     * @return bool
-     */
     public function isSuccess(): bool
     {
         return $this->response->isSuccess();
     }
 
-    /**
-     * @return bool
-     */
     public function isFailed(): bool
     {
         return $this->response->isFailed();
     }
 
-    /**
-     * @return bool
-     */
     public function isCanceled(): bool
     {
         return $this->response->isCanceled();
     }
 
-    /**
-     * @return bool
-     */
     public function isAwaitingConsumer(): bool
     {
         return $this->response->isAwaitingConsumer();
     }
 
-    /**
-     * @return bool
-     */
     public function isPendingProcessing(): bool
     {
         return $this->response->isPendingProcessing();
     }
 
-    /**
-     * @return bool
-     */
     public function isWaitingOnUserInput(): bool
     {
         return $this->response->isWaitingOnUserInput();
     }
 
-    /**
-     * @return bool
-     */
     public function isRejected(): bool
     {
         return $this->response->isRejected();
     }
 
-    /**
-     * @return bool
-     */
     public function isValidationFailure(): bool
     {
         return $this->response->isValidationFailure();
     }
 
-    /**
-     * @return boolean
-     */
     public function hasRedirect(): bool
     {
         $reqAction = $this->response->get('RequiredAction');
 
-        return is_array($reqAction) &&
-            !empty($reqAction['RedirectURL']) &&
-            !empty($reqAction['Name']) &&
-            $reqAction['Name'] == 'Redirect';
+        return is_array($reqAction)
+            && !empty($reqAction['RedirectURL'])
+            && !empty($reqAction['Name'])
+            && $reqAction['Name'] == 'Redirect';
     }
 
-    /**
-     * @return string
-     */
     public function getRedirectUrl(): string
     {
         $reqAction = $this->get('RequiredAction');
@@ -138,7 +107,6 @@ class ClientResponse implements ClientResponseInterface
     }
 
     /**
-     * @param string $key
      * @return mixed
      */
     public function get(string $key)
@@ -161,7 +129,6 @@ class ClientResponse implements ClientResponseInterface
     {
         return $this->response->getSomeError();
     }
-
 
     public function getTransactionKey(): string
     {

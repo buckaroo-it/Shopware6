@@ -24,7 +24,7 @@ Module.register('buckaroo-payment', {
                 component: 'buckaroo-payment-detail',
                 name: 'buckaroo.payment.detail',
                 isChildren: true,
-                path: '/sw/order/buckaroo/detail/:id'
+                path: '/sw/order/buckaroo/detail/:id',
             });
         }
         next(currentRoute);
@@ -36,13 +36,13 @@ Module.register('buckaroo-payment', {
             path: ':namespace/payment/:paymentCode',
             name: 'buckaroo.config.payment',
             meta: {
-                parentPath:'sw.extension.config'
+                parentPath: 'sw.extension.config',
             },
             props: {
                 default(route) {
                     return { namespace: route.params.namespace };
                 },
             },
-        }
-    }
+        },
+    },
 });

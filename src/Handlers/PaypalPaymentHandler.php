@@ -4,23 +4,21 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Buckaroo\Shopware6\PaymentMethods\Paypal;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Buckaroo\Shopware6\Service\AsyncPaymentService;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Buckaroo\Shopware6\PaymentMethods\Paypal;
+use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class PaypalPaymentHandler extends PaymentHandlerSimple
 {
     public string $paymentClass = Paypal::class;
 
     /**
-     * @var \Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData
+     * @var UpdateOrderWithPaypalExpressData
      */
     protected $orderUpdater;
 
@@ -37,11 +35,6 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
@@ -60,7 +53,7 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
         // returning to the finish page.
         $paypalOrderId = $dataBag->get('orderId');
         if ($this->isPaypalExpress($dataBag) && is_scalar($paypalOrderId)) {
-            $payload['payPalOrderId'] = (string)$paypalOrderId;
+            $payload['payPalOrderId'] = (string) $paypalOrderId;
         }
 
         if ($this->isSellerProtection($salesChannelContext)) {
@@ -72,12 +65,6 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get method action for specific payment method
-     *
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     *
-     * @return string
      */
     public function getMethodAction(
         RequestDataBag $dataBag,
@@ -90,9 +77,9 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
         if ($needsExtraInfo) {
             return 'extraInfo';
         }
+
         return 'pay';
     }
-
 
     /**
      * @param mixed $orderTransaction
@@ -138,10 +125,6 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get seller protection data
-     *
-     * @param OrderEntity $order
-     *
-     * @return array
      */
     private function getSellerProtectionData(OrderEntity $order): array
     {
@@ -151,23 +134,23 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
 
         $countryStateEntity = $address->getCountryState();
         if ($countryStateEntity !== null) {
-            $countryState =  $countryStateEntity->getName();
+            $countryState = $countryStateEntity->getName();
         }
 
         return [
             'customer' => [
-                'name' => $address->getFirstName() . " " . $address->getLastName(),
+                'name' => $address->getFirstName() . ' ' . $address->getLastName(),
             ],
             'address' => [
-                'street'  =>  $address->getStreet(),
-                'zipcode' =>  $address->getZipcode(),
-                'city'    =>  $address->getCity(),
-                'state'   =>  $countryState,
-                'country' =>  $this->asyncPaymentService->getCountry($address)->getIso()
+                'street' => $address->getStreet(),
+                'zipcode' => $address->getZipcode(),
+                'city' => $address->getCity(),
+                'state' => $countryState,
+                'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
             ],
             'phone' => [
-                'mobile' =>  (string)$address->getPhoneNumber(),
-            ]
+                'mobile' => (string) $address->getPhoneNumber(),
+            ],
         ];
     }
 
@@ -187,10 +170,6 @@ class PaypalPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Check if seller protection is enabled
-     *
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return bool
      */
     private function isSellerProtection(SalesChannelContext $salesChannelContext): bool
     {

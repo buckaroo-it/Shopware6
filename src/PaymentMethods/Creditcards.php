@@ -16,9 +16,6 @@ class Creditcards extends AbstractPayment
         return 'creditcards';
     }
 
-    /**
-     * @return string
-     */
     public function getVersion(): string
     {
         return '2';
@@ -26,8 +23,6 @@ class Creditcards extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -36,8 +31,6 @@ class Creditcards extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -46,24 +39,18 @@ class Creditcards extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
         return CreditcardsPaymentHandler::class;
     }
 
-
-
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/creditcards.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/creditcards.svg';
     }
 
     /**
@@ -75,11 +62,11 @@ class Creditcards extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Kartenzahlung',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
         ];
@@ -87,8 +74,6 @@ class Creditcards extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getType(): string
     {

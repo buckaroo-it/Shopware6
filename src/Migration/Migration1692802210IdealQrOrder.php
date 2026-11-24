@@ -2,9 +2,9 @@
 
 namespace Buckaroo\Shopware6\Migration;
 
+use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderDefinition;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderDefinition;
 
 class Migration1692802210IdealQrOrder extends MigrationStep
 {

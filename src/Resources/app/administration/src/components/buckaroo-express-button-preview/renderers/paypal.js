@@ -8,18 +8,20 @@ import createScriptLoader from './load-script';
 
 // Buckaroo's PayPal sandbox client id, as in the Buckaroo test SDK (testcheckout.buckaroo.nl):
 // PayPal's script does not load without one, and the sandbox keeps the preview off the live app
-const CLIENT_ID = 'Ab8jz-WnSLFLHjn-i_Bs0k_eWmRThzLHKpWnFwtwuPlQigUZsZWzgDF1AXQG3dHKPgW2YWKkGtJIjFty';
+const CLIENT_ID =
+    'Ab8jz-WnSLFLHjn-i_Bs0k_eWmRThzLHKpWnFwtwuPlQigUZsZWzgDF1AXQG3dHKPgW2YWKkGtJIjFty';
 
 const SDK_PARAMS = {
     'client-id': CLIENT_ID,
     currency: 'EUR',
-    'disable-funding': 'credit,card,bancontact,blik,eps,giropay,ideal,mercadopago,mybank,p24,sepa,sofort,venmo',
+    'disable-funding':
+        'credit,card,bancontact,blik,eps,giropay,ideal,mercadopago,mybank,p24,sepa,sofort,venmo',
     'enable-funding': 'paylater',
 };
 
 function sdkUrl() {
     const query = Object.keys(SDK_PARAMS)
-        .map(name => `${name}=${encodeURIComponent(SDK_PARAMS[name])}`)
+        .map((name) => `${name}=${encodeURIComponent(SDK_PARAMS[name])}`)
         .join('&');
 
     return `https://www.paypal.com/sdk/js?${query}`;
@@ -47,7 +49,7 @@ export default {
         'PayPal',
         sdkUrl,
         () => !!(window.paypal && typeof window.paypal.Buttons === 'function'),
-        'paypal.Buttons',
+        'paypal.Buttons'
     ),
 
     /**

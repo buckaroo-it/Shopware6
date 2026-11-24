@@ -4,25 +4,19 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\Billink;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class BillinkPaymentHandler extends PaymentHandlerSimple
 {
     public string $paymentClass = Billink::class;
 
-
     /**
      * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
@@ -33,6 +27,7 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
         string $paymentCode
     ): array {
         $billingAddress = $this->asyncPaymentService->getBillingAddress($order);
+
         return array_merge_recursive(
             $this->getVatNumber($order),
             $this->getCoc($billingAddress, $dataBag),
@@ -44,12 +39,6 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get method action for specific payment method
-     *
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     *
-     * @return string
      */
     public function getMethodAction(
         RequestDataBag $dataBag,
@@ -60,9 +49,6 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     *
      * @return array<mixed>
      */
     protected function getBillingData(
@@ -72,31 +58,31 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
         $address = $this->asyncPaymentService->getBillingAddress($order);
         $customer = $this->asyncPaymentService->getCustomer($order);
 
-        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
+        $streetParts = $this->formatRequestParamService->formatStreet($address->getStreet());
 
         $billing = [
             'recipient' => $this->filterEmpty([
-                'category'              =>  $this->getCategory($address),
-                'careOf'                =>  $this->getCareOf($address),
-                'initials'              =>  $this->getInitials($address->getFirstName()),
-                'firstName'             =>  $address->getFirstName(),
-                'lastName'              =>  $address->getLastName(),
-                'birthDate'             =>  $this->getBirthDate($dataBag, $customer),
-                'salutation'            =>  $this->getGender($dataBag, $customer)
+                'category' => $this->getCategory($address),
+                'careOf' => $this->getCareOf($address),
+                'initials' => $this->getInitials($address->getFirstName()),
+                'firstName' => $address->getFirstName(),
+                'lastName' => $address->getLastName(),
+                'birthDate' => $this->getBirthDate($dataBag, $customer),
+                'salutation' => $this->getGender($dataBag, $customer),
             ]),
             'address' => [
-                'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
-                'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                'street' => $this->formatRequestParamService->getStreet($address, $streetParts),
+                'houseNumber' => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
                 'houseNumberAdditional' => $this->formatRequestParamService
                     ->getAdditionalHouseNumber(
                         $address,
                         $streetParts
                     ),
-                'zipcode'               =>  $address->getZipcode(),
-                'city'                  =>  $address->getCity(),
-                'country'               =>  $this->asyncPaymentService->getCountry($address)->getIso()
+                'zipcode' => $address->getZipcode(),
+                'city' => $address->getCity(),
+                'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
             ],
-            'email'         => $customer->getEmail()
+            'email' => $customer->getEmail(),
         ];
 
         $phone = $this->getPhone($dataBag, $address, $customer);
@@ -107,14 +93,11 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
         }
 
         return [
-            'billing' => $billing
+            'billing' => $billing,
         ];
     }
 
     /**
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     *
      * @return array<mixed>
      */
     protected function getShippingData(
@@ -124,28 +107,29 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
         $address = $this->asyncPaymentService->getShippingAddress($order);
         $customer = $this->asyncPaymentService->getCustomer($order);
 
-        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
+        $streetParts = $this->formatRequestParamService->formatStreet($address->getStreet());
+
         return [
             'shipping' => [
                 'recipient' => $this->filterEmpty([
-                    'category'              =>  $this->getCategory($address),
-                    'careOf'                =>  $this->getCareOf($address),
-                    'initials'              =>  $this->getInitials($address->getFirstName()),
-                    'firstName'             =>  $address->getFirstName(),
-                    'lastName'              =>  $address->getLastName(),
-                    'birthDate'             =>  $this->getBirthDate($dataBag, $customer),
+                    'category' => $this->getCategory($address),
+                    'careOf' => $this->getCareOf($address),
+                    'initials' => $this->getInitials($address->getFirstName()),
+                    'firstName' => $address->getFirstName(),
+                    'lastName' => $address->getLastName(),
+                    'birthDate' => $this->getBirthDate($dataBag, $customer),
                 ]),
                 'address' => [
-                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
-                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'street' => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber' => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
                     'houseNumberAdditional' => $this->formatRequestParamService
                         ->getAdditionalHouseNumber(
                             $address,
                             $streetParts
                         ),
-                    'zipcode'               =>  $address->getZipcode(),
-                    'city'                  =>  $address->getCity(),
-                    'country'               =>  $this->asyncPaymentService->getCountry($address)->getIso()
+                    'zipcode' => $address->getZipcode(),
+                    'city' => $address->getCity(),
+                    'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
                 ],
             ],
         ];
@@ -155,8 +139,6 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
      * Get vat number from the customer's registered VAT IDs.
      * Falls back to the billing address VAT ID when the customer's vatIds are empty
      * (e.g. the field was left blank during company registration).
-     *
-     * @param OrderEntity $order
      *
      * @return array<mixed>
      */
@@ -187,9 +169,6 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
      * 1. Checkout form input buckaroo_billink_coc (always shown for B2B, user may edit)
      * 2. Billing address vatId (Shopware's only built-in field for CoC in NL)
      *
-     * @param OrderAddressEntity $billingAddress
-     * @param RequestDataBag $dataBag
-     *
      * @return array<mixed>
      */
     protected function getCoc(OrderAddressEntity $billingAddress, RequestDataBag $dataBag): array
@@ -205,11 +184,12 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
             return [
                 'billing' => [
                     'recipient' => [
-                        'chamberOfCommerce' => $coc
-                    ]
-                ]
+                        'chamberOfCommerce' => $coc,
+                    ],
+                ],
             ];
         }
+
         return [];
     }
 
@@ -221,12 +201,6 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
      * 1. Legacy dataBag value (kept for backwards compatibility, e.g. headless clients)
      * 2. Billing address phone number
      * 3. Customer / address custom fields
-     *
-     * @param RequestDataBag $dataBag
-     * @param OrderAddressEntity $address
-     * @param OrderCustomerEntity $customer
-     *
-     * @return null|string
      */
     private function getPhone(
         RequestDataBag $dataBag,
@@ -234,8 +208,8 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
         OrderCustomerEntity $customer
     ): ?string {
         $phone = $dataBag->get('buckaroo_billink_phone');
-        if (is_scalar($phone) && !empty(trim((string)$phone))) {
-            return trim((string)$phone);
+        if (is_scalar($phone) && !empty(trim((string) $phone))) {
+            return trim((string) $phone);
         }
 
         $addressPhone = $address->getPhoneNumber();
@@ -250,9 +224,6 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
     }
 
     /**
-     * @param OrderEntity $order
-     * @param string $paymentCode
-     *
      * @return array<mixed>
      */
     private function getArticles(OrderEntity $order, string $paymentCode): array
@@ -270,25 +241,26 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
 
             if (($item['sku'] ?? '') === 'BuckarooFee') {
                 $articles[] = [
-                    'identifier'    => 'ServiceCosts',
-                    'description'   => 'Service Costs',
-                    'quantity'      => 1,
-                    'price'         => $item['unitPrice']['value'],
+                    'identifier' => 'ServiceCosts',
+                    'description' => 'Service Costs',
+                    'quantity' => 1,
+                    'price' => $item['unitPrice']['value'],
                     'vatPercentage' => number_format($orderVatRate, 2, '.', ''),
                 ];
                 continue;
             }
 
             $articles[] = [
-                'identifier'    => $item['sku'],
-                'description'   => $item['name'],
-                'quantity'      => $item['quantity'],
-                'price'         => $item['unitPrice']['value'],
+                'identifier' => $item['sku'],
+                'description' => $item['name'],
+                'quantity' => $item['quantity'],
+                'price' => $item['unitPrice']['value'],
                 'vatPercentage' => $item['vatRate'],
             ];
         }
+
         return [
-            'articles' => $articles
+            'articles' => $articles,
         ];
     }
 
@@ -297,10 +269,7 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
      * Service Costs article, since the upstream BuckarooFee line's vatRate
      * is derived from the fee/order ratio rather than the order's tax rate.
      *
-     * @param OrderEntity $order
      * @param array<mixed> $lines
-     *
-     * @return float
      */
     private function resolveOrderVatRate(OrderEntity $order, array $lines): float
     {
@@ -313,7 +282,7 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
                 }
             }
             if ($dominant !== null && $dominant->getTaxRate() > 0) {
-                return (float)$dominant->getTaxRate();
+                return (float) $dominant->getTaxRate();
             }
         }
 
@@ -325,7 +294,7 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
             if ($sku === 'BuckarooFee' || $sku === 'Shipping' || $sku === 'vat') {
                 continue;
             }
-            $rate = isset($line['vatRate']) ? (float)$line['vatRate'] : 0.0;
+            $rate = isset($line['vatRate']) ? (float) $line['vatRate'] : 0.0;
             if ($rate > 0) {
                 return $rate;
             }
@@ -336,45 +305,32 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get careOf
-     *
-     * @param OrderAddressEntity $address
-     *
-     * @return string
      */
     private function getCareOf(OrderAddressEntity $address): string
     {
-        if ($address->getCompany() !== null &&
-            !empty(trim($address->getCompany()))
+        if ($address->getCompany() !== null
+            && !empty(trim($address->getCompany()))
         ) {
             return $address->getCompany();
         }
 
-        return $address->getFirstName() . " " . $address->getLastName();
+        return $address->getFirstName() . ' ' . $address->getLastName();
     }
 
     /**
      * Get type of request b2b or b2c
-     *
-     * @param OrderAddressEntity $address
-     *
-     * @return string
      */
     private function getCategory(OrderAddressEntity $address): string
     {
-        if ($address->getCompany() !== null &&
-            !empty(trim($address->getCompany()))
+        if ($address->getCompany() !== null
+            && !empty(trim($address->getCompany()))
         ) {
             return 'B2B';
         }
+
         return 'B2C';
     }
 
-    /**
-     *
-     * @param string $name
-     *
-     * @return string
-     */
     private function getInitials(string $name): string
     {
         return strtoupper(substr($name, 0, 1));
@@ -388,17 +344,12 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
      * 1. Legacy dataBag value (kept for backwards compatibility, e.g. headless clients)
      * 2. Customer profile birthday
      * 3. Customer custom fields
-     *
-     * @param RequestDataBag $dataBag
-     * @param OrderCustomerEntity $customer
-     *
-     * @return null|string
      */
     private function getBirthDate(RequestDataBag $dataBag, OrderCustomerEntity $customer): ?string
     {
         $dateString = $dataBag->get('buckaroo_billink_DoB');
         if (is_scalar($dateString)) {
-            $date = strtotime((string)$dateString);
+            $date = strtotime((string) $dateString);
             if ($date !== false) {
                 return @date('d-m-Y', $date);
             }
@@ -430,11 +381,6 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
      * Priority:
      * 1. Legacy dataBag value (kept for backwards compatibility, e.g. headless clients)
      * 2. Derived from the order customer's salutation key
-     *
-     * @param RequestDataBag $dataBag
-     * @param OrderCustomerEntity $customer
-     *
-     * @return null|string
      */
     private function getGender(RequestDataBag $dataBag, OrderCustomerEntity $customer): ?string
     {
@@ -460,8 +406,6 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
      * Get custom fields from the order customer and, when loaded,
      * the underlying customer profile.
      *
-     * @param OrderCustomerEntity $customer
-     *
      * @return array<mixed>
      */
     private function getCustomerCustomFields(OrderCustomerEntity $customer): array
@@ -482,8 +426,6 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
      *
      * @param array<mixed> $customFieldSets
      * @param array<string> $keys
-     *
-     * @return null|string
      */
     private function getCustomFieldValue(array $customFieldSets, array $keys): ?string
     {
@@ -493,11 +435,11 @@ class BillinkPaymentHandler extends PaymentHandlerSimple
             }
             foreach ($keys as $key) {
                 if (
-                    isset($customFields[$key]) &&
-                    is_scalar($customFields[$key]) &&
-                    !empty(trim((string)$customFields[$key]))
+                    isset($customFields[$key])
+                    && is_scalar($customFields[$key])
+                    && !empty(trim((string) $customFields[$key]))
                 ) {
-                    return trim((string)$customFields[$key]);
+                    return trim((string) $customFields[$key]);
                 }
             }
         }

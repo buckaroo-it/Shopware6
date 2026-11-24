@@ -1,110 +1,121 @@
 const { ApiService } = Shopware.Classes;
 
 class BuckarooPaymentService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'buckaroo')
-    {
+    constructor(httpClient, loginService, apiEndpoint = 'buckaroo') {
         super(httpClient, loginService, apiEndpoint);
     }
 
     getBasicHeaders() {
-        if (this.loginService && typeof this.loginService.getToken === 'function') {
+        if (
+            this.loginService &&
+            typeof this.loginService.getToken === 'function'
+        ) {
             return super.getBasicHeaders();
         }
         return {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            Accept: 'application/json',
         };
     }
 
-    getBuckarooTransaction(transaction)
-    {
+    getBuckarooTransaction(transaction) {
         const apiRoute = `_action/${this.getApiBasePath()}/getBuckarooTransaction`;
 
-        return this.httpClient.post(
-            apiRoute,
-            {
-                transaction: transaction
-            },
-            {
-                headers: this.getBasicHeaders()
-            }
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    transaction: transaction,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                }
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
-    refundPayment(transaction, transactionsToRefund, orderItems, customRefundAmount)
-    {
+    refundPayment(
+        transaction,
+        transactionsToRefund,
+        orderItems,
+        customRefundAmount
+    ) {
         const apiRoute = `_action/${this.getApiBasePath()}/refund`;
 
-        return this.httpClient.post(
-            apiRoute,
-            {
-                transaction: transaction,
-                transactionsToRefund: transactionsToRefund,
-                orderItems: orderItems,
-                customRefundAmount: customRefundAmount
-            },
-            {
-                headers: this.getBasicHeaders()
-            }
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    transaction: transaction,
+                    transactionsToRefund: transactionsToRefund,
+                    orderItems: orderItems,
+                    customRefundAmount: customRefundAmount,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                }
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
-    captureOrder(transaction)
-    {
+    captureOrder(transaction) {
         const apiRoute = `_action/${this.getApiBasePath()}/capture`;
 
-        return this.httpClient.post(
-            apiRoute,
-            {
-                transaction: transaction
-            },
-            {
-                headers: this.getBasicHeaders()
-            }
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    transaction: transaction,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                }
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
-    createPaylink(transaction)
-    {
+    createPaylink(transaction) {
         const apiRoute = `_action/${this.getApiBasePath()}/paylink`;
 
-        return this.httpClient.post(
-            apiRoute,
-            {
-                transaction: transaction
-            },
-            {
-                headers: this.getBasicHeaders()
-            }
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    transaction: transaction,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                }
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
-    klarnaMor(orderId, action)
-    {
+    klarnaMor(orderId, action) {
         const apiRoute = `_action/${this.getApiBasePath()}/klarna-mor`;
 
-        return this.httpClient.post(
-            apiRoute,
-            {
-                orderId: orderId,
-                action: action
-            },
-            {
-                headers: this.getBasicHeaders()
-            }
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    orderId: orderId,
+                    action: action,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                }
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
-
 }
 
 Shopware.Service().register('BuckarooPaymentService', () => {
@@ -113,4 +124,3 @@ Shopware.Service().register('BuckarooPaymentService', () => {
     const loginService = Shopware.Service('loginService');
     return new BuckarooPaymentService(initContainer.httpClient, loginService);
 });
-

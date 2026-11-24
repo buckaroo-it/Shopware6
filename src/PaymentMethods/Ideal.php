@@ -16,9 +16,6 @@ class Ideal extends AbstractPayment
         return 'ideal';
     }
 
-    /**
-     * @return string
-     */
     public function getVersion(): string
     {
         return '2';
@@ -26,17 +23,14 @@ class Ideal extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
         return 'iDEAL | Wero';
     }
+
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -45,8 +39,6 @@ class Ideal extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -55,12 +47,10 @@ class Ideal extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/ideal-wero.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/ideal-wero.svg';
     }
 
     /**
@@ -72,11 +62,11 @@ class Ideal extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit iDEAL | Wero',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
         ];
@@ -84,8 +74,6 @@ class Ideal extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getType(): string
     {

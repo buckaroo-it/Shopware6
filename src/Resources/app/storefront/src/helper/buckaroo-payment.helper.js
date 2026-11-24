@@ -1,23 +1,19 @@
 const Plugin = window.PluginBaseClass;
 
 export default class BuckarooPaymentHelper extends Plugin {
-    get buckarooInputs()
-    {
+    get buckarooInputs() {
         return ['buckaroo_capayablein3_OrderAs'];
     }
 
-    get buckarooMobileInputs()
-    {
-        return ['buckarooAfterpayPhone','buckarooIn3Phone'];
+    get buckarooMobileInputs() {
+        return ['buckarooAfterpayPhone', 'buckarooIn3Phone'];
     }
 
-    get buckarooDoBInputs()
-    {
-        return ['buckaroo_afterpay_DoB','buckaroo_capayablein3_DoB'];
+    get buckarooDoBInputs() {
+        return ['buckaroo_afterpay_DoB', 'buckaroo_capayablein3_DoB'];
     }
 
-    init()
-    {
+    init() {
         try {
             this._registerEvents();
         } catch (e) {
@@ -26,28 +22,36 @@ export default class BuckarooPaymentHelper extends Plugin {
         }
     }
 
-    _registerEvents()
-    {
+    _registerEvents() {
         this._checkCompany();
         this._listenToSubmit();
         for (const fieldId of this.buckarooInputs) {
             const field = document.getElementById(fieldId);
             if (field) {
-                field.addEventListener('change', this._handleInputChanged.bind(this));
+                field.addEventListener(
+                    'change',
+                    this._handleInputChanged.bind(this)
+                );
             }
         }
 
         for (const fieldId of this.buckarooMobileInputs) {
             const field = document.getElementById(fieldId);
             if (field) {
-                field.addEventListener('change', this._handleMobileInputChanged.bind(this));
+                field.addEventListener(
+                    'change',
+                    this._handleMobileInputChanged.bind(this)
+                );
             }
         }
 
         for (const fieldId of this.buckarooDoBInputs) {
             const field = document.getElementById(fieldId);
             if (field) {
-                field.addEventListener('change', this._handleDoBInputChanged.bind(this));
+                field.addEventListener(
+                    'change',
+                    this._handleDoBInputChanged.bind(this)
+                );
             }
         }
 
@@ -57,14 +61,13 @@ export default class BuckarooPaymentHelper extends Plugin {
         if (field) {
             if (field.value != 'PLN') {
                 document.getElementById('confirmFormSubmit').disabled = true;
-                document.getElementById('P24CurrencyError').style.display = 'block';
+                document.getElementById('P24CurrencyError').style.display =
+                    'block';
             }
         }
-
     }
 
-    _checkCompany()
-    {
+    _checkCompany() {
         const field = document.getElementById('buckaroo_capayablein3_OrderAs');
         let display = 'none';
         let required = false;
@@ -74,18 +77,25 @@ export default class BuckarooPaymentHelper extends Plugin {
                 display = 'block';
             }
         }
-        const div = document.getElementById('buckaroo_capayablein3_COCNumberDiv');
+        const div = document.getElementById(
+            'buckaroo_capayablein3_COCNumberDiv'
+        );
         if (div) {
             div.style.display = display;
-            document.getElementById('buckaroo_capayablein3_CompanyNameDiv').style.display = display;
-            document.getElementById('buckaroo_capayablein3_COCNumber').required = required;
-            document.getElementById('buckaroo_capayablein3_CompanyName').required = required;
+            document.getElementById(
+                'buckaroo_capayablein3_CompanyNameDiv'
+            ).style.display = display;
+            document.getElementById(
+                'buckaroo_capayablein3_COCNumber'
+            ).required = required;
+            document.getElementById(
+                'buckaroo_capayablein3_CompanyName'
+            ).required = required;
         }
         return required;
     }
 
-    _handleInputChanged(event)
-    {
+    _handleInputChanged(event) {
         switch (event.target.id) {
             case 'buckaroo_capayablein3_OrderAs':
                 this._checkCompany();
@@ -94,18 +104,15 @@ export default class BuckarooPaymentHelper extends Plugin {
         }
     }
 
-    _handleMobileInputChanged()
-    {
+    _handleMobileInputChanged() {
         this._CheckValidate();
     }
 
-    _handleDoBInputChanged()
-    {
+    _handleDoBInputChanged() {
         this._CheckValidate();
     }
 
-    _CheckValidate()
-    {
+    _CheckValidate() {
         let not_valid = false;
 
         for (const fieldId of this.buckarooMobileInputs) {
@@ -129,9 +136,10 @@ export default class BuckarooPaymentHelper extends Plugin {
         return this._disableConfirmFormSubmit(not_valid);
     }
 
-    _handleCheckMobile(field)
-    {
-        const errorElement = document.getElementById('buckarooMobilePhoneError');
+    _handleCheckMobile(field) {
+        const errorElement = document.getElementById(
+            'buckarooMobilePhoneError'
+        );
         if (errorElement) {
             errorElement.style.display = 'none';
         }
@@ -144,8 +152,7 @@ export default class BuckarooPaymentHelper extends Plugin {
         return true;
     }
 
-    _handleCheckDoB(field)
-    {
+    _handleCheckDoB(field) {
         const errorElement = document.getElementById('buckarooDoBError');
         if (errorElement) {
             errorElement.style.display = 'none';
@@ -158,7 +165,10 @@ export default class BuckarooPaymentHelper extends Plugin {
             return false;
         }
         const Cnow = new Date();
-        if ((Cnow.getFullYear() - x.getFullYear() < 18) || x.getFullYear() < 1900) {
+        if (
+            Cnow.getFullYear() - x.getFullYear() < 18 ||
+            x.getFullYear() < 1900
+        ) {
             if (errorElement) {
                 errorElement.style.display = 'block';
             }
@@ -168,8 +178,7 @@ export default class BuckarooPaymentHelper extends Plugin {
         return true;
     }
 
-    _disableConfirmFormSubmit(disable)
-    {
+    _disableConfirmFormSubmit(disable) {
         const field = document.getElementById('confirmFormSubmit');
         if (field) {
             document.getElementById('confirmFormSubmit').disabled = disable;
@@ -177,97 +186,112 @@ export default class BuckarooPaymentHelper extends Plugin {
         return disable;
     }
 
-    _handleCompanyName()
-    {
-        let validationElement = document.getElementById('buckaroo_capayablein3_CompanyNameError')
+    _handleCompanyName() {
+        let validationElement = document.getElementById(
+            'buckaroo_capayablein3_CompanyNameError'
+        );
         validationElement.style.display = 'none';
-        if (!document.getElementById('buckaroo_capayablein3_CompanyName').value.length) {
+        if (
+            !document.getElementById('buckaroo_capayablein3_CompanyName').value
+                .length
+        ) {
             validationElement.style.display = 'block';
             return false;
         }
         return true;
     }
-    _isRadioOrCeckbox(element)
-    {
+    _isRadioOrCeckbox(element) {
         return element.type == 'radio' || element.type == 'checkbox';
     }
 
-    radioGroupHasRequired(element)
-    {
-        let radioElements =  element.querySelectorAll('input[type="radio"]');
+    radioGroupHasRequired(element) {
+        let radioElements = element.querySelectorAll('input[type="radio"]');
         if (radioElements) {
-            return [...radioElements].filter(function (radioElement) {
-                return radioElement.checked;
-            }).length > 0;
+            return (
+                [...radioElements].filter(function (radioElement) {
+                    return radioElement.checked;
+                }).length > 0
+            );
         }
         return false;
     }
-    isRadioGroup(element)
-    {
+    isRadioGroup(element) {
         return element.classList.contains('radio-group-required');
     }
-    _handleRequired()
-    {
-        let requiredElements = document.getElementById('changePaymentForm').querySelectorAll("[required]");
+    _handleRequired() {
+        let requiredElements = document
+            .getElementById('changePaymentForm')
+            .querySelectorAll('[required]');
 
         if (requiredElements && requiredElements.length) {
             requiredElements.forEach((element) => {
-
                 let parent = element.parentElement;
                 if (element.type === 'radio') {
                     parent = parent.parentElement;
                 }
                 if (parent) {
-                    let previousMessage = parent.querySelector('[class="buckaroo-required"]');
+                    let previousMessage = parent.querySelector(
+                        '[class="buckaroo-required"]'
+                    );
 
-
-                    if (this.isRadioGroup(element) && this.radioGroupHasRequired(element)) {
+                    if (
+                        this.isRadioGroup(element) &&
+                        this.radioGroupHasRequired(element)
+                    ) {
                         if (previousMessage) {
-                            previousMessage.remove()
+                            previousMessage.remove();
                         }
-                    } else if (this._isRadioOrCeckbox(element) && element.checked) {
+                    } else if (
+                        this._isRadioOrCeckbox(element) &&
+                        element.checked
+                    ) {
                         if (previousMessage) {
-                              previousMessage.remove()
+                            previousMessage.remove();
                         }
-                    } else if (!this._isRadioOrCeckbox(element) && !this.isRadioGroup(element) && element.value.length > 0 ) {
+                    } else if (
+                        !this._isRadioOrCeckbox(element) &&
+                        !this.isRadioGroup(element) &&
+                        element.value.length > 0
+                    ) {
                         if (previousMessage) {
-                              previousMessage.remove()
+                            previousMessage.remove();
                         }
                     } else if (previousMessage === null) {
-                        previousMessage  = this._createMessageElement(element);
-                        let otherMessages = parent.querySelector('[id$="Error"]');
+                        previousMessage = this._createMessageElement(element);
+                        let otherMessages =
+                            parent.querySelector('[id$="Error"]');
                         if (otherMessages === null) {
                             parent.append(previousMessage);
                         }
                     }
                 }
-            })
+            });
         }
     }
     /**
      * Resolve the "field is required" message without ever touching a bare global.
      * Order: data attribute rendered by twig -> legacy window global -> hardcoded fallback.
      */
-    _getRequiredMessage()
-    {
+    _getRequiredMessage() {
         const holder = document.querySelector('[data-bk-required-message]');
         if (holder && holder.dataset.bkRequiredMessage) {
             return holder.dataset.bkRequiredMessage;
         }
-        if (typeof window.buckaroo_required_message === 'string'
-            && window.buckaroo_required_message.trim().length) {
+        if (
+            typeof window.buckaroo_required_message === 'string' &&
+            window.buckaroo_required_message.trim().length
+        ) {
             return window.buckaroo_required_message;
         }
         return 'Please enter a valid value';
     }
-    _createMessageElement(forElement)
-    {
+    _createMessageElement(forElement) {
         let textMessage = this._getRequiredMessage();
         let attributeTextMessage = forElement.getAttribute('required-message');
         if (attributeTextMessage != null && attributeTextMessage.length) {
             textMessage = attributeTextMessage;
         }
-        let messageElement = document.createElement("label");
+        let messageElement = document.createElement('label');
         messageElement.setAttribute('for', forElement.id);
         messageElement.classList.add('buckaroo-required');
         messageElement.style.color = 'red';
@@ -275,8 +299,7 @@ export default class BuckarooPaymentHelper extends Plugin {
         messageElement.innerHTML = textMessage;
         return messageElement;
     }
-    _validateOnSubmit()
-    {
+    _validateOnSubmit() {
         let valid = true;
         this._handleRequired();
 
@@ -297,12 +320,17 @@ export default class BuckarooPaymentHelper extends Plugin {
                 valid = valid && !this._CheckValidate();
             }
         }
-        document.$emitter.publish('buckaroo_payment_validate', {valid, type:'general'});
+        document.$emitter.publish('buckaroo_payment_validate', {
+            valid,
+            type: 'general',
+        });
     }
 
-    _listenToSubmit()
-    {
-        document.$emitter.subscribe('buckaroo_payment_submit', this._validateOnSubmit.bind(this));
+    _listenToSubmit() {
+        document.$emitter.subscribe(
+            'buckaroo_payment_submit',
+            this._validateOnSubmit.bind(this)
+        );
 
         const confirmButton = document.getElementById('confirmFormSubmit');
         if (confirmButton) {
@@ -318,6 +346,4 @@ export default class BuckarooPaymentHelper extends Plugin {
             });
         }
     }
-
-
 }

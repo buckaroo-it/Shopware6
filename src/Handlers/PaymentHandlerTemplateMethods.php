@@ -62,6 +62,7 @@ trait PaymentHandlerTemplateMethods
         if (empty($contextToken) || !is_string($contextToken)) {
             return '';
         }
+
         return $contextToken;
     }
 }

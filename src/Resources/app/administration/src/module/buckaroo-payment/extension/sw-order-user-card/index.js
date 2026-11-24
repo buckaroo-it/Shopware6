@@ -5,21 +5,20 @@ const { Component } = Shopware;
 Component.override('sw-order-user-card', {
     template,
 
-    inject: [ 'systemConfigApiService' ],
+    inject: ['systemConfigApiService'],
 
     data() {
         return {
-            config: {}
+            config: {},
         };
     },
 
     created() {
-        this.systemConfigApiService.getValues('BuckarooPayments.config', null)
-            .then(values => {
+        this.systemConfigApiService
+            .getValues('BuckarooPayments.config', null)
+            .then((values) => {
                 this.config = values;
             })
-            .finally(() => {
-            });
-    }
-
+            .finally(() => {});
+    },
 });

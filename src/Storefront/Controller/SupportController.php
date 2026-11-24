@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
-use Shopware\Core\Framework\Context;
-use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\BuckarooTransactionService;
 use Buckaroo\Shopware6\Service\In3LogoService;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Buckaroo\Shopware6\Service\TestCredentialsService;
-use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class SupportController extends StorefrontController
 {
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     * @var EntityRepository
      */
     protected $taxRepository;
 
@@ -44,48 +44,36 @@ class SupportController extends StorefrontController
         $this->shopwareVersion = $shopwareVersion;
     }
 
-    /**
-     * @return JsonResponse
-     */
-    #[Route(path: "/api/_action/buckaroo/version", defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['system_config:read']], name: "api.action.buckaroo.version", methods: ["POST", "GET"])]
+    #[Route(path: '/api/_action/buckaroo/version', defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['system_config:read']], name: 'api.action.buckaroo.version', methods: ['POST', 'GET'])]
     public function versionSupportBuckaroo(): JsonResponse
     {
         $phpVersion = $this->getPhpVersionArray();
+
         return new JsonResponse([
-            'phpversion'          => implode('.', $phpVersion),
+            'phpversion' => implode('.', $phpVersion),
             'isPhpVersionSupport' => ($phpVersion[0] . $phpVersion[1] >= '71') ? true : false,
-            'shopware_version'    => $this->shopwareVersion,
+            'shopware_version' => $this->shopwareVersion,
         ]);
     }
 
-
-    /**
-     * @param Request $request
-     * @param Context $context
-     *
-     * @return JsonResponse
-     */
-    #[Route(path: "/api/_action/buckaroo/taxes", defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['tax:read']], name: "api.action.buckaroo.tax", methods: ["POST"])]
+    #[Route(path: '/api/_action/buckaroo/taxes', defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['tax:read']], name: 'api.action.buckaroo.tax', methods: ['POST'])]
     public function getTaxes(Request $request, Context $context): JsonResponse
     {
         $taxes = $this->taxRepository->search(
             new Criteria(),
             $context
         )->getEntities();
+
         return new JsonResponse([
             'error' => false,
-            'taxes' => $taxes
+            'taxes' => $taxes,
         ]);
     }
 
-
     /**
-     * @param Request $request
-     * @param Context $context
-     *
      * @return JsonResponse
      */
-    #[Route(path: "/api/_action/buckaroo/getBuckarooTransaction", defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['order.viewer']], name: "api.action.buckaroo.support.version", methods: ["POST"])]
+    #[Route(path: '/api/_action/buckaroo/getBuckarooTransaction', defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['order.viewer']], name: 'api.action.buckaroo.support.version', methods: ['POST'])]
     public function getBuckarooTransaction(Request $request, Context $context)
     {
         $orderId = $request->get('transaction');
@@ -102,12 +90,7 @@ class SupportController extends StorefrontController
         );
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return JsonResponse
-     */
-    #[Route(path: "/api/_action/buckaroo/getBuckarooApiTest", defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], name: "api.action.buckaroo.support.apitest", methods: ["POST"])]
+    #[Route(path: '/api/_action/buckaroo/getBuckarooApiTest', defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], name: 'api.action.buckaroo.support.apitest', methods: ['POST'])]
     public function getBuckarooApiTest(Request $request): JsonResponse
     {
         return new JsonResponse(
@@ -115,24 +98,18 @@ class SupportController extends StorefrontController
         );
     }
 
-    /**
-     * @param Context $context
-     *
-     * @return JsonResponse
-     */
     #[Route(
-        path: "/api/_action/buckaroo/in3/logos",
+        path: '/api/_action/buckaroo/in3/logos',
         defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['payment_method:read']],
-        name: "api.action.buckaroo.in3.logos",
-        methods: ["POST"]
+        name: 'api.action.buckaroo.in3.logos',
+        methods: ['POST']
     )]
     public function getIn3Logos(Context $context): JsonResponse
     {
         return new JsonResponse(
-            ["logos" => $this->in3LogoService->getLogos($context)]
+            ['logos' => $this->in3LogoService->getLogos($context)]
         );
     }
-
 
     /**
      * @return array<mixed>

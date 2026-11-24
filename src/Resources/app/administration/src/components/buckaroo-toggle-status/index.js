@@ -1,50 +1,48 @@
 const { Component, Mixin } = Shopware;
-import template from "./buckaroo-toggle-status.html.twig";
-import './style.scss'
+import template from './buckaroo-toggle-status.html.twig';
+import './style.scss';
 import {
     isPaymentEnabled,
     getConfigValue,
     getPaymentMode,
     overridesInheritedValue,
     withConfigValues,
-    SHARED_ENVIRONMENT_METHODS
+    SHARED_ENVIRONMENT_METHODS,
 } from '../../utils/payment-status';
 
-Component.register("buckaroo-toggle-status", {
+Component.register('buckaroo-toggle-status', {
     template,
 
-    mixins: [
-        Mixin.getByName('notification')
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         method: {
             type: String,
-            required: true
+            required: true,
         },
         label: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         // Title of the method whose test mode this method follows (e.g. iDEAL for iDEAL QR)
         sharedEnvironmentLabel: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         value: {
-            required: true
+            required: true,
         },
         // "All Sales Channels" values when a sales channel is selected, else null
         inheritedValue: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
         currentSalesChannelId: {
             required: true,
-        }
+        },
     },
 
     emits: ['input'],
@@ -54,7 +52,7 @@ Component.register("buckaroo-toggle-status", {
     data() {
         return {
             isLoading: false,
-        }
+        };
     },
 
     computed: {
@@ -66,21 +64,29 @@ Component.register("buckaroo-toggle-status", {
          * @returns {'live'|'test'|'off'}
          */
         status() {
-            const names = [`${this.method}Enabled`, `${this.method}Environment`];
+            const names = [
+                `${this.method}Enabled`,
+                `${this.method}Environment`,
+            ];
             if (SHARED_ENVIRONMENT_METHODS[this.method]) {
-                names.push(`${SHARED_ENVIRONMENT_METHODS[this.method]}Environment`);
+                names.push(
+                    `${SHARED_ENVIRONMENT_METHODS[this.method]}Environment`
+                );
             }
 
             const values = {};
             names.forEach((name) => {
                 const ownValue = getConfigValue(this.value, name);
 
-                values[`BuckarooPayments.config.${name}`] = this.canInherit && !overridesInheritedValue(ownValue)
-                    ? getConfigValue(this.inheritedValue, name)
-                    : ownValue;
+                values[`BuckarooPayments.config.${name}`] =
+                    this.canInherit && !overridesInheritedValue(ownValue)
+                        ? getConfigValue(this.inheritedValue, name)
+                        : ownValue;
             });
 
-            return isPaymentEnabled(values, this.method) ? getPaymentMode(values, this.method) : 'off';
+            return isPaymentEnabled(values, this.method)
+                ? getPaymentMode(values, this.method)
+                : 'off';
         },
 
         options() {
@@ -99,15 +105,20 @@ Component.register("buckaroo-toggle-status", {
 
         // The sales channel has no "Enabled" value of its own, so the status comes from "All Sales Channels"
         isInherited() {
-            const ownEnabled = getConfigValue(this.value, `${this.method}Enabled`);
+            const ownEnabled = getConfigValue(
+                this.value,
+                `${this.method}Enabled`
+            );
 
             return this.canInherit && !overridesInheritedValue(ownEnabled);
-        }
+        },
     },
 
     methods: {
         isOptionDisabled(option) {
-            return this.isLoading || (option === 'test' && this.isTestUnavailable);
+            return (
+                this.isLoading || (option === 'test' && this.isTestUnavailable)
+            );
         },
 
         setStatus(status) {
@@ -134,7 +145,10 @@ Component.register("buckaroo-toggle-status", {
 
         // Removes the sales channel's own status (null deletes the values), so it follows "All Sales Channels" again
         restoreInheritance() {
-            return this.persist({ [this.enabledKey()]: null, [this.environmentKey()]: null });
+            return this.persist({
+                [this.enabledKey()]: null,
+                [this.environmentKey()]: null,
+            });
         },
 
         enabledKey() {
@@ -150,7 +164,11 @@ Component.register("buckaroo-toggle-status", {
             // the changed settings themselves to undo the change when saving fails
             const previous = {};
             Object.keys(data).forEach((key) => {
-                previous[key] = getConfigValue(this.value, key.replace('BuckarooPayments.config.', '')) ?? null;
+                previous[key] =
+                    getConfigValue(
+                        this.value,
+                        key.replace('BuckarooPayments.config.', '')
+                    ) ?? null;
             });
 
             this.$emit('input', withConfigValues(this.value, data));
@@ -158,10 +176,12 @@ Component.register("buckaroo-toggle-status", {
             this.isLoading = true;
             try {
                 await this.systemConfigApiService.batchSave({
-                    [this.currentSalesChannelId]: data
+                    [this.currentSalesChannelId]: data,
                 });
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-extension-store.component.sw-extension-config.messageSaveSuccess'),
+                    message: this.$tc(
+                        'sw-extension-store.component.sw-extension-config.messageSaveSuccess'
+                    ),
                 });
             } catch (error) {
                 this.$emit('input', withConfigValues(this.value, previous));
@@ -171,6 +191,6 @@ Component.register("buckaroo-toggle-status", {
             } finally {
                 this.isLoading = false;
             }
-        }
-    }
-})
+        },
+    },
+});

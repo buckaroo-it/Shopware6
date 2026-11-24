@@ -16,9 +16,6 @@ class Belfius extends AbstractPayment
         return 'belfius';
     }
 
-    /**
-     * @return string
-     */
     public function getVersion(): string
     {
         return '0';
@@ -26,8 +23,6 @@ class Belfius extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -36,8 +31,6 @@ class Belfius extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -46,8 +39,6 @@ class Belfius extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -56,12 +47,10 @@ class Belfius extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/belfius.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/belfius.svg';
     }
 
     /**
@@ -73,11 +62,11 @@ class Belfius extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit Belfius',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
         ];
@@ -85,8 +74,6 @@ class Belfius extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getType(): string
     {

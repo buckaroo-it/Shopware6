@@ -6,14 +6,14 @@ namespace Buckaroo\Shopware6\Storefront\Controller;
 
 use Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler;
 use Buckaroo\Shopware6\Service\OrderService;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 
 class IdealQrController extends StorefrontController
 {
@@ -30,11 +30,11 @@ class IdealQrController extends StorefrontController
      * taken from the request, so nobody can show a QR of their own on a page of the shop.
      */
     #[Route(
-        path: "/buckaroo/ideal/qr",
+        path: '/buckaroo/ideal/qr',
         defaults: ['_routeScope' => ['storefront']],
-        name: "frontend.action.buckaroo.ideal.qr",
-        options: ["seo" => false],
-        methods: ["GET"]
+        name: 'frontend.action.buckaroo.ideal.qr',
+        options: ['seo' => false],
+        methods: ['GET']
     )]
     public function displayPage(Request $request, SalesChannelContext $salesChannelContext): Response
     {
@@ -54,38 +54,22 @@ class IdealQrController extends StorefrontController
             'qrImage' => $qrImage,
             'orderId' => $order->getId(),
             'cancelUrl' => $this->getCancelUrl($order->getId()),
-            'pullUrl' => $this->generateUrl('frontend.action.buckaroo.ideal.qr.status', [], 0)
+            'pullUrl' => $this->generateUrl('frontend.action.buckaroo.ideal.qr.status', [], 0),
         ]);
     }
 
-    /**
-     * Get cancel url
-     *
-     * @param string $orderId
-     *
-     * @return string
-     */
-    private function getCancelUrl(string $orderId): string
-    {
-        return $this->generateUrl(
-            'frontend.account.edit-order.page',
-            ['orderId' => $orderId],
-            0
-        ) . "?error-code=CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT";
-    }
-
     #[Route(
-        path: "/buckaroo/ideal/qr/status",
-        defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest" => true],
-        name: "frontend.action.buckaroo.ideal.qr.status",
-        options: ["seo" => false],
-        methods: ["POST"]
+        path: '/buckaroo/ideal/qr/status',
+        defaults: ['_routeScope' => ['storefront'], 'XmlHttpRequest' => true],
+        name: 'frontend.action.buckaroo.ideal.qr.status',
+        options: ['seo' => false],
+        methods: ['POST']
     )]
     public function pullStatus(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $orderId = $request->request->get('orderId');
         if (!is_string($orderId) || $orderId === '') {
-            return new JsonResponse(["error" => true, "message" => "Invalid order id."]);
+            return new JsonResponse(['error' => true, 'message' => 'Invalid order id.']);
         }
 
         $order = $this->getOrderOfShopper(
@@ -98,13 +82,13 @@ class IdealQrController extends StorefrontController
             ]
         );
         if ($order === null) {
-            return new JsonResponse(["error" => true, "message" => "Cannot find order"]);
+            return new JsonResponse(['error' => true, 'message' => 'Cannot find order']);
         }
 
         $transaction = $order->getTransactions()?->last();
 
         if ($transaction === null) {
-            return new JsonResponse(["error" => true, "message" => "Cannot find transaction"]);
+            return new JsonResponse(['error' => true, 'message' => 'Cannot find transaction']);
         }
 
         $state = '';
@@ -113,7 +97,6 @@ class IdealQrController extends StorefrontController
             $state = $transaction->getStateMachineState()->getTechnicalName();
         }
 
-
         if (
             in_array(
                 $state,
@@ -121,7 +104,7 @@ class IdealQrController extends StorefrontController
                     OrderTransactionStates::STATE_PAID,
                     OrderTransactionStates::STATE_PARTIALLY_PAID,
                     OrderTransactionStates::STATE_REFUNDED,
-                    OrderTransactionStates::STATE_PARTIALLY_REFUNDED
+                    OrderTransactionStates::STATE_PARTIALLY_REFUNDED,
                 ]
             )
         ) {
@@ -130,7 +113,8 @@ class IdealQrController extends StorefrontController
                 ['orderId' => $order->getId()],
                 0
             );
-            return new JsonResponse(["redirectUrl" => $returnUrl]);
+
+            return new JsonResponse(['redirectUrl' => $returnUrl]);
         }
 
         if (
@@ -138,13 +122,26 @@ class IdealQrController extends StorefrontController
                 $state,
                 [
                     OrderTransactionStates::STATE_CANCELLED,
-                    OrderTransactionStates::STATE_FAILED
+                    OrderTransactionStates::STATE_FAILED,
                 ]
             )
         ) {
-            return new JsonResponse(["redirectUrl" => $this->getCancelUrl($order->getId())]);
+            return new JsonResponse(['redirectUrl' => $this->getCancelUrl($order->getId())]);
         }
-        return new JsonResponse(["state" => $state]);
+
+        return new JsonResponse(['state' => $state]);
+    }
+
+    /**
+     * Get cancel url
+     */
+    private function getCancelUrl(string $orderId): string
+    {
+        return $this->generateUrl(
+            'frontend.account.edit-order.page',
+            ['orderId' => $orderId],
+            0
+        ) . '?error-code=CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT';
     }
 
     /**

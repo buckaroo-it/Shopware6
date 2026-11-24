@@ -16,9 +16,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class BuckarooPayments extends Plugin
 {
-    /**
-     * @param ContainerBuilder $container
-     */
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
@@ -30,6 +27,48 @@ class BuckarooPayments extends Plugin
         // which runs Shopware\Core\Framework\Bundle::registerContainerFile()
         // over Resources/config/services.* - loading it again here would only
         // redefine the same services.
+    }
+
+    public function install(InstallContext $installContext): void
+    {
+        (new MediaInstaller($this->container))->install($installContext);
+        (new PaymentMethodsInstaller($this->container))->install($installContext);
+        parent::install($installContext);
+    }
+
+    public function activate(ActivateContext $activateContext): void
+    {
+        (new PaymentMethodsInstaller($this->container))->activate($activateContext);
+        parent::activate($activateContext);
+    }
+
+    public function deactivate(DeactivateContext $deactivateContext): void
+    {
+        (new PaymentMethodsInstaller($this->container))->deactivate($deactivateContext);
+        parent::deactivate($deactivateContext);
+    }
+
+    public function uninstall(UninstallContext $uninstallContext): void
+    {
+        if ($uninstallContext->keepUserData()) {
+            return;
+        }
+
+        (new MediaInstaller($this->container))->uninstall($uninstallContext);
+        (new PaymentMethodsInstaller($this->container))->uninstall($uninstallContext);
+        parent::uninstall($uninstallContext);
+    }
+
+    public function update(UpdateContext $updateContext): void
+    {
+        (new PaymentMethodsInstaller($this->container))->update($updateContext);
+        (new MediaInstaller($this->container))->update($updateContext);
+        parent::update($updateContext);
+    }
+
+    public function executeComposerCommands(): bool
+    {
+        return true;
     }
 
     /**
@@ -56,62 +95,5 @@ class BuckarooPayments extends Plugin
                 );
             }
         }
-    }
-
-    /**
-     * @param InstallContext $installContext
-     */
-    public function install(InstallContext $installContext): void
-    {
-        (new MediaInstaller($this->container))->install($installContext);
-        (new PaymentMethodsInstaller($this->container))->install($installContext);
-        parent::install($installContext);
-    }
-
-    /**
-     * @param ActivateContext $activateContext
-     */
-    public function activate(ActivateContext $activateContext): void
-    {
-        (new PaymentMethodsInstaller($this->container))->activate($activateContext);
-        parent::activate($activateContext);
-    }
-
-    /**
-     * @param DeactivateContext $deactivateContext
-     */
-    public function deactivate(DeactivateContext $deactivateContext): void
-    {
-        (new PaymentMethodsInstaller($this->container))->deactivate($deactivateContext);
-        parent::deactivate($deactivateContext);
-    }
-
-    /**
-     * @param UninstallContext $uninstallContext
-     */
-    public function uninstall(UninstallContext $uninstallContext): void
-    {
-        if ($uninstallContext->keepUserData()) {
-            return;
-        }
-        
-        (new MediaInstaller($this->container))->uninstall($uninstallContext);
-        (new PaymentMethodsInstaller($this->container))->uninstall($uninstallContext);
-        parent::uninstall($uninstallContext);
-    }
-
-    /**
-     * @param UpdateContext $updateContext
-     */
-    public function update(UpdateContext $updateContext): void
-    {
-        (new PaymentMethodsInstaller($this->container))->update($updateContext);
-        (new MediaInstaller($this->container))->update($updateContext);
-        parent::update($updateContext);
-    }
-
-    public function executeComposerCommands(): bool
-    {
-        return true;
     }
 }

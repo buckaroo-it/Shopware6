@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 class RiveryProductImageUrlService
 {
-
     private EntityRepository $productRepository;
 
     private EntityRepository $thumbnailRepository;
 
-    /** @var object|null */
+    /**
+     * @var object|null
+     */
     private $legacyGenerator;
 
     public function __construct(
@@ -49,12 +50,12 @@ class RiveryProductImageUrlService
                     [
                         new RangeFilter('width', [
                             RangeFilter::GTE => 100,
-                            RangeFilter::LTE => 1280
+                            RangeFilter::LTE => 1280,
                         ]),
                         new RangeFilter('height', [
                             RangeFilter::GTE => 100,
-                            RangeFilter::LTE => 1280
-                        ])
+                            RangeFilter::LTE => 1280,
+                        ]),
                     ]
                 )
             )
@@ -64,11 +65,12 @@ class RiveryProductImageUrlService
         $thumbnail = $this->thumbnailRepository->search($criteria, $context)->getEntities()->first();
 
         if (
-            $this->legacyGenerator !== null &&
-            \method_exists($this->legacyGenerator, 'getAbsoluteThumbnailUrl')
+            $this->legacyGenerator !== null
+            && \method_exists($this->legacyGenerator, 'getAbsoluteThumbnailUrl')
         ) {
             return $this->legacyGenerator->getAbsoluteThumbnailUrl($media, $thumbnail);
         }
+
         return $thumbnail ? $thumbnail->getUrl() : null;
     }
 
@@ -83,6 +85,7 @@ class RiveryProductImageUrlService
             return $product->getCover()
                 ?->getMedia();
         }
+
         return null;
     }
 }

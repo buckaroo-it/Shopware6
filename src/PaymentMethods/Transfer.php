@@ -16,9 +16,6 @@ class Transfer extends AbstractPayment
         return 'transfer';
     }
 
-    /**
-     * @return string
-     */
     public function getVersion(): string
     {
         return '1';
@@ -26,8 +23,6 @@ class Transfer extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -36,8 +31,6 @@ class Transfer extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -46,18 +39,14 @@ class Transfer extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/sepa-credittransfer.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/sepa-credittransfer.svg';
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -66,8 +55,6 @@ class Transfer extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string|null
      */
     public function getTemplate(): ?string
     {
@@ -83,11 +70,11 @@ class Transfer extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit Bank Transfer',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
         ];

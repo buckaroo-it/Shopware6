@@ -1,31 +1,35 @@
 const { Component, Filter } = Shopware;
-import template from "./buckaroo-payment-list.html.twig";
-import "./style.scss";
-import { isPaymentEnabled, withInheritedValues, SHARED_ENVIRONMENT_METHODS } from '../../utils/payment-status';
+import template from './buckaroo-payment-list.html.twig';
+import './style.scss';
+import {
+    isPaymentEnabled,
+    withInheritedValues,
+    SHARED_ENVIRONMENT_METHODS,
+} from '../../utils/payment-status';
 
-Component.register("buckaroo-payment-list", {
+Component.register('buckaroo-payment-list', {
     template,
     props: {
         configSettings: {
             type: Array,
             required: false,
-            default: () => []
+            default: () => [],
         },
         value: {
             type: Object,
             required: false,
-            default: () => ({})
+            default: () => ({}),
         },
         // "All Sales Channels" values when a sales channel is selected, else null
         inheritedValue: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
         currentSalesChannelId: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
 
     emits: ['input'],
@@ -41,156 +45,165 @@ Component.register("buckaroo-payment-list", {
             assignModalPayment: null,
             payments: [
                 {
-                    code: "Alipay",
-                    logo: "alipay.svg"
+                    code: 'Alipay',
+                    logo: 'alipay.svg',
                 },
                 {
-                    code: "applepay",
-                    logo: "applepay.svg"
+                    code: 'applepay',
+                    logo: 'applepay.svg',
                 },
                 {
-                    code: "googlepay",
-                    logo: "googlepay.svg"
+                    code: 'googlepay',
+                    logo: 'googlepay.svg',
                 },
                 {
-                    code: "bancontactmrcash",
-                    logo: "bancontact.svg"
+                    code: 'bancontactmrcash',
+                    logo: 'bancontact.svg',
                 },
                 {
-                    code: "blik",
-                    logo: "blik.svg"
+                    code: 'blik',
+                    logo: 'blik.svg',
                 },
                 {
-                    code: "belfius",
-                    logo: "belfius.svg"
+                    code: 'belfius',
+                    logo: 'belfius.svg',
                 },
                 {
-                    code: "Billink",
-                    logo: "billink.svg"
+                    code: 'Billink',
+                    logo: 'billink.svg',
                 },
                 {
-                    code: "creditcard",
-                    logo: "creditcards.svg"
+                    code: 'creditcard',
+                    logo: 'creditcards.svg',
                 },
                 {
-                    code: "creditcards",
-                    logo: "creditcards.svg"
+                    code: 'creditcards',
+                    logo: 'creditcards.svg',
                 },
                 {
-                    code: "eps",
-                    logo: "eps.svg"
+                    code: 'eps',
+                    logo: 'eps.svg',
                 },
                 {
-                    code: "giftcards",
-                    logo: "giftcards.svg"
+                    code: 'giftcards',
+                    logo: 'giftcards.svg',
                 },
                 {
-                    code: "idealqr",
-                    logo: "ideal-qr.svg"
+                    code: 'idealqr',
+                    logo: 'ideal-qr.svg',
                 },
                 {
-                    code: "ideal",
-                    logo: "ideal-wero.svg"
+                    code: 'ideal',
+                    logo: 'ideal-wero.svg',
                 },
                 {
-                    code: "capayable",
-                    logo: "in3.svg"
+                    code: 'capayable',
+                    logo: 'in3.svg',
                 },
                 {
-                    code: "KBCPaymentButton",
-                    logo: "kbc.svg"
+                    code: 'KBCPaymentButton',
+                    logo: 'kbc.svg',
                 },
                 {
-                    code: "klarna",
-                    logo: "klarna.svg"
+                    code: 'klarna',
+                    logo: 'klarna.svg',
                 },
                 {
-                    code: "klarnakp",
-                    logo: "klarna.svg"
+                    code: 'klarnakp',
+                    logo: 'klarna.svg',
                 },
                 {
-                    code: "mbway",
-                    logo: "mbway.svg"
+                    code: 'mbway',
+                    logo: 'mbway.svg',
                 },
                 {
-                    code: "multibanco",
-                    logo: "multibanco.svg"
+                    code: 'multibanco',
+                    logo: 'multibanco.svg',
                 },
                 {
-                    code: "paybybank",
-                    logo: "paybybank.svg"
+                    code: 'paybybank',
+                    logo: 'paybybank.svg',
                 },
                 {
-                    code: "payconiq",
-                    logo: "payconiq.svg"
+                    code: 'payconiq',
+                    logo: 'payconiq.svg',
                 },
                 {
-                    code: "paypal",
-                    logo: "paypal.svg"
+                    code: 'paypal',
+                    logo: 'paypal.svg',
                 },
                 {
-                    code: "payperemail",
-                    logo: "payperemail.svg"
+                    code: 'payperemail',
+                    logo: 'payperemail.svg',
                 },
                 {
-                    code: "Przelewy24",
-                    logo: "przelewy24.svg"
+                    code: 'Przelewy24',
+                    logo: 'przelewy24.svg',
                 },
                 {
-                    code: "afterpay",
-                    logo: "afterpay.svg"
+                    code: 'afterpay',
+                    logo: 'afterpay.svg',
                 },
                 {
-                    code: "sepadirectdebit",
-                    logo: "sepa-directdebit.svg"
+                    code: 'sepadirectdebit',
+                    logo: 'sepa-directdebit.svg',
                 },
                 {
-                    code: "transfer",
-                    logo: "sepa-credittransfer.svg"
+                    code: 'transfer',
+                    logo: 'sepa-credittransfer.svg',
                 },
                 {
-                    code: "Trustly",
-                    logo: "trustly.svg"
+                    code: 'Trustly',
+                    logo: 'trustly.svg',
                 },
                 {
-                    code: "WeChatPay",
-                    logo: "wechatpay.svg"
+                    code: 'WeChatPay',
+                    logo: 'wechatpay.svg',
                 },
                 {
-                    code: "swish",
-                    logo: "swish.svg"
+                    code: 'swish',
+                    logo: 'swish.svg',
                 },
                 {
-                    code: "bizum",
-                    logo: "bizum.svg"
+                    code: 'bizum',
+                    logo: 'bizum.svg',
                 },
                 {
-                    code: "twint",
-                    logo: "twint.svg"
+                    code: 'twint',
+                    logo: 'twint.svg',
                 },
                 {
-                    code: "wero",
-                    logo: "wero.svg"
-                }
-            ]
+                    code: 'wero',
+                    logo: 'wero.svg',
+                },
+            ],
         };
     },
     computed: {
         // Alphabetical by the title shown to the merchant, not by internal code
         sortedPayments() {
             return this.payments
-                .map(payment => ({ ...payment, title: this.getPaymentTitle(payment.code) }))
-                .sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }));
+                .map((payment) => ({
+                    ...payment,
+                    title: this.getPaymentTitle(payment.code),
+                }))
+                .sort((a, b) =>
+                    a.title.localeCompare(b.title, undefined, {
+                        sensitivity: 'base',
+                    })
+                );
         },
 
         activeCount() {
-            return this.payments.filter(payment => this.isActive(payment.code)).length;
+            return this.payments.filter((payment) =>
+                this.isActive(payment.code)
+            ).length;
         },
 
         // Settings as the storefront uses them for the selected sales channel
         resolvedValue() {
             return withInheritedValues(this.value, this.inheritedValue);
-        }
+        },
     },
 
     created() {
@@ -208,46 +221,64 @@ Component.register("buckaroo-payment-list", {
 
             // Buckaroo payment methods carry their plugin code in this custom field (set by the installer)
             const paymentCriteria = new Criteria(1, 100);
-            paymentCriteria.addFilter(Criteria.not('AND', [Criteria.equals('customFields.buckaroo_key', null)]));
+            paymentCriteria.addFilter(
+                Criteria.not('AND', [
+                    Criteria.equals('customFields.buckaroo_key', null),
+                ])
+            );
             paymentCriteria.addAssociation('salesChannels');
 
             const salesChannelCriteria = new Criteria(1, 100);
-            salesChannelCriteria.addFilter(Criteria.equalsAny('typeId', [
-                Shopware.Defaults?.storefrontSalesChannelTypeId || '8a243080f92e4c719546314b577cf82b',
-                Shopware.Defaults?.apiSalesChannelTypeId || 'f183ee5650cf4bdb8a774337575067a6'
-            ]));
+            salesChannelCriteria.addFilter(
+                Criteria.equalsAny('typeId', [
+                    Shopware.Defaults?.storefrontSalesChannelTypeId ||
+                        '8a243080f92e4c719546314b577cf82b',
+                    Shopware.Defaults?.apiSalesChannelTypeId ||
+                        'f183ee5650cf4bdb8a774337575067a6',
+                ])
+            );
             salesChannelCriteria.addSorting(Criteria.sort('name', 'ASC'));
 
             try {
                 const [paymentMethods, salesChannels] = await Promise.all([
-                    this.repositoryFactory.create('payment_method').search(paymentCriteria, context),
-                    this.repositoryFactory.create('sales_channel').search(salesChannelCriteria, context)
+                    this.repositoryFactory
+                        .create('payment_method')
+                        .search(paymentCriteria, context),
+                    this.repositoryFactory
+                        .create('sales_channel')
+                        .search(salesChannelCriteria, context),
                 ]);
 
                 const byCode = {};
-                paymentMethods.forEach(paymentMethod => {
+                paymentMethods.forEach((paymentMethod) => {
                     const code = paymentMethod.customFields?.buckaroo_key;
                     if (code) {
                         byCode[code] = {
                             id: paymentMethod.id,
                             active: paymentMethod.active,
-                            salesChannelIds: paymentMethod.salesChannels.map(salesChannel => salesChannel.id)
+                            salesChannelIds: paymentMethod.salesChannels.map(
+                                (salesChannel) => salesChannel.id
+                            ),
                         };
                     }
                 });
 
                 this.paymentMethodsByCode = byCode;
-                this.salesChannels = salesChannels.map(salesChannel => ({
+                this.salesChannels = salesChannels.map((salesChannel) => ({
                     id: salesChannel.id,
                     name: salesChannel.translated?.name || salesChannel.name,
-                    defaultPaymentMethodId: salesChannel.paymentMethodId
+                    defaultPaymentMethodId: salesChannel.paymentMethodId,
                 }));
             } catch (error) {
                 this.paymentMethodsByCode = {};
 
                 // Without read access to payment methods or sales channels the warning is simply not shown
                 if (error?.response?.status !== 403) {
-                    Shopware.Utils.debug.warn('buckaroo-payment-list', 'Could not load checkout availability', error);
+                    Shopware.Utils.debug.warn(
+                        'buckaroo-payment-list',
+                        'Could not load checkout availability',
+                        error
+                    );
                 }
             }
         },
@@ -266,17 +297,27 @@ Component.register("buckaroo-payment-list", {
             }
 
             // Only storefront and headless channels have a checkout, and only those can be assigned in the dialog
-            const checkoutChannelIds = this.salesChannels.map(salesChannel => salesChannel.id);
+            const checkoutChannelIds = this.salesChannels.map(
+                (salesChannel) => salesChannel.id
+            );
 
             if (this.currentSalesChannelId) {
                 if (!checkoutChannelIds.includes(this.currentSalesChannelId)) {
                     return null;
                 }
 
-                return paymentMethod.salesChannelIds.includes(this.currentSalesChannelId) ? null : 'notInSalesChannel';
+                return paymentMethod.salesChannelIds.includes(
+                    this.currentSalesChannelId
+                )
+                    ? null
+                    : 'notInSalesChannel';
             }
 
-            return paymentMethod.salesChannelIds.some(id => checkoutChannelIds.includes(id)) ? null : 'noSalesChannel';
+            return paymentMethod.salesChannelIds.some((id) =>
+                checkoutChannelIds.includes(id)
+            )
+                ? null
+                : 'noSalesChannel';
         },
 
         // Assigning sales channels writes sales channel data, so it needs the matching permission
@@ -287,7 +328,7 @@ Component.register("buckaroo-payment-list", {
         paymentSettingsRoute(code) {
             return {
                 name: 'sw.settings.payment.detail',
-                params: { id: this.paymentMethodsByCode[code]?.id }
+                params: { id: this.paymentMethodsByCode[code]?.id },
             };
         },
 
@@ -316,16 +357,21 @@ Component.register("buckaroo-payment-list", {
         configRoute(code) {
             return {
                 name: 'buckaroo.payment.config',
-                params: { namespace: 'BuckarooPayments', paymentCode: code }
+                params: { namespace: 'BuckarooPayments', paymentCode: code },
             };
         },
 
         getPaymentTitle(code) {
             if (this.configSettings && Array.isArray(this.configSettings)) {
-                const card = this.configSettings.find((card) => card.name === code);
+                const card = this.configSettings.find(
+                    (card) => card.name === code
+                );
                 if (card && card.title) {
                     try {
-                        if (typeof card.title === 'object' && card.title !== null) {
+                        if (
+                            typeof card.title === 'object' &&
+                            card.title !== null
+                        ) {
                             const locale = this.$i18n?.locale || 'en-GB';
 
                             if (card.title[locale]) {
@@ -334,36 +380,43 @@ Component.register("buckaroo-payment-list", {
                             if (card.title['en-GB']) {
                                 return card.title['en-GB'];
                             }
-                            
+
                             const firstKey = Object.keys(card.title)[0];
                             if (firstKey && card.title[firstKey]) {
                                 return card.title[firstKey];
                             }
-                            
+
                             return JSON.stringify(card.title);
                         }
-                        
+
                         if (typeof card.title === 'string') {
                             if (this.$t && typeof this.$t === 'function') {
                                 return this.$t(card.title);
                             }
                             return card.title;
                         }
-                        
+
                         return String(card.title);
-                        
                     } catch (error) {
-                        console.warn('Translation error for:', card.title, error);
-                        return typeof card.title === 'object' ? JSON.stringify(card.title) : String(card.title);
+                        console.warn(
+                            'Translation error for:',
+                            card.title,
+                            error
+                        );
+                        return typeof card.title === 'object'
+                            ? JSON.stringify(card.title)
+                            : String(card.title);
                     }
                 }
             }
 
-            const payment = this.payments.find(payment => payment.code === code);
+            const payment = this.payments.find(
+                (payment) => payment.code === code
+            );
             return payment ? payment.code : 'Unknown Payment';
         },
         assetFilter(path) {
             return Filter.getByName('asset')(path);
-        }
-    }
+        },
+    },
 });

@@ -1,54 +1,53 @@
 const { Component } = Shopware;
 
-import template from "./buckaroo-main-config.html.twig";
+import template from './buckaroo-main-config.html.twig';
 
-Component.register("buckaroo-main-config", {
+Component.register('buckaroo-main-config', {
     template,
     props: {
         configSettings: {
             type: Array,
             required: false,
-            default: () => []
+            default: () => [],
         },
         value: {
             type: Object,
             required: false,
-            default: () => ({})
+            default: () => ({}),
         },
         // "All Sales Channels" values when a sales channel is selected, else null
         inheritedValue: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
         elementMethods: {
             type: Object,
             required: false,
-            default: () => ({})
+            default: () => ({}),
         },
         isNotDefaultSalesChannel: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         currentSalesChannelId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
     emits: ['input'],
 
     model: {
         prop: 'value',
-        event: 'input'
+        event: 'input',
     },
-
 
     data() {
         return {
-            selectedCard: this.$route.params?.paymentCode || 'general'
-        }
+            selectedCard: this.$route.params?.paymentCode || 'general',
+        };
     },
 
     watch: {
@@ -59,26 +58,27 @@ Component.register("buckaroo-main-config", {
                 });
             },
             deep: true,
-            immediate: true
+            immediate: true,
         },
         $route(to) {
             if (to.params?.paymentCode) {
                 this.selectedCard = to.params.paymentCode;
             }
-        }
+        },
     },
 
     computed: {
         mainCard() {
-            const card = this.configSettings.filter((card) => card.name === this.selectedCard)?.pop();
+            const card = this.configSettings
+                .filter((card) => card.name === this.selectedCard)
+                ?.pop();
             return card;
-        }
+        },
     },
 
     methods: {
         onInput(value) {
             this.$emit('input', value);
-        }
-    }
-
-})
+        },
+    },
+});

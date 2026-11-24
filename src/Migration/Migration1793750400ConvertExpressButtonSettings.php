@@ -29,14 +29,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class Migration1793750400ConvertExpressButtonSettings extends MigrationStep
 {
-    private const PREFIX = 'BuckarooPayments.config.';
-
     /**
      * Former switch per page of the Apple Pay and Google Pay express buttons
      */
     public const FORMER_PAGE_SWITCHES = [
-        'product'  => 'ShowProduct',
-        'cart'     => 'ShowCart',
+        'product' => 'ShowProduct',
+        'cart' => 'ShowCart',
         'checkout' => 'ShowCheckout',
     ];
 
@@ -46,11 +44,12 @@ class Migration1793750400ConvertExpressButtonSettings extends MigrationStep
      * Page list => [switch, whether the switch is new]
      */
     public const BUTTONS = [
-        'paypalExpresslocation'       => ['paypalExpressEnabled', true],
-        'applepayExpresslocation'     => ['applepayExpressEnabled', true],
-        'googlepayExpresslocation'    => ['googlepayExpressEnabled', true],
+        'paypalExpresslocation' => ['paypalExpressEnabled', true],
+        'applepayExpresslocation' => ['applepayExpressEnabled', true],
+        'googlepayExpresslocation' => ['googlepayExpressEnabled', true],
         'idealFastCheckoutVisibility' => ['idealFastCheckoutEnabled', false],
     ];
+    private const PREFIX = 'BuckarooPayments.config.';
 
     public function getCreationTimestamp(): int
     {
@@ -157,6 +156,7 @@ class Migration1793750400ConvertExpressButtonSettings extends MigrationStep
     /**
      * @param array<string, bool> $own former page switches of the scope
      * @param array<string, bool> $inherited former page switches of "All Sales Channels"
+     *
      * @return array<int, string>
      */
     private function selectedPages(array $own, array $inherited): array
@@ -299,6 +299,7 @@ class Migration1793750400ConvertExpressButtonSettings extends MigrationStep
 
     /**
      * @param array<mixed> $locations
+     *
      * @return array<int, string> the selected pages without "None"
      */
     private function pages(array $locations): array
