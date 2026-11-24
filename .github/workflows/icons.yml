@@ -40,13 +40,6 @@ jobs:
             rm -f cartebancaire.svg cartebleuevisa.svg
             cd ${{ github.workspace }}/Media
             cp -R "Creditcard issuers/SVG/." ${{ github.workspace }}/src/Resources/public/storefront/buckaroo/creditcards/
-      - name: Copy payment issuers icons
-        run: |
-            cd Media
-            # Sanitized locally (no embedded images/filters), keep plugin versions
-            rm -f "iDEAL bank issuers/SVG/nn.svg" "iDEAL bank issuers/SVG/sns.svg"
-            cp -R "iDEAL bank issuers/SVG/." ${{ github.workspace }}/src/Resources/public/storefront/buckaroo/issuers/
-            rm -f ${{ github.workspace }}/src/Resources/public/storefront/buckaroo/issuers/handelsbanken.svg
       - name: Cleanup
         run: |
             rm -rd Media
