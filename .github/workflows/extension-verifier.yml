@@ -47,8 +47,10 @@ jobs:
       - name: Check every referenced Shopware bundle is a runtime requirement
         run: php .github/scripts/check-runtime-symbols.php ~/pkg/BuckarooPayments
 
-      # --full is what runs PHPStan, i.e. what the Store shows as its static
-      # code analysis. Plain `validate` only lints the manifest and config and
-      # returns clean on a package the Store rejects.
+      # Runs all checkers (PHPStan, eslint, stylelint, Twig), i.e. what the
+      # Store shows as its static code analysis; `--full` is the default since
+      # shopware-cli 0.19 and deprecated. --exclude-formatters skips the
+      # Prettier/PHP-CS-Fixer formatting checks that shopware-cli 0.21 enables
+      # by default, as the plugin uses its own code style (phpcs).
       - name: Validate extension
-        run: shopware-cli extension validate --full ~/pkg/BuckarooPayments
+        run: shopware-cli extension validate --exclude-formatters ~/pkg/BuckarooPayments
