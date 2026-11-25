@@ -253,7 +253,7 @@ class GooglePayButtonStyleConfigTest extends TestCase
     {
         return [
             'product'  => [
-                'src/Resources/views/storefront/component/buy-widget/buy-widget-form.html.twig',
+                'src/Resources/views/storefront/buckaroo/product-express-buttons.html.twig',
                 'googlePayOptions: buckaroo.googlepayShowProduct ?',
             ],
             'cart'     => [
