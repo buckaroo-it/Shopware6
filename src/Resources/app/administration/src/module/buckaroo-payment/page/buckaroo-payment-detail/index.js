@@ -166,9 +166,12 @@ Component.register('buckaroo-payment-detail', {
         createdComponent() {
             const orderId = this.$route.params.id;
 
-            this.systemConfigApiService.getValues('BuckarooPayments.config', null)
+            const configLoaded = this.systemConfigApiService.getValues('BuckarooPayments.config', null)
             .then(values => {
                 this.config = values;
+            })
+            .catch((errorResponse) => {
+                console.error('errorResponse', errorResponse);
             });
 
             const orderRepository = this.repositoryFactory.create('order');
@@ -180,7 +183,10 @@ Component.register('buckaroo-payment-detail', {
 
             orderCriteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
 
-            orderRepository.get(orderId, Context.api, orderCriteria).then((order) => {
+            Promise.all([
+                orderRepository.get(orderId, Context.api, orderCriteria),
+                configLoaded
+            ]).then(([order]) => {
                 this.checkedIsAuthorized(order);
                 const buckarooKey = order.transactions &&
                     order.transactions.last().paymentMethod &&
@@ -264,7 +270,7 @@ Component.register('buckaroo-payment-detail', {
         },
 
         isAfterpayCapturePossible(order) {
-            return order.customFields.buckaroo_is_authorize === true;
+            return order?.customFields?.buckaroo_is_authorize === true;
         },
 
         checkedIsAuthorized(order) {
