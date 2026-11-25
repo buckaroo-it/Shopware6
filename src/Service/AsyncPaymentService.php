@@ -4,30 +4,26 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Symfony\Component\HttpFoundation\Request;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Helpers\CheckoutHelper;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
-use Buckaroo\Shopware6\Service\PaymentStateService;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
-use Buckaroo\Shopware6\Service\StateTransitionService;
-use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class AsyncPaymentService
 {
@@ -72,15 +68,12 @@ class AsyncPaymentService
         return $this->paymentMethodRuleService ??= new PaymentMethodRuleService($this->settingsService);
     }
 
-
-
     /**
      * Get sales channel context with proper context inheritance
      *
      * @param Context $context The base context to derive from
      * @param string $salesChannelId The sales channel ID
      * @param string $token The context token
-     * @return SalesChannelContext
      */
     public function getSalesChannelContext(Context $context, string $salesChannelId, string $token): SalesChannelContext
     {
@@ -92,14 +85,17 @@ class AsyncPaymentService
             null, // domainId - let it derive from context
             $context // Pass the original context to preserve state
         );
+
         return $this->salesChannelContextService->get($params);
     }
+
     public function getCustomer(OrderEntity $order): OrderCustomerEntity
     {
         $customer = $order->getOrderCustomer();
         if ($customer === null) {
             throw new \InvalidArgumentException('Customer cannot be null');
         }
+
         return $customer;
     }
 
@@ -109,6 +105,7 @@ class AsyncPaymentService
         if ($address === null) {
             throw new \InvalidArgumentException('Billing address cannot be null');
         }
+
         return $address;
     }
 
@@ -163,6 +160,7 @@ class AsyncPaymentService
         if ($country === null) {
             throw new \InvalidArgumentException('Shipping country cannot be null');
         }
+
         return $country;
     }
 
@@ -172,33 +170,36 @@ class AsyncPaymentService
         if ($currency === null) {
             throw new \InvalidArgumentException('Currency cannot be null');
         }
+
         return $currency;
     }
 
     /**
      * Dispatch an event safely with proper error handling
      *
-     * @param ShopwareSalesChannelEvent $event
      * @param bool $throwOnFailure Whether to throw exception on dispatch failure (default: false)
-     * @return bool True if event was dispatched successfully, false otherwise
+     *
      * @throws \Throwable If $throwOnFailure is true and dispatch fails
+     *
+     * @return bool True if event was dispatched successfully, false otherwise
      */
     public function dispatchEvent(ShopwareSalesChannelEvent $event, bool $throwOnFailure = false): bool
     {
         try {
             $this->eventDispatcher->dispatch($event);
+
             return true;
         } catch (\Throwable $e) {
             $this->logger->error('Failed to dispatch event: ' . $e->getMessage(), [
                 'event_class' => get_class($event),
                 'exception' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
+
             if ($throwOnFailure) {
                 throw $e;
             }
-            
+
             // Don't rethrow by default to prevent breaking the payment flow
             // The event dispatch failure should be logged but not interrupt the process
             return false;
@@ -209,7 +210,6 @@ class AsyncPaymentService
      * Dispatch an event and throw exception on failure
      * Use this when event dispatch is critical to the operation
      *
-     * @param ShopwareSalesChannelEvent $event
      * @throws \Throwable If dispatch fails
      */
     public function dispatchEventOrFail(ShopwareSalesChannelEvent $event): void
@@ -225,7 +225,7 @@ class AsyncPaymentService
             'hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|' .
             'palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|' .
             'up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i';
-        
+
         $mobilePattern2 = '/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|' .
             'al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|' .
             'be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|' .
@@ -247,8 +247,8 @@ class AsyncPaymentService
             'veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|' .
             'w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i';
 
-        return preg_match($mobilePattern1, $useragent) === 1 ||
-            preg_match($mobilePattern2, substr($useragent, 0, 4)) === 1;
+        return preg_match($mobilePattern1, $useragent) === 1
+            || preg_match($mobilePattern2, substr($useragent, 0, 4)) === 1;
     }
 
     public function cancelPreviousPayments(
@@ -262,10 +262,11 @@ class AsyncPaymentService
             $this->logger->error('Failed to cancel previous payments: ' . $th->getMessage(), [
                 'transactionId' => $transaction->getOrderTransactionId(),
                 'orderId' => $order->getId(),
-                'exception' => $th
+                'exception' => $th,
             ]);
         }
     }
+
     public function getTransaction(string $transactionId, Context $context): ?OrderTransactionEntity
     {
         $criteria = new Criteria([$transactionId]);
@@ -303,7 +304,7 @@ class AsyncPaymentService
             $this->logger->error('Failed to update transaction state: ' . $th->getMessage(), [
                 'transactionId' => $transactionId,
                 'state' => $state,
-                'exception' => $th
+                'exception' => $th,
             ]);
             throw $th;
         }
@@ -320,7 +321,7 @@ class AsyncPaymentService
             OrderTransactionStates::STATE_PAID,
             OrderTransactionStates::STATE_CANCELLED,
             OrderTransactionStates::STATE_FAILED,
-            OrderTransactionStates::STATE_REFUNDED
+            OrderTransactionStates::STATE_REFUNDED,
         ]);
     }
 }

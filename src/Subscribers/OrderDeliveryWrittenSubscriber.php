@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
-use Psr\Log\LoggerInterface;
 use Buckaroo\Shopware6\Events\OrderStateChangeEvent;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;

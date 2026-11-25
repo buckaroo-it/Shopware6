@@ -73,6 +73,7 @@ class PaymentContextCookieSubscriber implements EventSubscriberInterface
                     ->withHttpOnly(true)
                     ->withSameSite(Cookie::SAMESITE_NONE)
             );
+
             return;
         }
 

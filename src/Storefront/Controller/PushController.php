@@ -5,42 +5,40 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
 use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderEntity;
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Order\OrderStates;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Symfony\Component\HttpFoundation\Request;
-use Buckaroo\Shopware6\Helpers\CheckoutHelper;
-use Buckaroo\Shopware6\Helpers\GatewayHelper;
-use Buckaroo\Shopware6\Service\InvoiceService;
-use Symfony\Component\Routing\Annotation\Route;
-use Buckaroo\Shopware6\Events\PushProcessingEvent;
-use Buckaroo\Shopware6\Service\TransactionService;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler;
-use Buckaroo\Shopware6\Service\StateTransitionService;
-use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
-use Buckaroo\Shopware6\Helpers\KlarnaKpCaptureDetector;
-use Buckaroo\Shopware6\Service\CaptureService;
-use Shopware\Storefront\Controller\StorefrontController;
-use Buckaroo\Shopware6\Service\SignatureValidationService;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Buckaroo\Shopware6\Entity\IdealQrOrder\IdealQrOrderRepository;
 use Buckaroo\Shopware6\Events\PushPaymentStateChangeEvent;
-use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Buckaroo\Shopware6\Service\OrderService;
+use Buckaroo\Shopware6\Events\PushProcessingEvent;
+use Buckaroo\Shopware6\Handlers\IdealQrPaymentHandler;
+use Buckaroo\Shopware6\Helpers\CheckoutHelper;
+use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
+use Buckaroo\Shopware6\Helpers\GatewayHelper;
+use Buckaroo\Shopware6\Helpers\KlarnaKpCaptureDetector;
+use Buckaroo\Shopware6\Service\CaptureService;
 use Buckaroo\Shopware6\Service\CustomerService;
+use Buckaroo\Shopware6\Service\InvoiceService;
+use Buckaroo\Shopware6\Service\OrderService;
 use Buckaroo\Shopware6\Service\ProcessedPushService;
+use Buckaroo\Shopware6\Service\SignatureValidationService;
+use Buckaroo\Shopware6\Service\StateTransitionService;
+use Buckaroo\Shopware6\Service\TransactionService;
 use Buckaroo\Shopware6\Service\UrlService;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class PushController extends StorefrontController
 {
-
     public const AUTHORIZE_REQUESTS = [
         'I872',
         'V054',
@@ -51,7 +49,7 @@ class PushController extends StorefrontController
         'I072',
         'I069',
         'I106',
-        'I108'
+        'I108',
     ];
 
     /**
@@ -116,10 +114,6 @@ class PushController extends StorefrontController
         'brq_mutationtype',
     ];
 
-    private LoggerInterface $logger;
-
-    private CheckoutHelper $checkoutHelper;
-
     protected SignatureValidationService $signatureValidationService;
 
     protected TransactionService $transactionService;
@@ -133,9 +127,14 @@ class PushController extends StorefrontController
     protected IdealQrOrderRepository $idealQrRepository;
 
     protected OrderService $orderService;
+
     protected CustomerService $customerService;
 
     protected ProcessedPushService $processedPushService;
+
+    private LoggerInterface $logger;
+
+    private CheckoutHelper $checkoutHelper;
 
     private SalesChannelContextServiceInterface $salesChannelContextService;
 
@@ -154,13 +153,13 @@ class PushController extends StorefrontController
         SalesChannelContextServiceInterface $salesChannelContextService,
     ) {
         $this->signatureValidationService = $signatureValidationService;
-        $this->transactionService         = $transactionService;
-        $this->stateTransitionService     = $stateTransitionService;
-        $this->invoiceService        = $invoiceService;
-        $this->checkoutHelper        = $checkoutHelper;
-        $this->logger                = $logger;
-        $this->eventDispatcher       = $eventDispatcher;
-        $this->idealQrRepository     = $idealQrRepository;
+        $this->transactionService = $transactionService;
+        $this->stateTransitionService = $stateTransitionService;
+        $this->invoiceService = $invoiceService;
+        $this->checkoutHelper = $checkoutHelper;
+        $this->logger = $logger;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->idealQrRepository = $idealQrRepository;
         $this->orderService = $orderService;
         $this->customerService = $customerService;
         $this->processedPushService = $processedPushService;
@@ -184,13 +183,54 @@ class PushController extends StorefrontController
      * sales channel's secret key. No admin API authentication is required, which is the same
      * trust model Shopware uses for its own unauthenticated /api endpoints.
      */
-    #[Route(path: UrlService::API_PUSH_PATH . "/{salesChannelId}", defaults: ['_routeScope' => ['api'], 'auth_required' => false], requirements: ['salesChannelId' => '[0-9a-fA-F]{32}'], name: "api.buckaroo.push", methods: ["POST"])]
+    #[Route(path: UrlService::API_PUSH_PATH . '/{salesChannelId}', defaults: ['_routeScope' => ['api'], 'auth_required' => false], requirements: ['salesChannelId' => '[0-9a-fA-F]{32}'], name: 'api.buckaroo.push', methods: ['POST'])]
     public function pushBuckarooApi(string $salesChannelId, Request $request, Context $context): JsonResponse
     {
         return $this->pushBuckaroo(
             $request,
             $this->createPushSalesChannelContext(strtolower($salesChannelId), $context)
         );
+    }
+
+    #[Route(path: '/buckaroo/push', defaults: ['_routeScope' => ['storefront']], options: ['seo' => false], name: 'buckaroo.payment.push', methods: ['POST'])]
+    public function pushBuckaroo(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
+    {
+        $claimedPushKey = null;
+
+        try {
+            return $this->handlePush($request, $salesChannelContext, $claimedPushKey);
+        } catch (\Throwable $exception) {
+            // Processing did not complete, so Buckaroo's retry of this push must not be ignored.
+            if ($claimedPushKey !== null) {
+                $this->releaseProcessedPush($claimedPushKey);
+            }
+            throw $exception;
+        }
+    }
+
+    protected function isIdealQrRequest(Request $request): bool
+    {
+        $invoice = $request->request->get('brq_invoicenumber');
+
+        return is_string($invoice) && strpos($invoice, IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX) !== false;
+    }
+
+    protected function isIdealFastCheckout(Request $request): bool
+    {
+        $transactionFlow = $request->request->get('brq_SERVICE_ideal_TransactionFlow');
+
+        return $transactionFlow === 'Fast_Checkout';
+    }
+
+    protected function getIdealQrEntity(Request $request, SalesChannelContext $salesChannelContext): ?IdealQrOrderEntity
+    {
+        if (!is_scalar($request->request->get('brq_invoicenumber'))) {
+            return null;
+        }
+
+        $invoice = str_replace(IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX, '', (string) $request->request->get('brq_invoicenumber'));
+
+        return $this->idealQrRepository->findByInvoice((int) $invoice, $salesChannelContext);
     }
 
     /**
@@ -213,38 +253,14 @@ class PushController extends StorefrontController
         );
     }
 
-    /**
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return JsonResponse
-     */
-    #[Route(path: "/buckaroo/push", defaults: ['_routeScope' => ['storefront']], options: ["seo" => false], name: "buckaroo.payment.push", methods: ["POST"])]
-    public function pushBuckaroo(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
-    {
-        $claimedPushKey = null;
-
-        try {
-            return $this->handlePush($request, $salesChannelContext, $claimedPushKey);
-        } catch (\Throwable $exception) {
-            // Processing did not complete, so Buckaroo's retry of this push must not be ignored.
-            if ($claimedPushKey !== null) {
-                $this->releaseProcessedPush($claimedPushKey);
-            }
-            throw $exception;
-        }
-    }
-
     private function handlePush(
         Request $request,
         SalesChannelContext $salesChannelContext,
         ?string &$claimedPushKey
     ): JsonResponse {
+        $this->logger->info(__METHOD__ . '|1|', $this->getPushLogContext($request));
 
-
-        $this->logger->info(__METHOD__ . "|1|", $this->getPushLogContext($request));
-
-        $salesChannelId     = $salesChannelContext->getSalesChannelId();
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         /*
          * The Buckaroo signature is the only thing that authenticates a push. It is therefore
@@ -257,7 +273,8 @@ class PushController extends StorefrontController
             $request,
             $salesChannelId
         )) {
-            $this->logger->info(__METHOD__ . "|5|");
+            $this->logger->info(__METHOD__ . '|5|');
+
             return $this->response('buckaroo.messages.signatureIncorrect', false);
         }
 
@@ -265,37 +282,39 @@ class PushController extends StorefrontController
         $pushData = $this->signatureValidationService->getSignedPushData($request);
 
         if (!$this->isPushMessage($pushData)) {
-            $this->logger->warning(__METHOD__ . "|Push rejected: no push mutation type or transaction type|");
+            $this->logger->warning(__METHOD__ . '|Push rejected: no push mutation type or transaction type|');
+
             return $this->response('buckaroo.messages.paymentError', false);
         }
 
         $pushKey = $this->getProcessedPushKey($pushData);
         if ($pushKey === null) {
-            $this->logger->warning(__METHOD__ . "|Push rejected: no transaction key or status code|");
+            $this->logger->warning(__METHOD__ . '|Push rejected: no transaction key or status code|');
+
             return $this->response('buckaroo.messages.paymentError', false);
         }
 
-        $status             = $this->getPushValue($pushData, 'brq_statuscode');
-        $context            = $salesChannelContext->getContext();
+        $status = $this->getPushValue($pushData, 'brq_statuscode');
+        $context = $salesChannelContext->getContext();
 
-        $brqAmount          = (float)$request->request->get('brq_amount');
-        $brqOrderId         = (string)$request->request->get('ADD_orderId');
+        $brqAmount = (float) $request->request->get('brq_amount');
+        $brqOrderId = (string) $request->request->get('ADD_orderId');
         if ($request->request->has('brq_AdditionalParameters_orderId')) {
-            $brqOrderId = (string)$request->request->get('brq_AdditionalParameters_orderId');
+            $brqOrderId = (string) $request->request->get('brq_AdditionalParameters_orderId');
         }
 
-        $brqAmountCredit    = (float)$request->request->get('brq_amount_credit', 0);
-        $brqInvoicenumber   = (string)$request->request->get('brq_invoicenumber');
-        $orderTransactionId = (string)$request->request->get('ADD_orderTransactionId');
+        $brqAmountCredit = (float) $request->request->get('brq_amount_credit', 0);
+        $brqInvoicenumber = (string) $request->request->get('brq_invoicenumber');
+        $orderTransactionId = (string) $request->request->get('ADD_orderTransactionId');
         if ($request->request->has('brq_AdditionalParameters_orderTransactionId')) {
-            $orderTransactionId = (string)$request->request->get('brq_AdditionalParameters_orderTransactionId');
+            $orderTransactionId = (string) $request->request->get('brq_AdditionalParameters_orderTransactionId');
         }
 
         $brqTransactionType = $this->getPushValue($pushData, 'brq_transaction_type');
-        $paymentMethod      = (string)$request->request->get('brq_primary_service');
-        $mutationType       = $this->getPushValue($pushData, 'brq_mutationtype');
-        $brqPaymentMethod   = (string)$request->request->get('brq_transaction_method');
-        $originalTransactionKey   = $this->getPushValue($pushData, 'brq_transactions');
+        $paymentMethod = (string) $request->request->get('brq_primary_service');
+        $mutationType = $this->getPushValue($pushData, 'brq_mutationtype');
+        $brqPaymentMethod = (string) $request->request->get('brq_transaction_method');
+        $originalTransactionKey = $this->getPushValue($pushData, 'brq_transactions');
 
         if ($this->isIdealQrRequest($request)) {
             $entity = $this->getIdealQrEntity($request, $salesChannelContext);
@@ -308,21 +327,22 @@ class PushController extends StorefrontController
         // Fallback: If orderId or orderTransactionId are missing, try to lookup by order number
         if (empty($brqOrderId) || empty($orderTransactionId)) {
             if (!empty($brqInvoicenumber)) {
-                $this->logger->info(__METHOD__ . "|Attempting order lookup by invoice number|" . $brqInvoicenumber);
+                $this->logger->info(__METHOD__ . '|Attempting order lookup by invoice number|' . $brqInvoicenumber);
                 $order = $this->checkoutHelper->getOrderByOrderNumber($brqInvoicenumber, $context, $salesChannelId);
                 if ($order !== null) {
                     $brqOrderId = $order->getId();
                     $lastTransactionId = $this->transactionService->getLastTransactionId($order);
                     if ($lastTransactionId !== null) {
                         $orderTransactionId = $lastTransactionId;
-                        $this->logger->info(__METHOD__ . "|Order found by invoice number|orderId:" . $brqOrderId . "|transactionId:" . $orderTransactionId);
+                        $this->logger->info(__METHOD__ . '|Order found by invoice number|orderId:' . $brqOrderId . '|transactionId:' . $orderTransactionId);
                     }
                 }
             }
         }
 
         if (empty($brqOrderId) || empty($orderTransactionId)) {
-            $this->logger->warning(__METHOD__ . "|Missing order or transaction ID|orderId:" . $brqOrderId . "|transactionId:" . $orderTransactionId . "|invoice:" . $brqInvoicenumber);
+            $this->logger->warning(__METHOD__ . '|Missing order or transaction ID|orderId:' . $brqOrderId . '|transactionId:' . $orderTransactionId . '|invoice:' . $brqInvoicenumber);
+
             return $this->response('buckaroo.messages.paymentError', false);
         }
 
@@ -355,6 +375,7 @@ class PushController extends StorefrontController
 
         if (!$event->canContinue()) {
             $this->releaseProcessedPush($pushKey);
+
             return $this->response('buckaroo.messages.pushInterrupted');
         }
         // end handle event
@@ -365,16 +386,16 @@ class PushController extends StorefrontController
             $this->setStatusAuthorized($orderTransactionId, $salesChannelContext, $request, $status);
         }
 
-        //skip mutationType Informational except for group transactions
+        // skip mutationType Informational except for group transactions
         if (
-            $mutationType === ResponseStatus::BUCKAROO_MUTATION_TYPE_INFORMATIONAL &&
-            $brqTransactionType !== "I150"
+            $mutationType === ResponseStatus::BUCKAROO_MUTATION_TYPE_INFORMATIONAL
+            && $brqTransactionType !== 'I150'
         ) {
-            $this->logger->info(__METHOD__ . "|5.1|");
+            $this->logger->info(__METHOD__ . '|5.1|');
             $data = [
                 'originalTransactionKey' => $originalTransactionKey,
-                'brqPaymentMethod'       => $brqPaymentMethod,
-                'brqInvoicenumber'       => $brqInvoicenumber,
+                'brqPaymentMethod' => $brqPaymentMethod,
+                'brqInvoicenumber' => $brqInvoicenumber,
             ];
 
             // For Klarna (MoR), the informational authorize push carries the DataRequestKey
@@ -410,20 +431,21 @@ class PushController extends StorefrontController
         }
 
         if ($brqTransactionType !== ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_GROUP_TRANSACTION) {
-            $this->logger->info(__METHOD__ . "|10|");
+            $this->logger->info(__METHOD__ . '|10|');
             $this->checkoutHelper->saveBuckarooTransaction($request, $context);
         }
 
         $totalPrice = $order->getPrice()->getTotalPrice();
 
-        //Check if the push is a refund request or cancel authorize
+        // Check if the push is a refund request or cancel authorize
         if ($brqAmountCredit > 0) {
-            $this->logger->info(__METHOD__ . "|15|", [$brqAmountCredit]);
+            $this->logger->info(__METHOD__ . '|15|', [$brqAmountCredit]);
             if (
-                $status !== ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS &&
-                $brqTransactionType === ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_CANCEL
+                $status !== ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS
+                && $brqTransactionType === ResponseStatus::BUCKAROO_AUTHORIZE_TYPE_CANCEL
             ) {
-                $this->logger->info(__METHOD__ . "|20|");
+                $this->logger->info(__METHOD__ . '|20|');
+
                 return $this->response('buckaroo.messages.paymentCancelled');
             }
 
@@ -432,21 +454,21 @@ class PushController extends StorefrontController
                 $context,
                 $orderTransactionId
             )) {
-                $this->logger->info(__METHOD__ . "|21|");
+                $this->logger->info(__METHOD__ . '|21|');
                 $customFields = $orderTransaction->getCustomFields() ?? [];
                 if (!empty($customFields['alreadyRefunded']) && is_numeric($customFields['alreadyRefunded'])) {
-                    $this->logger->info(__METHOD__ . "|22|");
+                    $this->logger->info(__METHOD__ . '|22|');
                     $alreadyRefunded = (float) $customFields['alreadyRefunded'];
                 }
             }
 
             $this->logger->info(
-                __METHOD__ . "|23|",
+                __METHOD__ . '|23|',
                 [
                     $brqAmountCredit,
                     $alreadyRefunded,
                     $brqAmountCredit + $alreadyRefunded,
-                    $totalPrice
+                    $totalPrice,
                 ]
             );
 
@@ -454,7 +476,7 @@ class PushController extends StorefrontController
                 ? 'refunded'
                 : 'partial_refunded';
 
-            $this->logger->info(__METHOD__ . "|25|", [$status]);
+            $this->logger->info(__METHOD__ . '|25|', [$status]);
             $this->transactionService->saveTransactionData(
                 $orderTransactionId,
                 $context,
@@ -471,16 +493,16 @@ class PushController extends StorefrontController
             return $this->response('buckaroo.messages.refundSuccessful');
         }
 
-        //skip any giftcard pushes
+        // skip any giftcard pushes
         if ($request->request->has('brq_relatedtransaction_partialpayment')) {
             return $this->response('buckaroo.messages.giftcards.skippedPush');
         }
 
         if ($status === ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
-            $this->logger->info(__METHOD__ . "|30|");
+            $this->logger->info(__METHOD__ . '|30|');
             try {
                 if ($this->stateTransitionService->isOrderState($order, ['cancel'])) {
-                    $this->logger->info(__METHOD__ . "|35|");
+                    $this->logger->info(__METHOD__ . '|35|');
                     $this->stateTransitionService->changeOrderStatus($order, $context, 'reopen');
                 }
 
@@ -489,7 +511,8 @@ class PushController extends StorefrontController
                     $orderTransactionId,
                     $context
                 )) {
-                    $this->logger->info(__METHOD__ . "|40|");
+                    $this->logger->info(__METHOD__ . '|40|');
+
                     return $this->response('buckaroo.messages.paymentUpdatedEarlier');
                 }
 
@@ -497,22 +520,21 @@ class PushController extends StorefrontController
 
                 if ($lastTransactionId) {
                     $this->transactionService->updateTransactionCustomFields($lastTransactionId, [
-                        'originalTransactionKey'    => $originalTransactionKey
+                        'originalTransactionKey' => $originalTransactionKey,
                     ], $context);
                 }
-                
 
                 $customFields = $this->transactionService->getCustomFields($order, $context);
                 $paymentSuccesStatus = $this->getPaymentSuccessStatus($salesChannelId);
                 $alreadyPaid = round($brqAmount + ($customFields['alreadyPaid'] ?? 0), 2);
-                $paymentState        = ($alreadyPaid >= round($totalPrice, 2)) ? $paymentSuccesStatus : "pay_partially";
-                $data                = [];
+                $paymentState = ($alreadyPaid >= round($totalPrice, 2)) ? $paymentSuccesStatus : 'pay_partially';
+                $data = [];
                 if ($paymentMethod && in_array(strtolower($paymentMethod), ['klarnakp', 'klarna'])) {
-                    $this->logger->info(__METHOD__ . "|42|");
+                    $this->logger->info(__METHOD__ . '|42|');
                     $paymentState = 'authorize';
                     if (strtolower($paymentMethod) === 'klarnakp') {
                         $data['reservationNumber'] = $request->request->get('brq_SERVICE_klarnakp_ReservationNumber');
-                        $originalTransactionKey    = $request->request->get('brq_SERVICE_klarnakp_AutoPayTransactionKey');
+                        $originalTransactionKey = $request->request->get('brq_SERVICE_klarnakp_AutoPayTransactionKey');
                     } else {
                         // brq_SERVICE_klarna_DataRequestKey is the Klarna-specific DataRequestKey
                         // from the Reserve push Services parameters, used for all follow-up actions.
@@ -544,12 +566,12 @@ class PushController extends StorefrontController
                 // reservation and Buckaroo answers 491.
                 if (KlarnaKpCaptureDetector::isEngineCapture($request)) {
                     $this->logger->info(
-                        __METHOD__ . "|44|Klarna KP reservation already captured by the payment engine"
+                        __METHOD__ . '|44|Klarna KP reservation already captured by the payment engine'
                     );
                     $data['captured'] = 1;
                 }
 
-                $this->logger->info(__METHOD__ . "|45|", [$paymentState, $brqAmount, $totalPrice]);
+                $this->logger->info(__METHOD__ . '|45|', [$paymentState, $brqAmount, $totalPrice]);
 
                 $this->setPaymentState(
                     $paymentState,
@@ -561,7 +583,7 @@ class PushController extends StorefrontController
                 $paymentMethodCode = $paymentMethod ? $paymentMethod : $request->request->get('brq_transaction_method');
                 $data = array_merge($data, [
                     'originalTransactionKey' => $originalTransactionKey,
-                    'brqPaymentMethod'       => $paymentMethodCode,
+                    'brqPaymentMethod' => $paymentMethodCode,
                     'alreadyPaid' => $alreadyPaid,
                 ]);
 
@@ -587,9 +609,9 @@ class PushController extends StorefrontController
                     $paymentState === $paymentSuccesStatus
                 );
 
-                $this->logger->info(__METHOD__ . "|50.1|");
+                $this->logger->info(__METHOD__ . '|50.1|');
                 if (!$this->invoiceService->isInvoiced($brqOrderId, $context)) {
-                    $this->logger->info(__METHOD__ . "|50.2|");
+                    $this->logger->info(__METHOD__ . '|50.2|');
                     if (round($brqAmount, 2) === round($totalPrice, 2)) {
                         $this->invoiceService->generateInvoice(
                             $order,
@@ -599,14 +621,15 @@ class PushController extends StorefrontController
                     }
                 }
             } catch (\Throwable $exception) {
-                $this->logger->info(__METHOD__ . "|55|");
+                $this->logger->info(__METHOD__ . '|55|');
                 throw PaymentException::asyncProcessInterrupted(
                     $orderTransactionId,
                     $exception->getMessage(),
                     $exception
                 );
             }
-            $this->logger->info(__METHOD__ . "|60|");
+            $this->logger->info(__METHOD__ . '|60|');
+
             return $this->response('buckaroo.messages.paymentUpdated');
         }
 
@@ -618,7 +641,7 @@ class PushController extends StorefrontController
                 ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT,
                 ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
                 ResponseStatus::BUCKAROO_STATUSCODE_REJECTED,
-                ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER
+                ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER,
             ]
         )) {
             if (
@@ -626,22 +649,24 @@ class PushController extends StorefrontController
                     self::SETTLED_PAYMENT_STATES,
                     $orderTransactionId,
                     $context
-                ) ||
-                $this->stateTransitionService->isOrderPaid($order)
+                )
+                || $this->stateTransitionService->isOrderPaid($order)
             ) {
                 $this->logger->info(
                     __METHOD__ . '|Failure push ignored because the transaction is already settled'
                 );
+
                 return $this->response('buckaroo.messages.skippedPush');
             }
             if ($this->stateTransitionService->canTransitionStatus('fail', $orderTransactionId, $context)) {
-                $this->setPaymentState("fail", $orderTransactionId, $salesChannelContext, $request);
+                $this->setPaymentState('fail', $orderTransactionId, $salesChannelContext, $request);
             } elseif ($this->stateTransitionService->canTransitionStatus('cancelled', $orderTransactionId, $context)) {
-                $this->setPaymentState("cancelled", $orderTransactionId, $salesChannelContext, $request);
+                $this->setPaymentState('cancelled', $orderTransactionId, $salesChannelContext, $request);
             } else {
                 $this->logger->warning(__METHOD__ . '|Illegal transition prevented for failure push', [
-                    'orderTransactionId' => $orderTransactionId
+                    'orderTransactionId' => $orderTransactionId,
                 ]);
+
                 return $this->response('buckaroo.messages.skippedPush');
             }
 
@@ -659,10 +684,11 @@ class PushController extends StorefrontController
                     self::SETTLED_PAYMENT_STATES,
                     $orderTransactionId,
                     $context
-                ) ||
-                $this->stateTransitionService->isOrderPaid($order)
+                )
+                || $this->stateTransitionService->isOrderPaid($order)
             ) {
                 $this->logger->info(__METHOD__ . '|Push ignored because order is already paid');
+
                 return $this->response('buckaroo.messages.skippedPush');
             }
         }
@@ -681,11 +707,12 @@ class PushController extends StorefrontController
             $captureOnShipment = $this->checkoutHelper->getSettingsValue('afterpayCaptureonshippent', $salesChannelId);
             if ($captureOnShipment) {
                 $status = $this->checkoutHelper->getSettingsValue('afterpayPaymentstatus', $salesChannelId);
-                return $status !== null && is_scalar($status) ? (string)$status : "authorize";
+
+                return $status !== null && is_scalar($status) ? (string) $status : 'authorize';
             }
         }
 
-        return "authorize";
+        return 'authorize';
     }
 
     private function setStatusAuthorized(
@@ -717,14 +744,14 @@ class PushController extends StorefrontController
                 ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE,
                 ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT,
                 ResponseStatus::BUCKAROO_STATUSCODE_FAILED,
-                ResponseStatus::BUCKAROO_STATUSCODE_REJECTED
+                ResponseStatus::BUCKAROO_STATUSCODE_REJECTED,
             ]
         )) {
             // Only set fail if transition is available; otherwise keep null and let caller decide
             if ($this->stateTransitionService->canTransitionStatus('fail', $orderTransactionId, $salesChannelContext->getContext())) {
-                $orderStatus = "fail";
+                $orderStatus = 'fail';
             } elseif ($this->stateTransitionService->canTransitionStatus('cancelled', $orderTransactionId, $salesChannelContext->getContext())) {
-                $orderStatus = "cancelled";
+                $orderStatus = 'cancelled';
             } else {
                 $orderStatus = null;
             }
@@ -761,9 +788,10 @@ class PushController extends StorefrontController
         if ($status !== null && is_string($status)) {
             return $status;
         }
-        return "completed";
+
+        return 'completed';
     }
-    
+
     /**
      * "Cancel order when payment fails". Also accepts the former select value "enabled".
      */
@@ -795,9 +823,9 @@ class PushController extends StorefrontController
 
         // Transitions per current order state that lead to the selected status
         $transitions = [
-            'process'  => [OrderStates::STATE_OPEN => ['process']],
+            'process' => [OrderStates::STATE_OPEN => ['process']],
             'complete' => [
-                OrderStates::STATE_OPEN        => ['process', 'complete'],
+                OrderStates::STATE_OPEN => ['process', 'complete'],
                 OrderStates::STATE_IN_PROGRESS => ['complete'],
             ],
         ];
@@ -831,14 +859,16 @@ class PushController extends StorefrontController
     ): ?OrderTransactionEntity {
         $order = $this->checkoutHelper->getOrderById($orderId, $context);
         if ($order === null) {
-            $this->logger->warning(__METHOD__ . "|Push rejected: order not found|orderId:" . $orderId);
+            $this->logger->warning(__METHOD__ . '|Push rejected: order not found|orderId:' . $orderId);
+
             return null;
         }
 
         if ($order->getSalesChannelId() !== $salesChannelId) {
             $this->logger->warning(
-                __METHOD__ . "|Push rejected: order belongs to another sales channel|orderId:" . $orderId
+                __METHOD__ . '|Push rejected: order belongs to another sales channel|orderId:' . $orderId
             );
+
             return null;
         }
 
@@ -846,34 +876,38 @@ class PushController extends StorefrontController
         $orderTransaction = $transactions?->get($orderTransactionId);
         if ($orderTransaction === null) {
             $this->logger->warning(
-                __METHOD__ . "|Push rejected: transaction is not on the order|orderId:" . $orderId .
-                "|transactionId:" . $orderTransactionId
+                __METHOD__ . '|Push rejected: transaction is not on the order|orderId:' . $orderId .
+                '|transactionId:' . $orderTransactionId
             );
+
             return null;
         }
 
         if (!$this->isPushForWebsite($request, $salesChannelId)) {
             $this->logger->warning(
-                __METHOD__ . "|Push rejected: website key does not match the sales channel|orderId:" . $orderId
+                __METHOD__ . '|Push rejected: website key does not match the sales channel|orderId:' . $orderId
             );
+
             return null;
         }
 
         if (!$this->isPushForEnvironment($request, $orderTransaction, $salesChannelId)) {
             $this->logger->warning(
-                __METHOD__ . "|Push rejected: test push for a payment method configured live|orderId:" . $orderId .
-                "|transactionId:" . $orderTransactionId
+                __METHOD__ . '|Push rejected: test push for a payment method configured live|orderId:' . $orderId .
+                '|transactionId:' . $orderTransactionId
             );
+
             return null;
         }
 
-        $currency = trim((string)$request->request->get('brq_currency'));
+        $currency = trim((string) $request->request->get('brq_currency'));
         $orderCurrency = $order->getCurrency()?->getIsoCode();
-        if ($currency !== '' && strcasecmp($currency, (string)$orderCurrency) !== 0) {
+        if ($currency !== '' && strcasecmp($currency, (string) $orderCurrency) !== 0) {
             $this->logger->warning(
-                __METHOD__ . "|Push rejected: currency does not match the order|orderId:" . $orderId .
-                "|currency:" . $currency . "|orderCurrency:" . $orderCurrency
+                __METHOD__ . '|Push rejected: currency does not match the order|orderId:' . $orderId .
+                '|currency:' . $currency . '|orderCurrency:' . $orderCurrency
             );
+
             return null;
         }
 
@@ -885,15 +919,15 @@ class PushController extends StorefrontController
      */
     private function isPushForWebsite(Request $request, string $salesChannelId): bool
     {
-        $websiteKey = trim((string)$request->request->get('brq_websitekey'));
+        $websiteKey = trim((string) $request->request->get('brq_websitekey'));
         if ($websiteKey === '') {
             return true;
         }
 
         $configuredWebsiteKey = $this->checkoutHelper->getSettingsValue('websiteKey', $salesChannelId);
 
-        return is_scalar($configuredWebsiteKey) &&
-            strcasecmp($websiteKey, trim((string)$configuredWebsiteKey)) === 0;
+        return is_scalar($configuredWebsiteKey)
+            && strcasecmp($websiteKey, trim((string) $configuredWebsiteKey)) === 0;
     }
 
     /**
@@ -910,7 +944,7 @@ class PushController extends StorefrontController
         string $salesChannelId
     ): bool {
         $isLivePush = in_array(
-            strtolower(trim((string)$request->request->get('brq_test'))),
+            strtolower(trim((string) $request->request->get('brq_test'))),
             ['', 'false', '0'],
             true
         );
@@ -964,7 +998,8 @@ class PushController extends StorefrontController
         if (in_array($pushKey, $processedPushes, true)
             || !$this->processedPushService->claim($pushKey, $orderTransaction->getId())
         ) {
-            $this->logger->info(__METHOD__ . "|push already processed|" . $pushKey);
+            $this->logger->info(__METHOD__ . '|push already processed|' . $pushKey);
+
             return false;
         }
 
@@ -979,7 +1014,7 @@ class PushController extends StorefrontController
         $context = [];
         foreach (self::LOGGED_PUSH_FIELDS as $field) {
             if ($request->request->has($field)) {
-                $context[$field] = (string)$request->request->get($field);
+                $context[$field] = (string) $request->request->get($field);
             }
         }
 
@@ -1086,45 +1121,20 @@ class PushController extends StorefrontController
             $this->processedPushService->release($pushKey);
         } catch (\Throwable $exception) {
             $this->logger->warning(
-                __METHOD__ . "|could not release processed push|" . $pushKey . "|" . $exception->getMessage()
+                __METHOD__ . '|could not release processed push|' . $pushKey . '|' . $exception->getMessage()
             );
         }
     }
 
-    protected function isIdealQrRequest(Request $request): bool
-    {
-        $invoice = $request->request->get('brq_invoicenumber');
-        return is_string($invoice) && strpos($invoice, IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX) !== false;
-    }
-
-    protected function isIdealFastCheckout(Request $request): bool
-    {
-        $transactionFlow = $request->request->get('brq_SERVICE_ideal_TransactionFlow');
-        return $transactionFlow === 'Fast_Checkout';
-    }
-
-    protected function getIdealQrEntity(Request $request, SalesChannelContext $salesChannelContext): ?IdealQrOrderEntity
-    {
-        if (!is_scalar($request->request->get('brq_invoicenumber'))) {
-            return null;
-        }
-
-        $invoice = str_replace(IdealQrPaymentHandler::IDEAL_QR_INVOICE_PREFIX, "", (string)$request->request->get('brq_invoicenumber'));
-        return $this->idealQrRepository->findByInvoice((int)$invoice, $salesChannelContext);
-    }
-
-    /**
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     */
     private function updateIdealFastCheckout(Request $request, SalesChannelContext $salesChannelContext): void
     {
         try {
-            $orderTransactionId = (string)($request->request->get('ADD_orderTransactionId') ??
+            $orderTransactionId = (string) ($request->request->get('ADD_orderTransactionId') ??
                 $request->request->get('brq_AdditionalParameters_orderTransactionId'));
 
             if (empty($orderTransactionId)) {
                 $this->logger->warning(__METHOD__ . '|Missing orderTransactionId for Ideal Fast Checkout');
+
                 return;
             }
 
@@ -1132,7 +1142,7 @@ class PushController extends StorefrontController
             $order = $this->orderService
                 ->setSaleChannelContext($salesChannelContext)
                 ->getOrderById(
-                    (string)($request->request->get('ADD_orderId') ??
+                    (string) ($request->request->get('ADD_orderId') ??
                         $request->request->get('brq_AdditionalParameters_orderId')),
                     ['transactions', 'orderCustomer', 'addresses', 'deliveries.shippingOrderAddress'],
                     $context
@@ -1140,6 +1150,7 @@ class PushController extends StorefrontController
 
             if (!$order || !$order->getOrderCustomer()) {
                 $this->logger->warning(__METHOD__ . '|No customer found for Ideal Fast Checkout order');
+
                 return;
             }
 
@@ -1155,30 +1166,30 @@ class PushController extends StorefrontController
             $countryId = $salesChannelContext->getSalesChannel()->getCountryId();
 
             $customerData = [
-                'first_name'   => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsFirstName')),
-                'last_name'    => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsLastName')),
-                'email'        => urldecode((string)$request->request->get('brq_SERVICE_ideal_ContactDetailsEmail')),
-                'country_code' => $countryId
+                'first_name' => urldecode((string) $request->request->get('brq_SERVICE_ideal_ContactDetailsFirstName')),
+                'last_name' => urldecode((string) $request->request->get('brq_SERVICE_ideal_ContactDetailsLastName')),
+                'email' => urldecode((string) $request->request->get('brq_SERVICE_ideal_ContactDetailsEmail')),
+                'country_code' => $countryId,
             ];
 
             $billingData = [
-                'firstName'   => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressFirstName')),
-                'lastName'    => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressLastName')),
-                'street'      => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressStreet')),
-                'zipcode'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressPostalCode')),
-                'city'        => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressCity')),
-                'company'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_InvoiceAddressCompanyName')),
-                'country_code'=> $countryId
+                'firstName' => urldecode((string) $request->request->get('brq_SERVICE_ideal_InvoiceAddressFirstName')),
+                'lastName' => urldecode((string) $request->request->get('brq_SERVICE_ideal_InvoiceAddressLastName')),
+                'street' => urldecode((string) $request->request->get('brq_SERVICE_ideal_InvoiceAddressStreet')),
+                'zipcode' => urldecode((string) $request->request->get('brq_SERVICE_ideal_InvoiceAddressPostalCode')),
+                'city' => urldecode((string) $request->request->get('brq_SERVICE_ideal_InvoiceAddressCity')),
+                'company' => urldecode((string) $request->request->get('brq_SERVICE_ideal_InvoiceAddressCompanyName')),
+                'country_code' => $countryId,
             ];
 
             $shippingData = [
-                'firstName'   => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressFirstName')),
-                'lastName'    => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressLastName')),
-                'street'      => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressStreet')),
-                'zipcode'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressPostalCode')),
-                'city'        => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressCity')),
-                'company'     => urldecode((string)$request->request->get('brq_SERVICE_ideal_ShippingAddressCompanyName')),
-                'country_code'=> $countryId
+                'firstName' => urldecode((string) $request->request->get('brq_SERVICE_ideal_ShippingAddressFirstName')),
+                'lastName' => urldecode((string) $request->request->get('brq_SERVICE_ideal_ShippingAddressLastName')),
+                'street' => urldecode((string) $request->request->get('brq_SERVICE_ideal_ShippingAddressStreet')),
+                'zipcode' => urldecode((string) $request->request->get('brq_SERVICE_ideal_ShippingAddressPostalCode')),
+                'city' => urldecode((string) $request->request->get('brq_SERVICE_ideal_ShippingAddressCity')),
+                'company' => urldecode((string) $request->request->get('brq_SERVICE_ideal_ShippingAddressCompanyName')),
+                'country_code' => $countryId,
             ];
 
             if ($customer != null) {
@@ -1189,7 +1200,7 @@ class PushController extends StorefrontController
                 $this->orderService->updateOrderAddresses($order, $billingData, $shippingData, $countryId, $context);
 
                 $this->logger->info(__METHOD__ . '|Customer and order addresses updated for Ideal Fast Checkout', [
-                    'customerId' => $customer->getId()
+                    'customerId' => $customer->getId(),
                 ]);
             }
         } catch (\Exception $e) {

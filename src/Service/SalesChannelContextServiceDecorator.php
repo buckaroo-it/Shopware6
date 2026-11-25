@@ -50,6 +50,7 @@ class SalesChannelContextServiceDecorator implements SalesChannelContextServiceI
         }
         $token = $request->attributes->get('sw-context-token')
             ?? $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+
         return is_string($token) && $token !== '' ? $token : null;
     }
 }

@@ -5,38 +5,39 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
 use Buckaroo\Shopware6\Service\CartService;
-use Buckaroo\Shopware6\Service\OrderService;
 use Buckaroo\Shopware6\Service\CustomerService;
+use Buckaroo\Shopware6\Service\OrderService;
 use Buckaroo\Shopware6\Service\SettingsService;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class IdealFastCheckoutController extends AbstractPaymentController
 {
-    private LoggerInterface $logger;
-    private SalesChannelContextPersister $contextPersister;
-    private SalesChannelContextServiceInterface $contextService;
-    private AbstractRegisterRoute $registerRoute;
-
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     * @var EntityRepository
      */
     protected $salutationRepository;
+
+    private LoggerInterface $logger;
+
+    private SalesChannelContextPersister $contextPersister;
+
+    private SalesChannelContextServiceInterface $contextService;
+
+    private AbstractRegisterRoute $registerRoute;
 
     public function __construct(
         CartService $cartService,
@@ -57,6 +58,7 @@ class IdealFastCheckoutController extends AbstractPaymentController
         $this->registerRoute = $registerRoute;
         $this->salutationRepository = $salutationRepository;
     }
+
     #[Route(
         path: '/buckaroo/idealfastcheckout/pay',
         name: 'frontend.action.buckaroo.idealGetCart',
@@ -95,7 +97,6 @@ class IdealFastCheckoutController extends AbstractPaymentController
                 $this->overrideChannelPaymentMethod($salesChannelContext, 'IdealPaymentHandler');
             }
 
-
             $cart = $this->getCart($request, $salesChannelContext);
             $orderId = $this->createOrder($salesChannelContext, $cart->getToken());
 
@@ -104,47 +105,49 @@ class IdealFastCheckoutController extends AbstractPaymentController
                 $salesChannelContext,
                 new RequestDataBag([
                     'idealFastCheckoutInfo' => true,
-                    'page' => $request->request->get('page')
+                    'page' => $request->request->get('page'),
                 ])
             );
 
             $this->cartService->deleteFromCart($salesChannelContext);
 
             $response = $this->response([
-                'redirect' => $redirectPath
+                'redirect' => $redirectPath,
             ]);
+
             return $response;
         } catch (\Throwable $e) {
             $this->logger->error($e->getMessage(), ['exception' => $e]);
+
             // The cause is in the log; the shopper gets the generic message, not internals.
             return $this->response(['message' => $this->trans('buckaroo.button_payment.unknown_error')], true);
         }
     }
 
-
     /**
      * Create order from cart
      *
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $cartToken
-     * @return \Shopware\Core\Checkout\Order\OrderEntity
      * @throws \Exception
+     *
+     * @return \Shopware\Core\Checkout\Order\OrderEntity
      */
     protected function createOrder(SalesChannelContext $salesChannelContext, string $cartToken)
     {
         $cart = $this->getCartByToken($cartToken, $salesChannelContext);
         if ($cart === null) {
-            throw new \Exception("Cannot find cart", 1);
+            throw new \Exception('Cannot find cart', 1);
         }
         $order = $this->orderService
             ->setSaleChannelContext($salesChannelContext)
             ->persist($cart);
 
         if ($order === null) {
-            throw new \Exception("Cannot create order", 1);
+            throw new \Exception('Cannot create order', 1);
         }
+
         return $order;
     }
+
     private function registerGuestCustomer(SalesChannelContext $context): CustomerEntity
     {
         $email = 'guest_' . uniqid() . '@buckaroo.test';
@@ -176,7 +179,7 @@ class IdealFastCheckoutController extends AbstractPaymentController
                 'zipcode' => '12345',
                 'city' => 'Guest City',
                 'countryId' => $country->getId(),
-            ]
+            ],
         ]);
 
         return $this->registerRoute->register($data, $context, false)->getCustomer();

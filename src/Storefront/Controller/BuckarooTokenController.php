@@ -2,14 +2,14 @@
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Psr\Log\LoggerInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Psr\Log\LoggerInterface;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class BuckarooTokenController extends AbstractPaymentController
 {
@@ -19,7 +19,9 @@ class BuckarooTokenController extends AbstractPaymentController
     public const BANCONTACT_SERVICE = 'BancontactMrCash';
 
     private HttpClientInterface $client;
+
     private LoggerInterface $logger;
+
     private SystemConfigService $systemConfigService;
 
     public function __construct(
@@ -43,8 +45,8 @@ class BuckarooTokenController extends AbstractPaymentController
         $requestOrigin = $request->headers->get('X-Requested-From');
         if ($requestOrigin !== 'ShopwareFrontend') {
             return new JsonResponse([
-                'error'   => true,
-                'message' => 'Unauthorized request'
+                'error' => true,
+                'message' => 'Unauthorized request',
             ], Response::HTTP_FORBIDDEN);
         }
 
@@ -58,24 +60,24 @@ class BuckarooTokenController extends AbstractPaymentController
 
         if (empty($clientId) || empty($clientSecret)) {
             return new JsonResponse([
-                'error'   => true,
-                'message' => 'Hosted Fields Client ID or Secret is missing.'
+                'error' => true,
+                'message' => 'Hosted Fields Client ID or Secret is missing.',
             ], Response::HTTP_BAD_REQUEST);
         }
 
         if (empty($issuers)) {
             return new JsonResponse([
-                'error'   => true,
-                'message' => 'No Allowed Issuers configured for Hosted Fields.'
+                'error' => true,
+                'message' => 'No Allowed Issuers configured for Hosted Fields.',
             ], Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $response = $this->client->request('POST', 'https://auth.buckaroo.io/oauth/token', [
                 'auth_basic' => [$clientId, $clientSecret],
-                'headers'    => ['Content-Type' => 'application/x-www-form-urlencoded'],
-                'body'       => [
-                    'scope'      => 'hostedfields:save',
+                'headers' => ['Content-Type' => 'application/x-www-form-urlencoded'],
+                'body' => [
+                    'scope' => 'hostedfields:save',
                     'grant_type' => 'client_credentials',
                 ],
             ]);
@@ -86,24 +88,24 @@ class BuckarooTokenController extends AbstractPaymentController
             if (isset($responseData['access_token'])) {
                 return new JsonResponse([
                     'error' => false,
-                    'data'  => [
+                    'data' => [
                         'access_token' => $responseData['access_token'],
-                        'expires_in'   => $responseData['expires_in'],
-                        'issuers'      => $issuers
-                    ]
+                        'expires_in' => $responseData['expires_in'],
+                        'issuers' => $issuers,
+                    ],
                 ]);
             }
 
             return new JsonResponse([
-                'error'   => true,
-                'message' => 'Failed to retrieve Buckaroo OAuth token.'
+                'error' => true,
+                'message' => 'Failed to retrieve Buckaroo OAuth token.',
             ], Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
             $this->logger->error('Buckaroo Token Request Error: ' . $e->getMessage());
 
             return new JsonResponse([
-                'error'   => true,
-                'message' => 'An error occurred while fetching the Buckaroo token.'
+                'error' => true,
+                'message' => 'An error occurred while fetching the Buckaroo token.',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

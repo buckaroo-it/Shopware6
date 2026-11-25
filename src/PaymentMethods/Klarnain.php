@@ -18,8 +18,6 @@ class Klarnain extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -28,17 +26,12 @@ class Klarnain extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
         return 'Pay with Klarna Slice it';
     }
 
-    /**
-     * @return string
-     */
     public function getVersion(): string
     {
         return '0';
@@ -46,8 +39,6 @@ class Klarnain extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -56,8 +47,6 @@ class Klarnain extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
@@ -73,11 +62,11 @@ class Klarnain extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit Klarna Slice it',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
         ];

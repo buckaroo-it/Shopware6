@@ -4,24 +4,20 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Buckaroo\Shopware6\Service\CustomerService;
 use Buckaroo\Shopware6\PaymentMethods\PayByBank;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Struct\Struct;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Buckaroo\Shopware6\Service\CustomerService;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PayByBankPaymentHandler extends PaymentHandlerSimple
 {
-    public string $paymentClass = PayByBank::class;
-
     public const ISSUER_LABEL = 'buckaroo_last_used_paybybank_issuer';
+
+    public string $paymentClass = PayByBank::class;
 
     protected CustomerService $customerService;
 
@@ -33,6 +29,21 @@ class PayByBankPaymentHandler extends PaymentHandlerSimple
         $this->customerService = $customerService;
     }
 
+    /**
+     * Get parameters for specific payment method
+     *
+     * @return array<mixed>
+     */
+    public function getMethodPayload(
+        OrderEntity $order,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): array {
+        return [
+            'issuer' => $dataBag->get('payBybankMethodId'),
+        ];
+    }
 
     /**
      * Hook before modern pay; updates issuer in customer profile.
@@ -58,26 +69,7 @@ class PayByBankPaymentHandler extends PaymentHandlerSimple
             $this->updateCustomerIssuer($dataBag, $salesChannelContext);
         }
     }
-    /**
-     * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     *
-     * @return array<mixed>
-     */
-    public function getMethodPayload(
-        OrderEntity $order,
-        RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
-    ): array {
-        return [
-            'issuer' => $dataBag->get('payBybankMethodId')
-        ];
-    }
+
     protected function updateCustomerIssuer(
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext
@@ -86,9 +78,9 @@ class PayByBankPaymentHandler extends PaymentHandlerSimple
         $lastPayByBank = $dataBag->get('payBybankMethodId');
 
         if (
-            $customer !== null &&
-            $lastPayByBank !== null &&
-            $lastPayByBank !== $customer->getCustomFieldsValue(self::ISSUER_LABEL)
+            $customer !== null
+            && $lastPayByBank !== null
+            && $lastPayByBank !== $customer->getCustomFieldsValue(self::ISSUER_LABEL)
         ) {
             $this->customerService->updateCustomerData(
                 $customer,

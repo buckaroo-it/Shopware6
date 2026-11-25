@@ -32,7 +32,6 @@ class SettingsService
 
     /**
      * SettingsService constructor.
-     * @param SystemConfigService $systemConfigService
      */
     public function __construct(SystemConfigService $systemConfigService)
     {
@@ -40,7 +39,6 @@ class SettingsService
     }
 
     /**
-     * @param string $setting
      * @return mixed|null
      */
     public function getSetting(string $setting, ?string $salesChannelId = null)
@@ -49,9 +47,6 @@ class SettingsService
     }
 
     /**
-     * @param string $setting
-     * @param string|null $salesChannelId
-     *
      * @return string
      */
     public function getSettingAsString(string $setting, ?string $salesChannelId = null)
@@ -60,16 +55,12 @@ class SettingsService
         if (!is_scalar($setting)) {
             return '';
         }
-        return (string)$setting;
+
+        return (string) $setting;
     }
 
     /**
-     *
-     * @param string $setting
      * @param mixed $value
-     * @param string|null $salesChannelId
-     *
-     * @return void
      */
     public function setSetting(string $setting, $value, ?string $salesChannelId = null): void
     {
@@ -80,10 +71,6 @@ class SettingsService
 
     /**
      * Get shop name
-     *
-     * @param string|null $salesChannelId
-     *
-     * @return string
      */
     public function getShopName(?string $salesChannelId = null): string
     {
@@ -91,17 +78,12 @@ class SettingsService
         if (!is_string($shopName)) {
             return '';
         }
+
         return $shopName;
     }
 
-     /**
+    /**
      * Get the parsed label, we replace the template variables with the values
-     *
-     * @param \Shopware\Core\Checkout\Order\OrderEntity $order
-     * @param string $salesChannelId
-     * @param string $label
-     *
-     * @return string
      */
     public function getParsedLabel(OrderEntity $order, string $salesChannelId, string $label): string
     {
@@ -111,17 +93,16 @@ class SettingsService
             return $shopName;
         }
 
-        $label = preg_replace('/\{order_number\}/', (string)$order->getOrderNumber(), $label);
-        $label = preg_replace('/\{shop_name\}/', $shopName, (string)$label);
+        $label = preg_replace('/\{order_number\}/', (string) $order->getOrderNumber(), $label);
+        $label = preg_replace('/\{shop_name\}/', $shopName, (string) $label);
 
         $products = $order->getLineItems();
 
         if ($products !== null) {
-
             /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity */
             $firstProduct = $products->first();
             if ($firstProduct !== null) {
-                $label = preg_replace('/\{product_name\}/', $firstProduct->getLabel(), (string)$label);
+                $label = preg_replace('/\{product_name\}/', $firstProduct->getLabel(), (string) $label);
             }
         }
         if (is_string($label)) {
@@ -131,13 +112,6 @@ class SettingsService
         return $shopName;
     }
 
-    /**
-     *
-     * @param string $method
-     * @param string|null $salesChannelId
-     *
-     * @return string
-     */
     public function getEnvironment(string $method = '', ?string $salesChannelId = null): string
     {
         return $this->getSettingAsString($method . 'Environment', $salesChannelId);
@@ -152,11 +126,6 @@ class SettingsService
      *
      * Mirrored by getPaymentMode() in the administration (utils/payment-status.js);
      * keep both in sync.
-     *
-     * @param string $method
-     * @param string|null $salesChannelId
-     *
-     * @return bool
      */
     public function isTestEnvironment(string $method, ?string $salesChannelId = null): bool
     {
@@ -170,62 +139,47 @@ class SettingsService
         return $this->getNormalizedEnvironment($method, $salesChannelId) === 'test';
     }
 
-    private function getNormalizedEnvironment(string $method, ?string $salesChannelId): string
-    {
-        return strtolower(trim($this->getEnvironment($method, $salesChannelId)));
-    }
-
     public function getBuckarooFee(string $buckarooKey, ?string $salesChannelId = null): float
     {
         $buckarooFee = $this->getSetting($buckarooKey . 'Fee', $salesChannelId);
         if (is_scalar($buckarooFee)) {
-            return round((float)str_replace(',', '.', (string)$buckarooFee), 2);
+            return round((float) str_replace(',', '.', (string) $buckarooFee), 2);
         }
+
         return 0;
     }
 
     /**
      * Get the raw fee value (which may include % symbol)
-     *
-     * @param string $buckarooKey
-     * @param string|null $salesChannelId
-     * @return string
      */
     public function getBuckarooFeeRaw(string $buckarooKey, ?string $salesChannelId = null): string
     {
         $buckarooFee = $this->getSetting($buckarooKey . 'Fee', $salesChannelId);
         if (is_scalar($buckarooFee)) {
-            return trim((string)$buckarooFee);
+            return trim((string) $buckarooFee);
         }
+
         return '';
     }
 
     /**
      * Check if the fee is a percentage
-     *
-     * @param string $buckarooKey
-     * @param string|null $salesChannelId
-     * @return bool
      */
     public function isBuckarooFeePercentage(string $buckarooKey, ?string $salesChannelId = null): bool
     {
         $feeRaw = $this->getBuckarooFeeRaw($buckarooKey, $salesChannelId);
+
         return strpos($feeRaw, '%') !== false;
     }
 
     /**
      * Calculate the actual fee amount based on cart/order total
      * Handles both fixed amounts and percentage-based fees
-     *
-     * @param string $buckarooKey
-     * @param float $orderTotal
-     * @param string|null $salesChannelId
-     * @return float
      */
     public function calculateBuckarooFee(string $buckarooKey, float $orderTotal, ?string $salesChannelId = null): float
     {
         $feeRaw = $this->getBuckarooFeeRaw($buckarooKey, $salesChannelId);
-        
+
         if (empty($feeRaw)) {
             return 0;
         }
@@ -233,7 +187,8 @@ class SettingsService
         // Check if it's a percentage fee
         if ($this->isBuckarooFeePercentage($buckarooKey, $salesChannelId)) {
             // Extract percentage value and calculate
-            $percentageValue = (float)str_replace(['%', ',', ' '], ['', '.', ''], $feeRaw);
+            $percentageValue = (float) str_replace(['%', ',', ' '], ['', '.', ''], $feeRaw);
+
             return round(($orderTotal * $percentageValue) / 100, 2);
         }
 
@@ -245,5 +200,10 @@ class SettingsService
     public function getEnabled(string $method = '', ?string $salesChannelId = null): bool
     {
         return $this->getSetting($method . 'Enabled', $salesChannelId) != 0;
+    }
+
+    private function getNormalizedEnvironment(string $method, ?string $salesChannelId): string
+    {
+        return strtolower(trim($this->getEnvironment($method, $salesChannelId)));
     }
 }

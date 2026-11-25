@@ -18,8 +18,6 @@ class AfterPay extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -28,8 +26,6 @@ class AfterPay extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -38,8 +34,6 @@ class AfterPay extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -48,8 +42,6 @@ class AfterPay extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
@@ -65,19 +57,19 @@ class AfterPay extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen innerhalb von 14 Tagen',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
             'nl-NL' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Achteraf betalen binnen 14 dagen',
             ],
             'fr-FR' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Payer sous 14 jours',
             ],
         ];

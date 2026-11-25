@@ -31,7 +31,9 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
 {
     private const TOKEN_INVALIDATED_CODE = 'CHECKOUT__PAYMENT_TOKEN_INVALIDATED';
 
-    /** Transaction technical names that represent a completed successful payment */
+    /**
+     * Transaction technical names that represent a completed successful payment
+     */
     private const SUCCESS_STATES = [
         'paid',
         'paid_partially',
@@ -77,6 +79,7 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
                 . ' — leaving default error handling in place',
                 ['exception' => $e->getMessage()]
             );
+
             return;
         }
 
@@ -112,8 +115,8 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
         $context = $this->resolveContext($request);
 
         // 'ful' and 'eul' are stored as relative paths (e.g. /checkout/finish?orderId=...)
-        $finishUrl     = $this->makeAbsolute($this->stringClaim($payload, 'ful'), $request);
-        $errorUrl      = $this->makeAbsolute($this->stringClaim($payload, 'eul'), $request);
+        $finishUrl = $this->makeAbsolute($this->stringClaim($payload, 'ful'), $request);
+        $errorUrl = $this->makeAbsolute($this->stringClaim($payload, 'eul'), $request);
         $transactionId = isset($payload['sub']) && is_string($payload['sub']) ? $payload['sub'] : null;
 
         if ($transactionId !== null && $context !== null) {
@@ -139,8 +142,9 @@ class PaymentTokenInvalidatedSubscriber implements EventSubscriberInterface
      * We only need the plaintext claims — the signature was already verified by
      * Shopware core before tokenInvalidated was thrown.
      *
-     * @return array<string, mixed>
      * @throws \InvalidArgumentException if the token is structurally malformed
+     *
+     * @return array<string, mixed>
      */
     private function decodeJwtPayload(string $token): array
     {

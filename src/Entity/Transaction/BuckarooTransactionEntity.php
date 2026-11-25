@@ -20,8 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
  * in the definition (defaultFields() is intentionally empty). They are mapped to
  * $createdAtDate / $updatedAtDate so they stay separate from the inherited
  * Entity::$createdAt / Entity::$updatedAt properties.
- *
- * @package Buckaroo\Shopware6\Entity\Transaction
  */
 class BuckarooTransactionEntity extends Entity
 {
@@ -206,7 +204,7 @@ class BuckarooTransactionEntity extends Entity
         $this->validateAndRepairRefundedItems();
 
         // At this point, we know the data is valid JSON
-        $refundedItems = json_decode((string)$this->refundedItems, true);
+        $refundedItems = json_decode((string) $this->refundedItems, true);
 
         // This should not happen after validation, but added for extra safety
         return is_array($refundedItems) ? $refundedItems : [];
@@ -215,7 +213,6 @@ class BuckarooTransactionEntity extends Entity
     /**
      * @param array<mixed> $refundedItems
      *
-     * @return self
      * @throws \InvalidArgumentException When JSON encoding fails
      */
     public function setRefundedItems(array $refundedItems = []): self
@@ -235,13 +232,12 @@ class BuckarooTransactionEntity extends Entity
         }
 
         $this->refundedItems = $encodedItems;
+
         return $this;
     }
 
     /**
      * @param array<mixed> $refundedItems
-     *
-     * @return self
      */
     public function addRefundedItems(array $refundedItems = []): self
     {
@@ -261,10 +257,68 @@ class BuckarooTransactionEntity extends Entity
     }
 
     /**
+     * Validates the integrity of the refunded items data and repairs if necessary
+     *
+     * @return bool True if data is valid or was successfully repaired
+     */
+    public function validateAndRepairRefundedItems(): bool
+    {
+        // Try to decode current data
+        if (empty($this->refundedItems)) {
+            $this->refundedItems = '[]';
+
+            return true;
+        }
+
+        $decoded = json_decode($this->refundedItems, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            // Data is corrupted, reset to empty array
+            error_log(sprintf(
+                'Corrupted refunded items data detected and reset in BuckarooTransactionEntity: %s',
+                json_last_error_msg()
+            ));
+            $this->refundedItems = '[]';
+
+            return false;
+        }
+
+        // Ensure it's an array
+        if (!is_array($decoded)) {
+            $this->refundedItems = '[]';
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the raw JSON string of refunded items (for debugging purposes)
+     */
+    public function getRefundedItemsRaw(): string
+    {
+        return $this->refundedItems ?? '';
+    }
+
+    /**
+     * Check if refunded items data is valid JSON
+     */
+    public function hasValidRefundedItemsData(): bool
+    {
+        if (empty($this->refundedItems)) {
+            return true; // Empty is considered valid
+        }
+
+        json_decode($this->refundedItems, true);
+
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+
+    /**
      * Validates if data can be safely JSON encoded
      *
      * @param mixed $data
-     * @return bool
      */
     private function isJsonEncodable($data): bool
     {
@@ -285,68 +339,10 @@ class BuckarooTransactionEntity extends Entity
         // Try a test encoding to catch any other issues
         try {
             json_encode($data, JSON_THROW_ON_ERROR);
+
             return true;
         } catch (\JsonException $e) {
             return false;
         }
-    }
-
-    /**
-     * Validates the integrity of the refunded items data and repairs if necessary
-     *
-     * @return bool True if data is valid or was successfully repaired
-     */
-    public function validateAndRepairRefundedItems(): bool
-    {
-        // Try to decode current data
-        if (empty($this->refundedItems)) {
-            $this->refundedItems = '[]';
-            return true;
-        }
-
-        $decoded = json_decode($this->refundedItems, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            // Data is corrupted, reset to empty array
-            error_log(sprintf(
-                'Corrupted refunded items data detected and reset in BuckarooTransactionEntity: %s',
-                json_last_error_msg()
-            ));
-            $this->refundedItems = '[]';
-            return false;
-        }
-
-        // Ensure it's an array
-        if (!is_array($decoded)) {
-            $this->refundedItems = '[]';
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Get the raw JSON string of refunded items (for debugging purposes)
-     *
-     * @return string
-     */
-    public function getRefundedItemsRaw(): string
-    {
-        return $this->refundedItems ?? '';
-    }
-
-    /**
-     * Check if refunded items data is valid JSON
-     *
-     * @return bool
-     */
-    public function hasValidRefundedItemsData(): bool
-    {
-        if (empty($this->refundedItems)) {
-            return true; // Empty is considered valid
-        }
-
-        json_decode($this->refundedItems, true);
-        return json_last_error() === JSON_ERROR_NONE;
     }
 }

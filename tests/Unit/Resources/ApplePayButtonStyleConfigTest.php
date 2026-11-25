@@ -7,6 +7,7 @@ namespace Buckaroo\Shopware6\Tests\Unit\Resources;
 use DOMElement;
 use DOMDocument;
 use DOMXPath;
+use Buckaroo\Shopware6\Tests\Unit\TestHelper\JsSourceAssertions;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -20,6 +21,8 @@ use PHPUnit\Framework\TestCase;
  */
 class ApplePayButtonStyleConfigTest extends TestCase
 {
+    use JsSourceAssertions;
+
     private const LOCALES = ['en-GB', 'nl-NL', 'de-DE', 'fr-FR'];
 
     private const STYLE_FIELDS = ['applepayButtonStyle', 'applepayButtonType'];
@@ -198,29 +201,29 @@ class ApplePayButtonStyleConfigTest extends TestCase
 
         $this->assertSame(self::BUTTON_STYLES, $this->readList($module, 'BUTTON_STYLES'));
         $this->assertSame(self::BUTTON_TYPES, $this->readList($module, 'BUTTON_TYPES'));
-        $this->assertStringContainsString(
+        $this->assertJsContains(
             'button.setAttribute("buttonstyle", buttonOption(options.buttonStyle, BUTTON_STYLES));',
             $module
         );
-        $this->assertStringContainsString(
+        $this->assertJsContains(
             'button.setAttribute("type", buttonOption(options.buttonType, BUTTON_TYPES));',
             $module
         );
 
         $sdk = (string)file_get_contents($this->pluginPath(self::STOREFRONT_SDK));
-        $this->assertStringContainsString('import { APPLE_PAY_SDK_URL, createButton } from "./button";', $sdk);
-        $this->assertStringContainsString('script.src = APPLE_PAY_SDK_URL;', $sdk);
+        $this->assertJsContains('import { APPLE_PAY_SDK_URL, createButton } from "./button";', $sdk);
+        $this->assertJsContains('script.src = APPLE_PAY_SDK_URL;', $sdk);
 
         $renderer = (string)file_get_contents($this->pluginPath(self::PREVIEW_RENDERER));
         $this->assertMatchesRegularExpression(
-            "/import \{[^}]*\bAPPLE_PAY_SDK_URL\b[^}]*\bcreateButton\b[^}]*\} "
-                . "from '..\/..\/..\/..\/..\/storefront\/src\/applepay\/button';/",
+            "/import \{[^}]*\bAPPLE_PAY_SDK_URL\b[^}]*\bcreateButton\b[^}]*\}\s*"
+                . "from [\"']..\/..\/..\/..\/..\/storefront\/src\/applepay\/button[\"'];/",
             $renderer
         );
-        $this->assertStringContainsString('createButton({ ...style, locale })', $renderer);
+        $this->assertJsContains('createButton({ ...style, locale })', $renderer);
 
         $plugin = (string)file_get_contents($this->pluginPath(self::STOREFRONT_PLUGIN));
-        $this->assertMatchesRegularExpression('/buttonStyle:\s*"black",\s*buttonType:\s*"plain",/', $plugin);
+        $this->assertMatchesRegularExpression('/buttonStyle:\s*["\']black["\'],\s*buttonType:\s*["\']plain["\'],/', $plugin);
         $this->assertMatchesRegularExpression(
             '/createButton\(\{\s*buttonStyle:\s*this\.options\.buttonStyle,\s*buttonType:\s*this\.options\.buttonType,/',
             $plugin
@@ -234,15 +237,15 @@ class ApplePayButtonStyleConfigTest extends TestCase
     public function testPreviewUsesTheStorefrontLanguage(): void
     {
         $component = (string)file_get_contents($this->pluginPath(self::PREVIEW_COMPONENT));
-        $this->assertStringContainsString('{ locale: this.previewLocale }', $component);
+        $this->assertJsContains('{ locale: this.previewLocale }', $component);
 
         $renderer = (string)file_get_contents($this->pluginPath(self::PREVIEW_RENDERER));
-        $this->assertMatchesRegularExpression('/draw\(container, style, \{ locale \} = \{\}\)/', $renderer);
+        $this->assertJsContains('draw(container, style, { locale } = {})', $renderer);
 
         // cultureCode is empty in Shopware 6.7; <html lang> is the storefront language there
         $plugin = (string)file_get_contents($this->pluginPath(self::STOREFRONT_PLUGIN));
-        $this->assertStringContainsString(
-            'locale: this.options.cultureCode || document.documentElement.lang,',
+        $this->assertJsContains(
+            'locale: this.options.cultureCode || document.documentElement.lang',
             $plugin
         );
     }

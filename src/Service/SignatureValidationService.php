@@ -30,8 +30,6 @@ class SignatureValidationService
      * source of truth for the push signature algorithm. Besides recalculating the SHA1
      * over the signed fields, the SDK rejects requests that try to smuggle the signature
      * through case-variant field names and compares hashes in constant time.
-     *
-     * @return bool
      */
     public function validateSignature(Request $request, ?string $salesChannelId = null): bool
     {
@@ -59,16 +57,6 @@ class SignatureValidationService
     }
 
     /**
-     * @return array<mixed>
-     */
-    private function getReturnData(Request $request): array
-    {
-        return $request->request->has('brq_signature')
-            ? $request->request->all()
-            : $request->query->all();
-    }
-
-    /**
      * The push fields with the values the signature was validated over. Values are decoded
      * the way Buckaroo signed them, so two encodings of the same signed value are equal.
      *
@@ -77,6 +65,16 @@ class SignatureValidationService
     public function getSignedPushData(Request $request): array
     {
         return $this->normalizeSignedData($request->request->all());
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function getReturnData(Request $request): array
+    {
+        return $request->request->has('brq_signature')
+            ? $request->request->all()
+            : $request->query->all();
     }
 
     /**
@@ -134,7 +132,7 @@ class SignatureValidationService
     private function hasStringSignedValues(array $postData): bool
     {
         foreach ($postData as $key => $value) {
-            $prefix = strtolower(explode('_', (string)$key)[0]);
+            $prefix = strtolower(explode('_', (string) $key)[0]);
 
             if (in_array($prefix, self::SIGNED_PARAMETER_PREFIXES, true) && !is_string($value)) {
                 return false;
@@ -158,7 +156,7 @@ class SignatureValidationService
         $normalized = [];
 
         foreach ($postData as $key => $value) {
-            $key = $this->getCorrectKey((string)$key);
+            $key = $this->getCorrectKey((string) $key);
 
             if (is_string($value)) {
                 $value = $this->decodePushValue($key, $value);

@@ -9,18 +9,21 @@ Component.override('sw-order-detail', {
     data() {
         return {
             isBuckarooPayment: false,
-            isPaymentInTestMode: false
+            isPaymentInTestMode: false,
         };
     },
 
     computed: {
         isEditable() {
-            return !this.isBuckarooPayment || this.$route.name !== 'buckaroo.payment.detail';
+            return (
+                !this.isBuckarooPayment ||
+                this.$route.name !== 'buckaroo.payment.detail'
+            );
         },
 
         showTabs() {
             return true;
-        }
+        },
     },
 
     watch: {
@@ -36,44 +39,58 @@ Component.override('sw-order-detail', {
                 const orderCriteria = new Criteria(1, 1);
                 orderCriteria.addAssociation('transactions');
 
-                orderRepository.get(this.orderId, Context.api, orderCriteria).then((order) => {
+                orderRepository
+                    .get(this.orderId, Context.api, orderCriteria)
+                    .then((order) => {
+                        this.setPaymentInTestMode(order);
 
-                    this.setPaymentInTestMode(order);
+                        if (
+                            order.transactions.length <= 0 ||
+                            !order.transactions.last().paymentMethodId
+                        ) {
+                            this.setIsBuckarooPayment(null);
+                            return;
+                        }
 
-                    if (order.transactions.length <= 0 ||
-                        !order.transactions.last().paymentMethodId
-                    ) {
-                        this.setIsBuckarooPayment(null);
-                        return;
-                    }
+                        const paymentMethodId =
+                            order.transactions.last().paymentMethodId;
 
-                    const paymentMethodId = order.transactions.last().paymentMethodId;
-
-                    if (paymentMethodId !== undefined && paymentMethodId !== null) {
-                        this.setIsBuckarooPayment(paymentMethodId);
-                    }
-                });
+                        if (
+                            paymentMethodId !== undefined &&
+                            paymentMethodId !== null
+                        ) {
+                            this.setIsBuckarooPayment(paymentMethodId);
+                        }
+                    });
             },
-            immediate: true
-        }
+            immediate: true,
+        },
     },
 
     methods: {
         setPaymentInTestMode(order) {
-            if (order.customFields && order.customFields.buckaroo_payment_in_test_mode) {
-                this.isPaymentInTestMode = order.customFields.buckaroo_payment_in_test_mode === true;
+            if (
+                order.customFields &&
+                order.customFields.buckaroo_payment_in_test_mode
+            ) {
+                this.isPaymentInTestMode =
+                    order.customFields.buckaroo_payment_in_test_mode === true;
             }
         },
         setIsBuckarooPayment(paymentMethodId) {
             if (!paymentMethodId) {
                 return;
             }
-            const paymentMethodRepository = this.repositoryFactory.create('payment_method');
-            paymentMethodRepository.get(paymentMethodId, Context.api).then(
-                (paymentMethod) => {
-                this.isBuckarooPayment = paymentMethod.formattedHandlerIdentifier.indexOf('buckaroo') >= 0;
-                }
-            );
-        }
-    }
+            const paymentMethodRepository =
+                this.repositoryFactory.create('payment_method');
+            paymentMethodRepository
+                .get(paymentMethodId, Context.api)
+                .then((paymentMethod) => {
+                    this.isBuckarooPayment =
+                        paymentMethod.formattedHandlerIdentifier.indexOf(
+                            'buckaroo'
+                        ) >= 0;
+                });
+        },
+    },
 });

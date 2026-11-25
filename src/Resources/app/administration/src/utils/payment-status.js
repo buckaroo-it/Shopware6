@@ -44,7 +44,13 @@ export function overridesInheritedValue(ownValue) {
         return true;
     }
 
-    if (ownValue === null || ownValue === undefined || ownValue === 0 || ownValue === '' || ownValue === '0') {
+    if (
+        ownValue === null ||
+        ownValue === undefined ||
+        ownValue === 0 ||
+        ownValue === '' ||
+        ownValue === '0'
+    ) {
         return false;
     }
 
@@ -111,7 +117,10 @@ export function getConfigValue(value, name) {
         val = value[key];
     } else if (value[name] !== undefined) {
         val = value[name];
-    } else if (value['BuckarooPayments.config'] && typeof value['BuckarooPayments.config'] === 'object') {
+    } else if (
+        value['BuckarooPayments.config'] &&
+        typeof value['BuckarooPayments.config'] === 'object'
+    ) {
         val = value['BuckarooPayments.config'][name];
     } else {
         const variations = [
@@ -132,7 +141,11 @@ export function getConfigValue(value, name) {
         }
     }
 
-    if (val && typeof val === 'object' && Object.prototype.hasOwnProperty.call(val, '_value')) {
+    if (
+        val &&
+        typeof val === 'object' &&
+        Object.prototype.hasOwnProperty.call(val, '_value')
+    ) {
         val = val._value;
     }
 
@@ -147,7 +160,11 @@ export function getConfigValue(value, name) {
 export function isPaymentEnabled(value, method) {
     const enabled = getConfigValue(value, `${method}Enabled`);
 
-    if (enabled === null || enabled === undefined || typeof enabled === 'boolean') {
+    if (
+        enabled === null ||
+        enabled === undefined ||
+        typeof enabled === 'boolean'
+    ) {
         return Boolean(enabled);
     }
 
@@ -166,7 +183,9 @@ export function isPaymentEnabled(value, method) {
 function getNormalizedEnvironment(value, method) {
     const environment = getConfigValue(value, `${method}Environment`);
 
-    return typeof environment === 'string' ? environment.trim().toLowerCase() : '';
+    return typeof environment === 'string'
+        ? environment.trim().toLowerCase()
+        : '';
 }
 
 /**
@@ -184,5 +203,7 @@ export function getPaymentMode(value, method) {
         configMethod = SHARED_ENVIRONMENT_METHODS[method];
     }
 
-    return getNormalizedEnvironment(value, configMethod) === 'test' ? 'test' : 'live';
+    return getNormalizedEnvironment(value, configMethod) === 'test'
+        ? 'test'
+        : 'live';
 }

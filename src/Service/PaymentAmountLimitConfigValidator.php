@@ -36,7 +36,7 @@ class PaymentAmountLimitConfigValidator
 
     /**
      * @param array<string, mixed> $valuesBySalesChannel values to save, keyed by sales
-     *        channel id; "All Sales Channels" uses the key "null" or ""
+     *                                                   channel id; "All Sales Channels" uses the key "null" or ""
      */
     public function validate(array $valuesBySalesChannel, Context $context): void
     {

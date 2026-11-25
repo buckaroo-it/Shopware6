@@ -18,8 +18,6 @@ class ApplePay extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -28,8 +26,6 @@ class ApplePay extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -38,18 +34,14 @@ class ApplePay extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/applepay.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/applepay.svg';
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -58,8 +50,6 @@ class ApplePay extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string|null
      */
     public function getTemplate(): ?string
     {
@@ -75,11 +65,11 @@ class ApplePay extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit Apple Pay',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
         ];

@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\BuckarooPayments;
 use Buckaroo\Shopware6\PaymentMethods\PaymentMethodInterface;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class TransactionService
 {
-    /** @var EntityRepository $transactionRepository */
+    /**
+     * @var EntityRepository
+     */
     private $transactionRepository;
 
     public function __construct(
@@ -23,14 +25,11 @@ class TransactionService
     ) {
         $this->transactionRepository = $transactionRepository;
     }
+
     /**
      * Save transaction data to custom fields
      *
-     * @param string $orderTransactionId
-     * @param Context $context
      * @param array<mixed> $data
-     *
-     * @return void
      */
     public function saveTransactionData(string $orderTransactionId, Context $context, array $data): void
     {
@@ -48,14 +47,12 @@ class TransactionService
 
         $this->updateTransactionCustomFields($orderTransactionId, $customFields, $context);
     }
+
     /**
      * Update transaction custom fields using the provided context
      *
-     * @param string $orderTransactionId
      * @param array<mixed> $customFields
      * @param Context $context The context to use for the update operation
-     *
-     * @return void
      */
     public function updateTransactionCustomFields(
         string $orderTransactionId,
@@ -63,44 +60,31 @@ class TransactionService
         Context $context
     ): void {
         $data = [
-            'id'           => $orderTransactionId,
+            'id' => $orderTransactionId,
             'customFields' => $customFields,
         ];
         $this->transactionRepository->update([$data], $context);
     }
 
-    /**
-     * @param Context $context
-     * @param string $orderTransactionId
-     *
-     * @return OrderTransactionEntity|null
-     */
     public function getOrderTransactionById(Context $context, string $orderTransactionId): ?OrderTransactionEntity
     {
         $criteria = new Criteria();
-        $filter   = new EqualsFilter('order_transaction.id', $orderTransactionId);
+        $filter = new EqualsFilter('order_transaction.id', $orderTransactionId);
         $criteria->addFilter($filter);
 
-        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity|null */
+        /** @var OrderTransactionEntity|null */
         return $this->transactionRepository->search($criteria, $context)->getEntities()->first();
     }
 
-    /**
-     * @param string $transactionId
-     * @param Context $context
-     */
     public function getOrderTransaction(string $transactionId, Context $context): ?OrderTransactionEntity
     {
         $criteria = new Criteria([$transactionId]);
-        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity|null */
+
+        /** @var OrderTransactionEntity|null */
         return $this->transactionRepository->search($criteria, $context)->getEntities()->first();
     }
 
     /**
-     *
-     * @param OrderEntity $order
-     * @param Context $context
-     *
      * @return array<mixed>
      */
     public function getCustomFields(OrderEntity $order, Context $context): array
@@ -150,7 +134,7 @@ class TransactionService
             }
         }
 
-        $paymentHandler ='';
+        $paymentHandler = '';
 
         if ($transaction->getPaymentMethod() !== null) {
             $paymentHandler = $transaction->getPaymentMethod()->getHandlerIdentifier();
@@ -172,7 +156,7 @@ class TransactionService
             try {
                 // Verify it's a valid payment method class before instantiation
                 $reflection = new \ReflectionClass($method_path);
-                
+
                 // Check if class is instantiable (not abstract/interface)
                 if ($reflection->isInstantiable()) {
                     $paymentMethod = new $method_path();
@@ -203,9 +187,6 @@ class TransactionService
 
     /**
      * Check if this event is triggered using a Buckaroo Payment Method
-     *
-     * @param OrderEntity $order
-     * @return bool
      */
     public function isBuckarooPaymentMethod(OrderEntity $order): bool
     {
@@ -233,7 +214,7 @@ class TransactionService
             return false;
         }
 
-        $baseClassArr         = explode('\\', $plugin->getBaseClass());
+        $baseClassArr = explode('\\', $plugin->getBaseClass());
         $buckarooPaymentClass = explode('\\', BuckarooPayments::class);
 
         return end($baseClassArr) === end($buckarooPaymentClass);

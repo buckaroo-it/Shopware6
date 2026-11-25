@@ -6,9 +6,9 @@ namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Alipay;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Symfony\Component\HttpFoundation\Request;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class AlipayPaymentHandler extends PaymentHandlerSimple
 {
@@ -16,11 +16,6 @@ class AlipayPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */

@@ -4,30 +4,30 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class UpdateOrderWithPaypalExpressData
 {
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     * @var EntityRepository
      */
     protected $orderAddressRepository;
 
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     * @var EntityRepository
      */
     protected $orderCustomerRepository;
 
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     * @var EntityRepository
      */
     protected $customerRepository;
 
@@ -40,7 +40,6 @@ class UpdateOrderWithPaypalExpressData
         $this->orderCustomerRepository = $orderCustomerRepository;
         $this->customerRepository = $customerRepository;
     }
-
 
     public function update(
         ClientResponseInterface $response,
@@ -65,16 +64,9 @@ class UpdateOrderWithPaypalExpressData
         );
     }
 
-
     /**
      * Replace the express placeholder identity ("Unknown Customer - Buckaroo
      * Payments") with the real PayPal payer name and e-mail.
-     *
-     * @param DataBag $paypalData
-     * @param OrderEntity $order
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return void
      */
     protected function updateCustomerDetails(
         DataBag $paypalData,
@@ -116,6 +108,47 @@ class UpdateOrderWithPaypalExpressData
     }
 
     /**
+     * Update paypal express order with first name, last name & address
+     *
+     * @return void
+     */
+    protected function updateAddresses(
+        DataBag $paypalData,
+        OrderEntity $order,
+        SalesChannelContext $salesChannelContext
+    ) {
+        if ($this->orderAddressRepository === null) {
+            return;
+        }
+
+        $criteria = (new Criteria())->addFilter(
+            new EqualsFilter(
+                'orderId',
+                $order->getId()
+            )
+        );
+
+        $addresses = $this->orderAddressRepository->search(
+            $criteria,
+            $salesChannelContext->getContext()
+        )->getEntities();
+
+        if ($addresses !== null) {
+            foreach ($addresses as $address) {
+                /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity $address */
+                $customFields = $address->getCustomFields();
+                if ($customFields != null && isset($customFields['buckarooAddress'])) {
+                    $this->updateAddress(
+                        $address->getId(),
+                        $paypalData,
+                        $salesChannelContext
+                    );
+                }
+            }
+        }
+    }
+
+    /**
      * Payer name/e-mail from the Buckaroo response. Only keys that are actually
      * present are returned, so valid data is never overwritten by a placeholder.
      *
@@ -125,8 +158,8 @@ class UpdateOrderWithPaypalExpressData
     {
         $map = [
             'payerfirstname' => 'firstName',
-            'payerlastname'  => 'lastName',
-            'payeremail'     => 'email',
+            'payerlastname' => 'lastName',
+            'payeremail' => 'email',
         ];
 
         $details = [];
@@ -171,52 +204,6 @@ class UpdateOrderWithPaypalExpressData
         );
     }
 
-    /**
-     * Update paypal express order with first name, last name & address
-     *
-     * @param DataBag $paypalData
-     * @param OrderEntity $order
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return void
-     */
-    protected function updateAddresses(
-        DataBag $paypalData,
-        OrderEntity $order,
-        SalesChannelContext $salesChannelContext
-    ) {
-
-
-        if ($this->orderAddressRepository === null) {
-            return;
-        }
-
-        $criteria = (new Criteria())->addFilter(
-            new EqualsFilter(
-                'orderId',
-                $order->getId()
-            )
-        );
-
-        $addresses = $this->orderAddressRepository->search(
-            $criteria,
-            $salesChannelContext->getContext()
-        )->getEntities();
-
-        if ($addresses !== null) {
-            foreach ($addresses as $address) {
-                /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity $address */
-                $customFields = $address->getCustomFields();
-                if ($customFields != null && isset($customFields['buckarooAddress'])) {
-                    $this->updateAddress(
-                        $address->getId(),
-                        $paypalData,
-                        $salesChannelContext
-                    );
-                }
-            }
-        }
-    }
     private function updateAddress(
         string $addressId,
         DataBag $data,
@@ -224,10 +211,10 @@ class UpdateOrderWithPaypalExpressData
     ): void {
         $map = [
             'payerfirstname' => 'firstName',
-            'payerlastname'  => 'lastName',
+            'payerlastname' => 'lastName',
             'address_line_1' => 'street',
-            'postal_code'    => 'zipcode',
-            'admin_area_2'   => 'city',
+            'postal_code' => 'zipcode',
+            'admin_area_2' => 'city',
         ];
 
         $update = ['id' => $addressId];

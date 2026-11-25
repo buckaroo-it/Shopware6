@@ -4,53 +4,51 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
+use Buckaroo\Shopware6\Service\Exceptions\CreateCustomerException;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
-use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Buckaroo\Shopware6\Service\Exceptions\CreateCustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CustomerService
 {
     /**
-     * @var \Buckaroo\Shopware6\Service\CustomerAddressService
+     * @var CustomerAddressService
      */
     protected $customerAddressService;
 
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     * @var EntityRepository
      */
     protected $customerRepository;
 
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     * @var EntityRepository
      */
     protected $salutationRepository;
+
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     * @var EntityRepository
      */
     protected $orderCustomerRepository;
 
     protected SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var \Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer
-     */
     protected SalesChannelContextRestorer $restorer;
 
     /**
-     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+     * @var EventDispatcherInterface
      */
     protected $eventDispatcher;
 
@@ -76,10 +74,6 @@ class CustomerService
 
     /**
      * Get or create user with shippinh address
-     *
-     * @param DataBag $addressData
-     *
-     * @return CustomerEntity
      */
     public function get(DataBag $addressData): CustomerEntity
     {
@@ -90,7 +84,7 @@ class CustomerService
             $addressData->add(
                 [
                     'first_name' => $customer->getFirstName(),
-                    'last_name' => $customer->getLastName()
+                    'last_name' => $customer->getLastName(),
                 ]
             );
 
@@ -98,6 +92,7 @@ class CustomerService
             if ($address !== null) {
                 $customer->setActiveShippingAddress($address);
             }
+
             return $customer;
         }
 
@@ -109,9 +104,6 @@ class CustomerService
      * storefront setting. Express-checkout payment methods (Google Pay, Apple Pay)
      * provide their own identity proof, so the store's guest-checkout toggle
      * must not block them.
-     *
-     * @param SalesChannelContext $context
-     * @return CustomerEntity
      */
     public function createGuestCustomer(SalesChannelContext $context): CustomerEntity
     {
@@ -123,91 +115,14 @@ class CustomerService
 
         return $this->create(new DataBag([
             'paymentToken' => $context->getToken(),
-            'first_name'   => 'Guest',
-            'last_name'    => 'User',
-            'email'        => 'guest_' . uniqid() . '@buckaroo.test',
+            'first_name' => 'Guest',
+            'last_name' => 'User',
+            'email' => 'guest_' . uniqid() . '@buckaroo.test',
             'country_code' => $countryCode,
-            'postal_code'  => '12345',
-            'city'         => 'Guest City',
-            'street'       => 'Guest Street 1',
+            'postal_code' => '12345',
+            'city' => 'Guest City',
+            'street' => 'Guest Street 1',
         ]));
-    }
-
-    /**
-     * Create customer and address
-     *
-     * @param DataBag $data
-     *
-     * @return \Shopware\Core\Checkout\Customer\CustomerEntity
-     */
-    protected function create(DataBag $data): CustomerEntity
-    {
-        $this->validateSaleChannelContext();
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
-        $salutationId = $this->getSalutationId();
-        $address = $this->getAddressData($data, $customerId, $addressId, $salutationId);
-        $customer = [
-            'id' => $customerId,
-            'customerNumber' => $data->get('paymentToken', bin2hex(random_bytes(16))),
-            'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
-            'languageId' => $this->salesChannelContext->getContext()->getLanguageId(),
-            'groupId' => $this->salesChannelContext->getCurrentCustomerGroup()->getId(),
-            'defaultShippingAddressId' => $addressId,
-            'defaultBillingAddressId' => $addressId,
-            'salutationId' => $salutationId,
-            'firstName' => $data->get('first_name', 'Unknown'),
-            'lastName' => $data->get('last_name', 'Customer - Buckaroo Payments'),
-            'email' => $data->get('email', 'no-replay@example.com'),
-            'active' => true,
-            'guest' =>  true,
-            'firstLogin' => new \DateTimeImmutable(),
-            'addresses' => [$address],
-        ];
-
-        // Shopware <= 6.6 still has a default payment method on the customer entity.
-        // The field was removed in Shopware 6.7 (deprecated in 6.6.5.0); writing it there
-        // makes the DAL reject the whole payload and breaks guest express checkout
-        // (Apple Pay / Google Pay QR flows).
-        if ($this->customerRepository->getDefinition()->getFields()->get('defaultPaymentMethodId') !== null) {
-            $customer['defaultPaymentMethodId'] = $this->salesChannelContext->getPaymentMethod()->getId();
-        }
-
-        $this->customerRepository->create(
-            [$customer],
-            $this->salesChannelContext->getContext()
-        );
-        $customer = $this->getCustomerById($customerId);
-        $this->loginCreatedCustomer($customer);
-        return $customer;
-    }
-
-    /**
-     * Login customer
-     *
-     * @param CustomerEntity $customer
-     *
-     * @return void
-     */
-    protected function loginCreatedCustomer(CustomerEntity $customer): void
-    {
-        // Bind the guest customer to the CURRENT (browser) context token — the same
-        // thing Shopware's LoginRoute does. The previous implementation restored a
-        // brand-new token that never reached the browser, so the shopper's session
-        // stayed anonymous and /checkout/finish redirected to the empty cart page
-        // instead of showing the order confirmation.
-        $token = $this->salesChannelContext->getToken();
-
-        $this->contextPersister->save(
-            $token,
-            ['customerId' => $customer->getId()],
-            $this->salesChannelContext->getSalesChannelId(),
-            $customer->getId()
-        );
-
-        $this->eventDispatcher->dispatch(
-            new CustomerLoginEvent($this->salesChannelContext, $customer, $token)
-        );
     }
 
     public function createAddress(DataBag $data, CustomerEntity $customer): ?CustomerAddressEntity
@@ -221,16 +136,12 @@ class CustomerService
             ->setSaleChannelContext($this->salesChannelContext)
             ->create($data, $customer->getId(), $salutationId);
     }
+
     /**
      * Get customer from database based on id
-     *
-     * @param string $customerId
-     *
-     * @return \Shopware\Core\Checkout\Customer\CustomerEntity
      */
     public function getCustomerById(string $customerId): CustomerEntity
     {
-
         $criteria = (new Criteria([$customerId]))
             ->addAssociation('addresses')
             ->addAssociation('activeBillingAddress.country')
@@ -239,12 +150,11 @@ class CustomerService
             ->addAssociation('defaultShippingAddress.countryState')
             ->addAssociation('defaultShippingAddress.salutation');
 
-        /** @var \Shopware\Core\Checkout\Customer\CustomerEntity|null $customer */
+        /** @var CustomerEntity|null $customer */
         $customer = $this->customerRepository->search(
             $criteria,
             $this->salesChannelContext->getContext()
         )->getEntities()->first();
-
 
         if ($customer === null) {
             throw new CreateCustomerException('Cannot create customer');
@@ -258,74 +168,21 @@ class CustomerService
              */
             $this->salesChannelContext->assign([
                 'customer' => $customer,
-                'shippingLocation' => ShippingLocation::createFromAddress($activeShippingAddress)
+                'shippingLocation' => ShippingLocation::createFromAddress($activeShippingAddress),
             ]);
         }
 
         return $customer;
     }
-    /**
-     * Get salutation id
-     *
-     * @return string
-     */
-    protected function getSalutationId(): string
-    {
-        $salutation = $this->salutationRepository->search(
-            (new Criteria())->setLimit(1),
-            $this->salesChannelContext->getContext()
-        )->getEntities()->first();
-
-        /** @var \Shopware\Core\System\Salutation\SalutationEntity|null $salutation */
-        if ($salutation === null) {
-            throw new CreateCustomerException('Cannot find salutation');
-        }
-
-        return $salutation->getId();
-    }
-
-    /**
-     * Get address data
-     *
-     * @param DataBag $data
-     * @param string $customerId
-     * @param string $addressId
-     *
-     * @return array<mixed>
-     */
-    protected function getAddressData(
-        DataBag $data,
-        string $customerId,
-        string $addressId,
-        string $salutationId
-    ): array {
-        return $this->customerAddressService
-            ->setSaleChannelContext($this->salesChannelContext)
-            ->formatedAddressData($data, $customerId, $addressId, $salutationId);
-    }
 
     /**
      * Set salesChannelContext
-     *
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return self
      */
     public function setSaleChannelContext(SalesChannelContext $salesChannelContext): self
     {
         $this->salesChannelContext = $salesChannelContext;
+
         return $this;
-    }
-    /**
-     * Validate saleChannelContext
-     *
-     * @return void
-     */
-    private function validateSaleChannelContext(): void
-    {
-        if (!isset($this->salesChannelContext)) {
-            throw new CreateCartException('SaleChannelContext is required');
-        }
     }
 
     /**
@@ -340,8 +197,8 @@ class CustomerService
 
         $map = [
             'first_name' => 'firstName',
-            'last_name'  => 'lastName',
-            'email'      => 'email',
+            'last_name' => 'lastName',
+            'email' => 'email',
         ];
 
         $update = ['id' => $customer->getId()];
@@ -362,12 +219,6 @@ class CustomerService
 
     /**
      * Update customer entity with custom values
-     *
-     * @param CustomerEntity $customer
-     * @param Context $context
-     * @param array $data
-     *
-     * @return void
      */
     public function updateCustomerData(CustomerEntity $customer, Context $context, array $data): void
     {
@@ -378,12 +229,13 @@ class CustomerService
 
         $this->customerRepository->update(
             [[
-                'id'           => $customer->getId(),
+                'id' => $customer->getId(),
                 'customFields' => $customer->getCustomFields(),
             ]],
             $context
         );
     }
+
     public function updateDummyCustomerFromPush(
         OrderEntity $order,
         CustomerEntity $customer,
@@ -395,9 +247,8 @@ class CustomerService
         $this->salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
 
         $firstName = $customerData['first_name'];
-        $lastName  = $customerData['last_name'];
-        $email     =  $customerData['email'];
-
+        $lastName = $customerData['last_name'];
+        $email = $customerData['email'];
 
         $billingAddress = $customer->getDefaultBillingAddress();
         $shippingAddress = $customer->getDefaultShippingAddress();
@@ -420,15 +271,15 @@ class CustomerService
             $shippingAddress = $this->createAddress(new DataBag($shippingData), $customer);
         }
         $updateData = [
-            'id'        => $customer->getId(),
+            'id' => $customer->getId(),
             'firstName' => $firstName,
-            'lastName'  => $lastName,
-            'email'     => $email,
+            'lastName' => $lastName,
+            'email' => $email,
         ];
         $updateDataOrderCustomer = [
             'firstName' => $firstName,
-            'lastName'  => $lastName,
-            'email'     => $email,
+            'lastName' => $lastName,
+            'email' => $email,
         ];
 
         if ($billingAddress !== null) {
@@ -443,6 +294,7 @@ class CustomerService
 
         $this->customerRepository->update([$updateData], $context);
     }
+
     public function updateOrderCustomerDetails(
         OrderEntity $order,
         array $data,
@@ -461,5 +313,119 @@ class CustomerService
         $updateData = array_merge($updateData, $data);
 
         $this->orderCustomerRepository->update([$updateData], $context);
+    }
+
+    /**
+     * Create customer and address
+     */
+    protected function create(DataBag $data): CustomerEntity
+    {
+        $this->validateSaleChannelContext();
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+        $salutationId = $this->getSalutationId();
+        $address = $this->getAddressData($data, $customerId, $addressId, $salutationId);
+        $customer = [
+            'id' => $customerId,
+            'customerNumber' => $data->get('paymentToken', bin2hex(random_bytes(16))),
+            'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+            'languageId' => $this->salesChannelContext->getContext()->getLanguageId(),
+            'groupId' => $this->salesChannelContext->getCurrentCustomerGroup()->getId(),
+            'defaultShippingAddressId' => $addressId,
+            'defaultBillingAddressId' => $addressId,
+            'salutationId' => $salutationId,
+            'firstName' => $data->get('first_name', 'Unknown'),
+            'lastName' => $data->get('last_name', 'Customer - Buckaroo Payments'),
+            'email' => $data->get('email', 'no-replay@example.com'),
+            'active' => true,
+            'guest' => true,
+            'firstLogin' => new \DateTimeImmutable(),
+            'addresses' => [$address],
+        ];
+
+        // Shopware <= 6.6 still has a default payment method on the customer entity.
+        // The field was removed in Shopware 6.7 (deprecated in 6.6.5.0); writing it there
+        // makes the DAL reject the whole payload and breaks guest express checkout
+        // (Apple Pay / Google Pay QR flows).
+        if ($this->customerRepository->getDefinition()->getFields()->get('defaultPaymentMethodId') !== null) {
+            $customer['defaultPaymentMethodId'] = $this->salesChannelContext->getPaymentMethod()->getId();
+        }
+
+        $this->customerRepository->create(
+            [$customer],
+            $this->salesChannelContext->getContext()
+        );
+        $customer = $this->getCustomerById($customerId);
+        $this->loginCreatedCustomer($customer);
+
+        return $customer;
+    }
+
+    /**
+     * Login customer
+     */
+    protected function loginCreatedCustomer(CustomerEntity $customer): void
+    {
+        // Bind the guest customer to the CURRENT (browser) context token — the same
+        // thing Shopware's LoginRoute does. The previous implementation restored a
+        // brand-new token that never reached the browser, so the shopper's session
+        // stayed anonymous and /checkout/finish redirected to the empty cart page
+        // instead of showing the order confirmation.
+        $token = $this->salesChannelContext->getToken();
+
+        $this->contextPersister->save(
+            $token,
+            ['customerId' => $customer->getId()],
+            $this->salesChannelContext->getSalesChannelId(),
+            $customer->getId()
+        );
+
+        $this->eventDispatcher->dispatch(
+            new CustomerLoginEvent($this->salesChannelContext, $customer, $token)
+        );
+    }
+
+    /**
+     * Get salutation id
+     */
+    protected function getSalutationId(): string
+    {
+        $salutation = $this->salutationRepository->search(
+            (new Criteria())->setLimit(1),
+            $this->salesChannelContext->getContext()
+        )->getEntities()->first();
+
+        /** @var \Shopware\Core\System\Salutation\SalutationEntity|null $salutation */
+        if ($salutation === null) {
+            throw new CreateCustomerException('Cannot find salutation');
+        }
+
+        return $salutation->getId();
+    }
+
+    /**
+     * Get address data
+     *
+     * @return array<mixed>
+     */
+    protected function getAddressData(
+        DataBag $data,
+        string $customerId,
+        string $addressId,
+        string $salutationId
+    ): array {
+        return $this->customerAddressService
+            ->setSaleChannelContext($this->salesChannelContext)
+            ->formatedAddressData($data, $customerId, $addressId, $salutationId);
+    }
+
+    /**
+     * Validate saleChannelContext
+     */
+    private function validateSaleChannelContext(): void
+    {
+        if (!isset($this->salesChannelContext)) {
+            throw new CreateCartException('SaleChannelContext is required');
+        }
     }
 }

@@ -29,7 +29,9 @@ const REVEAL_DURATION = 10000;
 const ELEMENT_TIMEOUT = 10000;
 
 function isButtonDefined() {
-    return !!(window.customElements && window.customElements.get('apple-pay-button'));
+    return !!(
+        window.customElements && window.customElements.get('apple-pay-button')
+    );
 }
 
 /**
@@ -43,13 +45,20 @@ function whenButtonDefined() {
     }
 
     if (!window.customElements) {
-        return Promise.reject(new Error('Apple Pay button needs custom elements'));
+        return Promise.reject(
+            new Error('Apple Pay button needs custom elements')
+        );
     }
 
     return new Promise((resolve, reject) => {
         const timeout = window.setTimeout(
-            () => reject(new Error('Apple Pay script loaded without the apple-pay-button element')),
-            ELEMENT_TIMEOUT,
+            () =>
+                reject(
+                    new Error(
+                        'Apple Pay script loaded without the apple-pay-button element'
+                    )
+                ),
+            ELEMENT_TIMEOUT
         );
 
         window.customElements.whenDefined('apple-pay-button').then(() => {
@@ -80,7 +89,7 @@ export default {
         APPLE_PAY_SDK_URL,
         isButtonDefined,
         'the apple-pay-button element',
-        whenButtonDefined,
+        whenButtonDefined
     ),
 
     /**
@@ -102,7 +111,10 @@ export default {
         button.style.height = '100%';
         button.style.cursor = 'default';
         button.style.setProperty('--apple-pay-button-height', '100%');
-        button.style.setProperty('--apple-pay-button-border-radius', BUTTON_RADIUS);
+        button.style.setProperty(
+            '--apple-pay-button-border-radius',
+            BUTTON_RADIUS
+        );
         button.style.setProperty('--apple-pay-button-box-sizing', 'border-box');
 
         wrapper.appendChild(button);
@@ -120,7 +132,10 @@ export default {
         let observer = null;
         if (window.MutationObserver) {
             observer = new window.MutationObserver(reveal);
-            observer.observe(button, { attributes: true, attributeFilter: HIDING_ATTRIBUTES });
+            observer.observe(button, {
+                attributes: true,
+                attributeFilter: HIDING_ATTRIBUTES,
+            });
             window.setTimeout(() => observer.disconnect(), REVEAL_DURATION);
         }
 

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\Creditcards;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CreditcardsPaymentHandler extends PaymentHandlerSimple
 {
@@ -15,11 +15,6 @@ class CreditcardsPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
@@ -31,21 +26,16 @@ class CreditcardsPaymentHandler extends PaymentHandlerSimple
     ): array {
         if ($this->isHostedFields($dataBag)) {
             return [
-                    'name'              => $dataBag->get('selected-issuer'),
-                    'sessionId'         => $dataBag->get('buckaroo-token')
+                'name' => $dataBag->get('selected-issuer'),
+                'sessionId' => $dataBag->get('buckaroo-token'),
             ];
         }
+
         return [];
     }
 
     /**
      * Get method action for specific payment method
-     *
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     *
-     * @return string
      */
     public function getMethodAction(
         RequestDataBag $dataBag,

@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
-use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
-use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
-use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Mail\Service\AbstractMailService;
+use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class InvoiceService
@@ -43,6 +42,7 @@ class InvoiceService
         $this->mailService = $mailService;
         $this->mailTemplateRepository = $mailTemplateRepository;
     }
+
     public function isInvoiced(string $orderId, Context $context): bool
     {
         $criteria = new Criteria();
@@ -59,7 +59,6 @@ class InvoiceService
         Context $context,
         ?string $salesChannelId = null
     ): ?DocumentIdStruct {
-
         $operation = new DocumentGenerateOperation($order->getId(), FileTypes::PDF);
 
         /** @var DocumentIdStruct|null */
@@ -68,7 +67,6 @@ class InvoiceService
             [$order->getId() => $operation],
             $context
         )->getSuccess()->first();
-
 
         if ($this->settingsService->getSetting('sendInvoiceEmail', $salesChannelId) && $invoice !== null) {
             $documentIds = [$invoice->getId()];
@@ -159,13 +157,10 @@ class InvoiceService
         }
     }
 
-
     /**
-     * @param string $documentId
-     * @param Context $context
+     * @throws \Throwable
      *
      * @return array{content: resource|string, fileName: string|null, mimeType: string|null}
-     * @throws \Throwable
      */
     private function getDocument(string $documentId, Context $context): array
     {

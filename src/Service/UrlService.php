@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Buckaroo\Shopware6\Helpers\UrlHelper;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class UrlService
 {
@@ -136,31 +135,6 @@ class UrlService
     }
 
     /**
-     * APP_URL without a trailing slash, or null when it is not set or is not an absolute
-     * http(s) URL (so a malformed value can never end up in a push URL).
-     */
-    private function getAppBaseUrl(): ?string
-    {
-        $appUrl = rtrim(trim($this->appUrl), '/');
-        if ($appUrl === '' || filter_var($appUrl, FILTER_VALIDATE_URL) === false) {
-            return null;
-        }
-
-        $parts = parse_url($appUrl);
-        if (
-            !is_array($parts)
-            || !isset($parts['scheme'], $parts['host'])
-            || !in_array(strtolower($parts['scheme']), ['http', 'https'], true)
-            || isset($parts['query'])
-            || isset($parts['fragment'])
-        ) {
-            return null;
-        }
-
-        return $appUrl;
-    }
-
-    /**
      * Returns the cancel URL for Buckaroo redirects, using the order's sales channel domain.
      * When using multiple storefronts with different domains, the cancel redirect must land on the
      * same domain where the customer started checkout so the sw-context-token and session work.
@@ -218,6 +192,116 @@ class UrlService
         }
 
         return rtrim($firstDomain->getUrl(), '/') . '/buckaroo/cancel';
+    }
+
+    public function getReturnUrl(string $route): string
+    {
+        return $this->router->generate(
+            $route,
+            [],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+    }
+
+    /**
+     * Generate absolute URL for a route with parameters.
+     * Use this instead of getSaleBaseUrl() + forwardToRoute() to avoid double path segments
+     * (e.g. /en/en/) when using language prefixes like localhost/en.
+     *
+     * @param array<mixed> $parameters
+     */
+    public function generateAbsoluteUrl(string $route, array $parameters = []): string
+    {
+        return $this->router->generate(
+            $route,
+            $parameters,
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+    }
+
+    public function getSaleBaseUrl(): string
+    {
+        $checkoutConfirmUrl = $this->router->generate(
+            'frontend.checkout.confirm.page',
+            [],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+
+        return str_replace('/checkout/confirm', '', $checkoutConfirmUrl);
+    }
+
+    /**
+     * @param array<mixed> $parameters
+     */
+    public function forwardToRoute(string $path, array $parameters = []): string
+    {
+        return $this->router->generate($path, $parameters);
+    }
+
+    public function getRestoreUrl(): string
+    {
+        return $this->router->generate(
+            'frontend.action.buckaroo.redirect',
+            [],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+    }
+
+    /**
+     * Generate return url with access token
+     *
+     * @param int $paymentFinalizeTransactionTime minutes
+     */
+    public function generateReturnUrl(OrderTransactionEntity $transaction, int $paymentFinalizeTransactionTime): string
+    {
+        $finishUrl = $this->router->generate(
+            'frontend.checkout.finish.page',
+            ['orderId' => $transaction->getOrderId()]
+        );
+
+        $errorUrl = $this->router->generate(
+            'frontend.account.edit-order.page',
+            ['orderId' => $transaction->getOrderId()]
+        );
+
+        $tokenStruct = new TokenStruct(
+            null,
+            null,
+            $transaction->getPaymentMethodId(),
+            $transaction->getId(),
+            $finishUrl,
+            $paymentFinalizeTransactionTime * 60,
+            $errorUrl
+        );
+
+        $token = $this->tokenFactory->generateToken($tokenStruct);
+
+        return $this->assembleReturnUrl($token);
+    }
+
+    /**
+     * APP_URL without a trailing slash, or null when it is not set or is not an absolute
+     * http(s) URL (so a malformed value can never end up in a push URL).
+     */
+    private function getAppBaseUrl(): ?string
+    {
+        $appUrl = rtrim(trim($this->appUrl), '/');
+        if ($appUrl === '' || filter_var($appUrl, FILTER_VALIDATE_URL) === false) {
+            return null;
+        }
+
+        $parts = parse_url($appUrl);
+        if (
+            !is_array($parts)
+            || !isset($parts['scheme'], $parts['host'])
+            || !in_array(strtolower($parts['scheme']), ['http', 'https'], true)
+            || isset($parts['query'])
+            || isset($parts['fragment'])
+        ) {
+            return null;
+        }
+
+        return $appUrl;
     }
 
     /**
@@ -305,106 +389,10 @@ class UrlService
         if (isset($parsed['port'])) {
             $origin .= ':' . $parsed['port'];
         }
+
         return $origin;
     }
 
-    public function getReturnUrl(string $route): string
-    {
-        return $this->router->generate(
-            $route,
-            [],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
-    }
-
-    /**
-     * Generate absolute URL for a route with parameters.
-     * Use this instead of getSaleBaseUrl() + forwardToRoute() to avoid double path segments
-     * (e.g. /en/en/) when using language prefixes like localhost/en.
-     *
-     * @param string $route
-     * @param array<mixed> $parameters
-     * @return string
-     */
-    public function generateAbsoluteUrl(string $route, array $parameters = []): string
-    {
-        return $this->router->generate(
-            $route,
-            $parameters,
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
-    }
-
-    public function getSaleBaseUrl(): string
-    {
-        $checkoutConfirmUrl = $this->router->generate(
-            'frontend.checkout.confirm.page',
-            [],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
-        return str_replace('/checkout/confirm', '', $checkoutConfirmUrl);
-    }
-    /**
-     * @param string $path
-     * @param array<mixed> $parameters
-     *
-     * @return string
-     */
-    public function forwardToRoute(string $path, array $parameters = []): string
-    {
-        return $this->router->generate($path, $parameters);
-    }
-
-    public function getRestoreUrl(): string
-    {
-        return $this->router->generate(
-            'frontend.action.buckaroo.redirect',
-            [],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
-    }
-
-
-    /**
-     * Generate return url with access token
-     *
-     * @param OrderTransactionEntity $transaction
-     * @param integer $paymentFinalizeTransactionTime minutes
-     *
-     * @return string
-     */
-    public function generateReturnUrl(OrderTransactionEntity $transaction, int $paymentFinalizeTransactionTime): string
-    {
-        $finishUrl = $this->router->generate(
-            'frontend.checkout.finish.page',
-            ['orderId' => $transaction->getOrderId()]
-        );
-
-        $errorUrl = $this->router->generate(
-            'frontend.account.edit-order.page',
-            ['orderId' => $transaction->getOrderId()]
-        );
-
-        $tokenStruct = new TokenStruct(
-            null,
-            null,
-            $transaction->getPaymentMethodId(),
-            $transaction->getId(),
-            $finishUrl,
-            $paymentFinalizeTransactionTime * 60,
-            $errorUrl
-        );
-
-        $token = $this->tokenFactory->generateToken($tokenStruct);
-
-        return $this->assembleReturnUrl($token);
-    }
-
-    /**
-     * @param string $token
-     *
-     * @return string
-     */
     private function assembleReturnUrl(string $token): string
     {
         $parameter = ['_sw_payment_token' => $token];

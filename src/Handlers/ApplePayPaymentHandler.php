@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\ApplePay;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ApplePayPaymentHandler extends PaymentHandlerSimple
 {
@@ -15,11 +15,6 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
@@ -42,14 +37,13 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
         }
 
         return [
-            "customerCardName" => $this->getCustomerName($data, $order),
-            "paymentData" => $this->getPaymentData($data)
+            'customerCardName' => $this->getCustomerName($data, $order),
+            'paymentData' => $this->getPaymentData($data),
         ];
     }
 
     /**
      * @param mixed $data
-     * @return string
      */
     private function getPaymentData($data): string
     {
@@ -64,6 +58,7 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
         if ($data === false) {
             return '';
         }
+
         return base64_encode($data);
     }
 
@@ -75,8 +70,6 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
      * never end up as "Customer Unknown".
      *
      * @param mixed $data
-     * @param OrderEntity $order
-     * @return string
      */
     private function getCustomerName($data, OrderEntity $order): string
     {
@@ -99,7 +92,6 @@ class ApplePayPaymentHandler extends PaymentHandlerSimple
 
     /**
      * @param mixed $contact
-     * @return string|null
      */
     private function getContactName($contact): ?string
     {

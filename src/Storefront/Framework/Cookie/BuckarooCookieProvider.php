@@ -35,7 +35,7 @@ class BuckarooCookieProvider implements CookieProviderInterface
                 continue;
             }
 
-            foreach (['__cfduid','ARRAffinity','ARRAffinitySameSite'] as $key) {
+            foreach (['__cfduid', 'ARRAffinity', 'ARRAffinitySameSite'] as $key) {
                 $cookie['entries'][] = [
                     'snippet_name' => 'Buckaroo Payments - ' . $key,
                     'cookie' => $key,
@@ -48,7 +48,6 @@ class BuckarooCookieProvider implements CookieProviderInterface
 
     /**
      * @param array<mixed> $cookie
-     * @return bool
      */
     private function isRequiredCookieGroup(array $cookie): bool
     {

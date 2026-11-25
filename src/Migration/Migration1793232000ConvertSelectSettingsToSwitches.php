@@ -24,8 +24,8 @@ class Migration1793232000ConvertSelectSettingsToSwitches extends MigrationStep
      */
     public const ENABLED_VALUES = [
         'BuckarooPayments.config.automaticallyCloseOpenOrders' => ['enabled'],
-        'BuckarooPayments.config.transferSendEmail'            => ['1'],
-        'BuckarooPayments.config.redirectBancontact'           => ['enabledredirect'],
+        'BuckarooPayments.config.transferSendEmail' => ['1'],
+        'BuckarooPayments.config.redirectBancontact' => ['enabledredirect'],
     ];
 
     public function getCreationTimestamp(): int

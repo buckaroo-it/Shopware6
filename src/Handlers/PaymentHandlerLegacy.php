@@ -8,12 +8,11 @@ use Buckaroo\Shopware6\Buckaroo\Client;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
 use Buckaroo\Shopware6\Events\AfterPaymentRequestEvent;
 use Buckaroo\Shopware6\Events\BeforePaymentRequestEvent;
-use Buckaroo\Shopware6\Handlers\PaymentFeeCalculator;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Buckaroo\Shopware6\PaymentMethods\AbstractPayment;
 use Buckaroo\Shopware6\Service\AsyncPaymentService;
-use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Buckaroo\Shopware6\Service\Exceptions\BuckarooPaymentRejectException;
+use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Buckaroo\Shopware6\Subscribers\PaymentContextCookieSubscriber;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
@@ -31,7 +30,9 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
     use \Buckaroo\Shopware6\Buckaroo\Traits\Validation\ValidateOrderTrait;
 
     protected ?string $paymentClass = null;
+
     protected FormatRequestParamService $formatRequestParamService;
+
     private PaymentFeeCalculator $paymentFeeCalculator;
 
     public function __construct(private AsyncPaymentService $asyncPaymentService)
@@ -65,7 +66,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
 
         $dataBag = $this->getRequestBag($dataBag);
         $this->beforePayLegacy($transaction, $dataBag, $salesChannelContext);
-        $salesChannelId  = $salesChannelContext->getSalesChannelId();
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
         // Legacy path skips modern cancelPreviousPayments signature (phpstan CI compatibility)
 
         try {
@@ -84,7 +85,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
                 $this->asyncPaymentService
                     ->checkoutHelper
                     ->applyFeeToOrder($order->getId(), $fee, $salesChannelContext->getContext());
-                
+
                 // Reload order to get updated custom fields with the fee
                 $reloadedOrder = $this->asyncPaymentService->checkoutHelper->getOrderById(
                     $order->getId(),
@@ -169,6 +170,20 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         }
     }
 
+    public function finalize(
+        AsyncPaymentTransactionStruct $transaction,
+        Request $request,
+        SalesChannelContext $salesChannelContext
+    ): void {
+        $this->beforeFinalizeLegacy($transaction, $request, $salesChannelContext);
+        $this->asyncPaymentService->paymentStateService->finalizePayment(
+            $transaction,
+            $request,
+            $salesChannelContext
+        );
+        $this->afterFinalizeLegacy($transaction, $request, $salesChannelContext);
+    }
+
     /**
      * Hook for specific handlers to run logic before legacy pay flow.
      */
@@ -211,10 +226,141 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
 
         if ($response->hasRedirect()) {
             $this->handleRedirectResponse($transaction);
+
             return new RedirectResponse($response->getRedirectUrl());
         }
 
         return $this->handlePaymentStatus($response, $transaction, $salesChannelContext, $returnUrl, $paymentCode);
+    }
+
+    protected function getMethodAction(
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): string {
+        return 'pay';
+    }
+
+    protected function getMethodPayload(
+        OrderEntity $order,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): array {
+        return [];
+    }
+
+    protected function getCommonRequestPayload(
+        AsyncPaymentTransactionStruct $transaction,
+        RequestDataBag $dataBag,
+        SalesChannelContext $salesChannelContext,
+        string $paymentCode
+    ): array {
+        $order = $transaction->getOrder();
+        $returnUrl = $this->getReturnUrl($transaction, $dataBag);
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
+
+        PaymentContextCookieSubscriber::rememberForReturn(
+            $this->asyncPaymentService->checkoutHelper->getCurrentRequest(),
+            $salesChannelContext
+        );
+
+        return [
+            'order' => $order->getOrderNumber(),
+            'invoice' => $order->getOrderNumber(),
+            'amountDebit' => $this->getOrderTotalWithFee(
+                $order,
+                $salesChannelId,
+                $paymentCode
+            ),
+            'currency' => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
+            'returnURL' => $returnUrl,
+            'returnURLCancel' => $this->asyncPaymentService->urlService->getCancelUrlForOrder(
+                $order,
+                $salesChannelContext->getContext(),
+                $returnUrl
+            ),
+            'pushURL' => $this->asyncPaymentService->urlService->getPushUrlForOrder(
+                $order,
+                $salesChannelContext->getContext(),
+                $returnUrl
+            ),
+
+            'additionalParameters' => [
+                'orderTransactionId' => $transaction->getOrderTransaction()->getId(),
+                'orderId' => $order->getId(),
+            ],
+
+            'description' => $this->asyncPaymentService
+                ->settingsService
+                ->getParsedLabel($order, $salesChannelId, 'transactionLabel'),
+            'clientIP' => $this->getIp(),
+        ];
+    }
+
+    protected function getFee(string $paymentCode, string $salesChannelId): float
+    {
+        return $this->asyncPaymentService
+            ->settingsService
+            ->getBuckarooFee($paymentCode, $salesChannelId);
+    }
+
+    protected function getRequestBag(RequestDataBag $currentBag): RequestDataBag
+    {
+        if ($this->isUpdateOrder($currentBag)) {
+            $request = $this->asyncPaymentService->checkoutHelper->getCurrentRequest();
+            if ($request !== null) {
+                return new RequestDataBag(
+                    $request->request->all()
+                );
+            }
+        }
+
+        return $currentBag;
+    }
+
+    protected function isUpdateOrder(RequestDataBag $bag): bool
+    {
+        return $bag->has('errorUrl')
+            && is_scalar($bag->get('errorUrl'))
+            && strstr((string) $bag->get('errorUrl'), '/account/order/edit/') !== false;
+    }
+
+    protected function getReturnUrl(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag): string
+    {
+        if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
+            $finishUrl = (string) $dataBag->get('finishUrl');
+            // Only a path on the shop's own host is used, see PaymentUrlGenerator::isShopPath()
+            if (PaymentUrlGenerator::isShopPath($finishUrl)) {
+                return rtrim(
+                    $this->asyncPaymentService
+                        ->urlService
+                        ->forwardToRoute('frontend.home.page', []),
+                    '/'
+                ) . $finishUrl;
+            }
+        }
+
+        return $transaction->getReturnUrl();
+    }
+
+    /**
+     * Optional finalize hooks for legacy.
+     */
+    protected function beforeFinalizeLegacy(
+        AsyncPaymentTransactionStruct $transaction,
+        Request $request,
+        SalesChannelContext $salesChannelContext
+    ): void {
+        // Default no-op
+    }
+
+    protected function afterFinalizeLegacy(
+        AsyncPaymentTransactionStruct $transaction,
+        Request $request,
+        SalesChannelContext $salesChannelContext
+    ): void {
+        // Default no-op
     }
 
     private function storeTransactionInfo(
@@ -225,7 +371,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
     ): void {
         $this->asyncPaymentService->transactionService
             ->updateTransactionCustomFields($transaction->getOrderTransaction()->getId(), [
-                'originalTransactionKey' => $response->getTransactionKey()
+                'originalTransactionKey' => $response->getTransactionKey(),
             ], $salesChannelContext->getContext());
 
         // Fee is now applied before payment request, not after response
@@ -256,10 +402,10 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         string $paymentCode
     ): RedirectResponse {
         if (
-            $response->isSuccess() ||
-            $response->isAwaitingConsumer() ||
-            $response->isPendingProcessing() ||
-            $response->isWaitingOnUserInput()
+            $response->isSuccess()
+            || $response->isAwaitingConsumer()
+            || $response->isPendingProcessing()
+            || $response->isWaitingOnUserInput()
         ) {
             if (!$response->isSuccess()) {
                 $this->asyncPaymentService
@@ -270,6 +416,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
                         $salesChannelContext->getContext()
                     );
             }
+
             return $this->redirectToFinishPage($transaction);
         }
 
@@ -306,6 +453,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
                 $transaction->getOrderTransaction()->getId(),
                 $salesChannelContext->getContext()
             );
+
         return $this->redirectToFinishPage($transaction);
     }
 
@@ -319,71 +467,6 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         );
     }
 
-    protected function getMethodAction(
-        RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
-    ): string {
-        return 'pay';
-    }
-
-    protected function getMethodPayload(
-        OrderEntity $order,
-        RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
-    ): array {
-        return [];
-    }
-
-    protected function getCommonRequestPayload(
-        AsyncPaymentTransactionStruct $transaction,
-        RequestDataBag $dataBag,
-        SalesChannelContext $salesChannelContext,
-        string $paymentCode
-    ): array {
-        $order = $transaction->getOrder();
-        $returnUrl = $this->getReturnUrl($transaction, $dataBag);
-        $salesChannelId = $salesChannelContext->getSalesChannelId();
-
-        PaymentContextCookieSubscriber::rememberForReturn(
-            $this->asyncPaymentService->checkoutHelper->getCurrentRequest(),
-            $salesChannelContext
-        );
-
-        return [
-            'order'         => $order->getOrderNumber(),
-            'invoice'       => $order->getOrderNumber(),
-            'amountDebit'   => $this->getOrderTotalWithFee(
-                $order,
-                $salesChannelId,
-                $paymentCode
-            ),
-            'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
-            'returnURL'     => $returnUrl,
-            'returnURLCancel' => $this->asyncPaymentService->urlService->getCancelUrlForOrder(
-                $order,
-                $salesChannelContext->getContext(),
-                $returnUrl
-            ),
-            'pushURL'       => $this->asyncPaymentService->urlService->getPushUrlForOrder(
-                $order,
-                $salesChannelContext->getContext(),
-                $returnUrl
-            ),
-
-            'additionalParameters' => [
-                'orderTransactionId' => $transaction->getOrderTransaction()->getId(),
-                'orderId' => $order->getId(),
-            ],
-
-            'description' => $this->asyncPaymentService
-                ->settingsService
-                ->getParsedLabel($order, $salesChannelId, 'transactionLabel'),
-            'clientIP' => $this->getIp(),
-        ];
-    }
-
     private function getOrderTotalWithFee(
         OrderEntity $order,
         string $salesChannelId,
@@ -392,22 +475,15 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         return $this->paymentFeeCalculator->getOrderTotalWithFee($order, $salesChannelId, $paymentCode);
     }
 
-
     private function getIp(): array
     {
         $request = Request::createFromGlobals();
         $remoteIp = $request->getClientIp();
-        return [
-            'address'       => $remoteIp,
-            'type'          => IPProtocolVersion::getVersion($remoteIp)
-        ];
-    }
 
-    protected function getFee(string $paymentCode, string $salesChannelId): float
-    {
-        return $this->asyncPaymentService
-            ->settingsService
-            ->getBuckarooFee($paymentCode, $salesChannelId);
+        return [
+            'address' => $remoteIp,
+            'type' => IPProtocolVersion::getVersion($remoteIp),
+        ];
     }
 
     private function getClient(
@@ -417,12 +493,13 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
         ?string $culture = null
     ): Client {
         if (
-            $paymentCode === 'paybybank' &&
-            $dataBag->get('payBybankMethodId') === 'INGBNL2A' &&
-            $this->asyncPaymentService->isMobile(Request::createFromGlobals())
+            $paymentCode === 'paybybank'
+            && $dataBag->get('payBybankMethodId') === 'INGBNL2A'
+            && $this->asyncPaymentService->isMobile(Request::createFromGlobals())
         ) {
             $paymentCode = 'ideal';
         }
+
         return $this->asyncPaymentService
             ->clientService
             ->get($paymentCode, $salesChannelId, $culture);
@@ -452,7 +529,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
                 'Payment class not set. Call setPaymentClass() before using payment handler.'
             );
         }
-        
+
         $paymentClass = null;
         if (class_exists($this->paymentClass)) {
             $paymentClass = new $this->paymentClass();
@@ -463,77 +540,7 @@ class PaymentHandlerLegacy implements AsynchronousPaymentHandlerInterface
                 'Invalid buckaroo payment class'
             );
         }
+
         return $paymentClass;
-    }
-
-    public function finalize(
-        AsyncPaymentTransactionStruct $transaction,
-        Request $request,
-        SalesChannelContext $salesChannelContext
-    ): void {
-        $this->beforeFinalizeLegacy($transaction, $request, $salesChannelContext);
-        $this->asyncPaymentService->paymentStateService->finalizePayment(
-            $transaction,
-            $request,
-            $salesChannelContext
-        );
-        $this->afterFinalizeLegacy($transaction, $request, $salesChannelContext);
-    }
-
-    protected function getRequestBag(RequestDataBag $currentBag): RequestDataBag
-    {
-        if ($this->isUpdateOrder($currentBag)) {
-            $request = $this->asyncPaymentService->checkoutHelper->getCurrentRequest();
-            if ($request !== null) {
-                return new RequestDataBag(
-                    $request->request->all()
-                );
-            }
-        }
-        return $currentBag;
-    }
-
-    protected function isUpdateOrder(RequestDataBag $bag): bool
-    {
-        return $bag->has('errorUrl') &&
-            is_scalar($bag->get('errorUrl')) &&
-            strstr((string)$bag->get('errorUrl'), '/account/order/edit/') !== false;
-    }
-
-    protected function getReturnUrl(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag): string
-    {
-        if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
-            $finishUrl = (string)$dataBag->get('finishUrl');
-            // Only a path on the shop's own host is used, see PaymentUrlGenerator::isShopPath()
-            if (PaymentUrlGenerator::isShopPath($finishUrl)) {
-                return rtrim(
-                    $this->asyncPaymentService
-                        ->urlService
-                        ->forwardToRoute('frontend.home.page', []),
-                    "/"
-                ) . $finishUrl;
-            }
-        }
-
-        return $transaction->getReturnUrl();
-    }
-
-    /**
-     * Optional finalize hooks for legacy.
-     */
-    protected function beforeFinalizeLegacy(
-        AsyncPaymentTransactionStruct $transaction,
-        Request $request,
-        SalesChannelContext $salesChannelContext
-    ): void {
-        // Default no-op
-    }
-
-    protected function afterFinalizeLegacy(
-        AsyncPaymentTransactionStruct $transaction,
-        Request $request,
-        SalesChannelContext $salesChannelContext
-    ): void {
-        // Default no-op
     }
 }

@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Buckaroo\Client;
-use Buckaroo\Shopware6\Service\UrlService;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Symfony\Component\HttpFoundation\Request;
-use Buckaroo\Shopware6\Service\TransactionService;
-use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
-use Buckaroo\Shopware6\Service\StateTransitionService;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
-use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
+use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
+use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RefundService
 {
@@ -68,7 +65,6 @@ class RefundService
             throw new \InvalidArgumentException('OrderItems must be an array');
         }
 
-
         $customFields = $this->transactionService->getCustomFields($order, $context);
         $configCode = $this->getConfigCode($customFields);
         $validationErrors = $this->validate($order, $customFields);
@@ -80,7 +76,7 @@ class RefundService
         if (!$this->hasValidItemAmounts($orderItems)) {
             return [[
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.paylink.invalid_amount")
+                'message' => $this->translator->trans('buckaroo-payment.paylink.invalid_amount'),
             ]];
         }
 
@@ -96,7 +92,7 @@ class RefundService
             }
 
             if (is_array($item) && isset($item['amount']) && is_scalar($item['amount'])) {
-                $amount = (float)$item['amount'];
+                $amount = (float) $item['amount'];
 
                 $diff = $amountRemaining - $amount;
 
@@ -112,15 +108,15 @@ class RefundService
                 }
 
                 if (
-                    $configCode === 'giftcards' &&
-                    $amount < (float)$item['amount'] &&
-                    isset($item['transaction_method']) &&
-                    $item['transaction_method'] !== 'fashioncheque'
+                    $configCode === 'giftcards'
+                    && $amount < (float) $item['amount']
+                    && isset($item['transaction_method'])
+                    && $item['transaction_method'] !== 'fashioncheque'
                 ) {
-                    $requiredAmount = sprintf(" %s %s", (float)$item['amount'], $this->getCurrencyIso($order));
+                    $requiredAmount = sprintf(' %s %s', (float) $item['amount'], $this->getCurrencyIso($order));
                     $responses[] = [
                         'status' => false,
-                        'message' => "Cannot partial refund giftcard, minimum required amount is {$requiredAmount}"
+                        'message' => "Cannot partial refund giftcard, minimum required amount is {$requiredAmount}",
                     ];
                     continue;
                 }
@@ -143,12 +139,7 @@ class RefundService
     /**
      * Do a buckaroo refund request
      *
-     * @param Request $request
-     * @param OrderEntity $order
-     * @param Context $context
      * @param array<mixed> $transaction
-     * @param float $amount
-     * @param string $configCode
      * @param array<mixed> $orderItems
      *
      * @return array<mixed>|null
@@ -166,12 +157,12 @@ class RefundService
         $transactionId = $transaction['id'] ?? null;
 
         if (
-            !is_scalar($transactionKey) || (string)$transactionKey === '' ||
-            !is_scalar($transactionId) || (string)$transactionId === ''
+            !is_scalar($transactionKey) || (string) $transactionKey === ''
+            || !is_scalar($transactionId) || (string) $transactionId === ''
         ) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.missing_transaction")
+                'message' => $this->translator->trans('buckaroo-payment.missing_transaction'),
             ];
         }
 
@@ -199,18 +190,17 @@ class RefundService
             );
 
         if (
-            $configCode === 'giftcards' &&
-            isset($transaction['transaction_method']) &&
-            is_string($transaction['transaction_method'])
+            $configCode === 'giftcards'
+            && isset($transaction['transaction_method'])
+            && is_string($transaction['transaction_method'])
         ) {
             $client->setPaymentCode($transaction['transaction_method']);
         }
 
-        //Override payByBank if transaction was made with ideal
+        // Override payByBank if transaction was made with ideal
         if ($configCode === 'paybybank' && ($transaction['transaction_method'] ?? null) === 'ideal') {
             $client->setPaymentCode('ideal');
         }
-
 
         return $this->handleResponse(
             $client->execute(),
@@ -222,16 +212,84 @@ class RefundService
         );
     }
 
+    /**
+     * @param array<mixed> $orderItems
+     * @param mixed $customRefundAmount
+     */
+    public function getMaxAmount(
+        array $orderItems,
+        $customRefundAmount
+    ): float {
+        $amount = 0;
+
+        if (
+            is_scalar($customRefundAmount) && (float) $customRefundAmount > 0
+        ) {
+            $amount = (float) $customRefundAmount;
+        } else {
+            if (!empty($orderItems)) {
+                foreach ($orderItems as $orderItem) {
+                    if (
+                        is_array($orderItem)
+                        && isset($orderItem['totalAmount'])
+                        && is_numeric($orderItem['totalAmount'])
+                    ) {
+                        $amount = $amount + (float) $orderItem['totalAmount'];
+                    }
+                }
+            }
+        }
+
+        return $amount;
+    }
+
+    /**
+     * @param array<mixed> $customFields
+     */
+    public function getConfigCode(
+        array $customFields
+    ): string {
+        $serviceName = $customFields['serviceName'] ?? null;
+        if (!is_string($serviceName)) {
+            throw new \InvalidArgumentException('Service name is not a string');
+        }
+
+        return $serviceName;
+    }
+
+    protected function getLastTransaction(OrderEntity $order): OrderTransactionEntity
+    {
+        $transactions = $order->getTransactions();
+
+        if ($transactions === null) {
+            throw new \InvalidArgumentException('Cannot find last transaction on order');
+        }
+
+        /** @var OrderTransactionEntity|null */
+        $transaction = $transactions->last();
+
+        if ($transaction === null) {
+            throw new \InvalidArgumentException('Cannot find last transaction on order');
+        }
+
+        return $transaction;
+    }
+
+    protected function getCurrencyIso(OrderEntity $order): string
+    {
+        $currency = $order->getCurrency();
+        if ($currency === null) {
+            throw new \InvalidArgumentException('Cannot find currency on order');
+        }
+
+        return $currency->getIsoCode();
+    }
 
     /**
      * Handle response from payment engine
      *
-     * @param ClientResponseInterface $response
-     * @param OrderEntity $order
-     * @param Context $context
      * @param array<mixed> $orderItems
      * @param mixed $transactionId
-     * @param float $amount
      *
      * @return array<mixed>
      */
@@ -246,12 +304,12 @@ class RefundService
         if (!is_scalar($transactionId)) {
             throw new \InvalidArgumentException('Transaction id must be a string');
         }
-        $transactionId = (string)$transactionId;
+        $transactionId = (string) $transactionId;
 
         $transaction = $this->getLastTransaction($order);
 
         if ($response->isSuccess()) {
-            $status      = ($amount < $order->getAmountTotal()) ? 'partial_refunded' : 'refunded';
+            $status = ($amount < $order->getAmountTotal()) ? 'partial_refunded' : 'refunded';
             $this->stateTransitionService->transitionPaymentState($status, $transaction->getId(), $context);
             $this->transactionService->saveTransactionData($transaction->getId(), $context, [$status => 1]);
 
@@ -260,11 +318,11 @@ class RefundService
                 $orderItemsRefunded = [];
                 foreach ($orderItems as $value) {
                     if (
-                        is_array($value) &&
-                        isset($value['id']) &&
-                        isset($value['quantity']) &&
-                        is_string($value['id']) &&
-                        is_scalar($value['quantity'])
+                        is_array($value)
+                        && isset($value['id'])
+                        && isset($value['quantity'])
+                        && is_string($value['id'])
+                        && is_scalar($value['quantity'])
                     ) {
                         $orderItemsRefunded[$value['id']] = $value['quantity'];
                     }
@@ -276,7 +334,7 @@ class RefundService
                 $bkTransaction = $this->buckarooTransactionEntityRepository
                     ->getById($transactionId, $context);
                 if ($bkTransaction !== null) {
-                    $refunded_items = $bkTransaction->get("refundedItems");
+                    $refunded_items = $bkTransaction->get('refundedItems');
                 }
 
                 if (!is_string($refunded_items)) {
@@ -290,7 +348,7 @@ class RefundService
                             if (!is_scalar($qnt)) {
                                 $qnt = 0;
                             }
-                            $qnt = (int)$qnt;
+                            $qnt = (int) $qnt;
                             if (!isset($orderItemsRefunded[$k])) {
                                 $orderItemsRefunded[$k] = 0;
                             }
@@ -302,16 +360,15 @@ class RefundService
                 $amountCredit = 0;
                 $transaction = $this->buckarooTransactionEntityRepository->getById($transactionId, $context);
                 if ($transaction !== null && is_scalar($transaction->get('amountCredit'))) {
-                    $amountCredit = (float)$transaction->get('amountCredit');
+                    $amountCredit = (float) $transaction->get('amountCredit');
                 }
-
 
                 $this->buckarooTransactionEntityRepository
                     ->save(
                         $transactionId,
                         [
                             'refundedItems' => json_encode($orderItemsRefunded),
-                            'amountCredit' => (string)($amountCredit + $amount)
+                            'amountCredit' => (string) ($amountCredit + $amount),
                         ],
                         $context,
                         []
@@ -320,52 +377,22 @@ class RefundService
 
             return [
                 'status' => true,
-                'message' => $this->translator->trans("buckaroo-payment.refund.refunded_amount"),
-                'amount' => sprintf(" %s %s", $amount, $this->getCurrencyIso($order))
+                'message' => $this->translator->trans('buckaroo-payment.refund.refunded_amount'),
+                'amount' => sprintf(' %s %s', $amount, $this->getCurrencyIso($order)),
             ];
         }
 
         return [
-            'status'  => false,
+            'status' => false,
             'message' => $response->getSomeError(),
-            'code'    => $response->getStatusCode(),
+            'code' => $response->getStatusCode(),
         ];
-    }
-
-    protected function getLastTransaction(OrderEntity $order): OrderTransactionEntity
-    {
-        $transactions = $order->getTransactions();
-
-        if ($transactions === null) {
-            throw new \InvalidArgumentException('Cannot find last transaction on order');
-        }
-
-        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity|null */
-        $transaction = $transactions->last();
-
-        if ($transaction === null) {
-            throw new \InvalidArgumentException('Cannot find last transaction on order');
-        }
-
-        return $transaction;
-    }
-    protected function getCurrencyIso(OrderEntity $order): string
-    {
-        $currency = $order->getCurrency();
-        if ($currency === null) {
-            throw new \InvalidArgumentException('Cannot find currency on order');
-        }
-        return $currency->getIsoCode();
     }
 
     /**
      * Get parameters common to all payment methods
      *
-     * @param Request $request
-     * @param OrderEntity $order
-     * @param Context $context
      * @param mixed $transactionKey
-     * @param float $amount
      *
      * @return array<mixed>
      */
@@ -376,27 +403,27 @@ class RefundService
         $transactionKey,
         float $amount
     ): array {
-
         if (!is_scalar($transactionKey)) {
             $transactionKey = '';
         }
 
         $transaction = $this->getLastTransaction($order);
+
         return [
-            'order'                  => $order->getOrderNumber(),
-            'invoice'                => $order->getOrderNumber(),
-            'amountCredit'           => $amount,
-            'currency'               => $this->getCurrencyIso($order),
-            'description'            => $this->settingsService->getParsedLabel(
+            'order' => $order->getOrderNumber(),
+            'invoice' => $order->getOrderNumber(),
+            'amountCredit' => $amount,
+            'currency' => $this->getCurrencyIso($order),
+            'description' => $this->settingsService->getParsedLabel(
                 $order,
                 $order->getSalesChannelId(),
                 'refundLabel'
             ),
-            'pushURL'                => $this->urlService->getPushUrlForOrder($order, $context),
-            'pushURLFailure'         => $this->urlService->getPushUrlForOrder($order, $context),
-            'clientIP'               => $this->getIp($request),
-            'originalTransactionKey' => (string)$transactionKey,
-            'additionalParameters'   => [
+            'pushURL' => $this->urlService->getPushUrlForOrder($order, $context),
+            'pushURLFailure' => $this->urlService->getPushUrlForOrder($order, $context),
+            'clientIP' => $this->getIp($request),
+            'originalTransactionKey' => (string) $transactionKey,
+            'additionalParameters' => [
                 'orderTransactionId' => $transaction->getId(),
                 'orderId' => $order->getId(),
             ],
@@ -405,11 +432,6 @@ class RefundService
 
     /**
      * Get method specific payloads
-     *
-     * @param float $amount
-     * @param string $configCode
-     * @param array $transaction
-     * @param string $salesChannelId
      *
      * @return array<mixed>
      */
@@ -420,89 +442,82 @@ class RefundService
         string $salesChannelId
     ): array {
         if (
-            $configCode === "afterpay" &&
-            $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true
+            $configCode === 'afterpay'
+            && $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true
         ) {
             return $this->getRefundRequestArticlesForAfterpayOld($amount);
         }
 
-        if (in_array($configCode, ["afterpay", "Billink", "klarnakp", "klarna"])) {
+        if (in_array($configCode, ['afterpay', 'Billink', 'klarnakp', 'klarna'])) {
             return $this->getRefundArticleData($amount);
         }
 
         if (
-            in_array($configCode, ['creditcard', 'creditcards', 'giftcards']) &&
-            isset($transaction['transaction_method']) &&
-            is_string($transaction['transaction_method'])
+            in_array($configCode, ['creditcard', 'creditcards', 'giftcards'])
+            && isset($transaction['transaction_method'])
+            && is_string($transaction['transaction_method'])
         ) {
             return [
-                "name" => $transaction['transaction_method'],
-                "version" => 2
+                'name' => $transaction['transaction_method'],
+                'version' => 2,
             ];
         }
 
         return [];
     }
 
-
     /**
      * Validate request and return any errors
      *
-     * @param OrderEntity $order
      * @param array<mixed> $customFields
      *
      * @return array<mixed>|null
      */
     private function validate(OrderEntity $order, array $customFields): ?array
     {
-
         if ($order->getAmountTotal() <= 0) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.capture.invalid_amount")
+                'message' => $this->translator->trans('buckaroo-payment.capture.invalid_amount'),
             ];
         }
 
         // Check if refund is supported with proper existence check and strict comparison
-        if (!isset($customFields['canRefund']) ||
-            $customFields['canRefund'] === 0 ||
-            $customFields['canRefund'] === '0' ||
-            $customFields['canRefund'] === false
+        if (!isset($customFields['canRefund'])
+            || $customFields['canRefund'] === 0
+            || $customFields['canRefund'] === '0'
+            || $customFields['canRefund'] === false
         ) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.refund.not_supported")
+                'message' => $this->translator->trans('buckaroo-payment.refund.not_supported'),
             ];
         }
 
         // Check if already refunded with proper existence check and strict comparison
-        if (isset($customFields['refunded']) &&
-            ($customFields['refunded'] === 1 ||
-            $customFields['refunded'] === '1' ||
-            $customFields['refunded'] === true)
+        if (isset($customFields['refunded'])
+            && ($customFields['refunded'] === 1
+            || $customFields['refunded'] === '1'
+            || $customFields['refunded'] === true)
         ) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.refund.already_refunded")
+                'message' => $this->translator->trans('buckaroo-payment.refund.already_refunded'),
             ];
         }
 
         if (!isset($customFields['originalTransactionKey'])) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.general_error")
+                'message' => $this->translator->trans('buckaroo-payment.general_error'),
             ];
         }
+
         return null;
     }
 
     /**
      * Get buckaroo client
-     *
-     * @param string $paymentCode
-     * @param string $salesChannelId
-     *
-     * @return Client
      */
     private function getClient(string $paymentCode, string $salesChannelId): Client
     {
@@ -510,11 +525,8 @@ class RefundService
             ->get($paymentCode, $salesChannelId);
     }
 
-
     /**
      * Get client ip
-     *
-     * @param Request $request
      *
      * @return array<mixed>
      */
@@ -523,117 +535,62 @@ class RefundService
         $remoteIp = $request->getClientIp();
 
         return [
-            'address'       =>  $remoteIp,
-            'type'          => IPProtocolVersion::getVersion($remoteIp)
+            'address' => $remoteIp,
+            'type' => IPProtocolVersion::getVersion($remoteIp),
         ];
-    }
-
-    /**
-     * @param array<mixed> $orderItems
-     * @param mixed $customRefundAmount
-     *
-     * @return float
-     */
-    public function getMaxAmount(
-        array $orderItems,
-        $customRefundAmount
-    ): float {
-        $amount = 0;
-
-        if (
-            is_scalar($customRefundAmount) && (float)$customRefundAmount > 0
-        ) {
-            $amount = (float)$customRefundAmount;
-        } else {
-            if (!empty($orderItems)) {
-                foreach ($orderItems as $orderItem) {
-                    if (
-                        is_array($orderItem) &&
-                        isset($orderItem['totalAmount']) &&
-                        is_numeric($orderItem['totalAmount'])
-                    ) {
-                        $amount = $amount + (float)$orderItem['totalAmount'];
-                    }
-                }
-            }
-        }
-        return $amount;
     }
 
     /**
      * Every order item must carry a numeric, non-negative total amount
      *
      * @param array<mixed> $orderItems
-     *
-     * @return bool
      */
     private function hasValidItemAmounts(array $orderItems): bool
     {
         foreach ($orderItems as $orderItem) {
             if (
-                !is_array($orderItem) ||
-                !isset($orderItem['totalAmount']) ||
-                !is_numeric($orderItem['totalAmount']) ||
-                (float)$orderItem['totalAmount'] < 0
+                !is_array($orderItem)
+                || !isset($orderItem['totalAmount'])
+                || !is_numeric($orderItem['totalAmount'])
+                || (float) $orderItem['totalAmount'] < 0
             ) {
                 return false;
             }
         }
+
         return true;
     }
 
-
     /**
-     * @param array<mixed> $customFields
-     *
-     * @return string
-     */
-    public function getConfigCode(
-        array $customFields
-    ): string {
-        $serviceName = $customFields['serviceName'] ?? null;
-        if (!is_string($serviceName)) {
-            throw new \InvalidArgumentException('Service name is not a string');
-        }
-        return $serviceName;
-    }
-
-    /**
-     * @param float $amount
-     *
      * @return array<mixed>
      */
     private function getRefundArticleData(float $amount): array
     {
-
         return [
             'articles' => [[
-                'refundType'        => 'Return',
-                'identifier'        => 1,
-                'description'       => 'Refund',
-                'quantity'          => 1,
-                'price'             =>  round($amount, 2),
-                'vatPercentage'     => 0,
-            ]]
+                'refundType' => 'Return',
+                'identifier' => 1,
+                'description' => 'Refund',
+                'quantity' => 1,
+                'price' => round($amount, 2),
+                'vatPercentage' => 0,
+            ]],
         ];
     }
 
     /**
-     * @param float $amount
-     *
      * @return array<mixed>
      */
     private function getRefundRequestArticlesForAfterpayOld(float $amount): array
     {
-
         return [
             'articles' => [[
-                'identifier'        => 1,
-                'description'       => 'Refund',
-                'quantity'          => 1,
-                'price'             => round($amount, 2),
-                'vatCategory'       => 4,
-            ]]
+                'identifier' => 1,
+                'description' => 'Refund',
+                'quantity' => 1,
+                'price' => round($amount, 2),
+                'vatCategory' => 4,
+            ]],
         ];
     }
 }

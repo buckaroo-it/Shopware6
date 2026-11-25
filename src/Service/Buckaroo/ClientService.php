@@ -7,8 +7,8 @@ namespace Buckaroo\Shopware6\Service\Buckaroo;
 use Buckaroo\Config\Config;
 use Buckaroo\Shopware6\Buckaroo\Client;
 use Buckaroo\Shopware6\Handlers\IdealPaymentHandler;
-use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\Exceptions\ClientInitException;
+use Buckaroo\Shopware6\Service\SettingsService;
 
 class ClientService
 {
@@ -27,12 +27,9 @@ class ClientService
     /**
      * Get buckaroo client
      *
-     * @param string $configMethodCode
-     * @param string $salesChannelId
      * @param string|null $culture culture code (ex. "nl-NL") sent to Buckaroo,
      *                             used for the hosted payment page and payment instructions
      *
-     * @return Client
      * @throws ClientInitException
      */
     public function get(string $configMethodCode, ?string $salesChannelId = null, ?string $culture = null): Client
@@ -49,13 +46,6 @@ class ClientService
     /**
      * Get buckaroo client with the given credentials instead of the stored ones
      *
-     * @param string $configMethodCode
-     * @param string $websiteKey
-     * @param string $secretKey
-     * @param string|null $salesChannelId
-     * @param string|null $culture
-     *
-     * @return Client
      * @throws ClientInitException
      */
     public function getWithCredentials(
@@ -79,31 +69,25 @@ class ClientService
                 $culture
             );
         } catch (\Throwable $th) {
-            throw new ClientInitException("Cannot initiate buckaroo sdk client", 0, $th);
+            throw new ClientInitException('Cannot initiate buckaroo sdk client', 0, $th);
         }
     }
 
     /**
      * Get code required for payment
-     *
-     * @param string $configCode
-     * @param string $salesChannelId
-     *
-     * @return string
      */
     protected function getPaymentCode(string $configCode, ?string $salesChannelId = null): string
     {
         if (
-            $configCode === 'afterpay' &&
-            $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true
+            $configCode === 'afterpay'
+            && $this->settingsService->getSetting('afterpayEnabledold', $salesChannelId) === true
         ) {
             return 'afterpaydigiaccept';
         }
 
-
         if (
-            $configCode === 'ideal' &&
-            $this->settingsService->getSetting("paymentHandler", $salesChannelId) === IdealPaymentHandler::IDEAL_PROCESSING
+            $configCode === 'ideal'
+            && $this->settingsService->getSetting('paymentHandler', $salesChannelId) === IdealPaymentHandler::IDEAL_PROCESSING
         ) {
             return 'idealprocessing';
         }
@@ -113,7 +97,7 @@ class ClientService
             'capayable' => 'in3',
             'giftcards' => 'giftcard',
             'creditcards' => 'creditcard',
-            'idealqr' => 'ideal_qr'
+            'idealqr' => 'ideal_qr',
         ];
         if (isset($mappings[$configCode])) {
             return $mappings[$configCode];

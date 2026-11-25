@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
+use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Subscribers\PaymentContextCookieSubscriber;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -40,18 +40,18 @@ class PaymentPayloadBuilder
         );
 
         return [
-            'order'         => $order->getOrderNumber(),
-            'invoice'       => $order->getOrderNumber(),
-            'amountDebit'   => $this->feeCalculator->getOrderTotalWithFee($order, $salesChannelId, $paymentCode),
-            'currency'      => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
-            'returnURL'     => $finalReturnUrl,
+            'order' => $order->getOrderNumber(),
+            'invoice' => $order->getOrderNumber(),
+            'amountDebit' => $this->feeCalculator->getOrderTotalWithFee($order, $salesChannelId, $paymentCode),
+            'currency' => $this->asyncPaymentService->getCurrency($order)->getIsoCode(),
+            'returnURL' => $finalReturnUrl,
             'returnURLCancel' => $this->urlGenerator->getCancelRedirectUrlForOrder(
                 $order,
                 $salesChannelContext->getContext(),
                 null,
                 $finalReturnUrl
             ),
-            'pushURL'       => $this->urlGenerator->getPushUrl(
+            'pushURL' => $this->urlGenerator->getPushUrl(
                 $order,
                 $salesChannelContext->getContext(),
                 $finalReturnUrl
@@ -73,9 +73,10 @@ class PaymentPayloadBuilder
     {
         $request = Request::createFromGlobals();
         $remoteIp = $request->getClientIp();
+
         return [
-            'address'       => $remoteIp,
-            'type'          => IPProtocolVersion::getVersion($remoteIp)
+            'address' => $remoteIp,
+            'type' => IPProtocolVersion::getVersion($remoteIp),
         ];
     }
 }

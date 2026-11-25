@@ -112,12 +112,11 @@
         "paylink": {
             "invalid_amount": "Het bedrag is niet geldig",
             "pay_link": "Je Paylink:"
-
         },
         "missing_order_id": "Ontbrekende bestelling orderId",
         "missing_transaction": "Order transactie niet gevonden",
         "general_request_error": "Er is helaas een fout opgetreden bij het verwerken van je aanvraag. Probeer het opnieuw.",
-        "in3LogoLabel":"Betaalmethode Logo:",
+        "in3LogoLabel": "Betaalmethode Logo:",
         "configure-payment": "Betaalmethode configureren",
         "configure-link": "Configureren",
         "payment-methods": "Betaalmethoden",

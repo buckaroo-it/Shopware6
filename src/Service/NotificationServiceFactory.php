@@ -27,12 +27,12 @@ class NotificationServiceFactory
         if ($this->container->has('Shopware\Core\Framework\Notification\NotificationService')) {
             return $this->container->get('Shopware\Core\Framework\Notification\NotificationService');
         }
-        
+
         // Fallback to Administration NotificationService (Shopware 6.5-6.6)
         if ($this->container->has('Shopware\Administration\Notification\NotificationService')) {
             return $this->container->get('Shopware\Administration\Notification\NotificationService');
         }
-        
+
         throw new \RuntimeException('No compatible notification service found');
     }
 }

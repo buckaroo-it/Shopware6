@@ -112,7 +112,6 @@
         "paylink": {
             "invalid_amount": "Betrag ist nicht gültig",
             "pay_link": "Ihr Zahlungslink (Paylink):"
-
         },
         "missing_order_id": "Fehlende Bestell-ID",
         "missing_transaction": "Transaktion der Bestellung nicht gefunden",

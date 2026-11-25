@@ -4,26 +4,26 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Events;
 
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Buckaroo\Shopware6\Service\OrderService;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\CaptureService;
 use Buckaroo\Shopware6\Service\InvoiceService;
 use Buckaroo\Shopware6\Service\KlarnaMorService;
-use Buckaroo\Shopware6\Service\SettingsService;
-use Buckaroo\Shopware6\Service\TransactionService;
-use Buckaroo\Shopware6\Service\StateTransitionService;
 use Buckaroo\Shopware6\Service\NotificationServiceFactory;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\Core\Checkout\Order\OrderStates;
-use Shopware\Core\Checkout\Order\OrderDefinition;
+use Buckaroo\Shopware6\Service\OrderService;
+use Buckaroo\Shopware6\Service\SettingsService;
+use Buckaroo\Shopware6\Service\StateTransitionService;
+use Buckaroo\Shopware6\Service\TransactionService;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
+use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class OrderStateChangeEvent implements EventSubscriberInterface
 {
@@ -43,7 +43,9 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
     protected object $notificationService; // Can be either NotificationService
 
-    /** @var LoggerInterface */
+    /**
+     * @var LoggerInterface
+     */
     protected $logger;
 
     /**
@@ -110,7 +112,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             );
         } catch (\Throwable $th) {
             // Never let a Buckaroo failure break the merchant's order-cancellation flow.
-            $this->logger->error(__METHOD__ . ' ' . (string)$th);
+            $this->logger->error(__METHOD__ . ' ' . (string) $th);
         }
     }
 
@@ -132,7 +134,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             );
         } catch (\Throwable $th) {
             // Never let a Buckaroo failure break the merchant's order-cancellation flow.
-            $this->logger->error(__METHOD__ . ' ' . (string)$th);
+            $this->logger->error(__METHOD__ . ' ' . (string) $th);
         }
     }
 
@@ -152,13 +154,14 @@ class OrderStateChangeEvent implements EventSubscriberInterface
                 'deliveries',
                 'deliveries.stateMachineState',
                 'salesChannel',
-                'currency'
+                'currency',
             ],
             $context
         );
 
         if ($order === null) {
             $this->logger->debug(__METHOD__ . ' Cannot find order entity', ['orderId' => $orderId]);
+
             return;
         }
 
@@ -169,8 +172,8 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         }
 
         $this->logger->info('Buckaroo Klarna MoR: sending CancelReservation datarequest', [
-            'orderId'        => $order->getId(),
-            'orderNumber'    => $order->getOrderNumber(),
+            'orderId' => $order->getId(),
+            'orderNumber' => $order->getOrderNumber(),
             'dataRequestKey' => $customFields['dataRequestKey'],
         ]);
 
@@ -183,7 +186,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
         if (isset($result['status']) && $result['status'] === true) {
             $this->logger->info('Buckaroo Klarna MoR: reservation cancelled successfully', [
-                'orderId'     => $order->getId(),
+                'orderId' => $order->getId(),
                 'orderNumber' => $order->getOrderNumber(),
             ]);
 
@@ -202,14 +205,109 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             }
         } else {
             $this->logger->error('Buckaroo Klarna MoR: CancelReservation datarequest failed', [
-                'orderId'     => $order->getId(),
+                'orderId' => $order->getId(),
                 'orderNumber' => $order->getOrderNumber(),
-                'message'     => $result['message'] ?? 'Unknown error',
-                'code'        => $result['code'] ?? null,
+                'message' => $result['message'] ?? 'Unknown error',
+                'code' => $result['code'] ?? null,
             ]);
         }
 
         $this->createNotifications($result, $context);
+    }
+
+    public function onOrderDeliveryStateShipped(OrderStateMachineStateChangeEvent $event): bool
+    {
+        return $this->triggerCaptureForShippedOrder(
+            $event->getOrder()->getId(),
+            $event->getSalesChannelId(),
+            $event->getContext()
+        );
+    }
+
+    /**
+     * Reusable capture-on-shipment trigger. Called by:
+     *  - onOrderDeliveryStateShipped (state-machine path via state_enter event)
+     *  - OrderDeliveryWrittenSubscriber (direct DAL write path via order_delivery.written)
+     *
+     * @param array<int, string>|null $onlyPaymentMethods When given, the trigger is
+     *                                                    restricted to these Buckaroo payment methods (lowercase `brqPaymentMethod`
+     *                                                    values). The direct DAL write path uses this to opt in one method at a time
+     *                                                    instead of every capture-on-shipment method; see
+     *                                                    OrderDeliveryWrittenSubscriber::CAPTURE_METHODS_ON_DAL_WRITE.
+     */
+    public function triggerCaptureForShippedOrder(
+        string $orderId,
+        ?string $salesChannelId,
+        Context $context,
+        ?array $onlyPaymentMethods = null
+    ): bool {
+        $order = $this->orderService->getOrderById(
+            $orderId,
+            [
+                'transactions',
+                'transactions.paymentMethod',
+                'transactions.paymentMethod.plugin',
+                'salesChannel',
+                'currency',
+            ],
+            $context
+        );
+
+        if ($order === null) {
+            $this->logger->debug('Cannot find order entity');
+
+            return false;
+        }
+        $customFields = $this->transactionService->getCustomFields($order, $context);
+
+        if (!isset($customFields['brqPaymentMethod'])) {
+            return false;
+        }
+
+        if (!is_string($customFields['brqPaymentMethod'])) {
+            $this->logger->warning('Invalid brqPaymentMethod type detected', [
+                'type' => gettype($customFields['brqPaymentMethod']),
+                'value' => $customFields['brqPaymentMethod'],
+            ]);
+
+            return false;
+        }
+
+        if (
+            $onlyPaymentMethods !== null
+            && !in_array(strtolower($customFields['brqPaymentMethod']), $onlyPaymentMethods, true)
+        ) {
+            $this->logger->debug(
+                'Buckaroo capture-on-shipment: payment method not enabled for this trigger path',
+                [
+                    'orderId' => $orderId,
+                    'brqPaymentMethod' => $customFields['brqPaymentMethod'],
+                    'allowedMethods' => $onlyPaymentMethods,
+                ]
+            );
+
+            return false;
+        }
+
+        if (
+            $this->canCaptureAfterpay(
+                $customFields,
+                $order->getCustomFields(),
+                $salesChannelId
+            )
+        ) {
+            $this->capture($order, $context);
+        }
+
+        if ($this->canCaptureKlarna($customFields, $salesChannelId)) {
+            $this->capture($order, $context);
+        }
+
+        if ($this->canCaptureKlarnaKp($customFields, $salesChannelId)) {
+            $this->capture($order, $context);
+        }
+
+        return true;
     }
 
     /**
@@ -221,21 +319,22 @@ class OrderStateChangeEvent implements EventSubscriberInterface
     private function canCancelKlarnaMorReservation(OrderEntity $order, array $customFields): bool
     {
         if (
-            !isset($customFields['brqPaymentMethod']) ||
-            !is_string($customFields['brqPaymentMethod']) ||
-            strtolower($customFields['brqPaymentMethod']) !== 'klarna'
+            !isset($customFields['brqPaymentMethod'])
+            || !is_string($customFields['brqPaymentMethod'])
+            || strtolower($customFields['brqPaymentMethod']) !== 'klarna'
         ) {
             return false;
         }
 
         if (
-            !isset($customFields['dataRequestKey']) ||
-            !is_string($customFields['dataRequestKey']) ||
-            $customFields['dataRequestKey'] === ''
+            !isset($customFields['dataRequestKey'])
+            || !is_string($customFields['dataRequestKey'])
+            || $customFields['dataRequestKey'] === ''
         ) {
             $this->logger->debug('Buckaroo Klarna MoR: skipping cancellation, missing dataRequestKey', [
                 'orderId' => $order->getId(),
             ]);
+
             return false;
         }
 
@@ -243,6 +342,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             $this->logger->info('Buckaroo Klarna MoR: skipping cancellation, payment already captured', [
                 'orderId' => $order->getId(),
             ]);
+
             return false;
         }
 
@@ -250,6 +350,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             $this->logger->debug('Buckaroo Klarna MoR: skipping cancellation, reservation already cancelled', [
                 'orderId' => $order->getId(),
             ]);
+
             return false;
         }
 
@@ -269,10 +370,11 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             $this->logger->info(
                 'Buckaroo Klarna MoR: skipping cancellation, payment transaction is not authorized',
                 [
-                    'orderId'          => $order->getId(),
+                    'orderId' => $order->getId(),
                     'transactionState' => $transactionState,
                 ]
             );
+
             return false;
         }
 
@@ -280,6 +382,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             $this->logger->info('Buckaroo Klarna MoR: skipping cancellation, order already shipped', [
                 'orderId' => $order->getId(),
             ]);
+
             return false;
         }
 
@@ -313,8 +416,8 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         foreach ($deliveries as $delivery) {
             $state = $delivery->getStateMachineState();
             if (
-                $state !== null &&
-                in_array(
+                $state !== null
+                && in_array(
                     $state->getTechnicalName(),
                     [OrderDeliveryStates::STATE_SHIPPED, OrderDeliveryStates::STATE_PARTIALLY_SHIPPED],
                     true
@@ -327,98 +430,6 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         return false;
     }
 
-    public function onOrderDeliveryStateShipped(OrderStateMachineStateChangeEvent $event): bool
-    {
-        return $this->triggerCaptureForShippedOrder(
-            $event->getOrder()->getId(),
-            $event->getSalesChannelId(),
-            $event->getContext()
-        );
-    }
-
-    /**
-     * Reusable capture-on-shipment trigger. Called by:
-     *  - onOrderDeliveryStateShipped (state-machine path via state_enter event)
-     *  - OrderDeliveryWrittenSubscriber (direct DAL write path via order_delivery.written)
-     *
-     * @param array<int, string>|null $onlyPaymentMethods When given, the trigger is
-     *        restricted to these Buckaroo payment methods (lowercase `brqPaymentMethod`
-     *        values). The direct DAL write path uses this to opt in one method at a time
-     *        instead of every capture-on-shipment method; see
-     *        OrderDeliveryWrittenSubscriber::CAPTURE_METHODS_ON_DAL_WRITE.
-     */
-    public function triggerCaptureForShippedOrder(
-        string $orderId,
-        ?string $salesChannelId,
-        Context $context,
-        ?array $onlyPaymentMethods = null
-    ): bool {
-        $order = $this->orderService->getOrderById(
-            $orderId,
-            [
-                'transactions',
-                'transactions.paymentMethod',
-                'transactions.paymentMethod.plugin',
-                'salesChannel',
-                'currency'
-            ],
-            $context
-        );
-
-        if ($order === null) {
-            $this->logger->debug("Cannot find order entity");
-            return false;
-        }
-        $customFields = $this->transactionService->getCustomFields($order, $context);
-
-        if (!isset($customFields['brqPaymentMethod'])) {
-            return false;
-        }
-
-        if (!is_string($customFields['brqPaymentMethod'])) {
-            $this->logger->warning('Invalid brqPaymentMethod type detected', [
-                'type' => gettype($customFields['brqPaymentMethod']),
-                'value' => $customFields['brqPaymentMethod']
-            ]);
-            return false;
-        }
-
-        if (
-            $onlyPaymentMethods !== null &&
-            !in_array(strtolower($customFields['brqPaymentMethod']), $onlyPaymentMethods, true)
-        ) {
-            $this->logger->debug(
-                'Buckaroo capture-on-shipment: payment method not enabled for this trigger path',
-                [
-                    'orderId'          => $orderId,
-                    'brqPaymentMethod' => $customFields['brqPaymentMethod'],
-                    'allowedMethods'   => $onlyPaymentMethods,
-                ]
-            );
-            return false;
-        }
-
-        if (
-            $this->canCaptureAfterpay(
-                $customFields,
-                $order->getCustomFields(),
-                $salesChannelId
-            )
-        ) {
-            $this->capture($order, $context);
-        }
-
-        if ($this->canCaptureKlarna($customFields, $salesChannelId)) {
-            $this->capture($order, $context);
-        }
-
-        if ($this->canCaptureKlarnaKp($customFields, $salesChannelId)) {
-            $this->capture($order, $context);
-        }
-
-        return true;
-    }
-
     private function canCaptureAfterpay(
         array $customFields,
         ?array $orderCustomFields,
@@ -428,19 +439,20 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         if (!isset($customFields['brqPaymentMethod']) || !is_string($customFields['brqPaymentMethod'])) {
             return false;
         }
-        
+
         // Guard against null sales channel ID - cannot determine capture settings without it
         if ($salesChannelId === null) {
             $this->logger->warning('Cannot determine afterpay capture settings: sales channel ID is null');
+
             return false;
         }
-        
-        return $customFields['brqPaymentMethod'] === 'afterpay' &&
-            !isset($customFields['captured']) &&
-            !CaptureService::isCaptureInFlight($customFields) &&
-            $this->settingsService->getSetting('afterpayCaptureonshippent', $salesChannelId) &&
-            isset($orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED]) &&
-            $orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED] === true;
+
+        return $customFields['brqPaymentMethod'] === 'afterpay'
+            && !isset($customFields['captured'])
+            && !CaptureService::isCaptureInFlight($customFields)
+            && $this->settingsService->getSetting('afterpayCaptureonshippent', $salesChannelId)
+            && isset($orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED])
+            && $orderCustomFields[CaptureService::ORDER_IS_AUTHORIZED] === true;
     }
 
     private function canCaptureKlarna(array $customFields, ?string $salesChannelId): bool
@@ -451,6 +463,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
         if ($salesChannelId === null) {
             $this->logger->warning('Cannot determine Klarna capture settings: sales channel ID is null');
+
             return false;
         }
 
@@ -464,7 +477,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             && !isset($customFields['captured'])
             && !CaptureService::isCaptureInFlight($customFields)
             && isset($customFields['dataRequestKey'])
-            && (bool)$this->settingsService->getSetting('klarnaCaptureonshipment', $salesChannelId);
+            && (bool) $this->settingsService->getSetting('klarnaCaptureonshipment', $salesChannelId);
     }
 
     private function canCaptureKlarnaKp(array $customFields, ?string $salesChannelId): bool
@@ -475,6 +488,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
 
         if ($salesChannelId === null) {
             $this->logger->warning('Cannot determine Klarna KP capture settings: sales channel ID is null');
+
             return false;
         }
 
@@ -482,7 +496,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             && !isset($customFields['captured'])
             && !CaptureService::isCaptureInFlight($customFields)
             && isset($customFields['reservationNumber'])
-            && (bool)$this->settingsService->getSetting('klarnakpCaptureonshipment', $salesChannelId);
+            && (bool) $this->settingsService->getSetting('klarnakpCaptureonshipment', $salesChannelId);
     }
 
     private function capture(OrderEntity $order, Context $context): void
@@ -497,7 +511,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
                 $context
             );
         } catch (\Throwable $th) {
-            $this->logger->error(__METHOD__ . (string)$th);
+            $this->logger->error(__METHOD__ . (string) $th);
         }
     }
 
@@ -518,7 +532,7 @@ class OrderStateChangeEvent implements EventSubscriberInterface
             $status = 'success';
         }
 
-        $message = "A error has occurred while processing the buckaroo capture";
+        $message = 'A error has occurred while processing the buckaroo capture';
         if (isset($result['message'])) {
             $message = $result['message'];
         }
@@ -526,13 +540,13 @@ class OrderStateChangeEvent implements EventSubscriberInterface
         if (method_exists($this->notificationService, 'createNotification')) {
             $this->notificationService->createNotification(
                 [
-                'id' => Uuid::randomHex(),
-                'status' => $status,
-                'message' => $message,
-                'adminOnly' => true,
-                'requiredPrivileges' => [],
-                'createdByIntegrationId' => null,
-                'createdByUserId' => null,
+                    'id' => Uuid::randomHex(),
+                    'status' => $status,
+                    'message' => $message,
+                    'adminOnly' => true,
+                    'requiredPrivileges' => [],
+                    'createdByIntegrationId' => null,
+                    'createdByUserId' => null,
                 ],
                 $context
             );

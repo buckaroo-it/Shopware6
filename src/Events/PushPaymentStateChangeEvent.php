@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Events;
 
 use Shopware\Core\Framework\Context;
-use Symfony\Component\HttpFoundation\Request;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class PushPaymentStateChangeEvent implements ShopwareSalesChannelEvent
 {

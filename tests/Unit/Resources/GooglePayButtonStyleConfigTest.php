@@ -7,6 +7,7 @@ namespace Buckaroo\Shopware6\Tests\Unit\Resources;
 use DOMElement;
 use DOMDocument;
 use DOMXPath;
+use Buckaroo\Shopware6\Tests\Unit\TestHelper\JsSourceAssertions;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -20,6 +21,8 @@ use PHPUnit\Framework\TestCase;
  */
 class GooglePayButtonStyleConfigTest extends TestCase
 {
+    use JsSourceAssertions;
+
     private const LOCALES = ['en-GB', 'nl-NL', 'de-DE', 'fr-FR'];
 
     private const STYLE_FIELDS = ['googlepayButtonStyle', 'googlepayButtonType'];
@@ -197,7 +200,7 @@ class GooglePayButtonStyleConfigTest extends TestCase
         $this->assertSame('buy', $types[1][0] ?? null, 'The first button type is the default');
         $this->assertEqualsCanonicalizing(self::BUTTON_TYPES, $types[1]);
 
-        $this->assertMatchesRegularExpression('/buttonColor:\s*"black",\s*buttonType:\s*"buy",/', $source);
+        $this->assertMatchesRegularExpression('/buttonColor:\s*["\']black["\'],\s*buttonType:\s*["\']buy["\'],/', $source);
     }
 
     /**
@@ -212,19 +215,19 @@ class GooglePayButtonStyleConfigTest extends TestCase
 
         $found = preg_match('/const\s+BUTTON_LOCALES\s*=\s*\[([^\]]*)\]/', $helper, $match);
         $this->assertSame(1, $found, 'BUTTON_LOCALES not found in ' . self::BUTTON_LOCALE_HELPER);
-        preg_match_all('/"([a-z]{2})"/', $match[1], $locales);
+        preg_match_all('/["\']([a-z]{2})["\']/', $match[1], $locales);
         $this->assertSame(self::GOOGLE_BUTTON_LOCALES, $locales[1], 'The languages Google lists for buttonLocale');
 
         $storefront = (string)file_get_contents($this->pluginPath(self::STOREFRONT_PLUGIN));
-        $this->assertStringContainsString('import googlePayButtonLocale from "./button-locale";', $storefront);
-        $this->assertStringContainsString('googlePayButtonLocale(document.documentElement.lang)', $storefront);
+        $this->assertJsContains('import googlePayButtonLocale from "./button-locale";', $storefront);
+        $this->assertJsContains('googlePayButtonLocale(document.documentElement.lang)', $storefront);
         $this->assertMatchesRegularExpression(
             '/createButton\(\{[^}]*\.\.\.\(buttonLocale \? \{ buttonLocale \} : \{\}\)/',
             $storefront
         );
 
         $renderer = (string)file_get_contents($this->pluginPath(self::PREVIEW_RENDERER));
-        $this->assertStringContainsString(
+        $this->assertJsContains(
             "import googlePayButtonLocale from '../../../../../storefront/src/googlepay/button-locale';",
             $renderer
         );
@@ -234,13 +237,13 @@ class GooglePayButtonStyleConfigTest extends TestCase
         );
 
         $component = (string)file_get_contents($this->pluginPath(self::PREVIEW_COMPONENT));
-        $this->assertStringContainsString('{ locale: this.previewLocale }', $component);
-        $this->assertStringContainsString('return this.storefrontLocale || this.adminLocale;', $component);
-        $this->assertStringContainsString("criteria.addAssociation('language.locale');", $component);
-        $this->assertStringContainsString("return typeof locale === 'string' ? locale : locale?.value;", $component);
+        $this->assertJsContains('{ locale: this.previewLocale }', $component);
+        $this->assertJsContains('return this.storefrontLocale || this.adminLocale;', $component);
+        $this->assertJsContains("criteria.addAssociation('language.locale');", $component);
+        $this->assertJsContains("return typeof locale === 'string' ? locale : locale?.value;", $component);
 
         $card = (string)file_get_contents($this->pluginPath(self::CONFIG_CARD));
-        $this->assertStringContainsString(
+        $this->assertJsContains(
             'salesChannelId: this.isNotDefaultSalesChannel ? this.currentSalesChannelId : null',
             $card
         );

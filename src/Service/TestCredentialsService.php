@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Service;
 
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
-use Buckaroo\Shopware6\Service\UrlService;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\HttpFoundation\Request;
-use Buckaroo\Shopware6\Service\SettingsService;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TestCredentialsService
 {
@@ -34,10 +32,8 @@ class TestCredentialsService
         $this->clientService = $clientService;
         $this->translator = $translator;
     }
+
     /**
-     *
-     * @param Request $request
-     *
      * @return array<mixed>
      */
     public function execute(Request $request): array
@@ -47,7 +43,7 @@ class TestCredentialsService
         if (!(is_null($salesChannelId) || (is_string($salesChannelId) && Uuid::isValid($salesChannelId)))) {
             return [
                 'status' => 'error',
-                'message' => $this->translator->trans("buckaroo-payment.test_api.connection_failed"),
+                'message' => $this->translator->trans('buckaroo-payment.test_api.connection_failed'),
             ];
         }
 
@@ -57,7 +53,7 @@ class TestCredentialsService
         if (!is_scalar($websiteKeyId) || !is_scalar($secretKeyId)) {
             return [
                 'status' => 'error',
-                'message' => $this->translator->trans("buckaroo-payment.test_api.connection_failed"),
+                'message' => $this->translator->trans('buckaroo-payment.test_api.connection_failed'),
             ];
         }
 
@@ -66,8 +62,8 @@ class TestCredentialsService
             $response = $this->clientService
                 ->getWithCredentials(
                     'ideal',
-                    (string)$websiteKeyId,
-                    (string)$secretKeyId,
+                    (string) $websiteKeyId,
+                    (string) $secretKeyId,
                     $salesChannelId
                 )
                 ->setPayload([
@@ -78,43 +74,38 @@ class TestCredentialsService
             if (!$this->isAuthenticated($response)) {
                 return [
                     'status' => 'error',
-                    'message' => $this->translator->trans("buckaroo-payment.test_api.connection_failed"),
+                    'message' => $this->translator->trans('buckaroo-payment.test_api.connection_failed'),
                 ];
             }
 
             return [
                 'status' => 'success',
-                'message' => $this->translator->trans("buckaroo-payment.test_api.connection_ready"),
+                'message' => $this->translator->trans('buckaroo-payment.test_api.connection_ready'),
             ];
         } catch (\Throwable $e) {
             return [
                 'status' => 'error',
-                'message' => $this->translator->trans("buckaroo-payment.test_api.connection_failed"),
+                'message' => $this->translator->trans('buckaroo-payment.test_api.connection_failed'),
             ];
         }
     }
+
     /**
      * The test request is incomplete on purpose, so a validation failure is expected;
      * the credentials are accepted when Buckaroo answers with 2xx and a transaction status
-     *
-     * @param ClientResponseInterface $response
-     *
-     * @return bool
      */
     private function isAuthenticated(ClientResponseInterface $response): bool
     {
         $httpStatusCode = $response->getHttpStatusCode();
 
-        return $httpStatusCode !== null &&
-            $httpStatusCode >= 200 &&
-            $httpStatusCode < 300 &&
-            $response->getStatusCode() !== null;
+        return $httpStatusCode !== null
+            && $httpStatusCode >= 200
+            && $httpStatusCode < 300
+            && $response->getStatusCode() !== null;
     }
 
     /**
      * Get client ip
-     *
-     * @param Request $request
      *
      * @return array<mixed>
      */
@@ -123,8 +114,8 @@ class TestCredentialsService
         $remoteIp = $request->getClientIp();
 
         return [
-            'address'       =>  $remoteIp,
-            'type'          => IPProtocolVersion::getVersion($remoteIp)
+            'address' => $remoteIp,
+            'type' => IPProtocolVersion::getVersion($remoteIp),
         ];
     }
 }

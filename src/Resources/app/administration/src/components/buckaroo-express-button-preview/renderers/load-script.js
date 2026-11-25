@@ -15,7 +15,13 @@ const LOAD_TIMEOUT = 15000;
  *     rejects, the script counts as failed, so the next call adds it again.
  * @returns {function(): Promise<void>}
  */
-export default function createScriptLoader(name, url, isLoaded, api, whenReady = null) {
+export default function createScriptLoader(
+    name,
+    url,
+    isLoaded,
+    api,
+    whenReady = null
+) {
     let loading = null;
 
     // The script as added by the preview; kept while it may still load
@@ -46,15 +52,25 @@ export default function createScriptLoader(name, url, isLoaded, api, whenReady =
                 if (whenReady) {
                     // The script is in: from here whenReady() decides, within its own time limit
                     window.clearTimeout(timeout);
-                    whenReady().then(() => done(), error => done(error, true));
+                    whenReady().then(
+                        () => done(),
+                        (error) => done(error, true)
+                    );
                 } else if (isLoaded()) {
                     done();
                 } else {
-                    done(new Error(`${name} script loaded without ${api}`), true);
+                    done(
+                        new Error(`${name} script loaded without ${api}`),
+                        true
+                    );
                 }
             };
-            const onError = () => done(new Error(`${name} script failed to load`), true);
-            const timeout = window.setTimeout(() => done(new Error(`${name} script timed out`), false), LOAD_TIMEOUT);
+            const onError = () =>
+                done(new Error(`${name} script failed to load`), true);
+            const timeout = window.setTimeout(
+                () => done(new Error(`${name} script timed out`), false),
+                LOAD_TIMEOUT
+            );
 
             function done(error, failed) {
                 // Only the first outcome counts, e.g. a load after the timeout

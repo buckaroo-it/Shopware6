@@ -112,12 +112,11 @@
         "paylink": {
             "invalid_amount": "Le montant n'est pas valide",
             "pay_link": "Votre lien de paiement (Paylink):"
-
         },
         "missing_order_id": "Identifiant de commande manquant",
         "missing_transaction": "Transaction de commande introuvable",
         "general_request_error": "Malheureusement, une erreur s'est produite lors du traitement de votre demande. Veuillez réessayer.",
-        "in3LogoLabel":"Logo de paiement:",
+        "in3LogoLabel": "Logo de paiement:",
         "configure-payment": "Configurer le moyen de paiement",
         "configure-link": "Configurer",
         "payment-methods": "Moyens de paiement",

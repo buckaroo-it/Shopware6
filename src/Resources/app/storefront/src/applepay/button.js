@@ -4,11 +4,19 @@
  */
 
 // Apple's official Apple Pay JS SDK: provides the <apple-pay-button> web component
-export const APPLE_PAY_SDK_URL = "https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js";
+export const APPLE_PAY_SDK_URL =
+    'https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js';
 
 // Button styles and types of <apple-pay-button>; the first is the default
-export const BUTTON_STYLES = ["black", "white", "white-outline"];
-export const BUTTON_TYPES = ["plain", "buy", "check-out", "order", "book", "subscribe"];
+export const BUTTON_STYLES = ['black', 'white', 'white-outline'];
+export const BUTTON_TYPES = [
+    'plain',
+    'buy',
+    'check-out',
+    'order',
+    'book',
+    'subscribe',
+];
 
 /**
  * The value when it is one of the options, otherwise the first (default) option
@@ -18,7 +26,7 @@ export const BUTTON_TYPES = ["plain", "buy", "check-out", "order", "book", "subs
  * @returns {string}
  */
 export function buttonOption(value, options) {
-  return options.includes(value) ? value : options[0];
+    return options.includes(value) ? value : options[0];
 }
 
 /**
@@ -32,15 +40,20 @@ export function buttonOption(value, options) {
  * @returns {HTMLElement}
  */
 export function createButton(options) {
-  options = options || {};
-  const locale = (typeof options.locale === "string" && options.locale.trim() !== "")
-    ? options.locale
-    : ((typeof navigator !== "undefined" && navigator.language) || "en-US");
-  const button = document.createElement("apple-pay-button");
-  button.setAttribute("locale", locale);
-  button.setAttribute("buttonstyle", buttonOption(options.buttonStyle, BUTTON_STYLES));
-  button.setAttribute("type", buttonOption(options.buttonType, BUTTON_TYPES));
-  button.style.width = "100%";
-  button.style.cursor = "pointer";
-  return button;
+    options = options || {};
+    const locale =
+        typeof options.locale === 'string' && options.locale.trim() !== ''
+            ? options.locale
+            : (typeof navigator !== 'undefined' && navigator.language) ||
+              'en-US';
+    const button = document.createElement('apple-pay-button');
+    button.setAttribute('locale', locale);
+    button.setAttribute(
+        'buttonstyle',
+        buttonOption(options.buttonStyle, BUTTON_STYLES)
+    );
+    button.setAttribute('type', buttonOption(options.buttonType, BUTTON_TYPES));
+    button.style.width = '100%';
+    button.style.cursor = 'pointer';
+    return button;
 }

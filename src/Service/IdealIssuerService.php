@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Contracts\Cache\CacheInterface;
 use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class IdealIssuerService
 {
@@ -19,14 +19,7 @@ class IdealIssuerService
     /**
      * @var int
      */
-    protected const CACHE_LIFETIME_SECONDS = 86400; //24hours
-
-    /**
-     * @var CacheInterface
-     */
-    protected CacheInterface $cache;
-
-    protected ClientService $clientService;
+    protected const CACHE_LIFETIME_SECONDS = 86400; // 24hours
 
     /**
      * @var array
@@ -46,12 +39,14 @@ class IdealIssuerService
         'REVONL22' => 'revolut',
         'BITSNL2A' => 'yoursafe',
         'NTSBDEB1' => 'n26',
-        'NNBANL2G' => 'nn'
+        'NNBANL2G' => 'nn',
     ];
 
+    protected CacheInterface $cache;
+
+    protected ClientService $clientService;
+
     /**
-     * @param CacheInterface $cache
-     * @param ClientService $clientService
      * @return void
      */
     public function __construct(
@@ -64,10 +59,6 @@ class IdealIssuerService
 
     /**
      * Get a list of issuers
-     *
-     * @param string $salesChannelId
-     *
-     * @return array
      */
     public function get(string $salesChannelId): array
     {
@@ -92,10 +83,6 @@ class IdealIssuerService
 
     /**
      * Do request to the payment engine
-     *
-     * @param string $salesChannelId
-     *
-     * @return array
      */
     private function requestIssuers(string $salesChannelId): array
     {
@@ -106,9 +93,6 @@ class IdealIssuerService
 
     /**
      * Add logo to the list of issuer
-     *
-     * @param array $issuers
-     * @return array
      */
     private function addLogos(array $issuers): array
     {
@@ -116,12 +100,13 @@ class IdealIssuerService
             function ($issuer) {
                 $logo = null;
                 if (
-                    isset($issuer['id']) &&
-                    isset(self::ISSUERS_IMAGES[$issuer['id']])
+                    isset($issuer['id'])
+                    && isset(self::ISSUERS_IMAGES[$issuer['id']])
                 ) {
                     $logo = self::ISSUERS_IMAGES[$issuer['id']];
                 }
                 $issuer['imgName'] = $logo;
+
                 return $issuer;
             },
             $issuers

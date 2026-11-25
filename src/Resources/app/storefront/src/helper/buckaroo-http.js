@@ -37,11 +37,13 @@ export function post(url, data, callback) {
         // session is carried on browsers whose fetch default is still 'omit'.
         credentials: 'same-origin',
     })
-        .then((response) => response.text().then((text) => {
-            if (callback) {
-                callback(text, response);
-            }
-        }))
+        .then((response) =>
+            response.text().then((text) => {
+                if (callback) {
+                    callback(text, response);
+                }
+            })
+        )
         .catch((error) => {
             console.warn(`the request to ${url} failed`, error);
 

@@ -18,8 +18,6 @@ class SepaDirectDebit extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -28,8 +26,6 @@ class SepaDirectDebit extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -38,18 +34,14 @@ class SepaDirectDebit extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/sepa-directdebit.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/sepa-directdebit.svg';
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -65,11 +57,11 @@ class SepaDirectDebit extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit Bank Sepa Direct Debit',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
         ];

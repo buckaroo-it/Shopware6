@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Buckaroo\Shopware6\Service\KlarnaMorService;
+use Buckaroo\Shopware6\Service\OrderService;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
-use Buckaroo\Shopware6\Service\OrderService;
+use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Shopware\Storefront\Controller\StorefrontController;
-use Buckaroo\Shopware6\Service\KlarnaMorService;
 
 class KlarnaMorController extends StorefrontController
 {
+    protected LoggerInterface $logger;
+
     private KlarnaMorService $klarnaMorService;
 
     private OrderService $orderService;
-
-    protected LoggerInterface $logger;
 
     public function __construct(
         KlarnaMorService $klarnaMorService,
@@ -32,22 +32,16 @@ class KlarnaMorController extends StorefrontController
         $this->logger = $logger;
     }
 
-    /**
-     * @param Request $request
-     * @param Context $context
-     *
-     * @return JsonResponse
-     */
     #[Route(
-        path: "/api/_action/buckaroo/klarna-mor",
+        path: '/api/_action/buckaroo/klarna-mor',
         defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['order.editor']],
-        name: "api.action.buckaroo.klarna_mor",
-        methods: ["POST"]
+        name: 'api.action.buckaroo.klarna_mor',
+        methods: ['POST']
     )]
     public function action(Request $request, Context $context): JsonResponse
     {
         $orderId = $request->get('orderId');
-        $action  = $request->get('action');
+        $action = $request->get('action');
 
         if (empty($orderId) || !is_string($orderId)) {
             return new JsonResponse(
@@ -78,7 +72,7 @@ class KlarnaMorController extends StorefrontController
             $context
         );
 
-        if (null === $order) {
+        if ($order === null) {
             return new JsonResponse(
                 ['status' => false, 'message' => $this->trans('buckaroo-payment.missing_transaction')],
                 Response::HTTP_NOT_FOUND
@@ -90,12 +84,13 @@ class KlarnaMorController extends StorefrontController
                 $this->klarnaMorService->execute($request, $order, $context, $action)
             );
         } catch (\Throwable $exception) {
-            $this->logger->debug((string)$exception);
+            $this->logger->debug((string) $exception);
+
             return new JsonResponse(
                 [
-                    'status'  => false,
-                    'message' => $this->trans("buckaroo-payment.general_request_error"),
-                    'code'    => 0,
+                    'status' => false,
+                    'message' => $this->trans('buckaroo-payment.general_request_error'),
+                    'code' => 0,
                 ],
                 Response::HTTP_BAD_REQUEST
             );

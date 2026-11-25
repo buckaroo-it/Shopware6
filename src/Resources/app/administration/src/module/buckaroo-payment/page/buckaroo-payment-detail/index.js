@@ -7,15 +7,13 @@ const Criteria = Shopware.Data.Criteria;
 Component.register('buckaroo-payment-detail', {
     template,
 
-    mixins: [
-        Shopware.Mixin.getByName('notification')
-    ],
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     inject: [
         'acl',
         'repositoryFactory',
         'BuckarooPaymentService',
-        'systemConfigApiService'
+        'systemConfigApiService',
     ],
 
     data() {
@@ -39,33 +37,37 @@ Component.register('buckaroo-payment-detail', {
             isAuthorized: false,
             isKlarnaMor: false,
             fulfillmentMessage: '',
-            fulfillmentStatus: null
+            fulfillmentStatus: null,
         };
     },
 
     computed: {
         orderItemsColumns() {
             return [
-            {
-                property: 'name',
-                label: this.$tc('buckaroo-payment.orderItems.types.name'),
-                allowResize: false,
-                primary: true,
-                inlineEdit: true,
-                multiLine: true,
-            },
-            {
-                property: 'quantity',
-                label: this.$tc('buckaroo-payment.orderItems.types.quantity'),
-                rawData: true,
-                align: 'right'
-            },
-            {
-                property: 'totalAmount',
-                label: this.$tc('buckaroo-payment.orderItems.types.totalAmount'),
-                rawData: true,
-                align: 'right'
-            }
+                {
+                    property: 'name',
+                    label: this.$tc('buckaroo-payment.orderItems.types.name'),
+                    allowResize: false,
+                    primary: true,
+                    inlineEdit: true,
+                    multiLine: true,
+                },
+                {
+                    property: 'quantity',
+                    label: this.$tc(
+                        'buckaroo-payment.orderItems.types.quantity'
+                    ),
+                    rawData: true,
+                    align: 'right',
+                },
+                {
+                    property: 'totalAmount',
+                    label: this.$tc(
+                        'buckaroo-payment.orderItems.types.totalAmount'
+                    ),
+                    rawData: true,
+                    align: 'right',
+                },
             ];
         },
 
@@ -73,11 +75,12 @@ Component.register('buckaroo-payment-detail', {
             return [
                 {
                     property: 'transaction_method',
-                    rawData: true
-            },{
-                property: 'amount',
-                rawData: true
-            }
+                    rawData: true,
+                },
+                {
+                    property: 'amount',
+                    rawData: true,
+                },
             ];
         },
 
@@ -85,40 +88,62 @@ Component.register('buckaroo-payment-detail', {
             return [
                 {
                     property: 'created_at',
-                    label: this.$tc('buckaroo-payment.transactionHistory.types.created_at'),
-                    rawData: true
-            },
+                    label: this.$tc(
+                        'buckaroo-payment.transactionHistory.types.created_at'
+                    ),
+                    rawData: true,
+                },
                 {
                     property: 'total',
-                    label: this.$tc('buckaroo-payment.transactionHistory.types.total'),
-                    rawData: true
-            },{
-                property: 'shipping_costs',
-                label: this.$tc('buckaroo-payment.transactionHistory.types.shipping_costs'),
-                rawData: true
-            },{
-                property: 'total_excluding_vat',
-                label: this.$tc('buckaroo-payment.transactionHistory.types.total_excluding_vat'),
-                rawData: true
-            },{
-                property: 'vat',
-                label: this.$tc('buckaroo-payment.transactionHistory.types.vat'),
-                rawData: true
-            },{
-                property: 'transaction_key',
-                label: this.$tc('buckaroo-payment.transactionHistory.types.transaction_key'),
-                rawData: true
-            },{
-                property: 'transaction_method',
-                label: this.$tc('buckaroo-payment.transactionHistory.types.transaction_method'),
-                rawData: true
-            },{
-                property: 'statuscode',
-                label: this.$tc('buckaroo-payment.transactionHistory.types.statuscode'),
-                rawData: true
-            }
+                    label: this.$tc(
+                        'buckaroo-payment.transactionHistory.types.total'
+                    ),
+                    rawData: true,
+                },
+                {
+                    property: 'shipping_costs',
+                    label: this.$tc(
+                        'buckaroo-payment.transactionHistory.types.shipping_costs'
+                    ),
+                    rawData: true,
+                },
+                {
+                    property: 'total_excluding_vat',
+                    label: this.$tc(
+                        'buckaroo-payment.transactionHistory.types.total_excluding_vat'
+                    ),
+                    rawData: true,
+                },
+                {
+                    property: 'vat',
+                    label: this.$tc(
+                        'buckaroo-payment.transactionHistory.types.vat'
+                    ),
+                    rawData: true,
+                },
+                {
+                    property: 'transaction_key',
+                    label: this.$tc(
+                        'buckaroo-payment.transactionHistory.types.transaction_key'
+                    ),
+                    rawData: true,
+                },
+                {
+                    property: 'transaction_method',
+                    label: this.$tc(
+                        'buckaroo-payment.transactionHistory.types.transaction_method'
+                    ),
+                    rawData: true,
+                },
+                {
+                    property: 'statuscode',
+                    label: this.$tc(
+                        'buckaroo-payment.transactionHistory.types.statuscode'
+                    ),
+                    rawData: true,
+                },
             ];
-        }
+        },
     },
 
     created() {
@@ -129,15 +154,24 @@ Component.register('buckaroo-payment-detail', {
         recalculateOrderItems() {
             this.buckaroo_refund_amount = 0;
             for (const key in this.orderItems) {
-                this.orderItems[key]['totalAmount'] = parseFloat(parseFloat(this.orderItems[key]['unitPrice']) * parseFloat(this.orderItems[key]['quantity'] || 0)).toFixed(2);
-                this.buckaroo_refund_amount = parseFloat(parseFloat(this.buckaroo_refund_amount) + parseFloat(this.orderItems[key]['totalAmount'])).toFixed(2);
+                this.orderItems[key]['totalAmount'] = parseFloat(
+                    parseFloat(this.orderItems[key]['unitPrice']) *
+                        parseFloat(this.orderItems[key]['quantity'] || 0)
+                ).toFixed(2);
+                this.buckaroo_refund_amount = parseFloat(
+                    parseFloat(this.buckaroo_refund_amount) +
+                        parseFloat(this.orderItems[key]['totalAmount'])
+                ).toFixed(2);
             }
         },
         recalculateRefundItems() {
             this.buckaroo_refund_total_amount = 0;
             for (const key in this.transactionsToRefund) {
                 if (this.transactionsToRefund[key]['amount']) {
-                    this.buckaroo_refund_total_amount = parseFloat(parseFloat(this.buckaroo_refund_total_amount) + parseFloat(this.transactionsToRefund[key]['amount'])).toFixed(2);
+                    this.buckaroo_refund_total_amount = parseFloat(
+                        parseFloat(this.buckaroo_refund_total_amount) +
+                            parseFloat(this.transactionsToRefund[key]['amount'])
+                    ).toFixed(2);
                 }
             }
         },
@@ -151,13 +185,21 @@ Component.register('buckaroo-payment-detail', {
         },
 
         toggleCustomRefund() {
-            if (this.getCustomRefundEnabledEl() && this.getCustomRefundAmountEl()) {
-                this.getCustomRefundAmountEl().disabled = !this.getCustomRefundEnabledEl().checked;
+            if (
+                this.getCustomRefundEnabledEl() &&
+                this.getCustomRefundAmountEl()
+            ) {
+                this.getCustomRefundAmountEl().disabled =
+                    !this.getCustomRefundEnabledEl().checked;
             }
         },
 
         getCustomRefundAmount() {
-            if (this.getCustomRefundEnabledEl() && this.getCustomRefundAmountEl() && this.getCustomRefundEnabledEl().checked) {
+            if (
+                this.getCustomRefundEnabledEl() &&
+                this.getCustomRefundAmountEl() &&
+                this.getCustomRefundEnabledEl().checked
+            ) {
                 return this.getCustomRefundAmountEl().value;
             }
             return 0;
@@ -166,36 +208,61 @@ Component.register('buckaroo-payment-detail', {
         createdComponent() {
             const orderId = this.$route.params.id;
 
-            this.systemConfigApiService.getValues('BuckarooPayments.config', null)
-            .then(values => {
-                this.config = values;
-            });
+            this.systemConfigApiService
+                .getValues('BuckarooPayments.config', null)
+                .then((values) => {
+                    this.config = values;
+                });
 
             const orderRepository = this.repositoryFactory.create('order');
             const orderCriteria = new Criteria(1, 1);
 
             this.orderId = orderId;
-            orderCriteria.addAssociation('transactions.paymentMethod')
-                         .addAssociation('transactions');
+            orderCriteria
+                .addAssociation('transactions.paymentMethod')
+                .addAssociation('transactions');
 
-            orderCriteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
+            orderCriteria
+                .getAssociation('transactions')
+                .addSorting(Criteria.sort('createdAt'));
 
-            orderRepository.get(orderId, Context.api, orderCriteria).then((order) => {
-                this.checkedIsAuthorized(order);
-                const buckarooKey = order.transactions &&
-                    order.transactions.last().paymentMethod &&
-                    order.transactions.last().paymentMethod.customFields &&
-                    order.transactions.last().paymentMethod.customFields.buckaroo_key
-                        ? order.transactions.last().paymentMethod.customFields.buckaroo_key.toLowerCase()
-                        : '';
+            orderRepository
+                .get(orderId, Context.api, orderCriteria)
+                .then((order) => {
+                    this.checkedIsAuthorized(order);
+                    const buckarooKey =
+                        order.transactions &&
+                        order.transactions.last().paymentMethod &&
+                        order.transactions.last().paymentMethod.customFields &&
+                        order.transactions.last().paymentMethod.customFields
+                            .buckaroo_key
+                            ? order.transactions
+                                  .last()
+                                  .paymentMethod.customFields.buckaroo_key.toLowerCase()
+                            : '';
 
-                this.isCapturePossible = !!buckarooKey &&
-                    (['klarnakp', 'billink', 'afterpay', 'klarna', 'wero'].includes(buckarooKey) || this.isAfterpayCapturePossible(order));
+                    this.isCapturePossible =
+                        !!buckarooKey &&
+                        ([
+                            'klarnakp',
+                            'billink',
+                            'afterpay',
+                            'klarna',
+                            'wero',
+                        ].includes(buckarooKey) ||
+                            this.isAfterpayCapturePossible(order));
 
-                this.isKlarnaMor = buckarooKey === 'klarna';
+                    this.isKlarnaMor = buckarooKey === 'klarna';
 
-                this.isPaylinkVisible = this.isPaylinkAvailable = this.getConfigValue('paylinkEnabled') && order.stateMachineState && order.stateMachineState.technicalName && order.stateMachineState.technicalName == 'open' && order.transactions && order.transactions.last().stateMachineState.technicalName == 'open';
-            });
+                    this.isPaylinkVisible = this.isPaylinkAvailable =
+                        this.getConfigValue('paylinkEnabled') &&
+                        order.stateMachineState &&
+                        order.stateMachineState.technicalName &&
+                        order.stateMachineState.technicalName == 'open' &&
+                        order.transactions &&
+                        order.transactions.last().stateMachineState
+                            .technicalName == 'open';
+                });
 
             this.BuckarooPaymentService.getBuckarooTransaction(orderId)
                 .then((response) => {
@@ -205,7 +272,10 @@ Component.register('buckaroo-payment-detail', {
 
                     this.$emit('loading-change', false);
 
-                    if (response.orderItems && Array.isArray(response.orderItems)) {
+                    if (
+                        response.orderItems &&
+                        Array.isArray(response.orderItems)
+                    ) {
                         response.orderItems.forEach((element) => {
                             this.orderItems.push({
                                 id: element.id,
@@ -220,10 +290,17 @@ Component.register('buckaroo-payment-detail', {
                     }
 
                     // Use backend-calculated total (single source of truth)
-                    this.buckaroo_refund_amount = response.refundTotals ? response.refundTotals.totalAmount : 0;
-                    this.currency = response.refundTotals ? response.refundTotals.currency : 'EUR';
+                    this.buckaroo_refund_amount = response.refundTotals
+                        ? response.refundTotals.totalAmount
+                        : 0;
+                    this.currency = response.refundTotals
+                        ? response.refundTotals.currency
+                        : 'EUR';
 
-                    if (response.transactionsToRefund && Array.isArray(response.transactionsToRefund)) {
+                    if (
+                        response.transactionsToRefund &&
+                        Array.isArray(response.transactionsToRefund)
+                    ) {
                         response.transactionsToRefund.forEach((element) => {
                             this.transactionsToRefund.push({
                                 id: element.id,
@@ -232,35 +309,41 @@ Component.register('buckaroo-payment-detail', {
                                 amountMax: element.total,
                                 currency: element.currency,
                                 transaction_method: element.transaction_method,
-                                logo: element.transaction_method ? element.logo : null
+                                logo: element.transaction_method
+                                    ? element.logo
+                                    : null,
                             });
                             this.currency = element.currency;
                         });
                     }
                     this.recalculateRefundItems();
 
-                    if (response.transactions && Array.isArray(response.transactions)) {
+                    if (
+                        response.transactions &&
+                        Array.isArray(response.transactions)
+                    ) {
                         response.transactions.forEach((element) => {
                             this.relatedResources.push({
                                 id: element.id,
                                 transaction_key: element.transaction,
                                 total: element.total,
-                                total_excluding_vat: element.total_excluding_vat,
+                                total_excluding_vat:
+                                    element.total_excluding_vat,
                                 shipping_costs: element.shipping_costs,
                                 vat: element.vat,
                                 transaction_method: element.transaction_method,
-                                logo: element.transaction_method ? element.logo : null,
+                                logo: element.transaction_method
+                                    ? element.logo
+                                    : null,
                                 created_at: element.created_at,
-                                statuscode: element.statuscode
+                                statuscode: element.statuscode,
                             });
                         });
                     }
-
                 })
                 .catch((errorResponse) => {
                     console.error('errorResponse', errorResponse);
                 });
-
         },
 
         isAfterpayCapturePossible(order) {
@@ -268,23 +351,36 @@ Component.register('buckaroo-payment-detail', {
         },
 
         checkedIsAuthorized(order) {
-            this.isAuthorized = order?.transactions?.last()?.stateMachineState?.technicalName === "authorized";
+            this.isAuthorized =
+                order?.transactions?.last()?.stateMachineState
+                    ?.technicalName === 'authorized';
         },
 
         refundOrder(transaction) {
             this.isRefundPossible = false;
-            this.BuckarooPaymentService.refundPayment(transaction, this.transactionsToRefund, this.orderItems, this.getCustomRefundAmount())
+            this.BuckarooPaymentService.refundPayment(
+                transaction,
+                this.transactionsToRefund,
+                this.orderItems,
+                this.getCustomRefundAmount()
+            )
                 .then((response) => {
                     for (const key in response) {
                         if (response[key].status) {
                             this.createNotificationSuccess({
-                                title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                                message: this.$tc(response[key].message) + response[key].amount
+                                title: this.$tc(
+                                    'buckaroo-payment.settingsForm.titleSuccess'
+                                ),
+                                message:
+                                    this.$tc(response[key].message) +
+                                    response[key].amount,
                             });
                         } else {
                             this.createNotificationError({
-                                title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                                message: this.$tc(response[key].message)
+                                title: this.$tc(
+                                    'buckaroo-payment.settingsForm.titleError'
+                                ),
+                                message: this.$tc(response[key].message),
                             });
                         }
                     }
@@ -293,10 +389,14 @@ Component.register('buckaroo-payment-detail', {
                 })
                 .catch((errorResponse) => {
                     this.createNotificationError({
-                        title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                        message: errorResponse.response && errorResponse.response.data
-                            ? errorResponse.response.data.message
-                            : 'An error occurred'
+                        title: this.$tc(
+                            'buckaroo-payment.settingsForm.titleError'
+                        ),
+                        message:
+                            errorResponse.response &&
+                            errorResponse.response.data
+                                ? errorResponse.response.data.message
+                                : 'An error occurred',
                     });
                     this.isRefundPossible = true;
                 });
@@ -304,29 +404,42 @@ Component.register('buckaroo-payment-detail', {
 
         createPaylink(transaction) {
             this.isPaylinkAvailable = false;
-            this.BuckarooPaymentService.createPaylink(transaction, this.transactionsToRefund, this.orderItems)
+            this.BuckarooPaymentService.createPaylink(
+                transaction,
+                this.transactionsToRefund,
+                this.orderItems
+            )
                 .then((response) => {
                     if (response.status) {
-                        this.paylinkMessage = this.$tc(response.message) + response.paylinkhref;
+                        this.paylinkMessage =
+                            this.$tc(response.message) + response.paylinkhref;
                         this.paylink = response.paylink;
                         this.createNotificationSuccess({
-                            title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                            message: this.paylinkMessage
+                            title: this.$tc(
+                                'buckaroo-payment.settingsForm.titleSuccess'
+                            ),
+                            message: this.paylinkMessage,
                         });
                     } else {
                         this.createNotificationError({
-                            title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                            message: this.$tc(response.message)
+                            title: this.$tc(
+                                'buckaroo-payment.settingsForm.titleError'
+                            ),
+                            message: this.$tc(response.message),
                         });
                     }
                     this.isPaylinkAvailable = true;
                 })
                 .catch((errorResponse) => {
                     this.createNotificationError({
-                        title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                        message: errorResponse.response && errorResponse.response.data
-                            ? errorResponse.response.data.message
-                            : 'An error occurred'
+                        title: this.$tc(
+                            'buckaroo-payment.settingsForm.titleError'
+                        ),
+                        message:
+                            errorResponse.response &&
+                            errorResponse.response.data
+                                ? errorResponse.response.data.message
+                                : 'An error occurred',
                     });
                     this.isPaylinkAvailable = true;
                 });
@@ -339,17 +452,28 @@ Component.register('buckaroo-payment-detail', {
         captureOrder(transaction) {
             this.isCapturePossible = false;
             this.isLoading = true;
-            this.BuckarooPaymentService.captureOrder(transaction, this.transactionsToRefund, this.orderItems)
+            this.BuckarooPaymentService.captureOrder(
+                transaction,
+                this.transactionsToRefund,
+                this.orderItems
+            )
                 .then((response) => {
                     if (response && response.status) {
                         this.createNotificationSuccess({
-                            title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                            message: response.message
+                            title: this.$tc(
+                                'buckaroo-payment.settingsForm.titleSuccess'
+                            ),
+                            message: response.message,
                         });
                     } else {
                         this.createNotificationError({
-                            title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                            message: response && response.message ? response.message : 'An error occurred'
+                            title: this.$tc(
+                                'buckaroo-payment.settingsForm.titleError'
+                            ),
+                            message:
+                                response && response.message
+                                    ? response.message
+                                    : 'An error occurred',
                         });
                     }
                     this.isLoading = false;
@@ -358,10 +482,14 @@ Component.register('buckaroo-payment-detail', {
                 })
                 .catch((errorResponse) => {
                     this.createNotificationError({
-                        title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                        message: errorResponse.response && errorResponse.response.data
-                            ? errorResponse.response.data.message
-                            : 'An error occurred'
+                        title: this.$tc(
+                            'buckaroo-payment.settingsForm.titleError'
+                        ),
+                        message:
+                            errorResponse.response &&
+                            errorResponse.response.data
+                                ? errorResponse.response.data.message
+                                : 'An error occurred',
                     });
                     this.isLoading = false;
                     this.isCapturePossible = true;
@@ -374,13 +502,17 @@ Component.register('buckaroo-payment-detail', {
                 .then((response) => {
                     if (response.status) {
                         this.createNotificationSuccess({
-                            title: this.$tc('buckaroo-payment.settingsForm.titleSuccess'),
-                            message: response.message
+                            title: this.$tc(
+                                'buckaroo-payment.settingsForm.titleSuccess'
+                            ),
+                            message: response.message,
                         });
                     } else {
                         this.createNotificationError({
-                            title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                            message: response.message
+                            title: this.$tc(
+                                'buckaroo-payment.settingsForm.titleError'
+                            ),
+                            message: response.message,
                         });
                     }
                     this.isLoading = false;
@@ -388,13 +520,17 @@ Component.register('buckaroo-payment-detail', {
                 })
                 .catch((errorResponse) => {
                     this.createNotificationError({
-                        title: this.$tc('buckaroo-payment.settingsForm.titleError'),
-                        message: errorResponse.response && errorResponse.response.data
-                            ? errorResponse.response.data.message
-                            : 'An error occurred'
+                        title: this.$tc(
+                            'buckaroo-payment.settingsForm.titleError'
+                        ),
+                        message:
+                            errorResponse.response &&
+                            errorResponse.response.data
+                                ? errorResponse.response.data.message
+                                : 'An error occurred',
                     });
                     this.isLoading = false;
                 });
-        }
-    }
+        },
+    },
 });

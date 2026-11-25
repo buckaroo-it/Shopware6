@@ -8,29 +8,27 @@ import './style.scss';
 Component.register('buckaroo-sales-channel-modal', {
     template,
 
-    mixins: [
-        Mixin.getByName('notification')
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     inject: ['syncService'],
 
     props: {
         paymentMethodId: {
             type: String,
-            required: true
+            required: true,
         },
         paymentTitle: {
             type: String,
-            required: true
+            required: true,
         },
         salesChannels: {
             type: Array,
-            required: true
+            required: true,
         },
         assignedSalesChannelIds: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     emits: ['close', 'saved'],
@@ -38,17 +36,21 @@ Component.register('buckaroo-sales-channel-modal', {
     data() {
         return {
             selectedIds: [...this.assignedSalesChannelIds],
-            isSaving: false
+            isSaving: false,
         };
     },
 
     computed: {
         toAdd() {
-            return this.selectedIds.filter(id => !this.assignedSalesChannelIds.includes(id));
+            return this.selectedIds.filter(
+                (id) => !this.assignedSalesChannelIds.includes(id)
+            );
         },
 
         toRemove() {
-            return this.assignedSalesChannelIds.filter(id => !this.selectedIds.includes(id));
+            return this.assignedSalesChannelIds.filter(
+                (id) => !this.selectedIds.includes(id)
+            );
         },
 
         hasChanges() {
@@ -56,8 +58,10 @@ Component.register('buckaroo-sales-channel-modal', {
         },
 
         hasLockedSalesChannel() {
-            return this.salesChannels.some(salesChannel => this.isLocked(salesChannel));
-        }
+            return this.salesChannels.some((salesChannel) =>
+                this.isLocked(salesChannel)
+            );
+        },
     },
 
     methods: {
@@ -70,12 +74,18 @@ Component.register('buckaroo-sales-channel-modal', {
          * check this, so removing it here would leave the sales channel with an unavailable default
          */
         isLocked(salesChannel) {
-            return salesChannel.defaultPaymentMethodId === this.paymentMethodId && this.isSelected(salesChannel.id);
+            return (
+                salesChannel.defaultPaymentMethodId === this.paymentMethodId &&
+                this.isSelected(salesChannel.id)
+            );
         },
 
         getLabel(salesChannel) {
             return salesChannel.defaultPaymentMethodId === this.paymentMethodId
-                ? this.$t('buckaroo-payment.paymentList.availability.defaultPaymentMethodLabel', { name: salesChannel.name })
+                ? this.$t(
+                      'buckaroo-payment.paymentList.availability.defaultPaymentMethodLabel',
+                      { name: salesChannel.name }
+                  )
                 : salesChannel.name;
         },
 
@@ -83,31 +93,38 @@ Component.register('buckaroo-sales-channel-modal', {
             const id = salesChannel.id;
 
             // sw-checkbox-field emits "update:value" (6.6+) or "change" (6.5)
-            if (typeof checked !== 'boolean' || checked === this.isSelected(id) || this.isLocked(salesChannel)) {
+            if (
+                typeof checked !== 'boolean' ||
+                checked === this.isSelected(id) ||
+                this.isLocked(salesChannel)
+            ) {
                 return;
             }
 
             this.selectedIds = checked
                 ? [...this.selectedIds, id]
-                : this.selectedIds.filter(selectedId => selectedId !== id);
+                : this.selectedIds.filter((selectedId) => selectedId !== id);
         },
 
         async onSave() {
-            const mapping = salesChannelId => ({ salesChannelId, paymentMethodId: this.paymentMethodId });
+            const mapping = (salesChannelId) => ({
+                salesChannelId,
+                paymentMethodId: this.paymentMethodId,
+            });
             const operations = {};
 
             if (this.toAdd.length) {
                 operations['buckaroo-assign-sales-channels'] = {
                     entity: 'sales_channel_payment_method',
                     action: 'upsert',
-                    payload: this.toAdd.map(mapping)
+                    payload: this.toAdd.map(mapping),
                 };
             }
             if (this.toRemove.length) {
                 operations['buckaroo-unassign-sales-channels'] = {
                     entity: 'sales_channel_payment_method',
                     action: 'delete',
-                    payload: this.toRemove.map(mapping)
+                    payload: this.toRemove.map(mapping),
                 };
             }
 
@@ -115,16 +132,21 @@ Component.register('buckaroo-sales-channel-modal', {
             try {
                 await this.syncService.sync(operations);
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-extension-store.component.sw-extension-config.messageSaveSuccess')
+                    message: this.$tc(
+                        'sw-extension-store.component.sw-extension-config.messageSaveSuccess'
+                    ),
                 });
                 this.$emit('saved');
             } catch (error) {
                 this.createNotificationError({
-                    message: error?.response?.data?.errors?.[0]?.detail || error?.message || String(error)
+                    message:
+                        error?.response?.data?.errors?.[0]?.detail ||
+                        error?.message ||
+                        String(error),
                 });
             } finally {
                 this.isSaving = false;
             }
-        }
-    }
+        },
+    },
 });

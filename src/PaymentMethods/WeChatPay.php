@@ -18,8 +18,6 @@ class WeChatPay extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -28,8 +26,6 @@ class WeChatPay extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -38,18 +34,14 @@ class WeChatPay extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/wechatpay.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/wechatpay.svg';
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -58,8 +50,6 @@ class WeChatPay extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string|null
      */
     public function getTemplate(): ?string
     {
@@ -75,11 +65,11 @@ class WeChatPay extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit WeChatPay',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
         ];

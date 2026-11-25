@@ -4,37 +4,22 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Buckaroo\Client;
-use Buckaroo\Shopware6\Service\UrlService;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Symfony\Component\HttpFoundation\Request;
-use Buckaroo\Shopware6\Service\TransactionService;
-use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
-use Buckaroo\Shopware6\Service\FormatRequestParamService;
 use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
+use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CaptureService
 {
-
     public const ORDER_IS_AUTHORIZED = 'buckaroo_is_authorize';
 
     public const CAPTURE_INITIATED = 'captureInitiated';
 
     public const CAPTURE_IN_FLIGHT_SECONDS = 600;
-
-    /**
-     * Order ids for which this request already sent (or is currently sending) a
-     * capture request. Deduplicates the two capture-on-shipment trigger paths that
-     * fire within one PHP request (order_delivery.written and
-     * state_enter.order_delivery.state.shipped) without any database write - see the
-     * deadlock note on CAPTURE_INITIATED for why this must not be a DB flag.
-     *
-     * @var array<string, bool>
-     */
-    private array $inFlightOrderIds = [];
 
     protected TransactionService $transactionService;
 
@@ -47,6 +32,17 @@ class CaptureService
     protected FormatRequestParamService $formatRequestParamService;
 
     protected ClientService $clientService;
+
+    /**
+     * Order ids for which this request already sent (or is currently sending) a
+     * capture request. Deduplicates the two capture-on-shipment trigger paths that
+     * fire within one PHP request (order_delivery.written and
+     * state_enter.order_delivery.state.shipped) without any database write - see the
+     * deadlock note on CAPTURE_INITIATED for why this must not be a DB flag.
+     *
+     * @var array<string, bool>
+     */
+    private array $inFlightOrderIds = [];
 
     public function __construct(
         TransactionService $transactionService,
@@ -64,19 +60,8 @@ class CaptureService
         $this->clientService = $clientService;
     }
 
-    private function getValidCustomField(array $customFields, string $name): string
-    {
-        if (!isset($customFields[$name]) || !is_string($customFields[$name])) {
-            throw new \UnexpectedValueException("Cannot find field `{$name}` on order", 1);
-        }
-        return $customFields[$name];
-    }
     /**
      * Do a buckaroo capture request
-     *
-     * @param Request $request
-     * @param OrderEntity $order
-     * @param Context $context
      *
      * @return array<mixed>|null
      */
@@ -102,7 +87,7 @@ class CaptureService
         } else {
             $action = 'capture';
             $transactionKey = $customFields['originalTransactionKey'] ?? '';
-            $originalTransactionKey = is_scalar($transactionKey) ? (string)$transactionKey : '';
+            $originalTransactionKey = is_scalar($transactionKey) ? (string) $transactionKey : '';
         }
 
         // In-memory guard: the ship action fires both order_delivery.written and
@@ -115,7 +100,7 @@ class CaptureService
             return [
                 'status' => false,
                 'silent' => true,
-                'message' => $this->translator->trans("buckaroo.capture.capture_in_progress")
+                'message' => $this->translator->trans('buckaroo.capture.capture_in_progress'),
             ];
         }
         $this->inFlightOrderIds[$order->getId()] = true;
@@ -168,13 +153,36 @@ class CaptureService
         );
     }
 
+    /**
+     * Whether a capture request for this transaction is currently in flight: it was
+     * handed to the Buckaroo engine less than CAPTURE_IN_FLIGHT_SECONDS ago and no
+     * definitive result has been recorded yet. Shared by the capture-on-shipment
+     * triggers (OrderStateChangeEvent) and validate().
+     *
+     * @param array<mixed> $customFields
+     */
+    public static function isCaptureInFlight(array $customFields): bool
+    {
+        $initiatedAt = $customFields[self::CAPTURE_INITIATED] ?? null;
+
+        if (!is_numeric($initiatedAt) || (int) $initiatedAt <= 0) {
+            return false;
+        }
+
+        return (time() - (int) $initiatedAt) < self::CAPTURE_IN_FLIGHT_SECONDS;
+    }
+
+    private function getValidCustomField(array $customFields, string $name): string
+    {
+        if (!isset($customFields[$name]) || !is_string($customFields[$name])) {
+            throw new \UnexpectedValueException("Cannot find field `{$name}` on order", 1);
+        }
+
+        return $customFields[$name];
+    }
 
     /**
      * Handle response from payment engine
-     *
-     * @param ClientResponseInterface $response
-     * @param OrderEntity $order
-     * @param Context $context
      *
      * @return array<mixed>
      */
@@ -201,12 +209,12 @@ class CaptureService
             return [
                 'status' => true,
                 'message' => $this->translator->trans(
-                    "buckaroo.capture.captured_amount",
+                    'buckaroo.capture.captured_amount',
                     [
                         '%amount%' => $order->getAmountTotal(),
-                        '%currency%' => $this->getCurrencyIso($order)
+                        '%currency%' => $this->getCurrencyIso($order),
                     ]
-                )
+                ),
             ];
         }
 
@@ -226,36 +234,17 @@ class CaptureService
 
             return [
                 'status' => true,
-                'message' => $this->translator->trans("buckaroo.capture.capture_pending"),
+                'message' => $this->translator->trans('buckaroo.capture.capture_pending'),
             ];
         }
 
         // Definitive failure: nothing was persisted before the call, so a later
         // shipment event or a manual capture can simply retry.
         return [
-            'status'  => false,
+            'status' => false,
             'message' => $response->getSomeError(),
-            'code'    => $response->getStatusCode(),
+            'code' => $response->getStatusCode(),
         ];
-    }
-
-    /**
-     * Whether a capture request for this transaction is currently in flight: it was
-     * handed to the Buckaroo engine less than CAPTURE_IN_FLIGHT_SECONDS ago and no
-     * definitive result has been recorded yet. Shared by the capture-on-shipment
-     * triggers (OrderStateChangeEvent) and validate().
-     *
-     * @param array<mixed> $customFields
-     */
-    public static function isCaptureInFlight(array $customFields): bool
-    {
-        $initiatedAt = $customFields[self::CAPTURE_INITIATED] ?? null;
-
-        if (!is_numeric($initiatedAt) || (int)$initiatedAt <= 0) {
-            return false;
-        }
-
-        return (time() - (int)$initiatedAt) < self::CAPTURE_IN_FLIGHT_SECONDS;
     }
 
     private function getLastTransactionIdOrNull(OrderEntity $order): ?string
@@ -269,16 +258,12 @@ class CaptureService
         if ($currency !== null) {
             return $currency->getIsoCode();
         }
+
         return 'EUR';
     }
 
     /**
      * Get parameters common to all payment methods
-     *
-     * @param Request $request
-     * @param OrderEntity $order
-     * @param Context $context
-     * @param string $transactionKey
      *
      * @return array<mixed>
      */
@@ -308,23 +293,24 @@ class CaptureService
 
         return $payload;
     }
+
     private function getLastTransactionId(OrderEntity $order): string
     {
         $transactions = $order->getTransactions();
         if ($transactions === null) {
-            throw new \UnexpectedValueException("Cannot find last transaction on order", 1);
+            throw new \UnexpectedValueException('Cannot find last transaction on order', 1);
         }
         $transaction = $transactions->last();
         if ($transaction === null) {
-            throw new \UnexpectedValueException("Cannot find last transaction on order", 1);
+            throw new \UnexpectedValueException('Cannot find last transaction on order', 1);
         }
+
         return $transaction->getId();
     }
 
     /**
      * Get method specific payloads
      *
-     * @param OrderEntity $order
      * @param array<mixed> $customFields
      *
      * @return array<mixed>
@@ -355,36 +341,35 @@ class CaptureService
     {
         $orderCustomFields = $order->getCustomFields();
         if (
-            isset($orderCustomFields[self::ORDER_IS_AUTHORIZED]) &&
-            $orderCustomFields[self::ORDER_IS_AUTHORIZED] === true
+            isset($orderCustomFields[self::ORDER_IS_AUTHORIZED])
+            && $orderCustomFields[self::ORDER_IS_AUTHORIZED] === true
         ) {
             return false;
         }
+
         return isset($customFields['canCapture']) && $customFields['canCapture'] == 0;
     }
 
     /**
      * Validate request and return any errors
      *
-     * @param OrderEntity $order
      * @param array<mixed> $customFields
      *
      * @return array<mixed>|null
      */
     private function validate(OrderEntity $order, array $customFields, string $paymentCode): ?array
     {
-
         if ($order->getAmountTotal() <= 0) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo.capture.invalid_amount")
+                'message' => $this->translator->trans('buckaroo.capture.invalid_amount'),
             ];
         }
 
         if ($this->cannotCapture($order, $customFields)) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo.capture.capture_not_supported")
+                'message' => $this->translator->trans('buckaroo.capture.capture_not_supported'),
             ];
         }
 
@@ -396,7 +381,7 @@ class CaptureService
             return [
                 'status' => false,
                 'silent' => true,
-                'message' => $this->translator->trans("buckaroo.capture.already_captured")
+                'message' => $this->translator->trans('buckaroo.capture.already_captured'),
             ];
         }
 
@@ -404,19 +389,20 @@ class CaptureService
             return [
                 'status' => false,
                 'silent' => true,
-                'message' => $this->translator->trans("buckaroo.capture.capture_in_progress")
+                'message' => $this->translator->trans('buckaroo.capture.capture_in_progress'),
             ];
         }
 
         if (
-            !in_array($paymentCode, ['klarnakp', 'klarna']) &&
-            !$this->hasOriginalTransactionKey($customFields)
+            !in_array($paymentCode, ['klarnakp', 'klarna'])
+            && !$this->hasOriginalTransactionKey($customFields)
         ) {
             return [
                 'status' => false,
-                'message' => $this->translator->trans("buckaroo-payment.general_error")
+                'message' => $this->translator->trans('buckaroo-payment.general_error'),
             ];
         }
+
         return null;
     }
 
@@ -427,16 +413,11 @@ class CaptureService
     {
         $originalTransactionKey = $customFields['originalTransactionKey'] ?? null;
 
-        return is_scalar($originalTransactionKey) && (string)$originalTransactionKey !== '';
+        return is_scalar($originalTransactionKey) && (string) $originalTransactionKey !== '';
     }
 
     /**
      * Get buckaroo client
-     *
-     * @param string $paymentCode
-     * @param string $salesChannelId
-     *
-     * @return Client
      */
     private function getClient(string $paymentCode, string $salesChannelId): Client
     {
@@ -444,11 +425,8 @@ class CaptureService
             ->get($paymentCode, $salesChannelId);
     }
 
-
     /**
      * Get client ip
-     *
-     * @param Request $request
      *
      * @return array<mixed>
      */
@@ -457,16 +435,13 @@ class CaptureService
         $remoteIp = $request->getClientIp();
 
         return [
-            'address'       =>  $remoteIp,
-            'type'          => IPProtocolVersion::getVersion($remoteIp)
+            'address' => $remoteIp,
+            'type' => IPProtocolVersion::getVersion($remoteIp),
         ];
     }
 
     /**
      * Get articles from order
-     *
-     * @param OrderEntity $order
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
@@ -478,15 +453,16 @@ class CaptureService
 
         foreach ($lines as $item) {
             $articles[] = [
-                'identifier'        => $item['sku'],
-                'description'       => $item['name'],
-                'quantity'          => $item['quantity'],
-                'price'             => $item['unitPrice']['value'],
-                'vatPercentage'     => $item['vatRate'],
+                'identifier' => $item['sku'],
+                'description' => $item['name'],
+                'quantity' => $item['quantity'],
+                'price' => $item['unitPrice']['value'],
+                'vatPercentage' => $item['vatRate'],
             ];
         }
+
         return [
-            'articles' => $articles
+            'articles' => $articles,
         ];
     }
 }

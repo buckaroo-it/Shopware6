@@ -18,8 +18,6 @@ class Wero extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -28,8 +26,6 @@ class Wero extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -38,8 +34,6 @@ class Wero extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -48,8 +42,6 @@ class Wero extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string|null
      */
     public function getTemplate(): ?string
     {
@@ -58,8 +50,6 @@ class Wero extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
@@ -75,19 +65,19 @@ class Wero extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit Wero',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
             'nl-NL' => [
-                'name'        => 'Betalen met Wero',
+                'name' => 'Betalen met Wero',
                 'description' => $this->getDescription(),
             ],
             'fr-FR' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Payer avec Wero',
             ],
         ];
@@ -95,8 +85,6 @@ class Wero extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getType(): string
     {
@@ -105,8 +93,6 @@ class Wero extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return bool
      */
     public function canRefund(): bool
     {
@@ -115,8 +101,6 @@ class Wero extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return bool
      */
     public function canCapture(): bool
     {

@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\PlatformRequest;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
+use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class PaymentServiceDecorator
@@ -47,9 +47,8 @@ class PaymentServiceDecorator
     /**
      * Assemble sales channel context with proper context inheritance and security
      *
-     * @param string $paymentToken
      * @param Context $validationContext Context with appropriate permissions for token validation
-     * @return SalesChannelContext
+     *
      * @throws PaymentException
      */
     public function assembleSalesChannelContext(string $paymentToken, Context $validationContext): SalesChannelContext
@@ -60,7 +59,7 @@ class PaymentServiceDecorator
         if ($transactionId === null) {
             throw PaymentException::asyncProcessInterrupted(
                 $paymentToken,
-                "Transaction ID is missing in the token.",
+                'Transaction ID is missing in the token.',
                 null
             );
         }
@@ -70,7 +69,7 @@ class PaymentServiceDecorator
         $minimalCriteria = new Criteria();
         $minimalCriteria->addFilter(new EqualsFilter('transactions.id', $transactionId));
         $minimalCriteria->addAssociation('salesChannel'); // Only load sales channel
-        
+
         /** @var OrderEntity|null $minimalOrder */
         $minimalOrder = $this->orderRepository->search($minimalCriteria, $validationContext)->getEntities()->first();
 
@@ -86,7 +85,7 @@ class PaymentServiceDecorator
         if ($salesChannel === null) {
             throw PaymentException::asyncProcessInterrupted(
                 $paymentToken,
-                "Sales channel information is missing for the order",
+                'Sales channel information is missing for the order',
                 null
             );
         }
@@ -100,7 +99,7 @@ class PaymentServiceDecorator
             $validationContext,
             $contextToken
         );
-        
+
         // Step 3: Re-query order with full data using sales channel aware context
         $fullCriteria = new Criteria();
         $fullCriteria->addFilter(new EqualsFilter('transactions.id', $transactionId));
@@ -117,7 +116,7 @@ class PaymentServiceDecorator
         if ($order === null) {
             throw PaymentException::asyncProcessInterrupted(
                 $paymentToken,
-                "Order access denied or not found with proper sales channel context",
+                'Order access denied or not found with proper sales channel context',
                 null
             );
         }
@@ -138,16 +137,14 @@ class PaymentServiceDecorator
         }
         $token = $request->attributes->get('sw-context-token')
             ?? $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+
         return is_string($token) && $token !== '' ? $token : null;
     }
 
     /**
      * Create a context that's aware of the sales channel for security constraints
      *
-     * @param string $salesChannelId
-     * @param Context $baseContext
      * @param string|null $preferredToken Use existing token to preserve session (sw-states) for checkout finish
-     * @return Context
      */
     private function createSalesChannelAwareContext(
         string $salesChannelId,
@@ -157,7 +154,7 @@ class PaymentServiceDecorator
         // Use existing context token when available to preserve checkout state (sw-states).
         // Otherwise generate unique token to prevent context data sharing between concurrent requests.
         $token = $preferredToken ?? ('payment-context-' . bin2hex(random_bytes(16)));
-        
+
         $salesChannelContextParams = new SalesChannelContextServiceParameters(
             $salesChannelId,
             $token,
@@ -166,11 +163,11 @@ class PaymentServiceDecorator
             null, // domainId - derive from context
             $baseContext // Use the base context to preserve permissions
         );
-        
+
         // Get the sales channel context and extract its underlying context
         // This context will have proper sales channel awareness and security constraints
         $salesChannelContext = $this->salesChannelContextService->get($salesChannelContextParams);
-        
+
         return $salesChannelContext->getContext();
     }
 }

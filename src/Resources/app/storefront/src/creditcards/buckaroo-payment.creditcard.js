@@ -1,7 +1,8 @@
 const Plugin = window.PluginBaseClass;
 
 const SDK_SCRIPT_ID = 'buckaroo-sdk';
-const SDK_SCRIPT_URL = 'https://hostedfields-externalapi.prod-pci.buckaroo.io/v1/sdk';
+const SDK_SCRIPT_URL =
+    'https://hostedfields-externalapi.prod-pci.buckaroo.io/v1/sdk';
 
 /** SDK mount method for each field target type. */
 const FIELD_MOUNT_METHODS = {
@@ -118,7 +119,12 @@ export default class BuckarooCreditCards extends Plugin {
             script.addEventListener('load', () => resolve(), { once: true });
             script.addEventListener(
                 'error',
-                () => reject(new Error('Failed to load the Buckaroo Hosted Fields SDK.')),
+                () =>
+                    reject(
+                        new Error(
+                            'Failed to load the Buckaroo Hosted Fields SDK.'
+                        )
+                    ),
                 { once: true }
             );
 
@@ -153,15 +159,25 @@ export default class BuckarooCreditCards extends Plugin {
 
             const collapseParent = this.el.closest('.collapse');
             if (collapseParent) {
-                collapseParent.addEventListener('shown.bs.collapse', finish, { once: true });
+                collapseParent.addEventListener('shown.bs.collapse', finish, {
+                    once: true,
+                });
             }
         });
     }
 
     async _initializeHostedFields() {
-        const requiredWrappers = Object.values(this.options.fields).map((field) => `#${field.wrapperId}`);
-        if (!requiredWrappers.every((selector) => this.el.querySelector(selector))) {
-            console.error('Buckaroo Hosted Fields wrappers are missing from the checkout DOM.');
+        const requiredWrappers = Object.values(this.options.fields).map(
+            (field) => `#${field.wrapperId}`
+        );
+        if (
+            !requiredWrappers.every((selector) =>
+                this.el.querySelector(selector)
+            )
+        ) {
+            console.error(
+                'Buckaroo Hosted Fields wrappers are missing from the checkout DOM.'
+            );
             return;
         }
 
@@ -172,7 +188,9 @@ export default class BuckarooCreditCards extends Plugin {
             return;
         }
 
-        this.sdkClient = new BuckarooHostedFieldsSdk.HFClient(tokenData.access_token);
+        this.sdkClient = new BuckarooHostedFieldsSdk.HFClient(
+            tokenData.access_token
+        );
         this.sdkClient.setLanguage('en');
 
         await this.sdkClient.setSupportedServices(tokenData.issuers);
@@ -184,9 +202,12 @@ export default class BuckarooCreditCards extends Plugin {
          */
         this._touchedFields = new Set();
 
-        await this.sdkClient.startSession((event) => this._handleFieldEvent(event));
+        await this.sdkClient.startSession((event) =>
+            this._handleFieldEvent(event)
+        );
 
-        const { baseStyling: styling, cardLogoStyling } = this._buildFieldStyling();
+        const { baseStyling: styling, cardLogoStyling } =
+            this._buildFieldStyling();
 
         for (const [targetType, field] of Object.entries(this.options.fields)) {
             const config = {
@@ -200,7 +221,10 @@ export default class BuckarooCreditCards extends Plugin {
                 config.cardLogoStyling = cardLogoStyling;
             }
 
-            await this.sdkClient[FIELD_MOUNT_METHODS[targetType]](`#${field.wrapperId}`, config);
+            await this.sdkClient[FIELD_MOUNT_METHODS[targetType]](
+                `#${field.wrapperId}`,
+                config
+            );
         }
     }
 
@@ -218,13 +242,16 @@ export default class BuckarooCreditCards extends Plugin {
      * told to render nothing but text.
      */
     _buildFieldStyling() {
-        const reference = this.el.querySelector(`#${this.options.fields.CardHolderName.wrapperId}`);
+        const reference = this.el.querySelector(
+            `#${this.options.fields.CardHolderName.wrapperId}`
+        );
         const computed = window.getComputedStyle(reference);
 
         // Placeholders cannot be reached with CSS either, so the theme colour
         // travels to the SDK through a custom property on the wrapper.
         const placeholderColor =
-            computed.getPropertyValue('--bk-hf-placeholder-color').trim() || computed.color;
+            computed.getPropertyValue('--bk-hf-placeholder-color').trim() ||
+            computed.color;
 
         // A see-through background would make the iframe fall back to the
         // browser default instead of the field it sits in.
@@ -238,7 +265,9 @@ export default class BuckarooCreditCards extends Plugin {
                 fontWeight: computed.fontWeight,
                 textAlign: 'left',
                 textTransform: 'none',
-                background: TRANSPARENT_BACKGROUND.test(background) ? 'inherit' : background,
+                background: TRANSPARENT_BACKGROUND.test(background)
+                    ? 'inherit'
+                    : background,
                 color: computed.color,
                 placeholderColor,
                 border: 'none',
@@ -304,7 +333,9 @@ export default class BuckarooCreditCards extends Plugin {
     _visibleErrorId(targetType) {
         const field = this.options.fields[targetType];
 
-        return field && this._touchedFields.has(targetType) ? field.errorId : null;
+        return field && this._touchedFields.has(targetType)
+            ? field.errorId
+            : null;
     }
 
     _getFieldWrapper(targetType) {
@@ -352,7 +383,9 @@ export default class BuckarooCreditCards extends Plugin {
             if (orderForm) {
                 orderForm.requestSubmit();
             } else {
-                console.error('Shopware confirm order form (#confirmOrderForm) not found.');
+                console.error(
+                    'Shopware confirm order form (#confirmOrderForm) not found.'
+                );
             }
         } catch (error) {
             console.error('Error processing Buckaroo payment:', error);
@@ -362,14 +395,19 @@ export default class BuckarooCreditCards extends Plugin {
     _listenToSubmit() {
         const submitButton = this.el.querySelector('#pay');
         if (submitButton) {
-            submitButton.addEventListener('click', this._handleSubmit.bind(this));
+            submitButton.addEventListener(
+                'click',
+                this._handleSubmit.bind(this)
+            );
         }
 
         const tosCheckbox =
             document.getElementById('tos') ||
             document.querySelector('.checkout-confirm-tos-checkbox');
         if (tosCheckbox) {
-            tosCheckbox.addEventListener('change', () => this._updateButtonState());
+            tosCheckbox.addEventListener('change', () =>
+                this._updateButtonState()
+            );
         }
 
         this._updateButtonState();
@@ -394,9 +432,10 @@ export default class BuckarooCreditCards extends Plugin {
 
         const hint = this.el.querySelector('.buckaroo-hf-error');
         if (hint) {
-            const message = formIsValid && !tosIsChecked
-                ? 'Please accept the terms and conditions to place your order.'
-                : '';
+            const message =
+                formIsValid && !tosIsChecked
+                    ? 'Please accept the terms and conditions to place your order.'
+                    : '';
 
             hint.textContent = message;
             hint.classList.toggle('d-block', message !== '');
@@ -409,8 +448,13 @@ export default class BuckarooCreditCards extends Plugin {
      */
     _getStorefrontBaseUrl() {
         const origin = window.location.origin;
-        const pathSegments = window.location.pathname.split('/').filter(Boolean);
-        if (pathSegments.length > 0 && /^[a-z]{2}(-[A-Z]{2})?$/i.test(pathSegments[0])) {
+        const pathSegments = window.location.pathname
+            .split('/')
+            .filter(Boolean);
+        if (
+            pathSegments.length > 0 &&
+            /^[a-z]{2}(-[A-Z]{2})?$/i.test(pathSegments[0])
+        ) {
             return `${origin}/${pathSegments[0]}`;
         }
         return origin;
@@ -431,12 +475,15 @@ export default class BuckarooCreditCards extends Plugin {
         try {
             const baseUrl = this._getStorefrontBaseUrl();
             const query = new URLSearchParams({ paymentMethod });
-            const response = await fetch(`${baseUrl}/buckaroo/get-oauth-token?${query}`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-From': 'ShopwareFrontend',
-                },
-            });
+            const response = await fetch(
+                `${baseUrl}/buckaroo/get-oauth-token?${query}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-From': 'ShopwareFrontend',
+                    },
+                }
+            );
 
             const data = await response.json();
             if (!data || !data.data || !data.data.access_token) {
@@ -446,7 +493,7 @@ export default class BuckarooCreditCards extends Plugin {
             tokenCache[paymentMethod] = {
                 accessToken: data.data.access_token,
                 issuers: data.data.issuers,
-                expiresAt: now + (10 * 60 * 1000),
+                expiresAt: now + 10 * 60 * 1000,
             };
 
             return {

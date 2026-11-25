@@ -4,27 +4,26 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Checkout\Cart\Cart;
 use Buckaroo\Shopware6\Service\CartService;
-use Buckaroo\Shopware6\Service\OrderService;
-use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\ContextService;
 use Buckaroo\Shopware6\Service\CustomerService;
+use Buckaroo\Shopware6\Service\OrderService;
 use Buckaroo\Shopware6\Service\SettingsService;
-use Symfony\Component\Routing\Annotation\Route;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
-use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ApplePayController extends AbstractPaymentController
 {
@@ -62,48 +61,42 @@ class ApplePayController extends AbstractPaymentController
             $paymentMethodRepository
         );
     }
-    /**
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     */
+
     #[Route(path: '/buckaroo/apple/cart/get', name: 'frontend.action.buckaroo.appleGetCart', options: ['seo' => false], methods: ['POST'], defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']])]
     public function getAppleCart(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
-
         try {
             $cart = $this->getCart($request, $salesChannelContext);
 
             $fee = $this->getFee($salesChannelContext, 'applepayFee');
+
             return $this->response([
-                "cartToken" => $cart->getToken(),
-                "storeName" => $this->contextService->getStoreName($salesChannelContext),
-                "country" => $this->contextService->getCountryCode($salesChannelContext),
-                "currency" => $this->contextService->getCurrencyCode($salesChannelContext),
-                "lineItems" => $this->getLineItems($cart, $fee),
-                "totals" => $this->getTotal($cart, $fee),
-                "shippingMethods" => $this->getFormatedShippingMethods($cart, $salesChannelContext)
+                'cartToken' => $cart->getToken(),
+                'storeName' => $this->contextService->getStoreName($salesChannelContext),
+                'country' => $this->contextService->getCountryCode($salesChannelContext),
+                'currency' => $this->contextService->getCurrencyCode($salesChannelContext),
+                'lineItems' => $this->getLineItems($cart, $fee),
+                'totals' => $this->getTotal($cart, $fee),
+                'shippingMethods' => $this->getFormatedShippingMethods($cart, $salesChannelContext),
             ]);
         } catch (\Throwable $th) {
             // error level: debug is not written in production, which hides the
             // real cause behind the generic "unknown error" JSON response.
-            $this->logger->error('[ApplePay] request failed: ' . (string)$th);
+            $this->logger->error('[ApplePay] request failed: ' . (string) $th);
+
             return $this->response(
-                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
+                ['message' => $this->trans('buckaroo.button_payment.unknown_error')],
                 true
             );
         }
     }
 
-    /**
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     */
-    #[Route("/buckaroo/apple/cart/update", name: "frontend.action.buckaroo.appleUpdateCart", options: ["seo" => false], methods: ["POST"], defaults: ["XmlHttpRequest" => true, "_routeScope" => ["storefront"]])]
+    #[Route('/buckaroo/apple/cart/update', name: 'frontend.action.buckaroo.appleUpdateCart', options: ['seo' => false], methods: ['POST'], defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']])]
     public function updateCart(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         if (!$request->request->has('cartToken')) {
             return $this->response(
-                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
+                ['message' => $this->trans('buckaroo.button_payment.unknown_error')],
                 true
             );
         }
@@ -118,11 +111,10 @@ class ApplePayController extends AbstractPaymentController
 
             if ($cart === null) {
                 return $this->response(
-                    ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
+                    ['message' => $this->trans('buckaroo.button_payment.unknown_error')],
                     true
                 );
             }
-
 
             if ($request->request->has('shippingMethod')) {
                 $cart = $this->updateCartWithSelectedShipping(
@@ -143,32 +135,28 @@ class ApplePayController extends AbstractPaymentController
                 $cart = $this->cartService->calculateCart($cart, $salesChannelContext);
             }
 
-
             $fee = $this->getFee($salesChannelContext, 'applepayFee');
+
             return $this->response([
-                "newLineItems" => $this->getLineItems($cart, $fee),
-                "newTotal" => $this->getTotal($cart, $fee),
-                "newShippingMethods" => $this->getFormatedShippingMethods($cart, $salesChannelContext),
+                'newLineItems' => $this->getLineItems($cart, $fee),
+                'newTotal' => $this->getTotal($cart, $fee),
+                'newShippingMethods' => $this->getFormatedShippingMethods($cart, $salesChannelContext),
             ]);
         } catch (\Throwable $th) {
             // error level: debug is not written in production, which hides the
             // real cause behind the generic "unknown error" JSON response.
-            $this->logger->error('[ApplePay] request failed: ' . (string)$th);
+            $this->logger->error('[ApplePay] request failed: ' . (string) $th);
+
             return $this->response(
-                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
+                ['message' => $this->trans('buckaroo.button_payment.unknown_error')],
                 true
             );
         }
     }
 
-    /**
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     */
-    #[Route("/buckaroo/apple/order/create", name: "frontend.action.buckaroo.appleCreateOrder", options: ["seo" => false], methods: ["POST"], defaults: ["XmlHttpRequest" => true, "_routeScope" => ["storefront"]])]
+    #[Route('/buckaroo/apple/order/create', name: 'frontend.action.buckaroo.appleCreateOrder', options: ['seo' => false], methods: ['POST'], defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']])]
     public function createAppleOrder(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
-
         try {
             // Inside the try: a failure here must return JSON, not a 500 page —
             // an HTML 500 leaves the Apple Pay sheet waiting for completePayment()
@@ -179,7 +167,7 @@ class ApplePayController extends AbstractPaymentController
                 $this->createOrder($salesChannelContext, $request),
                 $salesChannelContext,
                 new RequestDataBag([
-                    "applePayInfo" => $request->request->get('payment')
+                    'applePayInfo' => $request->request->get('payment'),
                 ])
             );
 
@@ -194,51 +182,117 @@ class ApplePayController extends AbstractPaymentController
             }
 
             return $this->response([
-                "redirect" => $redirect
+                'redirect' => $redirect,
             ]);
         } catch (\Throwable $th) {
             // error level: debug is not written in production, which hides the
             // real cause behind the generic "unknown error" JSON response.
-            $this->logger->error('[ApplePay] request failed: ' . (string)$th);
+            $this->logger->error('[ApplePay] request failed: ' . (string) $th);
+
             return $this->response(
-                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
+                ['message' => $this->trans('buckaroo.button_payment.unknown_error')],
                 true
             );
         }
     }
 
     /**
-     * Delete the cart that was just converted into an order. Deletes by the
-     * same token the order was created from (standard checkout and cart-page
-     * express use the session cart; product-page express uses its own
-     * temporary cart, so the shopper's session cart is left untouched there).
-     * Cleanup must never fail a successful payment.
+     * Get cart line items from
+     *
+     * @return array<mixed>
      */
-    private function deleteCartAfterOrder(Request $request, SalesChannelContext $salesChannelContext): void
+    public function getLineItems(Cart $cart, float $fee)
     {
-        try {
-            $cartToken = $request->request->get('cartToken');
-            if (!is_string($cartToken) || $cartToken === '') {
-                $cartToken = $salesChannelContext->getToken();
-            }
+        $shippingSum = $cart->getDeliveries()->getShippingCosts()->sum();
+        $productSum = $cart->getLineItems()->getPrices()->sum();
 
-            $this->cartService->deleteCartByToken($cartToken, $salesChannelContext);
-        } catch (\Throwable $th) {
-            $this->logger->warning('[ApplePay] could not delete cart after order: ' . $th->getMessage());
+        return [
+            [
+                'label' => $this->trans('bkr-applepay.Subtotal'),
+                'amount' => $this->formatNumber(
+                    $productSum->getTotalPrice() + $fee
+                ),
+                'type' => 'final',
+            ],
+            [
+                'label' => $this->trans('bkr-applepay.Deliverycosts'),
+                'amount' => $this->formatNumber($shippingSum->getUnitPrice()),
+                'type' => 'final',
+            ],
+        ];
+    }
+
+    /**
+     * Get cart total;
+     *
+     * @return array<mixed>
+     */
+    public function getTotal(Cart $cart, float $fee): array
+    {
+        return [
+            'label' => $this->trans('checkout.summaryTotalPrice'),
+            'amount' => $this->formatNumber(
+                $cart->getPrice()->getTotalPrice() + $fee
+            ),
+            'type' => 'final',
+        ];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function getFormatedShippingMethods(Cart $cart, SalesChannelContext $salesChannelContext): array
+    {
+        $shippingMethodsCollection = $this->getShippingMethods($salesChannelContext);
+        $shippingMethods = [];
+
+        $currentShippingMethod = $salesChannelContext->getShippingMethod();
+
+        foreach ($shippingMethodsCollection as $shippingMethod) {
+            $amount = $this->calculateCartShippingAmountForShippingMethod(
+                $cart,
+                $salesChannelContext,
+                $shippingMethod
+            )->getShippingCosts()->getTotalPrice();
+
+            $shippingMethods[] = [
+                'label' => $shippingMethod->getName() ?? '',
+                // Apple Pay expects string amounts ("4.99"); null detail renders as "null" on the sheet
+                'amount' => $this->formatNumber($amount),
+                'identifier' => $shippingMethod->getId(),
+                'detail' => $shippingMethod->getDescription() ?? '',
+            ];
         }
+
+        // Restore cart & context to the original payment method
+        $this->calculateCartShippingAmountForShippingMethod(
+            $cart,
+            $salesChannelContext,
+            $currentShippingMethod
+        );
+
+        return $shippingMethods;
+    }
+
+    public function calculateCartShippingAmountForShippingMethod(
+        Cart $cart,
+        SalesChannelContext $salesChannelContext,
+        ShippingMethodEntity $shippingMethod
+    ): Cart {
+        $salesChannelContext->assign([
+            'shippingMethod' => $shippingMethod,
+        ]);
+
+        return $this->cartService->calculateCart($cart, $salesChannelContext);
     }
 
     /**
      * Create order from cart
      *
-     * @param SalesChannelContext $salesChannelContext
-     * @param Request $request
-     *
      * @return \Shopware\Core\Checkout\Order\OrderEntity
      */
     protected function createOrder(SalesChannelContext $salesChannelContext, Request $request)
     {
-
         $cartToken = $request->request->get('cartToken');
 
         if (!is_string($cartToken)) {
@@ -248,7 +302,7 @@ class ApplePayController extends AbstractPaymentController
         $cart = $this->getCartByToken($cartToken, $salesChannelContext);
 
         if ($cart === null) {
-            throw new \Exception("Cannot find cart", 1);
+            throw new \Exception('Cannot find cart', 1);
         }
 
         if (in_array($request->request->get('page'), ['product', 'cart'])) {
@@ -290,58 +344,14 @@ class ApplePayController extends AbstractPaymentController
             ->persist($cart);
 
         if ($order === null) {
-            throw new \Exception("Cannot create order", 1);
+            throw new \Exception('Cannot create order', 1);
         }
+
         return $order;
     }
 
-
     /**
-     * Make sure the sales channel context has a customer for express orders.
-     * Uses the authorised Apple Pay contact (shipping preferred — it carries the
-     * full postal address; billing as fallback) to create and log in a guest.
-     */
-    private function ensureCustomer(Request $request, SalesChannelContext $salesChannelContext): void
-    {
-        if ($salesChannelContext->getCustomer() !== null) {
-            return;
-        }
-
-        $paymentData = $request->request->get('payment');
-        if (is_string($paymentData)) {
-            $paymentData = json_decode($paymentData, true);
-        }
-
-        $contact = null;
-        if (is_array($paymentData)) {
-            $contact = $paymentData['shippingContact'] ?? $paymentData['billingContact'] ?? null;
-
-            // The e-mail address is usually only present on the shipping contact;
-            // carry it over so the guest gets the real address either way.
-            if (is_array($contact) &&
-                empty($contact['emailAddress']) &&
-                !empty($paymentData['shippingContact']['emailAddress'])
-            ) {
-                $contact['emailAddress'] = $paymentData['shippingContact']['emailAddress'];
-            }
-        }
-
-        if (!is_array($contact) || $contact === []) {
-            throw new \InvalidArgumentException('Cannot create guest customer: no Apple Pay contact available');
-        }
-
-        $this->loginCustomer(
-            $this->getCustomerData($contact),
-            $salesChannelContext
-        );
-    }
-
-    /**
-     * @param Cart $cart
      * @param mixed $shippingMethodId
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return Cart
      */
     protected function updateCartWithSelectedShipping(
         Cart $cart,
@@ -358,7 +368,7 @@ class ApplePayController extends AbstractPaymentController
         );
 
         if ($shippingMethod === null) {
-            throw new \Exception($this->trans("buckaroo.button_payment.unknown_error"));
+            throw new \Exception($this->trans('buckaroo.button_payment.unknown_error'));
         }
 
         return $this->calculateCartShippingAmountForShippingMethod(
@@ -366,34 +376,6 @@ class ApplePayController extends AbstractPaymentController
             $salesChannelContext,
             $shippingMethod
         );
-    }
-
-    /**
-     * Update the guest's placeholder identity (name/email) with the authorised
-     * Apple Pay contact. Only guests are touched — a logged-in account is never
-     * overwritten with wallet data.
-     *
-     * @param mixed $paymentData
-     */
-    private function updateGuestCustomerIdentity($paymentData, SalesChannelContext $salesChannelContext): void
-    {
-        $customer = $salesChannelContext->getCustomer();
-        if ($customer === null || $customer->getGuest() !== true || !is_array($paymentData)) {
-            return;
-        }
-
-        $contact = $paymentData['shippingContact'] ?? $paymentData['billingContact'] ?? null;
-        if (!is_array($contact) || $contact === []) {
-            return;
-        }
-
-        if (empty($contact['emailAddress']) && !empty($paymentData['shippingContact']['emailAddress'])) {
-            $contact['emailAddress'] = $paymentData['shippingContact']['emailAddress'];
-        }
-
-        $this->customerService
-            ->setSaleChannelContext($salesChannelContext)
-            ->updateCustomerIdentity($customer, $this->getCustomerData($contact));
     }
 
     /**
@@ -413,9 +395,9 @@ class ApplePayController extends AbstractPaymentController
             $paymentData = json_decode($paymentData, true);
         }
 
-        if (!is_array($paymentData) ||
-            !isset($paymentData['shippingContact']) ||
-            !is_array($paymentData['shippingContact'])
+        if (!is_array($paymentData)
+            || !isset($paymentData['shippingContact'])
+            || !is_array($paymentData['shippingContact'])
         ) {
             return null;
         }
@@ -435,8 +417,9 @@ class ApplePayController extends AbstractPaymentController
         if ($address !== null) {
             $customer->setActiveShippingAddress($address);
             $salesChannelContext->assign([
-                'shippingLocation' => ShippingLocation::createFromAddress($address)
+                'shippingLocation' => ShippingLocation::createFromAddress($address),
             ]);
+
             return $this->cartService->calculateCart($cart, $salesChannelContext);
         }
 
@@ -444,12 +427,7 @@ class ApplePayController extends AbstractPaymentController
     }
 
     /**
-     *
-     * @param Cart $cart
-     * @param SalesChannelContext $salesChannelContext
      * @param mixed $paymentData
-     *
-     * @return Cart|null
      */
     protected function updateCartBillingAddress(
         Cart $cart,
@@ -476,128 +454,21 @@ class ApplePayController extends AbstractPaymentController
                 $customer
             );
 
-
         if ($address !== null) {
             $customer->setActiveBillingAddress($address);
+
             return $this->cartService->calculateCart($cart, $salesChannelContext);
         }
+
         return $cart;
     }
-    /**
-     * Get cart line items from
-     *
-     * @param Cart $cart
-     * @return array<mixed>
-     */
-    public function getLineItems(Cart $cart, float $fee)
-    {
-        $shippingSum = $cart->getDeliveries()->getShippingCosts()->sum();
-        $productSum = $cart->getLineItems()->getPrices()->sum();
 
-        return [
-            [
-                'label' => $this->trans('bkr-applepay.Subtotal'),
-                'amount' => $this->formatNumber(
-                    $productSum->getTotalPrice() + $fee
-                ),
-                'type' => 'final'
-            ],
-            [
-                'label' => $this->trans('bkr-applepay.Deliverycosts'),
-                'amount' => $this->formatNumber($shippingSum->getUnitPrice()),
-                'type' => 'final'
-            ]
-        ];
-    }
-
-    /**
-     * Get cart total;
-     *
-     * @param Cart $cart
-     * @return array<mixed>
-     */
-    public function getTotal(Cart $cart, float $fee): array
-    {
-        return  [
-            'label' => $this->trans('checkout.summaryTotalPrice'),
-            'amount' => $this->formatNumber(
-                $cart->getPrice()->getTotalPrice() + $fee
-            ),
-            'type' => 'final'
-        ];
-    }
-
-    /**
-     * @param Cart $cart
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return array<mixed>
-     */
-    public function getFormatedShippingMethods(Cart $cart, SalesChannelContext $salesChannelContext): array
-    {
-        $shippingMethodsCollection = $this->getShippingMethods($salesChannelContext);
-        $shippingMethods = [];
-
-        $currentShippingMethod = $salesChannelContext->getShippingMethod();
-
-        foreach ($shippingMethodsCollection as $shippingMethod) {
-            $amount = $this->calculateCartShippingAmountForShippingMethod(
-                $cart,
-                $salesChannelContext,
-                $shippingMethod
-            )->getShippingCosts()->getTotalPrice();
-
-            $shippingMethods[] = [
-                'label' => $shippingMethod->getName() ?? '',
-                // Apple Pay expects string amounts ("4.99"); null detail renders as "null" on the sheet
-                'amount' => $this->formatNumber($amount),
-                'identifier' => $shippingMethod->getId(),
-                'detail' => $shippingMethod->getDescription() ?? ''
-            ];
-        }
-
-        // Restore cart & context to the original payment method
-        $this->calculateCartShippingAmountForShippingMethod(
-            $cart,
-            $salesChannelContext,
-            $currentShippingMethod
-        );
-
-        return $shippingMethods;
-    }
-
-    /**
-     * @param Cart $cart
-     * @param SalesChannelContext $salesChannelContext
-     * @param ShippingMethodEntity $shippingMethod
-     *
-     * @return Cart
-     */
-    public function calculateCartShippingAmountForShippingMethod(
-        Cart $cart,
-        SalesChannelContext $salesChannelContext,
-        ShippingMethodEntity $shippingMethod
-    ): Cart {
-        $salesChannelContext->assign([
-            'shippingMethod' => $shippingMethod
-        ]);
-
-        return $this->cartService->calculateCart($cart, $salesChannelContext);
-    }
-
-
-    /**
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return ShippingMethodCollection
-     */
     protected function getShippingMethods(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
-
         $request = new Request();
         $request->query->set('onlyAvailable', '1');
 
-        /** @var \Shopware\Core\Checkout\Shipping\ShippingMethodCollection */
+        /** @var ShippingMethodCollection */
         return $this->shippingMethodRoute
             ->load($request, $salesChannelContext, new Criteria())
             ->getShippingMethods();
@@ -605,9 +476,6 @@ class ApplePayController extends AbstractPaymentController
 
     /**
      * Get shipping method by id
-     *
-     * @param string $shippingMethodId
-     * @param SalesChannelContext $salesChannelContext
      *
      * @return ShippingMethodEntity|null
      */
@@ -640,7 +508,7 @@ class ApplePayController extends AbstractPaymentController
             'countryCode' => 'country_code',
             // CustomerService reads 'email' — map Apple's key so the guest gets
             // the shopper's real address instead of the no-reply fallback.
-            'emailAddress' => 'email'
+            'emailAddress' => 'email',
         ];
 
         $data = [];
@@ -666,5 +534,94 @@ class ApplePayController extends AbstractPaymentController
         }
 
         return new DataBag($data);
+    }
+
+    /**
+     * Delete the cart that was just converted into an order. Deletes by the
+     * same token the order was created from (standard checkout and cart-page
+     * express use the session cart; product-page express uses its own
+     * temporary cart, so the shopper's session cart is left untouched there).
+     * Cleanup must never fail a successful payment.
+     */
+    private function deleteCartAfterOrder(Request $request, SalesChannelContext $salesChannelContext): void
+    {
+        try {
+            $cartToken = $request->request->get('cartToken');
+            if (!is_string($cartToken) || $cartToken === '') {
+                $cartToken = $salesChannelContext->getToken();
+            }
+
+            $this->cartService->deleteCartByToken($cartToken, $salesChannelContext);
+        } catch (\Throwable $th) {
+            $this->logger->warning('[ApplePay] could not delete cart after order: ' . $th->getMessage());
+        }
+    }
+
+    /**
+     * Make sure the sales channel context has a customer for express orders.
+     * Uses the authorised Apple Pay contact (shipping preferred — it carries the
+     * full postal address; billing as fallback) to create and log in a guest.
+     */
+    private function ensureCustomer(Request $request, SalesChannelContext $salesChannelContext): void
+    {
+        if ($salesChannelContext->getCustomer() !== null) {
+            return;
+        }
+
+        $paymentData = $request->request->get('payment');
+        if (is_string($paymentData)) {
+            $paymentData = json_decode($paymentData, true);
+        }
+
+        $contact = null;
+        if (is_array($paymentData)) {
+            $contact = $paymentData['shippingContact'] ?? $paymentData['billingContact'] ?? null;
+
+            // The e-mail address is usually only present on the shipping contact;
+            // carry it over so the guest gets the real address either way.
+            if (is_array($contact)
+                && empty($contact['emailAddress'])
+                && !empty($paymentData['shippingContact']['emailAddress'])
+            ) {
+                $contact['emailAddress'] = $paymentData['shippingContact']['emailAddress'];
+            }
+        }
+
+        if (!is_array($contact) || $contact === []) {
+            throw new \InvalidArgumentException('Cannot create guest customer: no Apple Pay contact available');
+        }
+
+        $this->loginCustomer(
+            $this->getCustomerData($contact),
+            $salesChannelContext
+        );
+    }
+
+    /**
+     * Update the guest's placeholder identity (name/email) with the authorised
+     * Apple Pay contact. Only guests are touched — a logged-in account is never
+     * overwritten with wallet data.
+     *
+     * @param mixed $paymentData
+     */
+    private function updateGuestCustomerIdentity($paymentData, SalesChannelContext $salesChannelContext): void
+    {
+        $customer = $salesChannelContext->getCustomer();
+        if ($customer === null || $customer->getGuest() !== true || !is_array($paymentData)) {
+            return;
+        }
+
+        $contact = $paymentData['shippingContact'] ?? $paymentData['billingContact'] ?? null;
+        if (!is_array($contact) || $contact === []) {
+            return;
+        }
+
+        if (empty($contact['emailAddress']) && !empty($paymentData['shippingContact']['emailAddress'])) {
+            $contact['emailAddress'] = $paymentData['shippingContact']['emailAddress'];
+        }
+
+        $this->customerService
+            ->setSaleChannelContext($salesChannelContext)
+            ->updateCustomerIdentity($customer, $this->getCustomerData($contact));
     }
 }

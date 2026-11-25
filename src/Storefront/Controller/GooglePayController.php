@@ -4,24 +4,23 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
-use Psr\Log\LoggerInterface;
 use Buckaroo\Shopware6\Service\CartService;
-use Buckaroo\Shopware6\Service\OrderService;
-use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\ContextService;
 use Buckaroo\Shopware6\Service\CustomerService;
+use Buckaroo\Shopware6\Service\OrderService;
 use Buckaroo\Shopware6\Service\SettingsService;
-use Symfony\Component\Routing\Annotation\Route;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
-use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class GooglePayController extends AbstractPaymentController
 {
@@ -57,10 +56,6 @@ class GooglePayController extends AbstractPaymentController
         );
     }
 
-    /**
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     */
     #[Route(path: '/buckaroo/googlepay/cart/get', name: 'frontend.action.buckaroo.googleGetCart', options: ['seo' => false], methods: ['POST'], defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']])]
     public function getGoogleCart(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
@@ -83,6 +78,7 @@ class GooglePayController extends AbstractPaymentController
                     // Cart does not exist yet (fresh / empty session).
                     // Use the emptyCart flag so the JS can hide the button silently.
                     $this->logger->debug('[GooglePay] getGoogleCart — session cart not found: ' . $e->getMessage());
+
                     return $this->response(
                         ['message' => 'Your cart is empty. Please add a product before using Google Pay.', 'emptyCart' => true],
                         true
@@ -101,22 +97,23 @@ class GooglePayController extends AbstractPaymentController
 
             $salesChannelId = $salesChannelContext->getSalesChannelId();
             $gatewayMerchantId = $this->settingsService->getSetting('googlepayGatewayMerchantId', $salesChannelId);
-            if (!is_scalar($gatewayMerchantId) || (string)$gatewayMerchantId === '') {
+            if (!is_scalar($gatewayMerchantId) || (string) $gatewayMerchantId === '') {
                 $gatewayMerchantId = $this->settingsService->getSetting('websiteKey', $salesChannelId);
             }
 
             return $this->response([
-                'cartToken'         => $cart->getToken(),
-                'storeName'         => $this->contextService->getStoreName($salesChannelContext),
-                'country'           => $this->contextService->getCountryCode($salesChannelContext),
-                'currency'          => $this->contextService->getCurrencyCode($salesChannelContext),
-                'totalPrice'        => $this->formatNumber(
+                'cartToken' => $cart->getToken(),
+                'storeName' => $this->contextService->getStoreName($salesChannelContext),
+                'country' => $this->contextService->getCountryCode($salesChannelContext),
+                'currency' => $this->contextService->getCurrencyCode($salesChannelContext),
+                'totalPrice' => $this->formatNumber(
                     $cart->getPrice()->getTotalPrice() + $fee
                 ),
-                'gatewayMerchantId' => is_scalar($gatewayMerchantId) ? (string)$gatewayMerchantId : '',
+                'gatewayMerchantId' => is_scalar($gatewayMerchantId) ? (string) $gatewayMerchantId : '',
             ]);
         } catch (\Throwable $th) {
-            $this->logger->debug((string)$th);
+            $this->logger->debug((string) $th);
+
             return $this->response(
                 ['message' => $this->trans('buckaroo.button_payment.unknown_error')],
                 true
@@ -124,16 +121,12 @@ class GooglePayController extends AbstractPaymentController
         }
     }
 
-    /**
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     */
     #[Route(path: '/buckaroo/googlepay/order/create', name: 'frontend.action.buckaroo.googleCreateOrder', options: ['seo' => false], methods: ['POST'], defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']])]
     public function createGoogleOrder(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $this->logger->info('[GooglePay] createGoogleOrder — START', [
-            'page'        => $request->request->get('page'),
-            'customerId'  => $salesChannelContext->getCustomer()?->getId() ?? 'guest/null',
+            'page' => $request->request->get('page'),
+            'customerId' => $salesChannelContext->getCustomer()?->getId() ?? 'guest/null',
             'paymentHasInfo' => !empty($request->request->get('payment')),
         ]);
 
@@ -185,7 +178,7 @@ class GooglePayController extends AbstractPaymentController
 
                 $this->logger->info('[GooglePay] createGoogleOrder — guest registered', [
                     'customerId' => $customer->getId(),
-                    'email'      => $customer->getEmail(),
+                    'email' => $customer->getEmail(),
                 ]);
             }
 
@@ -220,7 +213,7 @@ class GooglePayController extends AbstractPaymentController
             );
 
             $this->logger->info('[GooglePay] createGoogleOrder — context reloaded with Google Pay payment method', [
-                'paymentMethodId'   => $salesChannelContext->getPaymentMethod()->getId(),
+                'paymentMethodId' => $salesChannelContext->getPaymentMethod()->getId(),
                 'paymentMethodName' => $salesChannelContext->getPaymentMethod()->getName(),
             ]);
 
@@ -240,16 +233,16 @@ class GooglePayController extends AbstractPaymentController
 
             $order = $this->createOrder($salesChannelContext, $request, $preLoadedCart);
             $this->logger->info('[GooglePay] createGoogleOrder — order created', [
-                'orderId'     => $order->getId(),
+                'orderId' => $order->getId(),
                 'orderNumber' => $order->getOrderNumber(),
-                'amount'      => $order->getAmountTotal(),
+                'amount' => $order->getAmountTotal(),
             ]);
 
             $redirectPath = $this->placeOrder(
                 $order,
                 $salesChannelContext,
                 new RequestDataBag([
-                    'googlePayInfo' => $request->request->get('payment')
+                    'googlePayInfo' => $request->request->get('payment'),
                 ])
             );
 
@@ -277,6 +270,7 @@ class GooglePayController extends AbstractPaymentController
 
             if ($redirect === null) {
                 $this->logger->error('[GooglePay] createGoogleOrder — redirect is null after placeOrder. Check OrderService / PaymentProcessor logs above for the root cause.');
+
                 return $this->response(
                     ['message' => $this->trans('buckaroo.button_payment.unknown_error')],
                     true
@@ -284,14 +278,16 @@ class GooglePayController extends AbstractPaymentController
             }
 
             $this->logger->info('[GooglePay] createGoogleOrder — SUCCESS, redirecting to: ' . $redirect);
+
             return $this->response(['redirect' => $redirect]);
         } catch (\Throwable $th) {
             $this->logger->error('[GooglePay] createGoogleOrder — EXCEPTION', [
                 'message' => $th->getMessage(),
-                'class'   => get_class($th),
-                'file'    => $th->getFile() . ':' . $th->getLine(),
-                'trace'   => $th->getTraceAsString(),
+                'class' => get_class($th),
+                'file' => $th->getFile() . ':' . $th->getLine(),
+                'trace' => $th->getTraceAsString(),
             ]);
+
             return $this->response(
                 ['message' => $this->trans('buckaroo.button_payment.unknown_error')],
                 true
@@ -303,8 +299,8 @@ class GooglePayController extends AbstractPaymentController
      * Create order from cart.
      *
      * @param \Shopware\Core\Checkout\Cart\Cart|null $preLoadedCart
-     *        Pass the cart when it was already loaded before a guest registration so
-     *        Shopware's context-token migration cannot cause a "cart not found" error.
+     *                                                              Pass the cart when it was already loaded before a guest registration so
+     *                                                              Shopware's context-token migration cannot cause a "cart not found" error.
      *
      * @return \Shopware\Core\Checkout\Order\OrderEntity
      */
@@ -352,11 +348,7 @@ class GooglePayController extends AbstractPaymentController
     /**
      * Update cart billing address from Google Pay payment data
      *
-     * @param \Shopware\Core\Checkout\Cart\Cart $cart
-     * @param SalesChannelContext $salesChannelContext
      * @param mixed $paymentData
-     *
-     * @return \Shopware\Core\Checkout\Cart\Cart|null
      */
     protected function updateCartBillingAddress(
         \Shopware\Core\Checkout\Cart\Cart $cart,
@@ -391,6 +383,7 @@ class GooglePayController extends AbstractPaymentController
 
         if ($address !== null) {
             $customer->setActiveBillingAddress($address);
+
             return $this->cartService->calculateCart($cart, $salesChannelContext);
         }
 
@@ -401,16 +394,15 @@ class GooglePayController extends AbstractPaymentController
      * Map Google Pay address fields to Shopware field names
      *
      * @param array<mixed> $addressData
-     * @return DataBag
      */
     protected function getCustomerData(array $addressData): DataBag
     {
         $mappings = [
-            'name'              => 'first_name',
-            'address1'          => 'street',
-            'locality'          => 'city',
-            'postalCode'        => 'postal_code',
-            'countryCode'       => 'country_code',
+            'name' => 'first_name',
+            'address1' => 'street',
+            'locality' => 'city',
+            'postalCode' => 'postal_code',
+            'countryCode' => 'country_code',
         ];
 
         $data = [];

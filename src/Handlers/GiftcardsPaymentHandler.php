@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\Giftcards;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class GiftcardsPaymentHandler extends PaymentHandlerSimple
 {
@@ -15,11 +15,6 @@ class GiftcardsPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
@@ -38,8 +33,8 @@ class GiftcardsPaymentHandler extends PaymentHandlerSimple
                 $salesChannelContext->getSalesChannelId()
             ),
             'additionalParameters' => [
-                'email' => $email
-            ]
+                'email' => $email,
+            ],
         ];
 
         return $payload;
@@ -47,12 +42,6 @@ class GiftcardsPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get method action for specific payment method
-     *
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
-     *
-     * @return string
      */
     public function getMethodAction(
         RequestDataBag $dataBag,
@@ -71,8 +60,8 @@ class GiftcardsPaymentHandler extends PaymentHandlerSimple
         $allowedServices = [];
 
         if (
-            is_array($allowedGiftcards) &&
-            count($allowedGiftcards)
+            is_array($allowedGiftcards)
+            && count($allowedGiftcards)
         ) {
             $allowedServices = $allowedGiftcards;
         }
@@ -80,11 +69,11 @@ class GiftcardsPaymentHandler extends PaymentHandlerSimple
         $allowedMethods = $this->getAllowedMethods($salesChannelId);
 
         if (count($allowedMethods) === 0) {
-            $allowedMethods = ['ideal']; //defaults to ideal payment method
+            $allowedMethods = ['ideal']; // defaults to ideal payment method
         }
         $allowedServices = array_merge($allowedServices, $allowedMethods);
 
-        return implode(",", $allowedServices);
+        return implode(',', $allowedServices);
     }
 
     protected function getAllowedMethods(string $salesChannelId): array
@@ -94,8 +83,8 @@ class GiftcardsPaymentHandler extends PaymentHandlerSimple
             ->getSetting('giftcardsPaymentmethods', $salesChannelId);
 
         if (
-            !is_array($allowedMethods) ||
-            count($allowedMethods) == 0
+            !is_array($allowedMethods)
+            || count($allowedMethods) == 0
         ) {
             return [];
         }

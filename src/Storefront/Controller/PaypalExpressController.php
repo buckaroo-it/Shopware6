@@ -4,27 +4,26 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
+use Buckaroo\Shopware6\Service\CartService;
+use Buckaroo\Shopware6\Service\CustomerService;
+use Buckaroo\Shopware6\Service\OrderService;
+use Buckaroo\Shopware6\Service\SettingsService;
+use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
-use Buckaroo\Shopware6\Service\CartService;
-use Buckaroo\Shopware6\Service\OrderService;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Symfony\Component\HttpFoundation\Request;
-use Buckaroo\Shopware6\Service\CustomerService;
-use Buckaroo\Shopware6\Service\SettingsService;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
-use Buckaroo\Shopware6\Storefront\Controller\AbstractPaymentController;
-use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class PaypalExpressController extends AbstractPaymentController
 {
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -46,17 +45,10 @@ class PaypalExpressController extends AbstractPaymentController
             $paymentMethodRepository
         );
     }
-    /**
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return JsonResponse
-     */
-    #[Route(path: "buckaroo/paypal/create", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest" => true], options: ["seo" => false], name: "frontend.action.buckaroo.paypalExpressCreate", methods: ["POST"])]
+
+    #[Route(path: 'buckaroo/paypal/create', defaults: ['_routeScope' => ['storefront'], 'XmlHttpRequest' => true], options: ['seo' => false], name: 'frontend.action.buckaroo.paypalExpressCreate', methods: ['POST'])]
     public function create(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
-
-
         try {
             $this->overrideChannelPaymentMethod($salesChannelContext, 'PaypalPaymentHandler');
 
@@ -66,34 +58,27 @@ class PaypalExpressController extends AbstractPaymentController
             );
             $cart = $this->getCart($request, $salesChannelContext);
         } catch (\Throwable $th) {
-            $this->logger->debug((string)$th);
+            $this->logger->debug((string) $th);
+
             return $this->response(
-                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
+                ['message' => $this->trans('buckaroo.button_payment.unknown_error')],
                 true
             );
         }
 
         return $this->response([
-            "cart" => $this->getCartBreakdown($cart, $salesChannelContext),
-            "token" => $cart->getToken(),
+            'cart' => $this->getCartBreakdown($cart, $salesChannelContext),
+            'token' => $cart->getToken(),
         ]);
     }
 
-
-
-    /**
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return JsonResponse
-     */
-    #[Route(path: "buckaroo/paypal/pay", defaults: ['_routeScope' => ['storefront'], "XmlHttpRequest" => true], options: ["seo" => false], name: "frontend.action.buckaroo.paypalExpressPay", methods: ["POST"])]
+    #[Route(path: 'buckaroo/paypal/pay', defaults: ['_routeScope' => ['storefront'], 'XmlHttpRequest' => true], options: ['seo' => false], name: 'frontend.action.buckaroo.paypalExpressPay', methods: ['POST'])]
     public function pay(Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $this->overrideChannelPaymentMethod($salesChannelContext, 'PaypalPaymentHandler');
         if (!$request->request->has('orderId')) {
             return $this->response(
-                ["message" => $this->trans("buckaroo.button_payment.missing_order_id")],
+                ['message' => $this->trans('buckaroo.button_payment.missing_order_id')],
                 true
             );
         }
@@ -108,8 +93,8 @@ class PaypalExpressController extends AbstractPaymentController
                 $this->createOrder($salesChannelContext, $cartToken),
                 $salesChannelContext,
                 new RequestDataBag([
-                    "orderId" => $request->request->get('orderId'),
-                    "paypalExpressInfo" => true
+                    'orderId' => $request->request->get('orderId'),
+                    'paypalExpressInfo' => true,
                 ])
             );
 
@@ -124,48 +109,29 @@ class PaypalExpressController extends AbstractPaymentController
             }
 
             return $this->response([
-                "redirect" => $redirect
+                'redirect' => $redirect,
             ]);
         } catch (\Throwable $th) {
             // error level: debug is not written in production, which hides the
             // real cause behind the generic "unknown error" JSON response.
-            $this->logger->error('[PaypalExpress] pay failed: ' . (string)$th);
+            $this->logger->error('[PaypalExpress] pay failed: ' . (string) $th);
+
             return $this->response(
-                ["message" => $this->trans("buckaroo.button_payment.unknown_error")],
+                ['message' => $this->trans('buckaroo.button_payment.unknown_error')],
                 true
             );
         }
     }
 
     /**
-     * Delete the cart that was just converted into an order. The cart-page flow uses
-     * the session cart; the product-page flow uses its own temporary cart, so the
-     * shopper's session cart is left untouched there. Cleanup must never fail a
-     * successful payment.
-     */
-    private function deleteCartAfterOrder(string $cartToken, SalesChannelContext $salesChannelContext): void
-    {
-        try {
-            $this->cartService->deleteCartByToken($cartToken, $salesChannelContext);
-        } catch (\Throwable $th) {
-            $this->logger->warning('[PaypalExpress] could not delete cart after order: ' . $th->getMessage());
-        }
-    }
-
-    /**
      * Create order from cart
-     *
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $cartToken
-     *
-     * @return \Shopware\Core\Checkout\Order\OrderEntity
      */
     protected function createOrder(SalesChannelContext $salesChannelContext, string $cartToken): OrderEntity
     {
         $cart = $this->getCartByToken($cartToken, $salesChannelContext);
 
         if ($cart === null) {
-            throw new \Exception("Cannot find cart", 1);
+            throw new \Exception('Cannot find cart', 1);
         }
 
         // Express flow: /buckaroo/paypal/create - and with it the guest login - only
@@ -191,15 +157,14 @@ class PaypalExpressController extends AbstractPaymentController
             ->persist($cart);
 
         if ($order === null) {
-            throw new \Exception("Cannot create order", 1);
+            throw new \Exception('Cannot create order', 1);
         }
+
         return $order;
     }
+
     /**
      * Get cart price breakdown
-     *
-     * @param Cart $cart
-     * @param SalesChannelContext $salesChannelContext
      *
      * @return array<mixed>
      */
@@ -212,51 +177,67 @@ class PaypalExpressController extends AbstractPaymentController
         $productSum = $cart->getLineItems()->getPrices()->sum();
 
         $fee = $this->getFee($salesChannelContext, 'paypalFee');
+
         return [
-            "breakdown" => [
-                "item_total" => [
-                    "currency_code" => $currency,
-                    "value" => $this->formatNumber(
+            'breakdown' => [
+                'item_total' => [
+                    'currency_code' => $currency,
+                    'value' => $this->formatNumber(
                         $productSum->getTotalPrice() - $productSum->getCalculatedTaxes()->getAmount()
-                    )
+                    ),
                 ],
-                "shipping" => [
-                    "currency_code" => $currency,
-                    "value" => $this->formatNumber(
+                'shipping' => [
+                    'currency_code' => $currency,
+                    'value' => $this->formatNumber(
                         $shippingSum->getUnitPrice() - $shippingSum->getCalculatedTaxes()->getAmount()
-                    )
+                    ),
                 ],
-                "tax_total" => [
-                    "currency_code" => $currency,
-                    "value" => $this->formatNumber($price->getCalculatedTaxes()->getAmount() + $fee)
-                ]
+                'tax_total' => [
+                    'currency_code' => $currency,
+                    'value' => $this->formatNumber($price->getCalculatedTaxes()->getAmount() + $fee),
+                ],
             ],
-            "currency_code" => $currency,
-            "value" => $this->formatNumber($price->getTotalPrice() + $fee),
+            'currency_code' => $currency,
+            'value' => $this->formatNumber($price->getTotalPrice() + $fee),
         ];
     }
+
     /**
      * Get customer data from request
      *
-     * @param Request $request
+     * @throws InvalidParameterException
      *
      * @return DataBag
-     * @throws InvalidParameterException
      */
     protected function getCustomerData(Request $request)
     {
         if (!$request->request->has('customer')) {
-            throw new InvalidParameterException("Invalid payment request", 1);
+            throw new InvalidParameterException('Invalid payment request', 1);
         }
 
         $customer = $request->request->all()['customer'];
 
         if (!is_array($customer) || !isset($customer['shipping_address'])) {
-            throw new InvalidParameterException("Invalid payment request", 1);
+            throw new InvalidParameterException('Invalid payment request', 1);
         }
-        $dataBag = new DataBag((array)$customer['shipping_address']);
+        $dataBag = new DataBag((array) $customer['shipping_address']);
         $dataBag->set('paymentToken', $customer['paymentToken'] ?? null);
 
         return $dataBag;
+    }
+
+    /**
+     * Delete the cart that was just converted into an order. The cart-page flow uses
+     * the session cart; the product-page flow uses its own temporary cart, so the
+     * shopper's session cart is left untouched there. Cleanup must never fail a
+     * successful payment.
+     */
+    private function deleteCartAfterOrder(string $cartToken, SalesChannelContext $salesChannelContext): void
+    {
+        try {
+            $this->cartService->deleteCartByToken($cartToken, $salesChannelContext);
+        } catch (\Throwable $th) {
+            $this->logger->warning('[PaypalExpress] could not delete cart after order: ' . $th->getMessage());
+        }
     }
 }

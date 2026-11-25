@@ -1,7 +1,36 @@
 // Languages of the Google Pay button (buttonLocale of createButton()), as Google lists them
 const BUTTON_LOCALES = [
-  "en", "ar", "bg", "ca", "cs", "da", "de", "el", "es", "et", "fi", "fr", "hr", "id", "it", "ja",
-  "ko", "ms", "nl", "no", "pl", "pt", "ru", "sk", "sl", "sr", "sv", "th", "tr", "uk", "zh",
+    'en',
+    'ar',
+    'bg',
+    'ca',
+    'cs',
+    'da',
+    'de',
+    'el',
+    'es',
+    'et',
+    'fi',
+    'fr',
+    'hr',
+    'id',
+    'it',
+    'ja',
+    'ko',
+    'ms',
+    'nl',
+    'no',
+    'pl',
+    'pt',
+    'ru',
+    'sk',
+    'sl',
+    'sr',
+    'sv',
+    'th',
+    'tr',
+    'uk',
+    'zh',
 ];
 
 /**
@@ -12,10 +41,12 @@ const BUTTON_LOCALES = [
  * @returns {string|null}
  */
 export default function googlePayButtonLocale(locale) {
-  const language = String(locale || "").toLowerCase().split(/[-_]/)[0];
+    const language = String(locale || '')
+        .toLowerCase()
+        .split(/[-_]/)[0];
 
-  // Google uses "no" for Norwegian; Shopware uses Bokmål or Nynorsk
-  const code = language === "nb" || language === "nn" ? "no" : language;
+    // Google uses "no" for Norwegian; Shopware uses Bokmål or Nynorsk
+    const code = language === 'nb' || language === 'nn' ? 'no' : language;
 
-  return BUTTON_LOCALES.includes(code) ? code : null;
+    return BUTTON_LOCALES.includes(code) ? code : null;
 }

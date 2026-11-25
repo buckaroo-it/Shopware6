@@ -16,9 +16,6 @@ class KlarnaKp extends AbstractPayment
         return 'klarnakp';
     }
 
-    /**
-     * @return string
-     */
     public function getVersion(): string
     {
         return '1';
@@ -26,8 +23,6 @@ class KlarnaKp extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -36,8 +31,6 @@ class KlarnaKp extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -46,8 +39,6 @@ class KlarnaKp extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
@@ -56,8 +47,6 @@ class KlarnaKp extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
@@ -73,19 +62,19 @@ class KlarnaKp extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit Klarna',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
             'nl-NL' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
             'fr-FR' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
         ];

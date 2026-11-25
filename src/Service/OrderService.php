@@ -4,27 +4,26 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\AbstractCartPersister;
-use Symfony\Component\Lock\LockFactory;
+use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
-use Buckaroo\Shopware6\Service\PaymentServiceFactory;
-use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Symfony\Component\Lock\LockFactory;
 
 class OrderService
 {
@@ -49,6 +48,8 @@ class OrderService
     protected ?object $paymentService = null; // Can be PaymentProcessor or PaymentService
 
     protected LoggerInterface $logger;
+
+    private PaymentServiceFactory $paymentServiceFactory;
 
     public function __construct(
         OrderPersisterInterface $orderPersister,
@@ -77,8 +78,7 @@ class OrderService
                 $this->salesChannelContext,
                 $orderEntity,
                 new MailRecipientStruct([
-                    $orderEntity->getOrderCustomer()?->getEmail() ?? ''
-                        => $orderEntity->getOrderCustomer()?->getFirstName() ?? ''
+                    $orderEntity->getOrderCustomer()?->getEmail() ?? '' => $orderEntity->getOrderCustomer()?->getFirstName() ?? '',
                 ])
             )
         );
@@ -93,9 +93,9 @@ class OrderService
         $errorUrl = $urls['errorUrl'] ?? null;
 
         $this->logger->info('[GooglePay][doPayment] START', [
-            'orderId'   => $orderId,
+            'orderId' => $orderId,
             'finishUrl' => $finishUrl,
-            'errorUrl'  => $errorUrl,
+            'errorUrl' => $errorUrl,
             'dataBagKeys' => array_keys($data->all()),
         ]);
 
@@ -106,15 +106,16 @@ class OrderService
         ]);
         if (!$order instanceof OrderEntity) {
             $this->logger->error('[GooglePay][doPayment] Could not load order entity', ['orderId' => $orderId]);
+
             return null;
         }
 
         $this->logger->info('[GooglePay][doPayment] Order loaded', [
-            'orderId'       => $order->getId(),
-            'orderNumber'   => $order->getOrderNumber(),
-            'amount'        => $order->getAmountTotal(),
-            'hasCurrency'   => $order->getCurrency() !== null,
-            'currencyCode'  => $order->getCurrency()?->getIsoCode() ?? 'NULL',
+            'orderId' => $order->getId(),
+            'orderNumber' => $order->getOrderNumber(),
+            'amount' => $order->getAmountTotal(),
+            'hasCurrency' => $order->getCurrency() !== null,
+            'currencyCode' => $order->getCurrency()?->getIsoCode() ?? 'NULL',
         ]);
 
         $transactions = $order->getTransactions();
@@ -123,8 +124,8 @@ class OrderService
         $paymentMethodName = $transaction?->getPaymentMethod()?->getName();
 
         $this->logger->info('[GooglePay][doPayment] Transaction info', [
-            'transactionId'     => $transaction?->getId() ?? 'NULL',
-            'paymentMethodId'   => $paymentMethodId ?? 'NULL',
+            'transactionId' => $transaction?->getId() ?? 'NULL',
+            'paymentMethodId' => $paymentMethodId ?? 'NULL',
             'paymentMethodName' => $paymentMethodName ?? 'NULL',
         ]);
 
@@ -139,8 +140,8 @@ class OrderService
             $hasHandlePaymentByOrder = method_exists($this->paymentService, 'handlePaymentByOrder');
 
             $this->logger->info('[GooglePay][doPayment] Payment service resolved', [
-                'serviceClass'           => $paymentServiceClass,
-                'hasPay'                 => $hasPay,
+                'serviceClass' => $paymentServiceClass,
+                'hasPay' => $hasPay,
                 'hasHandlePaymentByOrder' => $hasHandlePaymentByOrder,
             ]);
 
@@ -169,8 +170,8 @@ class OrderService
 
                 $this->logger->info('[GooglePay][doPayment] PaymentProcessor::pay() returned', [
                     'responseType' => $responseType,
-                    'targetUrl'    => $targetUrl,
-                    'finishUrl'    => $finishUrl,
+                    'targetUrl' => $targetUrl,
+                    'finishUrl' => $finishUrl,
                 ]);
 
                 if ($response instanceof RedirectResponse) {
@@ -194,34 +195,24 @@ class OrderService
                 $targetUrl = $response instanceof RedirectResponse ? $response->getTargetUrl() : $finishUrl;
                 $this->logger->info('[GooglePay][doPayment] handlePaymentByOrder returned', [
                     'isRedirect' => $response instanceof RedirectResponse,
-                    'targetUrl'  => $targetUrl,
+                    'targetUrl' => $targetUrl,
                 ]);
 
                 return $targetUrl;
-            } else {
-                throw new \RuntimeException('Unknown payment service type: ' . $paymentServiceClass);
             }
+            throw new \RuntimeException('Unknown payment service type: ' . $paymentServiceClass);
         } catch (\Throwable $e) {
             $this->logger->error('[GooglePay][doPayment] EXCEPTION — payment processing failed', [
-                'orderId'           => $orderId,
-                'exceptionClass'    => get_class($e),
-                'message'           => $e->getMessage(),
-                'file'              => $e->getFile() . ':' . $e->getLine(),
-                'paymentMethodId'   => $paymentMethodId ?? 'unknown',
+                'orderId' => $orderId,
+                'exceptionClass' => get_class($e),
+                'message' => $e->getMessage(),
+                'file' => $e->getFile() . ':' . $e->getLine(),
+                'paymentMethodId' => $paymentMethodId ?? 'unknown',
                 'paymentMethodName' => $paymentMethodName ?? 'unknown',
-                'trace'             => $e->getTraceAsString(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return null;
-        }
-    }
-
-    private PaymentServiceFactory $paymentServiceFactory;
-
-    private function ensurePaymentServiceResolved(): void
-    {
-        if ($this->paymentService === null) {
-            $this->paymentService = $this->paymentServiceFactory->getPaymentService();
         }
     }
 
@@ -266,44 +257,6 @@ class OrderService
         return $this->getOrderById($orderId);
     }
 
-    /**
-     * The cart must still be stored: once it has been converted into an order
-     * it is deleted, so a repeated request for the same cart is refused.
-     */
-    private function assertCartIsStored(string $token, SalesChannelContext $context): void
-    {
-        try {
-            $this->cartPersister->load($token, $context);
-        } catch (\Throwable $th) {
-            throw new CreateCartException('Cart is no longer available', 0, $th);
-        }
-    }
-
-    /**
-     * Run the payment handler validation the way Shopware's order route does.
-     * PaymentProcessor::validate() exists from Shopware 6.6.x on; the 6.5/6.6
-     * PaymentService has no equivalent step for asynchronous handlers.
-     */
-    private function validatePayment(Cart $cart, SalesChannelContext $context): void
-    {
-        $this->ensurePaymentServiceResolved();
-        if (is_object($this->paymentService) && method_exists($this->paymentService, 'validate')) {
-            $this->paymentService->validate($cart, new RequestDataBag(), $context);
-        }
-    }
-
-    /**
-     * The order exists at this point; a failed cleanup must not fail it.
-     */
-    private function deleteCart(string $token, SalesChannelContext $context): void
-    {
-        try {
-            $this->cartPersister->delete($token, $context);
-        } catch (\Throwable $th) {
-            $this->logger->warning('[OrderService] could not delete cart after order: ' . $th->getMessage());
-        }
-    }
-
     public function getOrderById(
         string $orderId,
         array $associations = ['lineItems'],
@@ -325,40 +278,15 @@ class OrderService
             $criteria,
             $context
         )->getEntities()->first();
+
         return $entity instanceof OrderEntity ? $entity : null;
     }
 
     public function setSaleChannelContext(SalesChannelContext $salesChannelContext): self
     {
         $this->salesChannelContext = $salesChannelContext;
+
         return $this;
-    }
-
-    private function validateSaleChannelContext(): void
-    {
-        if (!isset($this->salesChannelContext)) {
-            throw new CreateCartException('SaleChannelContext is required');
-        }
-    }
-
-    private function getCheckoutUrls(string $orderId, RequestDataBag $data): ?array
-    {
-        // Express-checkout flows (iDEAL, Google Pay, Apple Pay, PayPal Express) need explicit
-        // finish/error URLs so Shopware's PaymentProcessor can build the transaction return
-        // URL correctly.
-        if (
-            $data->get('idealFastCheckoutInfo') ||
-            $data->get('googlePayInfo') ||
-            $data->get('applePayInfo') ||
-            $data->get('paypalExpressInfo')
-        ) {
-            return [
-                'finishUrl' => '/checkout/finish?orderId=' . $orderId,
-                'errorUrl'  => '/account/order/edit/' . $orderId,
-            ];
-        }
-
-        return null;
     }
 
     public function updateOrderAddresses(
@@ -404,5 +332,77 @@ class OrderService
         if (!empty($updates)) {
             $this->orderAddressRepository->update($updates, $context);
         }
+    }
+
+    private function ensurePaymentServiceResolved(): void
+    {
+        if ($this->paymentService === null) {
+            $this->paymentService = $this->paymentServiceFactory->getPaymentService();
+        }
+    }
+
+    /**
+     * The cart must still be stored: once it has been converted into an order
+     * it is deleted, so a repeated request for the same cart is refused.
+     */
+    private function assertCartIsStored(string $token, SalesChannelContext $context): void
+    {
+        try {
+            $this->cartPersister->load($token, $context);
+        } catch (\Throwable $th) {
+            throw new CreateCartException('Cart is no longer available', 0, $th);
+        }
+    }
+
+    /**
+     * Run the payment handler validation the way Shopware's order route does.
+     * PaymentProcessor::validate() exists from Shopware 6.6.x on; the 6.5/6.6
+     * PaymentService has no equivalent step for asynchronous handlers.
+     */
+    private function validatePayment(Cart $cart, SalesChannelContext $context): void
+    {
+        $this->ensurePaymentServiceResolved();
+        if (is_object($this->paymentService) && method_exists($this->paymentService, 'validate')) {
+            $this->paymentService->validate($cart, new RequestDataBag(), $context);
+        }
+    }
+
+    /**
+     * The order exists at this point; a failed cleanup must not fail it.
+     */
+    private function deleteCart(string $token, SalesChannelContext $context): void
+    {
+        try {
+            $this->cartPersister->delete($token, $context);
+        } catch (\Throwable $th) {
+            $this->logger->warning('[OrderService] could not delete cart after order: ' . $th->getMessage());
+        }
+    }
+
+    private function validateSaleChannelContext(): void
+    {
+        if (!isset($this->salesChannelContext)) {
+            throw new CreateCartException('SaleChannelContext is required');
+        }
+    }
+
+    private function getCheckoutUrls(string $orderId, RequestDataBag $data): ?array
+    {
+        // Express-checkout flows (iDEAL, Google Pay, Apple Pay, PayPal Express) need explicit
+        // finish/error URLs so Shopware's PaymentProcessor can build the transaction return
+        // URL correctly.
+        if (
+            $data->get('idealFastCheckoutInfo')
+            || $data->get('googlePayInfo')
+            || $data->get('applePayInfo')
+            || $data->get('paypalExpressInfo')
+        ) {
+            return [
+                'finishUrl' => '/checkout/finish?orderId=' . $orderId,
+                'errorUrl' => '/account/order/edit/' . $orderId,
+            ];
+        }
+
+        return null;
     }
 }

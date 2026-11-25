@@ -3,7 +3,6 @@ import initiateWithButtonStyle from './paypal-button-style';
 const Plugin = window.PluginBaseClass;
 
 export default class PaypalExpressPlugin extends Plugin {
-
     static options = {
         page: 'unknown',
         merchantId: null,
@@ -11,9 +10,8 @@ export default class PaypalExpressPlugin extends Plugin {
         /**
          * PayPal button style from the plugin settings: {color, shape, label}
          */
-        style: null
-    }
-
+        style: null,
+    };
 
     url = '/buckaroo';
     /**
@@ -26,13 +24,13 @@ export default class PaypalExpressPlugin extends Plugin {
     cartToken;
 
     sdkOptions = {
-        containerSelector: ".buckaroo-paypal-express",
+        containerSelector: '.buckaroo-paypal-express',
         buckarooWebsiteKey: this.options.websiteKey,
         paypalMerchantId: this.options.merchantId,
         isTestMode: this.options.isTestMode === true,
         // Not used by the SDK yet (v1.8.2); initiateWithButtonStyle() applies it
         style: this.options.style,
-        currency: "EUR",
+        currency: 'EUR',
         amount: 0.1,
         createPaymentHandler: this.createPaymentHandler.bind(this),
         onShippingChangeHandler: this.onShippingChangeHandler.bind(this),
@@ -40,21 +38,22 @@ export default class PaypalExpressPlugin extends Plugin {
         onErrorCallback: this.onErrorCallback.bind(this),
         onCancelCallback: this.onCancelCallback.bind(this),
         onClickCallback: this.onClickCallback.bind(this),
-    }
-
+    };
 
     form;
 
-    init()
-    {
+    init() {
         if (this.merchantId === null) {
             console.error('Buckaroo PayPal Express: merchant id is required');
         }
         document.$emitter.subscribe('buckaroo_scripts_loaded', () => {
             this.sdk = BuckarooSdk.PayPal;
             this.setSdkTestMode();
-            initiateWithButtonStyle(() => this.sdk.initiate(this.sdkOptions), this.options.style);
-        })
+            initiateWithButtonStyle(
+                () => this.sdk.initiate(this.sdkOptions),
+                this.options.style
+            );
+        });
     }
 
     /**
@@ -62,8 +61,7 @@ export default class PaypalExpressPlugin extends Plugin {
      * matching (sandbox/live) PayPal client ids internally, consistent
      * with the implementation used in the other Buckaroo plugins.
      */
-    setSdkTestMode()
-    {
+    setSdkTestMode() {
         if (
             typeof BuckarooSdk.Base !== 'undefined' &&
             typeof BuckarooSdk.Base.setTestMode === 'function'
@@ -75,13 +73,10 @@ export default class PaypalExpressPlugin extends Plugin {
     /**
      * Api events
      */
-    onShippingChangeHandler(data, actions)
-    {
-
+    onShippingChangeHandler(data, actions) {
         let shipping = this.setShipping(data);
 
         return shipping.then((response) => {
-
             if (response.error === false) {
                 this.cartToken = response.token;
                 this.sdkOptions.amount = response.cart.value;
@@ -89,9 +84,9 @@ export default class PaypalExpressPlugin extends Plugin {
                 return actions.order.patch([
                     {
                         op: 'replace',
-                        path: '/purchase_units/@reference_id==\'default\'/amount',
-                        value: response.cart
-                    }
+                        path: "/purchase_units/@reference_id=='default'/amount",
+                        value: response.cart,
+                    },
                 ]);
             } else {
                 this.displayErrorMessage(response.message);
@@ -99,12 +94,10 @@ export default class PaypalExpressPlugin extends Plugin {
             }
         });
     }
-    createPaymentHandler(data)
-    {
-        return this.createTransaction(data.orderID)
+    createPaymentHandler(data) {
+        return this.createTransaction(data.orderID);
     }
-    onSuccessCallback()
-    {
+    onSuccessCallback() {
         if (this.result === null || this.result === undefined) {
             this.displayErrorMessage(this.options.i18n.cannot_create_payment);
             return;
@@ -114,28 +107,29 @@ export default class PaypalExpressPlugin extends Plugin {
             // `message` (undefined) used to be passed here, which threw a
             // ReferenceError and hid the real server-side error behind the
             // generic "cannot create payment" message from onErrorCallback.
-            this.displayErrorMessage(this.result.message || this.options.i18n.cannot_create_payment);
+            this.displayErrorMessage(
+                this.result.message || this.options.i18n.cannot_create_payment
+            );
         } else {
             if (this.result.redirect) {
                 window.location = this.result.redirect;
             } else {
-                this.displayErrorMessage(this.options.i18n.cannot_create_payment);
+                this.displayErrorMessage(
+                    this.options.i18n.cannot_create_payment
+                );
             }
         }
     }
 
-    onErrorCallback(reason)
-    {
+    onErrorCallback(reason) {
         // custom error behavior
         this.displayErrorMessage(reason);
     }
-    onCancelCallback()
-    {
-        this.displayErrorMessage(this.options.i18n.cancel_error_message)
+    onCancelCallback() {
+        this.displayErrorMessage(this.options.i18n.cancel_error_message);
     }
 
-    onClickCallback()
-    {
+    onClickCallback() {
         //reset any previous payment response;
         this.result = null;
     }
@@ -145,9 +139,7 @@ export default class PaypalExpressPlugin extends Plugin {
      * @param {string} orderId
      * @returns Promise
      */
-    createTransaction(orderId)
-    {
-
+    createTransaction(orderId) {
         let data = {
             orderId,
         };
@@ -156,19 +148,17 @@ export default class PaypalExpressPlugin extends Plugin {
             data.cartToken = this.cartToken;
         }
         return new Promise((resolve) => {
-            post(
-                `${this.url}/paypal/pay`,
-                JSON.stringify(data),
-                (response) => {
-                    this.result = JSON.parse(response);
-                    resolve(JSON.parse(response));
-                }
-            )
-        })
+            post(`${this.url}/paypal/pay`, JSON.stringify(data), (response) => {
+                this.result = JSON.parse(response);
+                resolve(JSON.parse(response));
+            });
+        });
     }
 
     getFormData() {
-        const formElement = document.getElementById('productDetailPageBuyProductForm');
+        const formElement = document.getElementById(
+            'productDetailPageBuyProductForm'
+        );
 
         if (!formElement) {
             console.error('Product form not found');
@@ -187,23 +177,22 @@ export default class PaypalExpressPlugin extends Plugin {
      * @param {Object} data
      * @returns
      */
-    setShipping(data)
-    {
-
+    setShipping(data) {
         let formData = {};
         if (this.options.page === 'product') {
             formData = this.getFormData();
             if (!formData) {
-                console.error('[Buckaroo] Form element not found on product page.');
+                console.error(
+                    '[Buckaroo] Form element not found on product page.'
+                );
             }
         }
 
         const payload = {
             form: formData,
             customer: data,
-            page: this.options.page
+            page: this.options.page,
         };
-
 
         return new Promise((resolve) => {
             post(
@@ -217,13 +206,11 @@ export default class PaypalExpressPlugin extends Plugin {
         });
     }
 
-
     /**
      * Display any validation errors we receive
      * @param {string} message
      */
-    displayErrorMessage(message)
-    {
+    displayErrorMessage(message) {
         $('.buckaroo-paypal-express-error').remove();
         if (typeof message === 'object') {
             message = this.options.i18n.cannot_create_payment;

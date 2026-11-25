@@ -32,8 +32,13 @@ export default {
     load: createScriptLoader(
         'Google Pay',
         'https://pay.google.com/gp/p/js/pay.js',
-        () => !!(window.google && window.google.payments && window.google.payments.api),
-        'google.payments.api',
+        () =>
+            !!(
+                window.google &&
+                window.google.payments &&
+                window.google.payments.api
+            ),
+        'google.payments.api'
     ),
 
     /**
@@ -46,7 +51,11 @@ export default {
      */
     draw(container, style, { locale } = {}) {
         const buttonLocale = googlePayButtonLocale(locale);
-        client = client || new window.google.payments.api.PaymentsClient({ environment: 'TEST' });
+        client =
+            client ||
+            new window.google.payments.api.PaymentsClient({
+                environment: 'TEST',
+            });
         const button = client.createButton({
             ...style,
             ...(buttonLocale ? { buttonLocale } : {}),

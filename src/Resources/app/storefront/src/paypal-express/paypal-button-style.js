@@ -41,7 +41,10 @@ function wrapPaypalButtons(namespace, style) {
     try {
         const original = namespace.Buttons;
 
-        if (typeof original !== 'function' || original.buckarooStylePatched === true) {
+        if (
+            typeof original !== 'function' ||
+            original.buckarooStylePatched === true
+        ) {
             return;
         }
 
@@ -111,6 +114,8 @@ export default function initiateWithButtonStyle(initiate, style) {
     }
 
     if (!scriptCreated) {
-        console.warn('Buckaroo PayPal Express: the button style could not be applied, PayPal shows its default style.');
+        console.warn(
+            'Buckaroo PayPal Express: the button style could not be applied, PayPal shows its default style.'
+        );
     }
 }

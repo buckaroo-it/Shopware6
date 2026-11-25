@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
+use Buckaroo\Shopware6\Service\AsyncPaymentService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -36,6 +36,7 @@ class PaymentResponseHandler
 
         if ($response->hasRedirect()) {
             $this->handleRedirectResponse($orderTransaction);
+
             return new RedirectResponse($response->getRedirectUrl());
         }
 
@@ -51,6 +52,7 @@ class PaymentResponseHandler
             $orderTransaction->getId(),
             $salesChannelContext->getContext()
         );
+
         return $this->redirectToFinishPage($orderTransaction);
     }
 
@@ -62,9 +64,9 @@ class PaymentResponseHandler
         string $paymentCode
     ): void {
         $this->asyncPaymentService->transactionService->updateTransactionCustomFields($orderTransaction->getId(), [
-            'originalTransactionKey' => $response->getTransactionKey()
+            'originalTransactionKey' => $response->getTransactionKey(),
         ], $salesChannelContext->getContext());
-        
+
         // Fee is now applied before payment request, not after response
         // This ensures the order total in Shopware matches the amount sent to Buckaroo
     }
@@ -77,10 +79,10 @@ class PaymentResponseHandler
         string $paymentCode
     ): RedirectResponse {
         if (
-            $response->isSuccess() ||
-            $response->isAwaitingConsumer() ||
-            $response->isPendingProcessing() ||
-            $response->isWaitingOnUserInput()
+            $response->isSuccess()
+            || $response->isAwaitingConsumer()
+            || $response->isPendingProcessing()
+            || $response->isWaitingOnUserInput()
         ) {
             if (!$response->isSuccess()) {
                 $this->asyncPaymentService->stateTransitionService->transitionPaymentState(
@@ -89,6 +91,7 @@ class PaymentResponseHandler
                     $salesChannelContext->getContext()
                 );
             }
+
             return $this->redirectToFinishPage($orderTransaction);
         }
 
@@ -144,6 +147,7 @@ class PaymentResponseHandler
         if ($order === null) {
             throw new \RuntimeException('Order not found for transaction');
         }
+
         return new RedirectResponse(
             $this->asyncPaymentService->urlService->generateAbsoluteUrl(
                 'frontend.checkout.finish.page',

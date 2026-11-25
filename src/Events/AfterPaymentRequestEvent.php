@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Events;
 
-use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * $transaction is typed as `object` rather than the modern PaymentTransactionStruct because
@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
  */
 class AfterPaymentRequestEvent implements ShopwareSalesChannelEvent
 {
-
     protected object $transaction;
 
     protected RequestDataBag $dataBag;

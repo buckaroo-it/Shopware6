@@ -1,10 +1,10 @@
- import template from './sw-system-config.html.twig';
+import template from './sw-system-config.html.twig';
 
 const { Component } = Shopware;
 
 Component.override('sw-system-config', {
     template,
-    
+
     watch: {
         currentSalesChannelId: {
             handler(newVal) {
@@ -12,41 +12,56 @@ Component.override('sw-system-config', {
                     this.loadBuckarooConfigData();
                 }
             },
-            immediate: true
+            immediate: true,
         },
         domain: {
             handler(newVal) {
-                if (newVal === 'BuckarooPayments.config' && this.currentSalesChannelId) {
+                if (
+                    newVal === 'BuckarooPayments.config' &&
+                    this.currentSalesChannelId
+                ) {
                     this.loadBuckarooConfigData();
                 }
             },
-            immediate: true
-        }
+            immediate: true,
+        },
     },
 
     methods: {
         loadBuckarooConfigData() {
-            
-            this.systemConfigApiService.getValues('BuckarooPayments.config', this.currentSalesChannelId)
-                .then(response => {
-                    
+            this.systemConfigApiService
+                .getValues(
+                    'BuckarooPayments.config',
+                    this.currentSalesChannelId
+                )
+                .then((response) => {
                     if (!this.actualConfigData[this.currentSalesChannelId]) {
                         this.actualConfigData[this.currentSalesChannelId] = {};
                     }
 
                     const processedData = {};
-                    
+
                     if (response && typeof response === 'object') {
-                        Object.keys(response).forEach(key => {
+                        Object.keys(response).forEach((key) => {
                             const value = response[key];
 
-                            if (value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, '_value')) {
+                            if (
+                                value &&
+                                typeof value === 'object' &&
+                                Object.prototype.hasOwnProperty.call(
+                                    value,
+                                    '_value'
+                                )
+                            ) {
                                 processedData[key] = value._value;
                             } else {
                                 processedData[key] = value;
                             }
 
-                            const shortKey = key.replace('BuckarooPayments.config.', '');
+                            const shortKey = key.replace(
+                                'BuckarooPayments.config.',
+                                ''
+                            );
                             if (shortKey !== key) {
                                 processedData[shortKey] = processedData[key];
                             }
@@ -54,15 +69,16 @@ Component.override('sw-system-config', {
                     }
 
                     this.actualConfigData[this.currentSalesChannelId] = {};
-                    Object.keys(processedData).forEach(key => {
-                        this.actualConfigData[this.currentSalesChannelId][key] = processedData[key];
+                    Object.keys(processedData).forEach((key) => {
+                        this.actualConfigData[this.currentSalesChannelId][key] =
+                            processedData[key];
                     });
 
                     this.$nextTick(() => {
                         this.$forceUpdate();
                     });
                 })
-                .catch(error => {
+                .catch((error) => {
                     console.error('Error fetching system config:', error);
                 });
         },
@@ -71,11 +87,14 @@ Component.override('sw-system-config', {
             if (!this.actualConfigData[this.currentSalesChannelId]) {
                 this.actualConfigData[this.currentSalesChannelId] = {};
             }
-            Object.keys(newValue).forEach(key => {
-                this.actualConfigData[this.currentSalesChannelId][key] = newValue[key];
+            Object.keys(newValue).forEach((key) => {
+                this.actualConfigData[this.currentSalesChannelId][key] =
+                    newValue[key];
                 if (!key.startsWith('BuckarooPayments.config.')) {
                     const fullFieldName = `BuckarooPayments.config.${key}`;
-                    this.actualConfigData[this.currentSalesChannelId][fullFieldName] = newValue[key];
+                    this.actualConfigData[this.currentSalesChannelId][
+                        fullFieldName
+                    ] = newValue[key];
                 }
             });
         },
@@ -86,7 +105,7 @@ Component.override('sw-system-config', {
             }
             return this.saveBuckaroo();
         },
-        
+
         saveBuckaroo() {
             this.isLoading = true;
             return this.systemConfigApiService
@@ -103,28 +122,37 @@ Component.override('sw-system-config', {
         // translated in the save error notification. Other errors are passed on as they are.
         getBuckarooSaveError(error) {
             const apiError = error?.response?.data?.errors?.[0];
-            const salesChannelId = apiError?.meta?.parameters?.salesChannelId ?? null;
+            const salesChannelId =
+                apiError?.meta?.parameters?.salesChannelId ?? null;
 
             if (apiError?.code === 'BUCKAROO__ORDER_AMOUNT_LIMIT_INVALID') {
-                return this.$tc('buckaroo-payment.paymentSettings.orderAmountLimitInvalid');
+                return this.$tc(
+                    'buckaroo-payment.paymentSettings.orderAmountLimitInvalid'
+                );
             }
 
             if (apiError?.code === 'BUCKAROO__ORDER_AMOUNT_LIMIT_RANGE') {
-                return salesChannelId && salesChannelId !== this.currentSalesChannelId
-                    ? this.$tc('buckaroo-payment.paymentSettings.orderAmountLimitRangeSalesChannel')
-                    : this.$tc('buckaroo-payment.paymentSettings.orderAmountLimitRange');
+                return salesChannelId &&
+                    salesChannelId !== this.currentSalesChannelId
+                    ? this.$tc(
+                          'buckaroo-payment.paymentSettings.orderAmountLimitRangeSalesChannel'
+                      )
+                    : this.$tc(
+                          'buckaroo-payment.paymentSettings.orderAmountLimitRange'
+                      );
             }
 
             return error;
         },
-        
+
         getCurrentConfigCard() {
             const code = this.$route.params?.paymentCode || 'general';
             return this.config.filter((card) => card.name === code)?.pop();
         },
-        
+
         getSelectedValues() {
-            const currentConfigValues = this.actualConfigData[this.currentSalesChannelId];
+            const currentConfigValues =
+                this.actualConfigData[this.currentSalesChannelId];
             const currentPaymentCard = this.getCurrentConfigCard();
 
             if (currentPaymentCard?.elements) {
@@ -134,10 +162,13 @@ Component.override('sw-system-config', {
                         let value = currentConfigValues[element.name];
 
                         if (value === undefined) {
-                            const cleanFieldName = element.name.replace('BuckarooPayments.config.', '');
+                            const cleanFieldName = element.name.replace(
+                                'BuckarooPayments.config.',
+                                ''
+                            );
                             value = currentConfigValues[cleanFieldName];
                         }
-                        
+
                         actualConfigValues[element.name] = value;
                     }
                 });
@@ -145,6 +176,6 @@ Component.override('sw-system-config', {
             }
 
             return this.actualConfigData;
-        }
-    }
+        },
+    },
 });

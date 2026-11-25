@@ -18,47 +18,47 @@ class Migration1746016954RemoveBuckarooPrefixForAllPayments extends MigrationSte
     public function update(Connection $connection): void
     {
         // 1. Update `system_config` labels
-        $connection->executeStatement("
+        $connection->executeStatement('
             UPDATE system_config
             SET configuration_value = JSON_SET(
                 configuration_value,
-                '$._value',
-                TRIM(REPLACE(JSON_UNQUOTE(JSON_EXTRACT(configuration_value, '$._value')), 'Buckaroo ', ''))
+                \'$._value\',
+                TRIM(REPLACE(JSON_UNQUOTE(JSON_EXTRACT(configuration_value, \'$._value\')), \'Buckaroo \', \'\'))
             )
-            WHERE configuration_key LIKE 'BuckarooPayments.config.%Label'
-              AND JSON_UNQUOTE(JSON_EXTRACT(configuration_value, '$._value')) LIKE '%Buckaroo%';
-        ");
+            WHERE configuration_key LIKE \'BuckarooPayments.config.%Label\'
+              AND JSON_UNQUOTE(JSON_EXTRACT(configuration_value, \'$._value\')) LIKE \'%Buckaroo%\';
+        ');
 
         // 2. Clean up `name` field
-        $connection->executeStatement("
+        $connection->executeStatement('
             UPDATE payment_method_translation
-            SET name = TRIM(REPLACE(name, 'Buckaroo ', ''))
-            WHERE name LIKE '%Buckaroo%';
-        ");
+            SET name = TRIM(REPLACE(name, \'Buckaroo \', \'\'))
+            WHERE name LIKE \'%Buckaroo%\';
+        ');
 
         // 3. Clean up `distinguishable_name` field
-        $connection->executeStatement("
+        $connection->executeStatement('
             UPDATE payment_method_translation
             SET distinguishable_name = TRIM(
                 REPLACE(
-                    REPLACE(distinguishable_name, 'Buckaroo ', ''),
-                    '| Buckaroo Payment', ''
+                    REPLACE(distinguishable_name, \'Buckaroo \', \'\'),
+                    \'| Buckaroo Payment\', \'\'
                 )
             )
-            WHERE distinguishable_name LIKE '%Buckaroo%';
-        ");
+            WHERE distinguishable_name LIKE \'%Buckaroo%\';
+        ');
 
         // 4. Clean up `description` field
-        $connection->executeStatement("
+        $connection->executeStatement('
             UPDATE payment_method_translation
             SET description = TRIM(
                 REPLACE(
-                    REPLACE(description, 'Buckaroo ', ''),
-                    '| Buckaroo Payment', ''
+                    REPLACE(description, \'Buckaroo \', \'\'),
+                    \'| Buckaroo Payment\', \'\'
                 )
             )
-            WHERE description LIKE '%Buckaroo%';
-        ");
+            WHERE description LIKE \'%Buckaroo%\';
+        ');
     }
 
     public function updateDestructive(Connection $connection): void

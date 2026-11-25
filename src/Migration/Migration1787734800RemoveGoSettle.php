@@ -31,9 +31,9 @@ class Migration1787734800RemoveGoSettle extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeStatement(
-            "UPDATE `payment_method`
+            'UPDATE `payment_method`
                 SET `active` = 0
-                WHERE `handler_identifier` = :handlerIdentifier",
+                WHERE `handler_identifier` = :handlerIdentifier',
             ['handlerIdentifier' => self::HANDLER_IDENTIFIER]
         );
     }
@@ -41,7 +41,7 @@ class Migration1787734800RemoveGoSettle extends MigrationStep
     public function updateDestructive(Connection $connection): void
     {
         $paymentMethodId = $connection->fetchOne(
-            "SELECT `id` FROM `payment_method` WHERE `handler_identifier` = :handlerIdentifier",
+            'SELECT `id` FROM `payment_method` WHERE `handler_identifier` = :handlerIdentifier',
             ['handlerIdentifier' => self::HANDLER_IDENTIFIER]
         );
 
@@ -52,13 +52,13 @@ class Migration1787734800RemoveGoSettle extends MigrationStep
         $customerReferences = $this->countCustomerReferences($connection, $paymentMethodId);
 
         $orderTransactionReferences = $connection->fetchOne(
-            "SELECT COUNT(*) FROM `order_transaction` WHERE `payment_method_id` = :paymentMethodId",
+            'SELECT COUNT(*) FROM `order_transaction` WHERE `payment_method_id` = :paymentMethodId',
             ['paymentMethodId' => $paymentMethodId]
         );
 
         if ($customerReferences == 0 && $orderTransactionReferences == 0) {
             $connection->executeStatement(
-                "DELETE FROM `payment_method` WHERE `handler_identifier` = :handlerIdentifier",
+                'DELETE FROM `payment_method` WHERE `handler_identifier` = :handlerIdentifier',
                 ['handlerIdentifier' => self::HANDLER_IDENTIFIER]
             );
         }
@@ -88,11 +88,11 @@ class Migration1787734800RemoveGoSettle extends MigrationStep
     private function hasColumn(Connection $connection, string $table, string $column): bool
     {
         return (bool) $connection->fetchOne(
-            "SELECT COUNT(*)
+            'SELECT COUNT(*)
                 FROM `information_schema`.`COLUMNS`
                 WHERE `TABLE_SCHEMA` = DATABASE()
                   AND `TABLE_NAME` = :table
-                  AND `COLUMN_NAME` = :column",
+                  AND `COLUMN_NAME` = :column',
             ['table' => $table, 'column' => $column]
         );
     }

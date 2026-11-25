@@ -25,23 +25,23 @@ class Migration1769900000IdealWeroRebrand extends MigrationStep
     {
         // 1. Update payment_method_translation: name and description for iDEAL
         $connection->executeStatement(
-            "UPDATE payment_method_translation pmt
+            'UPDATE payment_method_translation pmt
              INNER JOIN payment_method pm ON pm.id = pmt.payment_method_id
              INNER JOIN language lang ON lang.id = pmt.language_id
              INNER JOIN locale loc ON loc.id = lang.locale_id
              SET
                  pmt.name = :name,
                  pmt.description = CASE
-                     WHEN loc.code = 'de-DE' THEN :descriptionDe
-                     WHEN loc.code = 'en-GB' THEN :descriptionEn
-                     WHEN loc.code = 'nl-NL' THEN :descriptionEn
-                     WHEN loc.code = 'fr-FR' THEN :descriptionEn
+                     WHEN loc.code = \'de-DE\' THEN :descriptionDe
+                     WHEN loc.code = \'en-GB\' THEN :descriptionEn
+                     WHEN loc.code = \'nl-NL\' THEN :descriptionEn
+                     WHEN loc.code = \'fr-FR\' THEN :descriptionEn
                      ELSE pmt.description
                  END
-             WHERE pm.handler_identifier = :handler",
+             WHERE pm.handler_identifier = :handler',
             [
-                'handler'       => self::IDEAL_HANDLER,
-                'name'          => self::NEW_NAME,
+                'handler' => self::IDEAL_HANDLER,
+                'name' => self::NEW_NAME,
                 'descriptionEn' => self::NEW_DESCRIPTION_EN,
                 'descriptionDe' => self::NEW_DESCRIPTION_DE,
             ]
@@ -56,11 +56,11 @@ class Migration1769900000IdealWeroRebrand extends MigrationStep
 
         if ($tableExists) {
             $connection->executeStatement(
-                "UPDATE system_config
-                 SET configuration_value = JSON_SET(COALESCE(configuration_value, '{}'), '$._value', :newValue)
-                 WHERE configuration_key = 'BuckarooPayments.config.idealLabel'
-                   AND (JSON_UNQUOTE(JSON_EXTRACT(configuration_value, '$._value')) = 'iDEAL'
-                       OR JSON_EXTRACT(configuration_value, '$._value') IS NULL)",
+                'UPDATE system_config
+                 SET configuration_value = JSON_SET(COALESCE(configuration_value, \'{}\'), \'$._value\', :newValue)
+                 WHERE configuration_key = \'BuckarooPayments.config.idealLabel\'
+                   AND (JSON_UNQUOTE(JSON_EXTRACT(configuration_value, \'$._value\')) = \'iDEAL\'
+                       OR JSON_EXTRACT(configuration_value, \'$._value\') IS NULL)',
                 [
                     'newValue' => self::NEW_NAME,
                 ]

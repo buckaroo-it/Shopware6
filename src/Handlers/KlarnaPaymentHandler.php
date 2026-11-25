@@ -5,26 +5,21 @@ declare(strict_types=1);
 namespace Buckaroo\Shopware6\Handlers;
 
 use Buckaroo\Shopware6\PaymentMethods\Klarna;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class KlarnaPaymentHandler extends PaymentHandlerSimple
 {
-    public string $paymentClass = Klarna::class;
     public const ARTICLE_TYPE_GENERAL = 'General';
     public const ARTICLE_TYPE_HANDLING_FEE = 'HandlingFee';
     public const ARTICLE_TYPE_SHIPMENT_FEE = 'ShipmentFee';
 
+    public string $paymentClass = Klarna::class;
+
     /**
      * Get method action for specific payment method
-     *
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext|null $salesChannelContext
-     * @param string|null $paymentCode
-     *
-     * @return string
      */
     public function getMethodAction(
         RequestDataBag $dataBag,
@@ -36,11 +31,6 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
@@ -62,11 +52,9 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
             $this->getArticles($order, $paymentCode)
         );
     }
+
     /**
      * Get billing address data
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
      *
      * @return array<mixed>
      */
@@ -77,39 +65,36 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
         $address = $this->asyncPaymentService->getBillingAddress($order);
         $customer = $this->asyncPaymentService->getCustomer($order);
 
-        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
+        $streetParts = $this->formatRequestParamService->formatStreet($address->getStreet());
 
         return [
             'billing' => [
                 'recipient' => [
-                    'firstName'             =>  $address->getFirstName(),
-                    'lastName'              =>  $address->getLastName(),
+                    'firstName' => $address->getFirstName(),
+                    'lastName' => $address->getLastName(),
                 ],
                 'address' => [
-                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
-                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'street' => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber' => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
                     'houseNumberAdditional' => $this->formatRequestParamService
                         ->getAdditionalHouseNumber(
                             $address,
                             $streetParts
                         ),
-                    'zipcode'               =>  $address->getZipcode(),
-                    'city'                  =>  $address->getCity(),
-                    'country'               =>  $this->asyncPaymentService->getCountry($address)->getIso()
+                    'zipcode' => $address->getZipcode(),
+                    'city' => $address->getCity(),
+                    'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
                 ],
                 'phone' => [
-                    'mobile'        => $this->getPhone($dataBag, $address),
+                    'mobile' => $this->getPhone($dataBag, $address),
                 ],
-                'email'         => $customer->getEmail()
-            ]
+                'email' => $customer->getEmail(),
+            ],
         ];
     }
 
     /**
      * Get shipping address data
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
      *
      * @return array<mixed>
      */
@@ -119,26 +104,27 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
     ): array {
         $address = $this->asyncPaymentService->getShippingAddress($order);
 
-        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
+        $streetParts = $this->formatRequestParamService->formatStreet($address->getStreet());
+
         return [
             'shipping' => [
                 'recipient' => [
-                    'firstName'             =>  $address->getFirstName(),
-                    'lastName'              =>  $address->getLastName(),
+                    'firstName' => $address->getFirstName(),
+                    'lastName' => $address->getLastName(),
                 ],
                 'address' => [
-                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
-                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'street' => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber' => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
                     'houseNumberAdditional' => $this->formatRequestParamService
                         ->getAdditionalHouseNumber(
                             $address,
                             $streetParts
                         ),
-                    'zipcode'               =>  $address->getZipcode(),
-                    'city'                  =>  $address->getCity(),
-                    'country'               =>  $this->asyncPaymentService->getCountry($address)->getIso()
+                    'zipcode' => $address->getZipcode(),
+                    'city' => $address->getCity(),
+                    'country' => $this->asyncPaymentService->getCountry($address)->getIso(),
                 ],
-                'email'         =>  $this->asyncPaymentService->getCustomer($order)->getEmail()
+                'email' => $this->asyncPaymentService->getCustomer($order)->getEmail(),
             ],
         ];
     }
@@ -148,16 +134,14 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
         $phone = $dataBag->get('buckaroo_klarna_phone', $address->getPhoneNumber());
 
         if (is_scalar($phone)) {
-            return (string)$phone;
+            return (string) $phone;
         }
+
         return '';
     }
 
     /**
      * Get article data
-     *
-     * @param OrderEntity $order
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
@@ -177,21 +161,22 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
 
             // Klarna rejects articles with a zero unit price (e.g. free shipping).
             // Items with a negative price (discounts) are still included.
-            if ((float)$price === 0.0) {
+            if ((float) $price === 0.0) {
                 continue;
             }
 
             $articles[] = [
-                'identifier'    => (string)($item['sku'] ?? $item['id'] ?? ''),
-                'description'   => (string)($item['name'] ?? ''),
-                'quantity'      => (int)($item['quantity'] ?? 1),
-                'price'         => (float)$price,
-                'vatPercentage' => (string)($item['vatRate'] ?? '0.00'),
-                'type'          => $this->getArticleType($item),
+                'identifier' => (string) ($item['sku'] ?? $item['id'] ?? ''),
+                'description' => (string) ($item['name'] ?? ''),
+                'quantity' => (int) ($item['quantity'] ?? 1),
+                'price' => (float) $price,
+                'vatPercentage' => (string) ($item['vatRate'] ?? '0.00'),
+                'type' => $this->getArticleType($item),
             ];
         }
+
         return [
-            'articles' => $articles
+            'articles' => $articles,
         ];
     }
 
@@ -201,8 +186,6 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
      * indicator, with a fallback to the legacy `sku`-based check.
      *
      * @param array<mixed> $article
-     *
-     * @return string
      */
     private function getArticleType(array $article): string
     {
@@ -219,8 +202,6 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
         return self::ARTICLE_TYPE_GENERAL;
     }
 
-
-
     /**
      * Resolve the customer gender for the Klarna Reserve request.
      *
@@ -229,17 +210,12 @@ class KlarnaPaymentHandler extends PaymentHandlerSimple
      *   1. Explicit value from checkout dataBag (`buckaroo_klarna_gender`)
      *   2. Derived from the order customer's salutation key
      *   3. Defaults to 1 (male) when not determinable
-     *
-     * @param OrderEntity    $order
-     * @param RequestDataBag $dataBag
-     *
-     * @return int
      */
     private function getGender(OrderEntity $order, RequestDataBag $dataBag): int
     {
         $fromBag = $dataBag->get('buckaroo_klarna_gender');
         if (is_numeric($fromBag)) {
-            return (int)$fromBag;
+            return (int) $fromBag;
         }
 
         $customer = $order->getOrderCustomer();

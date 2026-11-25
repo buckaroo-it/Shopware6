@@ -4,50 +4,47 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Storefront\Controller;
 
-use Shopware\Core\Checkout\Cart\Cart;
 use Buckaroo\Shopware6\Service\CartService;
-use Buckaroo\Shopware6\Service\OrderService;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Shopware6\Service\CustomerService;
+use Buckaroo\Shopware6\Service\OrderService;
 use Buckaroo\Shopware6\Service\SettingsService;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Buckaroo\Shopware6\Storefront\Exceptions\InvalidParameterException;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 abstract class AbstractPaymentController extends StorefrontController
 {
     /**
-     * @var \Buckaroo\Shopware6\Service\CartService
+     * @var CartService
      */
     protected $cartService;
 
     /**
-     * @var \Buckaroo\Shopware6\Service\CustomerService
+     * @var CustomerService
      */
     protected $customerService;
 
     /**
-     * @var \Buckaroo\Shopware6\Service\OrderService
+     * @var OrderService
      */
     protected $orderService;
 
     /**
-     * @var \Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository
+     * @var SalesChannelRepository
      */
     protected $paymentMethodRepository;
 
-    /**
-     * @var \Buckaroo\Shopware6\Service\SettingsService
-     */
     protected SettingsService $settingsService;
 
     public function __construct(
@@ -64,53 +61,93 @@ abstract class AbstractPaymentController extends StorefrontController
         $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
+    /**
+     * Get payment fee
+     */
+    public function getFee(SalesChannelContext $salesChannelContext, string $feeName): float
+    {
+        $fee = $this->settingsService->getSetting($feeName, $salesChannelContext->getSalesChannelId());
+        if (is_scalar($fee)) {
+            return round((float) str_replace(',', '.', (string) $fee), 2);
+        }
+
+        return 0;
+    }
+
+    /**
+     * Get the payment method for the handler, or null when it is not available
+     * or disabled in the Buckaroo plugin settings of this sales channel
+     *
+     * @return \Shopware\Core\Checkout\Payment\PaymentMethodEntity|null
+     */
+    public function getValidPaymentMethod(SalesChannelContext $salesChannelContext, string $handler)
+    {
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('handlerIdentifier', "Buckaroo\Shopware6\Handlers\\" . $handler));
+
+        /** @var \Shopware\Core\Checkout\Payment\PaymentMethodEntity|null */
+        $paymentMethod = $this->paymentMethodRepository->search(
+            $criteria,
+            $salesChannelContext
+        )
+            ->getEntities()
+            ->first();
+
+        if ($paymentMethod === null) {
+            return null;
+        }
+
+        $customFields = $paymentMethod->getTranslated()['customFields'] ?? null;
+        $buckarooKey = is_array($customFields) ? ($customFields['buckaroo_key'] ?? null) : null;
+        if (
+            !is_string($buckarooKey)
+            || !$this->settingsService->getEnabled($buckarooKey, $salesChannelContext->getSalesChannelId())
+        ) {
+            return null;
+        }
+
+        return $paymentMethod;
+    }
+
     protected function formatNumber(float $number): string
     {
         // No thousands separator: Apple Pay / Google Pay reject "1,234.56" as an amount.
         return number_format($number, 2, '.', '');
     }
+
     /**
      * Return json response with data
      *
      * @param array<mixed> $data
-     * @param boolean $error
-     *
-     * @return JsonResponse
+     * @param bool $error
      */
     protected function response(array $data, $error = false): JsonResponse
     {
         $data = array_merge(
             [
-                'error' => $error
+                'error' => $error,
             ],
             $data,
         );
+
         return new JsonResponse($data);
     }
 
-    /**
-     * @param DataBag $customerData
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return CustomerEntity
-     */
     protected function loginCustomer(DataBag $customerData, SalesChannelContext $salesChannelContext): CustomerEntity
     {
         return $this->customerService
             ->setSaleChannelContext($salesChannelContext)
             ->get($customerData);
     }
+
     /**
      * Get or create cart
      *
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return \Shopware\Core\Checkout\Cart\Cart
+     * @return Cart
      */
     protected function getCart(Request $request, SalesChannelContext $salesChannelContext)
     {
-
         if ($this->isFromProductPage($request)) {
             return $this->createCart($request, $salesChannelContext);
         }
@@ -121,7 +158,7 @@ abstract class AbstractPaymentController extends StorefrontController
         );
 
         if ($cart === null) {
-            throw new \Exception("Cannot retrieve cart by token", 1);
+            throw new \Exception('Cannot retrieve cart by token', 1);
         }
 
         return $cart;
@@ -130,10 +167,7 @@ abstract class AbstractPaymentController extends StorefrontController
     /**
      * Create cart for product page
      *
-     * @param Request $request
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return \Shopware\Core\Checkout\Cart\Cart
+     * @return Cart
      */
     protected function createCart(Request $request, SalesChannelContext $salesChannelContext)
     {
@@ -141,6 +175,7 @@ abstract class AbstractPaymentController extends StorefrontController
             $this->getFormData($request),
             $request
         );
+
         return $this->cartService
             ->setSaleChannelContext($salesChannelContext)
             ->addItem($productData)
@@ -149,8 +184,6 @@ abstract class AbstractPaymentController extends StorefrontController
 
     /**
      * Get form data form request
-     *
-     * @param Request $request
      *
      * @return DataBag
      */
@@ -162,13 +195,12 @@ abstract class AbstractPaymentController extends StorefrontController
             // resolved from the top-level `productId` request parameter.
             return new DataBag([]);
         }
+
         return new DataBag($form);
     }
 
     /**
      * Get product data from from data
-     *
-     * @param DataBag $formData
      *
      * @return array<mixed>
      */
@@ -194,8 +226,8 @@ abstract class AbstractPaymentController extends StorefrontController
             }
             if (strpos($key, 'lineItems') !== false) {
                 // Flat structure: lineItems[<productId>][id] => ...
-                $keyPars = explode("][", $key);
-                $newKey = isset($keyPars[1]) ? str_replace("]", "", $keyPars[1]) : $key;
+                $keyPars = explode('][', $key);
+                $newKey = isset($keyPars[1]) ? str_replace(']', '', $keyPars[1]) : $key;
                 $productData[$newKey] = $value;
             }
         }
@@ -216,48 +248,49 @@ abstract class AbstractPaymentController extends StorefrontController
             }
         }
 
-        $keysRequired =  [
-            "id",
-            "referencedId",
-            "type",
+        $keysRequired = [
+            'id',
+            'referencedId',
+            'type',
         ];
 
         // Check if any required keys are missing using array_diff for clarity
         $missingKeys = array_diff($keysRequired, array_keys($productData));
         if (!empty($missingKeys)) {
             throw new InvalidParameterException(
-                "Missing required product parameters: " . implode(', ', $missingKeys),
+                'Missing required product parameters: ' . implode(', ', $missingKeys),
                 1
             );
         }
 
         $quantity = $productData['quantity'] ?? 1;
         if (!is_scalar($quantity)) {
-            throw new InvalidParameterException("Invalid quantity", 1);
+            throw new InvalidParameterException('Invalid quantity', 1);
         }
 
         return [
-            "id" => $productData['id'],
-            "quantity" => max(1, (int)$quantity),
-            "referencedId" => $productData['referencedId'],
-            "removable" => isset($productData['removable']) ? (bool)$productData['removable'] : true,
-            "stackable" => isset($productData['stackable']) ? (bool)$productData['stackable'] : true,
-            "type" => $productData['type'],
+            'id' => $productData['id'],
+            'quantity' => max(1, (int) $quantity),
+            'referencedId' => $productData['referencedId'],
+            'removable' => isset($productData['removable']) ? (bool) $productData['removable'] : true,
+            'stackable' => isset($productData['stackable']) ? (bool) $productData['stackable'] : true,
+            'type' => $productData['type'],
         ];
     }
+
     /**
      * Check if request is from product page
      *
-     * @param Request $request
-     *
-     * @return boolean
      * @throws InvalidParameterException
+     *
+     * @return bool
      */
     protected function isFromProductPage(Request $request)
     {
         if (!$request->request->has('page')) {
-            throw new InvalidParameterException("Invalid payment request, page is missing", 1);
+            throw new InvalidParameterException('Invalid payment request, page is missing', 1);
         }
+
         return $request->request->get('page') === 'product';
     }
 
@@ -270,7 +303,6 @@ abstract class AbstractPaymentController extends StorefrontController
      * it was passing a nullable cart on to code that requires one.
      *
      * @param mixed $token
-     * @param SalesChannelContext $salesChannelContext
      *
      * @return Cart
      */
@@ -279,18 +311,14 @@ abstract class AbstractPaymentController extends StorefrontController
         if (!is_string($token)) {
             throw new \InvalidArgumentException('Cart token must be a string');
         }
+
         return $this->cartService
             ->setSaleChannelContext($salesChannelContext)
             ->load($token);
     }
 
-
     /**
      * Place order and do payment
-     *
-     * @param OrderEntity $orderEntity
-     * @param SalesChannelContext $salesChannelContext
-     * @param RequestDataBag $data
      *
      * @return string|null
      */
@@ -308,8 +336,6 @@ abstract class AbstractPaymentController extends StorefrontController
      * Get absolute url to the finish page after payment
      *
      * @param mixed $redirectPath
-     *
-     * @return string|null
      */
     protected function getFinishPage($redirectPath): ?string
     {
@@ -323,81 +349,21 @@ abstract class AbstractPaymentController extends StorefrontController
         }
 
         return $this->generateUrl('frontend.home.page', [], UrlGeneratorInterface::ABSOLUTE_URL) .
-            ltrim($redirectPath, "/");
-    }
-    /**
-     * Get payment fee
-     *
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $feeName
-     *
-     * @return float
-     */
-    public function getFee(SalesChannelContext $salesChannelContext, string $feeName): float
-    {
-        $fee = $this->settingsService->getSetting($feeName, $salesChannelContext->getSalesChannelId());
-        if (is_scalar($fee)) {
-            return round((float)str_replace(',', '.', (string)$fee), 2);
-        }
-        return 0;
+            ltrim($redirectPath, '/');
     }
 
     /**
      * Set paypal as payment method
-     *
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $handler
-     *
-     * @return void
      */
     protected function overrideChannelPaymentMethod(SalesChannelContext $salesChannelContext, string $handler): void
     {
         $paymentMethod = $this->getValidPaymentMethod($salesChannelContext, $handler);
 
         if ($paymentMethod === null) {
-            throw new \Exception("Cannot set payment method", 1);
+            throw new \Exception('Cannot set payment method', 1);
         }
         $salesChannelContext->assign([
-            'paymentMethod' => $paymentMethod
+            'paymentMethod' => $paymentMethod,
         ]);
-    }
-
-    /**
-     * Get the payment method for the handler, or null when it is not available
-     * or disabled in the Buckaroo plugin settings of this sales channel
-     *
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $handler
-     *
-     * @return \Shopware\Core\Checkout\Payment\PaymentMethodEntity|null
-     */
-    public function getValidPaymentMethod(SalesChannelContext $salesChannelContext, string $handler)
-    {
-        $criteria = (new Criteria())
-            ->setLimit(1)
-            ->addFilter(new EqualsFilter('handlerIdentifier', "Buckaroo\Shopware6\Handlers\\" . $handler));
-
-        /** @var \Shopware\Core\Checkout\Payment\PaymentMethodEntity|null */
-        $paymentMethod = $this->paymentMethodRepository->search(
-            $criteria,
-            $salesChannelContext
-        )
-            ->getEntities()
-            ->first();
-
-        if ($paymentMethod === null) {
-            return null;
-        }
-
-        $customFields = $paymentMethod->getTranslated()['customFields'] ?? null;
-        $buckarooKey = is_array($customFields) ? ($customFields['buckaroo_key'] ?? null) : null;
-        if (
-            !is_string($buckarooKey) ||
-            !$this->settingsService->getEnabled($buckarooKey, $salesChannelContext->getSalesChannelId())
-        ) {
-            return null;
-        }
-
-        return $paymentMethod;
     }
 }

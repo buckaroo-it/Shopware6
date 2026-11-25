@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
-use Shopware\Core\Framework\Context;
 use Buckaroo\Shopware6\Buckaroo\Client;
-use Buckaroo\Shopware6\Service\UrlService;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Symfony\Component\HttpFoundation\Request;
-use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
 use Buckaroo\Shopware6\Buckaroo\ClientResponseInterface;
-use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
-use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntity;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Buckaroo\Shopware6\Entity\Transaction\BuckarooTransactionEntityRepository;
+use Buckaroo\Shopware6\Helpers\Constants\IPProtocolVersion;
+use Buckaroo\Shopware6\Helpers\Constants\ResponseStatus;
+use Buckaroo\Shopware6\Service\Buckaroo\ClientService;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Framework\Context;
+use Symfony\Component\HttpFoundation\Request;
 
 class CancelPaymentService
 {
@@ -35,21 +34,16 @@ class CancelPaymentService
         $this->clientService = $clientService;
     }
 
-
     /**
      * Do a refund on hanging giftcards with required context for security
      *
-     * @param PaymentTransactionStruct $transactionStruct
-     * @param OrderEntity $order
      * @param Context $context Required context for permission enforcement
-     * @return void
      */
     public function cancel(
         PaymentTransactionStruct $transactionStruct,
         OrderEntity $order,
         Context $context
     ): void {
-
         $orderTransactionId = $transactionStruct->getOrderTransactionId();
         $transactions = $this->buckarooTransactionEntityRepository->findByOrderId($order->getId(), $context, []);
         foreach ($transactions as $transaction) {
@@ -61,9 +55,9 @@ class CancelPaymentService
             $paymentCode = $transaction->get('transactionMethod');
 
             if (
-                !is_scalar($amount) ||
-                (float)$amount <= 0 ||
-                !is_string($paymentCode)
+                !is_scalar($amount)
+                || (float) $amount <= 0
+                || !is_string($paymentCode)
             ) {
                 continue;
             }
@@ -84,7 +78,7 @@ class CancelPaymentService
                         $context,
                         $bkTransactionId,
                         $orderTransactionId,
-                        (float)$amount,
+                        (float) $amount,
                         $paymentCode
                     )
                 );
@@ -100,7 +94,7 @@ class CancelPaymentService
         ClientResponseInterface $response,
         BuckarooTransactionEntity $transaction,
         Context $context
-    ):void {
+    ): void {
         if (!$response->isSuccess()) {
             return;
         }
@@ -125,15 +119,14 @@ class CancelPaymentService
 
         $this->buckarooTransactionEntityRepository
             ->save(
-                (string)$transactionId,
+                (string) $transactionId,
                 [
-                    'amountCredit' => (string)((float)$amountCredit + (float)$transactionAmount)
+                    'amountCredit' => (string) ((float) $amountCredit + (float) $transactionAmount),
                 ],
                 $context,
                 []
             );
     }
-
 
     protected function getCurrencyIso(OrderEntity $order): string
     {
@@ -141,17 +134,14 @@ class CancelPaymentService
         if ($currency === null) {
             throw new \InvalidArgumentException('Cannot find currency on order');
         }
+
         return $currency->getIsoCode();
     }
 
     /**
      * Get request parameters
      *
-     * @param OrderEntity $order
-     * @param Context $context
      * @param mixed $transactionKey
-     * @param string $orderTransactionId
-     * @param float $amount
      * @param string $transactionKey
      *
      * @return array<mixed>
@@ -164,44 +154,35 @@ class CancelPaymentService
         float $amount,
         string $paymentCode
     ): array {
-
         if (!is_scalar($transactionKey)) {
             $transactionKey = '';
         }
 
         return [
-            'order'                  => $order->getOrderNumber(),
-            'invoice'                => $order->getOrderNumber(),
-            'amountCredit'           => $amount,
-            'currency'               => $this->getCurrencyIso($order),
-            'pushURL'                => $this->urlService->getPushUrlForOrder($order, $context),
-            'pushURLFailure'         => $this->urlService->getPushUrlForOrder($order, $context),
-            'clientIP'               => $this->getIp(),
-            'originalTransactionKey' => (string)$transactionKey,
-            'additionalParameters'   => [
+            'order' => $order->getOrderNumber(),
+            'invoice' => $order->getOrderNumber(),
+            'amountCredit' => $amount,
+            'currency' => $this->getCurrencyIso($order),
+            'pushURL' => $this->urlService->getPushUrlForOrder($order, $context),
+            'pushURLFailure' => $this->urlService->getPushUrlForOrder($order, $context),
+            'clientIP' => $this->getIp(),
+            'originalTransactionKey' => (string) $transactionKey,
+            'additionalParameters' => [
                 'orderTransactionId' => $orderTransactionId,
                 'orderId' => $order->getId(),
             ],
-            "name" => $paymentCode,
+            'name' => $paymentCode,
         ];
     }
 
-
-
     /**
      * Get buckaroo client
-     *
-     * @param string $paymentCode
-     * @param string $salesChannelId
-     *
-     * @return Client
      */
     private function getClient(string $paymentCode, string $salesChannelId): Client
     {
         return $this->clientService
             ->get($paymentCode, $salesChannelId);
     }
-
 
     /**
      * Get client ip
@@ -210,11 +191,11 @@ class CancelPaymentService
      */
     private function getIp(): array
     {
-        $remoteIp = (Request::createFromGlobals())->getClientIp();
+        $remoteIp = Request::createFromGlobals()->getClientIp();
 
         return [
-            'address'       =>  $remoteIp,
-            'type'          => IPProtocolVersion::getVersion($remoteIp)
+            'address' => $remoteIp,
+            'type' => IPProtocolVersion::getVersion($remoteIp),
         ];
     }
 }

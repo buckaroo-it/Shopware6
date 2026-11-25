@@ -127,7 +127,9 @@ $bk-critical-text: var(--color-text-critical-default, #e2262a);
         height: 28px;
         border-radius: 6px;
         color: $bk-text-secondary;
-        transition: background-color 0.15s ease, color 0.15s ease;
+        transition:
+            background-color 0.15s ease,
+            color 0.15s ease;
 
         &:hover {
             background: $bk-border;

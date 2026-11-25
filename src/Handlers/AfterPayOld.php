@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Symfony\Component\HttpFoundation\Request;
-use Buckaroo\Shopware6\Service\SettingsService;
 use Buckaroo\Shopware6\Service\FormatRequestParamService;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Buckaroo\Shopware6\Service\SettingsService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class AfterPayOld
 {
@@ -27,12 +27,6 @@ class AfterPayOld
     }
 
     /**
-     *
-     * @param OrderEntity $order
-     * @param SalesChannelContext $salesChannelContext
-     * @param RequestDataBag $dataBag
-     * @param string $paymentCode
-     *
      * @return array<mixed>
      */
     public function buildPayParameters(
@@ -41,10 +35,9 @@ class AfterPayOld
         RequestDataBag $dataBag,
         string $paymentCode
     ): array {
-
         return array_merge_recursive(
             [
-                'customerIPAddress' => (Request::createFromGlobals())->getClientIp()
+                'customerIPAddress' => Request::createFromGlobals()->getClientIp(),
             ],
             $this->getBillingData($order, $dataBag),
             $this->getShippingData($order, $dataBag),
@@ -53,9 +46,6 @@ class AfterPayOld
     }
 
     /**
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     *
      * @return array<mixed>
      */
     protected function getBillingData(
@@ -69,7 +59,7 @@ class AfterPayOld
             throw new \InvalidArgumentException('Address and customer cannot be null');
         }
 
-        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
+        $streetParts = $this->formatRequestParamService->formatStreet($address->getStreet());
 
         if ($address->getCountry() === null) {
             throw new \InvalidArgumentException('Address country cannot be null');
@@ -78,37 +68,33 @@ class AfterPayOld
         return [
             'billing' => [
                 'recipient' => [
-                    'firstName'             =>  $address->getFirstName(),
-                    'lastName'              =>  $address->getLastName(),
-                    'birthDate'             => $this->getBirthDate($dataBag),
-                    'initials'              => strtoupper(substr($address->getFirstName(), 0, 1)),
-                    'culture'               => $address->getCountry()->getIso()
+                    'firstName' => $address->getFirstName(),
+                    'lastName' => $address->getLastName(),
+                    'birthDate' => $this->getBirthDate($dataBag),
+                    'initials' => strtoupper(substr($address->getFirstName(), 0, 1)),
+                    'culture' => $address->getCountry()->getIso(),
                 ],
                 'address' => [
-                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
-                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'street' => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber' => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
                     'houseNumberAdditional' => $this->formatRequestParamService
                         ->getAdditionalHouseNumber(
                             $address,
                             $streetParts
                         ),
-                    'zipcode'               =>  $address->getZipcode(),
-                    'city'                  =>  $address->getCity(),
-                    'country'               =>  $address->getCountry()->getIso()
+                    'zipcode' => $address->getZipcode(),
+                    'city' => $address->getCity(),
+                    'country' => $address->getCountry()->getIso(),
                 ],
                 'phone' => [
-                    'mobile'        => $this->getPhone($dataBag, $address),
+                    'mobile' => $this->getPhone($dataBag, $address),
                 ],
-                'email'         => $customer->getEmail()
-            ]
+                'email' => $customer->getEmail(),
+            ],
         ];
     }
 
     /**
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     *
      * @return array<mixed>
      */
     protected function getShippingData(
@@ -121,7 +107,7 @@ class AfterPayOld
             throw new \InvalidArgumentException('Deliveries cannot be null');
         }
 
-        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity|null */
+        /** @var OrderAddressEntity|null */
         $firstDelivery = $deliveries->first();
         $address = null;
         if ($firstDelivery !== null) {
@@ -132,7 +118,7 @@ class AfterPayOld
                 $address = $firstDelivery->getShippingAddress();
             }
         }
-        
+
         if ($address === null) {
             $address = $order->getBillingAddress();
         }
@@ -141,7 +127,7 @@ class AfterPayOld
             throw new \InvalidArgumentException('Address cannot be null');
         }
 
-        $streetParts  = $this->formatRequestParamService->formatStreet($address->getStreet());
+        $streetParts = $this->formatRequestParamService->formatStreet($address->getStreet());
 
         if ($address->getCountry() === null) {
             throw new \InvalidArgumentException('Address country cannot be null');
@@ -150,34 +136,28 @@ class AfterPayOld
         return [
             'shipping' => [
                 'recipient' => [
-                    'firstName'             =>  $address->getFirstName(),
-                    'lastName'              =>  $address->getLastName(),
-                    'birthDate'             => $this->getBirthDate($dataBag),
-                    'initials'              => strtoupper(substr($address->getFirstName(), 0, 1))
+                    'firstName' => $address->getFirstName(),
+                    'lastName' => $address->getLastName(),
+                    'birthDate' => $this->getBirthDate($dataBag),
+                    'initials' => strtoupper(substr($address->getFirstName(), 0, 1)),
                 ],
                 'address' => [
-                    'street'                => $this->formatRequestParamService->getStreet($address, $streetParts),
-                    'houseNumber'           => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
+                    'street' => $this->formatRequestParamService->getStreet($address, $streetParts),
+                    'houseNumber' => $this->formatRequestParamService->getHouseNumber($address, $streetParts),
                     'houseNumberAdditional' => $this->formatRequestParamService
                         ->getAdditionalHouseNumber(
                             $address,
                             $streetParts
                         ),
-                    'zipcode'               =>  $address->getZipcode(),
-                    'city'                  =>  $address->getCity(),
-                    'country'               =>  $address->getCountry()->getIso()
+                    'zipcode' => $address->getZipcode(),
+                    'city' => $address->getCity(),
+                    'country' => $address->getCountry()->getIso(),
                 ],
             ],
         ];
     }
 
-
-
     /**
-     *
-     * @param OrderEntity $order
-     * @param string $paymentCode
-     *
      * @return array<mixed>
      */
     private function getArticles(OrderEntity $order, string $paymentCode, string $salesChannelId): array
@@ -188,33 +168,33 @@ class AfterPayOld
 
         foreach ($lines as $item) {
             $articles[] = [
-                'identifier'        => $item['sku'],
-                'description'       => $item['name'],
-                'quantity'          => $item['quantity'],
-                'price'             => $item['unitPrice']['value'],
-                'vatCategory'       => $this->getItemVatCategory($item, $salesChannelId),
+                'identifier' => $item['sku'],
+                'description' => $item['name'],
+                'quantity' => $item['quantity'],
+                'price' => $item['unitPrice']['value'],
+                'vatCategory' => $this->getItemVatCategory($item, $salesChannelId),
             ];
         }
+
         return [
-            'articles' => $articles
+            'articles' => $articles,
         ];
     }
-    
+
     private function getPhone(RequestDataBag $dataBag, OrderAddressEntity $address): string
     {
         $phone = $dataBag->get('buckaroo_afterpay_phone', $address->getPhoneNumber());
         if (is_scalar($phone)) {
-            return (string)$phone;
+            return (string) $phone;
         }
+
         return '';
     }
 
     /**
      * Get birth date
      *
-     * @param RequestDataBag $dataBag
-     *
-     * @return null|string
+     * @return string|null
      */
     private function getBirthDate(RequestDataBag $dataBag)
     {
@@ -226,27 +206,24 @@ class AfterPayOld
         if (!is_scalar($dateString)) {
             return null;
         }
-        $date = strtotime((string)$dateString);
+        $date = strtotime((string) $dateString);
         if ($date === false) {
             return null;
         }
 
-        return @date("d-m-Y", $date);
+        return @date('d-m-Y', $date);
     }
 
     /**
      * Get vat category
      *
      * @param array<mixed> $item
-     * @param string $salesChannelId
-     *
-     * @return int
      */
     private function getItemVatCategory(array $item, string $salesChannelId): int
     {
         $vatRate = null;
         if (isset($item['vatRate']) && is_numeric($item['vatRate'])) {
-            $vatRate = (float)$item['vatRate'];
+            $vatRate = (float) $item['vatRate'];
         }
 
         if (isset($item['taxId']) && is_string($item['taxId'])) {
@@ -254,7 +231,7 @@ class AfterPayOld
             $taxAssociation = $this->settingsService->getSetting('afterpayOldtax', $salesChannelId);
 
             if (is_array($taxAssociation) && isset($taxAssociation[$taxId])) {
-                $mappedCategory = (int)$taxAssociation[$taxId];
+                $mappedCategory = (int) $taxAssociation[$taxId];
 
                 if ($mappedCategory > 0) {
                     return $mappedCategory;

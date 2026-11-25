@@ -18,8 +18,6 @@ class Multibanco extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -28,8 +26,6 @@ class Multibanco extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -38,28 +34,22 @@ class Multibanco extends AbstractPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getMedia(): string
     {
-        return __DIR__  . '/../Resources/views/storefront/buckaroo/payments/multibanco.svg';
+        return __DIR__ . '/../Resources/views/storefront/buckaroo/payments/multibanco.svg';
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @return string
      */
     public function getPaymentHandler(): string
     {
         return MultibancoPaymentHandler::class;
     }
 
-   /**
+    /**
      * {@inheritDoc}
-     *
-     * @return string|null
      */
     public function getTemplate(): ?string
     {
@@ -75,11 +65,11 @@ class Multibanco extends AbstractPayment
     {
         return [
             'de-DE' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => 'Bezahlen mit Multibanco',
             ],
             'en-GB' => [
-                'name'        => $this->getName(),
+                'name' => $this->getName(),
                 'description' => $this->getDescription(),
             ],
         ];

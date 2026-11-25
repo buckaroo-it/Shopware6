@@ -30,10 +30,6 @@ class PayPalExpressCredentialsService
 
     /**
      * Determine if PayPal is configured to run against the sandbox (test) environment.
-     *
-     * @param string|null $salesChannelId
-     *
-     * @return bool
      */
     public function isTestMode(?string $salesChannelId = null): bool
     {
@@ -47,10 +43,6 @@ class PayPalExpressCredentialsService
      * Get the environment aware PayPal Express merchant id.
      * Live mode  -> live merchant id (existing setting, unchanged behavior).
      * Test mode  -> sandbox merchant id only, never the live one.
-     *
-     * @param string|null $salesChannelId
-     *
-     * @return string|null
      */
     public function getMerchantId(?string $salesChannelId = null): ?string
     {
@@ -64,8 +56,6 @@ class PayPalExpressCredentialsService
     /**
      * Get all environment aware PayPal Express credentials at once.
      *
-     * @param string|null $salesChannelId
-     *
      * @return array{merchantId: string|null, isTestMode: bool}
      */
     public function getCredentials(?string $salesChannelId = null): array
@@ -76,17 +66,11 @@ class PayPalExpressCredentialsService
         ];
     }
 
-    /**
-     * @param string $setting
-     * @param string|null $salesChannelId
-     *
-     * @return string|null
-     */
     private function getStringSetting(string $setting, ?string $salesChannelId = null): ?string
     {
         $value = $this->settingsService->getSetting($setting, $salesChannelId);
-        if ($value !== null && is_scalar($value) && trim((string)$value) !== '') {
-            return trim((string)$value);
+        if ($value !== null && is_scalar($value) && trim((string) $value) !== '') {
+            return trim((string) $value);
         }
 
         return null;

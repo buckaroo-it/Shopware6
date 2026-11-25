@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Handlers;
 
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Buckaroo\Shopware6\PaymentMethods\GooglePay;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class GooglePayPaymentHandler extends PaymentHandlerSimple
 {
@@ -16,11 +15,6 @@ class GooglePayPaymentHandler extends PaymentHandlerSimple
 
     /**
      * Get parameters for specific payment method
-     *
-     * @param OrderEntity $order
-     * @param RequestDataBag $dataBag
-     * @param SalesChannelContext $salesChannelContext
-     * @param string $paymentCode
      *
      * @return array<mixed>
      */
@@ -39,6 +33,7 @@ class GooglePayPaymentHandler extends PaymentHandlerSimple
                 'GooglePayPaymentHandler: googlePayInfo is missing or not a string. DataBag keys: '
                 . implode(', ', array_keys($dataBag->all()))
             );
+
             return [];
         }
 
@@ -49,6 +44,7 @@ class GooglePayPaymentHandler extends PaymentHandlerSimple
                 'GooglePayPaymentHandler: failed to decode googlePayInfo JSON. Length: '
                 . strlen($googlePayInfo) . ', error: ' . json_last_error_msg()
             );
+
             return [];
         }
 
@@ -66,7 +62,7 @@ class GooglePayPaymentHandler extends PaymentHandlerSimple
         );
 
         return [
-            'paymentData'      => $paymentData,
+            'paymentData' => $paymentData,
             'customerCardName' => $this->getCustomerName($data),
         ];
     }
@@ -75,7 +71,6 @@ class GooglePayPaymentHandler extends PaymentHandlerSimple
      * Extract and base64-encode the Google Pay token
      *
      * @param mixed $data
-     * @return string
      */
     private function getPaymentData($data): string
     {
@@ -107,7 +102,6 @@ class GooglePayPaymentHandler extends PaymentHandlerSimple
      * Extract cardholder name from Google Pay payment data
      *
      * @param mixed $data
-     * @return string
      */
     private function getCustomerName($data): string
     {

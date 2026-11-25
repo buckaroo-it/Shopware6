@@ -23,14 +23,15 @@ class PaymentUrlGenerator
         RequestDataBag $dataBag
     ): string {
         if ($dataBag->has('finishUrl') && is_scalar($dataBag->get('finishUrl'))) {
-            $finishUrl = (string)$dataBag->get('finishUrl');
+            $finishUrl = (string) $dataBag->get('finishUrl');
             if (self::isShopPath($finishUrl)) {
                 return rtrim(
                     $this->asyncPaymentService->urlService->forwardToRoute('frontend.home.page', []),
-                    "/"
+                    '/'
                 ) . $finishUrl;
             }
         }
+
         return $this->getDefaultReturnUrl($orderTransaction, $order);
     }
 
@@ -61,6 +62,7 @@ class PaymentUrlGenerator
      * Appends sw-context-token when provided so session is preserved on return (cross-site redirect).
      *
      * @param string|null $contextToken Sales channel context token to preserve session
+     *
      * @deprecated Use getCancelRedirectUrlForOrder when order is available (required for multiple storefronts)
      */
     public function getCancelRedirectUrl(?string $contextToken = null): string
@@ -70,6 +72,7 @@ class PaymentUrlGenerator
             $separator = str_contains($url, '?') ? '&' : '?';
             $url .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
         }
+
         return $url;
     }
 
@@ -97,6 +100,7 @@ class PaymentUrlGenerator
             $separator = str_contains($url, '?') ? '&' : '?';
             $url .= $separator . 'sw-context-token=' . rawurlencode($contextToken);
         }
+
         return $url;
     }
 

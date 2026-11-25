@@ -4,28 +4,21 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Service;
 
+use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
+use Buckaroo\Shopware6\Service\Exceptions\CreateCustomerAddressException;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Buckaroo\Shopware6\Service\Exceptions\CreateCustomerAddressException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 
 class CustomerAddressService
 {
-    /**
-     *
-     * @var SalesChannelContext
-     */
-    protected SalesChannelContext $salesChannelContext;
-
-    /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
-     */
     public EntityRepository $customerAddressRepository;
+
+    protected SalesChannelContext $salesChannelContext;
 
     protected EntityRepository $countryRepository;
 
@@ -39,11 +32,6 @@ class CustomerAddressService
 
     /**
      * Create address from data bag for customer
-     *
-     * @param DataBag $data
-     * @param string $customerId
-     *
-     * @return \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity|null
      */
     public function create(DataBag $data, string $customerId, string $salutationId): ?CustomerAddressEntity
     {
@@ -54,7 +42,7 @@ class CustomerAddressService
             $this->salesChannelContext->getContext()
         );
 
-        /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity|null */
+        /** @var CustomerAddressEntity|null */
         return $this->customerAddressRepository->search(
             (new Criteria([$addressId]))->addAssociation('country'),
             $this->salesChannelContext->getContext()
@@ -62,12 +50,6 @@ class CustomerAddressService
     }
 
     /**
-     *
-     * @param DataBag $data
-     * @param string $customerId
-     * @param string $addressId
-     * @param string $salutationId
-     *
      * @return array<mixed>
      */
     public function formatedAddressData(
@@ -87,18 +69,27 @@ class CustomerAddressService
             'city' => $data->get('city'),
             'street' => $data->get('street', 'Unknown'),
             'customFields' => [
-                "buckarooAddress" => true,
-            ]
+                'buckarooAddress' => true,
+            ],
         ];
     }
 
+    /**
+     * Set salesChannelContext
+     *
+     * @return self
+     */
+    public function setSaleChannelContext(SalesChannelContext $salesChannelContext)
+    {
+        $this->salesChannelContext = $salesChannelContext;
+
+        return $this;
+    }
 
     /**
      * Get country from iso code
      *
      * @param mixed $iso
-     *
-     * @return string
      */
     protected function getCountryId($iso): string
     {
@@ -109,7 +100,7 @@ class CustomerAddressService
         $this->validateSaleChannelContext();
         $criteria = (new Criteria())
             ->setLimit(1)
-            ->addFilter(new EqualsFilter('iso', (string)$iso));
+            ->addFilter(new EqualsFilter('iso', (string) $iso));
 
         /** @var \Shopware\Core\System\Country\CountryEntity|null */
         $country = $this->countryRepository->search(
@@ -120,20 +111,10 @@ class CustomerAddressService
         if ($country === null) {
             throw new CreateCustomerAddressException('Cannot create address, cannot find country');
         }
+
         return $country->getId();
     }
-    /**
-     * Set salesChannelContext
-     *
-     * @param SalesChannelContext $salesChannelContext
-     *
-     * @return self
-     */
-    public function setSaleChannelContext(SalesChannelContext $salesChannelContext)
-    {
-        $this->salesChannelContext = $salesChannelContext;
-        return $this;
-    }
+
     /**
      * Validate saleChannelContext
      *

@@ -13,8 +13,7 @@ class IPProtocolVersion
     /**
      * Get the value of the ipaddress version (IPv4 or IPv6)
      *
-     * @param  string|null $ipAddress
-     * @return int
+     * @param string|null $ipAddress
      */
     public static function getVersion($ipAddress = '0.0.0.0'): int
     {
