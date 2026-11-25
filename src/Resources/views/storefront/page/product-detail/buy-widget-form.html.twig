@@ -1,0 +1,6 @@
+{% sw_extends '@Storefront/storefront/page/product-detail/buy-widget-form.html.twig' %}
+
+{% block page_product_detail_buy_form_inner %}
+    {{ parent() }}
+    {% sw_include '@BuckarooPayments/storefront/buckaroo/product-express-buttons.html.twig' %}
+{% endblock %}

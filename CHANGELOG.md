@@ -539,3 +539,4 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 - BTI-1939 Removed the Billink setting "Create invoice after shipment", which had no effect. The invoice is still created right after a successful Billink payment.
 - BTI-2061 Fixed settings that depend on a switch, such as the PayPal Express button settings, not appearing in Shopware 6.5 when the switch is turned on, until the settings were saved.
+- BTI-2062 Fixed the PayPal Express, Apple Pay, Google Pay and iDEAL | Wero Fast Checkout buttons missing on product pages without a layout in Shopware 6.5 (since 3.5.0).
