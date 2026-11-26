@@ -6,6 +6,8 @@ $bk-surface: var(--color-elevation-surface-sunken, #fafbfe);
 $bk-text: var(--color-text-primary-default, #1e1e24);
 $bk-text-secondary: var(--color-text-secondary-default, #696a6e);
 $bk-link: var(--color-interaction-primary-default, #0870ff);
+// Same focus colour as buckaroo-toggle-status
+$bk-focus: var(--color-border-brand-selected, #0870ff);
 $bk-critical-bg: var(--color-background-critical-default, #fff2f0);
 $bk-critical-text: var(--color-text-critical-default, #e2262a);
 
@@ -111,10 +113,12 @@ $bk-critical-text: var(--color-text-critical-default, #e2262a);
         }
     }
 
+    // Live/Test/Off control with the Configure link centered below it
     &__footer {
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: space-between;
+        gap: 8px;
         padding: 10px 16px;
         border-top: 1px solid $bk-border;
     }
@@ -122,16 +126,25 @@ $bk-critical-text: var(--color-text-critical-default, #e2262a);
     &__configure {
         display: inline-flex;
         align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 6px;
+        gap: 6px;
+        // Click target at least 24px tall (WCAG 2.5.8); the negative margin keeps
+        // the visual spacing
+        min-height: 24px;
+        margin: -3px -6px;
+        padding: 3px 6px;
+        border-radius: 4px;
         color: $bk-text-secondary;
-        transition: background-color 0.15s ease, color 0.15s ease;
+        font-size: 12px;
+        transition: color 0.15s ease;
 
+        // Darker text on hover; blue would fall below 4.5:1 contrast at 12px
         &:hover {
-            background: $bk-border;
             color: $bk-text;
+        }
+
+        &:focus-visible {
+            outline: 2px solid $bk-focus;
+            outline-offset: 0;
         }
     }
 }

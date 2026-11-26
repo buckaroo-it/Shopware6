@@ -127,6 +127,7 @@
             "test": "Test",
             "off": "Off",
             "toggleLabel": "Status of {name}",
+            "configureLabel": "Configure {name}",
             "testUnavailable": "Test mode follows the {parent} setting.",
             "availability": {
                 "title": "Not shown at checkout",

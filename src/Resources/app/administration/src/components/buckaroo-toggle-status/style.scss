@@ -19,12 +19,18 @@ $bk-off-accent: var(--color-border-primary-default, #cdced4);
 // Button-group style: every option has its own border, neighbours overlap by 1px,
 // and the selected option's border takes the status colour on top of its neighbours.
 .bk-toggle-status {
+    position: relative;
     display: inline-flex;
     align-items: center;
 
-    // Sales channel only: the link icon in front of the options
+    // Sales channel only: the link icon in front of the options. Positioned outside
+    // the group's width, so centering the group centers the options themselves.
     &__inheritance {
+        position: absolute;
+        top: 50%;
+        right: 100%;
         margin-right: 8px;
+        transform: translateY(-50%);
     }
 
     &__option-wrap {
@@ -52,7 +58,9 @@ $bk-off-accent: var(--color-border-primary-default, #cdced4);
 
     &__option {
         position: relative;
-        padding: 3px 10px;
+        // 8px, together with the short French "Inactif", leaves room for the
+        // inheritance icon on the narrowest (190px) tile
+        padding: 3px 8px;
         background: $bk-surface;
         border: 1px solid $bk-border;
         border-radius: 0;

@@ -78,13 +78,13 @@
                 <router-link
                     class="bk-payment-tile__configure"
                     :to="configRoute(payment.code)"
-                    :aria-label="$tc('buckaroo-payment.configure-payment')"
-                    v-tooltip="$tc('buckaroo-payment.configure-payment')"
+                    :aria-label="$t('buckaroo-payment.paymentList.configureLabel', { name: payment.title })"
                 >
                     <sw-icon
                         name="regular-cog"
-                        size="16px"
+                        size="14px"
                     />
+                    {{ $tc('buckaroo-payment.configure-link') }}
                 </router-link>
             </div>
         </div>

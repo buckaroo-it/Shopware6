@@ -127,6 +127,7 @@
             "test": "Test",
             "off": "Uit",
             "toggleLabel": "Status van {name}",
+            "configureLabel": "Configureren: {name}",
             "testUnavailable": "De testmodus volgt de instelling van {parent}.",
             "availability": {
                 "title": "Niet zichtbaar bij afrekenen",

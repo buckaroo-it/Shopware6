@@ -127,6 +127,7 @@
             "test": "Test",
             "off": "Aus",
             "toggleLabel": "Status von {name}",
+            "configureLabel": "Konfigurieren: {name}",
             "testUnavailable": "Der Testmodus folgt der Einstellung von {parent}.",
             "availability": {
                 "title": "Nicht im Checkout sichtbar",

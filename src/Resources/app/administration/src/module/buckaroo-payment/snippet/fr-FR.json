@@ -125,8 +125,9 @@
             "summary": "{active} moyens de paiement actifs sur {total}",
             "live": "Live",
             "test": "Test",
-            "off": "Désactivé",
+            "off": "Inactif",
             "toggleLabel": "Statut de {name}",
+            "configureLabel": "Configurer {name}",
             "testUnavailable": "Le mode test suit le paramètre de {parent}.",
             "availability": {
                 "title": "Non affiché au paiement",
@@ -143,7 +144,7 @@
         },
         "paymentSettings": {
             "statusLabel": "Activer {method}",
-            "statusHelp": "Live accepte de vrais paiements. Test utilise l'environnement de test Buckaroo, aucun argent réel n'est débité. Désactivé masque ce moyen de paiement au paiement.",
+            "statusHelp": "Live accepte de vrais paiements. Test utilise l'environnement de test Buckaroo, aucun argent réel n'est débité. Inactif masque ce moyen de paiement au paiement.",
             "orderAmountLimitInvalid": "Les montants minimum et maximum de commande doivent être vides ou positifs.",
             "orderAmountLimitRange": "Le montant minimum de commande doit être inférieur au montant maximum de commande.",
             "orderAmountLimitRangeSalesChannel": "Le montant minimum de commande doit être inférieur au montant maximum de commande. Cette modification rendrait la plage invalide pour un canal de vente qui remplace l'un de ces montants."
