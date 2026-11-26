@@ -6,6 +6,7 @@ namespace Buckaroo\Shopware6\Storefront\Controller;
 
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Buckaroo\Shopware6\Service\BuckarooTransactionService;
 use Buckaroo\Shopware6\Service\In3LogoService;
 use Symfony\Component\Routing\Annotation\Route;
@@ -86,11 +87,14 @@ class SupportController extends StorefrontController
      * @return JsonResponse
      */
     #[Route(path: "/api/_action/buckaroo/getBuckarooTransaction", defaults: ['_routeScope' => ['api'], 'auth_required' => true, '_acl' => ['order.viewer']], name: "api.action.buckaroo.support.version", methods: ["POST"])]
-    public function getBuckarooTransaction(Request $request, Context $context)
+    public function getBuckarooTransaction(Request $request, Context $context): JsonResponse
     {
         $orderId = $request->get('transaction');
-        if (!is_string($orderId)) {
-            throw new \InvalidArgumentException('Order id must be a string');
+        if (empty($orderId) || !is_string($orderId)) {
+            return new JsonResponse(
+                ['status' => false, 'message' => $this->trans('buckaroo-payment.missing_order_id')],
+                Response::HTTP_NOT_FOUND
+            );
         }
 
         return new JsonResponse(

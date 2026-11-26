@@ -541,3 +541,4 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 - BTI-2061 Fixed settings that depend on a switch, such as the PayPal Express button settings, not appearing in Shopware 6.5 when the switch is turned on, until the settings were saved.
 - BTI-2062 Fixed the PayPal Express, Apple Pay, Google Pay and iDEAL | Wero Fast Checkout buttons missing on product pages without a layout in Shopware 6.5 (since 3.5.0).
 - BTI-2123 Fixed a console error on the Buckaroo Payment tab of orders without custom fields (e.g. iDEAL orders). The tab now sets up the Klarna and pay link options for these orders too.
+- BTI-2124 The request that loads the Buckaroo transactions of an order now returns a 404 JSON error (`buckaroo-payment.missing_order_id`) instead of a server error when no order id is sent, like the other Buckaroo order actions.
