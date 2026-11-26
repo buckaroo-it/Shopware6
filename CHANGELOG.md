@@ -539,4 +539,5 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 
 - BTI-1939 Removed the Billink setting "Create invoice after shipment", which had no effect. The invoice is still created right after a successful Billink payment.
 - BTI-2062 Fixed the PayPal Express, Apple Pay, Google Pay and iDEAL | Wero Fast Checkout buttons missing on product pages without a layout in Shopware 6.5 (since 3.5.0).
+- BTI-2123 Fixed a console error on the Buckaroo Payment tab of orders without custom fields (e.g. iDEAL orders). The tab now sets up the Klarna and pay link options for these orders too.
 - BTI-2152 Fixed the plugin settings on newer Shopware versions: dropdown labels shown twice on Shopware 6.7.4, and missing help texts, misaligned switch help icons and uneven spacing between settings on Shopware 6.7.5 and newer, and links to Buckaroo Plaza in help texts opening in the same tab. These links are now shown below the Store key, Secret key, Hosted Fields and Google Pay settings and open in a new tab.
