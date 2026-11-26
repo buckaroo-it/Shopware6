@@ -13,7 +13,9 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
  * properties (deprecated since PHP 8.2). Twig keeps resolving
  * page.extensions.buckaroo.<name> through ArrayAccess.
  *
- * @extends ArrayStruct<array<string, mixed>>
+ * No @extends generics: the ArrayStruct template differs per Shopware
+ * version (TKey/TValue on 6.5, none on 6.6, TData on 6.7), so no single
+ * annotation is valid across the supported range.
  */
 class BuckarooStruct extends ArrayStruct
 {
