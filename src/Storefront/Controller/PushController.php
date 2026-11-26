@@ -437,7 +437,7 @@ class PushController extends StorefrontController
                 return $this->response('buckaroo.messages.paymentCancelled');
             }
 
-            $alreadyRefunded = 0;
+            $alreadyRefunded = 0.0;
             if ($orderTransaction = $this->transactionService->getOrderTransactionById(
                 $context,
                 $orderTransactionId
@@ -446,7 +446,9 @@ class PushController extends StorefrontController
                 $customFields = $orderTransaction->getCustomFields() ?? [];
                 if (!empty($customFields['alreadyRefunded'])) {
                     $this->logger->info(__METHOD__ . "|22|");
-                    $alreadyRefunded = $customFields['alreadyRefunded'];
+                    $alreadyRefunded = is_numeric($customFields['alreadyRefunded'])
+                        ? (float) $customFields['alreadyRefunded']
+                        : 0.0;
                 }
             }
 
