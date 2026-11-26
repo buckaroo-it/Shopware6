@@ -217,8 +217,7 @@ class PushControllerEnvironmentTest extends TestCase
         bool $testEnvironment,
         string $handlerIdentifier = IdealQrPaymentHandler::class,
         ?string $orderCurrency = null
-    )
-    {
+    ) {
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('payment-method-id');
         $paymentMethod->setHandlerIdentifier($handlerIdentifier);
