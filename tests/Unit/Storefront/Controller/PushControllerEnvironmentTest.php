@@ -20,6 +20,7 @@ use Buckaroo\Shopware6\Storefront\Controller\PushController;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -142,6 +143,53 @@ class PushControllerEnvironmentTest extends TestCase
         $this->assertPassedTheBinding($response);
     }
 
+    /**
+     * Subscription invoice pushes name their metadata in PascalCase; the same bindings apply.
+     *
+     * @dataProvider mismatchingInvoicePushFields
+     *
+     * @param array<string, string> $fields
+     */
+    public function testInvoicePushMetadataIsBoundToo(array $fields): void
+    {
+        $response = $this->handlePush(
+            $this->pushData($fields),
+            $this->checkoutHelper(testEnvironment: false, orderCurrency: 'EUR'),
+            $this->untouchable(ProcessedPushService::class)
+        );
+
+        $this->assertRejected($response);
+    }
+
+    /**
+     * @return array<string, array{array<string, string>}>
+     */
+    public static function mismatchingInvoicePushFields(): array
+    {
+        return [
+            'test invoice for a live method' => [['brq_IsTest' => 'true']],
+            'invoice of another website' => [['brq_WebsiteKey' => 'OtherWebsiteKey']],
+            'invoice in another currency' => [['brq_Currency' => 'USD']],
+        ];
+    }
+
+    public function testLiveInvoicePushOfTheSalesChannelIsProcessed(): void
+    {
+        $postData = $this->pushData([
+            'brq_IsTest' => 'false',
+            'brq_WebsiteKey' => self::WEBSITE_KEY,
+            'brq_Currency' => 'EUR',
+        ]);
+
+        $response = $this->handlePush(
+            $postData,
+            $this->checkoutHelper(testEnvironment: false, orderCurrency: 'EUR'),
+            $this->processedPushServiceWithClaimOf($postData)
+        );
+
+        $this->assertPassedTheBinding($response);
+    }
+
     private function assertRejected(JsonResponse $response): void
     {
         $this->assertSame(
@@ -165,7 +213,11 @@ class PushControllerEnvironmentTest extends TestCase
     /**
      * @return CheckoutHelper&\PHPUnit\Framework\MockObject\MockObject
      */
-    private function checkoutHelper(bool $testEnvironment, string $handlerIdentifier = IdealQrPaymentHandler::class)
+    private function checkoutHelper(
+        bool $testEnvironment,
+        string $handlerIdentifier = IdealQrPaymentHandler::class,
+        ?string $orderCurrency = null
+    )
     {
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('payment-method-id');
@@ -179,6 +231,12 @@ class PushControllerEnvironmentTest extends TestCase
         $order->setId('order-id');
         $order->setSalesChannelId(self::SALES_CHANNEL_ID);
         $order->setTransactions(new OrderTransactionCollection([$orderTransaction]));
+        if ($orderCurrency !== null) {
+            $currency = new CurrencyEntity();
+            $currency->setId('currency-id');
+            $currency->setIsoCode($orderCurrency);
+            $order->setCurrency($currency);
+        }
 
         $checkoutHelper = $this->createMock(CheckoutHelper::class);
         $checkoutHelper->method('getOrderById')->willReturn($order);

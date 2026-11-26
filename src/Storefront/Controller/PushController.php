@@ -845,7 +845,7 @@ class PushController extends StorefrontController
             return null;
         }
 
-        $currency = trim((string)$request->request->get('brq_currency'));
+        $currency = $this->getPushField($request, 'brq_currency', 'brq_Currency');
         $orderCurrency = $order->getCurrency()?->getIsoCode();
         if ($currency !== '' && strcasecmp($currency, (string)$orderCurrency) !== 0) {
             $this->logger->warning(
@@ -863,7 +863,7 @@ class PushController extends StorefrontController
      */
     private function isPushForWebsite(Request $request, string $salesChannelId): bool
     {
-        $websiteKey = trim((string)$request->request->get('brq_websitekey'));
+        $websiteKey = $this->getPushField($request, 'brq_websitekey', 'brq_WebsiteKey');
         if ($websiteKey === '') {
             return true;
         }
@@ -888,7 +888,7 @@ class PushController extends StorefrontController
         string $salesChannelId
     ): bool {
         $isLivePush = in_array(
-            strtolower(trim((string)$request->request->get('brq_test'))),
+            strtolower($this->getPushField($request, 'brq_test', 'brq_IsTest')),
             ['', 'false', '0'],
             true
         );
@@ -899,6 +899,23 @@ class PushController extends StorefrontController
         $buckarooKey = $this->getBuckarooKey($orderTransaction);
 
         return $buckarooKey !== null && $this->checkoutHelper->isTestEnvironment($buckarooKey, $salesChannelId);
+    }
+
+    /**
+     * Payment pushes name their metadata in lower case (brq_websitekey, brq_test, brq_currency);
+     * subscription invoice pushes use PascalCase (brq_WebsiteKey, brq_IsTest, brq_Currency).
+     * The first non-empty of the given fields is returned, trimmed.
+     */
+    private function getPushField(Request $request, string ...$fields): string
+    {
+        foreach ($fields as $field) {
+            $value = $request->request->get($field);
+            if (is_scalar($value) && trim((string) $value) !== '') {
+                return trim((string) $value);
+            }
+        }
+
+        return '';
     }
 
     private function getBuckarooKey(OrderTransactionEntity $orderTransaction): ?string

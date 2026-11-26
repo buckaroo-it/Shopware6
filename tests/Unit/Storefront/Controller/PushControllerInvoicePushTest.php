@@ -20,6 +20,7 @@ use Buckaroo\Shopware6\Storefront\Controller\PushController;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -259,8 +260,14 @@ class PushControllerInvoicePushTest extends TestCase
     {
         $checkoutHelper = $this->createMock(CheckoutHelper::class);
         $checkoutHelper->method('getOrderById')->willReturn($this->order($legacyClaims));
+        $checkoutHelper->method('getSettingsValue')
+            ->with('websiteKey', 'sales-channel-id')
+            ->willReturn('website-key');
         $checkoutHelper->expects($this->never())
-            ->method($this->logicalNot($this->equalTo('getOrderById')));
+            ->method($this->logicalNot($this->logicalOr(
+                $this->equalTo('getOrderById'),
+                $this->equalTo('getSettingsValue')
+            )));
 
         return $checkoutHelper;
     }
@@ -278,6 +285,11 @@ class PushControllerInvoicePushTest extends TestCase
         $order->setId('order-id');
         $order->setSalesChannelId('sales-channel-id');
         $order->setTransactions(new OrderTransactionCollection([$orderTransaction]));
+
+        $currency = new CurrencyEntity();
+        $currency->setId('currency-id');
+        $currency->setIsoCode('EUR');
+        $order->setCurrency($currency);
 
         return $order;
     }
