@@ -113,6 +113,11 @@ class PushController extends StorefrontController
         'brq_primary_service',
         'brq_transaction_type',
         'brq_mutationtype',
+        'brq_Type',
+        'brq_InvoiceNumber',
+        'brq_InvoiceStatusCode',
+        'brq_Event',
+        'brq_IsPaid',
     ];
 
     private LoggerInterface $logger;
@@ -352,6 +357,14 @@ class PushController extends StorefrontController
         );
         $this->eventDispatcher->dispatch($event);
 
+        // An invoice push is complete once its PushProcessingEvent listeners (the Subscriptions
+        // plugin) have run, and nothing below applies to it. Its claim is kept, so a Buckaroo
+        // retry of the same invoice event is not handled twice; a failure still releases it in
+        // pushBuckaroo(), so a retry after an error is processed.
+        if ($this->isInvoicePush($pushData)) {
+            return $this->response('buckaroo.messages.pushInterrupted');
+        }
+
         if (!$event->canContinue()) {
             $this->releaseProcessedPush($pushKey);
             return $this->response('buckaroo.messages.pushInterrupted');
@@ -426,7 +439,7 @@ class PushController extends StorefrontController
                 return $this->response('buckaroo.messages.paymentCancelled');
             }
 
-            $alreadyRefunded = 0;
+            $alreadyRefunded = 0.0;
             if ($orderTransaction = $this->transactionService->getOrderTransactionById(
                 $context,
                 $orderTransactionId
@@ -435,7 +448,9 @@ class PushController extends StorefrontController
                 $customFields = $orderTransaction->getCustomFields() ?? [];
                 if (!empty($customFields['alreadyRefunded'])) {
                     $this->logger->info(__METHOD__ . "|22|");
-                    $alreadyRefunded = $customFields['alreadyRefunded'];
+                    $alreadyRefunded = is_numeric($customFields['alreadyRefunded'])
+                        ? (float) $customFields['alreadyRefunded']
+                        : 0.0;
                 }
             }
 
@@ -830,7 +845,7 @@ class PushController extends StorefrontController
             return null;
         }
 
-        $currency = trim((string)$request->request->get('brq_currency'));
+        $currency = $this->getPushField($request, 'brq_currency', 'brq_Currency');
         $orderCurrency = $order->getCurrency()?->getIsoCode();
         if ($currency !== '' && strcasecmp($currency, (string)$orderCurrency) !== 0) {
             $this->logger->warning(
@@ -848,7 +863,7 @@ class PushController extends StorefrontController
      */
     private function isPushForWebsite(Request $request, string $salesChannelId): bool
     {
-        $websiteKey = trim((string)$request->request->get('brq_websitekey'));
+        $websiteKey = $this->getPushField($request, 'brq_websitekey', 'brq_WebsiteKey');
         if ($websiteKey === '') {
             return true;
         }
@@ -873,7 +888,7 @@ class PushController extends StorefrontController
         string $salesChannelId
     ): bool {
         $isLivePush = in_array(
-            strtolower(trim((string)$request->request->get('brq_test'))),
+            strtolower($this->getPushField($request, 'brq_test', 'brq_IsTest')),
             ['', 'false', '0'],
             true
         );
@@ -884,6 +899,23 @@ class PushController extends StorefrontController
         $buckarooKey = $this->getBuckarooKey($orderTransaction);
 
         return $buckarooKey !== null && $this->checkoutHelper->isTestEnvironment($buckarooKey, $salesChannelId);
+    }
+
+    /**
+     * Payment pushes name their metadata in lower case (brq_websitekey, brq_test, brq_currency);
+     * subscription invoice pushes use PascalCase (brq_WebsiteKey, brq_IsTest, brq_Currency).
+     * The first non-empty of the given fields is returned, trimmed.
+     */
+    private function getPushField(Request $request, string ...$fields): string
+    {
+        foreach ($fields as $field) {
+            $value = $request->request->get($field);
+            if (is_scalar($value) && trim((string) $value) !== '') {
+                return trim((string) $value);
+            }
+        }
+
+        return '';
     }
 
     private function getBuckarooKey(OrderTransactionEntity $orderTransaction): ?string
@@ -943,6 +975,10 @@ class PushController extends StorefrontController
      */
     private function isPushMessage(array $pushData): bool
     {
+        if ($this->isInvoicePush($pushData)) {
+            return true;
+        }
+
         $mutationType = strtolower(trim($this->getPushValue($pushData, 'brq_mutationtype')));
         if ($mutationType === '') {
             return $this->getDataRequestKey($pushData) !== '';
@@ -966,6 +1002,10 @@ class PushController extends StorefrontController
      */
     private function getProcessedPushKey(array $pushData): ?string
     {
+        if ($this->isInvoicePush($pushData)) {
+            return $this->getInvoicePushKey($pushData);
+        }
+
         $transactionKey = trim($this->getPushValue($pushData, 'brq_transactions'));
         if ($transactionKey === '') {
             $transactionKey = $this->getDataRequestKey($pushData);
@@ -987,6 +1027,41 @@ class PushController extends StorefrontController
     /**
      * @param array<mixed> $pushData
      */
+    /**
+     * Subscription invoice pushes (brq_Type RegularInvoice and friends) carry no mutation type,
+     * transaction type, transaction key or status code: they are identified by the invoice key.
+     * They are handled by listeners of PushProcessingEvent (the Subscriptions plugin creates the
+     * recurring order and marks it paid from them), so they must reach that event.
+     */
+    private function isInvoicePush(array $pushData): bool
+    {
+        return trim($this->getPushValue($pushData, 'brq_InvoiceKey')) !== ''
+            && trim($this->getPushValue($pushData, 'brq_Type')) !== '';
+    }
+
+    /**
+     * One invoice gets several pushes (invoice created, collection started, paid, ...), each a
+     * different event. Buckaroo's retries of one event repeat its event and event time, so those
+     * identify a single push.
+     */
+    private function getInvoicePushKey(array $pushData): ?string
+    {
+        $invoiceKey = trim($this->getPushValue($pushData, 'brq_InvoiceKey'));
+        $eventDateTime = trim($this->getPushValue($pushData, 'brq_EventDateTime'));
+
+        if ($invoiceKey === '' || $eventDateTime === '') {
+            return null;
+        }
+
+        return strtoupper(implode('|', [
+            'INVOICE',
+            $invoiceKey,
+            trim($this->getPushValue($pushData, 'brq_Event')),
+            $eventDateTime,
+            trim($this->getPushValue($pushData, 'brq_InvoiceStatusCode')),
+        ]));
+    }
+
     private function getDataRequestKey(array $pushData): string
     {
         foreach (['brq_datarequest', 'brq_DataRequest'] as $field) {

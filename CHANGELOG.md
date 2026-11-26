@@ -527,3 +527,9 @@ Compatible from Shopware 6.5.0 up to 6.5.6.1
 ## Fixed
 
 - BTI-2060 Fixed customers being logged out with an empty cart after returning from the payment page when customers are bound to a sales channel.
+
+# 3.8.2
+
+## Fixed
+
+- BTI-2219 Fixed subscription invoice pushes being rejected ("no push mutation type or transaction type"), which stopped recurring subscription orders from being created and marked as paid.
