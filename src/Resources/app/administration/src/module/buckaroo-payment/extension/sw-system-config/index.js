@@ -26,14 +26,10 @@ Component.override('sw-system-config', {
 
     methods: {
         loadBuckarooConfigData() {
-            
-            this.systemConfigApiService.getValues('BuckarooPayments.config', this.currentSalesChannelId)
-                .then(response => {
-                    
-                    if (!this.actualConfigData[this.currentSalesChannelId]) {
-                        this.actualConfigData[this.currentSalesChannelId] = {};
-                    }
+            const salesChannelId = this.currentSalesChannelId;
 
+            this.systemConfigApiService.getValues('BuckarooPayments.config', salesChannelId)
+                .then(response => {
                     const processedData = {};
                     
                     if (response && typeof response === 'object') {
@@ -53,14 +49,7 @@ Component.override('sw-system-config', {
                         });
                     }
 
-                    this.actualConfigData[this.currentSalesChannelId] = {};
-                    Object.keys(processedData).forEach(key => {
-                        this.actualConfigData[this.currentSalesChannelId][key] = processedData[key];
-                    });
-
-                    this.$nextTick(() => {
-                        this.$forceUpdate();
-                    });
+                    this.setBuckarooConfigValues(salesChannelId, processedData);
                 })
                 .catch(error => {
                     console.error('Error fetching system config:', error);
@@ -68,16 +57,29 @@ Component.override('sw-system-config', {
         },
 
         onConfigDataUpdate(newValue) {
-            if (!this.actualConfigData[this.currentSalesChannelId]) {
-                this.actualConfigData[this.currentSalesChannelId] = {};
-            }
+            const values = { ...this.actualConfigData[this.currentSalesChannelId] };
+
             Object.keys(newValue).forEach(key => {
-                this.actualConfigData[this.currentSalesChannelId][key] = newValue[key];
+                values[key] = newValue[key];
                 if (!key.startsWith('BuckarooPayments.config.')) {
-                    const fullFieldName = `BuckarooPayments.config.${key}`;
-                    this.actualConfigData[this.currentSalesChannelId][fullFieldName] = newValue[key];
+                    values[`BuckarooPayments.config.${key}`] = newValue[key];
                 }
             });
+
+            this.setBuckarooConfigValues(this.currentSalesChannelId, values);
+        },
+
+        /**
+         * Replaces the values of a sales channel with a new object instead of adding keys one by
+         * one: Vue 2 (Shopware 6.5) does not notice keys added to an existing object, so fields
+         * that depend on a switch that was never saved would not appear. A new object is noticed
+         * by Vue 2 and Vue 3, without Vue.set, which Shopware 6.7 does not have.
+         */
+        setBuckarooConfigValues(salesChannelId, values) {
+            this.actualConfigData = {
+                ...this.actualConfigData,
+                [salesChannelId]: values,
+            };
         },
 
         saveAll() {
