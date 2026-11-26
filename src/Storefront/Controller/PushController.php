@@ -357,17 +357,19 @@ class PushController extends StorefrontController
         );
         $this->eventDispatcher->dispatch($event);
 
+        // An invoice push is complete once its PushProcessingEvent listeners (the Subscriptions
+        // plugin) have run, and nothing below applies to it. Its claim is kept, so a Buckaroo
+        // retry of the same invoice event is not handled twice; a failure still releases it in
+        // pushBuckaroo(), so a retry after an error is processed.
+        if ($this->isInvoicePush($pushData)) {
+            return $this->response('buckaroo.messages.pushInterrupted');
+        }
+
         if (!$event->canContinue()) {
             $this->releaseProcessedPush($pushKey);
             return $this->response('buckaroo.messages.pushInterrupted');
         }
         // end handle event
-
-        // An invoice push is not a payment push: nothing below applies to it.
-        if ($this->isInvoicePush($pushData)) {
-            $this->releaseProcessedPush($pushKey);
-            return $this->response('buckaroo.messages.pushInterrupted');
-        }
 
         if (
             in_array($brqTransactionType, self::AUTHORIZE_REQUESTS, true)

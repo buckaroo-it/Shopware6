@@ -47,7 +47,7 @@ class PushControllerInvoicePushTest extends TestCase
             ->method('claim')
             ->with(self::INVOICE_PUSH_KEY, self::TRANSACTION_ID)
             ->willReturn(true);
-        $processedPushService->expects($this->once())->method('release')->with(self::INVOICE_PUSH_KEY);
+        $processedPushService->expects($this->never())->method('release');
 
         $dispatched = [];
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
@@ -64,7 +64,7 @@ class PushControllerInvoicePushTest extends TestCase
             'eventDispatcher' => $eventDispatcher,
         ]);
 
-        $this->assertSame(['00003728'], $dispatched);
+        $this->assertSame(['00003728'], $dispatched, 'the invoice push reaches the listeners');
         $this->assertSame(
             ['status' => true, 'message' => 'buckaroo.messages.pushInterrupted'],
             $this->decode($response)
@@ -78,7 +78,7 @@ class PushControllerInvoicePushTest extends TestCase
     {
         $processedPushService = $this->createMock(ProcessedPushService::class);
         $processedPushService->method('claim')->willReturn(true);
-        $processedPushService->expects($this->once())->method('release')->with(self::INVOICE_PUSH_KEY);
+        $processedPushService->expects($this->never())->method('release');
 
         $response = $this->handlePush($this->invoicePushData(), [
             'processedPushService' => $processedPushService,
@@ -89,6 +89,27 @@ class PushControllerInvoicePushTest extends TestCase
             ['status' => true, 'message' => 'buckaroo.messages.pushInterrupted'],
             $this->decode($response)
         );
+    }
+
+    /**
+     * A listener failing leaves the invoice event unhandled: its claim is released so that
+     * Buckaroo's retry is processed.
+     */
+    public function testClaimIsReleasedWhenTheInvoiceListenerFails(): void
+    {
+        $processedPushService = $this->createMock(ProcessedPushService::class);
+        $processedPushService->method('claim')->willReturn(true);
+        $processedPushService->expects($this->once())->method('release')->with(self::INVOICE_PUSH_KEY);
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willThrowException(new \RuntimeException('listener failed'));
+
+        $this->expectException(\RuntimeException::class);
+
+        $this->handlePush($this->invoicePushData(), [
+            'processedPushService' => $processedPushService,
+            'eventDispatcher' => $eventDispatcher,
+        ]);
     }
 
     public function testRetryOfTheSameInvoiceEventIsNotProcessedAgain(): void
