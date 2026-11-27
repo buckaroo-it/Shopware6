@@ -85,6 +85,7 @@ services:
             - kernel.event_subscriber
         arguments: ['@order_transaction.repository', '@Symfony\Component\Routing\Generator\UrlGeneratorInterface', '@Psr\Log\LoggerInterface']
     Buckaroo\Shopware6\Subscribers\PaymentContextRestoreSubscriber:
+        arguments: ['@Shopware\Core\System\SystemConfig\SystemConfigService', '@Doctrine\DBAL\Connection']
         tags:
             - kernel.event_subscriber
     Buckaroo\Shopware6\Subscribers\PaymentContextCookieSubscriber:
@@ -364,7 +365,7 @@ services:
     Buckaroo\Shopware6\Service\UpdateOrderWithPaypalExpressData:
         arguments: ['@order_address.repository', '@order_customer.repository', '@customer.repository']
     Buckaroo\Shopware6\Service\CustomerService:
-        arguments: ['@Buckaroo\Shopware6\Service\CustomerAddressService', '@customer.repository', '@salutation.repository', '@order_customer.repository', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer', '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister']
+        arguments: ['@Buckaroo\Shopware6\Service\CustomerAddressService', '@customer.repository', '@salutation.repository', '@order_customer.repository', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer', '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface', '@Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister', '@Shopware\Core\System\SystemConfig\SystemConfigService']
     Buckaroo\Shopware6\Service\CustomerAddressService:
         arguments: ['@customer_address.repository', '@country.repository']
     # Payment Service Factory for version compatibility.
