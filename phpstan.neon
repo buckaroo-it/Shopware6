@@ -48,6 +48,16 @@ parameters:
         -
             identifier: parameter.deprecatedInterface
             path: ./src/Storefront/Framework/Cookie/BuckarooCookieProvider.php
+        # PaymentMethodBlockedError gained a third $id parameter during 6.7 and
+        # omitting it is deprecated for 6.8. Older cores take only $name and
+        # $reason and ignore the extra argument at runtime, so the validators
+        # always pass the id and the count mismatch is expected there.
+        -
+            message: '#^Class Shopware\\Core\\Checkout\\Payment\\Cart\\Error\\PaymentMethodBlockedError constructor invoked with 3 parameters, 1\-2 required\.$#'
+            identifier: arguments.count
+            paths:
+                - ./src/Service/PaymentAmountLimitCartValidator.php
+                - ./src/Service/PaymentMethodRuleCartValidator.php
     treatPhpDocTypesAsCertain: false
     # composer.lock is not committed, so every environment resolves its own
     # shopware/core within ">=6.5.8.0 <6.8". Baselined errors that happen not
