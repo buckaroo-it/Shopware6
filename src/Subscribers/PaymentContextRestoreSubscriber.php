@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Shopware6\Subscribers;
 
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -24,6 +27,19 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
         'frontend.checkout.finish.page',
         'frontend.action.buckaroo.cancel',
     ];
+
+    /**
+     * Shopware setting "Bind customer accounts to sales channel". When enabled, the storefront keeps
+     * the context token per sales channel in the session and copies it over the default key on
+     * every request.
+     */
+    private const CUSTOMER_BOUND_TO_SALES_CHANNEL = 'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel';
+
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly Connection $connection
+    ) {
+    }
 
     public static function getSubscribedEvents(): array
     {
@@ -67,8 +83,38 @@ class PaymentContextRestoreSubscriber implements EventSubscriberInterface
         // Request::getSession() throws in that case. The attribute and header set above
         // are what the context resolution actually relies on, so skipping is safe.
         if ($request->hasSession()) {
-            $request->getSession()->set('sw-context-token', $contextToken);
+            $session = $request->getSession();
+            $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
+
+            // Without the per sales channel key, the next request (the finish page) would start a
+            // new anonymous context and the customer lands on the register page / empty cart.
+            $salesChannelKey = $this->getSalesChannelTokenKey($request, $contextToken);
+            if ($salesChannelKey !== null) {
+                $session->set($salesChannelKey, $contextToken);
+            }
         }
+    }
+
+    private function getSalesChannelTokenKey(Request $request, string $contextToken): ?string
+    {
+        if (!$this->systemConfigService->getBool(self::CUSTOMER_BOUND_TO_SALES_CHANNEL)) {
+            return null;
+        }
+
+        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+
+        // payment.finalize.transaction is not resolved as a sales channel request,
+        // the sales channel is then taken from the stored context of the token
+        if (!is_string($salesChannelId) || $salesChannelId === '') {
+            $salesChannelId = $this->connection->fetchOne(
+                'SELECT LOWER(HEX(sales_channel_id)) FROM sales_channel_api_context WHERE token = :token',
+                ['token' => $contextToken]
+            );
+        }
+
+        return is_string($salesChannelId) && Uuid::isValid($salesChannelId)
+            ? PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId
+            : null;
     }
 
     private function hasOtherLiveContext(Request $request, string $contextToken): bool

@@ -15,6 +15,9 @@ use Buckaroo\Shopware6\Service\Exceptions\CreateCartException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Buckaroo\Shopware6\Service\Exceptions\CreateCustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -23,6 +26,8 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 
 class CustomerService
 {
+    private const CUSTOMER_BOUND_TO_SALES_CHANNEL = 'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel';
+
     /**
      * @var \Buckaroo\Shopware6\Service\CustomerAddressService
      */
@@ -56,6 +61,8 @@ class CustomerService
 
     protected SalesChannelContextPersister $contextPersister;
 
+    protected SystemConfigService $systemConfigService;
+
     public function __construct(
         CustomerAddressService $customerAddressService,
         EntityRepository $customerRepository,
@@ -63,7 +70,8 @@ class CustomerService
         EntityRepository $orderCustomerRepository,
         SalesChannelContextRestorer $restorer,
         EventDispatcherInterface $eventDispatcher,
-        SalesChannelContextPersister $contextPersister
+        SalesChannelContextPersister $contextPersister,
+        SystemConfigService $systemConfigService
     ) {
         $this->customerAddressService = $customerAddressService;
         $this->customerRepository = $customerRepository;
@@ -72,6 +80,7 @@ class CustomerService
         $this->restorer = $restorer;
         $this->eventDispatcher = $eventDispatcher;
         $this->contextPersister = $contextPersister;
+        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -163,6 +172,9 @@ class CustomerService
             'guest' =>  true,
             'firstLogin' => new \DateTimeImmutable(),
             'addresses' => [$address],
+            'boundSalesChannelId' => $this->getBoundSalesChannelId(
+                is_string($data->get('email')) ? $data->get('email') : ''
+            ),
         ];
 
         // Shopware <= 6.6 still has a default payment method on the customer entity.
@@ -180,6 +192,35 @@ class CustomerService
         $customer = $this->getCustomerById($customerId);
         $this->loginCreatedCustomer($customer);
         return $customer;
+    }
+
+    /**
+     * Same rule Shopware's RegisterRoute applies: with "Bind customers to Sales Channel" enabled,
+     * or when the email already belongs to a bound account, the customer is bound to the current
+     * sales channel.
+     */
+    private function getBoundSalesChannelId(string $email): ?string
+    {
+        $salesChannelId = $this->salesChannelContext->getSalesChannelId();
+
+        if ($this->systemConfigService->getBool(self::CUSTOMER_BOUND_TO_SALES_CHANNEL)) {
+            return $salesChannelId;
+        }
+
+        if ($email === '') {
+            return null;
+        }
+
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('email', $email))
+            ->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
+                new EqualsFilter('boundSalesChannelId', null),
+            ]))
+            ->setLimit(1);
+
+        return $this->customerRepository->searchIds($criteria, $this->salesChannelContext->getContext())->getTotal() > 0
+            ? $salesChannelId
+            : null;
     }
 
     /**
